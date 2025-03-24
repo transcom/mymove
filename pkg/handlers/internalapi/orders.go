@@ -35,10 +35,10 @@ func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upl
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
+	if err != nil {
+		uploadPayload.Status = string(models.AVStatusPROCESSING)
 	} else {
-		uploadPayload.Status = tags["av-status"]
+		uploadPayload.Status = string(models.GetAVStatusFromTags(tags))
 	}
 	return uploadPayload, nil
 }
@@ -84,6 +84,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		}
 		if order.Entitlement.UBAllowance != nil {
 			entitlement.UbAllowance = models.Int64Pointer(int64(*order.Entitlement.UBAllowance))
+		}
+		if order.Entitlement.WeightRestriction != nil {
+			entitlement.WeightRestriction = models.Int64Pointer(int64(*order.Entitlement.WeightRestriction))
 		}
 	}
 	var originDutyLocation models.DutyLocation
@@ -168,9 +171,26 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+			var newDutyLocationGBLOC *string
+			if *newDutyLocation.Address.IsOconus {
+				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), newDutyLocation.Address, serviceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for New Duty Location Oconus GBLOC")
+				}
+				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
+			} else {
+				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, apperror.NewNotFoundError(newDutyLocation.ID, "while looking for New Duty Location PostalCodeToGBLOC")
+					default:
+						err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+						appCtx.Logger().Error(err.Error())
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
 
 			var dependentsTwelveAndOver *int
@@ -184,14 +204,24 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
 			}
 
-			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
-				default:
-					return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+			var originDutyLocationGBLOC *string
+			if *originDutyLocation.Address.IsOconus {
+				originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, serviceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location Oconus GBLOC")
 				}
+				originDutyLocationGBLOC = originDutyLocationGBLOCOconus
+			} else {
+				originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location PostalCodeToGBLOC")
+					default:
+						return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
+					}
+				}
+				originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 			}
 
 			grade := payload.Grade
@@ -278,9 +308,9 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				&originDutyLocation,
 				grade,
 				&entitlement,
-				&originDutyLocationGBLOC.GBLOC,
+				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
-				&newDutyLocationGBLOC.GBLOC,
+				newDutyLocationGBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
@@ -368,11 +398,26 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
-			if err != nil {
-				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
-				appCtx.Logger().Error(err.Error())
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+			var newDutyLocationGBLOC *string
+			if *dutyLocation.Address.IsOconus {
+				newDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), dutyLocation.Address, order.ServiceMember)
+				if err != nil {
+					return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for New Duty Location Oconus GBLOC")
+				}
+				newDutyLocationGBLOC = newDutyLocationGBLOCOconus
+			} else {
+				newDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for New Duty Location PostalCodeToGBLOC")
+					default:
+						err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+						appCtx.Logger().Error(err.Error())
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+				}
+				newDutyLocationGBLOC = &newDutyLocationGBLOCConus.GBLOC
 			}
 
 			if payload.OriginDutyLocationID != "" {
@@ -387,11 +432,26 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocation = &originDutyLocation
 				order.OriginDutyLocationID = &originDutyLocationID
 
-				originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-				if originGBLOCerr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
+				var originDutyLocationGBLOC *string
+				if *originDutyLocation.Address.IsOconus {
+					originDutyLocationGBLOCOconus, err := models.FetchAddressGbloc(appCtx.DB(), originDutyLocation.Address, order.ServiceMember)
+					if err != nil {
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+					originDutyLocationGBLOC = originDutyLocationGBLOCOconus
+				} else {
+					originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+					if err != nil {
+						switch err {
+						case sql.ErrNoRows:
+							return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Origin Duty Location PostalCodeToGBLOC")
+						default:
+							return handlers.ResponseForError(appCtx.Logger(), err), err
+						}
+					}
+					originDutyLocationGBLOC = &originDutyLocationGBLOCConus.GBLOC
 				}
-				order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
+				order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 
 				if payload.MoveID != "" {
 
@@ -433,7 +493,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.SpouseHasProGear = *payload.SpouseHasProGear
 			order.NewDutyLocationID = dutyLocation.ID
 			order.NewDutyLocation = dutyLocation
-			order.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
+			order.DestinationGBLOC = newDutyLocationGBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 
@@ -512,26 +572,47 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.Entitlement = &entitlement
 
 				// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
-				if payload.Grade != nil && *payload.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+				// if not, do the opposite and make the PPM type INCENTIVE_BASED
+				if payload.Grade != nil && *payload.Grade != *order.Grade {
 					moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
 					if fetchErr != nil {
 						appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
 					} else {
-						move := moves[0]
-						for i := range move.MTOShipments {
-							shipment := &move.MTOShipments[i]
+						var move *models.Move
+						for i := range moves {
+							if moves[i].OrdersID == order.ID {
+								move = &moves[i]
+								break
+							}
+						}
+						if move == nil {
+							appCtx.Logger().Error("no move found matching order ID", zap.String("orderID", order.ID.String()))
+						} else {
+							// look at the values and see if the grade is CIVILIAN_EMPLOYEE
+							isCivilian := *payload.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE
+							reimbursementVal := isCivilian
+							var ppmType models.PPMType
+							// setting the default ppmType
+							if isCivilian {
+								ppmType = models.PPMTypeActualExpense
+							} else {
+								ppmType = models.PPMTypeIncentiveBased
+							}
 
-							if shipment.ShipmentType == models.MTOShipmentTypePPM {
-								if shipment.PPMShipment == nil {
-									appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
-									continue
-								}
-								// actual expense reimbursement is always true for civilian moves
-								shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(true)
+							for i := range move.MTOShipments {
+								shipment := &move.MTOShipments[i]
+								if shipment.ShipmentType == models.MTOShipmentTypePPM {
+									if shipment.PPMShipment == nil {
+										appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
+										continue
+									}
+									shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(reimbursementVal)
+									shipment.PPMShipment.PPMType = ppmType
 
-								if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
-									msg := "failure saving PPM shipment when updating orders"
-									appCtx.Logger().Error(msg, zap.Error(err))
+									if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
+										msg := "failure saving PPM shipment when updating orders"
+										appCtx.Logger().Error(msg, zap.Error(err))
+									}
 								}
 							}
 						}

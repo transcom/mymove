@@ -1,35 +1,35 @@
 @import 'shared/styles/colors.scss';
 
 .btnContainer {
-    display: flex;
-    justify-content: flex-start;
-    align-self: center;
-    gap: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-self: center;
+  gap: 10px;
 
-    .approveBtn {
-        width: 125px;
-        margin-left: 15px;
-        background-color: $primary;
+  .approveBtn {
+    width: 125px;
+    margin-left: 15px;
+    background-color: $primary;
 
-        &:active,
-        &:hover,
-        &:focus {
-          background-color:  $primary;
-          opacity: 80%;
-        }
+    &:active,
+    &:hover,
+    &:focus {
+      background-color: $primary;
+      opacity: 80%;
     }
+  }
 
-    .rejectBtn {
-        width: 125px;
-        background-color: $error;
+  .rejectBtn {
+    width: 125px;
+    background-color: $error;
 
-        &:active,
-        &:hover,
-        &:focus {
-          background-color:  $error;
-          opacity: 80%;
-        }
+    &:active,
+    &:hover,
+    &:focus {
+      background-color: $error;
+      opacity: 80%;
     }
+  }
 }
 
 .rejectionInput {

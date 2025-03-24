@@ -2,18 +2,22 @@ import React from 'react';
 import {
   Datagrid,
   DateField,
-  Filter,
   List,
   ReferenceField,
   TextField,
   TextInput,
   TopToolbar,
   useRecordContext,
+  SearchInput,
+  FilterForm,
+  FilterButton,
   downloadCSV,
   useListController,
   ExportButton,
 } from 'react-admin';
 import * as jsonexport from 'jsonexport/dist';
+
+import styles from './RejectedOfficeUserList.module.scss';
 
 import { getTransportationOfficeByID } from 'services/adminApi';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
@@ -30,7 +34,7 @@ const RejectedOfficeUserShowRoles = () => {
     }
   }
 
-  return <p>{uniqueRoleNamesList.join(', ')}</p>;
+  return <span>{uniqueRoleNamesList.join(', ')}</span>;
 };
 
 // Custom exporter to flatten out role  types
@@ -73,10 +77,26 @@ const ListActions = () => {
   );
 };
 
+const filterList = [
+  <SearchInput source="search" alwaysOn />,
+  <TextInput label="Email" source="emails" />,
+  <TextInput label="First Name" source="firstName" />,
+  <TextInput label="Last Name" source="lastName" />,
+  <TextInput label="Office" source="offices" />,
+  <TextInput label="Rejection Reason" source="rejectionReason" />,
+  <TextInput label="Rejected On" placeholder="MM/DD/YYYY" source="rejectedOn" />,
+  <TextInput label="Roles" source="roles" />,
+];
+
 const RejectedOfficeUserListFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
-  </Filter>
+  <div className={styles.searchContainer}>
+    <div className={styles.searchBar}>
+      <FilterForm filters={filterList} />
+    </div>
+    <div className={styles.filters}>
+      <FilterButton filters={filterList} />
+    </div>
+  </div>
 );
 
 const defaultSort = { field: 'createdAt', order: 'DESC' };

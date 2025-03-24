@@ -996,6 +996,40 @@ func init() {
           }
         }
       },
+      "delete": {
+        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Deletes an Office User",
+        "operationId": "deleteOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
       "patch": {
         "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
@@ -2351,6 +2385,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -2855,11 +2895,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedOn": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "edipi": {
           "type": "string"
         },
@@ -3043,6 +3078,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "firstName": {
@@ -3233,7 +3274,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -3379,16 +3422,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",
@@ -3590,6 +3623,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "revokeAdminSession": {
@@ -4778,6 +4817,40 @@ func init() {
           }
         }
       },
+      "delete": {
+        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Deletes an Office User",
+        "operationId": "deleteOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
       "patch": {
         "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
@@ -6133,6 +6206,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -6638,11 +6717,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "deletedOn": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
         "edipi": {
           "type": "string"
         },
@@ -6826,6 +6900,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "firstName": {
@@ -7016,7 +7096,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -7162,16 +7244,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",
@@ -7373,6 +7445,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "revokeAdminSession": {

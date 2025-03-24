@@ -305,6 +305,11 @@ definitions:
   AdminUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -726,10 +731,6 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-      deletedOn:
-        type: string
-        format: date-time
-        readOnly: true
     required:
       - id
       - firstName
@@ -786,6 +787,11 @@ definitions:
   OfficeUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -904,6 +910,11 @@ definitions:
   RequestedOfficeUserUpdate:
     type: object
     properties:
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       firstName:
         type: string
         title: First Name
@@ -917,9 +928,6 @@ definitions:
         type: string
         title: Last Name
         x-nullable: true
-      email:
-        type: string
-        example: user@userdomain.com
       telephone:
         type: string
         format: telephone
@@ -1066,14 +1074,6 @@ definitions:
         type: string
         pattern: ^[A-Z]{4}$
         example: JENQ
-      latitude:
-        type: number
-        format: float
-        example: 29.382973
-      longitude:
-        type: number
-        format: float
-        example: -98.62759
       createdAt:
         type: string
         format: date-time
@@ -1203,6 +1203,11 @@ definitions:
   UserUpdate:
     type: object
     properties:
+      oktaEmail:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
       revokeAdminSession:
         type: boolean
         x-nullable: true
@@ -1677,6 +1682,31 @@ paths:
           description: Not authorized to update an Office User
         '500':
           description: Server error
+    delete:
+      produces:
+        - application/json
+      summary: Deletes an Office User
+      description: >-
+        Deletes a single office user in any status. This endpoint is used in the
+        Admin UI that will allow the admin user to delete an office user.
+      operationId: deleteOfficeUser
+      tags:
+        - Office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '204':
+          description: deleted
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
   /admin-users:
     get:
       produces:

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
@@ -17,6 +16,9 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+// nolint:unused
+// This func is required by temporarily commented out tests that have an interim fix until
+// https://github.com/pdfcpu/pdfcpu/issues/1089 has been resolved
 func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
 	var file afero.File
 	var err error
@@ -97,7 +99,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 		suite.FatalNil(err)
 	}
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images)
+	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	aferoFile, err := generator.fs.Open(generatedPath)
 	suite.FatalNil(err, "afero failed to open pdf")
@@ -114,33 +116,46 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(err)
 	err = os.WriteFile(f.Name(), file, 0600)
 	suite.FatalNil(err)
-	err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
-	suite.FatalNil(err)
-	err = os.Remove(f.Name())
-	suite.FatalNil(err)
 
-	checksums := make([]string, 2)
-	files, err := os.ReadDir(tmpDir)
-	suite.FatalNil(err)
+	// TODO: Delete these few lines after https://github.com/pdfcpu/pdfcpu/issues/1089 is resolved
+	// and we switch from the fork back to main pdfcpu repo with optimization enabled
+	openFile, err := os.Open(f.Name())
+	suite.FatalNil(err, "Failed to open locally written test file")
+	pageCtx, err := api.ReadAndValidate(openFile, generator.pdfConfig)
+	suite.FatalNil(err, "Failed to read and validate the PDF file")
+	// Temporarily assert 2 pages of PDF while optimization is disabled
+	suite.Equal(2, pageCtx.PageCount, "Expected 2 pages in the PDF")
+	// TODO:
+	// Uncomment the remainder of this test as it is the best form of validation for the PDF generation
+	// BUTTTT it requires optimization to be enabled in pdfcpu. We had to disable it due to an overflow bug
+	// being monitored by https://github.com/pdfcpu/pdfcpu/issues/1089
+	// err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
+	// suite.FatalNil(err)
+	// err = os.Remove(f.Name())
+	// suite.FatalNil(err)
 
-	suite.Equal(2, len(files), "did not find 2 images")
+	// checksums := make([]string, 2)
+	// files, err := os.ReadDir(tmpDir)
+	// suite.FatalNil(err)
 
-	for _, file := range files {
-		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
-		suite.FatalNil(sha256ForPathErr, "error calculating hash")
-		if sha256ForPathErr != nil {
-			suite.FailNow(sha256ForPathErr.Error())
-		}
-		checksums = append(checksums, checksum)
-	}
+	// suite.Equal(2, len(files), "did not find 2 images")
 
-	orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+	// for _, file := range files {
+	// 	checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
+	// 	suite.FatalNil(sha256ForPathErr, "error calculating hash")
+	// 	if sha256ForPathErr != nil {
+	// 		suite.FailNow(sha256ForPathErr.Error())
+	// 	}
+	// 	checksums = append(checksums, checksum)
+	// }
 
-	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
+	// orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+
+	// orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
 }
 
 func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
@@ -156,7 +171,7 @@ func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
 		suite.FatalNil(err)
 	}
 
-	generatedPath, err := generator.PDFFromImagesNoRotation(suite.AppContextForTest(), images)
+	generatedPath, err := generator.PDFFromImagesNoRotation(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	aferoFile, err := generator.fs.Open(generatedPath)
 	suite.FatalNil(err, "afero failed to open pdf")
@@ -173,33 +188,43 @@ func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
 	suite.FatalNil(err)
 	err = os.WriteFile(f.Name(), file, 0600)
 	suite.FatalNil(err)
-	err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
-	suite.FatalNil(err)
-	err = os.Remove(f.Name())
-	suite.FatalNil(err)
 
-	checksums := make([]string, 2)
-	files, err := os.ReadDir(tmpDir)
-	suite.FatalNil(err)
+	// TODO: Delete these few lines after https://github.com/pdfcpu/pdfcpu/issues/1089 is resolved
+	// and we switch from the fork back to main pdfcpu repo with optimization enabled
+	openFile, err := os.Open(f.Name())
+	suite.FatalNil(err, "Failed to open locally written test file")
+	pageCtx, err := api.ReadAndValidate(openFile, generator.pdfConfig)
+	suite.FatalNil(err, "Failed to read and validate the PDF file")
+	// Temporarily assert 2 pages of PDF while optimization is disabled
+	suite.Equal(2, pageCtx.PageCount, "Expected 2 pages in the PDF")
+	// TODO: Uncomment these lines below when the above lines are deleted
+	// err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
+	// suite.FatalNil(err)
+	// err = os.Remove(f.Name())
+	// suite.FatalNil(err)
 
-	suite.Equal(2, len(files), "did not find 2 images")
+	// checksums := make([]string, 2)
+	// files, err := os.ReadDir(tmpDir)
+	// suite.FatalNil(err)
 
-	for _, file := range files {
-		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
-		suite.FatalNil(sha256ForPathErr, "error calculating hash")
-		if sha256ForPathErr != nil {
-			suite.FailNow(sha256ForPathErr.Error())
-		}
-		checksums = append(checksums, checksum)
-	}
+	// suite.Equal(2, len(files), "did not find 2 images")
 
-	orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+	// for _, file := range files {
+	// 	checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
+	// 	suite.FatalNil(sha256ForPathErr, "error calculating hash")
+	// 	if sha256ForPathErr != nil {
+	// 		suite.FailNow(sha256ForPathErr.Error())
+	// 	}
+	// 	checksums = append(checksums, checksum)
+	// }
 
-	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
-	suite.Nil(err, "error calculating hash")
-	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
+	// orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+
+	// orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
+	// suite.Nil(err, "error calculating hash")
+	// suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
@@ -215,7 +240,7 @@ func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
 	_, err = suite.openLocalFile(images[0].Path, generator.fs)
 	suite.FatalNil(err)
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images)
+	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 }
@@ -236,7 +261,7 @@ func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
 	_, err = suite.openLocalFile(images[1].Path, generator.fs)
 	suite.FatalNil(err)
 
-	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images)
+	generatedPath, err := generator.PDFFromImages(suite.AppContextForTest(), images, "testDir")
 	suite.FatalNil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 }
@@ -246,7 +271,7 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	paths, err := generator.ConvertUploadsToPDF(suite.AppContextForTest(), uploads, true)
+	paths, err := generator.ConvertUploadsToPDF(suite.AppContextForTest(), uploads, true, "testDir")
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")
@@ -257,7 +282,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	file, err := generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads)
+	file, err := generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads, "testDir")
 	suite.FatalNil(err)
 
 	// Read merged file and verify page count
@@ -285,7 +310,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
 	files = append(files, file1)
 	files = append(files, file2)
 
-	file, err := generator.MergePDFFilesByContents(suite.AppContextForTest(), files)
+	file, err := generator.MergePDFFilesByContents(suite.AppContextForTest(), files, "testDir")
 	suite.FatalNil(err)
 
 	// Read merged file and verify page count
@@ -303,7 +328,7 @@ func (suite *PaperworkSuite) TestCleanup() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	_, err = generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads)
+	_, err = generator.CreateMergedPDFUpload(suite.AppContextForTest(), uploads, "testDir")
 	suite.FatalNil(err)
 
 	//RA Summary: gosec - errcheck - Unchecked return value

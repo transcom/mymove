@@ -24,7 +24,13 @@ import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMov
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatus, updateMTOShipmentStatus, cancelMove, updateFinancialFlag } from 'services/ghcApi';
+import {
+  updateMoveStatus,
+  updateMTOShipmentStatus,
+  cancelMove,
+  updateFinancialFlag,
+  updateMultipleShipmentStatus,
+} from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
@@ -77,6 +83,7 @@ const MoveDetails = ({
       { fieldName: 'storageFacility' },
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'requestedPickupDate' },
       { fieldName: 'tacType' },
     ],
     PPM: [
@@ -132,12 +139,23 @@ const MoveDetails = ({
     },
   });
 
-  const { mutate: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
+  const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+    },
+  });
+
+  const { mutateAsync: mutateMultipleShipmentStatuses } = useMutation(updateMultipleShipmentStatus, {
+    onSuccess: (updatedMTOShipments) => {
+      updatedMTOShipments.forEach((updatedMTOShipment) => {
+        mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+        queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+        queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+        queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+      });
     },
   });
 
@@ -392,6 +410,7 @@ const MoveDetails = ({
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
+  const isLocalMove = order?.order_type === ORDERS_TYPE.LOCAL_MOVE;
 
   if (submittedShipments?.length > 0 && approvedOrCanceledShipments?.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
@@ -410,6 +429,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    dependents: allowances.dependentsAuthorized,
     ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
@@ -426,10 +446,11 @@ const MoveDetails = ({
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
-    dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    weightRestriction: allowances.weightRestriction,
+    ubWeightRestriction: allowances.ubWeightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
@@ -466,7 +487,9 @@ const MoveDetails = ({
         <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+        {!isLocalMove && enableUB && isOconusMove && (
+          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+        )}
       </>
     );
   };
@@ -584,6 +607,7 @@ const MoveDetails = ({
                 customerInfo={customerInfo}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
+                approveMultipleShipments={mutateMultipleShipmentStatuses}
                 moveTaskOrder={move}
                 missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
                 handleAfterSuccess={navigate}
@@ -658,7 +682,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <OrdersList ordersInfo={ordersInfo} />
+              <OrdersList ordersInfo={ordersInfo} moveInfo={move} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">

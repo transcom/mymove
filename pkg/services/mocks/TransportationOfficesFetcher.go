@@ -16,6 +16,36 @@ type TransportationOfficesFetcher struct {
 	mock.Mock
 }
 
+// FindCounselingOfficeForPrimeCounseled provides a mock function with given fields: appCtx, dutyLocationID, serviceMemberID
+func (_m *TransportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
+	ret := _m.Called(appCtx, dutyLocationID, serviceMemberID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindCounselingOfficeForPrimeCounseled")
+	}
+
+	var r0 *models.TransportationOffice
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) (*models.TransportationOffice, error)); ok {
+		return rf(appCtx, dutyLocationID, serviceMemberID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) *models.TransportationOffice); ok {
+		r0 = rf(appCtx, dutyLocationID, serviceMemberID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.TransportationOffice)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(appCtx, dutyLocationID, serviceMemberID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetAllGBLOCs provides a mock function with given fields: appCtx
 func (_m *TransportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContext) (*models.GBLOCs, error) {
 	ret := _m.Called(appCtx)
@@ -46,9 +76,9 @@ func (_m *TransportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContex
 	return r0, r1
 }
 
-// GetCounselingOffices provides a mock function with given fields: appCtx, dutyLocationID
-func (_m *TransportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error) {
-	ret := _m.Called(appCtx, dutyLocationID)
+// GetCounselingOffices provides a mock function with given fields: appCtx, dutyLocationID, serviceMemberID
+func (_m *TransportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffices, error) {
+	ret := _m.Called(appCtx, dutyLocationID, serviceMemberID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCounselingOffices")
@@ -56,19 +86,19 @@ func (_m *TransportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.A
 
 	var r0 *models.TransportationOffices
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.TransportationOffices, error)); ok {
-		return rf(appCtx, dutyLocationID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) (*models.TransportationOffices, error)); ok {
+		return rf(appCtx, dutyLocationID, serviceMemberID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.TransportationOffices); ok {
-		r0 = rf(appCtx, dutyLocationID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) *models.TransportationOffices); ok {
+		r0 = rf(appCtx, dutyLocationID, serviceMemberID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.TransportationOffices)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r1 = rf(appCtx, dutyLocationID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(appCtx, dutyLocationID, serviceMemberID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -106,9 +136,9 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 	return r0, r1
 }
 
-// GetTransportationOffices provides a mock function with given fields: appCtx, search, forPpm
-func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error) {
-	ret := _m.Called(appCtx, search, forPpm)
+// GetTransportationOffices provides a mock function with given fields: appCtx, search, forPpm, forAdminOfficeUserReqFilter
+func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool, forAdminOfficeUserReqFilter bool) (*models.TransportationOffices, error) {
+	ret := _m.Called(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTransportationOffices")
@@ -116,19 +146,19 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appconte
 
 	var r0 *models.TransportationOffices
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool) (*models.TransportationOffices, error)); ok {
-		return rf(appCtx, search, forPpm)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool, bool) (*models.TransportationOffices, error)); ok {
+		return rf(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool) *models.TransportationOffices); ok {
-		r0 = rf(appCtx, search, forPpm)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool, bool) *models.TransportationOffices); ok {
+		r0 = rf(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.TransportationOffices)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, bool) error); ok {
-		r1 = rf(appCtx, search, forPpm)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, bool, bool) error); ok {
+		r1 = rf(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 	} else {
 		r1 = ret.Error(1)
 	}

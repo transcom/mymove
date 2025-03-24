@@ -93,7 +93,11 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 		A. the difference between the GTCC paid expenses and the GCC OR
 		B. the total member-paid expenses plus the member paid SIT
 	**/
-	if shipmentSummaryFormData.IsActualExpenseReimbursement {
+	if shipmentSummaryFormData.IsActualExpenseReimbursement && isPaymentPacket {
+		if shipmentSummaryFormData.PPMShipment.FinalIncentive == nil {
+			return services.Page1Values{}, services.Page2Values{}, services.Page3Values{}, fmt.Errorf("missing FinalIncentive: required for actual expense reimbursement (Order ID: %s)", shipmentSummaryFormData.Order.ID)
+		}
+
 		floatFinalIncentive := shipmentSummaryFormData.PPMShipment.FinalIncentive.ToDollarFloatNoRound() // FinalIncentive == ActualGCC
 
 		if sumGTCC < floatFinalIncentive { // There are funds left over after GTCC to pay out member expenses
@@ -302,7 +306,12 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
-		page1.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+		page1.GCCExpenseReimbursementType = "Actual Expense Reimbursement"
+	}
+
+	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
+		page1.IsSmallPackageReimbursement = true
+		page1.GCCExpenseReimbursementType = "Small Package Reimbursement"
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
@@ -369,6 +378,8 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.WeighingFeesGTCCPaid = FormatDollars(expensesMap["WeighingFeeGTCCPaid"])
 	page2.RentalEquipmentMemberPaid = FormatDollars(expensesMap["RentalEquipmentMemberPaid"])
 	page2.RentalEquipmentGTCCPaid = FormatDollars(expensesMap["RentalEquipmentGTCCPaid"])
+	page2.SmallPackageExpenseMemberPaid = FormatDollars(expensesMap["SmallPackageExpenseMemberPaid"])
+	page2.SmallPackageExpenseGTCCPaid = FormatDollars(expensesMap["SmallPackageExpenseGTCCPaid"])
 	page2.TollsMemberPaid = FormatDollars(expensesMap["TollsMemberPaid"])
 	page2.TollsGTCCPaid = FormatDollars(expensesMap["TollsGTCCPaid"])
 	page2.OilMemberPaid = FormatDollars(expensesMap["OilMemberPaid"])
@@ -390,8 +401,14 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.SignatureDate = certificationInfo.DateField
 
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
-		page2.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
-		page2.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
+		page2.IncentiveExpenseReimbursementType = "Actual Expense Reimbursement"
+		page2.HeaderExpenseReimbursementType = `This PPM is being processed as actual expense reimbursement for valid expenses not to exceed the
+		government constructed cost (GCC).`
+	}
+
+	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
+		page2.IncentiveExpenseReimbursementType = "Small Package Reimbursement"
+		page2.HeaderExpenseReimbursementType = `This PPM is being processed as small package reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
 
@@ -865,8 +882,7 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 		if expense.MovingExpenseType == nil || expense.Amount == nil {
 			continue
 		} // Added quick nil check to ensure SSW returns while moving expenses are being added still
-		var nilPPMDocumentStatus *models.PPMDocumentStatus
-		if expense.Status != nilPPMDocumentStatus && (*expense.Status == models.PPMDocumentStatusRejected || *expense.Status == models.PPMDocumentStatusExcluded) {
+		if expense.Status == nil || *expense.Status != models.PPMDocumentStatusApproved {
 			continue
 		}
 		expenseType, addToTotal := getExpenseType(expense)
@@ -964,7 +980,11 @@ func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement 
 		disbursementGTCC = 0
 	} else {
 		// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
-		disbursementMember = ppmRemainingEntitlement + expensesMap["StorageMemberPaid"]
+		totalGTCCPaid := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+		disbursementMember = ppmRemainingEntitlement - totalGTCCPaid + expensesMap["StorageMemberPaid"]
+		if disbursementMember < 0 {
+			disbursementMember = 0
+		}
 	}
 
 	// Return formatted values in string
@@ -1079,6 +1099,32 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, dbQErr
 	}
 
+	// the following checks are needed since we can't use "ExcludeDeletedScope()" in the big query above
+	// this is because not all of the tables being queried have "deleted_at" columns and this returns an error
+	if ppmShipment.WeightTickets != nil {
+		var filteredWeightTickets []models.WeightTicket
+		// We do not need to consider deleted weight tickets or uploads within them
+		for _, wt := range ppmShipment.WeightTickets {
+			if wt.DeletedAt == nil {
+				wt.EmptyDocument.UserUploads = wt.EmptyDocument.UserUploads.FilterDeleted()
+				wt.FullDocument.UserUploads = wt.FullDocument.UserUploads.FilterDeleted()
+				wt.ProofOfTrailerOwnershipDocument.UserUploads = wt.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+				filteredWeightTickets = append(filteredWeightTickets, wt)
+			}
+		}
+		ppmShipment.WeightTickets = filteredWeightTickets
+	}
+	// We do not need to consider deleted moving expenses
+	if len(ppmShipment.MovingExpenses) > 0 {
+		nonDeletedMovingExpenses := ppmShipment.MovingExpenses.FilterDeleted()
+		ppmShipment.MovingExpenses = nonDeletedMovingExpenses
+	}
+	// We do not need to consider deleted progear weight tickets
+	if len(ppmShipment.ProgearWeightTickets) > 0 {
+		nonDeletedProgearTickets := ppmShipment.ProgearWeightTickets.FilterDeleted()
+		ppmShipment.ProgearWeightTickets = nonDeletedProgearTickets
+	}
+
 	// Final actual weight is a calculated value we don't store. This needs to be fetched independently
 	// Requires WeightTickets eager preload
 	ppmShipmentFinalWeight := models.GetPPMNetWeight(ppmShipment)
@@ -1121,6 +1167,11 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		isActualExpenseReimbursement = true
 	}
 
+	isSmallPackageReimbursement := false
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage {
+		isSmallPackageReimbursement = true
+	}
+
 	ssd := models.ShipmentSummaryFormData{
 		AllShipments:                 ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
 		ServiceMember:                serviceMember,
@@ -1137,6 +1188,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		SignedCertifications:         signedCertifications,
 		MaxSITStorageEntitlement:     maxSit,
 		IsActualExpenseReimbursement: isActualExpenseReimbursement,
+		IsSmallPackageReimbursement:  isSmallPackageReimbursement,
 	}
 	return &ssd, nil
 }
@@ -1172,7 +1224,7 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
-func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, Page3Values services.Page3Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, Page3Values services.Page3Values, dirName string) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -1216,6 +1268,11 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		isActualExpenseReimbursement = true
 	}
 
+	isSmallPackageReimbursement := false
+	if Page1Values.IsSmallPackageReimbursement {
+		isSmallPackageReimbursement = true
+	}
+
 	var sswCheckbox = []checkbox{
 		{
 			Pages:   []int{2},
@@ -1231,6 +1288,14 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 			Name:    "IsActualExpenseReimbursement",
 			Value:   true,
 			Default: isActualExpenseReimbursement,
+			Locked:  false,
+		},
+		{
+			Pages:   []int{1},
+			ID:      "555",
+			Name:    "IsSmallPackageReimbursement",
+			Value:   true,
+			Default: isSmallPackageReimbursement,
 			Locked:  false,
 		},
 	}
@@ -1251,12 +1316,12 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "")
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "", dirName)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	SSWWorksheet, err = SSWPPMGenerator.generator.LockPDFForm(SSWWorksheet, "")
+	SSWWorksheet, err = SSWPPMGenerator.generator.LockPDFForm(SSWWorksheet, "", dirName)
 	if err != nil {
 		return nil, nil, err
 	}

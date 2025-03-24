@@ -29,6 +29,7 @@ import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { updateMTOShipment } from 'services/ghcApi';
+import { ORDERS_TYPE } from 'constants/orders';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
@@ -52,6 +53,7 @@ const SubmittedRequestedShipments = ({
   customerInfo,
   approveMTO,
   approveMTOShipment,
+  approveMultipleShipments,
   handleAfterSuccess,
   missingRequiredOrdersInfo,
   errorIfMissing,
@@ -81,7 +83,9 @@ const SubmittedRequestedShipments = ({
     fetchData();
   }, []);
 
-  const { newDutyLocation, currentDutyLocation } = ordersInfo;
+  const { newDutyLocation, currentDutyLocation, ordersType } = ordersInfo;
+  const isLocalMove = ordersType === ORDERS_TYPE.LOCAL_MOVE;
+
   useEffect(() => {
     // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB shipment option
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
@@ -144,9 +148,20 @@ const SubmittedRequestedShipments = ({
         {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+        {!isLocalMove && enableUB && isOconusMove && (
+          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+        )}
       </>
     );
+  };
+
+  const getUpdateMultipleShipmentPayload = (shipments) => {
+    return shipments.map((shipment) => {
+      return {
+        shipmentID: shipment.id,
+        eTag: shipment.eTag,
+      };
+    });
   };
 
   const queryClient = useQueryClient();
@@ -200,7 +215,9 @@ const SubmittedRequestedShipments = ({
       });
 
       try {
-        await Promise.all(ppmShipmentPromise).then(() => {
+        await Promise.all(ppmShipmentPromise);
+
+        await new Promise((resolve, reject) => {
           approveMTO(
             {
               moveTaskOrderID: moveTaskOrder.id,
@@ -211,38 +228,71 @@ const SubmittedRequestedShipments = ({
             {
               onSuccess: async () => {
                 try {
-                  await Promise.all(
-                    filteredShipments.map((shipment) => {
-                      let operationPath = 'shipment.approveShipment';
-
-                      if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
-                        operationPath = 'shipment.approveShipmentDiversion';
-                      }
-                      return approveMTOShipment(
-                        {
-                          shipmentID: shipment.id,
-                          operationPath,
-                          ifMatchETag: shipment.eTag,
-                          normalize: false,
+                  // if the move is not available to prime yet, we use the new approveShipments api
+                  // to approve multiple shipments in one call and make it available to prime at the end.
+                  // else we use the old looping method to account for approveShipmentDiversion api call.
+                  if (!moveTaskOrder.availableToPrimeAt && filteredShipments.length) {
+                    await approveMultipleShipments(
+                      {
+                        payload: getUpdateMultipleShipmentPayload(filteredShipments),
+                        normalize: false,
+                      },
+                      {
+                        onError: () => {
+                          setSubmitting(false);
+                          setFlashMessage(null);
                         },
-                        {
-                          onError: () => {
-                            setSubmitting(false);
-                            setFlashMessage(null);
+                      },
+                    );
+                  } else {
+                    // Approve each shipment asynchronously
+                    await Promise.all(
+                      filteredShipments.map((shipment) => {
+                        if (shipment.approvedDate) {
+                          return approveMTOShipment(
+                            {
+                              shipmentID: shipment.id,
+                              operationPath: 'shipment.approveShipmentDiversion',
+                              ifMatchETag: shipment.eTag,
+                              normalize: false,
+                            },
+                            {
+                              onError: () => {
+                                setSubmitting(false);
+                                setFlashMessage(null);
+                                reject();
+                              },
+                            },
+                          );
+                        }
+                        return approveMultipleShipments(
+                          {
+                            payload: getUpdateMultipleShipmentPayload([shipment]),
+                            normalize: false,
                           },
-                        },
-                      );
-                    }),
-                  ).then(() => {
-                    setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
-                    handleAfterSuccess('../mto', { showMTOpostedMessage: true });
-                  });
+                          {
+                            onError: () => {
+                              setSubmitting(false);
+                              setFlashMessage(null);
+                              reject();
+                            },
+                          },
+                        );
+                      }),
+                    );
+                  }
+                  // All shipments approved, set flash message and navigate
+                  setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
+                  handleAfterSuccess('../mto', { showMTOpostedMessage: true });
+                  resolve();
                 } catch {
                   setSubmitting(false);
+                  reject();
                 }
               },
               onError: () => {
                 setSubmitting(false);
+                reject();
               },
             },
           );
@@ -278,6 +328,9 @@ const SubmittedRequestedShipments = ({
   // Hide counseling line item if prime counseling is already in the service items or if service counseling has been applied
   const hideCounselingCheckbox = hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt;
 
+  // Disable counseling checkbox if full PPM shipment
+  const disableCounselingCheckbox = isPPMOnly(mtoShipments);
+
   // Hide move management line item if it is already in the service items or for PPM only moves
   const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
 
@@ -311,6 +364,7 @@ const SubmittedRequestedShipments = ({
           onSubmit={debouncedSubmit}
           counselingFee={formik.values.counselingFee}
           shipmentManagementFee={formik.values.shipmentManagementFee}
+          isSubmitting={formik.isSubmitting}
         />
       </div>
 
@@ -392,7 +446,7 @@ const SubmittedRequestedShipments = ({
                       name="counselingFee"
                       onChange={formik.handleChange}
                       data-testid="counselingFee"
-                      disabled={isMoveLocked}
+                      disabled={isMoveLocked || disableCounselingCheckbox}
                     />
                   )}
                 </Fieldset>

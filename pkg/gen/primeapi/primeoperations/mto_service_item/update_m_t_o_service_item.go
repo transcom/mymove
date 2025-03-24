@@ -50,9 +50,9 @@ items, the office users will not have as much attention to those values.
 
 To create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
 
-* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from
+* Resubmitting rejected SIT/Accessorial service items: This endpoint will handle the logic of changing the status of rejected SIT/Accessorial service items from
 REJECTED to SUBMITTED. Please provide the `requestedApprovalsRequestedStatus: true` when resubmitting as this will give attention to the TOO to
-review the resubmitted SIT service item. Another note, `updateReason` must have a different value than the current `reason` value on the service item.
+review the resubmitted SIT/Accessorial service item. Another note, `updateReason` must have a different value than the current `reason` value on the service item.
 If this value is not updated, then an error will be sent back.
 
 The following SIT service items can be resubmitted following a rejection:
@@ -64,8 +64,20 @@ The following SIT service items can be resubmitted following a rejection:
 - DOFSIT
 - DDSFSC
 - DOSFSC
+- IDASIT
+- IDDSIT
+- IDFSIT
+- IOASIT
+- IOPSIT
+- IOFSIT
+- IDSFSC
+- IOSFSC
 
-At a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:
+The following Accessorial service items can be resubmitted following a rejection:
+- IOSHUT
+- IDSHUT
+
+At a MINIMUM, the payload for resubmitting a rejected SIT/Accessorial service item must look like this:
 ```json
 
 	{
@@ -90,6 +102,31 @@ Please see the example payload below:
 	  "modelType": "UpdateMTOServiceItemInternationalPortFSC",
 	  "portCode": "SEA",
 	  "reServiceCode": "POEFSC"
+	}
+
+```
+
+The following crating/uncrating service items can be resubmitted following a rejection:
+- ICRT
+- IUCRT
+
+At a MINIMUM, the payload for resubmitting a rejected crating/uncrating service item must look like this:
+```json
+
+	{
+	  "item": {
+	    "length": 10000,
+	    "width": 10000,
+	    "height": 10000
+	  },
+	  "crate": {
+	    "length": 20000,
+	    "width": 20000,
+	    "height": 20000
+	  },
+	  "updateReason": "A reason that differs from the previous reason",
+	  "modelType": "UpdateMTOServiceItemCrating",
+	  "requestApprovalsRequestedStatus": true
 	}
 
 ```

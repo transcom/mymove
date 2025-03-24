@@ -67,6 +67,10 @@ test.describe('TOO user', () => {
       await page.getByTestId('searchText').fill(SearchTerms[0]);
       await page.getByTestId('searchTextSubmit').click();
 
+      // Ensure we are on the first page
+      const currentPage = await page.locator('[data-testid="table-pagination"]').innerText();
+      expect(currentPage).toBe('1');
+
       const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
       await StatusFilter.click();
 
@@ -626,17 +630,10 @@ test.describe('TOO user', () => {
       await page.getByRole('button', { name: 'Select task_ordering_officer' }).click();
     });
     test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
-      await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
-      await page
-        .getByRole('row', { name: 'Select...' })
-        .getByTestId('locator')
-        .getByTestId('TextBoxFilter')
-        .fill(moveLoc);
-      await page
-        .getByRole('row', { name: 'Select...' })
-        .getByTestId('locator')
-        .getByTestId('TextBoxFilter')
-        .press('Enter');
+      await page.getByRole('link', { name: 'Search' }).click();
+      await page.getByTestId('searchText').click();
+      await page.getByTestId('searchText').fill(moveLoc);
+      await page.getByTestId('searchText').press('Enter');
       await page.getByTestId('locator-0').click();
       await page.getByRole('link', { name: 'Payment requests' }).click();
       await page.getByRole('button', { name: 'Review shipment weights' }).click();
@@ -651,7 +648,7 @@ test.describe('TOO user', () => {
 
   test('approves a delivery address change request for an HHG shipment', async ({ officePage, page }) => {
     test.setTimeout(300000); // This one has been a headache forever. Shoehorn fix to go way above default "slow" timeout
-    const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
+    const shipmentAddressUpdate = await officePage.testHarness.buildHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
     await tooFlowPage.waitForLoading();

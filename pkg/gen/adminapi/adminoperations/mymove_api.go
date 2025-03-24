@@ -71,6 +71,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		WebhookSubscriptionsCreateWebhookSubscriptionHandler: webhook_subscriptions.CreateWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.CreateWebhookSubscriptionParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.CreateWebhookSubscription has not yet been implemented")
 		}),
+		OfficeUsersDeleteOfficeUserHandler: office_users.DeleteOfficeUserHandlerFunc(func(params office_users.DeleteOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
+		}),
 		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
 		}),
@@ -221,6 +224,8 @@ type MymoveAPI struct {
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
 	// WebhookSubscriptionsCreateWebhookSubscriptionHandler sets the operation handler for the create webhook subscription operation
 	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
+	// OfficeUsersDeleteOfficeUserHandler sets the operation handler for the delete office user operation
+	OfficeUsersDeleteOfficeUserHandler office_users.DeleteOfficeUserHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
 	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ClientCertificatesGetClientCertificateHandler sets the operation handler for the get client certificate operation
@@ -377,6 +382,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.WebhookSubscriptionsCreateWebhookSubscriptionHandler == nil {
 		unregistered = append(unregistered, "webhook_subscriptions.CreateWebhookSubscriptionHandler")
+	}
+	if o.OfficeUsersDeleteOfficeUserHandler == nil {
+		unregistered = append(unregistered, "office_users.DeleteOfficeUserHandler")
 	}
 	if o.AdminUsersGetAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
@@ -584,6 +592,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/webhook-subscriptions"] = webhook_subscriptions.NewCreateWebhookSubscription(o.context, o.WebhookSubscriptionsCreateWebhookSubscriptionHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/office-users/{officeUserId}"] = office_users.NewDeleteOfficeUser(o.context, o.OfficeUsersDeleteOfficeUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

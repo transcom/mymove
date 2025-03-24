@@ -29,7 +29,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	// DCRT Service Item
 	itemMeasurement := int32(1100)
 	crateMeasurement := int32(1200)
+	estimatedWeight := int64(1000)
+	actualWeight := int64(1000)
 	dcrtCode := models.ReServiceCodeDCRT.String()
+	ddshutCode := models.ReServiceCodeDDSHUT.String()
+	doshutCode := models.ReServiceCodeDOSHUT.String()
+	idshutCode := models.ReServiceCodeIDSHUT.String()
+	ioshutCode := models.ReServiceCodeIOSHUT.String()
 	reason := "Reason"
 	description := "Description"
 	standaloneCrate := false
@@ -52,11 +58,48 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		Description:     &description,
 		StandaloneCrate: &standaloneCrate,
 	}
+
 	DCRTServiceItem.Item.MTOServiceItemDimension = *item
 	DCRTServiceItem.Crate.MTOServiceItemDimension = *crate
 
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	DDSHUTServiceItem := &primemessages.MTOServiceItemDomesticShuttle{
+		ReServiceCode:   &ddshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	DDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	DOSHUTServiceItem := &primemessages.MTOServiceItemDomesticShuttle{
+		ReServiceCode:   &doshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	DOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	IDSHUTServiceItem := &primemessages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &idshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	IDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	IOSHUTServiceItem := &primemessages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &ioshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+	IOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	originReason := "storage at origin"
 	originServiceCode := models.ReServiceCodeDOFSIT.String()
@@ -240,6 +283,46 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Crate.Length), icurtReturnedCrate.Length)
 	})
 
+	suite.Run("Success - Returns a DDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDSHUT, returnedModel.ReService.Code)
+		suite.Equal(DDSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a DOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDOSHUT, returnedModel.ReService.Code)
+		suite.Equal(DOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIOSHUT, returnedModel.ReService.Code)
+		suite.Equal(IOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIDSHUT, returnedModel.ReService.Code)
+		suite.Equal(IDSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
 	suite.Run("Fail -  Returns error for ICRT/IUCRT service item because of validation error", func() {
 		// ICRT
 		icrtCode := models.ReServiceCodeICRT.String()
@@ -314,6 +397,31 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(originSITDepartureDate, *handlers.FmtDatePtr(returnedModel.SITDepartureDate))
 	})
 
+	suite.Run("Success - Returns international SIT origin service item model", func() {
+		originSITServiceItem := &primemessages.MTOServiceItemInternationalOriginSIT{
+			ReServiceCode:      &originServiceCode,
+			SitEntryDate:       &originSITEntryDate,
+			SitDepartureDate:   &originSITDepartureDate,
+			SitHHGActualOrigin: &sitHHGActualOriginAddress,
+			Reason:             &originReason,
+		}
+
+		originSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		originSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(originSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDOFSIT, returnedModel.ReService.Code)
+		suite.Equal(originStreet1, returnedModel.SITOriginHHGActualAddress.StreetAddress1)
+		suite.Equal(originCity, returnedModel.SITOriginHHGActualAddress.City)
+		suite.Equal(originState, returnedModel.SITOriginHHGActualAddress.State)
+		suite.Equal(originPostalCode, returnedModel.SITOriginHHGActualAddress.PostalCode)
+		suite.Equal(originSITEntryDate, *handlers.FmtDatePtr(returnedModel.SITEntryDate))
+		suite.Equal(originSITDepartureDate, *handlers.FmtDatePtr(returnedModel.SITDepartureDate))
+	})
+
 	suite.Run("Success - Returns SIT destination service item model", func() {
 		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               &destServiceCode,
@@ -340,8 +448,55 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
 	})
 
+	suite.Run("Success - Returns international SIT destination service item model", func() {
+		destSITServiceItem := &primemessages.MTOServiceItemInternationalDestSIT{
+			ReServiceCode:               &destServiceCode,
+			FirstAvailableDeliveryDate1: &destDate,
+			FirstAvailableDeliveryDate2: &destDate,
+			DateOfContact1:              &destDate,
+			DateOfContact2:              &destDate,
+			TimeMilitary1:               &destTime,
+			TimeMilitary2:               &destTime,
+			SitDestinationFinalAddress:  &sitFinalDestAddress,
+			Reason:                      &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+	})
+
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
 		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+			ReServiceCode:              &destServiceCode,
+			SitDestinationFinalAddress: &sitFinalDestAddress,
+			Reason:                     &destReason,
+		}
+
+		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		destSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+		returnedModel, verrs := MTOServiceItemModel(destSITServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
+		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(destUSPRCID.String(), returnedModel.SITDestinationFinalAddress.UsPostRegionCityID.String())
+		suite.Equal(destReason, *returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns internatonal SIT destination service item model without customer contact fields", func() {
+		destSITServiceItem := &primemessages.MTOServiceItemInternationalDestSIT{
 			ReServiceCode:              &destServiceCode,
 			SitDestinationFinalAddress: &sitFinalDestAddress,
 			Reason:                     &destReason,
@@ -794,4 +949,29 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() 
 	suite.Equal("123 Main St", result.PickupAddress.StreetAddress1)
 	suite.NotNil(result.DestinationAddress)
 	suite.Equal("456 Main St", result.DestinationAddress.StreetAddress1)
+}
+
+func (suite *PayloadsSuite) TestVLocationModel() {
+	city := "LOS ANGELES"
+	state := "CA"
+	postalCode := "90210"
+	county := "LOS ANGELES"
+	usPostRegionCityId := uuid.Must(uuid.NewV4())
+
+	vLocation := &primemessages.VLocation{
+		City:                 city,
+		State:                state,
+		PostalCode:           postalCode,
+		County:               &county,
+		UsPostRegionCitiesID: strfmt.UUID(usPostRegionCityId.String()),
+	}
+
+	payload := VLocationModel(vLocation)
+
+	suite.IsType(payload, &models.VLocation{})
+	suite.Equal(usPostRegionCityId.String(), payload.UsPostRegionCitiesID.String(), "Expected UsPostRegionCitiesID to match")
+	suite.Equal(city, payload.CityName, "Expected City to match")
+	suite.Equal(state, payload.StateName, "Expected State to match")
+	suite.Equal(postalCode, payload.UsprZipID, "Expected PostalCode to match")
+	suite.Equal(county, payload.UsprcCountyNm, "Expected County to match")
 }

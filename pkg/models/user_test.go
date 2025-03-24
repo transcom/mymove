@@ -104,23 +104,16 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(systemAdmin.User.OktaEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
-	rs := []roles.Role{{
-		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
+	customerRole := roles.Role{
 		RoleType: roles.RoleTypeCustomer,
-	}, {
-		ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
-		RoleType: roles.RoleTypeTOO,
-	},
 	}
-	suite.NoError(suite.DB().Create(&rs))
-	customerRole := rs[0]
-	patOktaID := factory.MakeRandomString(20)
-	pat := factory.BuildUser(suite.DB(), []factory.Customization{
+	tooRole := roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	}
+	pat := factory.BuildUserAndUsersRoles(suite.DB(), []factory.Customization{
 		{
-			Model: m.User{
-				OktaID: patOktaID,
-				Active: true,
-				Roles:  []roles.Role{customerRole},
+			Model: models.User{
+				Roles: []roles.Role{customerRole},
 			},
 		},
 	}, nil)
@@ -129,15 +122,10 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(err, "loading pat's identity")
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
-
-	tooRole := rs[1]
-	billyUUID := uuid.Must(uuid.NewV4())
-	billy := factory.BuildUser(suite.DB(), []factory.Customization{
+	billy := factory.BuildUserAndUsersRoles(suite.DB(), []factory.Customization{
 		{
-			Model: m.User{
-				OktaID: billyUUID.String(),
-				Active: true,
-				Roles:  []roles.Role{tooRole},
+			Model: models.User{
+				Roles: []roles.Role{tooRole},
 			},
 		},
 	}, nil)
@@ -323,5 +311,17 @@ func (suite *ModelSuite) TestGetUser() {
 	suite.NotNil(user2)
 	if err == nil && user2 != nil {
 		suite.Equal(alice.ID, user2.ID)
+	}
+}
+
+func (suite *ModelSuite) TestGetUserFromOktaID() {
+	user := factory.BuildDefaultUser(suite.DB())
+
+	foundUser, err := m.GetUserFromOktaID(suite.DB(), user.OktaID)
+	suite.Nil(err)
+	suite.NotNil(foundUser)
+	if err == nil && foundUser != nil {
+		suite.Equal(user.ID, foundUser.ID)
+		suite.Equal(user.OktaEmail, foundUser.OktaEmail)
 	}
 }

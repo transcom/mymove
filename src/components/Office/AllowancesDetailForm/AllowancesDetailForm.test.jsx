@@ -12,6 +12,8 @@ const initialValues = {
   proGearWeightSpouse: '500',
   requiredMedicalEquipmentWeight: '1000',
   organizationalClothingAndIndividualEquipment: true,
+  weightRestriction: '500',
+  ubWeightRestriction: '400',
 };
 
 const initialValuesOconusAdditions = {
@@ -81,6 +83,8 @@ const entitlements = {
   storageInTransit: 90,
   totalWeight: 11000,
   totalDependents: 2,
+  weightRestriction: 500,
+  ubWeightRestriction: '400',
 };
 
 const entitlementOconusAdditions = {
@@ -157,5 +161,88 @@ describe('AllowancesDetailForm', () => {
     await waitFor(() => expect(screen.queryByLabelText(/Accompanied tour/)).toBeInTheDocument());
     expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).toBeInTheDocument();
+  });
+});
+describe('AllowancesDetailForm additional tests', () => {
+  it('renders gun safe checkbox field', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    expect(await screen.findByTestId('gunSafeInput')).toBeInTheDocument();
+  });
+
+  it('renders admin weight location section with conditional weight restriction field', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
+    expect(adminWeightCheckbox).toBeInTheDocument();
+    expect(screen.getByLabelText('Admin restricted weight location')).toBeChecked();
+
+    const weightRestrictionInput = screen.getByTestId('weightRestrictionInput');
+    expect(weightRestrictionInput).toBeInTheDocument();
+    expect(weightRestrictionInput).toHaveValue('500');
+  });
+
+  it('does not render the admin weight location section when the weightRestriction entitlement is null', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={{ ...entitlements, weightRestriction: null }}
+          branchOptions={branchOptions}
+        />
+      </Formik>,
+    );
+
+    const adminWeightCheckbox = await screen.findByTestId('adminWeightLocation');
+    expect(adminWeightCheckbox).toBeInTheDocument();
+    expect(screen.queryByTestId('weightRestrictionInput')).not.toBeInTheDocument();
+  });
+
+  it('renders admin UB weight location section with conditional UB weight restriction field', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    const adminUBWeightCheckbox = await screen.findByTestId('adminUBWeightLocation');
+    expect(adminUBWeightCheckbox).toBeInTheDocument();
+    expect(screen.getByLabelText('Admin restricted UB weight location')).toBeChecked();
+
+    const ubWeightRestrictionInput = screen.getByTestId('ubWeightRestrictionInput');
+    expect(ubWeightRestrictionInput).toBeInTheDocument();
+    expect(ubWeightRestrictionInput).toHaveValue('400');
+  });
+
+  it('does not render the admin UB weight location section when the ubWeightRestriction entitlement is null', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={{ ...entitlements, ubWeightRestriction: null }}
+          branchOptions={branchOptions}
+        />
+      </Formik>,
+    );
+
+    const adminUBWeightCheckbox = await screen.findByTestId('adminUBWeightLocation');
+    expect(adminUBWeightCheckbox).toBeInTheDocument();
+    expect(screen.queryByTestId('ubWeightRestrictionInput')).not.toBeInTheDocument();
+  });
+
+  it('displays the total weight allowance correctly', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} />
+      </Formik>,
+    );
+
+    expect(await screen.findByTestId('weightAllowance')).toHaveTextContent('11,000');
   });
 });

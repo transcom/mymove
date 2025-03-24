@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType, SHIPMENT_TYPES } from 'shared/constants';
+import { MTOAgentType, PPM_TYPES, SHIPMENT_TYPES } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
@@ -87,6 +87,7 @@ const emptyAddressShape = {
 
 export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment = {}, closeoutOffice = {} }) {
   const displayValues = {
+    ppmType: ppmShipment.ppmType,
     expectedDepartureDate: ppmShipment.expectedDepartureDate,
     pickup: {
       address: ppmShipment.pickupAddress || emptyAddressShape,
@@ -129,7 +130,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
     closeoutOffice,
     counselorRemarks,
-    isActualExpenseReimbursement: ppmShipment.isActualExpenseReimbursement ? 'true' : 'false',
+    isActualExpenseReimbursement: ppmShipment.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
   };
 
   if (ppmShipment.hasSecondaryPickupAddress) {
@@ -205,11 +206,11 @@ export function formatMtoShipmentForDisplay({
     tertiaryDelivery: {
       address: { ...emptyAddressShape },
     },
-    hasDeliveryAddress: 'no',
-    hasSecondaryPickup: 'no',
-    hasSecondaryDelivery: 'no',
-    hasTertiaryPickup: 'no',
-    hasTertiaryDelivery: 'no',
+    hasDeliveryAddress: 'false',
+    hasSecondaryPickup: 'false',
+    hasSecondaryDelivery: 'false',
+    hasTertiaryPickup: 'false',
+    hasTertiaryDelivery: 'false',
     ntsRecordedWeight,
     tacType,
     sacType,
@@ -245,16 +246,16 @@ export function formatMtoShipmentForDisplay({
 
   if (secondaryPickupAddress) {
     displayValues.secondaryPickup.address = { ...emptyAddressShape, ...secondaryPickupAddress };
-    displayValues.hasSecondaryPickup = 'yes';
+    displayValues.hasSecondaryPickup = 'true';
   }
   if (tertiaryPickupAddress) {
     displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...tertiaryPickupAddress };
-    displayValues.hasTertiaryPickup = 'yes';
+    displayValues.hasTertiaryPickup = 'true';
   }
 
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
-    if (destinationAddress.streetAddress1 !== 'N/A') displayValues.hasDeliveryAddress = 'yes';
+    if (destinationAddress.streetAddress1 !== 'N/A') displayValues.hasDeliveryAddress = 'true';
   }
 
   if (destinationType) {
@@ -263,11 +264,11 @@ export function formatMtoShipmentForDisplay({
 
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
-    displayValues.hasSecondaryDelivery = 'yes';
+    displayValues.hasSecondaryDelivery = 'true';
   }
   if (tertiaryDeliveryAddress) {
     displayValues.tertiaryDelivery.address = { ...emptyAddressShape, ...tertiaryDeliveryAddress };
-    displayValues.hasTertiaryDelivery = 'yes';
+    displayValues.hasTertiaryDelivery = 'true';
   }
 
   if (requestedDeliveryDate) {
@@ -294,9 +295,7 @@ export function formatMtoShipmentForDisplay({
 
 export function formatPpmShipmentForAPI(formValues) {
   let ppmShipmentValues = {
-    expectedDepartureDate: formatDateForSwagger(formValues.expectedDepartureDate),
-    pickupAddress: formatAddressForAPI(formValues.pickup.address),
-    destinationAddress: formatAddressForAPI(formValues.destination.address),
+    ppmType: formValues.ppmType,
     sitExpected: !!formValues.sitExpected,
     estimatedWeight: Number(formValues.estimatedWeight || '0'),
     hasProGear: !!formValues.hasProGear,
@@ -306,8 +305,16 @@ export function formatPpmShipmentForAPI(formValues) {
     hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
     hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
     hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
-    isActualExpenseReimbursement: formValues.isActualExpenseReimbursement === 'true',
+    isActualExpenseReimbursement: formValues.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
+    closeoutOfficeID: formValues.closeoutOffice?.id,
   };
+
+  if (formValues.expectedDepartureDate !== undefined)
+    ppmShipmentValues.expectedDepartureDate = formatDateForSwagger(formValues.expectedDepartureDate);
+  if (formValues.pickup.address !== undefined)
+    ppmShipmentValues.pickupAddress = formatAddressForAPI(formValues.pickup.address);
+  if (formValues.destination.address !== undefined)
+    ppmShipmentValues.destinationAddress = formatAddressForAPI(formValues.destination.address);
 
   if (ppmShipmentValues.hasSecondaryPickupAddress) {
     ppmShipmentValues = {
@@ -368,7 +375,7 @@ export function formatPpmShipmentForAPI(formValues) {
 
   return {
     shipmentType: 'PPM',
-    counselorRemarks: formValues.counselorRemarks === undefined ? undefined : formValues.counselorRemarks,
+    counselorRemarks: !formValues.counselorRemarks ? undefined : formValues.counselorRemarks,
     ppmShipment: ppmShipmentValues,
   };
 }

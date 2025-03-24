@@ -47,15 +47,11 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
-		false,
 	).Return(defaultZipDistance, nil)
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
-		true,
 	).Return(defaultInternationalZipDistance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
@@ -174,7 +170,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimated
 	// i don't think this function gets called for PPMs, but need to verify
 	//paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	//suite.FatalNoError(err)
-	paramLookup := NewServiceItemParamKeyData(suite.planner, serviceItemLookups, mtoServiceItem, mtoShipment, testdatagen.DefaultContractCode)
+	paramLookup := NewServiceItemParamKeyData(suite.planner, serviceItemLookups, mtoServiceItem, mtoShipment, testdatagen.DefaultContractCode, uuid.Nil)
 
 	return mtoServiceItem, paymentRequest, &paramLookup
 }

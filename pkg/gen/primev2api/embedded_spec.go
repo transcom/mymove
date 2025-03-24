@@ -1059,11 +1059,23 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1200
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -1429,6 +1441,50 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticShuttle": {
+      "description": "Describes a domestic shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemInternationalCrating": {
       "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
       "allOf": [
@@ -1501,14 +1557,242 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalDestSIT": {
+      "description": "Describes a international destination SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "sitEntryDate",
+            "reason"
+          ],
+          "properties": {
+            "dateOfContact1": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary1` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "dateOfContact2": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary2` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDFSIT",
+                "IDASIT"
+              ]
+            },
+            "reason": {
+              "description": "The reason item has been placed in SIT.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false
+            },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDestinationFinalAddress": {
+              "$ref": "#/definitions/Address"
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "timeMilitary1": {
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
+            },
+            "timeMilitary2": {
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemInternationalOriginSIT": {
+      "description": "Describes a international origin SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "reason",
+            "sitPostalCode",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IOFSIT",
+                "IOASIT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            },
+            "requestApprovalsRequestedStatus": {
+              "type": "boolean"
+            },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitHHGActualOrigin": {
+              "$ref": "#/definitions/Address"
+            },
+            "sitHHGOriginalOrigin": {
+              "$ref": "#/definitions/Address"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemInternationalShuttle": {
+      "description": "Describes an international shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `IDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "IOSHUT",
+                "IDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT\n  * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
+        "MTOServiceItemInternationalOriginSIT",
+        "MTOServiceItemInternationalDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating",
         "MTOSerivceItemInternationalFuelSurcharge"
@@ -3073,12 +3357,53 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDSHUT",
+                "IOSHUT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * IDDSIT - UpdateMTOServiceItemSIT\n  * IOPSIT - UpdateMTOServiceItemSIT\n  * IOASIT - UpdateMTOServiceItemSIT\n  * IOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -3121,7 +3446,11 @@ func init() {
                 "DDDSIT",
                 "DOPSIT",
                 "DOASIT",
-                "DOFSIT"
+                "DOFSIT",
+                "IDDSIT",
+                "IOPSIT",
+                "IOASIT",
+                "IOFSIT"
               ]
             },
             "requestApprovalsRequestedStatus": {
@@ -4717,11 +5046,23 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1200
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -5087,6 +5428,50 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDomesticShuttle": {
+      "description": "Describes a domestic shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemInternationalCrating": {
       "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
       "allOf": [
@@ -5159,14 +5544,242 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalDestSIT": {
+      "description": "Describes a international destination SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "sitEntryDate",
+            "reason"
+          ],
+          "properties": {
+            "dateOfContact1": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary1` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "dateOfContact2": {
+              "description": "Date of attempted contact by the prime corresponding to ` + "`" + `timeMilitary2` + "`" + `.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDFSIT",
+                "IDASIT"
+              ]
+            },
+            "reason": {
+              "description": "The reason item has been placed in SIT.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false
+            },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDestinationFinalAddress": {
+              "$ref": "#/definitions/Address"
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "timeMilitary1": {
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
+            },
+            "timeMilitary2": {
+              "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact2` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "x-nullable": true,
+              "example": "1400Z"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemInternationalOriginSIT": {
+      "description": "Describes a international origin SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "reason",
+            "sitPostalCode",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IOFSIT",
+                "IOASIT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            },
+            "requestApprovalsRequestedStatus": {
+              "type": "boolean"
+            },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitHHGActualOrigin": {
+              "$ref": "#/definitions/Address"
+            },
+            "sitHHGOriginalOrigin": {
+              "$ref": "#/definitions/Address"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemInternationalShuttle": {
+      "description": "Describes an international shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode"
+          ],
+          "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the international shipment origin (` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `IDSHUT` + "`" + `).\n",
+              "type": "string",
+              "enum": [
+                "IOSHUT",
+                "IDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT\n  * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle\n  * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n  * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
+        "MTOServiceItemInternationalOriginSIT",
+        "MTOServiceItemInternationalDestSIT",
         "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticShuttle",
+        "MTOServiceItemInternationalShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemInternationalCrating",
         "MTOSerivceItemInternationalFuelSurcharge"
@@ -6733,12 +7346,53 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (IDSHUT \u0026 IOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "IDSHUT",
+                "IOSHUT"
+              ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * IDDSIT - UpdateMTOServiceItemSIT\n  * IOPSIT - UpdateMTOServiceItemSIT\n  * IOASIT - UpdateMTOServiceItemSIT\n  * IOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * IDSHUT - UpdateMTOServiceItemInternationalShuttle\n  * IOSHUT - UpdateMTOServiceItemInternationalShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -6781,7 +7435,11 @@ func init() {
                 "DDDSIT",
                 "DOPSIT",
                 "DOASIT",
-                "DOFSIT"
+                "DOFSIT",
+                "IDDSIT",
+                "IOPSIT",
+                "IOASIT",
+                "IOFSIT"
               ]
             },
             "requestApprovalsRequestedStatus": {
