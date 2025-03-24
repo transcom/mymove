@@ -438,7 +438,7 @@ describe('International', () => {
 
   it('returns correct data for ICRT', () => {
     const result = makeCalculations(
-      'ICRT',
+      SERVICE_ITEM_CODES.ICRT,
       99999,
       testParams.InternationalCrating,
       testParams.additionalCratingDataDCRT,
@@ -455,7 +455,7 @@ describe('International', () => {
 
   it('returns correct data for IUCRT', () => {
     const result = makeCalculations(
-      'IUCRT',
+      SERVICE_ITEM_CODES.IUCRT,
       99999,
       testParams.InternationalUncrating,
       testParams.additionalCratingDataDCRT,
