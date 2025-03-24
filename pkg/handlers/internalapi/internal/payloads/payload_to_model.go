@@ -187,6 +187,7 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	}
 
 	model := &models.PPMShipment{
+		PPMType:               models.PPMType(ppmShipment.PpmType),
 		SITExpected:           ppmShipment.SitExpected,
 		ExpectedDepartureDate: handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
@@ -232,6 +233,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	}
 
 	ppmModel := &models.PPMShipment{
+		PPMType:                        models.PPMType(ppmShipment.PpmType),
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
