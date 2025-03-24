@@ -721,6 +721,86 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	suite.ElementsMatch(TIO.Permissions, session.Permissions)
 }
 
+func (suite *AuthSuite) TestAuthSameKnownUserForAllApps() {
+	// setting up three users that use the same user
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
+		[]roles.RoleType{roles.RoleTypeTIO})
+
+	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model:    officeUser.User,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	adminUser := factory.BuildAdminUser(suite.DB(), []factory.Customization{
+		{
+			Model: models.AdminUser{
+				Active: true,
+			},
+		},
+		{
+			Model:    officeUser.User,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.OktaID)
+	suite.Assert().NoError(err)
+
+	handlerConfig := suite.HandlerConfig()
+	appnames := handlerConfig.AppNames()
+
+	fakeToken := "some_token"
+	officeSession := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		IDToken:         fakeToken,
+		Hostname:        appnames.OfficeServername,
+		UserID:          *officeUser.UserID,
+		Email:           officeUser.Email,
+	}
+	sessionManager := handlerConfig.SessionManagers().Office
+	ctx := suite.SetupSessionContext(context.Background(), &officeSession, sessionManager)
+	result := AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&officeSession), userIdentity, sessionManager)
+
+	suite.Equal(authorizationResultAuthorized, result)
+	suite.Equal(officeUser.ID, officeSession.OfficeUserID)
+
+	serviceMemberSession := auth.Session{
+		ApplicationName: auth.MilApp,
+		IDToken:         fakeToken,
+		Hostname:        appnames.MilServername,
+		UserID:          serviceMember.UserID,
+		Email:           *serviceMember.PersonalEmail,
+	}
+	sessionManager = handlerConfig.SessionManagers().Mil
+	ctx = suite.SetupSessionContext(context.Background(), &serviceMemberSession, sessionManager)
+	result = AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&serviceMemberSession), userIdentity, sessionManager)
+
+	suite.Equal(authorizationResultAuthorized, result)
+	suite.Equal(serviceMember.ID, serviceMemberSession.ServiceMemberID)
+
+	adminSession := auth.Session{
+		ApplicationName: auth.AdminApp,
+		IDToken:         fakeToken,
+		Hostname:        appnames.AdminServername,
+		UserID:          *adminUser.UserID,
+		Email:           adminUser.Email,
+	}
+	sessionManager = handlerConfig.SessionManagers().Admin
+	ctx = suite.SetupSessionContext(context.Background(), &adminSession, sessionManager)
+	result = AuthorizeKnownUser(ctx, suite.AppContextWithSessionForTest(&adminSession), userIdentity, sessionManager)
+
+	suite.Equal(authorizationResultAuthorized, result)
+	suite.Equal(adminUser.ID, adminSession.AdminUserID)
+
+	// should match the same user ID for every session we got returned in each app
+	suite.ElementsMatch(
+		[]uuid.UUID{*officeUser.UserID, *officeUser.UserID, *officeUser.UserID},
+		[]uuid.UUID{adminSession.UserID, serviceMemberSession.UserID, officeSession.UserID},
+	)
+}
+
 func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	officeActive := false
 	userIdentity := models.UserIdentity{
