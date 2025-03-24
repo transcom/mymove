@@ -86,10 +86,6 @@ stages:
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
-  - unset AWS_ACCESS_KEY_ID
-  - unset AWS_SECRET_ACCESS_KEY
-  - unset AWS_ACCOUNT_ID
-  - unset AWS_DEFAULT_REGION
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -112,20 +108,12 @@ stages:
     fi
 
 .setup_aws_vars_com_dev: &setup_aws_vars_com_dev
-  - unset AWS_ACCESS_KEY_ID
-  - unset AWS_SECRET_ACCESS_KEY
-  - unset AWS_ACCOUNT_ID
-  - unset AWS_DEFAULT_REGION
-  - export AWS_DEFAULT_REGION=$COM_REGION
+  - export AWS_REGION=$COM_REGION
   - export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY
 
 .setup_aws_vars_stg: &setup_aws_vars_stg
-  - unset AWS_ACCESS_KEY_ID
-  - unset AWS_SECRET_ACCESS_KEY
-  - unset AWS_ACCOUNT_ID
-  - unset AWS_DEFAULT_REGION
   - export AWS_DEFAULT_REGION=$STG_REGION
   - export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID
@@ -139,10 +127,6 @@ stages:
   - export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA
 
 .setup_aws_vars_prd: &setup_aws_vars_prd
-  - unset AWS_ACCESS_KEY_ID
-  - unset AWS_SECRET_ACCESS_KEY
-  - unset AWS_ACCOUNT_ID
-  - unset AWS_DEFAULT_REGION
   - export AWS_DEFAULT_REGION=$PRD_REGION
   - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
@@ -854,6 +838,7 @@ server_test:
     - echo "server test -- build gotestsum and run scripts for report"
     - make -j 2 bin/milmove bin/gotestsum
     - make server_test
+    - scripts/check-failed-test /builds/milmove/mymove/tmp/test-results/gotest/app/go-test-report.xml
   artifacts:
     paths:
       - /builds/milmove/mymove/bin/gotestsum
