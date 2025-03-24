@@ -540,4 +540,66 @@ describe('BulkAssignmentModal', () => {
       expect(box.value).toEqual('0');
     });
   });
+  it('resets all assignment boxes to 0 when the radio button is changed', async () => {
+    // Force bulk re-assignment mode so the radio buttons are rendered.
+    isBooleanFlagEnabled.mockResolvedValue(true);
+    await act(async () => {
+      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
+    });
+
+    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
+
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    const reAssignUserRadio = screen.getAllByRole('radio');
+
+    // Wait for the table and inputs to render.
+    await screen.findByRole('table');
+
+    await act(async () => {
+      await fireEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    // Fill each assignment input with a non-zero value.
+    const assignmentInputs = screen.getAllByTestId('assignment');
+
+    await waitFor(async () => {
+      expect(assignmentInputs[0]).toHaveValue(0);
+      expect(assignmentInputs[1]).toHaveValue(0);
+      expect(assignmentInputs[2]).toHaveValue(0);
+    });
+
+    await act(async () => {
+      await fireEvent.click(reAssignUserRadio[0]);
+    });
+
+    await act(async () => {
+      await userEvent.type(assignmentInputs[1], '2');
+      await userEvent.type(assignmentInputs[2], '3');
+    });
+
+    await act(async () => {
+      await fireEvent.click(reAssignUserRadio[1]);
+    });
+
+    const assignmentInputs2 = screen.getAllByTestId('assignment');
+
+    await waitFor(async () => {
+      expect(assignmentInputs2[0]).toHaveValue(0);
+      expect(assignmentInputs2[1]).toHaveValue(0);
+      expect(assignmentInputs2[2]).toHaveValue(0);
+    });
+
+    await act(async () => {
+      await userEvent.click(bulkReAssignToggleSwitch);
+    });
+
+    await waitFor(async () => {
+      expect(assignmentInputs[0]).toHaveValue(0);
+      expect(assignmentInputs[1]).toHaveValue(0);
+      expect(assignmentInputs[2]).toHaveValue(0);
+    });
+  });
 });
