@@ -13489,6 +13489,12 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "serviceItems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "shipmentsCount": {
           "type": "integer"
         },
@@ -31471,6 +31477,12 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "serviceItems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "shipmentsCount": {
           "type": "integer"

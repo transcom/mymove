@@ -94,6 +94,9 @@ type QueueMove struct {
 	// Format: date
 	RequestedMoveDate *strfmt.Date `json:"requestedMoveDate,omitempty"`
 
+	// service items
+	ServiceItems []string `json:"serviceItems"`
+
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
 

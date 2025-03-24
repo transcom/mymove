@@ -2377,6 +2377,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
+		var serviceItems []string
+		for _, item := range move.MTOServiceItems {
+			if item.Status == models.MTOServiceItemStatusSubmitted {
+				serviceItems = append(serviceItems, item.ReService.Name)
+			}
+		}
+
 		// queue assignment logic below
 
 		// determine if there is an assigned user
@@ -2453,6 +2460,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			AssignedTo:              assignedToUser,
 			Assignable:              assignable,
 			AvailableOfficeUsers:    apiAvailableOfficeUsers,
+			ServiceItems:            serviceItems,
 		}
 	}
 	return &queueMoves
