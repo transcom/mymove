@@ -3,14 +3,14 @@ update transportation_offices set name = 'PPPO JB Lewis-McChord (McChord) - USA'
 
 --remove counseling office PPPO DMO Mountain Warfare Training Center Bridgeport – USMC
 update moves m
-   set counseling_transportation_office_id = '311b5292-6a8c-4ed4-a7e1-374734118737' 
+   set counseling_transportation_office_id = '311b5292-6a8c-4ed4-a7e1-374734118737'
   from orders o
  where m.counseling_transportation_office_id = 'fab58a38-ee1f-4adf-929a-2dd246fc5e67'
    and m.orders_id = o.id
    and o.origin_duty_location_id = '74651905-dd53-49f9-a196-6c3e9b43c734';
-  
+
 update moves m
-   set counseling_transportation_office_id = '3210a533-19b8-4805-a564-7eb452afce10' 
+   set counseling_transportation_office_id = '3210a533-19b8-4805-a564-7eb452afce10'
   from orders o
  where m.counseling_transportation_office_id = 'fab58a38-ee1f-4adf-929a-2dd246fc5e67'
    and m.orders_id = o.id
