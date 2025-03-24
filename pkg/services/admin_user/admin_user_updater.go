@@ -27,7 +27,7 @@ func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid
 		return nil, nil, err
 	}
 
-	if payload.Email != nil {
+	if payload.Email != nil && payload.Email != &foundUser.Email {
 		foundUser.Email = *payload.Email
 		updateUserAndOkta = true
 	}

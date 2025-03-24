@@ -28,7 +28,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 		return nil, nil, err
 	}
 
-	if payload.Email != nil {
+	if payload.Email != nil && foundUser.Email != *payload.Email {
 		foundUser.Email = *payload.Email
 		updateUserAndOkta = true
 	}
