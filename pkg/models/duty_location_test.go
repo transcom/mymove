@@ -53,22 +53,11 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	}
 	suite.MustSave(&location5)
 
-	s5 := models.DutyLocationName{
-		Name:           "Naval Air Station Fallon",
-		DutyLocationID: location5.ID,
-	}
-	suite.MustSave(&s5)
-
 	location6 := models.DutyLocation{
 		Name:      "NAS Fort Worth JRB",
 		AddressID: createdAddress.ID,
 	}
 	suite.MustSave(&location6)
-	s6 := models.DutyLocationName{
-		Name:           "Naval Air Station Fort Worth Joint Reserve Base",
-		DutyLocationID: location6.ID,
-	}
-	suite.MustSave(&s6)
 
 	newAddress2 := models.Address{
 		StreetAddress1: "some address",
@@ -420,89 +409,6 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), ts.query, []string{})
 			suite.NoError(err)
 			suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
-			for _, o := range dutyLocations {
-				suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
-			}
-		}
-	})
-
-	suite.Run("match on alternative name but exclude", func() {
-		alternativeDutyLocationName := "Foobar"
-
-		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
-		suite.NotNil(contract)
-		suite.FatalNoError(err)
-
-		// not active duty location
-		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, false)
-
-		suite.False(oconusRateArea.Active)
-
-		dutyLocationName := models.DutyLocationName{
-			Name:           alternativeDutyLocationName,
-			DutyLocationID: dutyLocation1.ID,
-			DutyLocation:   dutyLocation1,
-		}
-		verrs, err := suite.DB().ValidateAndCreate(&dutyLocationName)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
-
-		tests := []struct {
-			query         string
-			dutyLocations []string
-		}{
-			{query: "search oconus rate area duty locations", dutyLocations: []string{alternativeDutyLocationName}}, //search on alt name
-		}
-
-		for _, ts := range tests {
-			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), ts.query, []string{})
-			suite.NoError(err)
-			suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
-		}
-	})
-
-	suite.Run("match on alternative name when active oconus rateArea", func() {
-		alternativeDutyLocationName := "Foobar"
-
-		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
-		suite.NotNil(contract)
-		suite.FatalNoError(err)
-
-		// active duty location
-		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, true)
-
-		suite.True(oconusRateArea.Active)
-
-		dutyLocationName := models.DutyLocationName{
-			Name:           alternativeDutyLocationName,
-			DutyLocationID: dutyLocation1.ID,
-			DutyLocation:   dutyLocation1,
-		}
-		verrs, err := suite.DB().ValidateAndCreate(&dutyLocationName)
-		if verrs.HasAny() {
-			suite.Fail(verrs.Error())
-		}
-		if err != nil {
-			suite.Fail(err.Error())
-		}
-
-		tests := []struct {
-			query         string
-			dutyLocations []string
-		}{
-			{query: "search oconus rate area duty locations", dutyLocations: []string{alternativeDutyLocationName}}, //search on alt name
-		}
-
-		expectedDutyLocationNames := []string{dutyLocation1.Name}
-
-		for _, ts := range tests {
-			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), ts.query, []string{})
-			suite.NoError(err)
-			suite.Require().Equal(1, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
 			for _, o := range dutyLocations {
 				suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
 			}
