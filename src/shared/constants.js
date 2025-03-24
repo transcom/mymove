@@ -278,4 +278,7 @@ const ADDRESS_LABELS_MAP = {
 export const civilianTDYUBAllowanceWeightWarning =
   '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on your orders.';
 
+export const civilianTDYUBAllowanceWeightWarningOfficeUser =
+  '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.';
+
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];
