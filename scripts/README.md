@@ -99,6 +99,7 @@ These scripts are primarily used for CircleCI workflows.
 | Script Name                        | Description                                                                                             |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `check-deployed-commit`            | checks that the deployed commit and given commit match.                                                 |
+| `check-failed-test`            | used for gitlab to check failed xml test results and exit 1.
 | `check-generated-code`             | checks that the generated code has not changed                                                          |
 | `check-tls-pair`                   | checks that the TLS CERT and KEY match using openssl                                                    |
 | `circleci-announce-broken-branch`  | announce that a branch is broken                                                                        |

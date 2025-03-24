@@ -35,7 +35,7 @@ func (p internationalOriginFuelSurchargePricer) PriceUsingParams(appCtx appconte
 	mtoShipment := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment
 
 	if mtoShipment.ID == uuid.Nil {
-		err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
+		err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment", "MTOServiceItem.SITOriginHHGOriginalAddress").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -47,9 +47,14 @@ func (p internationalOriginFuelSurchargePricer) PriceUsingParams(appCtx appconte
 		mtoShipment = paymentServiceItem.MTOServiceItem.MTOShipment
 	}
 
-	distance, err := getParamInt(params, models.ServiceItemParamNameDistanceZipSITOrigin)
-	if err != nil {
-		return unit.Cents(0), nil, err
+	// do not calculate mileage if origin address is OCONUS. this is to prevent pricing to be calculated.
+	distance := 0
+	if paymentServiceItem.MTOServiceItem.SITOriginHHGOriginalAddress != nil &&
+		!*paymentServiceItem.MTOServiceItem.SITOriginHHGOriginalAddress.IsOconus {
+		distance, err = getParamInt(params, models.ServiceItemParamNameDistanceZipSITOrigin)
+		if err != nil {
+			return unit.Cents(0), nil, err
+		}
 	}
 
 	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
