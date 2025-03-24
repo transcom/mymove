@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
@@ -71,7 +72,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 	suite.Run("Test updating service item destination address on shipment address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Some Street",
+					City:           "Some City",
+					State:          "SC",
+					PostalCode:     "29229",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -86,14 +98,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				},
 			},
 			{
-				Model:    address,
+				Model:    deliveryAddress,
 				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
 			{
-				Model:    address,
-				LinkOnly: true,
+				Model:    pickUpAddress,
 				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -103,9 +115,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
 		suite.Equal(8, len(sitServiceItems))
 
-		eTag := etag.GenerateEtag(address.UpdatedAt)
+		eTag := etag.GenerateEtag(deliveryAddress.UpdatedAt)
 
-		updatedAddress := address
+		updatedAddress := deliveryAddress
 		updatedAddress.StreetAddress1 = "123 Somewhere Ln"
 
 		//  With mustBeAvailableToPrime = true, we should receive an error
@@ -128,7 +140,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 	suite.Run("Test updating origin SITDeliveryMiles on shipment pickup address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Some Street",
+					City:           "Some City",
+					State:          "SC",
+					PostalCode:     "29229",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -143,12 +166,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				},
 			},
 			{
-				Model:    address,
+				Model:    deliveryAddress,
 				Type:     &factory.Addresses.DeliveryAddress,
 				LinkOnly: true,
 			},
 			{
-				Model:    address,
+				Model:    pickUpAddress,
 				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
@@ -160,11 +183,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
 		suite.Equal(8, len(sitServiceItems))
 
-		eTag := etag.GenerateEtag(address.UpdatedAt)
+		eTag := etag.GenerateEtag(deliveryAddress.UpdatedAt)
 
-		oldAddress := address
+		oldAddress := deliveryAddress
 		oldAddress.PostalCode = "75116"
-		newAddress := address
+		newAddress := deliveryAddress
 		newAddress.PostalCode = "67492"
 
 		//  With mustBeAvailableToPrime = true, we should receive an error
@@ -180,12 +203,253 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			mock.Anything,
 			mock.Anything,
 		).Return(465, nil)
-		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
+
+		addressCreator := address.NewAddressCreator()
+
+		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, addressCreator, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
 		suite.Equal(2, len(*mtoServiceItems))
 		for _, mtoServiceItem := range *mtoServiceItems {
 			if mtoServiceItem.ReService.Code == "DOSFSC" || mtoServiceItem.ReService.Code == "DOPSIT" {
 				suite.Equal(*mtoServiceItem.SITDeliveryMiles, 465)
 			}
+		}
+	})
+
+	suite.Run("Successful - UpdateMTOShipmentAddress - Test updating international origin SITDeliveryMiles on shipment pickup address change", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		address := factory.BuildAddress(suite.DB(), nil, nil)
+		actualAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "177 Q st",
+					City:           "Solomons",
+					State:          "MD",
+					PostalCode:     "20688",
+				},
+			},
+		}, nil)
+
+		primeActualWeight := unit.Pound(1234)
+		primeEstimatedWeight := unit.Pound(1234)
+
+		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
+					UsesExternalVendor:   true,
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: &primeActualWeight,
+					PrimeActualWeight:    &primeEstimatedWeight,
+				},
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    externalShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOSFSC,
+				},
+			},
+			{
+				Model:    actualAddress,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    actualAddress,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(address.UpdatedAt)
+
+		newAddress := address
+		newAddress.PostalCode = "67492"
+
+		var serviceItems []models.MTOServiceItem
+
+		// verify pre-update mto service items for both origin FSC SIT have not been set
+		err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+		// expecting only IOSFSC and IDSFSC created for tests
+		suite.Equal(1, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			suite.Nil(serviceItems[i].PricingEstimate)
+			suite.True(serviceItems[i].SITDeliveryMiles == (*int)(nil))
+		}
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"20688",
+			"67492",
+		).Return(5, nil)
+
+		mtoShipmentAddressIntlSITUpdater := NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater)
+
+		_, err = mtoShipmentAddressIntlSITUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &newAddress, externalShipment.ID, eTag, false)
+		suite.Nil(err)
+
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+		suite.Equal(1, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
+			suite.NotNil(serviceItems[i].PricingEstimate)
+			suite.Equal(*serviceItems[i].SITDeliveryMiles, 5)
+		}
+	})
+
+	suite.Run("Successful - UpdateMTOShipmentAddress - OCONUS Original Pickup - should not calculate pricing", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		address := factory.BuildAddress(suite.DB(), nil, nil)
+		actualAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "177 Q st",
+					City:           "AK",
+					State:          "AK",
+					PostalCode:     "99708",
+					IsOconus:       models.BoolPointer(true), //OCONUS - prevent pricing
+				},
+			},
+		}, nil)
+
+		primeActualWeight := unit.Pound(1234)
+		primeEstimatedWeight := unit.Pound(1234)
+
+		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
+					UsesExternalVendor:   true,
+					Status:               models.MTOShipmentStatusApproved,
+					PrimeEstimatedWeight: &primeActualWeight,
+					PrimeActualWeight:    &primeEstimatedWeight,
+					MarketCode:           models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    externalShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOSFSC,
+				},
+			},
+			{
+				Model:    actualAddress,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    actualAddress,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(address.UpdatedAt)
+
+		newAddress := address
+		newAddress.PostalCode = "67492"
+
+		var serviceItems []models.MTOServiceItem
+
+		// verify pre-update mto service items for both origin FSC SIT have not been set
+		err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+		// expecting only IOSFSC and IDSFSC created for tests
+		suite.Equal(1, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			suite.Nil(serviceItems[i].PricingEstimate)
+			suite.True(serviceItems[i].SITDeliveryMiles == (*int)(nil))
+		}
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(5, nil).Times(0)
+
+		mtoShipmentAddressIntlSITUpdater := NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater)
+
+		_, err = mtoShipmentAddressIntlSITUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &newAddress, externalShipment.ID, eTag, false)
+		suite.Nil(err)
+
+		err = suite.AppContextForTest().DB().Eager("SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress",
+			"ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
+
+		suite.NoError(err)
+		suite.Equal(1, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
+			// verify mileage and pricing were not calcuated because of OCONUS origin pickup - SITOriginHHGOriginalAddress
+			suite.Equal(*serviceItems[i].PricingEstimate, unit.Cents(0))
+			suite.NotNil(serviceItems[i].SITDeliveryMiles)
+			suite.NotNil(serviceItems[i].SITOriginHHGActualAddressID)
+			// verify SITOriginHHGOriginalAddress was updated with new postal code
+			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, newAddress.PostalCode)
+			// verify SITOriginHHGOriginalAddress was not changed
+			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, actualAddress.PostalCode)
 		}
 	})
 }

@@ -848,6 +848,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			newShipment = models.DetermineShipmentMarketCode(newShipment)
 		}
 
+		// RDD for UB shipments only need the pick up date, shipment origin address and destination address to determine required delivery date
+		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			calculatedRDD, err := CalculateRequiredDeliveryDate(appCtx, f.planner, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.PrimeEstimatedWeight.Int(), newShipment.MarketCode, newShipment.MoveTaskOrderID, newShipment.ShipmentType)
+			if err != nil {
+				return err
+			}
+
+			newShipment.RequiredDeliveryDate = calculatedRDD
+		}
+
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
 		}
@@ -890,6 +900,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					return err
 				}
 			} else {
+
+				// update mileage for origin SITs. this is to ensure when UpdateEstimatedPricingForShipmentBasicServiceItems
+				// is executed it is using most up to date mileage using lates addresses.
+				err = UpdateSITServiceItemsSITIfPostalCodeChanged(f.planner, appCtx, f.addressCreator, newShipment)
+				if err != nil {
+					return err
+				}
+
 				// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
 				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, nil)
 				if err != nil {
@@ -1222,7 +1240,6 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	}
 	// Let's add some days if we're dealing with a shipment between CONUS/Alaska
 	if (destinationIsAlaska || pickupIsAlaska) && !(destinationIsAlaska && pickupIsAlaska) {
-		var rateAreaID uuid.UUID
 		var intlTransTime models.InternationalTransitTime
 
 		contract, err := models.FetchContractForMove(appCtx, moveID)
@@ -1230,50 +1247,56 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			return nil, fmt.Errorf("error fetching contract for move ID: %s", moveID)
 		}
 
-		if destinationIsAlaska {
-			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
-			if err != nil {
-				return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
-			}
-			err = appCtx.DB().Where("destination_rate_area_id = $1", rateAreaID).First(&intlTransTime)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, fmt.Errorf("no international transit time found for destination rate area ID: %s", rateAreaID)
-				default:
-					return nil, err
-				}
-			}
+		pickupAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
 		}
 
-		if pickupIsAlaska {
-			rateAreaID, err = models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
-			if err != nil {
-				return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
-			}
-			err = appCtx.DB().Where("origin_rate_area_id = $1", rateAreaID).First(&intlTransTime)
-			if err != nil {
-				switch err {
-				case sql.ErrNoRows:
-					return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", rateAreaID)
-				default:
-					return nil, err
-				}
-			}
+		destinationAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
 		}
 
-		if shipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
-			if intlTransTime.HhgTransitTime != nil {
-				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
+		if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			intlTransTime, err = models.FetchInternationalTransitTime(appCtx.DB(), pickupAddressRateAreaID, destinationAddressRateAreaID)
+			if err != nil {
+				return nil, fmt.Errorf("error fetching intl transit record for origin rate area ID: %s and destination rate area ID: %s", pickupAddressRateAreaID, destinationAddressRateAreaID)
+			}
+
+			if intlTransTime.UbTransitTime != nil {
+				requiredDeliveryDate = pickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
 			}
 		} else {
-			if intlTransTime.UbTransitTime != nil {
-				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
+			if destinationIsAlaska {
+				err = appCtx.DB().Where("destination_rate_area_id = $1", destinationAddressRateAreaID).First(&intlTransTime)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, fmt.Errorf("no international transit time found for destination rate area ID: %s", destinationAddressRateAreaID)
+					default:
+						return nil, err
+					}
+				}
+			}
+
+			if pickupIsAlaska {
+				err = appCtx.DB().Where("origin_rate_area_id = $1", pickupAddressRateAreaID).First(&intlTransTime)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", pickupAddressRateAreaID)
+					default:
+						return nil, err
+					}
+				}
+			}
+
+			if intlTransTime.HhgTransitTime != nil {
+				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
 			}
 		}
 	}
 
-	// return the value
 	return &requiredDeliveryDate, nil
 }
 
@@ -1404,6 +1427,10 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			if err != nil {
 				return err
 			}
+
+			if err != nil {
+				return err
+			}
 			serviceItem.SITDeliveryMiles = &milesCalculated
 
 			mtoServiceItems = append(mtoServiceItems, serviceItem)
@@ -1414,6 +1441,100 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mtoServiceItems)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
+		} else if err != nil {
+			return apperror.NewQueryError("Service item", err, "")
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+
+	return nil
+}
+
+func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx appcontext.AppContext, addressCreator services.AddressCreator, newShipment *models.MTOShipment) error {
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
+	mtoShipment, err := FindShipment(appCtx, newShipment.ID, eagerAssociations...)
+	if err != nil {
+		return err
+	}
+
+	mtoServiceItems := mtoShipment.MTOServiceItems
+	for _, s := range mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		var milesCalculated int
+
+		if reServiceCode == models.ReServiceCodeDOPSIT ||
+			reServiceCode == models.ReServiceCodeDOSFSC ||
+			reServiceCode == models.ReServiceCodeIOPSIT ||
+			reServiceCode == models.ReServiceCodeIOSFSC {
+
+			if newShipment.PickupAddress.PostalCode != serviceItem.SITOriginHHGActualAddress.PostalCode {
+				// Update SITOriginHHGActualAddress with new zip. We only care about zip.
+				clonedAddress := newShipment.PickupAddress.Copy()
+				clonedAddress.ID = uuid.Nil
+				newSITOriginHHGActualAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
+				if err != nil {
+					return err
+				}
+				// update actual with new address
+				serviceItem.SITOriginHHGActualAddress = newSITOriginHHGActualAddress
+				serviceItem.SITOriginHHGActualAddressID = &newSITOriginHHGActualAddress.ID
+			}
+
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGActualAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+
+		}
+
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC ||
+			reServiceCode == models.ReServiceCodeIDDSIT ||
+			reServiceCode == models.ReServiceCodeIDSFSC {
+
+			if newShipment.DestinationAddress.PostalCode != serviceItem.SITDestinationFinalAddress.PostalCode {
+				// Update SITDestinationFinalAddress with new zip if different.  We only care about zip.
+				clonedAddress := newShipment.DestinationAddress.Copy()
+				clonedAddress.ID = uuid.Nil
+				newSITDestinationFinalAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
+				if err != nil {
+					return err
+				}
+				serviceItem.SITDestinationFinalAddress = newSITDestinationFinalAddress
+				serviceItem.SITDestinationFinalAddressID = &newSITDestinationFinalAddress.ID
+			}
+
+			// When update is done before service item is Approved. SITDestinationOriginalAddress will be nil
+			// when not Approved.
+			destinationOriginalPostalCode := newShipment.DestinationAddress.PostalCode
+
+			if serviceItem.SITDestinationOriginalAddress != nil {
+				destinationOriginalPostalCode = serviceItem.SITDestinationOriginalAddress.PostalCode
+			}
+
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, destinationOriginalPostalCode)
+			if err != nil {
+				return err
+			}
+			serviceItem.SITDeliveryMiles = &milesCalculated
+
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
+
+		}
+	}
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&mtoServiceItems)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(newShipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
 		} else if err != nil {
 			return apperror.NewQueryError("Service item", err, "")
 		}

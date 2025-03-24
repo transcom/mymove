@@ -224,6 +224,10 @@ const TableQueue = ({
     }
   }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, isPageReload, sessionStorageKey]);
 
+  useEffect(() => {
+    gotoPage(0);
+  }, [filters, gotoPage]);
+
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
   const isDateFilterValue = (value) => {
@@ -341,7 +345,10 @@ const TableQueue = ({
     setIsBulkAssignModalVisible(false);
   };
 
-  const onSubmitBulk = (bulkAssignmentSavePayload) => {
+  const onSubmitBulk = (bulkAssignmentSaveData) => {
+    const bulkAssignmentSavePayload = { ...bulkAssignmentSaveData };
+    bulkAssignmentSavePayload.bulkAssignmentSavePayload.userData =
+      bulkAssignmentSaveData.bulkAssignmentSavePayload.userData.filter((user) => user.moveAssignments > 0);
     mutateBulkAssignment({ queueType, ...bulkAssignmentSavePayload });
   };
 
@@ -384,7 +391,6 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
-                  isHeadquartersUser={activeRole === roleTypes.HQ}
                 />
               )}
             </div>
