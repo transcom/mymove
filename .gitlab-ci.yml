@@ -1103,7 +1103,7 @@ integration_test_mtls:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--port","4000","--verbose"]
+      command: ["serve","--verbose"]
       # command: ["--verbose","node", "server.js"]
   variables:
     CI_DEBUG_SERVICES: "true"
@@ -1202,7 +1202,7 @@ integration_test_mtls:
     SERVE_API_PRIME: true
 
     DB_DEBUG: false
-  needs:
+  # needs:
   #  - prep_integration_docker_microservice
   #   - pre_deps_yarn
   #   - compile_app_server
@@ -1253,9 +1253,12 @@ integration_test_admin:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","-p","4000","--verbose"]
+      command: ["-p 4000:4000", "serve","--verbose"]
   variables:
     FF_NETWORK_PER_BUILD: "true"
+    PLAYWRIGHT_MY_URL: http://milmovelocal:4000
+    PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
+    PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
