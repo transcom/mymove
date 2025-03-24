@@ -79,6 +79,30 @@ const MoveDetails = ({
   // RA Modified Severity: N/A
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
+  const navigate = useNavigate();
+
+  const {
+    move,
+    customerData,
+    order,
+    orderDocuments,
+    closeoutOffice,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = useMoveDetailsQueries(moveCode);
+
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+
+  let numberOfShipmentsNotAllowedForCancel = 0;
+
+  // for now we are only showing dest type on retiree and separatee orders
+  const isRetirementOrSeparation = useMemo(
+    () => order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION,
+    [order],
+  );
+
   const errorIfMissing = useMemo(() => {
     const fieldRequestedPickupDate = {
       fieldName: 'requestedPickupDate',
@@ -88,7 +112,7 @@ const MoveDetails = ({
       optional: true, // bypass to use condition, triggers condition if not present
     };
 
-    return {
+    const fields = {
       HHG: [
         {
           ...fieldRequestedPickupDate,
@@ -121,36 +145,15 @@ const MoveDetails = ({
         },
       ],
     };
-  }, []);
 
-  const navigate = useNavigate();
+    if (isRetirementOrSeparation) {
+      // destination type must be set for for HHG, NTSR shipments only
+      fields.HHG.push({ fieldName: 'destinationType' });
+      fields.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
+    }
 
-  const {
-    move,
-    customerData,
-    order,
-    orderDocuments,
-    closeoutOffice,
-    mtoShipments,
-    mtoServiceItems,
-    isLoading,
-    isError,
-  } = useMoveDetailsQueries(moveCode);
-
-  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
-
-  // for now we are only showing dest type on retiree and separatee orders
-  let isRetirementOrSeparation = false;
-  let numberOfShipmentsNotAllowedForCancel = 0;
-
-  isRetirementOrSeparation =
-    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
-
-  if (isRetirementOrSeparation) {
-    // destination type must be set for for HHG, NTSR shipments only
-    errorIfMissing.HHG.push([{ fieldName: 'destinationType' }]);
-    errorIfMissing.HHG_OUTOF_NTS.push({ fieldName: 'destinationType' });
-  }
+    return fields;
+  }, [isRetirementOrSeparation]);
 
   let sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
