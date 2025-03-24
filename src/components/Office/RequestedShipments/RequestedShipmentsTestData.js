@@ -1,7 +1,7 @@
 import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from '../../../constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
 
-import { SHIPMENT_OPTIONS, MTOAgentType } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MTOAgentType, PPM_TYPES } from 'shared/constants';
 
 export const shipments = [
   {
@@ -414,6 +414,7 @@ export const zeroIncentivePPM = [
       streetAddress3: 'c/o Some Person',
     },
     ppmShipment: {
+      ppmType: PPM_TYPES.INCENTIVE_BASED,
       pickupAddress: {
         streetAddress1: '812 S 129th St',
         streetAddress2: '#123',
