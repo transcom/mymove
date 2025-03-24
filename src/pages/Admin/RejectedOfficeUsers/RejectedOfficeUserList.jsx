@@ -3,7 +3,6 @@ import {
   Datagrid,
   DateField,
   List,
-  Filter,
   ReferenceField,
   TextField,
   TextInput,
@@ -90,12 +89,6 @@ const filterList = [
 ];
 
 const RejectedOfficeUserListFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
-  </Filter>
-);
-
-const SearchFilters = () => (
   <div className={styles.searchContainer}>
     <div className={styles.searchBar}>
       <FilterForm filters={filterList} />
@@ -110,7 +103,7 @@ const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const RejectedOfficeUserList = () => (
   <List
-    filters={[<SearchFilters />, <RejectedOfficeUserListFilter />]}
+    filters={<RejectedOfficeUserListFilter />}
     pagination={<AdminPagination />}
     perPage={25}
     sort={defaultSort}

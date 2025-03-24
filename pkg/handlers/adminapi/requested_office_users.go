@@ -32,8 +32,8 @@ func payloadToOktaAccountCreationModel(payload *adminmessages.RequestedOfficeUse
 	return models.OktaAccountCreationTemplate{
 		FirstName:   *payload.FirstName,
 		LastName:    *payload.LastName,
-		Login:       payload.Email,
-		Email:       payload.Email,
+		Login:       *payload.Email,
+		Email:       *payload.Email,
 		CacEdipi:    payload.Edipi,
 		MobilePhone: *payload.Telephone,
 		GsaID:       payload.OtherUniqueID,
@@ -163,22 +163,44 @@ type IndexRequestedOfficeUsersHandler struct {
 var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query){
 	"search": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
-			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("office_users.email ILIKE ? AND office_users.status = 'REQUESTED' OR office_users.first_name ILIKE ? AND office_users.status = 'REQUESTED' OR office_users.last_name ILIKE ? AND office_users.status = 'REQUESTED'", nameSearch, nameSearch, nameSearch)
+			firstSearch, lastSearch, emailSearch := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
+			query.Where("(office_users.first_name ILIKE ? OR office_users.last_name ILIKE ? OR office_users.email ILIKE ?) AND office_users.status = 'REQUESTED'", firstSearch, lastSearch, emailSearch)
 		}
 	},
-
-	"offices": func(content string) func(*pop.Query) {
+	"email": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
-			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'REQUESTED'", nameSearch)
+			emailSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.email ILIKE ? AND office_users.status = 'REQUESTED'", emailSearch)
 		}
 	},
-
-	"rolesSearch": func(content string) func(*pop.Query) {
+	"firstName": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
-			nameSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("roles.role_name ILIKE ? AND office_users.status = 'REQUESTED'", nameSearch)
+			firstNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.first_name ILIKE ? AND office_users.status = 'REQUESTED'", firstNameSearch)
+		}
+	},
+	"lastName": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			lastNameSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("office_users.last_name ILIKE ? AND office_users.status = 'REQUESTED'", lastNameSearch)
+		}
+	},
+	"office": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			officeSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("transportation_offices.name ILIKE ? AND office_users.status = 'REQUESTED'", officeSearch)
+		}
+	},
+	"requestedOn": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			RequestedOnSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("TO_CHAR(office_users.created_at, 'MM/DD/YYYY') ILIKE ? AND office_users.status = 'REQUESTED'", RequestedOnSearch)
+		}
+	},
+	"roles": func(content string) func(*pop.Query) {
+		return func(query *pop.Query) {
+			rolesSearch := fmt.Sprintf("%%%s%%", content)
+			query.Where("roles.role_name ILIKE ? AND office_users.status = 'REQUESTED'", rolesSearch)
 		}
 	},
 }
