@@ -63,6 +63,42 @@ export const WithReviewButton = () => (
   </div>
 );
 
+export const WithEditAndReviewButton = () => (
+  <div className="officeApp">
+    <DetailsPanel
+      title="With Edit and Review Button"
+      editButton={
+        <a href="#" className="usa-button usa-button--secondary">
+          Edit
+        </a>
+      }
+      reviewButton={<ReviewButton label="Review Button" secondary />}
+    >
+      <p>Child Content!</p>
+    </DetailsPanel>
+  </div>
+);
+
+export const WithDropdownAndReviewButton = () => (
+  <div className="officeApp">
+    <DetailsPanel
+      title="With Dropdown And Review Button"
+      reviewButton={<ReviewButton label="Review Button" secondary />}
+      editButton={
+        <ButtonDropdown>
+          <option value="">Dropdown Button</option>
+          <option>Option 1</option>
+          <option>Option 2</option>
+          <option>Option 3</option>
+          <option>Option 4</option>
+        </ButtonDropdown>
+      }
+    >
+      <p>Child Content!</p>
+    </DetailsPanel>
+  </div>
+);
+
 export const WithClassname = () => (
   <div className="officeApp">
     <DetailsPanel title="Details panel with added CSS class" className="border-2px">

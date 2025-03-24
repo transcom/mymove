@@ -53,6 +53,10 @@
     display: block;
   }
 
+  .civilianUBAllowanceWarning {
+    color: #6e7377;
+  }
+
   :global(.usa-form-group:not(:first-child)) {
     @include u-margin-top(4);
   }
