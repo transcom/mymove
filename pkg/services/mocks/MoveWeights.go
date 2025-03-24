@@ -76,23 +76,23 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 }
 
 // GetAutoReweighShipments provides a mock function with given fields: appCtx, move, updatedShipment
-func (_m *MoveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+func (_m *MoveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (*models.MTOShipments, error) {
 	ret := _m.Called(appCtx, move, updatedShipment)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAutoReweighShipments")
 	}
 
-	var r0 models.MTOShipments
+	var r0 *models.MTOShipments
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.MTOShipment) (models.MTOShipments, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.MTOShipment) (*models.MTOShipments, error)); ok {
 		return rf(appCtx, move, updatedShipment)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.MTOShipment) models.MTOShipments); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.MTOShipment) *models.MTOShipments); ok {
 		r0 = rf(appCtx, move, updatedShipment)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(models.MTOShipments)
+			r0 = ret.Get(0).(*models.MTOShipments)
 		}
 	}
 

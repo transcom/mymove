@@ -857,13 +857,13 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		suite.NoError(err)
 		autoReweighShipments, err := moveWeights.GetAutoReweighShipments(session, &move, &shipment1)
 		suite.NoError(err)
-		suite.Equal(1, len(autoReweighShipments))
+		suite.Equal(1, len(*autoReweighShipments))
 
 		err = suite.DB().EagerPreload("MTOShipments", "Orders", "Orders.Entitlement", "MTOShipments.Reweigh", "MTOShipments.ShipmentType", "MTOShipments.Status", "MTOShipments.DeletedAt", "MTOShipments.PrimeActualWeight", "MTOShipments.PrimeEstimatedWeight").Find(&move, move2.ID)
 		suite.NoError(err)
 		autoReweighShipments, err = moveWeights.GetAutoReweighShipments(session, &move, &shipment2)
 		suite.NoError(err)
-		suite.Equal(0, len(autoReweighShipments))
+		suite.Equal(0, len(*autoReweighShipments))
 
 		// Test that entire function executes without error
 		err = moveWeights.CheckAutoReweigh(session, move1.ID, &shipment1)
@@ -871,7 +871,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		err = moveWeights.CheckAutoReweigh(session, move2.ID, &shipment2)
 		suite.NoError(err)
-		suite.Equal(0, len(autoReweighShipments))
+		suite.Equal(0, len(*autoReweighShipments))
 	})
 
 	suite.Run("doesn't request a reweigh if one already exists for a shipment", func() {
@@ -942,6 +942,6 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		autoReweighShipments, err := moveWeights.GetAutoReweighShipments(suite.AppContextForTest(), &approvedMove, &approvedShipment)
 		suite.NoError(err)
-		suite.Equal(len(autoReweighShipments), 0)
+		suite.Empty(autoReweighShipments)
 	})
 }

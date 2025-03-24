@@ -535,6 +535,7 @@ type ApproveShipmentHandler struct {
 	services.ShipmentSITStatus
 	services.MoveTaskOrderUpdater
 	services.MoveWeights
+	services.ShipmentReweighRequester
 }
 
 // Handle approves a shipment
@@ -591,17 +592,15 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			}
 
 			if reweighActiveForMove {
-				reweighRequester := mtoshipment.NewShipmentReweighRequester()
-				for i := range move.MTOShipments {
-					shipment := move.MTOShipments[i]
+				for _, shipment := range move.MTOShipments {
 					if (shipment.Status == models.MTOShipmentStatusApproved ||
 						shipment.Status == models.MTOShipmentStatusDiversionRequested ||
 						shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 						shipment.Reweigh.ID == uuid.Nil &&
 						shipment.ShipmentType != models.MTOShipmentTypePPM {
-						_, err := reweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
+						_, err := h.ShipmentReweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 						if err != nil {
-							return nil, err
+							return handleError(err)
 						}
 					}
 				}
@@ -687,6 +686,7 @@ type ApproveShipmentsHandler struct {
 	services.ShipmentSITStatus
 	services.MoveTaskOrderUpdater
 	services.MoveWeights
+	services.ShipmentReweighRequester
 }
 
 // Handle approves one or more shipments
@@ -812,7 +812,6 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 				}
 
 				if reweighActiveForMove {
-					reweighRequester := mtoshipment.NewShipmentReweighRequester()
 					for i := range move.MTOShipments {
 						shipment := move.MTOShipments[i]
 						if (shipment.Status == models.MTOShipmentStatusApproved ||
@@ -820,9 +819,9 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 							shipment.Reweigh.ID == uuid.Nil &&
 							shipment.ShipmentType != models.MTOShipmentTypePPM {
-							_, err := reweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
+							_, err := h.ShipmentReweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 							if err != nil {
-								return nil, err
+								return handleError(err)
 							}
 						}
 					}
