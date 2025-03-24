@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 
@@ -10,6 +11,7 @@ import MoveDetails from './MoveDetails';
 import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
@@ -28,6 +30,11 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ moveCode: mockRequestedMoveCode }),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const requestedMoveDetailsQuery = {
@@ -1297,6 +1304,87 @@ describe('MoveDetails page', () => {
       );
 
       expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
+    });
+
+    it('renders add a new shipment button and does not show UB when orders type is local move', async () => {
+      const localMoveDetailsQuery = {
+        ...noRequestedAndNoApprovedMoveDetailsQuery,
+        order: {
+          ...noRequestedAndNoApprovedMoveDetailsQuery.order,
+          order_type: ORDERS_TYPE.LOCAL_MOVE,
+          originDutyLocation: {
+            address: {
+              isOconus: true,
+            },
+          },
+        },
+      };
+      useMoveDetailsQueries.mockReturnValue(localMoveDetailsQuery);
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      render(
+        <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      // Get the combobox (dropdown button)
+      const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+
+      expect(combobox).toBeInTheDocument();
+
+      // Simulate a user clicking the dropdown
+      await userEvent.click(combobox);
+
+      // Check if all expected options appear
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+      });
+      // UB option does not appear when orders type is local move
+      expect(screen.queryByRole('option', { name: 'UB' })).not.toBeInTheDocument();
+    });
+
+    it('renders add a new shipment button and shows UB when orders type is NOT local move', async () => {
+      const pcsMoveDetailsQuery = {
+        ...noRequestedAndNoApprovedMoveDetailsQuery,
+        order: {
+          ...noRequestedAndNoApprovedMoveDetailsQuery.order,
+          order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          originDutyLocation: {
+            address: {
+              isOconus: true,
+            },
+          },
+        },
+      };
+      useMoveDetailsQueries.mockReturnValue(pcsMoveDetailsQuery);
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      render(
+        <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+
+      expect(combobox).toBeInTheDocument();
+
+      await userEvent.click(combobox);
+
+      // Check if all expected options appear
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+      });
+      expect(screen.getByRole('option', { name: 'UB' })).toBeInTheDocument();
     });
 
     it('renders add new shipment button even when there are no shipments on the move', async () => {
