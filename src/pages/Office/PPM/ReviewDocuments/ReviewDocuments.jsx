@@ -188,7 +188,7 @@ export const ReviewDocuments = ({ readOnly }) => {
 
     if (showOverview && allWeightTicketsRejected && weightTickets.length > 0) {
       setServerError(
-        'Cannot closeout PPM All weight tickets have been rejected. At least one approved weight ticket is required.',
+        'Cannot closeout PPM. All weight tickets have been rejected. At least one approved weight ticket is required.',
       );
       return;
     }
