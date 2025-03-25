@@ -145,15 +145,10 @@ describe('AboutForm component', () => {
 
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('');
-      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('');
-      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('');
 
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('');
-      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('');
-      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(3);
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();

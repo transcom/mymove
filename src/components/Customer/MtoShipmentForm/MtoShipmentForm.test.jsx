@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { generatePath } from 'react-router-dom';
-import { waitFor, screen } from '@testing-library/react';
+import { waitFor, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
@@ -373,15 +373,16 @@ describe('MtoShipmentForm component', () => {
     it('renders a second address fieldset when the user has a second pickup address', async () => {
       const { queryByLabelText } = renderMtoShipmentForm();
 
-      await userEvent.click(screen.getByTestId('has-secondary-pickup'));
+      fireEvent.click(screen.getByTestId('has-secondary-pickup'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
+      expect(streetAddress1.length).toBe(2);
       expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
 
       const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
       expect(streetAddress2[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress2');
 
-      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(1);
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
     });
 
     it('renders a third address fieldset when the user has a third pickup address', async () => {
