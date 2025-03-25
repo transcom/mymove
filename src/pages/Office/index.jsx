@@ -605,7 +605,7 @@ export class OfficeApp extends Component {
                         path={contractingOfficerRoutes.MOVE_SEARCH_PATH}
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.CONTRACTING_OFFICER]}>
-                            <QAECSRMoveSearch />
+                            <QAECSRMoveSearch landingPath="mto" />
                           </PrivateRoute>
                         }
                       />
@@ -653,9 +653,11 @@ export class OfficeApp extends Component {
                       )}
                       {(activeRole === roleTypes.QAE ||
                         activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE ||
-                        (activeRole === roleTypes.GSR && gsrRoleFlag) ||
-                        activeRole === roleTypes.CONTRACTING_OFFICER) && (
+                        (activeRole === roleTypes.GSR && gsrRoleFlag)) && (
                         <Route end path="/" element={<QAECSRMoveSearch />} />
+                      )}
+                      {activeRole === roleTypes.CONTRACTING_OFFICER && (
+                        <Route end path="/" element={<QAECSRMoveSearch landingPath="mto" />} />
                       )}
                       {activeRole === roleTypes.GSR && !gsrRoleFlag && (
                         <Route end path="/*" element={<InvalidPermissions />} />
