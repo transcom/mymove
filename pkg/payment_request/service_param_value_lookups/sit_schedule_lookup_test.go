@@ -20,6 +20,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "35007", "ALABASTER")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -29,14 +32,16 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "35007",
+					PostalCode:         "35007",
+					UsPostRegionCityID: &usprc.ID,
 				},
 			},
 		}, nil)
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "45007",
+					PostalCode:         "45007",
+					UsPostRegionCityID: &usprc.ID,
 				},
 			},
 		}, nil)
@@ -127,9 +132,13 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	suite.Run("lookup SITScheduleOrigin not found", func() {
 		setupTestData()
 
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: "00000"},
+				Model: models.Address{PostalCode: "00000", UsPostRegionCityID: &usprc.ID},
 			},
 		}, nil)
 
@@ -162,9 +171,15 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	suite.Run("lookup SITScheduleDest not found", func() {
 		setupTestData()
 
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: "00100"},
+				Model: models.Address{
+					PostalCode:         "00100",
+					UsPostRegionCityID: &usprc.ID,
+				},
 			},
 		}, nil)
 

@@ -29,14 +29,17 @@ func fakeAddressPayload() *internalmessages.Address {
 
 func (suite *HandlerSuite) TestShowAddressHandler() {
 
+	usprcId := uuid.FromStringOrNil("f365a492-fdd5-45fd-af14-db38a5aea80c")
+
 	suite.Run("successful lookup", func() {
 		address := models.Address{
-			StreetAddress1: "some address",
-			City:           "city",
-			State:          "state",
-			PostalCode:     "12345",
-			County:         models.StringPointer("JESSAMINE"),
-			IsOconus:       models.BoolPointer(false),
+			StreetAddress1:     "some address",
+			City:               "KEENE",
+			State:              "KY",
+			PostalCode:         "40339",
+			County:             models.StringPointer("JESSAMINE"),
+			IsOconus:           models.BoolPointer(false),
+			UsPostRegionCityID: &usprcId,
 		}
 		suite.MustSave(&address)
 
