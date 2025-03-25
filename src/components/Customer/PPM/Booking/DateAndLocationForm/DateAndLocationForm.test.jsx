@@ -462,7 +462,6 @@ describe('validates form fields and displays error messages', () => {
       await waitFor(() => {
         expect(address1[3]).toBeInstanceOf(HTMLInputElement);
         expect(screen.getAllByLabelText(/Location Lookup/)[3]).toBeInstanceOf(HTMLInputElement);
-
       });
       // verify 2nd delivery address is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();

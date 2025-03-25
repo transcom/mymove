@@ -1409,7 +1409,7 @@ describe('ShipmentForm component', () => {
       await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
 
       const streetAddress1 = screen.getAllByLabelText(/Address 1/);
-      
+
       await waitFor(() => {
         expect(streetAddress1[1]).toBeInstanceOf(HTMLInputElement);
         expect(screen.getAllByLabelText(/Location Lookup/)[1]).toBeInstanceOf(HTMLInputElement);
