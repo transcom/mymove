@@ -1440,7 +1440,7 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 }
 
 func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx appcontext.AppContext, addressCreator services.AddressCreator, newShipment *models.MTOShipment) error {
-	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
+	eagerAssociations := []string{"DestinationAddress", "MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
 	mtoShipment, err := FindShipment(appCtx, newShipment.ID, eagerAssociations...)
 	if err != nil {
 		return err
@@ -1470,8 +1470,12 @@ func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx a
 			reServiceCode == models.ReServiceCodeIDDSIT ||
 			reServiceCode == models.ReServiceCodeIDSFSC {
 
-			// At this point shipment destination address is SITDestinationFinalAddress
-			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationOriginalAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
+			// init using shipment destination if SITDestinationOriginalAddress is not set during pre-approval
+			originalDestination := mtoShipment.DestinationAddress.PostalCode
+			if serviceItem.SITDestinationOriginalAddress != nil {
+				originalDestination = serviceItem.SITDestinationOriginalAddress.PostalCode
+			}
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, originalDestination, serviceItem.SITDestinationFinalAddress.PostalCode)
 			if err != nil {
 				return err
 			}
