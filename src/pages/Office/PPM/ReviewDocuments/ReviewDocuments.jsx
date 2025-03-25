@@ -41,14 +41,23 @@ export const ReviewDocuments = ({ readOnly }) => {
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
   const [ppmShipmentInfo, setPpmShipmentInfo] = useState({});
-
+  const [allWeightTicketsRejected, setAllWeightTicketsRejected] = useState(false);
   let documentSets = useMemo(() => [], []);
-  const weightTickets = documents?.WeightTickets ?? [];
+  const weightTickets = useMemo(() => documents?.WeightTickets ?? [], [documents?.WeightTickets]);
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
+
+  useEffect(() => {
+    if (weightTickets.length > 0) {
+      const allRejected = weightTickets.every((ticket) => ticket.status === 'REJECTED');
+      setAllWeightTicketsRejected(allRejected);
+    } else {
+      setAllWeightTicketsRejected(false);
+    }
+  }, [weightTickets]);
 
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
@@ -176,6 +185,13 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   const onContinue = () => {
     setServerError(null);
+
+    if (showOverview && allWeightTicketsRejected && weightTickets.length > 0) {
+      setServerError(
+        'Cannot closeout PPM All weight tickets have been rejected. At least one approved weight ticket is required.',
+      );
+      return;
+    }
     if (formRef.current) {
       formRef.current.handleSubmit();
     }
@@ -265,6 +281,16 @@ export const ReviewDocuments = ({ readOnly }) => {
             <Grid className={styles.alertContainer}>
               <Alert headingLevel="h4" slim type="warning">
                 <span>This move has excess weight. Edit the PPM net weight to resolve.</span>
+              </Alert>
+            </Grid>
+          )}
+
+          {allWeightTicketsRejected && weightTickets.length > 0 && (
+            <Grid className={styles.alertContainer}>
+              <Alert headingLevel="h4" slim type="error">
+                <span>
+                  All weight tickets have been rejected. At least one approved weight ticket is required to proceed.
+                </span>
               </Alert>
             </Grid>
           )}
@@ -473,7 +499,12 @@ export const ReviewDocuments = ({ readOnly }) => {
           <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
             Back
           </Button>
-          <Button type="submit" onClick={onContinue} data-testid="reviewDocumentsContinueButton">
+          <Button
+            type="submit"
+            onClick={onContinue}
+            data-testid="reviewDocumentsContinueButton"
+            disabled={showOverview && allWeightTicketsRejected && weightTickets.length > 0}
+          >
             {nextButton}
           </Button>
         </DocumentViewerSidebar.Footer>
@@ -481,5 +512,4 @@ export const ReviewDocuments = ({ readOnly }) => {
     </div>
   );
 };
-
 export default ReviewDocuments;
