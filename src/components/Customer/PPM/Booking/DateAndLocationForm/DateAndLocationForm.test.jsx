@@ -446,7 +446,7 @@ describe('validates form fields and displays error messages', () => {
 
       // verify pickup address is populated
       expect(address1[0]).toHaveValue('123 Main');
-      expect(screen.getByText('Fort Benning, GA 90210 (Muscogee)')[0]);
+      expect(screen.getByText('Fort Benning, GA 90210 (Muscogee)'));
 
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
