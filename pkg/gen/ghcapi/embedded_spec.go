@@ -9187,6 +9187,11 @@ func init() {
     },
     "FetchLineOfAccountingPayload": {
       "type": "object",
+      "required": [
+        "effectiveDate",
+        "departmentIndicator",
+        "tacCode"
+      ],
       "properties": {
         "departmentIndicator": {
           "$ref": "#/definitions/DepartmentIndicator"
@@ -27123,6 +27128,11 @@ func init() {
     },
     "FetchLineOfAccountingPayload": {
       "type": "object",
+      "required": [
+        "effectiveDate",
+        "departmentIndicator",
+        "tacCode"
+      ],
       "properties": {
         "departmentIndicator": {
           "$ref": "#/definitions/DepartmentIndicator"
