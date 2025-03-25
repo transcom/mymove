@@ -43,7 +43,7 @@ mockPage(
 );
 mockPage('pages/PrimeUI/CreateServiceItem/CreateServiceItem', 'Prime Simulator Create Service Item');
 mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh', 'Prime Simulator Shipment Update Reweigh');
-mockPage('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch', 'QAE CSR Move Search');
+mockPage('pages/Office/MoveSearch/MoveSearch', 'QAE CSR Move Search');
 mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
 mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
 mockPage('components/NotFound/NotFound');
