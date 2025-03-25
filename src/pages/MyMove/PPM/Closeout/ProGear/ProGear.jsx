@@ -5,6 +5,7 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import {
   selectMTOShipmentById,
   selectProGearWeightTicketAndIndexById,
@@ -214,12 +215,12 @@ const ProGear = () => {
             updateMtoShipment(values);
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
-          .catch((error) => {
-            handleErrorMessage(error);
+          .catch(() => {
+            setErrorMessage('Failed to save updated trip record');
           });
       })
-      .catch(() => {
-        setErrorMessage('Failed to save updated trip record');
+      .catch((error) => {
+        handleErrorMessage(error);
       });
   };
 
@@ -247,6 +248,7 @@ const ProGear = () => {
   }
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
