@@ -54,21 +54,32 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 	suite.NotEmpty(rolesPrivileges, "Expected role_privileges to be pre-populated in the database")
 
 	availableRoles, err := rf.FetchRoleTypes(suite.AppContextForTest())
+	availableRolesSafety := []roles.RoleType{
+		roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor, roles.RoleTypeQae, roles.RoleTypeCustomerServiceRepresentative, roles.RoleTypeHQ}
 
 	suite.NoError(err, "FetchRoleTypes should not error")
 	suite.NotEmpty(availableRoles, "FetchRoleTypes should return values")
 
-	// Assert that all roles are covered by the supervisor role
 	for _, rp := range rolesPrivileges {
+		// Assert that all roles are covered by the supervisor privilege
 		if rp.Privilege.PrivilegeType == models.PrivilegeTypeSupervisor {
 			index := slices.Index(availableRoles, rp.Role.RoleType)
 			suite.NotEqual(-1, index, "RoleType %s not found in availableRoles.", rp.Role.RoleType)
 			availableRoles = slices.Delete(availableRoles, index, index+1) // unique role->privilege, so remove role after check for supervisor
 		}
+
+		// Assert that all 6 specified roles are covered by the safety privilege
+		if rp.Privilege.PrivilegeType == models.PrivilegeTypeSafety {
+			index := slices.Index(availableRolesSafety, rp.Role.RoleType)
+			suite.NotEqual(-1, index, "RoleType %s not found in availableRolesSafety.", rp.Role.RoleType)
+			availableRolesSafety = slices.Delete(availableRolesSafety, index, index+1) // unique role->privilege, so remove role after check for safety
+		}
 	}
 
 	suite.Len(availableRoles, 1) // 'prime' role does not have mapping
 	suite.Equal(availableRoles[0], roles.RoleTypePrime)
+
+	suite.Empty(availableRolesSafety)
 }
 
 func (suite *RolesServiceSuite) TestFetchRoleTypes() {
