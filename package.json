@@ -167,7 +167,7 @@
     "eslint-plugin-security": "^1.7.1",
     "eslint-plugin-storybook": "0.8.0",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.13.0",
-    "happo-plugin-storybook": "^3.3.0",
+    "happo-plugin-storybook": "^4.4.3",
     "happo.io": "^8.4.4",
     "jest-junit": "^16.0.0",
     "jest-preview": "^0.3.1",
