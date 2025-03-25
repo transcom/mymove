@@ -188,7 +188,7 @@ stages:
   - |
     mkdir -p /builds/milmove/mymove/.cache
     mkdir -p /builds/milmove/mymove/.cache/yarn
-    yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn | tee -a $CI_PROJECT_DIR/yarn.output
+    yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
     scripts/check-generated-code yarn.lock
     echo "yarn check dependencies"
     ./scripts/rebuild-dependencies-without-binaries
