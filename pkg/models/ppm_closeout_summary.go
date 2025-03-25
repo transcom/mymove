@@ -28,8 +28,6 @@ type PPMCloseoutSummary struct {
 	MemberPaidTolls             *unit.Cents `json:"member_paid_tolls" db:"member_paid_tolls"`
 	GTCCPaidOil                 *unit.Cents `json:"gtcc_paid_oil" db:"gtcc_paid_oil"`
 	MemberPaidOil               *unit.Cents `json:"member_paid_oil" db:"member_paid_oil"`
-	GTCCPaidStorage             *unit.Cents `json:"gtcc_paid_storage" db:"gtcc_paid_storage"`
-	MemberPaidStorage           *unit.Cents `json:"member_paid_storage" db:"member_paid_storage"`
 	GTCCPaidOther               *unit.Cents `json:"gtcc_paid_other" db:"gtcc_paid_other"`
 	MemberPaidOther             *unit.Cents `json:"member_paid_other" db:"member_paid_other"`
 	TotalGTCCPaidExpenses       *unit.Cents `json:"total_gtcc_paid_expenses" db:"total_gtcc_paid_expenses"`
