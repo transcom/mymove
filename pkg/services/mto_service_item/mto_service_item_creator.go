@@ -206,7 +206,7 @@ type mtoServiceItemEstimator struct {
 	destinationFirstDayPricer services.DomesticDestinationFirstDaySITPricer
 	destinationDeliveryPricer services.DomesticDestinationSITDeliveryPricer
 	destinationAddlPricer     services.DomesticDestinationAdditionalDaysSITPricer
-	// destinationFuelPricer     services.DomesticDestinationSITFuelSurchargePricer
+	destinationFuelPricer     services.DomesticDestinationSITFuelSurchargePricer
 
 	// origin
 	// originFirstDayPricer services.DomesticOriginFirstDaySITPricer
@@ -223,7 +223,17 @@ func calcTotalSITDuration(entry time.Time, departure time.Time) time.Duration {
 
 func (o *mtoServiceItemEstimator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
 	if serviceItem.CheckIsSITServiceItem() {
-		requestedPickupDate := *mtoShipment.RequestedPickupDate
+		isPPM := false
+		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+			isPPM = true
+		}
+
+		var requestedPickupDate time.Time
+		if mtoShipment.RequestedPickupDate != nil {
+			requestedPickupDate = *mtoShipment.RequestedPickupDate
+		} else {
+			return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No requested pickup date exists for this shipment.")
+		}
 		currTime := time.Now()
 		var distance int
 
@@ -233,6 +243,13 @@ func (o *mtoServiceItemEstimator) FindSITEstimatedPrice(appCtx appcontext.AppCon
 			if err != nil {
 				return 0, err
 			}
+		}
+
+		var adjustedWeight *unit.Pound
+		if mtoShipment.PrimeEstimatedWeight != nil {
+			adjustedWeight = GetAdjustedWeight(*mtoShipment.PrimeEstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+		} else {
+			return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No estimated weight exists for this service item.")
 		}
 
 		var price unit.Cents
@@ -248,7 +265,7 @@ func (o *mtoServiceItemEstimator) FindSITEstimatedPrice(appCtx appcontext.AppCon
 				appCtx,
 				contractCode,
 				requestedPickupDate,
-				*serviceItem.EstimatedWeight,
+				*adjustedWeight,
 				domesticServiceArea.ServiceArea,
 				false)
 			if err != nil {
@@ -271,7 +288,7 @@ func (o *mtoServiceItemEstimator) FindSITEstimatedPrice(appCtx appcontext.AppCon
 				appCtx,
 				contractCode,
 				requestedPickupDate,
-				*serviceItem.EstimatedWeight,
+				*adjustedWeight,
 				domesticServiceArea.ServiceArea,
 				domesticServiceArea.SITPDSchedule,
 				mtoShipment.PickupAddress.PostalCode,
@@ -290,20 +307,43 @@ func (o *mtoServiceItemEstimator) FindSITEstimatedPrice(appCtx appcontext.AppCon
 				appCtx,
 				contractCode,
 				requestedPickupDate,
-				*serviceItem.EstimatedWeight,
+				*adjustedWeight,
 				domesticServiceArea.ServiceArea,
 				int(calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)),
 				false)
 			if err != nil {
 				return 0, err
 			}
-			// case models.ReServiceCodeDDSFSC:
-			// 	eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, requestedPickupDate)
-			// 	if err != nil {
-			// 		return 0, err
-			// 	}
+		case models.ReServiceCodeDDSFSC:
+			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, requestedPickupDate)
+			if err != nil {
+				return 0, err
+			}
 
-			// 	o.destinationFuelPricer.Price()
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *adjustedWeight)
+			if err != nil {
+				return 0, err
+			}
+			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+			if err != nil {
+				return 0, err
+			}
+
+			price, _, err = o.destinationFuelPricer.Price(appCtx, requestedPickupDate, unit.Miles(distance), *adjustedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			if err != nil {
+				return 0, err
+			}
+			// case models.ReServiceCodeDOPSIT:
+			// case models.ReServiceCodeDOFSIT:
+			// case models.ReServiceCodeDOASIT:
+			// case models.ReServiceCodeDOSFSC:
 		}
 
 		return price, nil
