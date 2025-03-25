@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   shipments,
@@ -9,16 +10,24 @@ import {
   serviceItemsEmpty,
   ppmOnlyShipments,
   closeoutOffice,
+  ordersInfoOCONUS,
+  ordersInfoOCONUSLocalMove,
 } from './RequestedShipmentsTestData';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const moveTaskOrderAvailableToPrimeAt = {
@@ -108,6 +117,36 @@ const submittedRequestedShipmentsCanCreateNewShipment = (
   </MockProviders>
 );
 
+const submittedRequestedShipmentsCanCreateNewShipmentOCONUS = (
+  <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+    <SubmittedRequestedShipments
+      ordersInfo={ordersInfoOCONUS}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      approveMTO={approveMTO}
+      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+      moveCode="TE5TC0DE"
+    />
+  </MockProviders>
+);
+
+const submittedRequestedShipmentsCanCreateNewShipmentOCONUSLocalMove = (
+  <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+    <SubmittedRequestedShipments
+      ordersInfo={ordersInfoOCONUSLocalMove}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      approveMTO={approveMTO}
+      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+      moveCode="TE5TC0DE"
+    />
+  </MockProviders>
+);
+
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
     it('renders the container successfully without services counseling completed', () => {
@@ -158,6 +197,55 @@ describe('RequestedShipments', () => {
       render(submittedRequestedShipmentsCanCreateNewShipment);
 
       expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
+    });
+
+    it('renders Add a new shipment Button and displays shipment options when clicked', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      render(submittedRequestedShipmentsCanCreateNewShipmentOCONUS);
+
+      // Get the combobox (dropdown button)
+      const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+
+      expect(combobox).toBeInTheDocument();
+
+      // Simulate a user clicking the dropdown
+      await userEvent.click(combobox);
+
+      // Check if all expected options appear
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'UB' })).toBeInTheDocument();
+      });
+    });
+
+    it('renders Add a new shipment Button and does not show UB when orders type is local move', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      render(submittedRequestedShipmentsCanCreateNewShipmentOCONUSLocalMove);
+
+      // Get the combobox (dropdown button)
+      const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+
+      expect(combobox).toBeInTheDocument();
+
+      // Simulate a user clicking the dropdown
+      await userEvent.click(combobox);
+
+      // Check if all expected options appear
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+      });
+      // UB option does not appear when orders type is local move
+      expect(screen.queryByRole('option', { name: 'UB' })).not.toBeInTheDocument();
     });
   });
 
