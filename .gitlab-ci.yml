@@ -1255,8 +1255,8 @@ integration_test_admin:
       command: ["serve"]
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "10Gi"
-    KUBERNETES_MEMORY_LIMIT: "10Gi"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
     CI_DEBUG_SERVICES: "true"
     # FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
@@ -1340,8 +1340,8 @@ integration_test_my:
   variables:
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "10Gi"
-    KUBERNETES_MEMORY_LIMIT: "10Gi"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1421,8 +1421,8 @@ integration_test_office:
   variables:
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "10Gi"
-    KUBERNETES_MEMORY_LIMIT: "10Gi"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1501,8 +1501,8 @@ integration_test_e2e_generic:
   variables:
     CI_DEBUG_SERVICES: "true"
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "10Gi"
-    KUBERNETES_MEMORY_LIMIT: "10Gi"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
