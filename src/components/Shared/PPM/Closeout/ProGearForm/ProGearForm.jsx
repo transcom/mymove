@@ -1,32 +1,45 @@
 import React, { createRef } from 'react';
-import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
 import { func, number } from 'prop-types';
 import { ErrorMessage, Button, Form, FormGroup, Link, Radio } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import styles from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm.module.scss';
 import { formatWeight } from 'utils/formatters';
-import { selectProGearEntitlements } from 'store/entities/selectors';
 import Fieldset from 'shared/Fieldset';
 import { ProGearTicketShape } from 'types/shipment';
 import { CheckboxField } from 'components/form/fields/CheckboxField';
 import WeightTicketUpload from 'components/Shared/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
 import Hint from 'components/Hint';
 import TextField from 'components/form/fields/TextField/TextField';
-import styles from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { uploadShape } from 'types/uploads';
+import { APP_NAME } from 'constants/apps';
 
-const documentRef = createRef();
-
-const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onUploadComplete, onUploadDelete }) => {
+const ProGearForm = ({
+  entitlements,
+  proGear,
+  setNumber,
+  onCreateUpload,
+  onUploadComplete,
+  onUploadDelete,
+  onBack,
+  onSubmit,
+  isSubmitted,
+  appName,
+}) => {
   const { belongsToSelf, document, weight, description, hasWeightTickets } = proGear || {};
 
-  const proGearEntitlements = useSelector((state) => selectProGearEntitlements(state));
+  const isCustomerPage = appName === APP_NAME.MYMOVE;
+  const proGearEntitlements = entitlements;
+
+  const [maxSelf, maxSpouse] = isCustomerPage
+    ? [proGearEntitlements.proGear, proGearEntitlements.proGearSpouse]
+    : [proGearEntitlements.proGearWeight, proGearEntitlements.proGearWeightSpouse];
 
   const validationSchema = Yup.object().shape({
     belongsToSelf: Yup.bool().required('Required'),
@@ -35,12 +48,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
       .required('Required')
       .min(1, 'Enter a weight greater than 0 lbs.')
       .when('belongsToSelf', ([belongsToSelfField], schema) => {
-        let maximum;
-        if (belongsToSelfField) {
-          maximum = proGearEntitlements.proGear;
-        } else {
-          maximum = proGearEntitlements.proGearSpouse;
-        }
+        const maximum = belongsToSelfField ? maxSelf : maxSpouse;
         return schema.max(maximum, `Pro gear weight must be less than or equal to ${formatWeight(maximum)}.`);
       }),
     description: Yup.string().required('Required'),
@@ -63,6 +71,8 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     missingWeightTicket: hasWeightTickets === false,
   };
 
+  const documentRef = createRef();
+
   const jtr = (
     <Link href="https://www.defensetravel.dod.mil/Docs/perdiem/JTR.pdf" target="_blank" rel="noopener">
       Joint Travel Regulations (JTR)
@@ -73,7 +83,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         const getEntitlement = () => {
-          return values.belongsToSelf === 'true' ? proGearEntitlements.proGear : proGearEntitlements.proGearSpouse;
+          return values.belongsToSelf === 'true' ? maxSelf : maxSpouse;
         };
         return (
           <div className={classnames(ppmStyles.formContainer, styles.ProGearForm)}>
@@ -164,15 +174,19 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
                   )}
                 </FormGroup>
               </SectionWrapper>
-              <div className={ppmStyles.buttonContainer}>
+              <div
+                className={`${
+                  isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
+                }`}
+              >
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Return To Homepage
+                  {`${isCustomerPage ? 'Return To Homepage' : 'Cancel'}`}
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
+                  disabled={!isValid || isSubmitting || isSubmitted}
                 >
                   Save &amp; Continue
                 </Button>
