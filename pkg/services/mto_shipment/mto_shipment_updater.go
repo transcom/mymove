@@ -1486,7 +1486,8 @@ func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx a
 			reServiceCode == models.ReServiceCodeIDDSIT ||
 			reServiceCode == models.ReServiceCodeIDSFSC {
 
-			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, newShipment.DestinationAddress.PostalCode)
+			// At this point shipment destination address is SITDestinationFinalAddress
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationOriginalAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 			if err != nil {
 				return err
 			}

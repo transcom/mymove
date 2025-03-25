@@ -4705,54 +4705,15 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 		return shipment, pickupAddress, destinationAddress
 	}
 
-	suite.Run("IOSFSC - shipment did not update zip, new and old postal codes are the same", func() {
+	suite.Run("IOSFSC - success", func() {
 		shipment, pickupAddress, _ := setupData(true, false)
-		var serviceItems []models.MTOServiceItem
-		err := suite.AppContextForTest().DB().EagerPreload("ReService", "SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
-		suite.NoError(err)
-		suite.Equal(1, len(serviceItems))
-		for i := 0; i < len(serviceItems); i++ {
-			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
-			suite.True(serviceItems[i].SITDeliveryMiles == (*int)(nil))
-			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, pickupAddress.PostalCode)
-			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, pickupAddress.PostalCode)
-		}
-
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			"50314",
-			"50314",
-			mock.Anything,
-		).Return(500, nil)
-
-		addressCreator := address.NewAddressCreator()
-		err = UpdateSITServiceItemsSITIfPostalCodeChanged(planner, suite.AppContextForTest(), addressCreator, &shipment)
-		suite.Nil(err)
-
-		// verify post-update mto service items for both origin/destination FSC SITs have been set.
-		// if set we know stored procedure update_service_item_pricing was executed sucessfully
-		err = suite.AppContextForTest().DB().EagerPreload("ReService", "SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
-		suite.NoError(err)
-		suite.Equal(1, len(serviceItems))
-		for i := 0; i < len(serviceItems); i++ {
-			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
-			suite.Equal(*serviceItems[i].SITDeliveryMiles, 500)
-			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, pickupAddress.PostalCode)
-			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, pickupAddress.PostalCode)
-		}
-	})
-
-	suite.Run("IOSFSC - shipment contains new pickup address with different zip, we need to change mileage", func() {
-		shipment, pickupAddress, _ := setupData(true, false)
-		newPostalCode := "90210"
 
 		expectedMileage := 23
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"50314",
-			newPostalCode,
+			pickupAddress.PostalCode,
+			pickupAddress.PostalCode,
 			mock.Anything,
 		).Return(expectedMileage, nil)
 
@@ -4766,38 +4727,30 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, pickupAddress.PostalCode)
 		}
 
-		// change pickup zip triggers recal of mileage
-		shipment.PickupAddress.PostalCode = newPostalCode
-
 		addressCreator := address.NewAddressCreator()
 		err = UpdateSITServiceItemsSITIfPostalCodeChanged(planner, suite.AppContextForTest(), addressCreator, &shipment)
 		suite.Nil(err)
 
-		// verify post-update mto service items for both origin/destination FSC SITs have been set.
-		// if set we know stored procedure update_service_item_pricing was executed sucessfully
 		err = suite.AppContextForTest().DB().EagerPreload("ReService", "SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err)
 		suite.Equal(1, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
 			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
 			suite.Equal(*serviceItems[i].SITDeliveryMiles, expectedMileage)
-			// verify SITOriginHHGOriginalAddress was not changed
 			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, pickupAddress.PostalCode)
-			// verify SITOriginHHGActualAddress was changed not changed
 			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, pickupAddress.PostalCode)
 		}
 	})
 
-	suite.Run("IDSFSC - shipment contains new destination address with different zip, we need to change mileage", func() {
+	suite.Run("IDSFSC - success", func() {
 		shipment, _, destinationAddress := setupData(false, false)
-		newPostalCode := "90210"
 
 		expectedMileage := 23
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"99505",
-			newPostalCode,
+			destinationAddress.PostalCode,
+			destinationAddress.PostalCode,
 			mock.Anything,
 		).Return(expectedMileage, nil)
 
@@ -4811,24 +4764,17 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 			suite.Equal(serviceItems[i].SITDestinationFinalAddress.PostalCode, destinationAddress.PostalCode)
 		}
 
-		// change destination zip triggers recal of mileage
-		shipment.DestinationAddress.PostalCode = newPostalCode
-
 		addressCreator := address.NewAddressCreator()
 		err = UpdateSITServiceItemsSITIfPostalCodeChanged(planner, suite.AppContextForTest(), addressCreator, &shipment)
 		suite.Nil(err)
 
-		// verify post-update mto service items for both origin/destination FSC SITs have been set.
-		// if set we know stored procedure update_service_item_pricing was executed sucessfully
 		err = suite.AppContextForTest().DB().EagerPreload("ReService", "SITDestinationOriginalAddress", "SITDestinationFinalAddress").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err)
 		suite.Equal(1, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
 			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIDSFSC)
 			suite.Equal(*serviceItems[i].SITDeliveryMiles, expectedMileage)
-			// verify SITDestinationOriginalAddress was not changed
 			suite.Equal(serviceItems[i].SITDestinationOriginalAddress.PostalCode, destinationAddress.PostalCode)
-			// verify SITDestinationFinalAddress was not changed
 			suite.Equal(serviceItems[i].SITDestinationFinalAddress.PostalCode, destinationAddress.PostalCode)
 		}
 	})

@@ -409,7 +409,6 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	lookups[models.ServiceItemParamNameDistanceZipSITDest] = DistanceZipSITDestLookup{
 		DestinationAddress:      *serviceItem.SITDestinationOriginalAddress,
 		FinalDestinationAddress: *serviceItem.SITDestinationFinalAddress,
-		MTOShipment:             shipment,
 	}
 
 	lookups[models.ServiceItemParamNameDistanceZipSITOrigin] = DistanceZipSITOriginLookup{

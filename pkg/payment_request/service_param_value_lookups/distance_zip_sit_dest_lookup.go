@@ -12,7 +12,6 @@ import (
 type DistanceZipSITDestLookup struct {
 	DestinationAddress      models.Address
 	FinalDestinationAddress models.Address
-	MTOShipment             models.MTOShipment
 }
 
 func (r DistanceZipSITDestLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
@@ -31,10 +30,10 @@ func (r DistanceZipSITDestLookup) lookup(appCtx appcontext.AppContext, keyData *
 	var distanceMiles int
 	var distanceErr error
 
-	if destZip == finalDestZip && r.MTOShipment.DestinationAddress.PostalCode == finalDestZip {
+	if destZip == finalDestZip {
 		distanceMiles = 1
 	} else {
-		distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, r.MTOShipment.DestinationAddress.PostalCode, finalDestZip)
+		distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, destZip, finalDestZip)
 	}
 
 	if distanceErr != nil {
