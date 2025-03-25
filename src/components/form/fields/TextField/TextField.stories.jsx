@@ -133,3 +133,19 @@ export const TextFieldWithRequiredAsterisk = () => (
     )}
   </Formik>
 );
+
+export const TextFieldWithPrefix = () => (
+  <Formik initialValues={{}}>
+    {() => (
+      <Form>
+        <TextField
+          label="Prefix example"
+          id="prefixExample"
+          name="prefixExample"
+          prefix="PREFIX EXAMPLE:"
+          showRequiredAsterisk
+        />
+      </Form>
+    )}
+  </Formik>
+);
