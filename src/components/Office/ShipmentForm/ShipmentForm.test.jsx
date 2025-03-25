@@ -633,9 +633,11 @@ describe('ShipmentForm component', () => {
           await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
         });
 
+        const locationLookup = screen.getAllByLabelText(/Location Lookup/);
+
         await act(async () => {
           expect(screen.getAllByLabelText('Address 1')[2]).toBeInstanceOf(HTMLInputElement);
-          expect(screen.getAllByLabelText(/Location Lookup/)[2]).toBeInstanceOf(HTMLInputElement);
+          expect(locationLookup[2]).toBeInstanceOf(HTMLInputElement);
         });
       });
     });
@@ -1408,11 +1410,16 @@ describe('ShipmentForm component', () => {
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
       await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
 
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const streetAddress1 = screen.getAllByLabelText(/Address 1/);
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(4);
 
       await waitFor(() => {
         expect(streetAddress1[1]).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getAllByLabelText(/Location Lookup/)[1]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[0]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[2]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[3]).toBeInstanceOf(HTMLInputElement);
       });
 
       // verify 2nd pickup address is populated

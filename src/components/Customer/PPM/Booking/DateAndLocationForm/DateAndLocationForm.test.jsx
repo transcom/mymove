@@ -440,6 +440,7 @@ describe('validates form fields and displays error messages', () => {
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
       const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
 
       // verify pickup address is populated
       expect(address1[0]).toHaveValue('123 Main');
@@ -447,27 +448,28 @@ describe('validates form fields and displays error messages', () => {
 
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getAllByLabelText(/Location Lookup/)[1]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
       });
 
       // verify 2nd pickup is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
       expect(address1[1]).toHaveValue('777 Test Street');
-      expect(screen.getAllByText('ELIZABETHTOWN, KY 42702 (Hardin)')[1]);
+      expect(screen.getByText('ELIZABETHTOWN, KY 42702 (Hardin)'));
 
       // verify delivery address is populated
       expect(address1[2]).toHaveValue('658 West Ave');
-      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[2]);
+      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[0]);
 
       await waitFor(() => {
         expect(address1[3]).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getAllByLabelText(/Location Lookup/)[3]).toBeInstanceOf(HTMLInputElement);
+        expect(locationLookups[3]).toBeInstanceOf(HTMLInputElement);
       });
+
       // verify 2nd delivery address is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
 
       expect(address1[3]).toHaveValue('68 West Elm');
-      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[3]);
+      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[1]);
 
       // now clear out 2nd pickup address1 text, should raise required alert
       await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
