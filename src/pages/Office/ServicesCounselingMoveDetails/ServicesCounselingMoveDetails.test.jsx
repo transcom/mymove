@@ -1129,6 +1129,36 @@ describe('MoveDetails page', () => {
         });
       });
 
+      it('does not allow user to add UB shipment for local move orders', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+        const localMoveDetailsQuery = {
+          ...newMoveDetailsQuery,
+          order: {
+            ...newMoveDetailsQuery.order,
+            order_type: ORDERS_TYPE.LOCAL_MOVE,
+          },
+        };
+        useMoveDetailsQueries.mockReturnValue(localMoveDetailsQuery);
+
+        renderComponent();
+
+        const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+        expect(combobox).toBeInTheDocument();
+
+        await userEvent.click(combobox);
+
+        // Check if all expected options appear
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+          expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+          expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+          expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+          expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+          expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+        });
+        expect(screen.queryByRole('option', { name: 'UB' })).not.toBeInTheDocument();
+      });
+
       it('shows the edit shipment buttons', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
