@@ -371,7 +371,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders a second address fieldset when the user has a second pickup address', async () => {
-      const { queryByLabelText } = renderMtoShipmentForm();
+      renderMtoShipmentForm();
 
       fireEvent.click(screen.getByTestId('has-secondary-pickup'));
 
