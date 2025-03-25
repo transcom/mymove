@@ -1103,7 +1103,7 @@ integration_test_mtls:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--verbose"]
+      command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
     # FF_NETWORK_PER_BUILD: "true"
@@ -1252,7 +1252,7 @@ integration_test_admin:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--verbose"]
+      command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
     # FF_NETWORK_PER_BUILD: "true"
@@ -1333,7 +1333,7 @@ integration_test_my:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--verbose"]
+      command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
@@ -1411,7 +1411,7 @@ integration_test_office:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--verbose"]
+      command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
@@ -1487,7 +1487,7 @@ integration_test_e2e_generic:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--verbose"]
+      command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
     APPLICATION: app
