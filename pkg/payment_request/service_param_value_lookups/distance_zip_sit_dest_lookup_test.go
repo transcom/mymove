@@ -223,9 +223,15 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 
+		createdShipment := models.MTOShipment{}
+		err := suite.DB().Find(&createdShipment, mtoServiceItem.MTOShipmentID)
+		suite.FatalNoError(err)
+		createdShipment.DestinationAddress = mtoServiceItem.MTOShipment.DestinationAddress
+
 		distanceZipLookup := DistanceZipSITDestLookup{
 			FinalDestinationAddress: models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
 			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+			MTOShipment:             createdShipment,
 		}
 
 		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
@@ -237,6 +243,34 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 
 		//Check if distance equal 1
 		suite.Equal("1", distance)
+		suite.FatalNoError(err)
+
+	})
+
+	suite.Run("sets distance to NOT one when origin and destination postal codes are the same but shipment.destinationAddress is different", func() {
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+
+		createdShipment := models.MTOShipment{}
+		err := suite.DB().Find(&createdShipment, mtoServiceItem.MTOShipmentID)
+		suite.FatalNoError(err)
+		createdShipment.DestinationAddress = mtoServiceItem.MTOShipment.DestinationAddress.Copy()
+		createdShipment.DestinationAddress.PostalCode = "10001"
+
+		distanceZipLookup := DistanceZipSITDestLookup{
+			FinalDestinationAddress: models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+			DestinationAddress:      models.Address{PostalCode: mtoServiceItem.MTOShipment.DestinationAddress.PostalCode},
+			MTOShipment:             createdShipment,
+		}
+
+		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+			planner:       suite.planner,
+			mtoShipmentID: &mtoServiceItem.MTOShipment.ID,
+		})
+
+		suite.FatalNoError(err)
+
+		//Check if distance not equal 1
+		suite.NotEqual("1", distance)
 		suite.FatalNoError(err)
 
 	})

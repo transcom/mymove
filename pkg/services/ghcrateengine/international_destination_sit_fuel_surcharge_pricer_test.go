@@ -163,7 +163,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsInternationalDestina
 			},
 			{
 				Model:    conusAddress,
-				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
 				LinkOnly: true,
 			},
 		}, nil)

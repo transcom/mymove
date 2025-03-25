@@ -310,8 +310,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"20688",
 			"67492",
+			"20688",
 		).Return(5, nil)
 
 		mtoShipmentAddressIntlSITUpdater := NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater)
@@ -446,8 +446,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			suite.Equal(*serviceItems[i].PricingEstimate, unit.Cents(0))
 			suite.NotNil(serviceItems[i].SITDeliveryMiles)
 			suite.NotNil(serviceItems[i].SITOriginHHGActualAddressID)
-			// verify SITOriginHHGOriginalAddress was updated with new postal code
-			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, newAddress.PostalCode)
+			// verify SITOriginHHGActualAddress was not changed
+			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, actualAddress.PostalCode)
 			// verify SITOriginHHGOriginalAddress was not changed
 			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, actualAddress.PostalCode)
 		}

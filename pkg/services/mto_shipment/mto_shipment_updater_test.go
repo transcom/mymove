@@ -4743,7 +4743,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 		}
 	})
 
-	suite.Run("IOSFSC - shipment contains new pickup address with different zip, we need to change mileage and SITOriginHHGActualAddress", func() {
+	suite.Run("IOSFSC - shipment contains new pickup address with different zip, we need to change mileage", func() {
 		shipment, pickupAddress, _ := setupData(true, false)
 		newPostalCode := "90210"
 
@@ -4751,8 +4751,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			newPostalCode,
 			"50314",
+			newPostalCode,
 			mock.Anything,
 		).Return(expectedMileage, nil)
 
@@ -4783,12 +4783,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 			suite.Equal(*serviceItems[i].SITDeliveryMiles, expectedMileage)
 			// verify SITOriginHHGOriginalAddress was not changed
 			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, pickupAddress.PostalCode)
-			// verify SITOriginHHGActualAddress was changed containing new zip
-			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, newPostalCode)
+			// verify SITOriginHHGActualAddress was changed not changed
+			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, pickupAddress.PostalCode)
 		}
 	})
 
-	suite.Run("IDSFSC - shipment contains new destination address with different zip, we need to change mileage and SITDestinationFinalAddress", func() {
+	suite.Run("IDSFSC - shipment contains new destination address with different zip, we need to change mileage", func() {
 		shipment, _, destinationAddress := setupData(false, false)
 		newPostalCode := "90210"
 
@@ -4796,8 +4796,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 		planner := &mocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			newPostalCode,
 			"99505",
+			newPostalCode,
 			mock.Anything,
 		).Return(expectedMileage, nil)
 
@@ -4828,8 +4828,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 			suite.Equal(*serviceItems[i].SITDeliveryMiles, expectedMileage)
 			// verify SITDestinationOriginalAddress was not changed
 			suite.Equal(serviceItems[i].SITDestinationOriginalAddress.PostalCode, destinationAddress.PostalCode)
-			// verify SITDestinationFinalAddress was changed containing new zip
-			suite.Equal(serviceItems[i].SITDestinationFinalAddress.PostalCode, newPostalCode)
+			// verify SITDestinationFinalAddress was not changed
+			suite.Equal(serviceItems[i].SITDestinationFinalAddress.PostalCode, destinationAddress.PostalCode)
 		}
 	})
 }

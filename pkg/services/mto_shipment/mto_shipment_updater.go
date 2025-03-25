@@ -1473,27 +1473,12 @@ func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx a
 			reServiceCode == models.ReServiceCodeIOPSIT ||
 			reServiceCode == models.ReServiceCodeIOSFSC {
 
-			if newShipment.PickupAddress.PostalCode != serviceItem.SITOriginHHGActualAddress.PostalCode {
-				// Update SITOriginHHGActualAddress with new zip. We only care about zip.
-				clonedAddress := newShipment.PickupAddress.Copy()
-				clonedAddress.ID = uuid.Nil
-				newSITOriginHHGActualAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
-				if err != nil {
-					return err
-				}
-				// update actual with new address
-				serviceItem.SITOriginHHGActualAddress = newSITOriginHHGActualAddress
-				serviceItem.SITOriginHHGActualAddressID = &newSITOriginHHGActualAddress.ID
-			}
-
-			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGActualAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGActualAddress.PostalCode, newShipment.PickupAddress.PostalCode)
 			if err != nil {
 				return err
 			}
 			serviceItem.SITDeliveryMiles = &milesCalculated
-
 			mtoServiceItems = append(mtoServiceItems, serviceItem)
-
 		}
 
 		if reServiceCode == models.ReServiceCodeDDDSIT ||
@@ -1501,32 +1486,11 @@ func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx a
 			reServiceCode == models.ReServiceCodeIDDSIT ||
 			reServiceCode == models.ReServiceCodeIDSFSC {
 
-			if newShipment.DestinationAddress.PostalCode != serviceItem.SITDestinationFinalAddress.PostalCode {
-				// Update SITDestinationFinalAddress with new zip if different.  We only care about zip.
-				clonedAddress := newShipment.DestinationAddress.Copy()
-				clonedAddress.ID = uuid.Nil
-				newSITDestinationFinalAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
-				if err != nil {
-					return err
-				}
-				serviceItem.SITDestinationFinalAddress = newSITDestinationFinalAddress
-				serviceItem.SITDestinationFinalAddressID = &newSITDestinationFinalAddress.ID
-			}
-
-			// When update is done before service item is Approved. SITDestinationOriginalAddress will be nil
-			// when not Approved.
-			destinationOriginalPostalCode := newShipment.DestinationAddress.PostalCode
-
-			if serviceItem.SITDestinationOriginalAddress != nil {
-				destinationOriginalPostalCode = serviceItem.SITDestinationOriginalAddress.PostalCode
-			}
-
-			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, destinationOriginalPostalCode)
+			milesCalculated, err = planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, newShipment.DestinationAddress.PostalCode)
 			if err != nil {
 				return err
 			}
 			serviceItem.SITDeliveryMiles = &milesCalculated
-
 			mtoServiceItems = append(mtoServiceItems, serviceItem)
 
 		}
