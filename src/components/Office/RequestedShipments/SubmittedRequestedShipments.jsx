@@ -29,6 +29,7 @@ import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { updateMTOShipment } from 'services/ghcApi';
+import { ORDERS_TYPE } from 'constants/orders';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
@@ -82,7 +83,9 @@ const SubmittedRequestedShipments = ({
     fetchData();
   }, []);
 
-  const { newDutyLocation, currentDutyLocation } = ordersInfo;
+  const { newDutyLocation, currentDutyLocation, ordersType } = ordersInfo;
+  const isLocalMove = ordersType === ORDERS_TYPE.LOCAL_MOVE;
+
   useEffect(() => {
     // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB shipment option
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
@@ -145,7 +148,9 @@ const SubmittedRequestedShipments = ({
         {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+        {!isLocalMove && enableUB && isOconusMove && (
+          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+        )}
       </>
     );
   };
@@ -323,6 +328,9 @@ const SubmittedRequestedShipments = ({
   // Hide counseling line item if prime counseling is already in the service items or if service counseling has been applied
   const hideCounselingCheckbox = hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt;
 
+  // Disable counseling checkbox if full PPM shipment
+  const disableCounselingCheckbox = isPPMOnly(mtoShipments);
+
   // Hide move management line item if it is already in the service items or for PPM only moves
   const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
 
@@ -438,7 +446,7 @@ const SubmittedRequestedShipments = ({
                       name="counselingFee"
                       onChange={formik.handleChange}
                       data-testid="counselingFee"
-                      disabled={isMoveLocked}
+                      disabled={isMoveLocked || disableCounselingCheckbox}
                     />
                   )}
                 </Fieldset>

@@ -94,6 +94,20 @@ export class TestHarness {
   }
 
   /**
+   * @returns {Promise<User>}
+   */
+  async buildRequestedOfficeUser() {
+    return this.buildDefault('RequestedOfficeUser');
+  }
+
+  /**
+   * @returns {Promise<User>}
+   */
+  async buildRejectedOfficeUser() {
+    return this.buildDefault('RejectedOfficeUser');
+  }
+
+  /**
    * build office user with TOO and TIO roles
    * @returns {Promise<User>}
    */
@@ -648,7 +662,7 @@ export class TestHarness {
    * @returns {Promise<Object>}
    */
 
-  async bulidHHGMoveWithAddressChangeRequest() {
+  async buildHHGMoveWithAddressChangeRequest() {
     return this.buildDefault('HHGMoveWithAddressChangeRequest');
   }
 

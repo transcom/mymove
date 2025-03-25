@@ -130,7 +130,7 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	gexURL := v.GetString(cli.GEXURLFlag)
 	logger.Info(fmt.Sprintf("GEX URL is %v", gexURL))
@@ -244,16 +244,5 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 		logger.Info("Successfully processed EDI824 application advice responses")
 	}
 
-	// Pending completion of B-20560, uncomment the code below
-	/*
-		// Process TPPS paid invoice report
-		pathTPPSPaidInvoiceReport := v.GetString(cli.SFTPTPPSPaidInvoiceReportPickupDirectory)
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, pathTPPSPaidInvoiceReport, lastReadTime, invoice.NewTPPSPaidInvoiceReportProcessor())
-		if err != nil {
-			logger.Error("Error reading TPPS Paid Invoice Report application advice responses", zap.Error(err))
-		} else {
-			logger.Info("Successfully processed TPPS Paid Invoice Report application advice responses")
-		}
-	*/
 	return nil
 }
