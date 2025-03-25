@@ -3077,3 +3077,76 @@ export const approvedMTOWithApprovedSitItemsQuery = {
   isError: false,
   isSuccess: true,
 };
+
+export const approvedMTOWithApprovedSitItems2Query = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postalCode: '40121',
+        },
+      },
+      destinationDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postalCode: '92310',
+        },
+      },
+      entitlement: {
+        proGearWeight: 8000,
+        proGearWeightSpouse: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        streetAddress1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postalCode: '60601',
+        eTag: '1234',
+      },
+      destinationAddress: {
+        streetAddress1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postalCode: '08401',
+      },
+      status: shipmentStatuses.APPROVED,
+      eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+      sitExtensions: [],
+      sitStatus: SITStatusOrigin,
+    },
+  ],
+  mtoServiceItems: [
+    {
+      id: '5',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic origin 1st day SIT',
+      status: SERVICE_ITEM_STATUS.APPROVED,
+      reServiceCode: 'DOFSIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};

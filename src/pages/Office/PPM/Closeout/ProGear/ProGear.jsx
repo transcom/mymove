@@ -13,6 +13,7 @@ import {
   patchProGearWeightTicket,
   createUploadForPPMDocument,
   deleteUploadForDocument,
+  // updateMTOShipment,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -68,6 +69,17 @@ const ProGear = () => {
       setErrorMessage('Failed to save updated trip record');
     },
   });
+
+  // why is this not workinignigningingingindfkbdkjnfdkn
+  // const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment, {
+  //   onSuccess: () => {
+  //     navigate(reviewPath);
+  //   },
+  //   onError: (error) => {
+  //     setIsSubmitted(false);
+  //     setErrorMessage(`${error} Failed to save updated trip record`);
+  //   },
+  // });
 
   useEffect(() => {
     if (!proGearId) {
@@ -161,9 +173,28 @@ const ProGear = () => {
       payload,
       eTag: currentProGearWeightTicket.eTag,
     });
+
+    // const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
+
+    // let body2;
+    // if (belongsToSelf) {
+    //   body2 = {
+    //     actualProGearWeight: parseInt(proGear, 10),
+    //   };
+    // } else {
+    //   body2 = {
+    //     actualSpouseProGearWeight: parseInt(spouseProGear, 10),
+    //   };
+    // }
+    // mutateUpdateMtoShipment({
+    //   moveTaskOrderID,
+    //   shipmentID: mtoShipment.id,
+    //   ifMatchETag: mtoShipment.eTag,
+    //   body: body2,
+    // });
   };
 
-  // TODO: patchmtoshipment
+  // TODO: patchmtoshipment mutateMTOShipment
 
   const renderError = () => {
     if (!errorMessage) {
