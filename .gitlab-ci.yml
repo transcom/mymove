@@ -1254,6 +1254,9 @@ integration_test_admin:
       entrypoint: ["/bin/milmove"]
       command: ["serve"]
   variables:
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
     CI_DEBUG_SERVICES: "true"
     # FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
@@ -1308,7 +1311,7 @@ integration_test_admin:
       - playwright-results.xml
       - $CI_PROJECT_DIR/playwright_test_admin.output
     when: always
-  parallel: 6
+  # parallel: 6
   after_script:
     - *announce_failure
   rules:
@@ -1336,6 +1339,9 @@ integration_test_my:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1414,6 +1420,9 @@ integration_test_office:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1491,6 +1500,9 @@ integration_test_e2e_generic:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
