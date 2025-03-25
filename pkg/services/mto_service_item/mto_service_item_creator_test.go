@@ -745,7 +745,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
+		reServiceCS := testdatagen.FetchReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: "CS",
+			},
+		})
+
 		csTaskOrderFee := testdatagen.FetchOrMakeReTaskOrderFees(suite.DB(), testdatagen.Assertions{
 			ReTaskOrderFee: models.ReTaskOrderFee{
 				ContractYearID: contractYear.ID,
@@ -755,7 +760,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		// going to link a shipment that has a requested pickup date falling under the second contract period
-		pickupDate := time.Date(2021, time.July, 1, 12, 0, 0, 0, time.UTC)
+		pickupDate := time.Date(2024, time.July, 1, 12, 0, 0, 0, time.UTC)
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
