@@ -236,6 +236,23 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				ListOrderParams.PerPage = models.Int64Pointer(20)
 			}
 
+			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetMovesQueueInternalServerError(), err
+				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
 			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
@@ -248,14 +265,6 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 			}
 
-			var officeUser models.OfficeUser
-			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
-				if err != nil {
-					appCtx.Logger().Error("Error retrieving office user", zap.Error(err))
-					return queues.NewGetDestinationRequestsQueueInternalServerError(), err
-				}
-			}
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
@@ -813,6 +822,64 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			}
 			return queues.NewGetBulkAssignmentDataOK().WithPayload(&officeUserData), nil
+		})
+}
+
+// SaveBulkAssignmentDataHandler saves the bulk assignment data
+type SaveBulkAssignmentDataHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserFetcherPop
+	services.MoveFetcher
+	services.MoveAssigner
+}
+
+func (h SaveBulkAssignmentDataHandler) Handle(
+	params queues.SaveBulkAssignmentDataParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
+			}
+
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			if !isSupervisor {
+				appCtx.Logger().Error("Unauthorized", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
+			}
+
+			queueType := params.BulkAssignmentSavePayload.QueueType
+			moveData := params.BulkAssignmentSavePayload.MoveData
+			userData := params.BulkAssignmentSavePayload.UserData
+
+			// fetch the moves available to be assigned to their office users
+			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, moveData)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving moves for assignment", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataInternalServerError(), err
+			}
+
+			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, queueType, userData, movesForAssignment)
+			if err != nil {
+				appCtx.Logger().Error("Error assigning moves", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataInternalServerError(), err
+			}
+
+			return queues.NewSaveBulkAssignmentDataNoContent(), nil
 		})
 }
 
