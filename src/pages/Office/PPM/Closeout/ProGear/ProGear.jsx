@@ -13,7 +13,7 @@ import {
   patchProGearWeightTicket,
   createUploadForPPMDocument,
   deleteUploadForDocument,
-  // updateMTOShipment,
+  updateMTOShipment,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -70,16 +70,14 @@ const ProGear = () => {
     },
   });
 
-  // why is this not workinignigningingingindfkbdkjnfdkn
-  // const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment, {
-  //   onSuccess: () => {
-  //     navigate(reviewPath);
-  //   },
-  //   onError: (error) => {
-  //     setIsSubmitted(false);
-  //     setErrorMessage(`${error} Failed to save updated trip record`);
-  //   },
-  // });
+  // Not working
+  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment, {
+    onSuccess: () => {},
+    onError: (error) => {
+      setIsSubmitted(false);
+      setErrorMessage(`${error} Failed to save updated trip record`);
+    },
+  });
 
   useEffect(() => {
     if (!proGearId) {
@@ -153,6 +151,8 @@ const ProGear = () => {
     if (!belongsToSelf) {
       spouseProGear = values.weight;
     }
+
+    const temp = mtoShipment.eTag;
     const payload = {
       belongsToSelf,
       description: values.description,
@@ -174,27 +174,14 @@ const ProGear = () => {
       eTag: currentProGearWeightTicket.eTag,
     });
 
-    // const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
-
-    // let body2;
-    // if (belongsToSelf) {
-    //   body2 = {
-    //     actualProGearWeight: parseInt(proGear, 10),
-    //   };
-    // } else {
-    //   body2 = {
-    //     actualSpouseProGearWeight: parseInt(spouseProGear, 10),
-    //   };
-    // }
-    // mutateUpdateMtoShipment({
-    //   moveTaskOrderID,
-    //   shipmentID: mtoShipment.id,
-    //   ifMatchETag: mtoShipment.eTag,
-    //   body: body2,
-    // });
+    const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
+    mutateUpdateMtoShipment({
+      moveTaskOrderID,
+      shipmentID: shipmentId,
+      'If-Match': temp,
+      body: payload,
+    });
   };
-
-  // TODO: patchmtoshipment mutateMTOShipment
 
   const renderError = () => {
     if (!errorMessage) {
