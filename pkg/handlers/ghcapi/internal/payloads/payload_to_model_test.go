@@ -465,7 +465,7 @@ func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
 			BelongsToSelf:    belongsToSelf,
 			Status:           status,
 			Reason:           reason,
-			Description: description,
+			Description:      description,
 		}
 
 		result := ProgearWeightTicketModelFromUpdate(input)
