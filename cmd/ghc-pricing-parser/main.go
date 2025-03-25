@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 	"github.com/pterm/pterm"
 	"github.com/pterm/pterm/putils"
 	"github.com/spf13/pflag"
@@ -22,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/parser/pricing"
-	"github.com/transcom/mymove/pkg/services/ghcimport"
 )
 
 /*************************************************************************
@@ -117,7 +115,7 @@ func main() {
 	}
 
 	// Before parsing spreadsheet, ensure there's a valid contract start date
-	basePeriodStartDateForPrimeContract1, err := time.Parse("2006-01-02", params.ContractStartDate)
+	//basePeriodStartDateForPrimeContract1, err := time.Parse("2006-01-02", params.ContractStartDate)
 	if err != nil {
 		logger.Fatal("could not parse the given contract start date", zap.Error(err))
 	}
@@ -147,21 +145,21 @@ func main() {
 	}
 
 	// If the parsing was successful, run GHC Rate Engine importer
-	if params.RunImport {
-		printDivider("Importing")
-		ghcREImporter := ghcimport.GHCRateEngineImporter{
-			ContractCode:      params.ContractCode,
-			ContractName:      params.ContractName,
-			ContractStartDate: basePeriodStartDateForPrimeContract1,
-		}
-		err = ghcREImporter.Import(appCtx)
-		if err != nil {
-			logger.Fatal("GHC Rate Engine import failed", zap.Error(err))
-		}
-		if err := summarizeStageReImport(appCtx, ghcREImporter.ContractID); err != nil {
-			logger.Fatal("Failed to summarize stage table to rate engine table import", zap.Error(err))
-		}
-	}
+	// if params.RunImport {
+	// 	printDivider("Importing")
+	// 	ghcREImporter := ghcimport.GHCRateEngineImporter{
+	// 		ContractCode:      params.ContractCode,
+	// 		ContractName:      params.ContractName,
+	// 		ContractStartDate: basePeriodStartDateForPrimeContract1,
+	// 	}
+	// 	err = ghcREImporter.Import(appCtx)
+	// 	if err != nil {
+	// 		logger.Fatal("GHC Rate Engine import failed", zap.Error(err))
+	// 	}
+	// 	if err := summarizeStageReImport(appCtx, ghcREImporter.ContractID); err != nil {
+	// 		logger.Fatal("Failed to summarize stage table to rate engine table import", zap.Error(err))
+	// 	}
+	// }
 }
 
 func summarizeXlsxStageParsing(appCtx appcontext.AppContext) error {
@@ -201,95 +199,95 @@ func summarizeXlsxStageParsing(appCtx appcontext.AppContext) error {
 	return nil
 }
 
-func summarizeStageReImport(appCtx appcontext.AppContext, contractID uuid.UUID) error {
-	printDivider("Stage table import into rate engine tables complete; summary follows")
+// func summarizeStageReImport(appCtx appcontext.AppContext, contractID uuid.UUID) error {
+// 	printDivider("Stage table import into rate engine tables complete; summary follows")
 
-	models := []struct {
-		header        string
-		modelInstance interface{}
-		filter        *pop.Query
-	}{
-		{
-			"re_contract",
-			models.ReContract{},
-			appCtx.DB().Where("id = ?", contractID),
-		},
-		{
-			"re_contract_years",
-			models.ReContractYear{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_domestic_service_areas",
-			models.ReDomesticServiceArea{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_zip3s",
-			models.ReZip3{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_rate_areas",
-			models.ReRateArea{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_domestic_linehaul_prices",
-			models.ReDomesticLinehaulPrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_domestic_service_area_prices",
-			models.ReDomesticServiceAreaPrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_domestic_other_prices",
-			models.ReDomesticOtherPrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_intl_prices",
-			models.ReIntlPrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_intl_other_prices",
-			models.ReIntlOtherPrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_task_order_fees",
-			models.ReTaskOrderFee{},
-			appCtx.DB().Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id"),
-		},
-		{
-			"re_domestic_accessorial_prices",
-			models.ReDomesticAccessorialPrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_intl_accessorial_prices",
-			models.ReIntlAccessorialPrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-		{
-			"re_shipment_type_prices",
-			models.ReShipmentTypePrice{},
-			appCtx.DB().Where("contract_id = ?", contractID),
-		},
-	}
+// 	models := []struct {
+// 		header        string
+// 		modelInstance interface{}
+// 		filter        *pop.Query
+// 	}{
+// 		{
+// 			"re_contract",
+// 			models.ReContract{},
+// 			appCtx.DB().Where("id = ?", contractID),
+// 		},
+// 		{
+// 			"re_contract_years",
+// 			models.ReContractYear{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_domestic_service_areas",
+// 			models.ReDomesticServiceArea{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_zip3s",
+// 			models.ReZip3{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_rate_areas",
+// 			models.ReRateArea{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_domestic_linehaul_prices",
+// 			models.ReDomesticLinehaulPrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_domestic_service_area_prices",
+// 			models.ReDomesticServiceAreaPrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_domestic_other_prices",
+// 			models.ReDomesticOtherPrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_intl_prices",
+// 			models.ReIntlPrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_intl_other_prices",
+// 			models.ReIntlOtherPrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_task_order_fees",
+// 			models.ReTaskOrderFee{},
+// 			appCtx.DB().Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id"),
+// 		},
+// 		{
+// 			"re_domestic_accessorial_prices",
+// 			models.ReDomesticAccessorialPrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_intl_accessorial_prices",
+// 			models.ReIntlAccessorialPrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 		{
+// 			"re_shipment_type_prices",
+// 			models.ReShipmentTypePrice{},
+// 			appCtx.DB().Where("contract_id = ?", contractID),
+// 		},
+// 	}
 
-	for _, model := range models {
-		err := summarizeModel(appCtx, model.header, model.modelInstance, model.filter)
-		if err != nil {
-			return err
-		}
-	}
+// 	for _, model := range models {
+// 		err := summarizeModel(appCtx, model.header, model.modelInstance, model.filter)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func summarizeModel(appCtx appcontext.AppContext, header string, modelInstance interface{}, filter *pop.Query) error {
 	// Inspired by https://stackoverflow.com/a/25386460

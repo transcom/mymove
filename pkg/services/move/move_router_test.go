@@ -1021,7 +1021,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
 	})
 
-	suite.Run("SignedCirtification created, Route PPM moves to the closest service counseling office and set status to NEEDS SERVICE COUNSELING", func() {
+	suite.Run("SignedCertification created, Route PPM moves to the closest service counseling office and set status to NEEDS SERVICE COUNSELING", func() {
 		// Under test: MoveRouter.Submit Full PPM should route to service counselor
 		// Set up: Create moves and SignedCertification
 		// Expected outcome: signed cert is created
