@@ -558,10 +558,6 @@ describe('BulkAssignmentModal', () => {
     // Wait for the table and inputs to render.
     await screen.findByRole('table');
 
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
-
     // Fill each assignment input with a non-zero value.
     const assignmentInputs = screen.getAllByTestId('assignment');
 
