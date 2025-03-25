@@ -264,16 +264,16 @@ describe('MoveAllowances page', () => {
           </MockProviders>,
         );
 
-        const proGearWeightInput = screen.findAllByTestId('proGearWeightInput');
+        const proGearWeightInput = screen.getAllByTestId('proGearWeightInput');
         expect(proGearWeightInput[0]).toBeInTheDocument();
         expect(proGearWeightInput[0]).toBeDisabled();
-        const proGearWeightSpouseInput = screen.findAllByTestId('proGearWeightSpouseInput');
+        const proGearWeightSpouseInput = screen.getAllByTestId('proGearWeightSpouseInput');
         expect(proGearWeightSpouseInput[0]).toBeInTheDocument();
         expect(proGearWeightSpouseInput[0]).toBeDisabled();
-        const rmeInput = screen.findAllByTestId('rmeInput');
+        const rmeInput = screen.getAllByTestId('rmeInput');
         expect(rmeInput[0]).toBeInTheDocument();
         expect(rmeInput[0]).toBeDisabled();
-        const sitInput = screen.findAllByTestId('sitInput');
+        const sitInput = screen.getAllByTestId('sitInput');
         expect(sitInput[0]).toBeInTheDocument();
         expect(sitInput[0]).toBeDisabled();
       }
@@ -296,16 +296,16 @@ describe('MoveAllowances page', () => {
           </MockProviders>,
         );
 
-        const proGearWeightInput = screen.findAllByTestId('proGearWeightInput');
+        const proGearWeightInput = screen.getAllByTestId('proGearWeightInput');
         expect(proGearWeightInput[0]).toBeInTheDocument();
         expect(proGearWeightInput[0]).not.toBeDisabled();
-        const proGearWeightSpouseInput = screen.findAllByTestId('proGearWeightSpouseInput');
+        const proGearWeightSpouseInput = screen.getAllByTestId('proGearWeightSpouseInput');
         expect(proGearWeightSpouseInput[0]).toBeInTheDocument();
         expect(proGearWeightSpouseInput[0]).not.toBeDisabled();
-        const rmeInput = screen.findAllByTestId('rmeInput');
+        const rmeInput = screen.getAllByTestId('rmeInput');
         expect(rmeInput[0]).toBeInTheDocument();
         expect(rmeInput[0]).not.toBeDisabled();
-        const sitInput = screen.findAllByTestId('sitInput');
+        const sitInput = screen.getAllByTestId('sitInput');
         expect(sitInput[0]).toBeInTheDocument();
         expect(sitInput[0]).not.toBeDisabled();
       }
