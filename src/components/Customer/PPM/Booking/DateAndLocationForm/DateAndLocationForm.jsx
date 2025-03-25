@@ -21,7 +21,8 @@ import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validat
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
-import { isPreceedingAddressComplete } from 'shared/utils';
+import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
+import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 
 let meta = '';
 
@@ -63,14 +64,14 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
     hasTertiaryPickupAddress: mtoShipment?.ppmShipment?.tertiaryPickupAddress ? 'true' : 'false',
     useCurrentDestinationAddress: false,
-    hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
-    hasTertiaryDestinationAddress: mtoShipment?.ppmShipment?.tertiaryDestinationAddress ? 'true' : 'false',
     destinationAddress: {},
     secondaryDestinationAddress: {},
+    tertiaryDestinationAddress: {},
+    hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
+    hasTertiaryDestinationAddress: mtoShipment?.ppmShipment?.tertiaryDestinationAddress ? 'true' : 'false',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeoutOffice || {},
-    tertiaryDestinationAddress: {},
   };
 
   if (mtoShipment?.ppmShipment?.pickupAddress) {
@@ -146,7 +147,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
       validateOnMount
       validateOnChange
     >
-      {({ isValid, isSubmitting, handleSubmit, setValues, values, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values, errors, ...formikProps }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -162,14 +163,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues({
               ...values,
               pickupAddress: {
-                address: {
-                  streetAddress1: '',
-                  streetAddress2: '',
-                  city: '',
-                  state: '',
-                  postalCode: '',
-                  usPostRegionCitiesID: '',
-                },
+                blankAddress,
               },
             });
           }
@@ -190,18 +184,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues({
               ...values,
               destinationAddress: {
-                address: {
-                  streetAddress1: '',
-                  streetAddress2: '',
-                  city: '',
-                  state: '',
-                  postalCode: '',
-                  usPostRegionCitiesID: '',
-                },
+                blankAddress,
               },
             });
           }
         };
+
         return (
           <div className={ppmStyles.formContainer}>
             <Form className={formStyles.form}>
@@ -235,8 +223,10 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                               label="Yes"
                               name="hasSecondaryPickupAddress"
                               value="true"
+                              title="Yes, I have a second pickup address"
                               checked={values.hasSecondaryPickupAddress === 'true'}
                               disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                              onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                             />
                             <Field
                               as={Radio}
@@ -245,8 +235,10 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                               label="No"
                               name="hasSecondaryPickupAddress"
                               value="false"
+                              title="No, I do not have a second pickup address"
                               checked={values.hasSecondaryPickupAddress === 'false'}
                               disabled={!isPreceedingAddressComplete('true', values.pickupAddress.address)}
+                              onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                             />
                           </div>
                         </Fieldset>
@@ -285,7 +277,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                   label="Yes"
                                   name="hasTertiaryPickupAddress"
                                   value="true"
-                                  title="Yes, I have a third delivery address"
+                                  title="Yes, I have a third pickup address"
                                   checked={values.hasTertiaryPickupAddress === 'true'}
                                   disabled={
                                     !isPreceedingAddressComplete(
@@ -293,6 +285,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                       values.secondaryPickupAddress.address,
                                     )
                                   }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                                 <Field
                                   as={Radio}
@@ -301,7 +294,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                   label="No"
                                   name="hasTertiaryPickupAddress"
                                   value="false"
-                                  title="No, I do not have a third delivery address"
+                                  title="No, I do not have a third pickup address"
                                   checked={values.hasTertiaryPickupAddress === 'false'}
                                   disabled={
                                     !isPreceedingAddressComplete(
@@ -309,6 +302,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                       values.secondaryPickupAddress.address,
                                     )
                                   }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                               </div>
                             </Fieldset>
@@ -366,8 +360,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="Yes"
                                 name="hasSecondaryDestinationAddress"
                                 value="true"
+                                title="Yes, I have a second delivery address"
                                 checked={values.hasSecondaryDestinationAddress === 'true'}
-                                disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
+                                disabled={
+                                  !isPreceedingAddressPPMPrimaryDestinationComplete(values.destinationAddress.address)
+                                }
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -376,8 +374,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="No"
                                 name="hasSecondaryDestinationAddress"
                                 value="false"
+                                title="No, I do not have a second delivery address"
                                 checked={values.hasSecondaryDestinationAddress === 'false'}
-                                disabled={!isPreceedingAddressComplete('true', values.destinationAddress.address)}
+                                disabled={
+                                  !isPreceedingAddressPPMPrimaryDestinationComplete(values.destinationAddress.address)
+                                }
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                             </div>
                           </Fieldset>
@@ -426,6 +428,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                       values.secondaryDestinationAddress.address,
                                     )
                                   }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                                 <Field
                                   as={Radio}
@@ -442,6 +445,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                       values.secondaryDestinationAddress.address,
                                     )
                                   }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                               </div>
                             </Fieldset>
