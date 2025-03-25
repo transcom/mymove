@@ -734,6 +734,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		provider, err := factory.BuildOktaProvider("adminProvider")
 		suite.NoError(err)
 
+		mockAndActivateOktaGETEndpointNoUserNoError(provider)
 		mockAndActivateOktaEndpoints(provider, 200)
 
 		user := factory.BuildDefaultUser(suite.DB())
@@ -841,6 +842,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		provider, err := factory.BuildOktaProvider("adminProvider")
 		suite.NoError(err)
 
+		mockAndActivateOktaGETEndpointNoUserNoError(provider)
 		mockAndActivateOktaEndpoints(provider, 500)
 
 		user := factory.BuildDefaultUser(suite.DB())
@@ -937,7 +939,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(requestedofficeuserop.NewGetRequestedOfficeUserInternalServerError(), response)
+		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserInternalServerError(), response)
 	})
 }
 
@@ -964,5 +966,14 @@ func mockAndActivateOktaEndpoints(provider *okta.Provider, responseCode int) {
 			httpmock.NewStringResponder(500, ""))
 	}
 
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGETEndpointNoUserNoError(provider *okta.Provider) {
+	getUsersEndpoint := provider.GetUsersURL()
+	response := "[]"
+
+	httpmock.RegisterResponder("GET", getUsersEndpoint,
+		httpmock.NewStringResponder(200, response))
 	httpmock.Activate()
 }
