@@ -59,6 +59,8 @@ const ProGear = () => {
     },
   });
 
+  // Not working
+  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment);
   const { mutate: mutatePatchProGearWeightTicket } = useMutation(patchProGearWeightTicket, {
     onSuccess: () => {
       queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
@@ -67,15 +69,6 @@ const ProGear = () => {
     onError: () => {
       setIsSubmitted(false);
       setErrorMessage('Failed to save updated trip record');
-    },
-  });
-
-  // Not working
-  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment, {
-    onSuccess: () => {},
-    onError: (error) => {
-      setIsSubmitted(false);
-      setErrorMessage(`${error} Failed to save updated trip record`);
     },
   });
 
@@ -152,7 +145,6 @@ const ProGear = () => {
       spouseProGear = values.weight;
     }
 
-    const temp = mtoShipment.eTag;
     const payload = {
       belongsToSelf,
       description: values.description,
@@ -178,7 +170,7 @@ const ProGear = () => {
     mutateUpdateMtoShipment({
       moveTaskOrderID,
       shipmentID: shipmentId,
-      'If-Match': temp,
+      'If-Match': payload.eTag,
       body: payload,
     });
   };
