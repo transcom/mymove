@@ -61,9 +61,11 @@ const ToolTip = ({ text, position, icon, color, closeOnLeave, title, textAreaSiz
     >
       <FontAwesomeIcon icon={icon || 'circle-question'} color={color || 'blue'} />
       {isVisible && (
-        <div className={textStyle}>
+        <div className={textStyle} data-testid="tooltip">
           {title && <div className={styles.popoverHeader}>{title}</div>}
-          <div className={styles.popoverBody}>{text}</div>
+          <div className={styles.popoverBody} data-testid="tooltipText">
+            {text}
+          </div>
         </div>
       )}
     </div>
