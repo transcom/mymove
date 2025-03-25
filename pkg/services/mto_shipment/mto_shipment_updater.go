@@ -1229,16 +1229,8 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			return nil, fmt.Errorf("error fetching contract for move ID: %s", moveID)
 		}
 
-		pickupAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
-		if err != nil {
-			return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
-		}
-
-		destinationAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
-		if err != nil {
-			return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
-		}
-
+		pickupAddressRateAreaID, _ := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
+		destinationAddressRateAreaID, _ := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
 		if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			intlTransTime, err = models.FetchInternationalTransitTime(appCtx.DB(), pickupAddressRateAreaID, destinationAddressRateAreaID)
 			if err != nil {
