@@ -18,7 +18,7 @@ func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
 	oktaEmail := "test@example.com"
 	oktaEdipi := "1234567890"
 
-	users, err := models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", oktaEmail, &oktaEdipi)
+	users, err := models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", oktaEmail, &oktaEdipi, nil)
 
 	suite.NoError(err)
 	suite.Equal(1, len(users))
@@ -31,18 +31,18 @@ func (suite *ModelSuite) TestSearchForExistingOktaUsersValidation() {
 	suite.NoError(err)
 
 	// invalid email format
-	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "invalid-email", nil)
+	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "invalid-email", nil, nil)
 	suite.Error(err)
 	suite.Contains(err.Error(), "invalid email format")
 
 	// empty email
-	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "", nil)
+	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "", nil, nil)
 	suite.Error(err)
 	suite.Contains(err.Error(), "email is required")
 
 	// invalid EDIPI format (not 10 digits)
 	invalidEdipi := "12345"
-	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "test@example.com", &invalidEdipi)
+	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "test@example.com", &invalidEdipi, nil)
 	suite.Error(err)
 	suite.Contains(err.Error(), "invalid EDIPI format")
 }

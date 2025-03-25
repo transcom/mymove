@@ -4,6 +4,7 @@ import { mount, shallow } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import AsyncSelect from 'react-select/async';
 import { useField } from 'formik';
+import { render } from '@testing-library/react';
 
 import { DutyLocationInput } from './DutyLocationInput';
 
@@ -130,6 +131,15 @@ describe('DutyLocationInput', () => {
 
       // The NoOptionsMessage component is only rendered when the 'No Options' message is displayed
       expect(mounted.exists('NoOptionsMessage')).toBe(true);
+    });
+  });
+
+  describe('with optional props', () => {
+    it('renders the required asterisk when prop is provided', () => {
+      const { getByTestId } = render(
+        <DutyLocationInput {...mockProps} name="name" label="label" showRequiredAsterisk />,
+      );
+      expect(getByTestId('requiredAsterisk')).toBeInTheDocument();
     });
   });
 
