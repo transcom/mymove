@@ -113,9 +113,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 	})
 }
 
-//
 // UPDATE Customer test
-//
 func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 	// Reusable objects
 	progearUpdater := progear.NewCustomerProgearWeightTicketUpdater()
