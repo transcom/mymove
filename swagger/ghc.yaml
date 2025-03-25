@@ -3711,6 +3711,7 @@ paths:
             - CLOSEOUT
             - TASK_ORDER
             - PAYMENT_REQUEST
+            - DESTINATION_REQUEST
       responses:
         '200':
           description: Successfully returned bulk assignment data

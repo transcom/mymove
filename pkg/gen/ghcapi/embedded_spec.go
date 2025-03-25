@@ -4389,7 +4389,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUEST"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -21600,7 +21601,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUEST"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
