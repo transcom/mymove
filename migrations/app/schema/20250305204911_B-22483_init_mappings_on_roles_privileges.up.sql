@@ -48,3 +48,12 @@ INSERT INTO roles_privileges (id, role_id, privilege_id, created_at, updated_at)
     ('e62984fc-03d8-496e-8ba1-e4c979120f4a'::uuid,'72432922-bf2e-45de-8837-1a458f5d1011'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Customer Service Representative
     ('e0d49f7a-96a8-4bde-874c-83bb322558f1'::uuid,'20d7deea-4010-424e-9f64-714a46e18c3c'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()), -- Government Surveillance Representative
     ('1ed7973d-c022-48fa-9534-12278cb9d98c'::uuid,'0da36914-fcc1-4965-b49c-b4a0d447514c'::uuid,'463c2034-d197-4d9a-897e-8bbe64893a31'::uuid, now(), now()); -- Headquarters
+
+-- insert applicable roles for safety privilege
+INSERT INTO roles_privileges (id, role_id, privilege_id, created_at, updated_at) VALUES
+    ('dac8f0e3-6e0e-476e-848b-d12b663319ea'::uuid,'2b21e867-78c3-4980-95a1-c8242b78baba'::uuid,'43f77473-2ecd-4b06-920a-e1e003f63c18'::uuid, now(), now()), -- Task Ordering Officer
+    ('091aca53-4732-46d7-977f-fa4b7b4f67b4'::uuid,'c19a5d5f-d320-4972-b294-1d760ee4b899'::uuid,'43f77473-2ecd-4b06-920a-e1e003f63c18'::uuid, now(), now()), -- Task Invoicing Officer
+    ('0b4d838a-bd5c-4921-8140-344c8917c80b'::uuid,'010bdae1-8ebe-44c9-b8ee-8c4477fae2a6'::uuid,'43f77473-2ecd-4b06-920a-e1e003f63c18'::uuid, now(), now()), -- Services Counselor
+    ('911b83a8-b5b2-41fe-8d94-91e212818837'::uuid,'a2af3cc0-d0cd-4a29-8092-70ad45723090'::uuid,'43f77473-2ecd-4b06-920a-e1e003f63c18'::uuid, now(), now()), -- Quality Assurance Evaluator
+    ('ce985179-bd80-429e-96b7-9a8f1ca41ab6'::uuid,'72432922-bf2e-45de-8837-1a458f5d1011'::uuid,'43f77473-2ecd-4b06-920a-e1e003f63c18'::uuid, now(), now()), -- Customer Service Representative
+    ('91915f91-a031-495b-9b25-5699bf24be5b'::uuid,'0da36914-fcc1-4965-b49c-b4a0d447514c'::uuid,'43f77473-2ecd-4b06-920a-e1e003f63c18'::uuid, now(), now()); -- Headquarters
