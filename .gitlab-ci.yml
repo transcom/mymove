@@ -1254,6 +1254,7 @@ integration_test_admin:
       entrypoint: ["/bin/milmove"]
       command: ["serve","--verbose"]
   variables:
+    CI_DEBUG_SERVICES: "true"
     # FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
@@ -1334,6 +1335,7 @@ integration_test_my:
       entrypoint: ["/bin/milmove"]
       command: ["serve","--verbose"]
   variables:
+    CI_DEBUG_SERVICES: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1411,6 +1413,7 @@ integration_test_office:
       entrypoint: ["/bin/milmove"]
       command: ["serve","--verbose"]
   variables:
+    CI_DEBUG_SERVICES: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1470,22 +1473,23 @@ integration_test_office:
    - *check_integration_ignore_branch
 
 integration_test_e2e_generic:
-  stage: pre_checks
+  stage: pre_pre_checks
   interruptible: true
   cache:
     - <<: *yarn_cache
     - <<: *node_cache
   tags:
     - $Gitlab_Runner_Tag
-  image: mcr.microsoft.com/playwright:v1.40.0-focal
+  image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
     - name: $redis
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["serve","--port","4000","--verbose"]
+      command: ["serve","--verbose"]
   variables:
+    CI_DEBUG_SERVICES: "true"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
