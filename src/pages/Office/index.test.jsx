@@ -8,15 +8,12 @@ import OfficeApp from './index';
 
 import { configureStore } from 'shared/store';
 import { mockPage } from 'testUtils';
+import { loadPublicSchema, loadInternalSchema } from 'shared/Swagger/ducks';
+import { loadUser } from 'store/auth/actions';
 
 afterEach(() => {
   cleanup();
 });
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
 
 // Mock Redux actions to prevent actual API calls
 jest.mock('store/auth/actions', () => ({
@@ -29,6 +26,7 @@ jest.mock('store/onboarding/actions', () => ({
 
 jest.mock('shared/Swagger/ducks', () => ({
   loadInternalSchema: jest.fn(() => async () => {}),
+  loadPublicSchema: jest.fn(() => async () => {}),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -117,33 +115,27 @@ const loggedInState = {
   },
 };
 
-// Render the OfficeApp component with routing and Redux setup for the provided route and role
-const renderWithProviders = (
-  ui,
-  { route = '/', initialState = {}, store = configureStore(initialState).store } = {},
-) => {
-  // isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-  // const mockStore = createMockStore(role);
-  // const userRoles = role ? [{ roleType: role }] : [];
+const renderWithState = (state, path) => {
+  const mockStore = configureStore({ ...state });
+
+  const minProps = {
+    initOnboarding: jest.fn(),
+    loadInternalSchema: jest.fn(),
+    loadUser: jest.fn(),
+  };
+
   return render(
-    <MemoryRouter initialEntries={[route]}>
-      <Provider store={store}>{ui}</Provider>
+    <MemoryRouter initialEntries={[path]}>
+      <Provider store={mockStore.store}>
+        <OfficeApp {...minProps} />
+      </Provider>
     </MemoryRouter>,
   );
 };
 
 describe('Office App', () => {
-  const minProps = {
-    loadPublicSchema: jest.fn(),
-    loadInternalSchema: jest.fn(),
-    loadUser: jest.fn(),
-  };
-
   it('renders Sign In page when user is logged out', async () => {
-    renderWithProviders(<OfficeApp {...minProps} />, {
-      route: '/sign-in',
-      initialState: defaultState,
-    });
+    renderWithState(defaultState, '/sign-in');
     await waitFor(() => expect(screen.getByText(/sign in/i)).toBeInTheDocument());
   });
   it('displays Maintenance page when under maintenance is true', async () => {
@@ -154,10 +146,7 @@ describe('Office App', () => {
         underMaintenance: true,
       },
     };
-    renderWithProviders(<OfficeApp {...minProps} />, {
-      route: '/',
-      initialState: updatedState,
-    });
+    renderWithState(updatedState, '/');
 
     await waitFor(() =>
       expect(screen.getByText(/This system is currently undergoing maintenance/i)).toBeInTheDocument(),
@@ -173,13 +162,54 @@ describe('Office App', () => {
       },
     };
 
-    renderWithProviders(<OfficeApp {...minProps} />, {
-      route: '/',
-      initialState: updatedState,
-    });
+    renderWithState(updatedState, '/');
     await waitFor(() => {
       expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
       expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
     });
+  });
+  it('handles the SignIn URL for not logged in user and fetches inital data', async () => {
+    renderWithState(defaultState, '/');
+
+    expect(screen.getByText('Skip to content')).toBeInTheDocument();
+    expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument();
+    expect(screen.getByTestId('signin')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Mock Sign In Component')));
+    await waitFor(() => {
+      expect(loadUser).toHaveBeenCalled();
+      expect(loadInternalSchema).toHaveBeenCalled();
+      expect(loadPublicSchema).toHaveBeenCalled();
+      expect(screen.getByText('Mock Sign In Component'));
+    });
+  });
+  it('renders SystemError when there is a recent error on root path', async () => {
+    const updatedState = {
+      ...defaultState,
+      auth: {
+        ...defaultState.auth,
+        isLoggedIn: true,
+        activeRole: null,
+      },
+      interceptor: {
+        hasRecentError: true,
+        traceId: 'trace-id-123',
+      },
+    };
+
+    renderWithState(updatedState, '/');
+    await waitFor(() => {
+      expect(screen.getByText(/trace-id-123/)).toBeInTheDocument();
+      expect(screen.getByText(/something isn't working, but we're not sure what/i)).toBeInTheDocument();
+    });
+  });
+  it('handles the Invalid Permissions URL for logged in user', async () => {
+    renderWithState(loggedInState, '/invalid-permissions');
+
+    expect(screen.getByText('Skip to content')).toBeInTheDocument();
+    expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument();
+
+    await waitFor(() =>
+      expect(screen.getByText(/You do not have permission to access this site/i)).toBeInTheDocument(),
+    );
   });
 });

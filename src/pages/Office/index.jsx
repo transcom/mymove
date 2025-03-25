@@ -42,7 +42,6 @@ import { RouterShape, UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
-import withRouter from 'utils/routing';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
@@ -174,7 +173,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
             {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
-              {props.hasRecentError && location.pathname === '/' && (
+              {props.hasRecentError && location.pathname.endsWith('/') && (
                 <SystemError>
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
@@ -637,4 +636,4 @@ const mapDispatchToProps = {
   loadUser: loadUserAction,
 };
 
-export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(OfficeApp)));
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(OfficeApp));
