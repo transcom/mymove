@@ -2437,7 +2437,6 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				}
 				if !userFound {
 					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
-					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
 				}
 			}
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
