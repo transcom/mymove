@@ -36,7 +36,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "123 New Street",
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 				County:         models.StringPointer("COLUMBIA"),

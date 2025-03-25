@@ -1422,10 +1422,10 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				StreetAddress1: "Fort Eisenhower",
-				City:           "Fort Eisenhower",
-				State:          "GA",
-				PostalCode:     "77777",
+				StreetAddress1: "Some street",
+				City:           "JBSA FT SAM HOUSTON",
+				State:          "TX",
+				PostalCode:     "78234",
 			},
 		},
 	}, nil)

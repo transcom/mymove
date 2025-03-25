@@ -19,8 +19,8 @@ func fakeAddressPayload() *internalmessages.Address {
 		StreetAddress1: models.StringPointer("An address"),
 		StreetAddress2: models.StringPointer("Apt. 2"),
 		StreetAddress3: models.StringPointer("address line 3"),
-		City:           models.StringPointer("Happytown"),
-		State:          models.StringPointer("AL"),
+		City:           models.StringPointer("NICHOLASVILLE"),
+		State:          models.StringPointer("KY"),
 		PostalCode:     models.StringPointer("40356"),
 		County:         models.StringPointer("JESSAMINE"),
 		IsOconus:       models.BoolPointer(false),
@@ -29,14 +29,17 @@ func fakeAddressPayload() *internalmessages.Address {
 
 func (suite *HandlerSuite) TestShowAddressHandler() {
 
+	usprcId := uuid.FromStringOrNil("f365a492-fdd5-45fd-af14-db38a5aea80c")
+
 	suite.Run("successful lookup", func() {
 		address := models.Address{
-			StreetAddress1: "some address",
-			City:           "city",
-			State:          "state",
-			PostalCode:     "12345",
-			County:         models.StringPointer("JESSAMINE"),
-			IsOconus:       models.BoolPointer(false),
+			StreetAddress1:     "some address",
+			City:               "KEENE",
+			State:              "KY",
+			PostalCode:         "40339",
+			County:             models.StringPointer("JESSAMINE"),
+			IsOconus:           models.BoolPointer(false),
+			UsPostRegionCityID: &usprcId,
 		}
 		suite.MustSave(&address)
 

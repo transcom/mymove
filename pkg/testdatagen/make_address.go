@@ -2,21 +2,26 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeAddress creates a single Address and associated service member.
 func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
+
+	usprcId := uuid.FromStringOrNil("3b9f0ae6-3b2b-44a6-9fcd-8ead346648c4")
+
 	address := models.Address{
-		StreetAddress1: "123 Any Street",
-		StreetAddress2: models.StringPointer("P.O. Box 12345"),
-		StreetAddress3: models.StringPointer("c/o Some Person"),
-		City:           "Beverly Hills",
-		State:          "CA",
-		PostalCode:     "90210",
-		County:         models.StringPointer("LOS ANGELES"),
-		IsOconus:       models.BoolPointer(false),
+		StreetAddress1:     "123 Any Street",
+		StreetAddress2:     models.StringPointer("P.O. Box 12345"),
+		StreetAddress3:     models.StringPointer("c/o Some Person"),
+		City:               "Beverly Hills",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             models.StringPointer("LOS ANGELES"),
+		IsOconus:           models.BoolPointer(false),
+		UsPostRegionCityID: &usprcId,
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -28,15 +33,18 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress2 creates a different single Address and associated service member.
 func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
+	usprcId := uuid.FromStringOrNil("8e67097a-3469-4fbc-82fc-d87acae3d4e7")
+
 	address := models.Address{
-		StreetAddress1: "987 Any Avenue",
-		StreetAddress2: models.StringPointer("P.O. Box 9876"),
-		StreetAddress3: models.StringPointer("c/o Some Person"),
-		City:           "Fairfield",
-		State:          "CA",
-		PostalCode:     "94535",
-		IsOconus:       models.BoolPointer(false),
-		County:         models.StringPointer("SOLANO"),
+		StreetAddress1:     "987 Any Avenue",
+		StreetAddress2:     models.StringPointer("P.O. Box 9876"),
+		StreetAddress3:     models.StringPointer("c/o Some Person"),
+		City:               "Fairfield",
+		State:              "CA",
+		PostalCode:         "94535",
+		IsOconus:           models.BoolPointer(false),
+		County:             models.StringPointer("SOLANO"),
+		UsPostRegionCityID: &usprcId,
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -48,15 +56,18 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress3 creates a different single Address and associated service member.
 func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
+	usprcId := uuid.FromStringOrNil("3be7857f-04e9-448f-a3c6-fa2334ff3903")
+
 	address := models.Address{
-		StreetAddress1: "987 Other Avenue",
-		StreetAddress2: models.StringPointer("P.O. Box 1234"),
-		StreetAddress3: models.StringPointer("c/o Another Person"),
-		City:           "Des Moines",
-		State:          "IA",
-		PostalCode:     "50309",
-		County:         models.StringPointer("POLK"),
-		IsOconus:       models.BoolPointer(false),
+		StreetAddress1:     "987 Other Avenue",
+		StreetAddress2:     models.StringPointer("P.O. Box 1234"),
+		StreetAddress3:     models.StringPointer("c/o Another Person"),
+		City:               "Des Moines",
+		State:              "IA",
+		PostalCode:         "50309",
+		County:             models.StringPointer("POLK"),
+		IsOconus:           models.BoolPointer(false),
+		UsPostRegionCityID: &usprcId,
 	}
 
 	mergeModels(&address, assertions.Address)
