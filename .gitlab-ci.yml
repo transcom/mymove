@@ -1104,7 +1104,6 @@ integration_test_mtls:
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
       command: ["serve","--verbose"]
-      # command: ["--verbose","node", "server.js"]
   variables:
     CI_DEBUG_SERVICES: "true"
     # FF_NETWORK_PER_BUILD: "true"
@@ -1319,7 +1318,7 @@ integration_test_admin:
    - *check_integration_ignore_branch
 
 integration_test_my:
-  stage: pre_checks
+  stage: pre_pre_checks
   interruptible: true
   cache:
     - <<: *yarn_cache
@@ -1330,10 +1329,10 @@ integration_test_my:
   services:
     - name: $postgres
     - name: $redis
-    - name: registry.csde.caci.com/milmove/mymove:e2e-a743f4c9
+    - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["-p 4000:4000", "serve","--verbose"]
+      command: ["serve","--verbose"]
   variables:
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
@@ -1396,7 +1395,7 @@ integration_test_my:
    - *check_integration_ignore_branch
 
 integration_test_office:
-  stage: pre_checks
+  stage: pre_pre_checks
   interruptible: true
   cache:
     - <<: *yarn_cache
@@ -1410,7 +1409,7 @@ integration_test_office:
     - name: registry.csde.caci.com/milmove/mymove:e2e-977e14fb
       alias: milmovelocal,officelocal,adminlocal,primelocal
       entrypoint: ["/bin/milmove"]
-      command: ["-p 4000:4000", "serve","--verbose"]
+      command: ["serve","--verbose"]
   variables:
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
