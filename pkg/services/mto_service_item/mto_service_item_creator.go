@@ -27,18 +27,25 @@ type createMTOServiceItemQueryBuilder interface {
 }
 
 type mtoServiceItemCreator struct {
-	planner             route.Planner
-	builder             createMTOServiceItemQueryBuilder
-	createNewBuilder    func() createMTOServiceItemQueryBuilder
-	moveRouter          services.MoveRouter
-	unpackPricer        services.DomesticUnpackPricer
-	packPricer          services.DomesticPackPricer
-	linehaulPricer      services.DomesticLinehaulPricer
-	shorthaulPricer     services.DomesticShorthaulPricer
-	originPricer        services.DomesticOriginPricer
-	destinationPricer   services.DomesticDestinationPricer
-	fuelSurchargePricer services.FuelSurchargePricer
-	sitEstimator        mtoServiceItemEstimator
+	planner                   route.Planner
+	builder                   createMTOServiceItemQueryBuilder
+	createNewBuilder          func() createMTOServiceItemQueryBuilder
+	moveRouter                services.MoveRouter
+	unpackPricer              services.DomesticUnpackPricer
+	packPricer                services.DomesticPackPricer
+	linehaulPricer            services.DomesticLinehaulPricer
+	shorthaulPricer           services.DomesticShorthaulPricer
+	originPricer              services.DomesticOriginPricer
+	destinationPricer         services.DomesticDestinationPricer
+	fuelSurchargePricer       services.FuelSurchargePricer
+	destinationFirstDayPricer services.DomesticDestinationFirstDaySITPricer
+	destinationDeliveryPricer services.DomesticDestinationSITDeliveryPricer
+	destinationAddlPricer     services.DomesticDestinationAdditionalDaysSITPricer
+	destinationFuelPricer     services.DomesticDestinationSITFuelSurchargePricer
+	originFirstDayPricer      services.DomesticOriginFirstDaySITPricer
+	originDeliveryPricer      services.DomesticOriginSITPickupPricer
+	originAddlPricer          services.DomesticOriginAdditionalDaysSITPricer
+	originFuelPricer          services.DomesticOriginSITFuelSurchargePricer
 }
 
 // FindEstimatedPrice finds the estimated price for a service item
@@ -200,28 +207,13 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 	return 0, nil
 }
 
-type mtoServiceItemEstimator struct {
-	planner route.Planner
-	// destination
-	destinationFirstDayPricer services.DomesticDestinationFirstDaySITPricer
-	destinationDeliveryPricer services.DomesticDestinationSITDeliveryPricer
-	destinationAddlPricer     services.DomesticDestinationAdditionalDaysSITPricer
-	destinationFuelPricer     services.DomesticDestinationSITFuelSurchargePricer
-
-	// origin
-	// originFirstDayPricer services.DomesticOriginFirstDaySITPricer
-	// originDeliveryPricer services.DomesticOriginSITDeliveryPricer
-	// originAddlPricer     services.DomesticOriginAdditionalDaysSITPricer
-	// originFuelPricer     services.DomesticOriginSITFuelSurchargePricer
-}
-
 func calcTotalSITDuration(entry time.Time, departure time.Time) time.Duration {
 	duration := departure.Sub(entry) / 24
 
 	return duration
 }
 
-func (o *mtoServiceItemEstimator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
 	if serviceItem.CheckIsSITServiceItem() {
 		isPPM := false
 		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
@@ -800,7 +792,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	// calculate estimated prices for SIT service items on creation
 	if serviceItem.CheckIsSITServiceItem() {
-		price, err := o.sitEstimator.FindSITEstimatedPrice(appCtx, serviceItem, mtoShipment)
+		price, err := o.FindSITEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if err != nil {
 			return nil, nil, apperror.NewConflictError(serviceItem.ID, err.Error())
 		}
@@ -989,24 +981,41 @@ func NewMTOServiceItemCreator(
 	shorthaulPricer services.DomesticShorthaulPricer,
 	originPricer services.DomesticOriginPricer,
 	destinationPricer services.DomesticDestinationPricer,
-	fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemCreator {
+	fuelSurchargePricer services.FuelSurchargePricer,
+	destinationFirstDayPricer services.DomesticDestinationFirstDaySITPricer,
+	destinationDeliveryPricer services.DomesticDestinationSITDeliveryPricer,
+	destinationAddlPricer services.DomesticDestinationAdditionalDaysSITPricer,
+	destinationFuelPricer services.DomesticDestinationSITFuelSurchargePricer,
+	originFirstDayPricer services.DomesticOriginFirstDaySITPricer,
+	originDeliveryPricer services.DomesticOriginSITPickupPricer,
+	originAddlPricer services.DomesticOriginAdditionalDaysSITPricer,
+	originFuelPricer services.DomesticOriginSITFuelSurchargePricer,
+) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func() createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
 	return &mtoServiceItemCreator{
-		planner:             planner,
-		builder:             builder,
-		createNewBuilder:    createNewBuilder,
-		moveRouter:          moveRouter,
-		unpackPricer:        unpackPricer,
-		packPricer:          packPricer,
-		linehaulPricer:      linehaulPricer,
-		shorthaulPricer:     shorthaulPricer,
-		originPricer:        originPricer,
-		destinationPricer:   destinationPricer,
-		fuelSurchargePricer: fuelSurchargePricer,
+		planner:                   planner,
+		builder:                   builder,
+		createNewBuilder:          createNewBuilder,
+		moveRouter:                moveRouter,
+		unpackPricer:              unpackPricer,
+		packPricer:                packPricer,
+		linehaulPricer:            linehaulPricer,
+		shorthaulPricer:           shorthaulPricer,
+		originPricer:              originPricer,
+		destinationPricer:         destinationPricer,
+		fuelSurchargePricer:       fuelSurchargePricer,
+		destinationFirstDayPricer: destinationFirstDayPricer,
+		destinationDeliveryPricer: destinationDeliveryPricer,
+		destinationAddlPricer:     destinationAddlPricer,
+		destinationFuelPricer:     destinationFuelPricer,
+		originFirstDayPricer:      originFirstDayPricer,
+		originDeliveryPricer:      originDeliveryPricer,
+		originAddlPricer:          originAddlPricer,
+		originFuelPricer:          originFuelPricer,
 	}
 }
 

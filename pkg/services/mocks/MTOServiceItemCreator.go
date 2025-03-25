@@ -85,6 +85,34 @@ func (_m *MTOServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext
 	return r0, r1
 }
 
+// FindSITEstimatedPrice provides a mock function with given fields: appCtx, serviceItem, mtoShipment
+func (_m *MTOServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+	ret := _m.Called(appCtx, serviceItem, mtoShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindSITEstimatedPrice")
+	}
+
+	var r0 unit.Cents
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment) (unit.Cents, error)); ok {
+		return rf(appCtx, serviceItem, mtoShipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment) unit.Cents); ok {
+		r0 = rf(appCtx, serviceItem, mtoShipment)
+	} else {
+		r0 = ret.Get(0).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment) error); ok {
+		r1 = rf(appCtx, serviceItem, mtoShipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewMTOServiceItemCreator creates a new instance of MTOServiceItemCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMTOServiceItemCreator(t interface {

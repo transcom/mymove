@@ -25,12 +25,6 @@ type MTOServiceItemFetcher interface {
 type MTOServiceItemCreator interface {
 	CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
 	FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error)
-}
-
-// MTOServiceItemSITEstimator is the exported interface for estimating prices on SIT mto service items
-//
-//go:generate mockery --name MTOServiceItemSITEstimator
-type MTOServiceItemSITEstimator interface {
 	FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error)
 }
 
