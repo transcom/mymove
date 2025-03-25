@@ -211,7 +211,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 
 func (suite *FactorySuite) TestBuildMinimalAddress() {
 	defaultStreet := "N/A"
-	defaultCity := "Fort Gorden"
+	defaultCity := "GROVETOWN"
 	defaultState := "GA"
 	defaultPostalCode := "30813"
 

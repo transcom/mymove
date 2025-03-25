@@ -11,14 +11,19 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
+	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
 	newAddress := &m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         m.StringPointer("County"),
+		StreetAddress1:     "street 1",
+		StreetAddress2:     m.StringPointer("street 2"),
+		StreetAddress3:     m.StringPointer("street 3"),
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		UsPostRegionCityID: &usprc.ID,
+		UsPostRegionCity:   usprc,
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -28,7 +33,15 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 }
 
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
-	newAddress := m.Address{}
+
+	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
+
+	newAddress := m.Address{
+		UsPostRegionCityID: &usprc.ID,
+		UsPostRegionCity:   usprc,
+	}
 
 	expErrors := map[string][]string{
 		"street_address1": {"StreetAddress1 can not be blank."},
@@ -44,8 +57,8 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
+		City:           "BEVERLY HILLS",
+		State:          "CA",
 		PostalCode:     "90210",
 		County:         m.StringPointer("county"),
 	}
@@ -60,8 +73,8 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
+		City:           "BEVERLY HILLS",
+		State:          "CA",
 		PostalCode:     "90210",
 		Country:        &country,
 	}
@@ -134,16 +147,21 @@ func (suite *ModelSuite) TestAddressIsEmpty() {
 
 func (suite *ModelSuite) TestAddressFormat() {
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
 	newAddress := &m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         m.StringPointer("County"),
-		Country:        &country,
-		CountryId:      &country.ID,
+		StreetAddress1:     "street 1",
+		StreetAddress2:     m.StringPointer("street 2"),
+		StreetAddress3:     m.StringPointer("street 3"),
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		Country:            &country,
+		CountryId:          &country.ID,
+		UsPostRegionCityID: &usprc.ID,
+		UsPostRegionCity:   usprc,
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -153,29 +171,34 @@ func (suite *ModelSuite) TestAddressFormat() {
 
 	formattedAddress := newAddress.Format()
 
-	suite.Equal("street 1\nstreet 2\nstreet 3\ncity, state 90210", formattedAddress)
+	suite.Equal("street 1\nstreet 2\nstreet 3\nBEVERLY HILLS, CA 90210", formattedAddress)
 
 	formattedAddress = newAddress.LineFormat()
 
-	suite.Equal("street 1, street 2, street 3, city, state, 90210, UNITED STATES", formattedAddress)
+	suite.Equal("street 1, street 2, street 3, BEVERLY HILLS, CA, 90210, UNITED STATES", formattedAddress)
 
 	formattedAddress = newAddress.LineDisplayFormat()
 
-	suite.Equal("street 1 street 2 street 3, city, state 90210", formattedAddress)
+	suite.Equal("street 1 street 2 street 3, BEVERLY HILLS, CA 90210", formattedAddress)
 }
 
 func (suite *ModelSuite) TestPartialAddressFormat() {
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
 	newAddress := &m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: nil,
-		StreetAddress3: nil,
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         m.StringPointer("County"),
-		Country:        &country,
-		CountryId:      &country.ID,
+		StreetAddress1:     "street 1",
+		StreetAddress2:     nil,
+		StreetAddress3:     nil,
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		Country:            &country,
+		CountryId:          &country.ID,
+		UsPostRegionCityID: &usprc.ID,
+		UsPostRegionCity:   usprc,
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -185,15 +208,15 @@ func (suite *ModelSuite) TestPartialAddressFormat() {
 
 	formattedAddress := newAddress.Format()
 
-	suite.Equal("street 1\ncity, state 90210", formattedAddress)
+	suite.Equal("street 1\nBEVERLY HILLS, CA 90210", formattedAddress)
 
 	formattedAddress = newAddress.LineFormat()
 
-	suite.Equal("street 1, city, state, 90210, UNITED STATES", formattedAddress)
+	suite.Equal("street 1, BEVERLY HILLS, CA, 90210, UNITED STATES", formattedAddress)
 
 	formattedAddress = newAddress.LineDisplayFormat()
 
-	suite.Equal("street 1, city, state 90210", formattedAddress)
+	suite.Equal("street 1, BEVERLY HILLS, CA 90210", formattedAddress)
 }
 
 func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
@@ -397,7 +420,8 @@ func (suite *ModelSuite) TestIsAddressAlaska() {
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
+		City:           "BEVERLY HILLS",
+		State:          "CA",
 		PostalCode:     "90210",
 		County:         m.StringPointer("County"),
 	}

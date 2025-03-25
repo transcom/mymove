@@ -136,8 +136,13 @@ func (suite *AddressSuite) TestAddressCreator() {
 	})
 
 	suite.Run("Fails because of missing field", func() {
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "35007", "ALABASTER")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		addressCreator := NewAddressCreator()
-		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{})
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{UsPostRegionCityID: &usprc.ID})
 
 		suite.Nil(address)
 		suite.NotNil(err)
