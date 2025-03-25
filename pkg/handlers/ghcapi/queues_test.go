@@ -2531,14 +2531,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	postalCode := "90210"
 	suite.Run("returns assigned users supervisor role with safetymove privileges", func() {
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Name:             "KKFA",
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
@@ -2570,10 +2563,18 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 				},
 			},
 		}, nil)
-
-		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-			RoleType: roles.RoleTypeTOO,
-		})
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -2663,19 +2664,10 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
 		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
 		suite.Len(payload.QueueMoves, 1)
-		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
+		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 2)
 	})
-
 	suite.Run("returns assigned users supervisor role without safetymove privilege", func() {
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Name:             "KKFA",
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
-
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
@@ -2703,10 +2695,18 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 				},
 			},
 		}, nil)
-		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-			RoleType: roles.RoleTypeTOO,
-		})
-
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -2796,6 +2796,6 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
 		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
 		suite.Len(payload.QueueMoves, 1)
-		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
+		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 2)
 	})
 }
