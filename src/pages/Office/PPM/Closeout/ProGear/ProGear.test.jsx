@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
 
-import { approvedMTOWithApprovedSitItems2Query } from '../../../MoveTaskOrder/moveTaskOrderUnitTestData';
+import { reviewWeightsQuery } from '../../../MoveTaskOrder/moveTaskOrderUnitTestData';
 
 import { MockProviders } from 'testUtils';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -144,7 +144,7 @@ describe('test page', () => {
       isError: null,
     });
 
-    useReviewShipmentWeightsQuery.mockReturnValue(approvedMTOWithApprovedSitItems2Query);
+    useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
 
     createProGearWeightTicket.mockRejectedValue('an error occurred');
 
@@ -191,7 +191,7 @@ describe('Pro-gear page', () => {
       isError: null,
     });
 
-    useReviewShipmentWeightsQuery.mockReturnValue(approvedMTOWithApprovedSitItems2Query);
+    useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
 
     renderEditProGearPage();
 
@@ -210,7 +210,7 @@ describe('Pro-gear page', () => {
       isError: null,
     });
 
-    useReviewShipmentWeightsQuery.mockReturnValue(approvedMTOWithApprovedSitItems2Query);
+    useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
     renderEditProGearPage();
 
     await userEvent.click(screen.getByLabelText('My spouse'));
@@ -262,7 +262,7 @@ describe('Pro-gear page', () => {
       documents: { ProGearWeightTickets: [{}, {}, {}, {}, mockProGearWeightTicketWithUploads] },
       isError: null,
     });
-    useReviewShipmentWeightsQuery.mockReturnValue(approvedMTOWithApprovedSitItems2Query);
+    useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
 
     deleteUploadForDocument.mockResolvedValue({});
     renderEditProGearPage();
@@ -285,7 +285,7 @@ describe('Pro-gear page', () => {
       documents: { ProGearWeightTickets: [{}, {}, {}, {}, mockProGearWeightTicketWithUploads] },
       isError: null,
     });
-    useReviewShipmentWeightsQuery.mockReturnValue(approvedMTOWithApprovedSitItems2Query);
+    useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
 
     renderEditProGearPage();
 

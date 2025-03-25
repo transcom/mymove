@@ -170,7 +170,7 @@ const ProGear = () => {
     mutateUpdateMtoShipment({
       moveTaskOrderID,
       shipmentID: shipmentId,
-      'If-Match': payload.eTag,
+      ifMatchETag: payload.eTag,
       body: payload,
     });
   };

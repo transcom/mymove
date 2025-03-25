@@ -456,6 +456,7 @@ func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
 		weight := int64(100)
 		status := ghcmessages.PPMDocumentStatusAPPROVED
 		reason := "Valid reason"
+		description := "test description"
 		hasWeightTickets, belongsToSelf := true, true
 
 		input := &ghcmessages.UpdateProGearWeightTicket{
@@ -464,6 +465,7 @@ func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
 			BelongsToSelf:    belongsToSelf,
 			Status:           status,
 			Reason:           reason,
+			Description: description,
 		}
 
 		result := ProgearWeightTicketModelFromUpdate(input)
@@ -472,6 +474,7 @@ func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
 		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
 		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
 		suite.Equal(belongsToSelf, *result.BelongsToSelf)
+		suite.Equal(description, *result.Description)
 		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
 	})
 }
