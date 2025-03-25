@@ -163,8 +163,10 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                   setNumberOfMoves(reAssignableMoves);
 
                   // need to reset assignment entries between re-assignment changes
-                  const newValues = { ...values };
-                  newValues.userData.find((u) => u.ID === newSelection).moveAssignments = 0;
+                  const newValues = { ...initialValues };
+                  newValues.userData.forEach((element) => {
+                    newValues.userData.find((u) => u.ID === element.ID).moveAssignments = 0;
+                  });
                   setValues({
                     ...values,
                     ...newValues,
