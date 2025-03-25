@@ -145,10 +145,18 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
 export async function getBulkAssignmentData(queueType) {
   return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
 }
+export async function getBulkReAssignmentData(queueType) {
+  return makeGHCRequest('queues.getBulkReAssignmentData', { queueType }, { normalize: false });
+}
 
-export async function saveBulkAssignmentData({ queueType, bulkAssignmentSavePayload }) {
-  const body = { queueType, ...bulkAssignmentSavePayload };
+export async function saveBulkAssignmentData({ queueType, bulkReAssignmentSavePayload }) {
+  const body = { queueType, ...bulkReAssignmentSavePayload };
   return makeGHCRequest('queues.saveBulkAssignmentData', { bulkAssignmentSavePayload: body }, { normalize: false });
+}
+
+export async function saveBulkReAssignmentData({ queueType, bulkReAssignmentSavePayload }) {
+  const body = { queueType, ...bulkReAssignmentSavePayload };
+  return makeGHCRequest('queues.saveBulkReAssignmentData', { bulkAssignmentSavePayload: body }, { normalize: false });
 }
 
 export async function createCustomerSupportRemarkForMove({ body, locator }) {

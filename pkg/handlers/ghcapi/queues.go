@@ -825,6 +825,134 @@ func (h GetBulkAssignmentDataHandler) Handle(
 		})
 }
 
+type GetBulkReAssignmentDataHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserFetcherPop
+	services.MoveFetcherBulkAssignment
+}
+
+func (h GetBulkReAssignmentDataHandler) Handle(
+	params queues.GetBulkReAssignmentDataParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewGetBulkReAssignmentDataUnauthorized(), err
+			}
+
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+				return queues.NewGetBulkReAssignmentDataNotFound(), err
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				return queues.NewGetBulkReAssignmentDataNotFound(), err
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			if !isSupervisor {
+				appCtx.Logger().Error("Unauthorized", zap.Error(err))
+				return queues.NewGetBulkReAssignmentDataUnauthorized(), err
+			}
+
+			queueType := params.QueueType
+			var officeUserData ghcmessages.BulkReAssignmentData
+
+			switch *queueType {
+			case string(models.QueueTypeCounseling):
+				// fetch the Services Counselors who work at their office
+				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+				// fetch the moves available to be assigned to their office users
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentCounseling(
+					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+
+				officeUserData = payloads.BulkReAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
+			case string(models.QueueTypeCloseout):
+				// fetch the Services Counselors who work at their office
+				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+				// fetch the moves available to be assigned to their office users
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentCloseout(
+					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+
+				officeUserData = payloads.BulkReAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
+			case string(models.QueueTypeTaskOrder):
+				// fetch the TOOs who work at their office
+				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+				// fetch the moves available to be assigned to their office users
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentTaskOrder(
+					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+
+				officeUserData = payloads.BulkReAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
+			case string(models.QueueTypePaymentRequest):
+				// fetch the TIOs who work at their office
+				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTIO,
+					officeUser.TransportationOfficeID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+				// fetch the moves available to be assigned to their office users
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentPaymentRequest(
+					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
+					return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+				}
+
+				officeUserData = payloads.BulkReAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
+			}
+			return queues.NewGetBulkReAssignmentDataOK().WithPayload(&officeUserData), nil
+		})
+}
+
 // SaveBulkAssignmentDataHandler saves the bulk assignment data
 type SaveBulkAssignmentDataHandler struct {
 	handlers.HandlerConfig
@@ -880,6 +1008,64 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 			}
 
 			return queues.NewSaveBulkAssignmentDataNoContent(), nil
+		})
+}
+
+// SaveBulkAssignmentDataHandler saves the bulk assignment data
+type SaveBulkReAssignmentDataHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserFetcherPop
+	services.MoveFetcher
+	services.MoveAssigner
+}
+
+func (h SaveBulkReAssignmentDataHandler) Handle(
+	params queues.SaveBulkReAssignmentDataParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewSaveBulkReAssignmentDataUnauthorized(), err
+			}
+
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+				return queues.NewSaveBulkReAssignmentDataNotFound(), err
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				return queues.NewSaveBulkReAssignmentDataNotFound(), err
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			if !isSupervisor {
+				appCtx.Logger().Error("Unauthorized", zap.Error(err))
+				return queues.NewSaveBulkReAssignmentDataUnauthorized(), err
+			}
+
+			isCounselor := params.BulkReAssignmentSavePayload.IsCounselor
+			officeUserToReassign := params.BulkReAssignmentSavePayload.OfficeUserToReassign
+			officeUsersTakingWork := params.BulkReAssignmentSavePayload.OfficeUsersTakingWork
+
+			// fetch the moves available to be assigned to their office users
+			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, moveData)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving moves for assignment", zap.Error(err))
+				return queues.NewSaveBulkReAssignmentDataInternalServerError(), err
+			}
+
+			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, officeUserToReassign, nil, movesForAssignment)
+			if err != nil {
+				appCtx.Logger().Error("Error assigning moves", zap.Error(err))
+				return queues.NewGetBulkReAssignmentDataInternalServerError(), err
+			}
+
+			return queues.NewSaveBulkReAssignmentDataNoContent(), nil
 		})
 }
 

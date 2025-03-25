@@ -3750,6 +3750,69 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /queues/bulk-re-assignment:
+    get:
+      produces:
+        - application/json
+      summary: Gets data for bulk assignment modal
+      description: >
+        Supervisor office users are able bulk re assign moves. This endpoint
+        returns the relevant data to them; the current workload of the office
+        users that work under them, and the moves that are available to be
+        re-assigned
+      operationId: getBulkReAssignmentData
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: queueType
+          type: string
+          description: A string corresponding to the queue type
+          enum:
+            - COUNSELING
+            - CLOSEOUT
+            - TASK_ORDER
+            - PAYMENT_REQUEST
+      responses:
+        '200':
+          description: Successfully returned bulk re-assignment data
+          schema:
+            $ref: '#/definitions/BulkReAssignmentData'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /queues/bulk-re-assignment/re-assign:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Re-assigns one or more moves to one or more office users
+      description: >
+        Supervisor office users are able to re-assign currently assigned moves
+        from their team. This endpoint re-assigns an existing office user's
+        moves to multiple team members.
+      operationId: saveBulkReAssignmentData
+      tags:
+        - queues
+      parameters:
+        - in: body
+          name: bulkReAssignmentSavePayload
+          required: true
+          schema:
+            $ref: '#/definitions/BulkReAssignmentSavePayload'
+      responses:
+        '204':
+          description: re-assigned
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/counseling/origin-list:
     get:
       produces:
@@ -7798,6 +7861,13 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       bulkAssignmentMoveIDs:
         $ref: '#/definitions/BulkAssignmentMoveIDs'
+  BulkReAssignmentData:
+    type: object
+    properties:
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
+      bulkAssignmentMoveIDs:
+        $ref: '#/definitions/BulkAssignmentMoveIDs'
   BulkAssignmentSavePayload:
     type: object
     properties:
@@ -7817,6 +7887,18 @@ definitions:
           - CLOSEOUT
           - TASK_ORDER
           - PAYMENT_REQUEST
+  BulkReAssignmentSavePayload:
+    type: object
+    properties:
+      officeUserToReassign:
+        type: string
+        format: uuid
+      officeUsersTakingWork:
+        type: array
+        items:
+          $ref: '#/definitions/BulkReAssignmentTakingWork'
+      isCounselor:
+        type: boolean
   BulkAssignmentForUser:
     type: object
     properties:
@@ -7826,6 +7908,23 @@ definitions:
       moveAssignments:
         type: integer
         x-omitempty: false
+  BulkReAssignmentTakingWork:
+    type: object
+    properties:
+      officeUserToReassign:
+        type: string
+        format: uuid
+      officeUsersTakingWork:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserTakingWork'
+  OfficeUserTakingWork:
+    type: object
+    properties:
+      id:
+        type: string
+      moveCount:
+        type: integer
   BulkAssignmentMoveData:
     format: uuid
     type: string

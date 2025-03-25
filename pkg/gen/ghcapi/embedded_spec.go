@@ -4456,6 +4456,90 @@ func init() {
         }
       }
     },
+    "/queues/bulk-re-assignment": {
+      "get": {
+        "description": "Supervisor office users are able bulk re assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be re-assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkReAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk re-assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkReAssignmentData"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/bulk-re-assignment/re-assign": {
+      "post": {
+        "description": "Supervisor office users are able to re-assign currently assigned moves from their team. This endpoint re-assigns an existing office user's moves to multiple team members.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Re-assigns one or more moves to one or more office users",
+        "operationId": "saveBulkReAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkReAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkReAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "re-assigned"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -7397,6 +7481,50 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
+      }
+    },
+    "BulkReAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkReAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "isCounselor": {
+          "type": "boolean"
+        },
+        "officeUserToReassign": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "officeUsersTakingWork": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkReAssignmentTakingWork"
+          }
+        }
+      }
+    },
+    "BulkReAssignmentTakingWork": {
+      "type": "object",
+      "properties": {
+        "officeUserToReassign": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "officeUsersTakingWork": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserTakingWork"
           }
         }
       }
@@ -11484,6 +11612,17 @@ func init() {
           "title": "roleType",
           "x-nullable": true,
           "example": "task_ordering_officer"
+        }
+      }
+    },
+    "OfficeUserTakingWork": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "moveCount": {
+          "type": "integer"
         }
       }
     },
@@ -21685,6 +21824,108 @@ func init() {
         }
       }
     },
+    "/queues/bulk-re-assignment": {
+      "get": {
+        "description": "Supervisor office users are able bulk re assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be re-assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkReAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk re-assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkReAssignmentData"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/bulk-re-assignment/re-assign": {
+      "post": {
+        "description": "Supervisor office users are able to re-assign currently assigned moves from their team. This endpoint re-assigns an existing office user's moves to multiple team members.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Re-assigns one or more moves to one or more office users",
+        "operationId": "saveBulkReAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkReAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkReAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "re-assigned"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -25056,6 +25297,50 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
+      }
+    },
+    "BulkReAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkReAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "isCounselor": {
+          "type": "boolean"
+        },
+        "officeUserToReassign": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "officeUsersTakingWork": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkReAssignmentTakingWork"
+          }
+        }
+      }
+    },
+    "BulkReAssignmentTakingWork": {
+      "type": "object",
+      "properties": {
+        "officeUserToReassign": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "officeUsersTakingWork": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserTakingWork"
           }
         }
       }
@@ -29147,6 +29432,17 @@ func init() {
           "title": "roleType",
           "x-nullable": true,
           "example": "task_ordering_officer"
+        }
+      }
+    },
+    "OfficeUserTakingWork": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "moveCount": {
+          "type": "integer"
         }
       }
     },

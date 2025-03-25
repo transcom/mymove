@@ -241,6 +241,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
 		})
 	}
+	if api.QueuesGetBulkReAssignmentDataHandler == nil {
+		api.QueuesGetBulkReAssignmentDataHandler = queues.GetBulkReAssignmentDataHandlerFunc(func(params queues.GetBulkReAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetBulkReAssignmentData has not yet been implemented")
+		})
+	}
 	if api.CustomerGetCustomerHandler == nil {
 		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -469,6 +474,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.QueuesSaveBulkAssignmentDataHandler == nil {
 		api.QueuesSaveBulkAssignmentDataHandler = queues.SaveBulkAssignmentDataHandlerFunc(func(params queues.SaveBulkAssignmentDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.SaveBulkAssignmentData has not yet been implemented")
+		})
+	}
+	if api.QueuesSaveBulkReAssignmentDataHandler == nil {
+		api.QueuesSaveBulkReAssignmentDataHandler = queues.SaveBulkReAssignmentDataHandlerFunc(func(params queues.SaveBulkReAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.SaveBulkReAssignmentData has not yet been implemented")
 		})
 	}
 	if api.EvaluationReportsSaveEvaluationReportHandler == nil {

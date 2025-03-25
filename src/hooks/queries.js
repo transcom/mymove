@@ -235,6 +235,19 @@ export const useBulkAssignmentQueries = (queueType) => {
   };
 };
 
+export const useBulkReAssignmentQueries = (queueType) => {
+  const { data: bulkAssignmentData, ...bulkAssignmentDataQuery } = useQuery([queueType], ({ queryKey }) =>
+    getBulkAssignmentData(queryKey),
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([bulkAssignmentDataQuery]);
+  return {
+    bulkAssignmentData,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useEditShipmentQueries = (moveCode) => {
   // Get the orders info
   const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
