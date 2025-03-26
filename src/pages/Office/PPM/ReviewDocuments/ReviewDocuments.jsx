@@ -255,7 +255,7 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   let nextButton = 'Continue';
   if (showOverview) {
-    nextButton = readOnly ? 'Close' : 'Confirm';
+    nextButton = readOnly ? 'Close' : 'PPM Review Complete';
   }
 
   return (
