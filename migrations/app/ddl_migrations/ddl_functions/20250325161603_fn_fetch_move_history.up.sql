@@ -3,6 +3,7 @@
 
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
+set search_path to pg_temp, public;
 
 CREATE OR REPLACE FUNCTION fetch_move_history (move_code text, page integer DEFAULT 1, per_page integer DEFAULT 20, sort text DEFAULT NULL::text, sort_direction text DEFAULT NULL::text)
  RETURNS TABLE (id uuid,
@@ -59,7 +60,7 @@ BEGIN
 	 WHERE moves.locator = move_code;
 
 	IF v_move_id is null THEN
-		RAISE EXCEPTION 'Move record not found for %', move_id;
+		RAISE EXCEPTION 'Move record not found for move locator %', move_code;
 		RETURN;
 	END IF;
 

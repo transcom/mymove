@@ -2,6 +2,7 @@ package movehistory
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -71,6 +72,10 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		case sql.ErrNoRows:
 			return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+params.Locator)
 		default:
+			// Catch the proc case
+			if strings.Contains(err.Error(), "Move record not found for move locator") {
+				return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+params.Locator)
+			}
 			return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory", err, "")
 		}
 	}
