@@ -829,12 +829,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 		suite.FatalNoError(err)
-		// for _, serviceItem := range moves[0].MTOServiceItems {
-		// 	fmt.Println("serviceItemName")
-		// 	fmt.Println(serviceItem.ReService.Name)
-		// 	suite.Equal(1, moveCount)
-		// 	suite.Equal(1, len(moves))
-		// }
 		suite.Equal(1, moveCount)
 		suite.Equal(1, len(moves))
 		suite.Equal(2, len(moves[0].MTOServiceItems))
