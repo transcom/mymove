@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import styles from './QAECSRMoveSearch.module.scss';
 
@@ -8,16 +9,16 @@ import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
-const QAECSRMoveSearch = () => {
+const QAECSRMoveSearch = ({ landingPath }) => {
   const navigate = useNavigate();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
 
   const handleClick = useCallback(
     (values) => {
-      navigate(`/moves/${values.locator}/details`);
+      navigate(`/moves/${values.locator}/${landingPath}`);
     },
-    [navigate],
+    [navigate, landingPath],
   );
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -68,6 +69,12 @@ const QAECSRMoveSearch = () => {
   );
 };
 
-QAECSRMoveSearch.propTypes = {};
+QAECSRMoveSearch.propTypes = {
+  landingPath: PropTypes.string,
+};
+
+QAECSRMoveSearch.defaultProps = {
+  landingPath: 'details',
+};
 
 export default QAECSRMoveSearch;
