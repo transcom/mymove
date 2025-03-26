@@ -62,12 +62,21 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 		suite.NoError(err)
 		suite.Equal(move2.ID, dbMove2.ID)
 		suite.Equal(move2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
-		// Move 2 shipment 1
-		suite.Equal(move2.MTOShipments[0].ID, dbMove2.MTOShipments[0].ID)
-		suite.Equal(move2.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
-		// Move 2 shipment 2
-		suite.Equal(move2.MTOShipments[1].ID, dbMove2.MTOShipments[1].ID)
-		suite.Equal(move2.MTOShipments[1].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.MTOShipments[1].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
+
+		suite.Equal(len(move2.MTOShipments), len(dbMove2.MTOShipments))
+
+		// Verify that both the shipments match
+		matchingShipments := 0
+		for _, shipment := range move2.MTOShipments {
+			for _, dbShipment := range dbMove2.MTOShipments {
+				if shipment.ID == dbShipment.ID {
+					suite.Equal(shipment.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbShipment.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
+					matchingShipments++
+					break
+				}
+			}
+		}
+		suite.Equal(matchingShipments, len(move2.MTOShipments))
 	})
 
 	suite.Run("Move and Shipment acknowledgement date are not updated when they are not provided", func() {
