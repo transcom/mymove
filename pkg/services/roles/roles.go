@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -22,4 +23,16 @@ func (f rolesFetcher) FetchRolesForUser(appCtx appcontext.AppContext, userID uui
 		Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (userID)).
 		All(&roles)
 	return roles, err
+}
+
+func (f rolesFetcher) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]models.RolePrivilege, error) {
+	var rolesPrivileges []models.RolePrivilege
+	err := appCtx.DB().Q().EagerPreload("Role", "Privilege").All(&rolesPrivileges)
+	return rolesPrivileges, err
+}
+
+func (f rolesFetcher) FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.RoleType, error) {
+	var roleTypes []roles.RoleType
+	err := appCtx.DB().RawQuery("SELECT DISTINCT role_type FROM roles").All(&roleTypes)
+	return roleTypes, err
 }
