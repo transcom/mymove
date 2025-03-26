@@ -15,6 +15,16 @@ afterEach(() => {
   cleanup();
 });
 
+let mockPath = '/';
+
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual,
+    useLocation: () => ({ pathname: mockPath }),
+  };
+});
+
 // Mock Redux actions to prevent actual API calls
 jest.mock('store/auth/actions', () => ({
   loadUser: jest.fn(() => async () => {}),
@@ -104,6 +114,7 @@ const loggedInState = {
     ...defaultState.auth,
     isLoggedIn: true,
     activeRole: 'TOO',
+    hasError: true,
   },
   entities: {
     user: {
@@ -116,6 +127,7 @@ const loggedInState = {
 };
 
 const renderWithState = (state, path) => {
+  mockPath = path;
   const mockStore = configureStore({ ...state });
 
   const minProps = {
@@ -208,8 +220,6 @@ describe('Office App', () => {
     expect(screen.getByText('Skip to content')).toBeInTheDocument();
     expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument();
 
-    await waitFor(() =>
-      expect(screen.getByText(/You do not have permission to access this site/i)).toBeInTheDocument(),
-    );
+    expect(screen.getByText(/You do not have permission to access this site/i)).toBeInTheDocument();
   });
 });

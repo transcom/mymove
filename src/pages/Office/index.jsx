@@ -173,7 +173,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
             {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
-              {props.hasRecentError && location.pathname.endsWith('/') && (
+              {props.hasRecentError && location.pathname === '/' && (
                 <SystemError>
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
@@ -596,6 +596,7 @@ OfficeApp.propTypes = {
   underMaintenance: PropTypes.bool,
   showLoadingSpinner: PropTypes.bool,
   loadingSpinnerMessage: PropTypes.string,
+  hasError: PropTypes.bool,
 };
 
 OfficeApp.defaultProps = {
@@ -609,6 +610,7 @@ OfficeApp.defaultProps = {
   underMaintenance: false,
   showLoadingSpinner: false,
   loadingSpinnerMessage: null,
+  hasError: false,
 };
 
 const mapStateToProps = (state) => {
@@ -627,6 +629,7 @@ const mapStateToProps = (state) => {
     underMaintenance: selectUnderMaintenance(state),
     showLoadingSpinner: selectShowLoadingSpinner(state),
     loadingSpinnerMessage: selectLoadingSpinnerMessage(state),
+    hasError: state.auth.hasError,
   };
 };
 
