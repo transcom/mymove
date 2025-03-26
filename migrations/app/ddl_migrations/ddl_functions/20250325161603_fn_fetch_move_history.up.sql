@@ -28,13 +28,12 @@ CREATE OR REPLACE FUNCTION fetch_move_history (move_code text, page integer DEFA
  				session_user_first_name text,
  				session_user_last_name text,
  				session_user_email text,
- 				session_user_telephone text) --,
- 				--seq_num int)
+ 				session_user_telephone text,
+ 				seq_num int)
 AS
 $BODY$
 
 DECLARE
-
 	v_count INT;
 	v_move_id UUID;
 	sql_query TEXT;
@@ -83,7 +82,7 @@ BEGIN
 		old_data jsonb,
 		changed_data jsonb,
 		statement_only bool,
-		--seq_num int,
+		seq_num int,
 		context text,
 		context_id text,
 		move_id uuid,
@@ -280,16 +279,17 @@ BEGIN
 				'shipment_type', mto_shipments.shipment_type,
 				'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
 				'shipment_locator', mto_shipments.shipment_locator
-				)
-			)::TEXT AS context,
+			))::TEXT AS context,
 			NULL AS context_id,
 			moves.id as move_id,
 			mto_shipments.id as shipment_id
 		FROM
-			mto_service_item_dimensions
-		JOIN mto_service_items on mto_service_items.id = mto_service_item_dimensions.mto_service_item_id
+			audit_history
+		JOIN mto_service_item_dimensions ON mto_service_item_dimensions.id = audit_history.object_id
+		JOIN mto_service_items ON mto_service_items.id = mto_service_item_dimensions.mto_service_item_id
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
 		LEFT JOIN mto_shipments ON mto_service_items.mto_shipment_id = mto_shipments.id
+		JOIN moves ON mto_shipments.move_id = moves.id
 		WHERE audit_history.table_name = 'mto_service_item_dimensions'
 		  AND moves.id = v_move_id
 		GROUP BY audit_history.id, mto_service_item_dimensions.id, moves.id, mto_shipments.id;
@@ -1610,21 +1610,43 @@ BEGIN
 
 raise debug 'Start return query %', clock_timestamp();
 
-	return query
-	select 	distinct x.*,
-			COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
-			COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
-			COALESCE(office_users.email, service_members.personal_email) AS session_user_email,
-			COALESCE(office_users.telephone, service_members.telephone) AS session_user_telephone
-	   from audit_hist_temp x
-	   LEFT JOIN users_roles ON x.session_userid = users_roles.user_id
-		LEFT JOIN roles ON users_roles.role_id = roles.id
-		LEFT JOIN office_users ON office_users.user_id = x.session_userid
-		LEFT JOIN service_members ON service_members.user_id = x.session_userid
-		LEFT JOIN (
-			SELECT 'Prime' AS prime_user_first_name
-			) prime_users ON roles.role_type = 'prime'
-		order by x.action_tstamp_tx desc;
+	RETURN QUERY
+	SELECT
+		x.id,
+		x.schema_name,
+		x.table_name,
+		x.relid,
+		x.object_id,
+		x.session_userid,
+		x.event_name,
+		x.action_tstamp_tx,
+		x.action_tstamp_stm,
+		x.action_tstamp_clk,
+		x.transaction_id,
+		x.client_query,
+		x."action",
+		x.old_data,
+		x.changed_data,
+		x.statement_only,
+		x.context,
+		x.context_id,
+		x.move_id,
+		x.shipment_id,
+		COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
+		COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
+		COALESCE(office_users.email, service_members.personal_email) AS session_user_email,
+		COALESCE(office_users.telephone, service_members.telephone) AS session_user_telephone,
+		x.seq_num
+	FROM audit_hist_temp x
+	LEFT JOIN users_roles ON x.session_userid = users_roles.user_id
+	LEFT JOIN roles ON users_roles.role_id = roles.id
+	LEFT JOIN office_users ON office_users.user_id = x.session_userid
+	LEFT JOIN service_members ON service_members.user_id = x.session_userid
+	LEFT JOIN (
+		SELECT 'Prime' AS prime_user_first_name
+	) prime_users ON roles.role_type = 'prime'
+	ORDER BY x.action_tstamp_tx DESC
+	LIMIT per_page OFFSET offset_value;
 
 select count(*) into v_count from audit_hist_temp;
 raise debug 'Total recs %', v_count;
