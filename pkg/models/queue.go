@@ -16,7 +16,7 @@ const (
 	QueueTypeCloseout           QueueType = "CLOSEOUT"
 	QueueTypeTaskOrder          QueueType = "TASK_ORDER"
 	QueueTypePaymentRequest     QueueType = "PAYMENT_REQUEST"
-	QueueTypeDestinationRequest QueueType = "DESTINATION_REQUEST"
+	QueueTypeDestinationRequest QueueType = "DESTINATION_REQUESTS"
 )
 
 // MoveQueueItem represents a single move queue item within a queue.
