@@ -1,12 +1,6 @@
 -- B-22911 Beth introduced a move history sql refactor for us to swap
 -- out with the pop query to be more efficient
 
-CREATE SEQUENCE IF NOT EXISTS audit_seq START WITH 1;
-
-ALTER TABLE audit_history ADD COLUMN IF NOT EXISTS seq_num serial;
-
-ALTER TABLE audit_history ALTER COLUMN seq_num SET DEFAULT nextval('audit_seq');
-
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
 
