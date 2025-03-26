@@ -7,8 +7,10 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -64,7 +66,22 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		// Under test:	CreatePPMShipment
 		// Set up:		Established valid shipment and valid new PPM shipment
 		// Expected:	New PPM shipment successfully created, market code is "d" on the parent shipment
-		appCtx := suite.AppContextForTest()
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(session)
 
 		// Set required fields for PPMShipment
 		subtestData := createSubtestData(models.PPMShipment{
@@ -116,7 +133,22 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		// Under test:	CreatePPMShipment
 		// Set up:		Established valid shipment and valid new PPM shipment
 		// Expected:	New PPM shipment successfully created, market code is "i" on the parent shipment
-		appCtx := suite.AppContextForTest()
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(session)
 
 		// Set required fields for PPMShipment
 		subtestData := createSubtestData(models.PPMShipment{
@@ -213,7 +245,22 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		tt := tt
 
 		suite.Run(fmt.Sprintf("Returns an InvalidInputError if %s", tt.name), func() {
-			appCtx := suite.AppContextForTest()
+			// Need a logged in user
+			lgu := uuid.Must(uuid.NewV4()).String()
+			user := models.User{
+				OktaID:    lgu,
+				OktaEmail: "email@example.com",
+			}
+			suite.MustSave(&user)
+
+			session := &auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          user.ID,
+				IDToken:         "fake token",
+				Roles:           roles.Roles{},
+			}
+
+			appCtx := suite.AppContextWithSessionForTest(session)
 
 			subtestData := createSubtestData(tt.ppmShipmentTemplate, tt.mtoShipmentTemplate)
 
@@ -228,8 +275,20 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		})
 	}
 
-	suite.Run("Can successfully create a PPMShipment as SC", func() {
-		appCtx := suite.AppContextForTest()
+	suite.Run("Can successfully create and auto-approve a PPMShipment as SC", func() {
+		// Need a logged in user
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
+		suite.NoError(err)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          *scOfficeUser.UserID,
+			IDToken:         "fake token",
+		}
+		session.Roles = append(session.Roles, identity.Roles...)
+
+		appCtx := suite.AppContextWithSessionForTest(session)
 
 		// Set required fields for PPMShipment
 		expectedDepartureDate := testdatagen.NextValidMoveDate
@@ -318,7 +377,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&sitExpected, createdPPMShipment.SITExpected)
 			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
-			suite.Equal(models.PPMShipmentStatusSubmitted, createdPPMShipment.Status)
+			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, createdPPMShipment.Status)
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
 			suite.Equal(&maxIncentive, createdPPMShipment.MaxIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
