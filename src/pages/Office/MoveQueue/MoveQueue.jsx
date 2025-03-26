@@ -32,11 +32,17 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import handleQueueAssignment from 'utils/queues';
+import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
-export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue, showBranchFilter = true) => {
+export const columns = (
+  moveLockFlag,
+  isQueueManagementEnabled,
+  queueType,
+  setRefetchQueue,
+  showBranchFilter = true,
+) => {
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -170,7 +176,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue,
               <Dropdown
                 key={row.id}
                 onChange={(e) => {
-                  handleQueueAssignment(row.id, e.target.value, roleTypes.TOO);
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
                 }}
                 title="Assigned dropdown"
@@ -351,7 +357,7 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, setRefetchQueue, showBranchFilter)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
@@ -381,7 +387,7 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
           title="Destination requests"
           handleClick={handleClick}
           useQueries={useDestinationRequestsQueueQueries}
@@ -391,6 +397,10 @@ const MoveQueue = ({
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
+          queueType={QUEUE_TYPES.DESTINATION_REQUESTS}
+          activeRole={activeRole}
         />
       </div>
     );
