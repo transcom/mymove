@@ -2424,23 +2424,14 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				availableOfficeUsers = officeUsersSafety
 			}
 
-			// if the assigned user is not in the returned list of available users append them to the end
-			if (activeRole == string(roles.RoleTypeTOO) && move.TOOAssignedUser != nil) || (activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil) {
-				var assignedUser *models.OfficeUser
-				var assignedID *uuid.UUID
-
-				switch activeRole {
-				case string(roles.RoleTypeTOO):
-					assignedUser = move.TOOAssignedUser
-					assignedID = move.TOOAssignedID
-				case string(roles.RoleTypeServicesCounselor):
-					assignedUser = move.SCAssignedUser
-					assignedID = move.SCAssignedID
-				}
+			// Determine the assigned user and ID based on active role and queue type
+			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
+			// Ensure assignedUser and assignedID are not nil before proceeding
+			if assignedUser != nil && assignedID != nil {
 
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if assignedID != nil && officeUser.ID == *assignedID {
+					if officeUser.ID == *assignedID {
 						userFound = true
 						break
 					}
