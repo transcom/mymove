@@ -107,7 +107,7 @@ BEGIN
 			))
 		)::TEXT AS context,
 		NULL AS context_id,
-		audit_history.object_id AS move_id,
+		audit_history.object_id::uuid AS move_id,
 		NULL as shipment_id
 	FROM
 		audit_history

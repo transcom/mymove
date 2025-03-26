@@ -24,7 +24,7 @@ func NewMoveHistoryFetcher() services.MoveHistoryFetcher {
 // FetchMoveHistory retrieves a Move's history if it is visible for a given locator
 func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams, useDatabaseProcInstead bool) (*models.MoveHistory, int64, error) {
 	var rawQuery string
-	if !useDatabaseProcInstead {
+	if useDatabaseProcInstead {
 		// casting types to match function declared params
 		rawQuery = `SELECT * FROM fetch_move_history(
 					$1::text,
@@ -52,7 +52,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	var err error
 	var query *pop.Query
 	var totalCount int64
-	if !useDatabaseProcInstead {
+	if useDatabaseProcInstead {
 		query = appCtx.DB().RawQuery(
 			rawQuery,
 			params.Locator,
@@ -62,7 +62,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			nil,
 		)
 	} else {
-		query = appCtx.DB().RawQuery(rawQuery)
+		query = appCtx.DB().RawQuery(rawQuery, params.Locator)
 	}
 
 	err = query.All(audits)
@@ -78,14 +78,16 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 	// bypassing the paginator when using the db func does not give us the count back
 	// we can use the temp table that is created from the db func to grab the count instead
 	// else we will use the non-db paginator entry size
-	if !useDatabaseProcInstead {
+	if useDatabaseProcInstead {
 		countQuery := "SELECT COUNT(*) FROM audit_hist_temp"
 		err = appCtx.DB().RawQuery(countQuery).First(&totalCount)
 		if err != nil {
 			return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory Count", err, "")
 		}
 	} else {
-		totalCount = int64(query.Paginator.TotalEntriesSize)
+		if query != nil && query.Paginator != nil {
+			totalCount = int64(query.Paginator.TotalEntriesSize)
+		}
 	}
 
 	var move models.Move
