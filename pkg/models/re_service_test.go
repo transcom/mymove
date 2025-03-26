@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -37,5 +38,31 @@ func (suite *ModelSuite) TestFetchReServiceBycode() {
 		suite.Error(err)
 		suite.Nil(reService)
 		suite.Contains(err.Error(), "error fetching from re_services - required code not provided")
+	})
+}
+
+func (suite *ModelSuite) TestIsDestinationRequest() {
+	suite.Run("returns true when a service item is a destination request", func() {
+		destinationSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+
+		destinationSITBool := models.IsDestinationRequest(destinationSit.ReService.Code)
+		suite.True(destinationSITBool)
+	})
+	suite.Run("returns false when a service item is not a destination request", func() {
+		originSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		originSITBool := models.IsDestinationRequest(originSit.ReService.Code)
+		suite.False(originSITBool)
 	})
 }

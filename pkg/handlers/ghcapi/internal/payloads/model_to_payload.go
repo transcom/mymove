@@ -2379,7 +2379,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 
 		var serviceItems []string
 		for _, item := range move.MTOServiceItems {
-			if item.Status == models.MTOServiceItemStatusSubmitted {
+			if item.Status == models.MTOServiceItemStatusSubmitted && !models.IsDestinationRequest(item.ReService.Code) {
 				serviceItems = append(serviceItems, item.ReService.Name)
 			}
 		}
