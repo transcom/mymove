@@ -60,7 +60,8 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 	suite.Run("able to search by name and filter", func() {
 		status := models.OfficeUserStatusREQUESTED
-		created := time.Date(2005, 03, 05, 1, 1, 1, 1, time.Local)
+		createdAt := time.Date(2007, 03, 05, 1, 1, 1, 1, time.Local)
+		createdAt2 := time.Date(2006, 03, 07, 1, 1, 1, 1, time.Local)
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -83,6 +84,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 					Email:                  "laraCroft@mail.mil",
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice2.ID,
+					CreatedAt:              createdAt2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
@@ -94,6 +96,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 					Email:                  "bigBob@mail.mil",
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice2.ID,
+					CreatedAt:              createdAt2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
@@ -105,6 +108,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 					Email:                  "conAirKilluh@mail.mil",
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice2.ID,
+					CreatedAt:              createdAt2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -116,7 +120,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 					Email:                  "conAirKilluh2@mail.mil",
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice.ID,
-					CreatedAt:              created,
+					CreatedAt:              createdAt,
 				},
 			},
 			{
@@ -206,7 +210,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		suite.Equal(strfmt.UUID(transportationOffice.ID.String()), *okResponse.Payload[0].TransportationOfficeID)
 
 		// requestedOn search
-		requestedOnSearch := "2005"
+		requestedOnSearch := "5"
 		filterJSON = fmt.Sprintf("{\"requestedOn\":\"%s\"}", requestedOnSearch)
 		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),

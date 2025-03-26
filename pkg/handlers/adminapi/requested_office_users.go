@@ -194,7 +194,7 @@ var requestedOfficeUserFilterConverters = map[string]func(string) func(*pop.Quer
 	"requestedOn": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
 			RequestedOnSearch := fmt.Sprintf("%%%s%%", content)
-			query.Where("TO_CHAR(office_users.created_at, 'MM/DD/YYYY') ILIKE ? AND office_users.status = 'REQUESTED'", RequestedOnSearch)
+			query.Where("(TO_CHAR(office_users.created_at, 'FMMM/FMDD/YYYY') ILIKE ? OR TO_CHAR(office_users.created_at, 'MM/DD/YYYY') ILIKE ?) AND office_users.status = 'REQUESTED'", RequestedOnSearch, RequestedOnSearch)
 		}
 	},
 	"roles": func(content string) func(*pop.Query) {
