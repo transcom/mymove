@@ -136,10 +136,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                 onClose();
                 return;
               }
-              if (totalAssignment > numberOfMoves) {
-                setIsError(true);
-                return;
-              }
               const bulkAssignmentSavePayload = {
                 moveData: values.moveData,
                 userData: values.userData.filter((user) => user.moveAssignments > 0),
