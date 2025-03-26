@@ -424,6 +424,24 @@ func (suite *PayloadsSuite) TestOfficeUserModelFromUpdate() {
 		suite.Equal(oldOfficeUser.Active, returnedOfficeUser.Active)
 	})
 
+	suite.Run("Fields do not update if payload is empty", func() {
+		payload := &ghcmessages.OfficeUserUpdate{}
+
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+
+		returnedOfficeUser := OfficeUserModelFromUpdate(payload, &oldOfficeUser)
+
+		suite.NotNil(returnedOfficeUser)
+		suite.Equal(oldOfficeUser.ID, returnedOfficeUser.ID)
+		suite.Equal(oldOfficeUser.UserID, returnedOfficeUser.UserID)
+		suite.Equal(oldOfficeUser.Email, returnedOfficeUser.Email)
+		suite.Equal(oldOfficeUser.FirstName, returnedOfficeUser.FirstName)
+		suite.Equal(oldOfficeUser.MiddleInitials, returnedOfficeUser.MiddleInitials)
+		suite.Equal(oldOfficeUser.LastName, returnedOfficeUser.LastName)
+		suite.Equal(oldOfficeUser.Telephone, returnedOfficeUser.Telephone)
+		suite.Equal(oldOfficeUser.Active, returnedOfficeUser.Active)
+	})
+
 	suite.Run("Error - Return Office User if payload is nil", func() {
 		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		returnedUser := OfficeUserModelFromUpdate(nil, &oldOfficeUser)
