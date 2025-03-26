@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -460,18 +461,20 @@ func (suite *PayloadsSuite) TestOfficeUserModelFromUpdate() {
 		}
 
 		oldMiddleInitials := "H"
-		oldOfficeUser := &models.OfficeUser{
-			ID:             uuid.Must(uuid.NewV4()),
-			UserID:         models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			FirstName:      "John",
-			LastName:       "Doe",
-			MiddleInitials: &oldMiddleInitials,
-			Telephone:      "555-555-5555",
-			Email:          "johndoe@example.com",
-			Active:         true,
-		}
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName:      "John",
+					LastName:       "Doe",
+					MiddleInitials: &oldMiddleInitials,
+					Telephone:      "555-555-5555",
+					Email:          "johndoe@example.com",
+					Active:         true,
+				},
+			},
+		}, nil)
 
-		returnedOfficeUser := OfficeUserModelFromUpdate(payload, oldOfficeUser)
+		returnedOfficeUser := OfficeUserModelFromUpdate(payload, &oldOfficeUser)
 
 		suite.NotNil(returnedOfficeUser)
 		suite.Equal(*payload.Telephone, returnedOfficeUser.Telephone)
@@ -483,46 +486,32 @@ func (suite *PayloadsSuite) TestOfficeUserModelFromUpdate() {
 			Telephone: &telephone,
 		}
 
-		oldMiddleInitials := "H"
-		oldOfficeUser := &models.OfficeUser{
-			ID:             uuid.Must(uuid.NewV4()),
-			UserID:         models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			FirstName:      "John",
-			LastName:       "Doe",
-			MiddleInitials: &oldMiddleInitials,
-			Telephone:      "555-555-5555",
-			Email:          "johndoe@example.com",
-			Active:         true,
-		}
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Telephone: "555-555-5555",
+				},
+			},
+		}, nil)
 
-		returnedOfficeUser := OfficeUserModelFromUpdate(payload, oldOfficeUser)
+		returnedOfficeUser := OfficeUserModelFromUpdate(payload, &oldOfficeUser)
 
 		suite.NotNil(returnedOfficeUser)
 		suite.Equal(oldOfficeUser.ID, returnedOfficeUser.ID)
 		suite.Equal(oldOfficeUser.UserID, returnedOfficeUser.UserID)
 		suite.Equal(oldOfficeUser.Email, returnedOfficeUser.Email)
 		suite.Equal(oldOfficeUser.FirstName, returnedOfficeUser.FirstName)
-		suite.Equal(*oldOfficeUser.MiddleInitials, *returnedOfficeUser.MiddleInitials)
+		suite.Equal(oldOfficeUser.MiddleInitials, returnedOfficeUser.MiddleInitials)
 		suite.Equal(oldOfficeUser.LastName, returnedOfficeUser.LastName)
 		suite.Equal(*payload.Telephone, returnedOfficeUser.Telephone)
 		suite.Equal(oldOfficeUser.Active, returnedOfficeUser.Active)
 	})
 
 	suite.Run("Error - Return Office User if payload is nil", func() {
-		oldMiddleInitials := "H"
-		oldOfficeUser := &models.OfficeUser{
-			ID:             uuid.Must(uuid.NewV4()),
-			UserID:         models.UUIDPointer(uuid.Must(uuid.NewV4())),
-			FirstName:      "John",
-			LastName:       "Doe",
-			MiddleInitials: &oldMiddleInitials,
-			Telephone:      "555-555-5555",
-			Email:          "johndoe@example.com",
-			Active:         true,
-		}
-		returnedUser := OfficeUserModelFromUpdate(nil, oldOfficeUser)
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+		returnedUser := OfficeUserModelFromUpdate(nil, &oldOfficeUser)
 
-		suite.Equal(oldOfficeUser, returnedUser)
+		suite.Equal(&oldOfficeUser, returnedUser)
 	})
 
 	suite.Run("Error - Return nil if Office User is nil", func() {
