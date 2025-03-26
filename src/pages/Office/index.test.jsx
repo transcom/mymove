@@ -6,14 +6,12 @@ import { MemoryRouter } from 'react-router';
 
 import OfficeApp from './index';
 
+import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { mockPage } from 'testUtils';
 import { loadPublicSchema, loadInternalSchema } from 'shared/Swagger/ducks';
 import { loadUser } from 'store/auth/actions';
-
-afterEach(() => {
-  cleanup();
-});
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 let mockPath = '/';
 
@@ -28,10 +26,6 @@ jest.mock('react-router-dom', () => {
 // Mock Redux actions to prevent actual API calls
 jest.mock('store/auth/actions', () => ({
   loadUser: jest.fn(() => async () => {}),
-}));
-
-jest.mock('store/onboarding/actions', () => ({
-  initOnboarding: jest.fn(() => async () => {}),
 }));
 
 jest.mock('shared/Swagger/ducks', () => ({
@@ -75,6 +69,10 @@ mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
 mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
 mockPage('components/NotFound/NotFound');
 
+afterEach(() => {
+  cleanup();
+});
+
 const defaultState = {
   auth: {
     activeRole: null,
@@ -114,7 +112,6 @@ const loggedInState = {
     ...defaultState.auth,
     isLoggedIn: true,
     activeRole: 'TOO',
-    hasError: true,
   },
   entities: {
     user: {
@@ -145,7 +142,81 @@ const renderWithState = (state, path) => {
   );
 };
 
+const createMockStore = (role) => {
+  if (!role) {
+    // If no role provided, use logged out state
+    const loggedOutState = {
+      auth: {
+        activeRole: null,
+        isLoading: false,
+        isLoggedIn: false,
+      },
+    };
+
+    return configureStore(loggedOutState);
+  }
+
+  // Otherwise, use logged in state with the provided role
+  const state = {
+    auth: {
+      activeRole: role,
+      isLoading: false,
+      isLoggedIn: true,
+    },
+    entities: {
+      user: {
+        userId123: {
+          id: 'userId123',
+          roles: [{ roleType: role }],
+        },
+      },
+    },
+  };
+
+  return configureStore(state);
+};
+
+// Render the OfficeApp component with routing and Redux setup for the provided route and role
+const renderOfficeAppAtRoute = (route, role) => {
+  mockPath = route;
+  isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+  const mockStore = createMockStore(role);
+  const userRoles = role ? [{ roleType: role }] : [];
+  render(
+    <MemoryRouter initialEntries={[route]}>
+      <Provider store={mockStore.store}>
+        <OfficeApp
+          loadInternalSchema={jest.fn()}
+          loadPublicSchema={jest.fn()}
+          loadUser={jest.fn()}
+          hasRecentError={false}
+          activeRole={role || null}
+          userRoles={userRoles}
+          traceId=""
+          loginIsLoading={!!role}
+          userIsLoggedIn={!!role}
+          hqRoleFlag
+          gsrRoleFlag
+        />
+      </Provider>
+    </MemoryRouter>,
+  );
+};
+
 describe('Office App', () => {
+  const mockOfficeProps = {
+    loadUser: jest.fn(),
+    loadInternalSchema: jest.fn(),
+    loadPublicSchema: jest.fn(),
+    logOut: jest.fn(),
+    hasRecentError: false,
+    traceId: '',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    <OfficeApp {...mockOfficeProps} />;
+  });
   it('renders Sign In page when user is logged out', async () => {
     renderWithState(defaultState, '/sign-in');
     await waitFor(() => expect(screen.getByText(/sign in/i)).toBeInTheDocument());
@@ -194,7 +265,7 @@ describe('Office App', () => {
       expect(screen.getByText('Mock Sign In Component'));
     });
   });
-  it('renders SystemError when there is a recent error on root path', async () => {
+  it('renders SystemError when there is a recent error on root paths', async () => {
     const updatedState = {
       ...defaultState,
       auth: {
@@ -214,12 +285,212 @@ describe('Office App', () => {
       expect(screen.getByText(/something isn't working, but we're not sure what/i)).toBeInTheDocument();
     });
   });
-  it('handles the Invalid Permissions URL for logged in user', async () => {
-    renderWithState(loggedInState, '/invalid-permissions');
+  describe('logged out routing', () => {
+    it('handles the SignIn URL for not logged in user', async () => {
+      renderOfficeAppAtRoute('/sign-in');
 
-    expect(screen.getByText('Skip to content')).toBeInTheDocument();
-    expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument();
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
 
-    expect(screen.getByText(/You do not have permission to access this site/i)).toBeInTheDocument();
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText('Mock Sign In Component')));
+    });
+    it('handles the Invalid Permissions URL for not logged in user', async () => {
+      renderOfficeAppAtRoute('/invalid-permissions');
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
+
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
+    });
+
+    it('handles a bad URL for not logged in user', async () => {
+      renderOfficeAppAtRoute('/bad-path');
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByTestId('signin')).toBeInTheDocument(); // Sign In button
+
+      // Wait to be redirected to the Sign In page
+      await waitFor(() => expect(screen.getByText('Mock Sign In Component')));
+    });
+  });
+
+  describe('logged in routing', () => {
+    it('handles the Invalid Permissions URL', async () => {
+      renderOfficeAppAtRoute('/invalid-permissions', roleTypes.TOO);
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      // Wait for and lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
+    });
+
+    it('renders the 404 component when the route is not found', async () => {
+      renderOfficeAppAtRoute('/not-a-real-route', roleTypes.QAE);
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+      expect(screen.getByText('Error - 404')).toBeInTheDocument();
+      expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
+    });
+
+    it.each([
+      ['Move Queue', '/moves/queue', roleTypes.TOO],
+      ['Headquarters Queues', '/hq/queues', roleTypes.HQ],
+      ['Payment Request Queue', '/invoicing/queue', roleTypes.TIO],
+      ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.SERVICES_COUNSELOR],
+      ['Services Counseling Queue', '/counseling', roleTypes.SERVICES_COUNSELOR],
+      ['Services Counseling Queue', '/PPM-closeout', roleTypes.SERVICES_COUNSELOR],
+      ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.SERVICES_COUNSELOR],
+      ['Edit Shipment Details', '/moves/test123/shipments/ship123', roleTypes.TOO],
+      ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.PRIME_SIMULATOR],
+      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', roleTypes.PRIME_SIMULATOR],
+      [
+        'Prime Simulator Shipment Update Address',
+        '/simulator/moves/test123/shipments/ship123/addresses/update',
+        roleTypes.PRIME_SIMULATOR,
+      ],
+      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.PRIME_SIMULATOR],
+      [
+        'Prime Simulator Create Payment Request',
+        '/simulator/moves/test123/payment-requests/new',
+        roleTypes.PRIME_SIMULATOR,
+      ],
+      [
+        'Prime Simulator Upload Payment Request Documents',
+        '/simulator/moves/test123/payment-requests/req123/upload',
+        roleTypes.PRIME_SIMULATOR,
+      ],
+      [
+        'Prime Simulator Create Service Item',
+        '/simulator/moves/test123/shipments/ship123/service-items/new',
+        roleTypes.PRIME_SIMULATOR,
+      ],
+      [
+        'Prime Simulator Shipment Update Reweigh',
+        '/simulator/moves/test123/shipments/ship123/reweigh/req123/update',
+        roleTypes.PRIME_SIMULATOR,
+      ],
+      ['QAE CSR Move Search', '/', roleTypes.QAE],
+      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.QAE],
+      ['QAE CSR Move Search', '/', roleTypes.GSR, true],
+      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.GSR, true],
+      ['TXO Move Info', '/moves/move123', roleTypes.TIO],
+      ['Payment Request Queue', '/', roleTypes.TIO],
+      ['Move Queue', '/', roleTypes.TOO],
+      ['Headquarters Queues', '/', roleTypes.HQ],
+      ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
+      ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
+      ['Services Counseling Move Info', '/moves/move123/shipments/:shipmentId/advance', roleTypes.TOO],
+    ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {
+      renderOfficeAppAtRoute(path, role);
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      // Wait for lazy load, validate correct component was rendered
+      await waitFor(() => expect(screen.getByText(`Mock ${component} Component`)));
+    });
+
+    it.each([
+      ['Move Queue', '/moves/queue', roleTypes.PRIME_SIMULATOR],
+      ['Payment Request Queue', '/invoicing/queue', roleTypes.PRIME_SIMULATOR],
+      ['Services Counseling Add Shipment', '/new-shipment/PPM', roleTypes.PRIME_SIMULATOR],
+      ['Services Counseling Move Info', '/counseling/moves/test123/', roleTypes.QAE],
+      ['Edit Shipment Details', '/moves/test123/shipments/ship123', roleTypes.QAE],
+      ['Prime Simulator Move Details', '/simulator/moves/test123/details', roleTypes.QAE],
+      ['Prime Simulator Shipment Create', '/simulator/moves/test123/shipments/new', roleTypes.QAE],
+      [
+        'Prime Simulator Shipment Update Address as QAE',
+        '/simulator/moves/test123/shipments/ship123/addresses/update',
+        roleTypes.QAE,
+      ],
+      ['Prime Simulator Shipment Update', '/simulator/moves/test123/shipments/ship123', roleTypes.QAE],
+      ['Prime Simulator Create Payment Request', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE],
+      ['Prime Simulator Create Payment Request as QAE', '/simulator/moves/test123/payment-requests/new', roleTypes.QAE],
+      [
+        'Prime Simulator Upload Payment Request Documents as QAE',
+        '/simulator/moves/test123/payment-requests/req123/upload',
+        roleTypes.QAE,
+      ],
+      [
+        'Prime Simulator Create Service Item as QAE',
+        '/simulator/moves/test123/shipments/ship123/service-items/new',
+        roleTypes.QAE,
+      ],
+      [
+        'Prime Simulator Shipment Update Reweigh as QAE',
+        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
+        roleTypes.QAE,
+      ],
+      ['Services Counseling Move Info as CSR', '/counseling/moves/test123/', roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE],
+      ['Edit Shipment Details as CSR', '/moves/test123/shipments/ship123', roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE],
+      [
+        'Prime Simulator Move Details as CSR',
+        '/simulator/moves/test123/details',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Create as CSR',
+        '/simulator/moves/test123/shipments/new',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Update Address as CSR',
+        '/simulator/moves/test123/shipments/ship123/addresses/update',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Update as CSR',
+        '/simulator/moves/test123/shipments/ship123',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Create Payment Request as CSR',
+        '/simulator/moves/test123/payment-requests/new',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Upload Payment Request Documents as CSR',
+        '/simulator/moves/test123/payment-requests/req123/upload',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Create Service Item as CSR',
+        '/simulator/moves/test123/shipments/ship123/service-items/new',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      [
+        'Prime Simulator Shipment Update Reweigh as CSR',
+        '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
+        roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+      ],
+      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.TIO],
+      ['TXO Move Info', '/moves/move123', roleTypes.PRIME_SIMULATOR],
+    ])('denies access to %s when user has insufficient permission', async (component, path, role) => {
+      renderOfficeAppAtRoute(path, role);
+
+      // Header content should be rendered
+      expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument(); // CUIHeader
+      expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
+
+      // Wait for lazy load, validate invalid permissions component was rendered
+      await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
+    });
   });
 });
