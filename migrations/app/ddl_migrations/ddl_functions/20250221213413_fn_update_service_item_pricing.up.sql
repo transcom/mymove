@@ -40,7 +40,8 @@ BEGIN
 
     -- loop through service items in the shipment
     FOR service_item IN
-        SELECT si.id, si.re_service_id, si.sit_delivery_miles, si.sit_departure_date, si.sit_entry_date
+        SELECT si.id, si.re_service_id, si.sit_delivery_miles, si.sit_departure_date, si.sit_entry_date,
+        sit_origin_hhg_actual_address_id, sit_destination_final_address_id
         FROM mto_service_items si
         WHERE si.mto_shipment_id = shipment_id
     LOOP
@@ -124,6 +125,22 @@ BEGIN
 
             WHEN service_code IN (''IOSFSC'', ''IDSFSC'') THEN
                 distance = service_item.sit_delivery_miles;
+
+                -- Pricing will not be executed if origin pickup is OCONUS. This is achieved with ZERO mileage in the calculation.
+                IF service_code = ''IOSFSC'' AND service_item.sit_origin_hhg_actual_address_id IS NOT NULL THEN
+                    IF get_is_oconus(service_item.sit_origin_hhg_actual_address_id) THEN
+                        distance := 0;
+                        RAISE NOTICE ''Pickup[service_item.sit_origin_hhg_actual_address_id: %] is OCONUS. Distance will be set to 0 to cause pricing to be 0 cents'', service_item.sit_origin_hhg_actual_address_id;
+                    END IF;
+                END IF;
+
+                -- Pricing will not be executed if origin destination is OCONUS. This is achieved with ZERO mileage in the calculation.
+                IF service_code = ''IDSFSC'' AND service_item.sit_destination_final_address_id IS NOT NULL THEN
+                    IF get_is_oconus(service_item.sit_destination_final_address_id) THEN
+                        distance := 0;
+                        RAISE NOTICE ''Destination[service_item.sit_destination_final_address_id: %] is OCONUS. Distance will be set to 0 to cause pricing to be 0 cents'', service_item.sit_destination_final_address_id;
+                    END IF;
+                END IF;
 
                 estimated_fsc_multiplier := get_fsc_multiplier(shipment.prime_estimated_weight);
 

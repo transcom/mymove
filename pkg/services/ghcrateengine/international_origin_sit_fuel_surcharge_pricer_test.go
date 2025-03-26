@@ -100,7 +100,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalOriginSITFuelSurch
 			"Missing Distance": {
 				priceArgs: priceArgs{
 					actualPickupDate:                 iosfscActualPickupDate,
-					distance:                         unit.Miles(0),
+					distance:                         unit.Miles(-1),
 					weight:                           iosfscTestWeight,
 					fscWeightBasedDistanceMultiplier: iosfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     iosfscFuelPrice,
@@ -126,44 +126,116 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsInternationalOriginS
 	fscPriceDifferenceInCents := (iosfscFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
 	fscMultiplier := iosfscWeightDistanceMultiplier * iosfscTestDistance.Float64()
 
-	setupTestData := func() models.PaymentServiceItem {
-		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeIOSFSC,
-			[]factory.CreatePaymentServiceItemParams{
-				{
-					Key:     models.ServiceItemParamNameActualPickupDate,
-					KeyType: models.ServiceItemParamTypeDate,
-					Value:   iosfscActualPickupDate.Format(DateParamFormat),
+	setupTestData := func(isOconusPickupAddress bool) models.PaymentServiceItem {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:     models.MTOShipmentStatusApproved,
+					MarketCode: models.MarketCodeInternational,
 				},
-				{
-					Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   fmt.Sprintf("%d", int(iosfscTestDistance)),
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		conusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "90210",
+					IsOconus:   models.BoolPointer(isOconusPickupAddress),
 				},
-				{
-					Key:     models.ServiceItemParamNameWeightBilled,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   fmt.Sprintf("%d", int(iosfscTestWeight)),
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &mtoShipment.ID,
 				},
-				{
-					Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
-					KeyType: models.ServiceItemParamTypeDecimal,
-					Value:   fmt.Sprintf("%.7f", iosfscWeightDistanceMultiplier), // we need precision 7 to handle values like 0.0006255
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIOSFSC,
 				},
-				{
-					Key:     models.ServiceItemParamNameEIAFuelPrice,
-					KeyType: models.ServiceItemParamTypeInteger,
-					Value:   fmt.Sprintf("%d", int(iosfscFuelPrice)),
+			},
+			{
+				Model:    conusAddress,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:        true,
+					Status:         models.PaymentRequestStatusReviewed,
+					SequenceNumber: 1,
 				},
-			}, nil, nil,
-		)
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		paymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+			{
+				Key:     models.ServiceItemParamNameActualPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   iosfscActualPickupDate.Format(DateParamFormat),
+			},
+			{
+				Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(iosfscTestDistance)),
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightBilled,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(iosfscTestWeight)),
+			},
+			{
+				Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+				KeyType: models.ServiceItemParamTypeDecimal,
+				Value:   fmt.Sprintf("%.7f", iosfscWeightDistanceMultiplier),
+			},
+			{
+				Key:     models.ServiceItemParamNameEIAFuelPrice,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(iosfscFuelPrice)),
+			},
+		}
+		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		return paymentServiceItem
 	}
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		paymentServiceItem := setupTestData()
+		paymentServiceItem := setupTestData(false)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(iosfscPriceCents, priceCents)
@@ -171,6 +243,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsInternationalOriginS
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
 			{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("success using PaymentServiceItemParams - oconus pickup address, zero mileage results totalCodes=0", func() {
+		paymentServiceItem := setupTestData(true)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(unit.Cents(0), priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
+			{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(0.0000000, 7)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -204,7 +289,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsInternationalOriginS
 
 		for name, testcase := range testCases {
 			suite.Run(name, func() {
-				paymentServiceItem := setupTestData()
+				paymentServiceItem := setupTestData(false)
 				params := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, testcase.missingPaymentServiceItem)
 				_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), params)
 				suite.Error(err)
@@ -214,7 +299,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsInternationalOriginS
 	})
 
 	suite.Run("not found error on PaymentServiceItem", func() {
-		paymentServiceItem := setupTestData()
+		paymentServiceItem := setupTestData(false)
 		paramsWithBadReference := paymentServiceItem.PaymentServiceItemParams
 		paramsWithBadReference[0].PaymentServiceItemID = uuid.Nil
 		// Pricer only searches for the shipment when the ID is nil
