@@ -1,17 +1,17 @@
-CREATE SEQUENCE IF NOT EXISTS audit_seq START WITH 1;
-
-ALTER TABLE audit_history ADD COLUMN IF NOT EXISTS seq_num serial;
-
-ALTER TABLE audit_history ALTER COLUMN seq_num SET DEFAULT nextval('audit_seq');
-
-CREATE OR REPLACE FUNCTION public.if_modified_func()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'pg_catalog', 'public'
-AS $function$
+-- cam b-22911. When inserting Beth's new DB proc we add a seq_num which can't be NULL
+-- as it's a new serial column. The old if_modified_func trigger is inserting NULL
+-- in the seq_num, so this migration is the exact same if_modified_func code,
+-- but just omitting inserting a null seq_num.
+-- Also adjusted the row declaration, I was getting a bunch of syntax
+-- errors before wrapping it in plpgsql and manually declaring the insert values
+CREATE OR REPLACE FUNCTION if_modified_func()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $body$
 DECLARE
-	audit_row audit_history;
+	audit_row audit_history%ROWTYPE;
 	include_values boolean;
 	log_diffs boolean;
 	j_old jsonb;
@@ -34,24 +34,22 @@ BEGIN
 		_user_id := NULL;
 	END;
 
-	audit_row = ROW(
-		uuid_generate_v4(),                           -- id
-		TG_TABLE_SCHEMA::text,                        -- schema_name
-		TG_TABLE_NAME::text,                          -- table_name
-		TG_RELID,                                     -- relation OID for much quicker searches
-		NULL,                                         -- object id
-		_user_id,                                     -- session user_id
-		_event_name,                                  -- session event_name
-		current_timestamp,                            -- action_tstamp_tx
-		statement_timestamp(),                        -- action_tstamp_stm
-		clock_timestamp(),                            -- action_tstamp_clk
-		txid_current(),                               -- transaction ID
-		current_query(),                              -- top-level query or queries if multistatement from client
-		TG_OP,                                        -- action
-		NULL, NULL,                                   -- old_data, changed_data
-		FALSE,                                        -- statement_only
-		NULL										  --seq_num
-		);
+    audit_row.id := uuid_generate_v4();
+    audit_row.schema_name := TG_TABLE_SCHEMA::text;
+    audit_row.table_name := TG_TABLE_NAME::text;
+    audit_row.relid := TG_RELID;
+    audit_row.object_id := NULL;
+    audit_row.session_userid := _user_id;
+    audit_row.event_name := _event_name;
+    audit_row.action_tstamp_tx := current_timestamp;
+    audit_row.action_tstamp_stm := statement_timestamp();
+    audit_row.action_tstamp_clk := clock_timestamp();
+    audit_row.transaction_id := txid_current();
+    audit_row.client_query := current_query();
+    audit_row.action := TG_OP;
+    audit_row.old_data := NULL;
+    audit_row.changed_data := NULL;
+    audit_row.statement_only := FALSE;
 
 
 	IF NOT TG_ARGV[0]::boolean IS DISTINCT FROM 'f'::boolean THEN
@@ -101,16 +99,72 @@ BEGIN
 		RAISE EXCEPTION '[if_modified_func] - Trigger func added as trigger for unhandled case: %, %',TG_OP, TG_LEVEL;
 		RETURN NULL;
 	END IF;
-
-	INSERT INTO audit_history
-		(id, schema_name, table_name, relid, object_id, session_userid, event_name, action_tstamp_tx, action_tstamp_stm, action_tstamp_clk, transaction_id, client_query, "action", old_data, changed_data, statement_only)
-	VALUES(
-		audit_row.id, audit_row.schema_name, audit_row.table_name, audit_row.relid, audit_row.object_id,
-		audit_row.session_userid, audit_row.event_name, audit_row.action_tstamp_tx, audit_row.action_tstamp_stm,
-		audit_row.action_tstamp_clk, audit_row.transaction_id, audit_row.client_query, audit_row.action,
-		audit_row.old_data, audit_row.changed_data, audit_row.statement_only);
-
+	INSERT INTO audit_history (
+        id,
+        schema_name,
+        table_name,
+        relid,
+        object_id,
+        session_userid,
+        event_name,
+        action_tstamp_tx,
+        action_tstamp_stm,
+        action_tstamp_clk,
+        transaction_id,
+        client_query,
+        action,
+        old_data,
+        changed_data,
+        statement_only
+    ) VALUES (
+        audit_row.id,
+        audit_row.schema_name,
+        audit_row.table_name,
+        audit_row.relid,
+        audit_row.object_id,
+        audit_row.session_userid,
+        audit_row.event_name,
+        audit_row.action_tstamp_tx,
+        audit_row.action_tstamp_stm,
+        audit_row.action_tstamp_clk,
+        audit_row.transaction_id,
+        audit_row.client_query,
+        audit_row.action,
+        audit_row.old_data,
+        audit_row.changed_data,
+        audit_row.statement_only
+        );
 	RETURN NULL;
 END;
-$function$
-;
+$body$;
+
+COMMENT ON FUNCTION if_modified_func() IS $body$
+Track changes to a table at the statement and/or row level.
+
+Optional parameters to trigger in CREATE TRIGGER call:
+
+param 0: boolean, whether to log the query text. Default 't'.
+
+param 1: text[], columns to ignore in updates. Default [].
+
+         Updates to ignored cols are omitted from changed_data.
+
+         Updates with only ignored cols changed or have no changes are not inserted
+         into the audit log.
+
+         Almost all the processing work is still done for updates
+         that ignored. If you need to save the load, you need to use
+         WHEN clause on the trigger instead.
+
+         No warning or error is issued if ignored_cols contains columns
+         that do not exist in the target table. This lets you specify
+         a standard set of ignored columns.
+
+There is no parameter to disable logging of values. Add this trigger as
+a 'FOR EACH STATEMENT' rather than 'FOR EACH ROW' trigger if you do not
+want to log row values.
+
+Note that the user name logged is the login role for the session. The audit trigger
+cannot obtain the active role because it is reset by the SECURITY DEFINER invocation
+of the audit trigger its self.
+$body$;
