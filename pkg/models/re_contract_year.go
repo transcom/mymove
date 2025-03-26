@@ -71,6 +71,20 @@ func (r *ReContractYear) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
+// This function uses a raw query that calls db function get_contract to get the reContractYearId in respects to the requestedPickupDate
+func FetchContractId(db *pop.Connection, requestedPickupDate time.Time) (uuid.UUID, error) {
+	if !requestedPickupDate.IsZero() {
+		var reContractYearId uuid.UUID
+		err := db.RawQuery("SELECT get_contract_id($1)", requestedPickupDate).First(&reContractYearId)
+		if err != nil {
+			return uuid.Nil, fmt.Errorf("error fetching contract year id for requested pickup date %s", requestedPickupDate)
+		}
+
+		return reContractYearId, nil
+	}
+	return uuid.Nil, fmt.Errorf("error fetching contract ID - required parameters not provided")
+}
+
 func GetExpectedEscalationPriceContractsCount(contractYearName string) (ExpectedEscalationPriceContractsCount, error) {
 	switch contractYearName {
 	case BasePeriodYear1:

@@ -2,15 +2,24 @@ import React from 'react';
 import {
   Datagrid,
   DateField,
-  Filter,
   List,
   ReferenceField,
   TextField,
   TextInput,
   TopToolbar,
   useRecordContext,
+  SearchInput,
+  FilterForm,
+  FilterButton,
+  downloadCSV,
+  useListController,
+  ExportButton,
 } from 'react-admin';
+import * as jsonexport from 'jsonexport/dist';
 
+import styles from './RejectedOfficeUserList.module.scss';
+
+import { getTransportationOfficeByID } from 'services/adminApi';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const RejectedOfficeUserShowRoles = () => {
@@ -28,25 +37,76 @@ const RejectedOfficeUserShowRoles = () => {
   return <span>{uniqueRoleNamesList.join(', ')}</span>;
 };
 
-// Overriding the default toolbar
-const ListActions = () => {
-  return <TopToolbar />;
+// Custom exporter to flatten out role  types
+const exporter = async (data) => {
+  const usersForExportPromises = data.map(async (rowData) => {
+    const { roles, email, firstName, lastName, status, rejectionReason, rejectedOn, transportationOfficeId } = rowData;
+
+    const flattenedRoles = roles ? [...new Set(roles.map((role) => role.roleName))].join(',') : '';
+    const transportationOffice = await getTransportationOfficeByID(transportationOfficeId);
+    const officeName = transportationOffice.name;
+    return {
+      email,
+      firstName,
+      lastName,
+      status,
+      rejectionReason,
+      rejectedOn,
+      officeName,
+      roles: flattenedRoles,
+    };
+  });
+
+  const usersForExport = await Promise.all(usersForExportPromises);
+
+  // convert data to csv and download
+  jsonexport(usersForExport, {}, (err, csv) => {
+    if (err) throw err;
+    downloadCSV(csv, 'rejected-office-users');
+  });
 };
 
+// Overriding the default toolbar
+const ListActions = () => {
+  const { total, resource, sort, filterValues } = useListController();
+
+  return (
+    <TopToolbar>
+      <ExportButton disabled={total === 0} resource={resource} sort={sort} filter={filterValues} exporter={exporter} />
+    </TopToolbar>
+  );
+};
+
+const filterList = [
+  <SearchInput source="search" alwaysOn />,
+  <TextInput label="Email" source="emails" />,
+  <TextInput label="First Name" source="firstName" />,
+  <TextInput label="Last Name" source="lastName" />,
+  <TextInput label="Office" source="offices" />,
+  <TextInput label="Rejection Reason" source="rejectionReason" />,
+  <TextInput label="Rejected On" placeholder="MM/DD/YYYY" source="rejectedOn" />,
+  <TextInput label="Roles" source="roles" />,
+];
+
 const RejectedOfficeUserListFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
-  </Filter>
+  <div className={styles.searchContainer}>
+    <div className={styles.searchBar}>
+      <FilterForm filters={filterList} />
+    </div>
+    <div className={styles.filters}>
+      <FilterButton filters={filterList} />
+    </div>
+  </div>
 );
 
 const defaultSort = { field: 'createdAt', order: 'DESC' };
 
 const RejectedOfficeUserList = () => (
   <List
+    filters={<RejectedOfficeUserListFilter />}
     pagination={<AdminPagination />}
     perPage={25}
     sort={defaultSort}
-    filters={<RejectedOfficeUserListFilter />}
     actions={<ListActions />}
   >
     <Datagrid bulkActionButtons={false} rowClick="show" data-testid="rejected-office-user-fields">
@@ -61,7 +121,7 @@ const RejectedOfficeUserList = () => (
       <TextField source="rejectionReason" label="Reason for rejection" />
       <DateField showTime source="rejectedOn" label="Rejected on" />
       <ReferenceField label="Roles Requested" source="id" sortBy="role" reference="rejected-office-users" link={false}>
-        <RejectedOfficeUserShowRoles source="roles" />
+        <RejectedOfficeUserShowRoles sortable={false} source="roles" label="Rejected Roles" />
       </ReferenceField>
     </Datagrid>
   </List>
