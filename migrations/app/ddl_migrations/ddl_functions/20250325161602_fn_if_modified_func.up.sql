@@ -66,7 +66,7 @@ BEGIN
 		j_old := row_to_json(OLD)::jsonb;
 		j_new := row_to_json(NEW)::jsonb;
 
-		IF j_old ? 'id' THEN
+		IF jsonb_exists(j_old, 'id') THEN
 			audit_row.object_id = j_old->>'id';
 		END IF;
 
@@ -84,14 +84,14 @@ BEGIN
 		END IF;
 	ELSIF (TG_OP = 'DELETE' AND TG_LEVEL = 'ROW') THEN
 		j_old := row_to_json(OLD)::jsonb;
-		IF j_old ? 'id' THEN
+		IF jsonb_exists(j_old, 'id') THEN
 			audit_row.object_id = j_old->>'id';
 		END IF;
 
 		audit_row.old_data = j_old - excluded_cols;
 	ELSIF (TG_OP = 'INSERT' AND TG_LEVEL = 'ROW') THEN
 		j_new := row_to_json(NEW)::jsonb;
-		IF j_new ? 'id' THEN
+		IF jsonb_exists(j_new, 'id') THEN
 			audit_row.object_id = j_new->>'id';
 		END IF;
 		audit_row.changed_data = j_new - excluded_cols;
