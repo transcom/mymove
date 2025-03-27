@@ -319,3 +319,46 @@ func priceIntlFuelSurcharge(_ appcontext.AppContext, fuelSurchargeCode models.Re
 
 	return totalCost, displayParams, nil
 }
+
+func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+	if pickupDeliverySITCode != models.ReServiceCodeIOPSIT && pickupDeliverySITCode != models.ReServiceCodeIDDSIT {
+		return 0, nil, fmt.Errorf("unsupported Intl PickupDeliverySIT code of %s", pickupDeliverySITCode)
+	}
+
+	isPeakPeriod := IsPeakPeriod(referenceDate)
+
+	var reContract models.ReContract
+	err := appCtx.DB().Where("re_contracts.code = ?", contractCode).First(&reContract)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not retrieve contract by code: %w", err)
+	}
+
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, reContract.ID, referenceDate, false, float64(perUnitCents))
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
+	}
+	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+
+	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
+
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(unit.Cents(perUnitCents)),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+
+	return totalPriceCents, displayParams, nil
+}
