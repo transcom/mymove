@@ -199,7 +199,7 @@ describe('Pro-gear page', () => {
   });
   it('displays reminder to include pro-gear weight in total', () => {
     renderProGearPage();
-    expect(screen.getByText(/This pro-gear should be included in your total weight moved./)).toBeInTheDocument();
+    expect(screen.getAllByText(/This pro-gear should be included in your total weight moved./)[0]).toBeInTheDocument();
   });
 
   it('replaces the router history with newly created pro gear weight ticket id', async () => {

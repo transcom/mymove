@@ -17,7 +17,6 @@ import {
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { usePPMShipmentAndDocsOnlyQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -59,7 +58,6 @@ const ProGear = () => {
     },
   });
 
-  // Not working
   const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment);
   const { mutate: mutatePatchProGearWeightTicket } = useMutation(patchProGearWeightTicket, {
     onSuccess: () => {
@@ -129,12 +127,30 @@ const ProGear = () => {
     navigate(reviewPath);
   };
 
-  const handleSubmit = async (values) => {
-    if (isSubmitted) return;
+  const updateProGearWeightTicket = (values) => {
+    const belongsToSelf = values.belongsToSelf === 'true';
+    const hasWeightTickets = !values.missingWeightTicket;
 
-    setIsSubmitted(true);
-    setErrorMessage(null);
+    const payload = {
+      hasWeightTickets,
+      belongsToSelf,
+      ppmShipmentId: mtoShipment.ppmShipment.id,
+      shipmentType: mtoShipment.shipmentType,
+      shipmentLocator: values.shipmentLocator,
+      eTag: mtoShipment.eTag,
+      description: values.description,
+      weight: Number(values.weight),
+    };
 
+    mutatePatchProGearWeightTicket({
+      ppmShipmentId: currentProGearWeightTicket.ppmShipmentId,
+      proGearWeightTicketId: currentProGearWeightTicket.id,
+      payload,
+      eTag: currentProGearWeightTicket.eTag,
+    });
+  };
+
+  const updateShipment = (values) => {
     const belongsToSelf = values.belongsToSelf === 'true';
     let proGear;
     let spouseProGear;
@@ -145,12 +161,10 @@ const ProGear = () => {
       spouseProGear = values.weight;
     }
 
-    const payload = {
+    const shipmentPayload = {
       belongsToSelf,
-      description: values.description,
-      weight: Number(values.weight),
       ppmShipment: {
-        id: ppmShipment.id,
+        id: mtoShipment.ppmShipment.id,
       },
       shipmentType: mtoShipment.shipmentType,
       actualSpouseProGearWeight: parseInt(spouseProGear, 10),
@@ -159,20 +173,22 @@ const ProGear = () => {
       eTag: mtoShipment.eTag,
     };
 
-    mutatePatchProGearWeightTicket({
-      ppmShipmentId: currentProGearWeightTicket.ppmShipmentId,
-      proGearWeightTicketId: currentProGearWeightTicket.id,
-      payload,
-      eTag: currentProGearWeightTicket.eTag,
-    });
-
     const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
     mutateUpdateMtoShipment({
       moveTaskOrderID,
       shipmentID: shipmentId,
-      ifMatchETag: payload.eTag,
-      body: payload,
+      ifMatchETag: shipmentPayload.eTag,
+      body: shipmentPayload,
     });
+  };
+
+  const handleSubmit = async (values) => {
+    if (isSubmitted) return;
+
+    setIsSubmitted(true);
+    setErrorMessage(null);
+    updateProGearWeightTicket(values);
+    updateShipment(values);
   };
 
   const renderError = () => {
@@ -201,12 +217,6 @@ const ProGear = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Pro-gear</h1>
             {renderError()}
-            <div className={closingPageStyles['closing-section']}>
-              <p>
-                If you moved pro-gear for yourself or your spouse as part of this PPM, document the total weight here.
-                Reminder: This pro-gear should be included in your total weight moved.
-              </p>
-            </div>
             <ProGearForm
               entitlements={entitlements}
               proGear={currentProGearWeightTicket}

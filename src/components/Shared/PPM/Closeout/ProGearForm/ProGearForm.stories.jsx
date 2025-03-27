@@ -5,7 +5,7 @@ import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm'
 import { MockProviders } from 'testUtils';
 
 export default {
-  title: 'Customer Components / PPM Closeout / Pro Gear',
+  title: 'Shared Components / PPM Closeout / Pro Gear',
   component: ProGearForm,
   decorators: [
     (Story) => (
