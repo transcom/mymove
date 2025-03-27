@@ -230,7 +230,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ======================================================
--- Sub-function: populdate service item customer contacts
+-- Sub-function: populate service item customer contacts
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_move_history_service_item_customer_contacts(p_move_id UUID)
 RETURNS VOID AS $$
@@ -271,7 +271,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ======================================================
--- Sub-function: populdate service item dimensions
+-- Sub-function: populate service item dimensions
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_move_history_service_item_dimensions(p_move_id UUID)
 RETURNS VOID AS $$
@@ -311,7 +311,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ======================================================
--- Sub-function: populdate entitlements
+-- Sub-function: populate entitlements
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_move_history_entitlements(p_move_id UUID)
 RETURNS VOID AS $$
@@ -343,7 +343,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ======================================================
--- Sub-function: populdate payment requests
+-- Sub-function: populate payment requests
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_move_history_payment_requests(p_move_id UUID)
 RETURNS VOID AS $$
@@ -1917,38 +1917,44 @@ BEGIN
     PERFORM fn_populate_move_history_mto_shipments(v_move_id);
     PERFORM fn_populate_move_history_orders(v_move_id);
     PERFORM fn_populate_move_history_service_items(v_move_id);
-	PERFORM fn_populate_mto_agents(v_move_id);
-	PERFORM fn_populate_reweighs(v_move_id);
-	PERFORM fn_populate_service_members(v_move_id);
-	PERFORM fn_populate_ppm_shipments(v_move_id);
-	PERFORM fn_populate_addresses_destination(v_move_id);
-	PERFORM fn_populate_addresses_secondary_destination(v_move_id);
-	PERFORM fn_populate_addresses_tertiary_destination(v_move_id);
-	PERFORM fn_populate_addresses_pickup(v_move_id);
-	PERFORM fn_populate_addresses_secondary_pickup(v_move_id);
-	PERFORM fn_populate_addresses_tertiary_pickup(v_move_id);
-	PERFORM fn_populate_addresses_ppm_pickup(v_move_id);
-	PERFORM fn_populate_addresses_ppm_secondary_pickup(v_move_id);
-	PERFORM fn_populate_addresses_ppm_tertiary_pickup(v_move_id);
-	PERFORM fn_populate_addresses_ppm_destination(v_move_id);
-	PERFORM fn_populate_addresses_ppm_secondary_destination(v_move_id);
-	PERFORM fn_populate_addresses_ppm_tertiary_destination(v_move_id);
-	PERFORM fn_populate_addresses_service_member_residential(v_move_id);
-	PERFORM fn_populate_addresses_service_member_backup_mailing(v_move_id);
-	PERFORM fn_populate_uploads_orders(v_move_id);
-	PERFORM fn_populate_uploads_amended_orders(v_move_id);
-	PERFORM fn_populate_uploads_empty_weight(v_move_id);
-	PERFORM fn_populate_uploads_full_weight(v_move_id);
-	PERFORM fn_populate_uploads_trailer_weight(v_move_id);
-	PERFORM fn_populate_uploads_pro_gear(v_move_id);
-	PERFORM fn_populate_uploads_spouse_pro_gear(v_move_id);
-	PERFORM fn_populate_uploads_expense_receipt(v_move_id);
-	PERFORM fn_populate_backup_contacts(v_move_id);
-	PERFORM fn_populate_doc_review_weight(v_move_id);
-	PERFORM fn_populate_doc_review_progear(v_move_id);
-	PERFORM fn_populate_doc_review_expenses(v_move_id);
-	PERFORM fn_populate_gsr_appeals(v_move_id);
-	PERFORM fn_populate_shipment_address_updates(v_move_id);
+    PERFORM fn_populate_mto_agents(v_move_id);
+    PERFORM fn_populate_reweighs(v_move_id);
+    PERFORM fn_populate_service_members(v_move_id);
+    PERFORM fn_populate_ppm_shipments(v_move_id);
+    PERFORM fn_populate_addresses_destination(v_move_id);
+    PERFORM fn_populate_addresses_secondary_destination(v_move_id);
+    PERFORM fn_populate_addresses_tertiary_destination(v_move_id);
+    PERFORM fn_populate_addresses_pickup(v_move_id);
+    PERFORM fn_populate_addresses_secondary_pickup(v_move_id);
+    PERFORM fn_populate_addresses_tertiary_pickup(v_move_id);
+    PERFORM fn_populate_addresses_ppm_pickup(v_move_id);
+    PERFORM fn_populate_addresses_ppm_secondary_pickup(v_move_id);
+    PERFORM fn_populate_addresses_ppm_tertiary_pickup(v_move_id);
+    PERFORM fn_populate_addresses_ppm_destination(v_move_id);
+    PERFORM fn_populate_addresses_ppm_secondary_destination(v_move_id);
+    PERFORM fn_populate_addresses_ppm_tertiary_destination(v_move_id);
+    PERFORM fn_populate_addresses_service_member_residential(v_move_id);
+    PERFORM fn_populate_addresses_service_member_backup_mailing(v_move_id);
+    PERFORM fn_populate_uploads_orders(v_move_id);
+    PERFORM fn_populate_uploads_amended_orders(v_move_id);
+    PERFORM fn_populate_uploads_empty_weight(v_move_id);
+    PERFORM fn_populate_uploads_full_weight(v_move_id);
+    PERFORM fn_populate_uploads_trailer_weight(v_move_id);
+    PERFORM fn_populate_uploads_pro_gear(v_move_id);
+    PERFORM fn_populate_uploads_spouse_pro_gear(v_move_id);
+    PERFORM fn_populate_uploads_expense_receipt(v_move_id);
+    PERFORM fn_populate_backup_contacts(v_move_id);
+    PERFORM fn_populate_doc_review_weight(v_move_id);
+    PERFORM fn_populate_doc_review_progear(v_move_id);
+    PERFORM fn_populate_doc_review_expenses(v_move_id);
+    PERFORM fn_populate_gsr_appeals(v_move_id);
+    PERFORM fn_populate_shipment_address_updates(v_move_id);
+    PERFORM fn_populate_move_history_entitlements(v_move_id);
+    PERFORM fn_populate_move_history_proof_of_service_docs(v_move_id);
+    PERFORM fn_populate_move_history_payment_service_items(v_move_id);
+    PERFORM fn_populate_move_history_payment_requests(v_move_id);
+    PERFORM fn_populate_move_history_service_item_dimensions(v_move_id);
+    PERFORM fn_populate_move_history_service_item_customer_contacts(v_move_id);
 
     RAISE DEBUG 'Start return query %', clock_timestamp();
 
