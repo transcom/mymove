@@ -108,17 +108,14 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		}
 	}
 
-	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
-
 	// Create default Address
 	address := models.Address{
-		StreetAddress1:     "N/A",
-		City:               "GROVETOWN",
-		State:              "GA",
-		PostalCode:         "30813",
-		County:             models.StringPointer("RICHMOND"),
-		IsOconus:           models.BoolPointer(false),
-		UsPostRegionCityID: &usprcId,
+		StreetAddress1: "N/A",
+		City:           "GROVETOWN",
+		State:          "GA",
+		PostalCode:     "30813",
+		County:         models.StringPointer("RICHMOND"),
+		IsOconus:       models.BoolPointer(false),
 	}
 
 	// Find/create the Country if customization is provided
@@ -157,17 +154,15 @@ func BuildDefaultAddress(db *pop.Connection) models.Address {
 
 // GetTraitAddress2 is a sample GetTraitFunc
 func GetTraitAddress2() []Customization {
-	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
 	return []Customization{
 		{
 			Model: models.Address{
-				StreetAddress1:     "987 Any Avenue",
-				StreetAddress2:     models.StringPointer("P.O. Box 9876"),
-				StreetAddress3:     models.StringPointer("c/o Some Person"),
-				City:               "Fairfield",
-				State:              "CA",
-				PostalCode:         "94535",
-				UsPostRegionCityID: &usprcId,
+				StreetAddress1: "987 Any Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 9876"),
+				StreetAddress3: models.StringPointer("c/o Some Person"),
+				City:           "Fairfield",
+				State:          "CA",
+				PostalCode:     "94535",
 			},
 		},
 	}
@@ -175,17 +170,15 @@ func GetTraitAddress2() []Customization {
 
 // GetTraitAddress3 is a sample GetTraitFunc
 func GetTraitAddress3() []Customization {
-	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
 	return []Customization{
 		{
 			Model: models.Address{
-				StreetAddress1:     "987 Other Avenue",
-				StreetAddress2:     models.StringPointer("P.O. Box 1234"),
-				StreetAddress3:     models.StringPointer("c/o Another Person"),
-				City:               "Des Moines",
-				State:              "IA",
-				PostalCode:         "50309",
-				UsPostRegionCityID: &usprcId,
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
 			},
 		},
 	}
