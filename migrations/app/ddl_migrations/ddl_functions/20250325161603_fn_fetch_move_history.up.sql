@@ -1903,7 +1903,7 @@ RETURNS TABLE (
 AS $$
 DECLARE
     v_move_id UUID;
-    offset_value INT := (GREATEST(page, 1) - 1) * GREATEST(per_page, 20);
+    offset_value INT := (GREATEST(page, 1) - 1) * GREATEST(per_page, 1);
     v_count INT;
 BEGIN
     -- Resolve move ID
