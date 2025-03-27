@@ -193,17 +193,15 @@ func GetTraitAddress3() []Customization {
 
 // GetTraitAddress4 is a sample GetTraitFunc
 func GetTraitAddress4() []Customization {
-	usprcId := uuid.FromStringOrNil("92944323-7173-445c-ae67-99ff9ce82c35")
 	return []Customization{
 		{
 			Model: models.Address{
-				StreetAddress1:     "987 Over There Avenue",
-				StreetAddress2:     models.StringPointer("P.O. Box 1234"),
-				StreetAddress3:     models.StringPointer("c/o Another Person"),
-				City:               "Houston",
-				State:              "TX",
-				PostalCode:         "77083",
-				UsPostRegionCityID: &usprcId,
+				StreetAddress1: "987 Over There Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Houston",
+				State:          "TX",
+				PostalCode:     "77083",
 			},
 		},
 	}
@@ -211,18 +209,16 @@ func GetTraitAddress4() []Customization {
 
 // GetTraitAddressAKZone1 is an address in Zone 1 of AK
 func GetTraitAddressAKZone1() []Customization {
-	usprcId := uuid.FromStringOrNil("f054b86b-2843-4d60-a041-d4205c04bbc9")
 	return []Customization{
 		{
 			Model: models.Address{
-				StreetAddress1:     "82 Joe Gibbs Rd",
-				StreetAddress2:     models.StringPointer("P.O. Box 1234"),
-				StreetAddress3:     models.StringPointer("c/o Another Person"),
-				City:               "ANCHORAGE",
-				State:              "AK",
-				PostalCode:         "99695",
-				IsOconus:           models.BoolPointer(true),
-				UsPostRegionCityID: &usprcId,
+				StreetAddress1: "82 Joe Gibbs Rd",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "ANCHORAGE",
+				State:          "AK",
+				PostalCode:     "99695",
+				IsOconus:       models.BoolPointer(true),
 			},
 		},
 	}
@@ -230,18 +226,16 @@ func GetTraitAddressAKZone1() []Customization {
 
 // GetTraitAddressAKZone2 is an address in Zone 2 of Alaska
 func GetTraitAddressAKZone2() []Customization {
-	usprcId := uuid.FromStringOrNil("6613ad8d-87f7-4918-b0fd-4a4eac7d82f9")
 	return []Customization{
 		{
 			Model: models.Address{
-				StreetAddress1:     "44 John Riggins Rd",
-				StreetAddress2:     models.StringPointer("P.O. Box 1234"),
-				StreetAddress3:     models.StringPointer("c/o Another Person"),
-				City:               "FORT WAINWRIGHT",
-				State:              "AK",
-				PostalCode:         "99703",
-				IsOconus:           models.BoolPointer(true),
-				UsPostRegionCityID: &usprcId,
+				StreetAddress1: "44 John Riggins Rd",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "FORT WAINWRIGHT",
+				State:          "AK",
+				PostalCode:     "99703",
+				IsOconus:       models.BoolPointer(true),
 			},
 		},
 	}
@@ -249,18 +243,16 @@ func GetTraitAddressAKZone2() []Customization {
 
 // GetTraitAddressAKZone3 is an address in Zone 3 of Alaska
 func GetTraitAddressAKZone3() []Customization {
-	usprcId := uuid.FromStringOrNil("8a4124fe-aa88-4bf4-9872-9c4c8b0f7246")
 	return []Customization{
 		{
 			Model: models.Address{
-				StreetAddress1:     "26 Clinton Portis Rd",
-				StreetAddress2:     models.StringPointer("P.O. Box 1234"),
-				StreetAddress3:     models.StringPointer("c/o Another Person"),
-				City:               "KODIAK",
-				State:              "AK",
-				PostalCode:         "99697",
-				IsOconus:           models.BoolPointer(true),
-				UsPostRegionCityID: &usprcId,
+				StreetAddress1: "26 Clinton Portis Rd",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "KODIAK",
+				State:          "AK",
+				PostalCode:     "99697",
+				IsOconus:       models.BoolPointer(true),
 			},
 		},
 	}
