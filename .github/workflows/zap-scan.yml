@@ -3,7 +3,6 @@ on:
   pull_request:
     branches: [ main ]
 
-
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
@@ -14,6 +13,11 @@ jobs:
         with:
           target: 'https://my.move.mil'
           allow_issue_writing: 'false'
+      - name: Upload ZAP Scan Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-scan-results
+          path: ./zap_report/
 
   zap_scan_office:
     runs-on: ubuntu-latest
@@ -24,6 +28,11 @@ jobs:
         with:
           target: 'https://office.move.mil'
           allow_issue_writing: 'false'
+      - name: Upload ZAP Scan Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-scan-office-results
+          path: ./zap_report/
 
   zap_scan_admin:
     runs-on: ubuntu-latest
@@ -34,3 +43,8 @@ jobs:
         with:
           target: 'https://admin.move.mil'
           allow_issue_writing: 'false'
+      - name: Upload ZAP Scan Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-scan-admin-results
+          path: ./zap_report/
