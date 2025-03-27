@@ -10,6 +10,7 @@ import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../..
 
 import styles from './OrdersInfoForm.module.scss';
 
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
@@ -27,7 +28,6 @@ import { showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { getLabelWithAsterisk, requiredAsteriskMessage } from 'utils/formLabels';
 
 let originMeta;
 let newDutyMeta = '';
@@ -259,11 +259,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
             <SectionWrapper className={formStyles.formSection}>
               {requiredAsteriskMessage}
               <DropdownInput
-                data-testid="ordersType"
-                label={getLabelWithAsterisk('Orders type')}
+                label="Orders type"
                 name="orders_type"
                 options={filteredOrderTypeOptions}
                 required
+                showRequiredAsterisk
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
@@ -271,8 +271,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               />
               <DatePickerInput
                 name="issue_date"
-                label={getLabelWithAsterisk('Orders date')}
+                label="Orders date"
                 required
+                showRequiredAsterisk
                 renderInput={(input) => (
                   <>
                     {input}
@@ -284,11 +285,12 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               />
               <DatePickerInput
                 name="report_by_date"
-                label={getLabelWithAsterisk(formatLabelReportByDate(values.orders_type))}
+                label={formatLabelReportByDate(values.orders_type)}
                 required
+                showRequiredAsterisk
               />
               <DutyLocationInput
-                label={getLabelWithAsterisk('Current duty location')}
+                label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
@@ -296,15 +298,17 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   handleCounselingOfficeChange();
                 }}
                 required
+                showRequiredAsterisk
                 metaOverride={originMeta}
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
                   <DropdownInput
-                    label={getLabelWithAsterisk('Counseling office')}
+                    label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
                     required
+                    showRequiredAsterisk
                     options={counselingOfficeOptions}
                   />
                   <Hint>
@@ -339,7 +343,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label={getLabelWithAsterisk('HOR, PLEAD or HOS')}
+                    label="HOR, PLEAD or HOS"
+                    showRequiredAsterisk
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     metaOverride={newDutyMeta}
@@ -352,7 +357,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               ) : (
                 <DutyLocationInput
                   name="new_duty_location"
-                  label={getLabelWithAsterisk('New duty location')}
+                  label="New duty location"
+                  showRequiredAsterisk
                   displayAddress={false}
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
@@ -362,7 +368,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <FormGroup>
-                <Label>{getLabelWithAsterisk('Are dependents included in your orders?')}</Label>
+                <Label>
+                  <span>
+                    Are dependents included in your orders? <RequiredAsterisk />
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -397,7 +407,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label>{getLabelWithAsterisk('Is this an accompanied tour?')}</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -447,8 +461,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     data-testid="dependentsUnderTwelve"
                     defaultValue="0"
                     name="dependents_under_twelve"
-                    label={getLabelWithAsterisk('Number of dependents under the age of 12')}
+                    label="Number of dependents under the age of 12"
                     id="dependentsUnderTwelve"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -460,8 +475,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     data-testid="dependentsTwelveAndOver"
                     defaultValue="0"
                     name="dependents_twelve_and_over"
-                    label={getLabelWithAsterisk('Number of dependents of the age 12 or over')}
+                    label="Number of dependents of the age 12 or over"
                     id="dependentsTwelveAndOver"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -472,10 +488,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <DropdownInput
-                label={getLabelWithAsterisk('Pay grade')}
+                label="Pay grade"
                 name="grade"
                 id="grade"
                 required
+                showRequiredAsterisk
                 options={payGradeOptions}
                 onChange={(e) => {
                   setGrade(e.target.value);

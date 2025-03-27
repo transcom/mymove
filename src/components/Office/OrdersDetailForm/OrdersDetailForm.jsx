@@ -4,8 +4,8 @@ import { func, string, bool } from 'prop-types';
 import styles from './OrdersDetailForm.module.scss';
 
 import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
-import { getLabelWithAsterisk, requiredAsteriskMessage } from 'utils/formLabels';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
@@ -49,36 +49,36 @@ const OrdersDetailForm = ({
       {requiredAsteriskMessage}
       <DutyLocationInput
         name="originDutyLocation"
-        label={getLabelWithAsterisk('Current duty location')}
+        label="Current duty location"
         displayAddress={false}
         isDisabled={formIsDisabled}
+        showRequiredAsterisk
       />
       <DutyLocationInput
         name="newDutyLocation"
-        label={
-          isRetirementOrSeparation
-            ? getLabelWithAsterisk('HOR, HOS or PLEAD')
-            : getLabelWithAsterisk('New duty location')
-        }
+        label={isRetirementOrSeparation ? 'HOR, HOS or PLEAD' : 'New duty location'}
         displayAddress={false}
         placeholder={isRetirementOrSeparation ? 'Enter a city or ZIP' : 'Start typing a duty location...'}
         isDisabled={formIsDisabled}
+        showRequiredAsterisk
       />
       <DropdownInput
         data-testid="payGradeInput"
         name="payGrade"
-        label={getLabelWithAsterisk('Pay grade')}
+        label="Pay grade"
         id="payGradeInput"
         options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
+        showRequiredAsterisk
       />
-      <DatePickerInput name="issueDate" label={getLabelWithAsterisk('Date issued')} disabled={formIsDisabled} />
-      <DatePickerInput name="reportByDate" label={getLabelWithAsterisk(reportDateRowLabel)} disabled={formIsDisabled} />
+      <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
+      <DatePickerInput name="reportByDate" label={reportDateRowLabel} showRequiredAsterisk disabled={formIsDisabled} />
       {showDepartmentIndicator && (
         <DropdownInput
           name="departmentIndicator"
-          label={getLabelWithAsterisk('Department indicator')}
+          label="Department indicator"
+          showRequiredAsterisk
           options={deptIndicatorOptions}
           isDisabled={formIsDisabled}
         />
@@ -86,14 +86,16 @@ const OrdersDetailForm = ({
       {showOrdersNumber && (
         <TextField
           name="ordersNumber"
-          label={getLabelWithAsterisk('Orders number')}
+          label="Orders number"
           id="ordersNumberInput"
+          showRequiredAsterisk
           isDisabled={formIsDisabled}
         />
       )}
       <DropdownInput
         name="ordersType"
-        label={getLabelWithAsterisk('Orders type')}
+        label="Orders type"
+        showRequiredAsterisk
         options={
           formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY_NON_LABEL || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
@@ -112,8 +114,9 @@ const OrdersDetailForm = ({
       {showOrdersTypeDetail && (
         <DropdownInput
           name="ordersTypeDetail"
-          label={getLabelWithAsterisk('Orders type detail')}
+          label="Orders type detail"
           options={ordersTypeDetailOptions}
+          showRequiredAsterisk
           isDisabled={formIsDisabled}
         />
       )}
@@ -130,12 +133,13 @@ const OrdersDetailForm = ({
       {showHHGTac && (
         <MaskedTextField
           name="tac"
-          label={getLabelWithAsterisk('TAC')}
+          label="TAC"
           id="hhgTacInput"
           mask="****"
           inputTestId="hhgTacInput"
           warning={hhgTacWarning}
           validate={validateHHGTac}
+          showRequiredAsterisk
           isDisabled={formIsDisabled}
         />
       )}
