@@ -4632,7 +4632,7 @@ paths:
           description: invalid request
         '500':
           description: server error
-  /application_parameters:
+  /open/application_parameters:
     post:
       summary: >-
         Searches for an application parameter by name and value, returns nil if
