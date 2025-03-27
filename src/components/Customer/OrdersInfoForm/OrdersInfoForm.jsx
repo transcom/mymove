@@ -27,6 +27,7 @@ import { showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { getLabelWithAsterisk, requiredAsteriskMessage } from 'utils/formLabels';
 
 let originMeta;
 let newDutyMeta = '';
@@ -209,12 +210,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders type"
+                data-testid="ordersType"
+                label={getLabelWithAsterisk('Orders type')}
                 name="orders_type"
                 options={filteredOrderTypeOptions}
                 required
-                hint="Required"
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
@@ -222,9 +224,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               />
               <DatePickerInput
                 name="issue_date"
-                label="Orders date"
+                label={getLabelWithAsterisk('Orders date')}
                 required
-                hint="Required"
                 renderInput={(input) => (
                   <>
                     {input}
@@ -235,14 +236,12 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 )}
               />
               <DatePickerInput
-                hint="Required"
                 name="report_by_date"
-                label={formatLabelReportByDate(values.orders_type)}
+                label={getLabelWithAsterisk(formatLabelReportByDate(values.orders_type))}
                 required
               />
               <DutyLocationInput
-                label="Current duty location"
-                hint="Required"
+                label={getLabelWithAsterisk('Current duty location')}
                 name="origin_duty_location"
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
@@ -255,10 +254,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               {currentDutyLocation.provides_services_counseling && (
                 <div>
                   <DropdownInput
-                    label="Counseling office"
+                    label={getLabelWithAsterisk('Counseling office')}
                     name="counseling_office_id"
                     id="counseling_office_id"
-                    hint="Required"
                     required
                     options={counselingOfficeOptions}
                   />
@@ -294,9 +292,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
+                    label={getLabelWithAsterisk('HOR, PLEAD or HOS')}
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
                     onDutyLocationChange={(e) => {
@@ -307,9 +305,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               ) : (
                 <DutyLocationInput
                   name="new_duty_location"
-                  label="New duty location"
+                  label={getLabelWithAsterisk('New duty location')}
                   displayAddress={false}
-                  hint="Required"
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -318,7 +315,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
+                <Label>{getLabelWithAsterisk('Are dependents included in your orders?')}</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -353,7 +350,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>{getLabelWithAsterisk('Is this an accompanied tour?')}</Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -403,7 +400,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     data-testid="dependentsUnderTwelve"
                     defaultValue="0"
                     name="dependents_under_twelve"
-                    label="Number of dependents under the age of 12"
+                    label={getLabelWithAsterisk('Number of dependents under the age of 12')}
                     id="dependentsUnderTwelve"
                     mask={Number}
                     scale={0}
@@ -416,7 +413,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     data-testid="dependentsTwelveAndOver"
                     defaultValue="0"
                     name="dependents_twelve_and_over"
-                    label="Number of dependents of the age 12 or over"
+                    label={getLabelWithAsterisk('Number of dependents of the age 12 or over')}
                     id="dependentsTwelveAndOver"
                     mask={Number}
                     scale={0}
@@ -428,8 +425,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <DropdownInput
-                hint="Required"
-                label="Pay grade"
+                label={getLabelWithAsterisk('Pay grade')}
                 name="grade"
                 id="grade"
                 required

@@ -4,6 +4,7 @@ import { func, string, bool } from 'prop-types';
 import styles from './OrdersDetailForm.module.scss';
 
 import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
+import { getLabelWithAsterisk, requiredAsteriskMessage } from 'utils/formLabels';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -45,15 +46,20 @@ const OrdersDetailForm = ({
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
     <div className={styles.OrdersDetailForm}>
+      {requiredAsteriskMessage}
       <DutyLocationInput
         name="originDutyLocation"
-        label="Current duty location"
+        label={getLabelWithAsterisk('Current duty location')}
         displayAddress={false}
         isDisabled={formIsDisabled}
       />
       <DutyLocationInput
         name="newDutyLocation"
-        label={isRetirementOrSeparation ? 'HOR, HOS or PLEAD' : 'New duty location'}
+        label={
+          isRetirementOrSeparation
+            ? getLabelWithAsterisk('HOR, HOS or PLEAD')
+            : getLabelWithAsterisk('New duty location')
+        }
         displayAddress={false}
         placeholder={isRetirementOrSeparation ? 'Enter a city or ZIP' : 'Start typing a duty location...'}
         isDisabled={formIsDisabled}
@@ -61,28 +67,33 @@ const OrdersDetailForm = ({
       <DropdownInput
         data-testid="payGradeInput"
         name="payGrade"
-        label="Pay grade"
+        label={getLabelWithAsterisk('Pay grade')}
         id="payGradeInput"
         options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
       />
-      <DatePickerInput name="issueDate" label="Date issued" disabled={formIsDisabled} />
-      <DatePickerInput name="reportByDate" label={reportDateRowLabel} disabled={formIsDisabled} />
+      <DatePickerInput name="issueDate" label={getLabelWithAsterisk('Date issued')} disabled={formIsDisabled} />
+      <DatePickerInput name="reportByDate" label={getLabelWithAsterisk(reportDateRowLabel)} disabled={formIsDisabled} />
       {showDepartmentIndicator && (
         <DropdownInput
           name="departmentIndicator"
-          label="Department indicator"
+          label={getLabelWithAsterisk('Department indicator')}
           options={deptIndicatorOptions}
           isDisabled={formIsDisabled}
         />
       )}
       {showOrdersNumber && (
-        <TextField name="ordersNumber" label="Orders number" id="ordersNumberInput" isDisabled={formIsDisabled} />
+        <TextField
+          name="ordersNumber"
+          label={getLabelWithAsterisk('Orders number')}
+          id="ordersNumberInput"
+          isDisabled={formIsDisabled}
+        />
       )}
       <DropdownInput
         name="ordersType"
-        label="Orders type"
+        label={getLabelWithAsterisk('Orders type')}
         options={
           formOrdersType === SPECIAL_ORDERS_TYPES.SAFETY_NON_LABEL || formOrdersType === SPECIAL_ORDERS_TYPES.BLUEBARK
             ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
@@ -101,7 +112,7 @@ const OrdersDetailForm = ({
       {showOrdersTypeDetail && (
         <DropdownInput
           name="ordersTypeDetail"
-          label="Orders type detail"
+          label={getLabelWithAsterisk('Orders type detail')}
           options={ordersTypeDetailOptions}
           isDisabled={formIsDisabled}
         />
@@ -119,7 +130,7 @@ const OrdersDetailForm = ({
       {showHHGTac && (
         <MaskedTextField
           name="tac"
-          label="TAC"
+          label={getLabelWithAsterisk('TAC')}
           id="hhgTacInput"
           mask="****"
           inputTestId="hhgTacInput"
