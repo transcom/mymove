@@ -38,7 +38,7 @@ import { roleTypes } from 'constants/userRoles';
 import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
-import { RouterShape, UserRolesShape } from 'types/index';
+import { UserRolesShape } from 'types/index';
 import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
@@ -591,7 +591,6 @@ OfficeApp.propTypes = {
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
-  router: RouterShape.isRequired,
   userPrivileges: PropTypes.arrayOf(PropTypes.object),
   underMaintenance: PropTypes.bool,
   showLoadingSpinner: PropTypes.bool,
