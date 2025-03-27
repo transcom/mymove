@@ -147,13 +147,13 @@ describe('Shipment Container', () => {
     });
     it('renders the terminated for cause tag when shipment status allows', async () => {
       isBooleanFlagEnabled.mockResolvedValue(true);
-      hhgInfo.shipmentStatus = shipmentStatuses.TERMINATED_FOR_CAUSE;
+      const hhgInfoTerminated = { ...hhgInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE };
 
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <ShipmentDisplay
             shipmentId="1"
-            displayInfo={hhgInfo}
+            displayInfo={hhgInfoTerminated}
             shipmentType={SHIPMENT_OPTIONS.HHG}
             isSubmitted
             allowApproval={false}
@@ -169,14 +169,13 @@ describe('Shipment Container', () => {
     });
     it('renders the terminate shipment button when permissions allow', async () => {
       isBooleanFlagEnabled.mockResolvedValue(true);
-      hhgInfo.shipmentStatus = shipmentStatuses.APPROVED;
-      hhgInfo.actualPickupdate = null;
+      const hhgInfoApproved = { ...hhgInfo, shipmentStatus: shipmentStatuses.APPROVED, actualPickupdate: null };
 
       render(
         <MockProviders permissions={[permissionTypes.createShipmentTermination]}>
           <ShipmentDisplay
             shipmentId="1"
-            displayInfo={hhgInfo}
+            displayInfo={hhgInfoApproved}
             shipmentType={SHIPMENT_OPTIONS.HHG}
             isSubmitted
             allowApproval={false}
@@ -190,14 +189,13 @@ describe('Shipment Container', () => {
     });
     it('does NOT show the terminate shipment button when permissions do not allow', async () => {
       isBooleanFlagEnabled.mockResolvedValue(true);
-      hhgInfo.shipmentStatus = shipmentStatuses.APPROVED;
-      hhgInfo.actualPickupdate = null;
+      const hhgInfoApproved = { ...hhgInfo, shipmentStatus: shipmentStatuses.APPROVED, actualPickupdate: null };
 
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <ShipmentDisplay
             shipmentId="1"
-            displayInfo={hhgInfo}
+            displayInfo={hhgInfoApproved}
             shipmentType={SHIPMENT_OPTIONS.HHG}
             isSubmitted
             allowApproval={false}
