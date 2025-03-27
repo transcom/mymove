@@ -3671,10 +3671,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitStatus,
+			closeoutOfficeUpdater,
 		}
 
 		// Validate incoming payload
@@ -3703,10 +3705,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentCreator := mocks.ShipmentCreator{}
 		sitStatus := sitstatus.NewShipmentSITStatus()
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			&shipmentCreator,
 			sitStatus,
+			closeoutOfficeUpdater,
 		}
 
 		err := errors.New("ServerError")
@@ -3754,11 +3758,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
+
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitStatus,
+			closeoutOfficeUpdater,
 		}
 
 		badID := params.Body.MoveTaskOrderID
@@ -3811,10 +3818,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitStatus,
+			closeoutOfficeUpdater,
 		}
 
 		badParams := params
@@ -3863,10 +3872,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitStatus,
+			closeoutOfficeUpdater,
 		}
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
@@ -3910,10 +3921,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitStatus,
+			closeoutOfficeUpdater,
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
@@ -3995,10 +4008,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitStatus,
+			closeoutOfficeUpdater,
 		}
 
 		shipmentType := ghcmessages.MTOShipmentTypePPM
@@ -4014,7 +4029,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		spouseProGearWeight := unit.Pound(200)
 		estimatedIncentive := 654321
 		sitEstimatedCost := 67500
-
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		var pickupAddress ghcmessages.Address
@@ -4108,6 +4129,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				MoveTaskOrderID: handlers.FmtUUID(move.ID),
 				ShipmentType:    &shipmentType,
 				PpmShipment: &ghcmessages.CreatePPMShipment{
+					PpmType:                ghcmessages.PPMType(models.PPMTypeIncentiveBased),
 					ExpectedDepartureDate:  handlers.FmtDatePtr(expectedDepartureDate),
 					PickupAddress:          struct{ ghcmessages.Address }{pickupAddress},
 					SecondaryPickupAddress: struct{ ghcmessages.Address }{secondaryPickupAddress},
@@ -4124,6 +4146,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 					HasProGear:                  &hasProGear,
 					ProGearWeight:               handlers.FmtPoundPtr(&proGearWeight),
 					SpouseProGearWeight:         handlers.FmtPoundPtr(&spouseProGearWeight),
+					CloseoutOfficeID:            *handlers.FmtUUIDPtr(&transportationOffice.ID),
 				},
 			},
 		}
@@ -4165,6 +4188,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		if suite.NotNil(ppmPayload) {
 			suite.NotZero(ppmPayload.ID)
 			suite.NotEqual(uuid.Nil.String(), ppmPayload.ID.String())
+			suite.NotNil(ppmPayload.PpmType)
 			suite.EqualDatePtr(expectedDepartureDate, ppmPayload.ExpectedDepartureDate)
 			suite.Equal(expectedPickupAddress.PostalCode, *ppmPayload.PickupAddress.PostalCode)
 			suite.Equal(&expectedSecondaryPickupAddress.PostalCode, ppmPayload.SecondaryPickupAddress.PostalCode)
@@ -4220,10 +4244,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitstatus.NewShipmentSITStatus(),
+			closeoutOfficeUpdater,
 		}
 
 		shipmentType := ghcmessages.MTOShipmentTypePPM
@@ -4385,10 +4411,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
 			sitstatus.NewShipmentSITStatus(),
+			closeoutOfficeUpdater,
 		}
 
 		shipmentType := ghcmessages.MTOShipmentTypePPM

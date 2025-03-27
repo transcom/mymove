@@ -671,7 +671,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dbConnection = initializeDB(v, logger)
 
 	// set up appcontext
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	// now that we have the appcontext, register telemetry observers
 	err = telemetry.RegisterDBStatsObserver(appCtx, telemetryConfig)
