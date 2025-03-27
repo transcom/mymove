@@ -4,35 +4,49 @@
 DO
 $$
     DECLARE
+        -- Current IDs for Role
         cust_id UUID;
         co_id UUID;
         tio_id UUID;
         too_id UUID;
+        -- New IDs for Role
+        cust_id_new UUID := 'c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e';
+        co_id_new UUID := '5496a188-69dc-4ae4-9dab-ce6c063d648f';
+        tio_id_new UUID := 'c19a5d5f-d320-4972-b294-1d760ee4b899';
+        too_id_new UUID := '2b21e867-78c3-4980-95a1-c8242b78baba';
     BEGIN
         select id into cust_id from roles where role_type = 'customer';
         select id into co_id from roles where role_type = 'contracting_officer';
         select id into tio_id from roles where role_type = 'task_invoicing_officer';
         select id into too_id from roles where role_type = 'task_ordering_officer';
 
-        update roles set role_type = 'customer1' where id = cust_id;
-        insert into roles values ('c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e','customer',now(),now(),'Customer');
-        update users_roles set role_id = 'c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e' where role_id = cust_id;
-        delete from roles where id = cust_id;
+        IF cust_id <> cust_id_new THEN
+            update roles set role_type = 'customer1' where id = cust_id;
+            insert into roles values (cust_id_new,'customer',now(),now(),'Customer');
+            update users_roles set role_id = cust_id_new where role_id = cust_id;
+            delete from roles where id = cust_id;
+        END IF;
 
-        update roles set role_type = 'contracting_officer1' where id = co_id;
-        insert into roles values ('5496a188-69dc-4ae4-9dab-ce6c063d648f','contracting_officer',now(),now(),'Contracting Officer');
-        update users_roles set role_id = '5496a188-69dc-4ae4-9dab-ce6c063d648f' where role_id = co_id;
-        delete from roles where id = co_id;
+        IF co_id <> co_id_new THEN
+            update roles set role_type = 'contracting_officer1' where id = co_id;
+            insert into roles values (co_id_new,'contracting_officer',now(),now(),'Contracting Officer');
+            update users_roles set role_id = co_id_new where role_id = co_id;
+            delete from roles where id = co_id;
+        END IF;
 
-        update roles set role_type = 'task_invoicing_officer1' where id = tio_id;
-        insert into roles values ('c19a5d5f-d320-4972-b294-1d760ee4b899','task_invoicing_officer',now(),now(),'Task Invoicing Officer');
-        update users_roles set role_id = 'c19a5d5f-d320-4972-b294-1d760ee4b899' where role_id = tio_id;
-        delete from roles where id = tio_id;
+        IF tio_id <> tio_id_new THEN
+            update roles set role_type = 'task_invoicing_officer1' where id = tio_id;
+            insert into roles values (tio_id_new,'task_invoicing_officer',now(),now(),'Task Invoicing Officer');
+            update users_roles set role_id = tio_id_new where role_id = tio_id;
+            delete from roles where id = tio_id;
+        END IF;
 
-        update roles set role_type = 'task_ordering_officer1' where id = too_id;
-        insert into roles values ('2b21e867-78c3-4980-95a1-c8242b78baba','task_ordering_officer',now(),now(),'Task Ordering Officer');
-        update users_roles set role_id = '2b21e867-78c3-4980-95a1-c8242b78baba' where role_id = too_id;
-        delete from roles where id = too_id;
+        IF too_id <> too_id_new THEN
+            update roles set role_type = 'task_ordering_officer1' where id = too_id;
+            insert into roles values (too_id_new,'task_ordering_officer',now(),now(),'Task Ordering Officer');
+            update users_roles set role_id = too_id_new where role_id = too_id;
+            delete from roles where id = too_id;
+        END IF;
 END;
 $$;
 
