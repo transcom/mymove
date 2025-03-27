@@ -24,6 +24,9 @@ type QueueMove struct {
 	// Format: date-time
 	AppearedInTooAt *strfmt.DateTime `json:"appearedInTooAt,omitempty"`
 
+	// approval request types
+	ApprovalRequestTypes []string `json:"approvalRequestTypes"`
+
 	// assignable
 	Assignable bool `json:"assignable,omitempty"`
 
@@ -93,9 +96,6 @@ type QueueMove struct {
 	// requested move date
 	// Format: date
 	RequestedMoveDate *strfmt.Date `json:"requestedMoveDate,omitempty"`
-
-	// service items
-	ServiceItems []string `json:"serviceItems"`
 
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`

@@ -2377,10 +2377,10 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
-		var serviceItems []string
+		var approvalRequestTypes []string
 		for _, item := range move.MTOServiceItems {
 			if item.Status == models.MTOServiceItemStatusSubmitted && !models.IsDestinationRequest(item.ReService.Code) {
-				serviceItems = append(serviceItems, item.ReService.Name)
+				approvalRequestTypes = append(approvalRequestTypes, item.ReService.Code.String())
 			}
 		}
 
@@ -2471,7 +2471,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			AssignedTo:              assignedToUser,
 			Assignable:              assignable,
 			AvailableOfficeUsers:    apiAvailableOfficeUsers,
-			ServiceItems:            serviceItems,
+			ApprovalRequestTypes:    approvalRequestTypes,
 		}
 	}
 	return &queueMoves

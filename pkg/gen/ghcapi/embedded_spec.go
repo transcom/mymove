@@ -13404,6 +13404,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "assignable": {
           "type": "boolean"
         },
@@ -13488,12 +13494,6 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "serviceItems": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "shipmentsCount": {
           "type": "integer"
@@ -31393,6 +31393,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "assignable": {
           "type": "boolean"
         },
@@ -31477,12 +31483,6 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "serviceItems": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "shipmentsCount": {
           "type": "integer"
