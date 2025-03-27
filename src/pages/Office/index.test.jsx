@@ -38,6 +38,10 @@ jest.mock('utils/featureFlags', () => ({
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
+jest.mock('services/ghcApi', () => ({
+  checkForLockedMovesAndUnlock: jest.fn(() => Promise.resolve()),
+}));
+
 // Mock the components that are routed to from the index, ordered the same as the routes in the index file
 mockPage('pages/SignIn/SignIn');
 mockPage('pages/InvalidPermissions/InvalidPermissions');
@@ -69,18 +73,9 @@ mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
 mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
 mockPage('components/NotFound/NotFound');
 
-beforeAll(() => {
-  const mockFetch = jest.fn();
-  global.fetch = mockFetch;
-
-  mockFetch.mockResolvedValue({
-    ok: true,
-    json: () => Promise.resolve({ data: [] }),
-  });
-});
-
 afterEach(() => {
   cleanup();
+  jest.clearAllMocks();
 });
 
 const defaultState = {
