@@ -49,19 +49,25 @@ export const AddressFields = ({
   };
 
   const handleOnLocationChange = (value) => {
-    setFieldValue(`${name}.city`, value.city).then(() => {
+    const city = value ? value.city : null;
+    const state = value ? value.state : null;
+    const county = value ? value.county : null;
+    const postalCode = value ? value.postalCode : null;
+    const usPostRegionCitiesID = value ? value.usPostRegionCitiesID : null;
+
+    setFieldValue(`${name}.city`, city).then(() => {
       setFieldTouched(`${name}.city`, false);
     });
-    setFieldValue(`${name}.state`, value.state).then(() => {
+    setFieldValue(`${name}.state`, state).then(() => {
       setFieldTouched(`${name}.state`, false);
     });
-    setFieldValue(`${name}.county`, value.county).then(() => {
+    setFieldValue(`${name}.county`, county).then(() => {
       setFieldTouched(`${name}.county`, false);
     });
-    setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
+    setFieldValue(`${name}.postalCode`, postalCode).then(() => {
       setFieldTouched(`${name}.postalCode`, false);
     });
-    setFieldValue(`${name}.usPostRegionCitiesID`, value.usPostRegionCitiesID).then(() => {
+    setFieldValue(`${name}.usPostRegionCitiesID`, usPostRegionCitiesID).then(() => {
       setFieldTouched(`${name}.usPostRegionCitiesID`, true);
     });
   };

@@ -208,13 +208,17 @@ export const LocationSearchBoxComponent = ({
 
   const handleKeyDown = (event) => {
     if (event.key === 'Backspace' && !inputValue) {
-      onChange(null);
+      if (handleLocationOnChange) {
+        handleLocationOnChange(null);
+      } else {
+        onChange(null);
+      }
     }
   };
 
   const handleFocus = () => {
     if (handleLocationOnChange) {
-      setInputValue(inputValue);
+      handleLocationOnChange(null);
     } else {
       onChange(null);
     }
@@ -246,7 +250,8 @@ export const LocationSearchBoxComponent = ({
           onInputChange={changeInputText}
           placeholder={placeholder || 'Start typing a duty location...'}
           value={
-            (handleLocationOnChange && !!value && value.city !== '') || (!handleLocationOnChange && hasLocation)
+            (handleLocationOnChange && !!value && value.city !== null && value.city !== '') ||
+            (!handleLocationOnChange && hasLocation)
               ? value
               : ''
           }
