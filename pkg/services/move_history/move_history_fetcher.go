@@ -49,7 +49,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		params.PerPage = models.Int64Pointer(20)
 	}
 
-	audits := &models.AuditHistories{}
+	audits := models.AuditHistories{}
 	var err error
 	var query *pop.Query
 	var totalCount int64
@@ -66,14 +66,14 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		query = appCtx.DB().RawQuery(rawQuery, params.Locator)
 	}
 
-	err = query.All(audits)
+	err = query.All(&audits)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+params.Locator)
 		default:
 			// Catch the proc case
-			if strings.Contains(err.Error(), "Move record not found for move locator") {
+			if strings.Contains(err.Error(), "Move record not found for") {
 				return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+params.Locator)
 			}
 			return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory", err, "")
@@ -111,7 +111,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 		ID:             move.ID,
 		Locator:        move.Locator,
 		ReferenceID:    move.ReferenceID,
-		AuditHistories: *audits,
+		AuditHistories: audits,
 	}
 
 	return &moveHistory, int64(totalCount), nil
