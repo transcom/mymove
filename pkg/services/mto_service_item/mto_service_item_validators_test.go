@@ -23,8 +23,20 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	before := now.AddDate(0, 0, -3)
 	later := now.AddDate(0, 0, 3)
 	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
 		// Create a service item to serve as the old object
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+		})
 		oldServiceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
@@ -1703,7 +1715,19 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemValidators() {
 
 	setupTestData := func() models.MTOServiceItem {
-		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+		})
 		serviceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,

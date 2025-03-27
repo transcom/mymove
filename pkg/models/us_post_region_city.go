@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -80,7 +81,7 @@ func FindByZipCode(db *pop.Connection, zipCode string) (*UsPostRegionCity, error
 func FindByZipCodeAndCity(db *pop.Connection, zipCode string, city string) (*UsPostRegionCity, error) {
 	var usprc UsPostRegionCity
 	err := db.Where("uspr_zip_id = ?", zipCode).
-		Where("u_s_post_region_city_nm = ?", city).
+		Where("u_s_post_region_city_nm = ?", strings.ToUpper(city)).
 		First(&usprc)
 	if err != nil {
 		switch err {
