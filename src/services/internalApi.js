@@ -18,9 +18,21 @@ export async function getInternalClient() {
 }
 
 // Attempt at catch-all error handling
-// TODO improve this function when we have better standardized errors
 export function getResponseError(response, defaultErrorMessage) {
-  return response?.body?.detail || response?.statusText || defaultErrorMessage;
+  if (!response) return defaultErrorMessage;
+
+  const detail = response.body?.detail || response.statusText || defaultErrorMessage;
+  const invalidFields = response.body?.invalidFields;
+
+  if (invalidFields && typeof invalidFields === 'object') {
+    const fieldErrors = Object.entries(invalidFields)
+      .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+      .join('\n');
+
+    return `${detail}\n${fieldErrors}`;
+  }
+
+  return detail;
 }
 
 export async function makeInternalRequest(operationPath, params = {}, options = {}) {
