@@ -124,11 +124,13 @@ export const PPM_TYPES = {
   SMALL_PACKAGE: 'SMALL_PACKAGE',
 };
 
-export const ppmTypeLabels = [
-  { key: PPM_TYPES.INCENTIVE_BASED, label: 'Incentive-based' },
-  { key: PPM_TYPES.ACTUAL_EXPENSE, label: 'Actual Expense' },
-  { key: PPM_TYPES.SMALL_PACKAGE, label: 'Small Package' },
-];
+const PPM_TYPE_LABELS_MAP = {
+  [PPM_TYPES.INCENTIVE_BASED]: 'Incentive-based',
+  [PPM_TYPES.ACTUAL_EXPENSE]: 'Actual Expense Reimbursement',
+  [PPM_TYPES.SMALL_PACKAGE]: 'Small Package Reimbursement',
+};
+
+export const getPPMTypeLabel = (type) => PPM_TYPE_LABELS_MAP[type];
 
 // These constants are used for forming URLs that have the shipment type in
 // them so that they are human readable.
@@ -239,6 +241,7 @@ export const FEATURE_FLAG_KEYS = {
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
   BULK_ASSIGNMENT: 'bulk_assignment',
+  CUSTOMER_REGISTRATION: 'customer_registration',
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
 };
 
