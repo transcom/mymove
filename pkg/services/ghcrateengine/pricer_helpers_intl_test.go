@@ -268,12 +268,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlFuelSurchargeSIT() {
 
 	suite.Run("invalid service code", func() {
 		invalidCode := models.ReServiceCodeIOSHUT
-		_, _, err := priceIntlFuelSurcharge(suite.AppContextForTest(), invalidCode, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		_, _, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), invalidCode, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.NotNil(err)
 	})
 
 	suite.Run("success with IOSFSC", func() {
-		totalCost, displayParams, err := priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, iosfscFuelPrice)
+		totalCost, displayParams, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, iosfscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(iosfscPriceCents, totalCost)
 
@@ -286,7 +286,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlFuelSurchargeSIT() {
 	})
 
 	suite.Run("success with IDSFSC", func() {
-		totalCost, displayParams, err := priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIDSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		totalCost, displayParams, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIDSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(idsfscPriceCents, totalCost)
 
@@ -301,27 +301,27 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlFuelSurchargeSIT() {
 	suite.Run("Invalid parameters to Price", func() {
 
 		invalidActualPickupDate := time.Time{}
-		_, _, err := priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, invalidActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		_, _, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, invalidActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ActualPickupDate is required")
 
 		invalidDistance := unit.Miles(-1)
-		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, invalidDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, invalidDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Distance must be greater than 0")
 
 		invalidWeight := unit.Pound(0)
-		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, invalidWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, invalidWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("Weight must be a minimum of %d", minInternationalWeight))
 
 		invalidWeightDistanceMultiplier := float64(0)
-		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, invalidWeightDistanceMultiplier, idsfscFuelPrice)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, invalidWeightDistanceMultiplier, idsfscFuelPrice)
 		suite.Error(err)
 		suite.Contains(err.Error(), "WeightBasedDistanceMultiplier is required")
 
 		invalidFuelPrice := unit.Millicents(0)
-		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, invalidFuelPrice)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, invalidFuelPrice)
 		suite.Error(err)
 		suite.Contains(err.Error(), "EIAFuelPrice is required")
 	})

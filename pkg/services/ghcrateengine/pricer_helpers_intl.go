@@ -283,7 +283,7 @@ func priceIntlCratingUncrating(appCtx appcontext.AppContext, cratingUncratingCod
 	return totalCost, displayParams, nil
 }
 
-func priceIntlFuelSurcharge(_ appcontext.AppContext, fuelSurchargeCode models.ReServiceCode, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func priceIntlFuelSurchargeSIT(_ appcontext.AppContext, fuelSurchargeCode models.ReServiceCode, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	if fuelSurchargeCode != models.ReServiceCodeIOSFSC && fuelSurchargeCode != models.ReServiceCodeIDSFSC {
 		return 0, nil, fmt.Errorf("unsupported international fuel surcharge code of %s", fuelSurchargeCode)
 	}
