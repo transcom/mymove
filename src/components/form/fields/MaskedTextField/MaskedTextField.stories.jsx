@@ -86,3 +86,19 @@ export const MaskedTextFieldWithOptionalTag = () => (
     )}
   </Formik>
 );
+
+export const MaskedTextFieldWithRequiredAsterisk = () => (
+  <Formik initialValues={{}}>
+    {() => (
+      <Form>
+        <MaskedTextField
+          id="input-type-text"
+          label="Text input label"
+          name="input-type-text"
+          type="text"
+          showRequiredAsterisk
+        />
+      </Form>
+    )}
+  </Formik>
+);
