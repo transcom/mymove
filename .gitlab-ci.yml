@@ -411,7 +411,6 @@ golang_lint:
     # and print linting issues to stdout in the format: path/to/file:line description
     # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
     - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
-    - golangci-lint run --output.text.print-issued-lines=false --timeout=25m --output.text.path=stdout --output.text.colors=true code-climate:gl-code-quality-report.json,line-number
   artifacts:
       reports:
         codequality: gl-code-quality-report.json
