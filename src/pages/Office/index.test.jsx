@@ -69,6 +69,16 @@ mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
 mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
 mockPage('components/NotFound/NotFound');
 
+beforeAll(() => {
+  const mockFetch = jest.fn();
+  global.fetch = mockFetch;
+
+  mockFetch.mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve({ data: [] }),
+  });
+});
+
 afterEach(() => {
   cleanup();
 });
@@ -204,19 +214,6 @@ const renderOfficeAppAtRoute = (route, role) => {
 };
 
 describe('Office App', () => {
-  const mockOfficeProps = {
-    loadUser: jest.fn(),
-    loadInternalSchema: jest.fn(),
-    loadPublicSchema: jest.fn(),
-    logOut: jest.fn(),
-    hasRecentError: false,
-    traceId: '',
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    <OfficeApp {...mockOfficeProps} />;
-  });
   it('renders Sign In page when user is logged out', async () => {
     renderWithState(defaultState, '/sign-in');
     await waitFor(() => expect(screen.getByText(/sign in/i)).toBeInTheDocument());
