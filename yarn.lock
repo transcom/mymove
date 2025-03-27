@@ -4601,9 +4601,9 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@transcom/react-file-viewer@git://github.com/transcom/react-file-viewer#v1.4.1":
+"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#v1.4.1":
   version "1.4.1"
-  resolved "git://github.com/transcom/react-file-viewer#ac31f65d7f0338a3072ac328c6670f8f64eaad25"
+  resolved "git+https://github.com/transcom/react-file-viewer#ac31f65d7f0338a3072ac328c6670f8f64eaad25"
   dependencies:
     "@babel/plugin-proposal-class-static-block" "^7.21.0"
     comma-separated-values "^3.6.4"
