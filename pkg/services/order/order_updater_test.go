@@ -99,10 +99,16 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "77777",
+					PostalCode:         "77777",
+					UsPostRegionCityID: &usprc.ID,
 				},
 			},
 		}, nil)

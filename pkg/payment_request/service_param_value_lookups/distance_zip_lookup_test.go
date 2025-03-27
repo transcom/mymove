@@ -509,16 +509,23 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "33607",
+					PostalCode:         "33607",
+					UsPostRegionCityID: &usprc.ID,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					PostalCode: "901",
+					PostalCode:         "901",
+					UsPostRegionCityID: &usprc.ID,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},

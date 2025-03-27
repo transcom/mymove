@@ -29,7 +29,9 @@ func fakeAddressPayload() *internalmessages.Address {
 
 func (suite *HandlerSuite) TestShowAddressHandler() {
 
-	usprcId := uuid.FromStringOrNil("f365a492-fdd5-45fd-af14-db38a5aea80c")
+	usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "40339", "KEENE")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
 
 	suite.Run("successful lookup", func() {
 		address := models.Address{
@@ -39,7 +41,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 			PostalCode:         "40339",
 			County:             models.StringPointer("JESSAMINE"),
 			IsOconus:           models.BoolPointer(false),
-			UsPostRegionCityID: &usprcId,
+			UsPostRegionCityID: &usprc.ID,
 		}
 		suite.MustSave(&address)
 
