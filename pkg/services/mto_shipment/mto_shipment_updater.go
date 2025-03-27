@@ -869,6 +869,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.DestinationAddress != nil && dbShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
 				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
 
+			// Recalculate SIT service items using latest mileage.
+			// This is to ensure when UpdateEstimatedPricingForShipmentBasicServiceItems
+			// is executed it is using most up to date mileage if address changed using service_item.sit_delivery_miles.
+			err = UpdateSITServiceItemsSITIfPostalCodeChanged(f.planner, appCtx, f.addressCreator, newShipment)
+			if err != nil {
+				return err
+			}
+
 			portZip, portType, err := models.GetPortLocationInfoForShipment(appCtx.DB(), newShipment.ID)
 			if err != nil {
 				return err
@@ -898,14 +906,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					return err
 				}
 			} else {
-
-				// update mileage for origin SITs. this is to ensure when UpdateEstimatedPricingForShipmentBasicServiceItems
-				// is executed it is using most up to date mileage using lates addresses.
-				err = UpdateSITServiceItemsSITIfPostalCodeChanged(f.planner, appCtx, f.addressCreator, newShipment)
-				if err != nil {
-					return err
-				}
-
 				// if we don't have the port data, that's okay - we can update the other service items except for PODFSC/POEFSC
 				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment, nil)
 				if err != nil {
