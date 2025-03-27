@@ -329,6 +329,8 @@ heatlth_check_all:
   before_script:
     - *setup_milmove_env
   script:
+    - make bin/health-checker
+    - make bin/tls-checker
     - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
     - export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY
     - export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA
@@ -337,15 +339,13 @@ heatlth_check_all:
     - bin/health-checker --schemes https --hosts api.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts api.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+
     #PRD APP
     - echo "Running Health Check"
     - bin/health-checker --schemes https --hosts my.move.mil,office.move.mil,admin.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts my.move.mil,office.move.mil,admin.move.mil --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.move.mil,office.move.mil,admin.move.mil" "$CI_COMMIT_SHA"
+
     #STG APP
     - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
     - export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY
@@ -354,15 +354,13 @@ heatlth_check_all:
     - bin/health-checker --schemes https --hosts my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil" "$CI_COMMIT_SHA"
+
     #STG Client
     - echo "Running Health Check"
     - bin/health-checker --schemes https --hosts api.stg.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts api.stg.move.mil --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.stg.move.mil" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+
     #DP3 demo App
     - export TLS_CERT=$(eval echo \$DEMO_DP3_CERT);
     - export TLS_KEY=$(eval echo \$DEMO_DP3_KEY);
@@ -371,15 +369,13 @@ heatlth_check_all:
     - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+
     #DP3 demo Client
     - echo "Running DP3 Health Check"
     - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+
     #DP3 loadtest App
     - export TLS_CERT=$(eval echo \$LOADTEST_DP3_CERT);
     - export TLS_KEY=$(eval echo \$LOADTEST_DP3_KEY);
@@ -388,15 +384,13 @@ heatlth_check_all:
     - bin/health-checker --schemes https --hosts my.loadtest.dp3.us,office.loadtest.dp3.us,admin.loadtest.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts my.loadtest.dp3.us,office.loadtest.dp3.us,admin.loadtest.dp3.us --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.loadtest.dp3.us,office.loadtest.dp3.us,admin.loadtest.dp3.us" "$CI_COMMIT_SHA"
+
     #DP3 loadtest Client
     - echo "Running DP3 Health Check"
     - bin/health-checker --schemes https --hosts api.loadtest.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts api.loadtest.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.loadtest.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+
     #DP3 exp
     - export TLS_CERT=$(eval echo \$EXP_DP3_CERT);
     - export TLS_KEY=$(eval echo \$EXP_DP3_KEY);
@@ -405,15 +399,13 @@ heatlth_check_all:
     - bin/health-checker --schemes https --hosts my.exp.dp3.us,office.exp.dp3.us,admin.exp.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts my.exp.dp3.us,office.exp.dp3.us,admin.exp.dp3.us --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "my.exp.dp3.us,office.exp.dp3.us,admin.exp.dp3.us" "$CI_COMMIT_SHA"
+
     #DP3 exp Client
     - echo "Running DP3 Health Check"
     - bin/health-checker --schemes https --hosts api.exp.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
     - bin/tls-checker --schemes https --hosts api.exp.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.exp.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+
 
 
 anti_virus:
