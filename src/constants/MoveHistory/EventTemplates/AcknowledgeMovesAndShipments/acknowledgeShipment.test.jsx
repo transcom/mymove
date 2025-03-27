@@ -1,7 +1,6 @@
 import { screen, render } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-
 import a from 'constants/MoveHistory/Database/Actions';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
