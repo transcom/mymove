@@ -3,10 +3,8 @@
 package mocks
 
 import (
-	appcontext "github.com/transcom/mymove/pkg/appcontext"
-	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
-
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -21,7 +19,7 @@ type OfficeUserUpdater struct {
 }
 
 // UpdateOfficeUser provides a mock function with given fields: appCtx, id, payload, primaryTransportationOfficeId
-func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
+func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *models.OfficeUser, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
 	ret := _m.Called(appCtx, id, payload, primaryTransportationOfficeId)
 
 	if len(ret) == 0 {
@@ -31,10 +29,10 @@ func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id u
 	var r0 *models.OfficeUser
 	var r1 *validate.Errors
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) (*models.OfficeUser, *validate.Errors, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.OfficeUser, uuid.UUID) (*models.OfficeUser, *validate.Errors, error)); ok {
 		return rf(appCtx, id, payload, primaryTransportationOfficeId)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) *models.OfficeUser); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.OfficeUser, uuid.UUID) *models.OfficeUser); ok {
 		r0 = rf(appCtx, id, payload, primaryTransportationOfficeId)
 	} else {
 		if ret.Get(0) != nil {
@@ -42,7 +40,7 @@ func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id u
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) *validate.Errors); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *models.OfficeUser, uuid.UUID) *validate.Errors); ok {
 		r1 = rf(appCtx, id, payload, primaryTransportationOfficeId)
 	} else {
 		if ret.Get(1) != nil {
@@ -50,7 +48,7 @@ func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id u
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *models.OfficeUser, uuid.UUID) error); ok {
 		r2 = rf(appCtx, id, payload, primaryTransportationOfficeId)
 	} else {
 		r2 = ret.Error(2)

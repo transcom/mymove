@@ -413,7 +413,7 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: 'PPM Review Complete' }).click();
     await scPage.waitForPage.moveDetails();
 
     await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
