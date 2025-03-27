@@ -502,6 +502,8 @@ pre_deps_yarn:
 check_generated_code:
   stage: pre_checks
   image: $DOCKER_APP_IMAGE # Replace with the appropriate Docker image
+  tags:
+    - $Gitlab_Runner_Tag
   needs:
    - pre_deps_golang
   before_script:
@@ -1780,6 +1782,8 @@ deploy_tasks_stg:
 deploy_app_client_tls_stg:
   stage: deploy
   resource_group: staging_client
+  tags:
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
