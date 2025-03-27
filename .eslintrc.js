@@ -1,11 +1,13 @@
 module.exports = {
   plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore', 'ato'],
   extends: [
+    'react-app',
     'airbnb',
     'prettier',
     'prettier/prettier',
     'plugin:security/recommended',
     'plugin:you-dont-need-lodash-underscore/compatible',
+    'plugin:jsx-a11y/recommended',
   ],
   root: true,
   parserOptions: {
