@@ -849,25 +849,46 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 	}
 
 	// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
+	// if not, do the opposite and make the PPM type INCENTIVE_BASED
 	if order.Grade != nil && *order.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
 		moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
-		if fetchErr != nil || len(moves) == 0 {
-			appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(err))
+		if fetchErr != nil {
+			appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
 		} else {
-			move := moves[0]
-			for i := range move.MTOShipments {
-				shipment := &move.MTOShipments[i]
+			var move *models.Move
+			for i := range moves {
+				if moves[i].OrdersID == order.ID {
+					move = &moves[i]
+					break
+				}
+			}
+			if move == nil {
+				appCtx.Logger().Error("no move found matching order ID", zap.String("orderID", order.ID.String()))
+			} else {
+				// look at the values and see if the grade is CIVILIAN_EMPLOYEE
+				isCivilian := *order.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE
+				reimbursementVal := isCivilian
+				var ppmType models.PPMType
+				if isCivilian {
+					ppmType = models.PPMTypeActualExpense
+				} else {
+					ppmType = models.PPMTypeIncentiveBased
+				}
 
-				if shipment.ShipmentType == models.MTOShipmentTypePPM {
-					if shipment.PPMShipment == nil {
-						appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
-						continue
-					}
-					shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(true)
+				for i := range move.MTOShipments {
+					shipment := &move.MTOShipments[i]
+					if shipment.ShipmentType == models.MTOShipmentTypePPM && shipment.Status == models.MTOShipmentStatusSubmitted && shipment.PPMShipment.PPMType == models.PPMTypeIncentiveBased {
+						if shipment.PPMShipment == nil {
+							appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
+							continue
+						}
+						shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(reimbursementVal)
+						shipment.PPMShipment.PPMType = ppmType
 
-					if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
-						msg := "failure saving PPM shipment when updating orders"
-						appCtx.Logger().Error(msg, zap.Error(err))
+						if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
+							msg := "failure saving PPM shipment when updating orders"
+							appCtx.Logger().Error(msg, zap.Error(err))
+						}
 					}
 				}
 			}
