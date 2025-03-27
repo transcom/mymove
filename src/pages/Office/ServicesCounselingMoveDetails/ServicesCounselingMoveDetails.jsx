@@ -303,7 +303,8 @@ const ServicesCounselingMoveDetails = ({
           (shipment.ppmShipment.status === ppmShipmentStatuses.DRAFT ||
             shipment.ppmShipment.status === ppmShipmentStatuses.SUBMITTED ||
             shipment.ppmShipment.status === ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL)) ||
-        (shipment.ppmShipment.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER && move.status === MOVE_STATUSES.DRAFT)
+        (shipment.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER &&
+          move.status === MOVE_STATUSES.DRAFT)
           ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               shipmentId: shipment.id,
             })}`
