@@ -218,8 +218,8 @@ const ProGear = () => {
             setErrorMessage('Failed to save updated trip record');
           });
       })
-      .catch((error) => {
-        handleErrorMessage(error);
+      .catch(() => {
+        setErrorMessage('Failed to fetch shipment information');
       });
   };
 

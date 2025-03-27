@@ -51,6 +51,12 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 	}
 	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
 
+	if appCtx.Session().IsMilApp() {
+		if serviceMemberID != appCtx.Session().ServiceMemberID {
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "Service member ID in the Orders does not match Service member ID in the current session")
+		}
+	}
+	
 	var progearWeightTicket models.ProgearWeightTicket
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {

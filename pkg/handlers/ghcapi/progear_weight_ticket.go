@@ -60,7 +60,8 @@ func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGear
 			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), progear)
 
 			if returnPayload == nil {
-				return progearops.NewCreateProGearWeightTicketInternalServerError(), err
+				appCtx.Logger().Error("Returned Payload is empty", zap.Error(err))
+				return progearops.NewCreateProGearWeightTicketInternalServerError(), nil
 			}
 			return progearops.NewCreateProGearWeightTicketCreated().WithPayload(returnPayload), nil
 		})
