@@ -28,6 +28,7 @@ variables:
   GOPATH: "/home/transcom/go"  #Go path on the app image
   GOLANGCI_LINT_CONCURRENCY: "4"
   GOLANGCI_LINT_VERBOSE: "-v"
+  GOLANGCI_LINT_VERSION: 'v1.56.2' #update with go
 
   # Specify the environment: loadtest, demo, exp
   DP3_ENV: &dp3_env placeholder_env
@@ -405,9 +406,13 @@ golang_lint:
   interruptible: true
   tags:
     - $Gitlab_Runner_Tag
-  image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
+  image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:$GOLANGCI_LINT_VERSION # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
-    - golangci-lint run --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
+# Write the code coverage report to gl-code-quality-report.json
+    # and print linting issues to stdout in the format: path/to/file:line description
+    # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
+    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+    - golangci-lint run --output.text.print-issued-lines=false --timeout=25m --output.text.path=stdout --output.text.colors=true code-climate:gl-code-quality-report.json,line-number
   artifacts:
       reports:
         codequality: gl-code-quality-report.json
