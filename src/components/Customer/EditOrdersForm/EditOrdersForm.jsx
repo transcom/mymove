@@ -22,6 +22,7 @@ import profileImage from 'scenes/Review/images/profile.png';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
@@ -30,7 +31,6 @@ import { showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
-import { getLabelWithAsterisk, requiredAsteriskMessage } from 'utils/formLabels';
 import Hint from 'components/Hint';
 
 const EditOrdersForm = ({
@@ -265,25 +265,28 @@ const EditOrdersForm = ({
               <h2>Edit Orders:</h2>
               {requiredAsteriskMessage}
               <DropdownInput
-                label={getLabelWithAsterisk('Orders type')}
+                label="Orders type"
                 name="orders_type"
                 options={ordersTypeOptions}
                 required
+                showRequiredAsterisk
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
                 }}
               />
-              <DatePickerInput name="issue_date" label={getLabelWithAsterisk('Orders date')} required />
+              <DatePickerInput name="issue_date" label="Orders date" showRequiredAsterisk required />
               <DatePickerInput
                 name="report_by_date"
-                label={getLabelWithAsterisk(formatLabelReportByDate(values.orders_type))}
+                label={formatLabelReportByDate(values.orders_type)}
                 required
+                showRequiredAsterisk
               />
               <DutyLocationInput
-                label={getLabelWithAsterisk('Current duty location')}
+                label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
+                showRequiredAsterisk
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
                   handleCounselingOfficeChange();
@@ -294,9 +297,10 @@ const EditOrdersForm = ({
               {currentDutyLocation?.provides_services_counseling && (
                 <div>
                   <DropdownInput
-                    label={getLabelWithAsterisk('Counseling office')}
+                    label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
+                    showRequiredAsterisk
                     required
                     options={officeOptions}
                   />
@@ -332,8 +336,9 @@ const EditOrdersForm = ({
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label={getLabelWithAsterisk('HOR, PLEAD or HOS')}
+                    label="HOR, PLEAD or HOS"
                     displayAddress={false}
+                    showRequiredAsterisk
                     hint="Enter the option closest to your delivery address. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
@@ -345,7 +350,8 @@ const EditOrdersForm = ({
               ) : (
                 <DutyLocationInput
                   name="new_duty_location"
-                  label={getLabelWithAsterisk('New duty location')}
+                  label="New duty location"
+                  showRequiredAsterisk
                   displayAddress={false}
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
@@ -353,8 +359,13 @@ const EditOrdersForm = ({
                   }}
                 />
               )}
+
               <FormGroup>
-                <Label>{getLabelWithAsterisk('Are dependents included in your orders?')}</Label>
+                <Label>
+                  <span>
+                    Are dependents included in your orders? <RequiredAsterisk />
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -386,9 +397,14 @@ const EditOrdersForm = ({
                   />
                 </div>
               </FormGroup>
+
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label>{getLabelWithAsterisk('Is this an accompanied tour?')}</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -431,14 +447,16 @@ const EditOrdersForm = ({
                   </div>
                 </FormGroup>
               )}
+
               {showDependentAgeFields && (
                 <FormGroup>
                   <MaskedTextField
                     data-testid="dependentsUnderTwelve"
                     defaultValue="0"
                     name="dependents_under_twelve"
-                    label={getLabelWithAsterisk('Number of dependents under the age of 12')}
+                    label="Number of dependents under the age of 12"
                     id="dependentsUnderTwelve"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -450,23 +468,27 @@ const EditOrdersForm = ({
                     data-testid="dependentsTwelveAndOver"
                     defaultValue="0"
                     name="dependents_twelve_and_over"
-                    label={getLabelWithAsterisk('Number of dependents of the age 12 or over')}
+                    label="Number of dependents of the age 12 or over"
                     id="dependentsTwelveAndOver"
                     mask={Number}
                     scale={0}
                     signed={false}
+                    showRequiredAsterisk
                     thousandsSeparator=","
                     lazy={false}
                   />
                 </FormGroup>
               )}
+
               <DropdownInput
-                label={getLabelWithAsterisk('Pay grade')}
+                label="Pay grade"
                 name="grade"
                 id="grade"
                 required
                 options={payGradeOptions}
+                showRequiredAsterisk
               />
+
               <p>Uploads:</p>
               <UploadsTable
                 uploads={initialValues.uploaded_orders}
