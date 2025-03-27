@@ -44,8 +44,8 @@ variables:
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
-  RUNNER_TAG: &runner_tag milmove
-  DOCKER_RUNNER_TAG: &docker_runner_tag eks_cluster_runner
+  CDPS_RUNNER_TAG: &cdps_runner_tag milmove
+  EKS_CLUSTER_RUNNER_TAG: &eks_cluster_runner_tag eks_cluster_runner
 
 
   postgres: &postgres harbor.csde.caci.com/docker.io/library/postgres:16.4
@@ -426,10 +426,13 @@ golang_lint:
   stage: pre_checks
   interruptible: true
   tags:
-    - $DOCKER_RUNNER_TAG
-  image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
+    - $Gitlab_Runner_Tag
+  image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:$GOLANGCI_LINT_VERSION # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
-    - golangci-lint run --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
+# Write the code coverage report to gl-code-quality-report.json
+    # and print linting issues to stdout in the format: path/to/file:line description
+    # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
+    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
   artifacts:
       reports:
         codequality: gl-code-quality-report.json
@@ -446,8 +449,6 @@ golang_lint:
 #     - $Gitlab_Runner_Tag
 #   image: $DOCKER_APP_IMAGE
 #   services:
-#     - name: docker:dind
-#       alias: docker
 #     - name: $postgres
 #     - name: $redis
 #   before_script:
@@ -456,8 +457,6 @@ golang_lint:
 #     KUBERNETES_CPU_REQUEST: "4"
 #     KUBERNETES_MEMORY_REQUEST: "8Gi"
 #     KUBERNETES_MEMORY_LIMIT: "8Gi"
-#     DOCKER_HOST: "tcp://docker-backend.gitlab-runner.svc.cluster.local:2375"
-#     DOCKER_TLS_CERTDIR: ""
 #     APPLICATION: app
 #     # 8 since this runs on xlarge with 8 CPUs
 #     GOTEST_PARALLEL: 8
@@ -524,6 +523,8 @@ pre_deps_yarn:
 check_generated_code:
   stage: pre_checks
   image: $DOCKER_APP_IMAGE # Replace with the appropriate Docker image
+  tags:
+    - $Gitlab_Runner_Tag
   needs:
    - pre_deps_golang
   before_script:
@@ -934,12 +935,12 @@ client_test:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $EKS_CLUSTER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
   needs:
     - pre_deps_yarn
   cache:
@@ -952,8 +953,8 @@ client_test:
   dependencies:
     - pre_deps_yarn
   script:
-    - echo "client test coverage"
-    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output
+    - echo "client test coverage" | tee -a $CI_PROJECT_DIR/coverage.output
+    - JEST_JUNIT_OUTPUT_DIR=jest-junit-reports yarn test:coverage -results=false >> $CI_PROJECT_DIR/coverage.output 2>&1
   artifacts:
     when: always
     reports:
@@ -962,6 +963,7 @@ client_test:
     paths:
       - /builds/milmove/mymove/coverage
       - /builds/milmove/mymove/jest-junit-reports
+      - $CI_PROJECT_DIR/coverage.output
   after_script:
     - *announce_failure
   rules:
@@ -2015,6 +2017,8 @@ deploy_tasks_stg:
 deploy_app_client_tls_stg:
   stage: deploy
   resource_group: staging_client
+  tags:
+    - $Gitlab_Runner_Tag
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
