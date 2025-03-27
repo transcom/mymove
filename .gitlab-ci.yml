@@ -887,7 +887,7 @@ client_test:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $EKS_CLUSTER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
