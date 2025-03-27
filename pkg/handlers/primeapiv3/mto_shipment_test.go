@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primev3api/primev3operations/mto_shipment"
@@ -20,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -474,8 +476,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress3: expectedTertiaryDestinationAddress.StreetAddress3,
 		}
 
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest: req,
+			HTTPRequest: req.WithContext(ctx),
 			Body: &primev3messages.CreateMTOShipment{
 				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
 				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
@@ -777,8 +795,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress3: addressWithEmptyStreet1.StreetAddress3,
 		}
 
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest: req,
+			HTTPRequest: req.WithContext(ctx),
 			Body: &primev3messages.CreateMTOShipment{
 				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
 				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
