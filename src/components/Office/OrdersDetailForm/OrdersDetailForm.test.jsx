@@ -71,15 +71,17 @@ function renderOrdersDetailForm(props) {
 describe('OrdersDetailForm', () => {
   it('renders the Form', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+    expect(await screen.findByText('Current duty location')).toBeInTheDocument();
 
     // hidden fields are default visible
-    expect(screen.getByLabelText('Department indicator')).toBeInTheDocument();
-    expect(screen.getByLabelText('Orders number')).toBeInTheDocument();
-    expect(screen.getByLabelText('Orders type detail')).toBeInTheDocument();
-    expect(screen.queryAllByLabelText('TAC').length).toBe(2);
+    expect(screen.getByLabelText('Department indicator *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Orders number *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Orders type detail *')).toBeInTheDocument();
+    expect(screen.getByLabelText('TAC *')).toBeInTheDocument();
     expect(screen.queryAllByLabelText('SAC').length).toBe(2);
     expect(screen.getByLabelText('I have read the new orders')).toBeInTheDocument();
+    expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+    expect(screen.getByTestId('reqAsteriskMsg').textContent).toContain('Fields marked with * are required.');
   });
 
   it('renders the Form disabled with all information if flag is passed', async () => {
@@ -126,17 +128,17 @@ describe('OrdersDetailForm', () => {
 
   it('accepts deptIndicatorOptions prop', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Department indicator')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Department indicator *')).toBeInTheDocument();
   });
 
   it('accepts ordersTypeOptions prop', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Orders type')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Orders type *')).toBeInTheDocument();
   });
 
   it('accepts ordersTypeDetailOptions prop', async () => {
     renderOrdersDetailForm();
-    expect(await screen.findByLabelText('Orders type detail')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Orders type detail *')).toBeInTheDocument();
   });
 
   it('accepts showOrdersAcknowledgement prop', async () => {
@@ -180,13 +182,13 @@ describe('OrdersDetailForm', () => {
     });
 
     // fields are visible
-    expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
 
     // fields are hidden
-    expect(screen.queryByLabelText('Department indicator')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Orders number')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Orders type detail')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('TAC')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Department indicator *')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Orders number *')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Orders type detail *')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('TAC *')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('SAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('I have read the new orders')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Line of Accounting Preview')).not.toBeInTheDocument();
@@ -207,8 +209,8 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Date of retirement')).toBeInTheDocument();
-    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Date of retirement *')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD *')).toBeInTheDocument();
   });
 
   it('has the right labels for a separatee', async () => {
@@ -225,8 +227,8 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Date of separation')).toBeInTheDocument();
-    expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Date of separation *')).toBeInTheDocument();
+    expect(await screen.findByLabelText('HOR, HOS or PLEAD *')).toBeInTheDocument();
   });
 
   it('has orders type dropdown disabled if safety move', async () => {
@@ -243,7 +245,7 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Orders type')).toBeDisabled();
+    expect(await screen.findByLabelText('Orders type *')).toBeDisabled();
   });
   it('has orders type dropdown disabled if bluebark move', async () => {
     renderOrdersDetailForm({
@@ -259,7 +261,7 @@ describe('OrdersDetailForm', () => {
     });
 
     // correct labels are visible
-    expect(await screen.findByLabelText('Orders type')).toBeDisabled();
+    expect(await screen.findByLabelText('Orders type *')).toBeDisabled();
   });
 
   it('renders dependents authorized checkbox field', async () => {

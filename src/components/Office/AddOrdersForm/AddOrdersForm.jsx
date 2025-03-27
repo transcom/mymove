@@ -22,6 +22,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import { showCounselingOffices } from 'services/ghcApi';
+import { getLabelWithAsterisk, requiredAsteriskMessage } from 'utils/formLabels';
 import Hint from 'components/Hint';
 
 let originMeta;
@@ -237,8 +238,9 @@ const AddOrdersForm = ({
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders type"
+                label={getLabelWithAsterisk('Orders type')}
                 name="ordersType"
                 options={filteredOrderTypeOptions}
                 required
@@ -247,13 +249,12 @@ const AddOrdersForm = ({
                   handleOrderTypeChange(e);
                 }}
                 isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
-                hint="Required"
               />
-              <DatePickerInput name="issueDate" label="Orders date" required hint="Required" />
-              <DatePickerInput name="reportByDate" label="Report by date" required hint="Required" />
+              <DatePickerInput name="issueDate" label={getLabelWithAsterisk('Orders date')} required />
+              <DatePickerInput name="reportByDate" label={getLabelWithAsterisk('Report by date')} required />
 
               <DutyLocationInput
-                label="Current duty location"
+                label={getLabelWithAsterisk('Current duty location')}
                 name="originDutyLocation"
                 id="originDutyLocation"
                 onDutyLocationChange={(e) => {
@@ -262,16 +263,14 @@ const AddOrdersForm = ({
                 }}
                 metaOverride={originMeta}
                 required
-                hint="Required"
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
                   <DropdownInput
-                    label="Counseling office"
+                    label={getLabelWithAsterisk('Counseling office')}
                     name="counselingOfficeId"
                     id="counselingOfficeId"
                     data-testid="counselingOfficeSelect"
-                    hint="Required"
                     required
                     options={counselingOfficeOptions}
                   />
@@ -308,11 +307,10 @@ const AddOrdersForm = ({
                   </Callout>
                   <DutyLocationInput
                     name="newDutyLocation"
-                    label="HOR, PLEAD or HOS"
+                    label={getLabelWithAsterisk('HOR, PLEAD or HOS')}
                     displayAddress={false}
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
-                    hint="Required"
                     onDutyLocationChange={(e) => {
                       setNewDutyLocation(e);
                     }}
@@ -321,9 +319,8 @@ const AddOrdersForm = ({
               ) : (
                 <DutyLocationInput
                   name="newDutyLocation"
-                  label="New duty location"
+                  label={getLabelWithAsterisk('New duty location')}
                   required
-                  hint="Required"
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -332,7 +329,7 @@ const AddOrdersForm = ({
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in the orders?</Label>
+                <Label>{getLabelWithAsterisk('Are dependents included in the orders?')}</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -367,7 +364,7 @@ const AddOrdersForm = ({
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>{getLabelWithAsterisk('Is this an accompanied tour?')}</Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -417,7 +414,7 @@ const AddOrdersForm = ({
                     data-testid="dependentsUnderTwelve"
                     defaultValue="0"
                     name="dependentsUnderTwelve"
-                    label="Number of dependents under the age of 12"
+                    label={getLabelWithAsterisk('Number of dependents under the age of 12')}
                     id="dependentsUnderTwelve"
                     mask={Number}
                     scale={0}
@@ -430,7 +427,7 @@ const AddOrdersForm = ({
                     data-testid="dependentsTwelveAndOver"
                     defaultValue="0"
                     name="dependentsTwelveAndOver"
-                    label="Number of dependents of the age 12 or over"
+                    label={getLabelWithAsterisk('Number of dependents of the age 12 or over')}
                     id="dependentsTwelveAndOver"
                     mask={Number}
                     scale={0}
@@ -442,12 +439,11 @@ const AddOrdersForm = ({
               )}
 
               <DropdownInput
-                label="Pay grade"
+                label={getLabelWithAsterisk('Pay grade')}
                 name="grade"
                 id="grade"
                 required
                 options={payGradeOptions}
-                hint="Required"
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);

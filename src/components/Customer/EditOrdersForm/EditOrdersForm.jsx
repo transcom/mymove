@@ -35,6 +35,7 @@ import { showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
+import { getLabelWithAsterisk, requiredAsteriskMessage } from 'utils/formLabels';
 import Hint from 'components/Hint';
 
 const EditOrdersForm = ({
@@ -314,29 +315,27 @@ const EditOrdersForm = ({
             </h1>
             <SectionWrapper className={formStyles.formSection}>
               <h2>Edit Orders:</h2>
+              {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders type"
+                label={getLabelWithAsterisk('Orders type')}
                 name="orders_type"
                 options={ordersTypeOptions}
                 required
-                hint="Required"
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
                 }}
               />
-              <DatePickerInput name="issue_date" label="Orders date" hint="Required" required />
+              <DatePickerInput name="issue_date" label={getLabelWithAsterisk('Orders date')} required />
               <DatePickerInput
                 name="report_by_date"
-                label={formatLabelReportByDate(values.orders_type)}
+                label={getLabelWithAsterisk(formatLabelReportByDate(values.orders_type))}
                 required
-                hint="Required"
               />
               <DutyLocationInput
-                label="Current duty location"
+                label={getLabelWithAsterisk('Current duty location')}
                 name="origin_duty_location"
                 id="origin_duty_location"
-                hint="Required"
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
                   handleCounselingOfficeChange();
@@ -347,10 +346,9 @@ const EditOrdersForm = ({
               {currentDutyLocation?.provides_services_counseling && (
                 <div>
                   <DropdownInput
-                    label="Counseling office"
+                    label={getLabelWithAsterisk('Counseling office')}
                     name="counseling_office_id"
                     id="counseling_office_id"
-                    hint="Required"
                     required
                     options={officeOptions}
                   />
@@ -386,7 +384,7 @@ const EditOrdersForm = ({
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
+                    label={getLabelWithAsterisk('HOR, PLEAD or HOS')}
                     displayAddress={false}
                     hint="Enter the option closest to your delivery address. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
@@ -399,7 +397,7 @@ const EditOrdersForm = ({
               ) : (
                 <DutyLocationInput
                   name="new_duty_location"
-                  label="New duty location"
+                  label={getLabelWithAsterisk('New duty location')}
                   displayAddress={false}
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
@@ -407,9 +405,8 @@ const EditOrdersForm = ({
                   }}
                 />
               )}
-
               <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
+                <Label>{getLabelWithAsterisk('Are dependents included in your orders?')}</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -441,10 +438,9 @@ const EditOrdersForm = ({
                   />
                 </div>
               </FormGroup>
-
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>{getLabelWithAsterisk('Is this an accompanied tour?')}</Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -487,16 +483,14 @@ const EditOrdersForm = ({
                   </div>
                 </FormGroup>
               )}
-
               {showDependentAgeFields && (
                 <FormGroup>
                   <MaskedTextField
                     data-testid="dependentsUnderTwelve"
                     defaultValue="0"
                     name="dependents_under_twelve"
-                    label="Number of dependents under the age of 12"
+                    label={getLabelWithAsterisk('Number of dependents under the age of 12')}
                     id="dependentsUnderTwelve"
-                    labelHint="Required"
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -508,31 +502,27 @@ const EditOrdersForm = ({
                     data-testid="dependentsTwelveAndOver"
                     defaultValue="0"
                     name="dependents_twelve_and_over"
-                    label="Number of dependents of the age 12 or over"
+                    label={getLabelWithAsterisk('Number of dependents of the age 12 or over')}
                     id="dependentsTwelveAndOver"
                     mask={Number}
                     scale={0}
                     signed={false}
-                    labelHint="Required"
                     thousandsSeparator=","
                     lazy={false}
                   />
                 </FormGroup>
               )}
-
               <DropdownInput
-                label="Pay grade"
+                label={getLabelWithAsterisk('Pay grade')}
                 name="grade"
                 id="grade"
                 required
                 options={payGradeOptions}
-                hint="Required"
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
                 }}
               />
-
               <p>Uploads:</p>
               <UploadsTable
                 uploads={initialValues.uploaded_orders}
