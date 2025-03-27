@@ -3,6 +3,7 @@ package mtoserviceitem
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"slices"
 	"strconv"
 	"time"
@@ -207,10 +208,10 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 	return 0, nil
 }
 
-func calcTotalSITDuration(entry time.Time, departure time.Time) time.Duration {
-	duration := departure.Sub(entry) / 24
-
-	return duration
+func calcTotalSITDuration(entryDate, departureDate time.Time) int {
+	difference := departureDate.Sub(entryDate)
+	days := difference.Hours() / 24
+	return int(math.Ceil(days))
 }
 
 func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
@@ -238,8 +239,11 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		}
 
 		var adjustedWeight *unit.Pound
-		if mtoShipment.PrimeEstimatedWeight != nil {
+		if isPPM {
+			adjustedWeight = GetAdjustedWeight(*mtoShipment.PPMShipment.EstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+		} else if mtoShipment.PrimeEstimatedWeight != nil {
 			adjustedWeight = GetAdjustedWeight(*mtoShipment.PrimeEstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+
 		} else {
 			return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No estimated weight exists for this service item.")
 		}
@@ -295,13 +299,15 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 				return 0, err
 			}
 
+			daysSIT := calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+
 			price, _, err = o.destinationAddlPricer.Price(
 				appCtx,
 				contractCode,
 				requestedPickupDate,
 				*adjustedWeight,
 				domesticServiceArea.ServiceArea,
-				int(calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)),
+				daysSIT,
 				false)
 			if err != nil {
 				return 0, err
@@ -332,6 +338,8 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			if err != nil {
 				return 0, err
 			}
+		default:
+			price = 0
 			// case models.ReServiceCodeDOPSIT:
 			// case models.ReServiceCodeDOFSIT:
 			// case models.ReServiceCodeDOASIT:

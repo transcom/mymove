@@ -63,6 +63,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 					},
 				},
 			}, nil)
+
+			// if check here for shipment fetch not found
+			if subtestData.mtoShipment.PPMShipment != nil {
+				subtestData.mtoShipment.PPMShipment.EstimatedWeight = models.PoundPointer(1000)
+			}
+			err := suite.DB().Save(&subtestData.mtoShipment)
+			suite.NoError(err)
 		} else {
 			if isInternational {
 				subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -84,6 +91,10 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 					},
 				}, nil)
 			}
+
+			subtestData.mtoShipment.PrimeEstimatedWeight = models.PoundPointer(1000)
+			err := suite.DB().Save(&subtestData.mtoShipment)
+			suite.NoError(err)
 		}
 
 		if isInternational {
@@ -110,6 +121,20 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		if isInternational {
 			serviceCode = models.ReService{Code: models.ReServiceCodeIOFSIT}
 		}
+
+		startDate := time.Now().AddDate(-10, 0, 0)
+		endDate := startDate.AddDate(10, 1, 1)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
+				},
+			})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:                   mto.ID,
@@ -1080,12 +1105,30 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 	}
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
+		startDate := time.Now().AddDate(-1, 0, 0)
+		endDate := startDate.AddDate(1, 1, 1)
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
+				},
+			})
+
 		subtestData = &localSubtestData{}
 		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+				},
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
@@ -1277,6 +1320,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 	sitEntryDate := time.Now().Add(time.Hour * 24)
+	sitDepartureDate := time.Now().Add(time.Hour * 72)
 
 	type localSubtestData struct {
 		mto            models.Move
@@ -1287,12 +1331,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		subtestData.mto = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		estimatedPrimeWeight := unit.Pound(6000)
 		pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
@@ -1321,12 +1359,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
-		startDate := time.Now().AddDate(-1, 0, 0)
-		endDate := startDate.AddDate(1, 1, 1)
-		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+		startDate := time.Now().AddDate(-10, 0, 0)
+		endDate := startDate.AddDate(10, 1, 1)
 
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					Name:                 "Test Contract Year",
@@ -1335,51 +1372,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 					EndDate:              endDate,
 				},
 			})
-
-		serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
-			testdatagen.Assertions{
-				ReDomesticServiceArea: models.ReDomesticServiceArea{
-					Contract:         contractYear.Contract,
-					ServiceArea:      "945",
-					ServicesSchedule: 1,
-				},
-			})
-
-		serviceAreaDest := testdatagen.MakeReDomesticServiceArea(suite.DB(),
-			testdatagen.Assertions{
-				ReDomesticServiceArea: models.ReDomesticServiceArea{
-					Contract:         contractYear.Contract,
-					ServiceArea:      "503",
-					ServicesSchedule: 1,
-				},
-			})
-
-		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
-			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
-				FuelPriceInMillicents: unit.Millicents(281400),
-				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
-				EffectiveDate:         time.Date(2020, time.March, 10, 0, 0, 0, 0, time.UTC),
-				EndDate:               time.Date(2035, time.March, 17, 0, 0, 0, 0, time.UTC),
-			},
-		})
-
-		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Contract:            contract,
-				ContractID:          contract.ID,
-				DomesticServiceArea: serviceArea,
-				Zip3:                "945",
-			},
-		})
-
-		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Contract:            contract,
-				ContractID:          contract.ID,
-				DomesticServiceArea: serviceAreaDest,
-				Zip3:                "503",
-			},
-		})
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{
@@ -1402,10 +1394,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 			},
-			CreatedAt:     time.Now(),
-			UpdatedAt:     time.Now(),
-			SITEntryDate:  &sitEntryDate,
-			SITPostalCode: models.StringPointer("99999"),
+			CreatedAt:                 time.Now(),
+			UpdatedAt:                 time.Now(),
+			SITEntryDate:              &sitEntryDate,
+			SITDepartureDate:          &sitDepartureDate,
+			SITPostalCode:             models.StringPointer("94510"),
+			SITOriginHHGActualAddress: subtestData.mtoShipment.PickupAddress,
 		}
 		subtestData.params = mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
@@ -1450,12 +1444,14 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 
 		mtoServiceItemDDFSIT := models.MTOServiceItem{
-			MoveTaskOrderID: subtestData.mto.ID,
-			MTOShipmentID:   &subtestData.mtoShipment.ID,
-			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
-			Description:     handlers.FmtString("description"),
-			SITEntryDate:    &sitEntryDate,
-			Reason:          models.StringPointer("lorem ipsum"),
+			MoveTaskOrderID:           subtestData.mto.ID,
+			MTOShipmentID:             &subtestData.mtoShipment.ID,
+			ReService:                 models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Description:               handlers.FmtString("description"),
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             models.StringPointer("94510"),
+			SITOriginHHGActualAddress: subtestData.mtoShipment.PickupAddress,
+			Reason:                    models.StringPointer("lorem ipsum"),
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
