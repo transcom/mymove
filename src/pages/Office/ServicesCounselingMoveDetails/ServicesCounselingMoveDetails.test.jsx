@@ -1902,8 +1902,6 @@ describe('MoveDetails page', () => {
 
         renderComponent();
 
-        screen.debug(undefined, 100000);
-
         expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
         // Add a new shipment ButtonDropdown is now used for PPMs at any point in move process
         expect(screen.queryByRole('combobox')).toBeInTheDocument();
