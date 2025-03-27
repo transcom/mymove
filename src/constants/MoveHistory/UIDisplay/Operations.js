@@ -1,6 +1,7 @@
 export default {
   acknowledgeExcessWeightRisk: 'acknowledgeExcessWeightRisk',
   acknowledgeExcessUnaccompaniedBaggageWeightRisk: 'acknowledgeExcessUnaccompaniedBaggageWeightRisk',
+  acknowledgeMovesAndShipments: 'acknowledgeMovesAndShipments', // prime.yaml
   approveShipment: 'approveShipment', // ghc.yaml
   approveShipments: 'approveShipments', // ghc.yaml
   approveShipmentDiversion: 'approveShipmentDiversion',
