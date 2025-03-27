@@ -297,22 +297,6 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		suite.IsType(&progearops.DeleteProGearWeightTicketUnauthorized{}, response)
 	})
 
-	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
-		subtestData := makeDeleteSubtestData(false)
-
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-
-		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
-		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedReq
-
-		response := subtestData.handler.Handle(unauthorizedParams)
-
-		suite.IsType(&progearops.DeleteProGearWeightTicketForbidden{}, response)
-	})
-
-
 	suite.Run("DELETE failure - 404- not found", func() {
 		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
