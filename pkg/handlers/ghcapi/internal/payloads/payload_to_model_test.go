@@ -474,6 +474,7 @@ func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
 		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
 		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
 		suite.Equal(belongsToSelf, *result.BelongsToSelf)
+		suite.Equal(reason, *result.Reason)
 		suite.Equal(description, *result.Description)
 		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
 	})

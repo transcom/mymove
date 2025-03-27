@@ -64,8 +64,9 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 	suite.Run("Successfully creates a ProgearWeightTicket - Office", func() {
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+		officeId, _ := uuid.NewV4()
 		session := &auth.Session{
-			ServiceMemberID: serviceMemberID,
+			OfficeUserID:    officeId,
 			ApplicationName: auth.OfficeApp,
 		}
 
@@ -80,9 +81,9 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 	})
 
 	suite.Run("Fails when an invalid ppmShipmentID is used - Office", func() {
-		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		officeId, _ := uuid.NewV4()
 		session := &auth.Session{
-			ServiceMemberID: serviceMember.ID,
+			OfficeUserID:    officeId,
 			ApplicationName: auth.OfficeApp,
 		}
 

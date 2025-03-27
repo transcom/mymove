@@ -34,9 +34,9 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		if authenticateRequest {
-			req = suite.AuthenticateRequest(req, serviceMember)
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
 		}
 		subtestData.params = progearops.CreateProGearWeightTicketParams{
 			HTTPRequest:   req,
@@ -76,18 +76,12 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		suite.IsType(&progearops.CreateProGearWeightTicketBadRequest{}, response)
 	})
 
-	suite.Run("POST failure - 404 - not found - wrong service member", func() {
+	suite.Run("POST failure -401 - Unauthorized - unauthenticated user", func() {
 		subtestData := makeCreateSubtestData(false)
 
-		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
-		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateRequest(req, unauthorizedUser)
-		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedReq
+		response := subtestData.handler.Handle(subtestData.params)
 
-		response := subtestData.handler.Handle(unauthorizedParams)
-
-		suite.IsType(&progearops.CreateProGearWeightTicketNotFound{}, response)
+		suite.IsType(&progearops.CreateProGearWeightTicketUnauthorized{}, response)
 	})
 
 	suite.Run("Post failure - 500 - Server Error", func() {
@@ -264,12 +258,12 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		// Fake data:
 		subtestData.progearWeightTicket = factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.progearWeightTicket.PPMShipment
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/pro-gear-weight-tickets/%s", subtestData.ppmShipment.ID.String(), subtestData.progearWeightTicket.ID.String())
 		req := httptest.NewRequest("DELETE", endpoint, nil)
 		if authenticateRequest {
-			req = suite.AuthenticateRequest(req, serviceMember)
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
 		}
 		subtestData.params = progearops.
 			DeleteProGearWeightTicketParams{
@@ -318,21 +312,6 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		suite.IsType(&progearops.DeleteProGearWeightTicketForbidden{}, response)
 	})
 
-	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
-		subtestData := makeDeleteSubtestData(false)
-
-		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)
-		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedReq
-
-		response := subtestData.handler.Handle(unauthorizedParams)
-
-		suite.IsType(&progearops.DeleteProGearWeightTicketForbidden{}, response)
-	})
-
 	suite.Run("DELETE failure - 404- not found", func() {
 		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
@@ -347,7 +326,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
@@ -358,7 +337,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
 		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
 

@@ -10,7 +10,7 @@ import {
   selectMTOShipmentById,
   selectProGearWeightTicketAndIndexById,
   selectServiceMemberFromLoggedInUser,
-  selectOrdersForLoggedInUser,
+  selectProGearEntitlements,
 } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -39,8 +39,7 @@ const ProGear = () => {
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
 
-  const orders = useSelector((state) => selectOrdersForLoggedInUser(state));
-  const entitlements = Object.values(orders)?.[0].entitlement;
+  const proGearEntitlements = useSelector((state) => selectProGearEntitlements(state));
 
   const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, proGearId } = useParams();
@@ -99,7 +98,7 @@ const ProGear = () => {
     if (error?.response?.status === 412) {
       setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
     } else {
-      setErrorMessage('Failed to save updated trip record');
+      setErrorMessage('Failed to fetch shipment information');
     }
   };
 
@@ -262,7 +261,7 @@ const ProGear = () => {
               </p>
             </div>
             <ProGearForm
-              entitlements={entitlements}
+              entitlements={proGearEntitlements}
               proGear={currentProGearWeightTicket}
               setNumber={currentIndex + 1}
               onBack={handleBack}

@@ -26,6 +26,16 @@ type CreateProGearWeightTicketHandler struct {
 func (h CreateProGearWeightTicketHandler) Handle(params progearops.CreateProGearWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return progearops.NewCreateProGearWeightTicketUnauthorized(), noSessionErr
+			}
+			if !appCtx.Session().IsOfficeApp() {
+				return progearops.NewCreateProGearWeightTicketForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
 				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
@@ -142,7 +152,6 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 				return progearops.NewDeleteProGearWeightTicketForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
 
-			// Make sure the service member is not modifying another service member's PPM
 			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 
 			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())

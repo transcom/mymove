@@ -68,8 +68,6 @@ const mockProGearWeightTicket = {
 
 const mockDocumentId = v4();
 
-const mockWeightTicketETag = window.btoa(new Date());
-
 const mockUploads = [
   {
     id: '299e2fb4-432d-4261-bbed-d8280c6090af',
@@ -235,18 +233,15 @@ describe('Pro-gear page', () => {
       expect(patchProGearWeightTicket).toHaveBeenCalledWith({
         ppmShipmentId: mockPPMShipmentId,
         proGearWeightTicketId: mockProGearWeightTicketId,
-        eTag: mockWeightTicketETag,
+        eTag: mockProGearWeightTicketETag,
         payload: {
+          hasWeightTickets: true,
           belongsToSelf: false,
           description: 'Professional gear',
           weight: 100,
           eTag: mockMTOShipment.eTag,
-          ppmShipment: {
-            id: mockProGearWeightTicketWithUploads.ppmShipmentId,
-          },
+          ppmShipmentId: mockPPMShipmentId,
           shipmentType: 'PPM',
-          actualSpouseProGearWeight: 100,
-          actualProGearWeight: NaN,
           shipmentLocator: undefined,
         },
       });
