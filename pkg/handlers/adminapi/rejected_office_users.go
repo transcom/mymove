@@ -104,7 +104,7 @@ var rejectedOfficeUserFilterConverters = map[string]func(string) func(*pop.Query
 	},
 	"rejectedOn": func(content string) func(*pop.Query) {
 		return func(query *pop.Query) {
-			trimAllZero, trimDayZero, trimMonthZero, noTrim  := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
+			trimAllZero, trimDayZero, trimMonthZero, noTrim := fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content), fmt.Sprintf("%%%s%%", content)
 			query.Where("(TO_CHAR(office_users.rejected_on, 'FMMM/FMDD/YYYY') ILIKE ? OR TO_CHAR(office_users.rejected_on, 'MM/FMDD/YYYY') ILIKE ? OR TO_CHAR(office_users.rejected_on, 'FMMM/DD/YYYY') ILIKE ? OR TO_CHAR(office_users.rejected_on, 'MM/DD/YYYY') ILIKE ?) AND office_users.status = 'REJECTED'", trimAllZero, trimDayZero, trimMonthZero, noTrim)
 		}
 	},
