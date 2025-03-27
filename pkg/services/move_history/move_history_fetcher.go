@@ -63,7 +63,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			nil,
 		)
 	} else {
-		query = appCtx.DB().RawQuery(rawQuery, params.Locator)
+		query = appCtx.DB().RawQuery(rawQuery, locator).Paginate(int(*params.Page), int(*params.PerPage))
 	}
 
 	err = query.All(&audits)
