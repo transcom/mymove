@@ -8140,7 +8140,7 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
-      serviceItems:
+      approvalRequestTypes:
         type: array
         items:
           type: string
