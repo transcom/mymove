@@ -1277,8 +1277,6 @@ describe('MoveDetails page', () => {
 
         renderComponent();
 
-        screen.debug(undefined, 100000);
-
         expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument(); // Add a new shipment ButtonDropdown
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
