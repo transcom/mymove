@@ -1028,6 +1028,16 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
 	}
 
+	if ppmShipment.WeightTickets != nil {
+		weightTickets := WeightTickets(storer, ppmShipment.WeightTickets)
+		payloadPPMShipment.WeightTickets = weightTickets
+	}
+
+	if ppmShipment.FinalIncentive != nil {
+		finalIncentive := handlers.FmtCost(ppmShipment.FinalIncentive)
+		payloadPPMShipment.FinalIncentive = finalIncentive
+	}
+
 	if ppmShipment.SITLocation != nil {
 		sitLocation := ghcmessages.SITLocationType(*ppmShipment.SITLocation)
 		payloadPPMShipment.SitLocation = &sitLocation
@@ -2940,4 +2950,13 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 		}
 	}
 	return nil
+}
+
+// ClientError describes errors in a standard structure to be returned in the payload
+func ClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
+	return &ghcmessages.ClientError{
+		Title:    handlers.FmtString(title),
+		Detail:   handlers.FmtString(detail),
+		Instance: handlers.FmtUUID(instance),
+	}
 }

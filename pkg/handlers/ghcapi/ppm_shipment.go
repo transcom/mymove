@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -231,5 +232,52 @@ func (h SendPPMToCustomerHandler) Handle(params ppm.SendPPMToCustomerParams) mid
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
 			return ppm.NewSendPPMToCustomerOK().WithPayload(returnPayload), nil
+		})
+}
+
+// SubmitPPMShipmentDocumentationHandler is the handler to save a PPMShipment signature and route the PPM shipment to the office
+type SubmitPPMShipmentDocumentationHandler struct {
+	handlers.HandlerConfig
+	services.PPMShipmentNewSubmitter
+}
+
+// Handle saves a new customer signature for PPMShipment documentation submission and routes PPM shipment to the
+// service counselor.
+func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetPPMSITEstimatedCost error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return ppm.NewGetPPMSITEstimatedCostNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return ppm.NewGetPPMSITEstimatedCostForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return ppm.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
+				default:
+					return ppm.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
+				}
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				appCtx.Logger().Error("error with PPM Shipment ID", zap.Error(err))
+				return handleError(err)
+			} else if ppmShipmentID.IsNil() {
+				appCtx.Logger().Error("nil PPM Shipment ID")
+				return nil, errors.New("nil PPM shipment ID")
+			}
+
+			ppmShipment, err := h.PPMShipmentNewSubmitter.SubmitNewCustomerCloseOut(appCtx, ppmShipmentID, models.SignedCertification{})
+			if err != nil {
+				appCtx.Logger().Error("internalapi.SubmitPPMShipmentDocumentationHandler", zap.Error(err))
+				return handleError(err)
+			}
+
+			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
+
+			return ppm.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
 }

@@ -37,6 +37,11 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, apperror.NewBadDataError("PPM ID is required")
 	}
 
+	nilCert := models.SignedCertification{}
+	if signedCertification == nilCert && !appCtx.Session().IsOfficeApp() {
+		return nil, apperror.NewBadDataError("SignedCertification is required for customers")
+	}
+
 	ppmShipment, err := p.GetPPMShipment(
 		appCtx,
 		ppmShipmentID,
@@ -58,12 +63,14 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, err
 	}
 
-	signedCertification.SubmittingUserID = appCtx.Session().UserID
-	signedCertification.MoveID = ppmShipment.Shipment.MoveTaskOrderID
-	signedCertification.PpmID = &ppmShipment.ID
+	if signedCertification != nilCert {
+		signedCertification.SubmittingUserID = appCtx.Session().UserID
+		signedCertification.MoveID = ppmShipment.Shipment.MoveTaskOrderID
+		signedCertification.PpmID = &ppmShipment.ID
 
-	certType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification.CertificationType = &certType
+		certType := models.SignedCertificationTypePPMPAYMENT
+		signedCertification.CertificationType = &certType
+	}
 
 	var updatedPPMShipment models.PPMShipment
 
@@ -92,12 +99,6 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 	updatedPPMShipment.AllowableWeight = &allowableWeight
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		updatedPPMShipment.SignedCertification, err = p.SignedCertificationCreator.CreateSignedCertification(txnAppCtx, signedCertification)
-
-		if err != nil {
-			return err
-		}
-
 		err = p.PPMShipmentRouter.SubmitCloseOutDocumentation(txnAppCtx, &updatedPPMShipment)
 
 		if err != nil {
