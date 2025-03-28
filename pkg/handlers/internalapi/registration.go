@@ -184,6 +184,28 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 				if user.Profile.Email == oktaEmail && *user.Profile.CacEdipi == *oktaEdipi {
 					exactMatch = true
 					oktaUser = &users[i]
+
+					groups, err := models.GetOktaUserGroups(appCtx, provider, apiKey, oktaUser.ID)
+					if err != nil {
+						return nil, err
+					}
+
+					// checking if user is already in customer group
+					found := false
+					for _, group := range groups {
+						if group.ID == customerGroupID {
+							found = true
+							break
+						}
+					}
+
+					if !found {
+						err = models.AddOktaUserToGroup(appCtx, provider, apiKey, customerGroupID, oktaUser.ID)
+						if err != nil {
+							return nil, err
+						}
+					}
+
 					break
 				}
 			}
