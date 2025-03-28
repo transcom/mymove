@@ -309,7 +309,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
 	})
 
-	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
+	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and proGear ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 

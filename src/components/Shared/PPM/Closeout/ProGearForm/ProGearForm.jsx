@@ -5,7 +5,7 @@ import { func, number } from 'prop-types';
 import { ErrorMessage, Button, Form, FormGroup, Link, Radio } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
+import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
 import styles from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm.module.scss';
 import { formatWeight } from 'utils/formatters';
 import Fieldset from 'shared/Fieldset';

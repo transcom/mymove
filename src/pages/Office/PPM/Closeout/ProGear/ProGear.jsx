@@ -4,7 +4,7 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import { APP_NAME } from 'constants/apps';
-import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
+import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -14,6 +14,7 @@ import {
   createUploadForPPMDocument,
   deleteUploadForDocument,
   updateMTOShipment,
+  getMTOShipments,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -58,6 +59,7 @@ const ProGear = () => {
     },
   });
 
+  const { mutate: mutateGetMtoShipments } = useMutation(getMTOShipments);
   const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment);
   const { mutate: mutatePatchProGearWeightTicket } = useMutation(patchProGearWeightTicket, {
     onSuccess: () => {
@@ -137,7 +139,6 @@ const ProGear = () => {
       ppmShipmentId: mtoShipment.ppmShipment.id,
       shipmentType: mtoShipment.shipmentType,
       shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
       description: values.description,
       weight: Number(values.weight),
     };
@@ -150,7 +151,7 @@ const ProGear = () => {
     });
   };
 
-  const updateShipment = (values) => {
+  const updateShipment = (values, moveTaskOrderID, shipmentToUpdate) => {
     const belongsToSelf = values.belongsToSelf === 'true';
     let proGear;
     let spouseProGear;
@@ -164,22 +165,28 @@ const ProGear = () => {
     const shipmentPayload = {
       belongsToSelf,
       ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
+        id: shipmentToUpdate.ppmShipment.id,
       },
-      shipmentType: mtoShipment.shipmentType,
+      shipmentType: shipmentToUpdate.shipmentType,
       actualSpouseProGearWeight: parseInt(spouseProGear, 10),
       actualProGearWeight: parseInt(proGear, 10),
       shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
+      eTag: shipmentToUpdate.eTag,
     };
 
-    const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
     mutateUpdateMtoShipment({
       moveTaskOrderID,
-      shipmentID: shipmentId,
+      shipmentID: shipmentToUpdate.id,
       ifMatchETag: shipmentPayload.eTag,
       body: shipmentPayload,
     });
+  };
+
+  const getShipments = (values) => {
+    const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
+    const shipmentToUpdate = mutateGetMtoShipments(moveTaskOrderID);
+
+    updateShipment(values, moveTaskOrderID, shipmentToUpdate);
   };
 
   const handleSubmit = async (values) => {
@@ -188,7 +195,7 @@ const ProGear = () => {
     setIsSubmitted(true);
     setErrorMessage(null);
     updateProGearWeightTicket(values);
-    updateShipment(values);
+    getShipments(values);
   };
 
   const renderError = () => {
@@ -210,28 +217,30 @@ const ProGear = () => {
     return renderError() || <LoadingPlaceholder />;
   }
   return (
-    <div className={ppmPageStyles.ppmPageStyle}>
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <ShipmentTag shipmentType={shipmentTypes.PPM} />
-            <h1>Pro-gear</h1>
-            {renderError()}
-            <ProGearForm
-              entitlements={entitlements}
-              proGear={currentProGearWeightTicket}
-              setNumber={currentIndex + 1}
-              onCreateUpload={handleCreateUpload}
-              onUploadComplete={handleUploadComplete}
-              onUploadDelete={handleUploadDelete}
-              onBack={handleBack}
-              onSubmit={handleSubmit}
-              isSubmitted={isSubmitted}
-              appName={appName}
-            />
+    <div className={ppmPageStyles.tabContent}>
+      <div className={ppmPageStyles.container}>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentTag shipmentType={shipmentTypes.PPM} />
+              <h1>Pro-gear</h1>
+              {renderError()}
+              <ProGearForm
+                entitlements={entitlements}
+                proGear={currentProGearWeightTicket}
+                setNumber={currentIndex + 1}
+                onCreateUpload={handleCreateUpload}
+                onUploadComplete={handleUploadComplete}
+                onUploadDelete={handleUploadDelete}
+                onBack={handleBack}
+                onSubmit={handleSubmit}
+                isSubmitted={isSubmitted}
+                appName={appName}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </div>
     </div>
   );
 };

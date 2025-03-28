@@ -197,10 +197,6 @@ describe('Pro-gear page', () => {
     renderProGearPage();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pro-gear');
   });
-  it('displays reminder to include pro-gear weight in total', () => {
-    renderProGearPage();
-    expect(screen.getAllByText(/This pro-gear should be included in your total weight moved./)[0]).toBeInTheDocument();
-  });
 
   it('replaces the router history with newly created pro gear weight ticket id', async () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);

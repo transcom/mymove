@@ -237,12 +237,11 @@ describe('Pro-gear page', () => {
         payload: {
           hasWeightTickets: true,
           belongsToSelf: false,
-          description: 'Professional gear',
-          weight: 100,
-          eTag: mockMTOShipment.eTag,
           ppmShipmentId: mockPPMShipmentId,
           shipmentType: 'PPM',
           shipmentLocator: undefined,
+          description: 'Professional gear',
+          weight: 100,
         },
       });
     });
