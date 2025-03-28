@@ -31,7 +31,7 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     await expect(errorMessage).not.toBeVisible();
 
     const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
-    const secondaryPickupLocation = 'YUMA, AZ 85369 (YUMA)';
+    const secondaryPickupLocation = 'YUMA, AZ 85364 (YUMA)';
 
     await page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
     await page.locator('input[name="pickupAddress.address.streetAddress1"]').clear();
@@ -48,7 +48,7 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').fill('123 Street');
     await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').clear();
     await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').blur();
-    await page.locator('input[id="secondaryPickupAddress.address-input"]').fill('85369');
+    await page.locator('input[id="secondaryPickupAddress.address-input"]').fill('85364');
     await expect(page.getByText(secondaryPickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 

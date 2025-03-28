@@ -153,7 +153,7 @@ test.describe('(MultiMove) HHG', () => {
 
     // Update form (adding pickup and delivery address)
     const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
-    const secondaryPickupLocation = 'YUMA, AZ 85369 (YUMA)';
+    const secondaryPickupLocation = 'YUMA, AZ 85364 (YUMA)';
     const deliveryLocation = 'YUMA, AZ 85367 (YUMA)';
     const secondaryDeliveryLocation = 'YUMA, AZ 85366 (YUMA)';
 
@@ -168,7 +168,7 @@ test.describe('(MultiMove) HHG', () => {
     await pickupAddress.getByText('Yes').click();
     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
     await pickupAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryPickup.address-input"]').fill('85369');
+    await page.locator('input[id="secondaryPickup.address-input"]').fill('85364');
     await expect(page.getByText(secondaryPickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
