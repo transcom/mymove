@@ -228,7 +228,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+      expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
     });
 
@@ -254,7 +254,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      const ordersTypeDropdown = screen.getByLabelText('Orders type');
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
       await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
@@ -287,7 +287,7 @@ describe('Orders page', () => {
 
       expect(await screen.findByText(mockOriginDutyLocation.name)).toBeInTheDocument();
       expect(screen.getByText(mockDestinationDutyLocation.name)).toBeInTheDocument();
-      expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+      expect(screen.getByLabelText('Orders type *')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
       expect(screen.getByTestId('hhgTacInput')).toHaveValue('F8E1');
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
@@ -596,7 +596,7 @@ describe('Orders page', () => {
       );
 
       // Select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
 
       // Submit the form
@@ -640,7 +640,7 @@ describe('Orders page', () => {
       );
 
       // De-select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
       // Submit the form
@@ -684,7 +684,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
 
@@ -729,7 +729,7 @@ describe('Orders page', () => {
       );
 
       // Select STUDENT_TRAVEL and then select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
@@ -780,7 +780,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
       // Submit the form
@@ -824,7 +824,7 @@ describe('Orders page', () => {
       );
 
       // De-select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
       // Submit the form
@@ -868,7 +868,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
 
@@ -913,7 +913,7 @@ describe('Orders page', () => {
       );
 
       // Select EARLY_RETURN_OF_DEPENDENTS and then select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
       await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
 
