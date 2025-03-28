@@ -9,7 +9,7 @@ test.describe('HHG', () => {
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -115,7 +115,7 @@ test.describe('(MultiMove) HHG', () => {
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -152,29 +152,32 @@ test.describe('(MultiMove) HHG', () => {
     await customerPage.waitForPage.hhgShipment();
 
     // Update form (adding pickup and delivery address)
-    const location = 'ATCO, NJ 08004 (CAMDEN)';
+    const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
+    const secondaryPickupLocation = 'YUMA, AZ 85369 (YUMA)';
+    const deliveryLocation = 'YUMA, AZ 85367 (YUMA)';
+    const secondaryDeliveryLocation = 'YUMA, AZ 85366 (YUMA)';
+
     const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
-    await page.locator('input[id="pickup.address-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.locator('input[id="pickup.address-input"]').fill('90210');
+    await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Secondary pickup address
     await pickupAddress.getByText('Yes').click();
     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
     await pickupAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryPickup.address-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.locator('input[id="secondaryPickup.address-input"]').fill('85369');
+    await expect(page.getByText(secondaryPickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Delivery address
-    const deliveryLocation = 'HOLLYWOOD, MD 20636 (SAINT MARYS)';
     const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
-    await page.locator('input[id="delivery.address-input"]').fill('20636');
+    await page.locator('input[id="delivery.address-input"]').fill('85367');
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -182,8 +185,8 @@ test.describe('(MultiMove) HHG', () => {
     await deliveryAddress.getByText('Yes').nth(1).click();
     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryDelivery.address-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.locator('input[id="secondaryDelivery.address-input"]').fill('85366');
+    await expect(page.getByText(secondaryDeliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 
@@ -225,7 +228,7 @@ test.describe('(MultiMove) HHG', () => {
   }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
