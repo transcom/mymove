@@ -107,7 +107,7 @@ const ShipmentInfoList = ({
     </div>
   );
 
-  const requestedPickupDateElementFlags = getDisplayFlags('scheduledPickupDate');
+  const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
     <div className={requestedPickupDateElementFlags.classes}>
       <dt>Requested pickup date</dt>
