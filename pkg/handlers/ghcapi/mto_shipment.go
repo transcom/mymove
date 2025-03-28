@@ -159,6 +159,8 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment",
+				"PPMShipment.WeightTickets",
+				"PPMShipment.FinalIncentive",
 				"BoatShipment",
 				"MobileHome",
 				"Distance"}
