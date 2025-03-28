@@ -935,12 +935,12 @@ client_test:
   stage: test
   interruptible: true
   tags:
-    - $EKS_CLUSTER_RUNNER_TAG
+    - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "12Gi"
-    KUBERNETES_MEMORY_LIMIT: "12Gi"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
     - pre_deps_yarn
   cache:
@@ -1108,9 +1108,9 @@ integration_test_mtls:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
-    KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    # KUBERNETES_CPU_REQUEST: "2"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
     # FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
@@ -1260,9 +1260,9 @@ integration_test_admin:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
-    KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    # KUBERNETES_CPU_REQUEST: "2"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
     # FF_NETWORK_PER_BUILD: "true"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
@@ -1344,9 +1344,9 @@ integration_test_my:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
-    KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    # KUBERNETES_CPU_REQUEST: "2"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1425,9 +1425,9 @@ integration_test_office:
       command: ["serve"]
   variables:
     CI_DEBUG_SERVICES: "true"
-    KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
-    KUBERNETES_MEMORY_LIMIT: "6Gi"
+    # KUBERNETES_CPU_REQUEST: "2"
+    # KUBERNETES_MEMORY_REQUEST: "6Gi"
+    # KUBERNETES_MEMORY_LIMIT: "6Gi"
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
