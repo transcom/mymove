@@ -219,6 +219,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				PerPage:                    params.PerPage,
 				Sort:                       params.Sort,
 				Order:                      params.Order,
+				OrderType:                  params.OrderType,
 				TOODestinationAssignedUser: params.AssignedTo,
 				CounselingOffice:           params.CounselingOffice,
 			}
