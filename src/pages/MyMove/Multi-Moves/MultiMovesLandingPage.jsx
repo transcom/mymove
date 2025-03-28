@@ -115,12 +115,14 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           ) : (
             <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
               <p data-testid="welcomeHeaderPrevMoves">
-                Select &quot;Create a Move&quot; to get started. <br />
-                <br />
-                Once you have validated your profile, please click the &quot;Validate&quot; button and proceed to
-                starting your move. <br />
-                If you encounter any issues please contact your local Transportation Office or the Help Desk for further
-                assistance.
+                Select &quot;Create a Move&quot; to get started. If you already have a move, select &quot;Go to
+                Move&quot; on the applicable move code below. <br /> <br />
+                If you are creating a new move and have an existing profile, please validate your information, click the
+                &quot;Validate Profile&quot; button and proceed to starting your move.
+                <br /> <br />
+                If you encounter any issues please contact your local Transportation Office or the
+                <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
+                for further assistance.
               </p>
             </Helper>
           )}
