@@ -78,6 +78,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 
 const ShipmentForm = (props) => {
@@ -643,7 +644,7 @@ const ShipmentForm = (props) => {
           hasTertiaryDelivery,
         } = values;
 
-        const isCivilian = serviceMember?.grade === 'CIVILIAN_EMPLOYEE';
+        const isCivilian = serviceMember?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
         if (!ppmType) {
           const type = isCivilian ? PPM_TYPES.ACTUAL_EXPENSE : PPM_TYPES.INCENTIVE_BASED;
           setValues({

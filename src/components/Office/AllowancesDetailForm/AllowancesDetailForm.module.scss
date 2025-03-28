@@ -53,6 +53,31 @@
     display: block;
   }
 
+  .civilianUBAllowanceWarning {
+    display: flex;
+    align-items: center;
+    color: #6e7377 !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-size: 13px !important;
+  }
+
+  .labelwithToolTip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 5px;
+    font-weight: bold;
+  }
+
+  .toolTipText {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 5px;
+    font-weight: normal !important;
+  }
+
   :global(.usa-form-group:not(:first-child)) {
     @include u-margin-top(4);
   }
