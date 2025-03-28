@@ -24,6 +24,7 @@ function Footer() {
                 </li>
                 <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
                   <a
+                    id="helpMeLink"
                     className="usa-footer__primary-link"
                     href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"
                   >
