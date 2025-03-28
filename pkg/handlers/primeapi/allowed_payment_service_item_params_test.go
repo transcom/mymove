@@ -16,6 +16,9 @@ var allowedParamsTestCases = []paramTestCase{
 	{models.ReServiceCodeDDASIT, "SITPaymentRequestEnd"},
 	{models.ReServiceCodeDOASIT, "SITPaymentRequestStart"},
 	{models.ReServiceCodeDOASIT, "SITPaymentRequestEnd"},
+	{models.ReServiceCodeIUBPK, "WeightBilled"},
+	{models.ReServiceCodeIUBUPK, "WeightBilled"},
+	{models.ReServiceCodeUBP, "WeightBilled"},
 }
 
 var invalidParamsTestCases = []paramTestCase{
