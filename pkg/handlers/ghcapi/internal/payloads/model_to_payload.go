@@ -2444,6 +2444,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
 			// Ensure assignedUser and assignedID are not nil before proceeding
 			if assignedUser != nil && assignedID != nil {
+
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
 					if officeUser.ID == *assignedID {
