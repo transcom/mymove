@@ -89,7 +89,9 @@ const TextField = ({
     <FormGroup className={formGroupClasses} error={showError}>
       <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
-          {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          <span>
+            {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
         {optional && <OptionalTag />}
       </div>
