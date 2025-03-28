@@ -350,11 +350,11 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 			return []models.Move{}, 0, gblocErr
 		}
 	}
-	privileges, priveErr := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-	if priveErr == nil && privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+	privileges, privErr := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 		hasSafetyPrivilege = true
-	} else if priveErr != nil {
-		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(priveErr))
+	} else if privErr != nil {
+		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
 	}
 	// calling the database function with all passed in parameters
 	err := appCtx.DB().RawQuery("SELECT * FROM get_destination_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
