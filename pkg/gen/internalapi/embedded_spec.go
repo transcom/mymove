@@ -157,43 +157,6 @@ func init() {
         }
       }
     },
-    "/application_parameters": {
-      "post": {
-        "description": "Searches for an application parameter by name and value, returns nil if not found",
-        "tags": [
-          "application_parameters"
-        ],
-        "summary": "Searches for an application parameter by name and value, returns nil if not found",
-        "operationId": "validate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Application Parameters",
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -1662,6 +1625,43 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -9057,43 +9057,6 @@ func init() {
         }
       }
     },
-    "/application_parameters": {
-      "post": {
-        "description": "Searches for an application parameter by name and value, returns nil if not found",
-        "tags": [
-          "application_parameters"
-        ],
-        "summary": "Searches for an application parameter by name and value, returns nil if not found",
-        "operationId": "validate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Application Parameters",
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -10650,6 +10613,43 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }

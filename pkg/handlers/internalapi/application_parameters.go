@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -32,6 +33,12 @@ type ApplicationParametersValidateHandler struct {
 func (h ApplicationParametersValidateHandler) Handle(params application_parameters.ValidateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// we are only allowing this to be called from the customer app
+			// since this is an open route outside of auth, we want to buckle down on validation here
+			if !appCtx.Session().IsMilApp() {
+				return application_parameters.NewValidateUnauthorized(), apperror.NewSessionError("Request is not from the customer application")
+			}
 
 			// receive the value
 			value := params.Body.ParameterValue
