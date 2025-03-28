@@ -23,7 +23,10 @@ function Footer() {
                   </a>
                 </li>
                 <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
-                  <a className="usa-footer__primary-link" href="mailto:usarmy.scott.sddc.mbx.g6-src-dps-hd@army.mil">
+                  <a
+                    className="usa-footer__primary-link"
+                    href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"
+                  >
                     Help Me
                   </a>
                 </li>
