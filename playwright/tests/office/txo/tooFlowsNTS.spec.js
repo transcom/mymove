@@ -185,7 +185,7 @@ test.describe('TOO user', () => {
       await page.getByLabel('Date issued').fill('1234');
       await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
       await page
-        .getByLabel('Orders type', { exact: true })
+        .getByLabel('Orders type *', { exact: true })
         .selectOption({ label: 'Permanent Change Of Station (PCS)' });
       await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 

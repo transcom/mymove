@@ -35,10 +35,11 @@ describe('MaskedTextField', () => {
 
     it('render a Label', () => {
       const label = wrapper.find(FormGroup).find(Label);
+      const labelChild = wrapper.find(FormGroup).find(Label).dive();
       expect(label.length).toBe(1);
       expect(label.prop('error')).toBe(true);
       expect(label.prop('htmlFor')).toBe('firstName');
-      expect(label.prop('children')).toContain('First Name');
+      expect(labelChild.text()).toContain('First Name');
     });
 
     it('render a IMaskInput', () => {
@@ -109,7 +110,8 @@ describe('MaskedTextField', () => {
     );
 
     it('renders a required asterisk', () => {
-      const asterisk = wrapper.find('[data-testid="requiredAsterisk"]');
+      const requiredAsterisk = wrapper.find('RequiredAsterisk').dive();
+      const asterisk = requiredAsterisk.find('[data-testid="requiredAsterisk"]');
       expect(asterisk.exists()).toBe(true);
     });
   });
