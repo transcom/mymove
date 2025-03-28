@@ -71,6 +71,75 @@ func (suite *ModelSuite) TestCreateOktaUser() {
 	suite.Equal("newFakeOktaID", createdUser.ID)
 }
 
+func (suite *ModelSuite) TestGetOktaUserGroups_Success() {
+	const milProviderName = "milProvider"
+	provider, err := factory.BuildOktaProvider(milProviderName)
+	suite.NoError(err)
+	userID := "fakeUserID"
+
+	// create a JSON response that returns two groups
+	groupsJSON := `[
+	{"id": "group1", "profile": { "name": "Test Group 1", "description": "Description 1" }},
+	{"id": "group2", "profile": { "name": "Test Group 2", "description": "Description 2" }}
+	]`
+
+	groupsEndpoint := provider.GetUserGroupsURL(userID)
+	httpmock.RegisterResponder("GET", groupsEndpoint,
+		httpmock.NewStringResponder(200, groupsJSON))
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	groups, err := models.GetOktaUserGroups(suite.AppContextForTest(), provider, "fakeKey", userID)
+	suite.NoError(err)
+	suite.Equal(2, len(groups))
+	suite.Equal("group1", groups[0].ID)
+	suite.Equal("Test Group 1", groups[0].Profile.Name)
+}
+
+func (suite *ModelSuite) TestAddOktaUserToGroup_Success() {
+	const milProviderName = "milProvider"
+	provider, err := factory.BuildOktaProvider(milProviderName)
+	suite.NoError(err)
+	groupID := "group123"
+	userID := "user456"
+
+	// okta returns a 204 with an empty body when successful
+	url := provider.AddUserToGroupURL(groupID, userID)
+	httpmock.RegisterResponder("PUT", url, httpmock.NewStringResponder(204, ""))
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	err = models.AddOktaUserToGroup(suite.AppContextForTest(), provider, "fakeKey", groupID, userID)
+	suite.NoError(err)
+}
+
+func (suite *ModelSuite) TestAddOktaUserToGroup_Failure() {
+	const milProviderName = "milProvider"
+	provider, err := factory.BuildOktaProvider(milProviderName)
+	suite.NoError(err)
+	groupID := "group123"
+	userID := "user456"
+
+	// simulate an error response from Okta.
+	errorResponse := `{
+		"errorCode": "E0000001",
+		"errorSummary": "Invalid group",
+		"errorLink": "http://example.com",
+		"errorId": "abc123",
+		"errorCauses": []
+	}`
+
+	url := provider.AddUserToGroupURL(groupID, userID)
+	httpmock.RegisterResponder("PUT", url, httpmock.NewStringResponder(200, errorResponse))
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// call the function and verify that it returns an error
+	err = models.AddOktaUserToGroup(suite.AppContextForTest(), provider, "fakeKey", groupID, userID)
+	suite.Error(err)
+	suite.Contains(err.Error(), "Invalid group")
+}
+
 func mockAndActivateOktaGETEndpointExistingUserNoError(provider *okta.Provider) {
 	getUsersEndpoint := provider.GetUsersURL()
 	oktaID := "fakeOktaID"
