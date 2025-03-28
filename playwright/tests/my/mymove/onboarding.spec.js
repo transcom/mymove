@@ -11,9 +11,6 @@ test.describe('Onboarding', () => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
 
-    // Input validation code
-    await customerPage.submitParameterValue();
-
     // Branch/DOD ID section
     await customerPage.waitForPage.onboardingDodId();
     await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
@@ -66,12 +63,6 @@ test.describe('(MultiMove) Onboarding', () => {
   test('A customer can go through onboarding', async ({ page, customerPage }) => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
-
-    // if the user needs to input a validation code
-    const validationCodeInput = page.locator('[name="code"]');
-    if (await validationCodeInput.isVisible()) {
-      await customerPage.submitParameterValue();
-    }
 
     // Branch/DOD ID/Rank section
     await customerPage.waitForPage.onboardingDodId();

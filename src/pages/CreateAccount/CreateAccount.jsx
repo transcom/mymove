@@ -26,6 +26,8 @@ import RegistrationConfirmationModal from 'components/RegistrationConfirmationMo
 import { registerUser } from 'services/internalApi';
 import Hint from 'components/Hint';
 import { technicalHelpDeskURL } from 'shared/constants';
+import ValidationCode from 'pages/MyMove/Profile/ValidationCode';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
 export const CreateAccount = ({ setShowLoadingSpinner }) => {
   const navigate = useNavigate();
@@ -33,6 +35,8 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
   const [showEmplid, setShowEmplid] = useState(false);
   const [isCACModalVisible, setIsCACModalVisible] = useState(false);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+  const [showValidationCode, setShowValidationCode] = useState(false);
+  const [validationCodeFF, setValidationCodeFF] = useState(null);
   const [showHint, setShowHint] = useState(false);
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
 
@@ -42,17 +46,34 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
       ? 'https://milmove.okta.mil/enduser/settings'
       : 'https://test-milmove.okta.mil/enduser/settings';
 
-  // timer that shows the CAC modal as soon as the component renders
   useEffect(() => {
-    setServerError(false);
-    setShowHint(false);
-    setIsConfirmationModalVisible(false);
-    const timer = setTimeout(() => {
-      setIsCACModalVisible(true);
-    }, 200);
+    let timer;
 
-    return () => clearTimeout(timer);
+    const fetchFeatureFlag = async () => {
+      const flagEnabled = await isBooleanFlagEnabledUnauthenticated('validation_code_required');
+      setValidationCodeFF(flagEnabled);
+      if (flagEnabled) {
+        setShowValidationCode(true);
+      } else {
+        timer = setTimeout(() => {
+          setIsCACModalVisible(true);
+        }, 200);
+      }
+    };
+
+    fetchFeatureFlag();
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, []);
+
+  const handleSuccessfulValidation = () => {
+    setShowValidationCode(false);
+    setIsCACModalVisible(true);
+  };
 
   const handleCACModalYes = () => {
     setIsCACModalVisible(false);
@@ -181,229 +202,233 @@ export const CreateAccount = ({ setShowLoadingSpinner }) => {
       <RegistrationConfirmationModal isOpen={isConfirmationModalVisible} onSubmit={handleConfirmationModalYes} />
       <NotificationScrollToTop dependency={serverError} />
       <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }} className={styles.formContainer}>
-            {serverError && (
-              <Grid row>
-                <Alert
-                  data-testid="alert2"
-                  type="error"
-                  headingLevel="h4"
-                  heading="An error occurred"
-                  className={styles.error}
-                >
-                  {serverError}
-                </Alert>
-              </Grid>
-            )}
-            <Formik
-              initialValues={initialValues}
-              onSubmit={handleSubmit}
-              validateOnMount
-              validateOnChange
-              validateOnBlur
-              validationSchema={validationSchema}
-            >
-              {({ isSubmitting, isValid, values, setValues, handleChange }) => {
-                const handleBranchChange = (e) => {
-                  if (e.target.value === departmentIndicators.COAST_GUARD) {
-                    setShowEmplid(true);
-                    setValues({
-                      ...values,
-                      affiliation: e.target.value,
-                    });
-                  } else if (e.target.value !== departmentIndicators.COAST_GUARD) {
-                    setShowEmplid(false);
-                    setValues({
-                      ...values,
-                      affiliation: e.target.value,
-                    });
-                  } else {
-                    setShowEmplid(false);
-                    setValues({
-                      ...values,
-                      affiliation: e.target.value,
-                      edipi: '',
-                      emplid: null,
-                    });
-                  }
-                };
-                return (
-                  <Form className={formStyles.formSection}>
-                    <SectionWrapper>
-                      <div className={styles.centerColumn}>
-                        <h2>MilMove Registration</h2>
-                        {showHint && (
-                          <Hint className={styles.hint}>
-                            MilMove uses Okta for authentication. If you need to access an exsiting Okta account, you
-                            can access the Okta dashboard by{' '}
-                            <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
-                              <strong> clicking this link</strong>.
-                            </a>
-                            <br />
-                            <br />
-                            If you continue to have issues with registration <br />
-                            please contact the&nbsp;
-                            <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
-                              Technical Help Desk
-                            </Link>
-                          </Hint>
-                        )}
-                      </div>
-                      <div className={styles.formSection}>
-                        <DropdownInput
-                          label="Branch of service"
-                          name="affiliation"
-                          id="affiliation"
-                          data-testid="affiliationInput"
-                          required
-                          showRequiredAsterisk
-                          onChange={(e) => {
-                            handleChange(e);
-                            handleBranchChange(e);
-                          }}
-                          options={branchOptions}
-                        />
-                        <TextField
-                          label="DoD ID number"
-                          name="edipi"
-                          id="edipi"
-                          maxLength="10"
-                          data-testid="edipiInput"
-                          required
-                          showRequiredAsterisk
-                        />
-                        <TextField
-                          label="Confirm DoD ID number"
-                          name="edipiConfirmation"
-                          id="edipiConfirmation"
-                          maxLength="10"
-                          data-testid="edipiConfirmationInput"
-                          disablePaste
-                          required
-                          showRequiredAsterisk
-                        />
-                        {showEmplid && (
-                          <>
-                            <TextField
-                              label="EMPLID"
-                              name="emplid"
-                              id="emplid"
-                              maxLength="7"
-                              inputMode="numeric"
-                              pattern="[0-9]{7}"
-                              data-testid="emplidInput"
-                              required
-                              showRequiredAsterisk
-                            />
-                            <TextField
-                              label="Confirm EMPLID"
-                              name="emplidConfirmation"
-                              id="emplidConfirmation"
-                              maxLength="7"
-                              inputMode="numeric"
-                              pattern="[0-9]{7}"
-                              data-testid="emplidConfirmationInput"
-                              disablePaste
-                              required
-                              showRequiredAsterisk
-                            />
-                          </>
-                        )}
-                        <StyledLine />
-                        <TextField
-                          label="First Name"
-                          name="firstName"
-                          id="firstName"
-                          data-testid="firstName"
-                          required
-                          showRequiredAsterisk
-                        />
-                        <TextField
-                          label="Middle Initial"
-                          name="middleInitial"
-                          id="middleInitial"
-                          data-testid="middleInitial"
-                        />
-                        <TextField
-                          label="Last Name"
-                          name="lastName"
-                          id="lastName"
-                          data-testid="lastName"
-                          required
-                          showRequiredAsterisk
-                        />
-                        <StyledLine />
-                        <TextField
-                          label="Email"
-                          name="email"
-                          id="email"
-                          data-testid="email"
-                          required
-                          showRequiredAsterisk
-                        />
-                        <TextField
-                          label="Confirm Email"
-                          name="emailConfirmation"
-                          id="emailConfirmation"
-                          disablePaste
-                          data-testid="emailConfirmation"
-                          required
-                          showRequiredAsterisk
-                        />
-                        <StyledLine />
-                        <MaskedTextField
-                          label="Telephone"
-                          id="telephone"
-                          name="telephone"
-                          type="tel"
-                          minimum="12"
-                          mask="000{-}000{-}0000"
-                          data-testid="telephone"
-                          required
-                          showRequiredAsterisk
-                        />
-                        <MaskedTextField
-                          label="Secondary Telephone"
-                          id="secondaryTelephone"
-                          name="secondaryTelephone"
-                          type="tel"
-                          minimum="12"
-                          mask="000{-}000{-}0000"
-                          data-testid="secondaryTelephone"
-                        />
-                        <Label className={styles.checkboxLabel}>Preferred contact method</Label>
-                        <div className={classNames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
-                          <CheckboxField
-                            id="phoneIsPreferred"
-                            label="Phone"
-                            name="phoneIsPreferred"
-                            data-testid="phoneIsPreferred"
-                          />
-                          <CheckboxField
-                            id="emailIsPreferred"
-                            label="Email"
-                            name="emailIsPreferred"
-                            data-testid="emailIsPreferred"
-                          />
+        {showValidationCode && validationCodeFF ? (
+          <ValidationCode onSuccess={handleSuccessfulValidation} />
+        ) : (
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }} className={styles.formContainer}>
+              {serverError && (
+                <Grid row>
+                  <Alert
+                    data-testid="alert2"
+                    type="error"
+                    headingLevel="h4"
+                    heading="An error occurred"
+                    className={styles.error}
+                  >
+                    {serverError}
+                  </Alert>
+                </Grid>
+              )}
+              <Formik
+                initialValues={initialValues}
+                onSubmit={handleSubmit}
+                validateOnMount
+                validateOnChange
+                validateOnBlur
+                validationSchema={validationSchema}
+              >
+                {({ isSubmitting, isValid, values, setValues, handleChange }) => {
+                  const handleBranchChange = (e) => {
+                    if (e.target.value === departmentIndicators.COAST_GUARD) {
+                      setShowEmplid(true);
+                      setValues({
+                        ...values,
+                        affiliation: e.target.value,
+                      });
+                    } else if (e.target.value !== departmentIndicators.COAST_GUARD) {
+                      setShowEmplid(false);
+                      setValues({
+                        ...values,
+                        affiliation: e.target.value,
+                      });
+                    } else {
+                      setShowEmplid(false);
+                      setValues({
+                        ...values,
+                        affiliation: e.target.value,
+                        edipi: '',
+                        emplid: null,
+                      });
+                    }
+                  };
+                  return (
+                    <Form className={formStyles.formSection}>
+                      <SectionWrapper>
+                        <div className={styles.centerColumn}>
+                          <h2>MilMove Registration</h2>
+                          {showHint && (
+                            <Hint className={styles.hint}>
+                              MilMove uses Okta for authentication. If you need to access an exsiting Okta account, you
+                              can access the Okta dashboard by{' '}
+                              <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
+                                <strong> clicking this link</strong>.
+                              </a>
+                              <br />
+                              <br />
+                              If you continue to have issues with registration <br />
+                              please contact the&nbsp;
+                              <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                                Technical Help Desk
+                              </Link>
+                            </Hint>
+                          )}
                         </div>
-                      </div>
-                    </SectionWrapper>
+                        <div className={styles.formSection}>
+                          <DropdownInput
+                            label="Branch of service"
+                            name="affiliation"
+                            id="affiliation"
+                            data-testid="affiliationInput"
+                            required
+                            showRequiredAsterisk
+                            onChange={(e) => {
+                              handleChange(e);
+                              handleBranchChange(e);
+                            }}
+                            options={branchOptions}
+                          />
+                          <TextField
+                            label="DoD ID number"
+                            name="edipi"
+                            id="edipi"
+                            maxLength="10"
+                            data-testid="edipiInput"
+                            required
+                            showRequiredAsterisk
+                          />
+                          <TextField
+                            label="Confirm DoD ID number"
+                            name="edipiConfirmation"
+                            id="edipiConfirmation"
+                            maxLength="10"
+                            data-testid="edipiConfirmationInput"
+                            disablePaste
+                            required
+                            showRequiredAsterisk
+                          />
+                          {showEmplid && (
+                            <>
+                              <TextField
+                                label="EMPLID"
+                                name="emplid"
+                                id="emplid"
+                                maxLength="7"
+                                inputMode="numeric"
+                                pattern="[0-9]{7}"
+                                data-testid="emplidInput"
+                                required
+                                showRequiredAsterisk
+                              />
+                              <TextField
+                                label="Confirm EMPLID"
+                                name="emplidConfirmation"
+                                id="emplidConfirmation"
+                                maxLength="7"
+                                inputMode="numeric"
+                                pattern="[0-9]{7}"
+                                data-testid="emplidConfirmationInput"
+                                disablePaste
+                                required
+                                showRequiredAsterisk
+                              />
+                            </>
+                          )}
+                          <StyledLine />
+                          <TextField
+                            label="First Name"
+                            name="firstName"
+                            id="firstName"
+                            data-testid="firstName"
+                            required
+                            showRequiredAsterisk
+                          />
+                          <TextField
+                            label="Middle Initial"
+                            name="middleInitial"
+                            id="middleInitial"
+                            data-testid="middleInitial"
+                          />
+                          <TextField
+                            label="Last Name"
+                            name="lastName"
+                            id="lastName"
+                            data-testid="lastName"
+                            required
+                            showRequiredAsterisk
+                          />
+                          <StyledLine />
+                          <TextField
+                            label="Email"
+                            name="email"
+                            id="email"
+                            data-testid="email"
+                            required
+                            showRequiredAsterisk
+                          />
+                          <TextField
+                            label="Confirm Email"
+                            name="emailConfirmation"
+                            id="emailConfirmation"
+                            disablePaste
+                            data-testid="emailConfirmation"
+                            required
+                            showRequiredAsterisk
+                          />
+                          <StyledLine />
+                          <MaskedTextField
+                            label="Telephone"
+                            id="telephone"
+                            name="telephone"
+                            type="tel"
+                            minimum="12"
+                            mask="000{-}000{-}0000"
+                            data-testid="telephone"
+                            required
+                            showRequiredAsterisk
+                          />
+                          <MaskedTextField
+                            label="Secondary Telephone"
+                            id="secondaryTelephone"
+                            name="secondaryTelephone"
+                            type="tel"
+                            minimum="12"
+                            mask="000{-}000{-}0000"
+                            data-testid="secondaryTelephone"
+                          />
+                          <Label className={styles.checkboxLabel}>Preferred contact method</Label>
+                          <div className={classNames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
+                            <CheckboxField
+                              id="phoneIsPreferred"
+                              label="Phone"
+                              name="phoneIsPreferred"
+                              data-testid="phoneIsPreferred"
+                            />
+                            <CheckboxField
+                              id="emailIsPreferred"
+                              label="Email"
+                              name="emailIsPreferred"
+                              data-testid="emailIsPreferred"
+                            />
+                          </div>
+                        </div>
+                      </SectionWrapper>
 
-                    <div className={styles.buttonRow}>
-                      <Button type="submit" disabled={!isValid || isSubmitting} data-testid="submitBtn">
-                        Submit
-                      </Button>
-                      <Button type="button" onClick={handleCancel} secondary data-testid="cancelBtn">
-                        Cancel
-                      </Button>
-                    </div>
-                  </Form>
-                );
-              }}
-            </Formik>
+                      <div className={styles.buttonRow}>
+                        <Button type="submit" disabled={!isValid || isSubmitting} data-testid="submitBtn">
+                          Submit
+                        </Button>
+                        <Button type="button" onClick={handleCancel} secondary data-testid="cancelBtn">
+                          Cancel
+                        </Button>
+                      </div>
+                    </Form>
+                  );
+                }}
+              </Formik>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </GridContainer>
     </div>
   );

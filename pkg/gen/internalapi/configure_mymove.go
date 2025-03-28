@@ -34,6 +34,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/validation_code"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/internal.yaml --api-package internaloperations --model-package internalmessages --server-package internalapi --principal interface{} --exclude-main
@@ -419,6 +420,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.ApplicationParametersValidateHandler == nil {
 		api.ApplicationParametersValidateHandler = application_parameters.ValidateHandlerFunc(func(params application_parameters.ValidateParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.Validate has not yet been implemented")
+		})
+	}
+	if api.ValidationCodeValidateCodeHandler == nil {
+		api.ValidationCodeValidateCodeHandler = validation_code.ValidateCodeHandlerFunc(func(params validation_code.ValidateCodeParams) middleware.Responder {
+			return middleware.NotImplemented("operation validation_code.ValidateCode has not yet been implemented")
 		})
 	}
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {

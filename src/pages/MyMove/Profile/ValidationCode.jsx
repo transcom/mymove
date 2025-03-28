@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
@@ -9,14 +8,12 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { getResponseError, validateCode } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { customerRoutes } from 'constants/routes';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 
-export const ValidationCode = () => {
-  const navigate = useNavigate();
+export const ValidationCode = ({ onSuccess }) => {
   const [serverError, setServerError] = useState(null);
   const [validationError, setValidationError] = useState(null);
 
@@ -34,7 +31,7 @@ export const ValidationCode = () => {
       .then((response) => {
         const { parameterValue } = response.body;
         if (parameterValue === body.parameterValue) {
-          navigate(customerRoutes.DOD_INFO_PATH);
+          onSuccess();
         } else {
           setValidationError('Please try again');
         }

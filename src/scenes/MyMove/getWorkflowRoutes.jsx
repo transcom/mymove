@@ -18,7 +18,6 @@ import BackupAddress from 'pages/MyMove/Profile/BackupAddress';
 import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review/Review';
 import Agreement from 'pages/MyMove/Agreement';
-import ValidationCode from 'pages/MyMove/Profile/ValidationCode';
 
 const PageNotInFlow = () => (
   <div className="usa-grid">
@@ -37,11 +36,6 @@ const isCurrentMoveSubmitted = ({ move }) => {
 };
 
 const pages = {
-  [customerRoutes.VALIDATION_CODE_PATH]: {
-    isInFlow: myFirstRodeo,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
-    render: () => <ValidationCode />,
-  },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
