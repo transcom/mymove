@@ -215,7 +215,7 @@ const ProGear = () => {
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
           .catch(() => {
-            setErrorMessage('Failed to save updated trip record');
+            setErrorMessage('Failed to fetch shipment information');
           });
       })
       .catch((error) => {
