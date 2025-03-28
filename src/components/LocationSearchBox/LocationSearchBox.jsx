@@ -256,7 +256,7 @@ export const LocationSearchBoxComponent = ({
           onInputChange={changeInputText}
           placeholder={placeholder || 'Start typing a duty location...'}
           value={
-            (handleLocationOnChange && !!value && value.city !== null && value.city !== '') ||
+            (handleLocationOnChange && !!value && value.city != null && value.city !== '') ||
             (!handleLocationOnChange && hasLocation)
               ? value
               : ''
