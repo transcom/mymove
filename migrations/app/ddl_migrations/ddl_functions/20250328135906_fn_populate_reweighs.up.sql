@@ -3,7 +3,7 @@
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_reweighs(p_move_id UUID)
 RETURNS void AS
-$$
+'
 DECLARE
   v_count INTEGER;
 BEGIN
@@ -19,10 +19,10 @@ BEGIN
     SELECT
       audit_history.*,
       jsonb_agg(jsonb_build_object(
-        'shipment_type', mto_shipments.shipment_type,
-        'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
-        'payment_request_number', payment_requests.payment_request_number,
-        'shipment_locator', mto_shipments.shipment_locator
+        ''shipment_type'', mto_shipments.shipment_type,
+        ''shipment_id_abbr'', LEFT(mto_shipments.id::TEXT, 5),
+        ''payment_request_number'', payment_requests.payment_request_number,
+        ''shipment_locator'', mto_shipments.shipment_locator
       ))::TEXT AS context,
       NULL AS context_id,
       mto_shipments.move_id AS move_id,
@@ -32,9 +32,9 @@ BEGIN
     JOIN mto_shipments ON reweighs.shipment_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     LEFT JOIN payment_requests ON mto_shipments.move_id = payment_requests.move_id
-    WHERE audit_history.table_name = 'reweighs'
+    WHERE audit_history.table_name = ''reweighs''
       AND mto_shipments.move_id = p_move_id
     GROUP BY audit_history.id, reweighs.id, mto_shipments.move_id, mto_shipments.id;
   END IF;
 END;
-$$ LANGUAGE plpgsql;
+' LANGUAGE plpgsql;

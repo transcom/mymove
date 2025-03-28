@@ -3,7 +3,7 @@
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_uploads_amended_orders(p_move_id UUID)
 RETURNS void AS
-$$
+'
 DECLARE v_count INTEGER;
 BEGIN
   SELECT COUNT(*) INTO v_count
@@ -19,8 +19,8 @@ BEGIN
     INSERT INTO audit_hist_temp
     SELECT audit_history.*,
            json_agg(json_build_object(
-             'filename', uploads.filename,
-             'upload_type', 'amendedOrders'
+             ''filename'', uploads.filename,
+             ''upload_type'', ''amendedOrders''
            ))::TEXT AS context,
            NULL AS context_id,
            moves.id AS move_id,
@@ -32,9 +32,9 @@ BEGIN
                AND documents.service_member_id = orders.service_member_id
     JOIN moves ON orders.id = moves.orders_id
     JOIN uploads ON user_uploads.upload_id = uploads.id
-    WHERE audit_history.table_name = 'user_uploads'
+    WHERE audit_history.table_name = ''user_uploads''
       AND moves.id = p_move_id
     GROUP BY audit_history.id, moves.id;
   END IF;
 END;
-$$ LANGUAGE plpgsql;
+' LANGUAGE plpgsql;

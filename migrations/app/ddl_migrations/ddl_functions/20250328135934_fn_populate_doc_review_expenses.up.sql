@@ -3,7 +3,7 @@
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_doc_review_expenses(p_move_id UUID)
 RETURNS void AS
-$$
+'
 DECLARE v_count INTEGER;
 BEGIN
   SELECT COUNT(*) INTO v_count
@@ -13,16 +13,16 @@ BEGIN
   JOIN mto_shipments ON mto_shipments.id = ppm_shipments.shipment_id
   JOIN moves ON mto_shipments.move_id = moves.id
   WHERE moves.id = p_move_id
-    AND audit_history.table_name = 'moving_expenses';
+    AND audit_history.table_name = ''moving_expenses'';
 
   IF v_count > 0 THEN
     INSERT INTO audit_hist_temp
     SELECT audit_history.*,
            jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
-             'shipment_type', mto_shipments.shipment_type,
-             'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
-             'moving_expense_type', moving_expenses.moving_expense_type,
-             'shipment_locator', mto_shipments.shipment_locator
+             ''shipment_type'', mto_shipments.shipment_type,
+             ''shipment_id_abbr'', LEFT(mto_shipments.id::TEXT, 5),
+             ''moving_expense_type'', moving_expenses.moving_expense_type,
+             ''shipment_locator'', mto_shipments.shipment_locator
            )))::TEXT AS context,
            mto_shipments.id::TEXT AS context_id,
            moves.id AS move_id,
@@ -33,9 +33,9 @@ BEGIN
     JOIN mto_shipments ON mto_shipments.id = ppm_shipments.shipment_id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE moves.id = p_move_id
-      AND audit_history.table_name = 'moving_expenses'
+      AND audit_history.table_name = ''moving_expenses''
     GROUP BY audit_history.id, moves.id, mto_shipments.id;
   END IF;
 END;
-$$ LANGUAGE plpgsql;
+' LANGUAGE plpgsql;
 

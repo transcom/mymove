@@ -2,7 +2,7 @@
 -- Sub-function: create the temp table
 -- ============================================
 CREATE OR REPLACE FUNCTION fn_create_audit_temp_table()
-RETURNS VOID AS $$
+RETURNS VOID AS '
 BEGIN
     DROP TABLE IF EXISTS audit_hist_temp;
 
@@ -32,4 +32,4 @@ BEGIN
 
     CREATE INDEX audit_hist_temp_session_userid ON audit_hist_temp (session_userid);
 END;
-$$ LANGUAGE plpgsql;
+' LANGUAGE plpgsql;
