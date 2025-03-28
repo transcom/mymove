@@ -73,8 +73,10 @@ mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
 mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
 mockPage('components/NotFound/NotFound');
 
-afterEach(() => {
+afterEach(async () => {
   cleanup();
+  const { persistor } = configureStore();
+  await persistor.purge();
   jest.clearAllMocks();
 });
 
