@@ -108,7 +108,7 @@ const MoveDetails = ({
       fieldName: 'requestedPickupDate',
       condition: (shipment) =>
         new Date(formatDateWithUTC(shipment?.requestedPickupDate) || null).setHours(0, 0, 0, 0) <=
-        new Date().setHours(0, 0, 0, 0),
+          new Date().setHours(0, 0, 0, 0) && shipment?.status === shipmentStatuses.SUBMITTED,
       optional: true, // bypass to use condition, triggers condition if not present
     };
 
@@ -377,7 +377,7 @@ const MoveDetails = ({
     let numberOfErrorIfMissingForAllShipments = 0;
 
     // Process each shipment to accumulate errors
-    submittedShipments?.forEach((mtoShipment) => {
+    mtoShipments?.forEach((mtoShipment) => {
       const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
       if (errorIfMissingList) {
@@ -391,7 +391,7 @@ const MoveDetails = ({
 
     // Set the error concern count after processing
     setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
-  }, [submittedShipments, setShipmentErrorConcernCount, errorIfMissing]);
+  }, [mtoShipments, setShipmentErrorConcernCount, errorIfMissing]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
