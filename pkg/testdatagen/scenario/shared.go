@@ -9111,7 +9111,21 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 			UsPostRegionCityID: &usprcId,
 		},
 	})
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{UserUploader: userUploader})
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		UserUploader: userUploader,
+		Reweigh: models.Reweigh{
+			Weight: &reweighedWeight,
+		},
+		Address: models.Address{
+			UsPostRegionCityID: &usprcId,
+		},
+		PickupAddress: models.Address{
+			UsPostRegionCityID: &usprcId,
+		},
+		DestinationAddress: models.Address{
+			UsPostRegionCityID: &usprcId,
+		},
+	})
 }
 
 func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
