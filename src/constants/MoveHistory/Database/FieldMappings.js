@@ -161,4 +161,6 @@ export default {
   re_assigned_too: 'Task ordering officer reassigned',
   re_assigned_tio: 'Task invoicing officer reassigned',
   available_to_prime_at: 'Available to Prime at',
+  terminated_at: 'Terminated at',
+  termination_comments: 'Comments',
 };
