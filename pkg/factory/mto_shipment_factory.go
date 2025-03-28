@@ -23,6 +23,7 @@ const (
 	mtoShipmentNTS
 	mtoShipmentPPM
 	mtoShipmentNTSR
+	mtoShipmentUB
 )
 
 func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType mtoShipmentBuildType) models.MTOShipment {
@@ -34,6 +35,9 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		cMtoShipment = result.Model.(models.MTOShipment)
 		if result.LinkOnly {
 			return cMtoShipment
+		}
+		if result.Model.(models.MTOShipment).ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			buildType = mtoShipmentUB
 		}
 	}
 
@@ -70,6 +74,9 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	case mtoShipmentPPM:
 		defaultShipmentType = models.MTOShipmentTypePPM
 		setupPickupAndDelivery = false
+	case mtoShipmentUB:
+		defaultShipmentType = models.MTOShipmentTypeUnaccompaniedBaggage
+		setupPickupAndDelivery = true
 	default:
 		defaultShipmentType = models.MTOShipmentTypeHHG
 		setupPickupAndDelivery = true
@@ -180,7 +187,11 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				tempDeliveryAddressCustoms = convertCustomizationInList(tempDeliveryAddressCustoms, Addresses.DeliveryAddress, Address)
 			}
 
-			traits = append(traits, GetTraitAddress2)
+			if newMTOShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				traits = append(traits, GetTraitAddressAKZone1)
+			} else {
+				traits = append(traits, GetTraitAddress2)
+			}
 			deliveryAddress := BuildAddress(db, tempDeliveryAddressCustoms, traits)
 			if db == nil {
 				// fake an id for stubbed address, needed by the MTOShipmentCreator

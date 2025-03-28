@@ -123,7 +123,13 @@ class MtoShipmentForm extends Component {
         })
         .catch((e) => {
           const { response } = e;
-          const errorMessage = getResponseError(response, 'failed to create MTO shipment due to server error');
+          let errorMessage = getResponseError(response, 'failed to create MTO shipment due to server error');
+
+          if (response?.body?.invalidFields) {
+            const keys = Object.keys(response?.body?.invalidFields);
+            const firstError = response?.body?.invalidFields[keys[0]][0];
+            errorMessage = firstError;
+          }
 
           this.setState({ errorMessage });
         });
