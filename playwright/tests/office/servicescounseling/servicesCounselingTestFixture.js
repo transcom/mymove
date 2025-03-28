@@ -199,15 +199,15 @@ export class ServiceCounselorPage extends OfficePage {
     // this helps debounce the API calls that would be triggered in quick succession
     await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
-    const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
+    const LocationLookup = 'YUMA, AZ 85364 (YUMA)';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-input"]').fill('85369');
+    await this.page.locator('input[id="pickupAddress-input"]').fill('85364');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-input"]').fill('85369');
+    await this.page.locator('input[id="destinationAddress-input"]').fill('85364');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
@@ -219,7 +219,7 @@ export class ServiceCounselorPage extends OfficePage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="w2Address-input"]').fill('85369');
+    await this.page.locator('input[id="w2Address-input"]').fill('85364');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 

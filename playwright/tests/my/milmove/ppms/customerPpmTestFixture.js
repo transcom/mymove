@@ -162,12 +162,12 @@ export class CustomerPpmPage extends CustomerPage {
     // this helps debounce the API calls that would be triggered in quick succession
     await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
-    const pickupLocation = 'YUMA, AZ 85369 (YUMA)';
+    const pickupLocation = 'YUMA, AZ 85364 (YUMA)';
     const destinationLocation = 'YUMA, AZ 85366 (YUMA)';
     const w2Location = 'YUMA, AZ 85367 (YUMA)';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-input"]').fill('85369');
+    await this.page.locator('input[id="pickupAddress-input"]').fill('85364');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
