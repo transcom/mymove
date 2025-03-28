@@ -13,8 +13,8 @@ import { loadPublicSchema, loadInternalSchema } from 'shared/Swagger/ducks';
 import { loadUser } from 'store/auth/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
+// Mock Redux actions to prevent actual API calls
 let mockPath = '/';
-
 jest.mock('react-router-dom', () => {
   const actual = jest.requireActual('react-router-dom');
   return {
@@ -23,7 +23,6 @@ jest.mock('react-router-dom', () => {
   };
 });
 
-// Mock Redux actions to prevent actual API calls
 jest.mock('store/auth/actions', () => ({
   loadUser: jest.fn(() => async () => {}),
 }));
@@ -73,11 +72,11 @@ mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
 mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
 mockPage('components/NotFound/NotFound');
 
+const { persistor } = configureStore();
+
 afterEach(async () => {
   cleanup();
-  const { persistor } = configureStore();
   await persistor.purge();
-  jest.clearAllMocks();
 });
 
 const defaultState = {
@@ -113,84 +112,34 @@ const defaultState = {
   },
 };
 
-const loggedInState = {
-  ...defaultState,
-  auth: {
-    ...defaultState.auth,
-    isLoggedIn: true,
-    activeRole: 'TOO',
-  },
-  entities: {
-    user: {
-      testUser: {
-        id: 'testUser',
-        roles: [{ roleType: 'TOO' }],
-      },
-    },
-  },
-};
-
-const renderWithState = (state, path) => {
-  mockPath = path;
-  const mockStore = configureStore({ ...state });
-
-  const minProps = {
-    initOnboarding: jest.fn(),
-    loadInternalSchema: jest.fn(),
-    loadUser: jest.fn(),
-  };
-
-  return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Provider store={mockStore.store}>
-        <OfficeApp {...minProps} />
-      </Provider>
-    </MemoryRouter>,
-  );
-};
-
-const createMockStore = (role) => {
-  if (!role) {
-    // If no role provided, use logged out state
-    const loggedOutState = {
-      auth: {
-        activeRole: null,
-        isLoading: false,
-        isLoggedIn: false,
-      },
-    };
-
-    return configureStore(loggedOutState);
-  }
-
-  // Otherwise, use logged in state with the provided role
-  const state = {
-    auth: {
-      activeRole: role,
-      isLoading: false,
-      isLoggedIn: true,
-    },
-    entities: {
-      user: {
-        userId123: {
-          id: 'userId123',
-          roles: [{ roleType: role }],
-        },
-      },
-    },
-  };
-
-  return configureStore(state);
-};
-
 // Render the OfficeApp component with routing and Redux setup for the provided route and role
-const renderOfficeAppAtRoute = (route, role) => {
-  mockPath = route;
+const renderOfficeApp = ({ state = defaultState, path = '/', role = null } = {}) => {
+  mockPath = path;
+
+  const finalState = role
+    ? {
+        ...defaultState,
+        auth: {
+          activeRole: role,
+          isLoading: false,
+          isLoggedIn: true,
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: [{ roleType: role }],
+            },
+          },
+        },
+      }
+    : state;
+
+  const mockStore = configureStore({ ...finalState });
   isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-  const mockStore = createMockStore(role);
   const userRoles = role ? [{ roleType: role }] : [];
   render(
-    <MemoryRouter initialEntries={[route]}>
+    <MemoryRouter initialEntries={[path]}>
       <Provider store={mockStore.store}>
         <OfficeApp
           loadInternalSchema={jest.fn()}
@@ -212,7 +161,7 @@ const renderOfficeAppAtRoute = (route, role) => {
 
 describe('Office App', () => {
   it('renders Sign In page when user is logged out', async () => {
-    renderWithState(defaultState, '/sign-in');
+    renderOfficeApp({ path: '/sign-in' });
     await waitFor(() => expect(screen.getByText(/sign in/i)).toBeInTheDocument());
   });
   it('displays Maintenance page when under maintenance is true', async () => {
@@ -223,7 +172,7 @@ describe('Office App', () => {
         underMaintenance: true,
       },
     };
-    renderWithState(updatedState, '/');
+    renderOfficeApp({ state: updatedState });
 
     await waitFor(() =>
       expect(screen.getByText(/This system is currently undergoing maintenance/i)).toBeInTheDocument(),
@@ -231,22 +180,35 @@ describe('Office App', () => {
   });
   it('shows loading spinner when showLoadingSpinner is true', async () => {
     const updatedState = {
-      ...loggedInState,
+      ...defaultState,
+      auth: {
+        ...defaultState.auth,
+        isLoggedIn: true,
+        activeRole: 'TOO',
+      },
       generalState: {
-        ...loggedInState.generalState,
+        ...defaultState.generalState,
         showLoadingSpinner: true,
         loadingSpinnerMessage: 'Loading...',
       },
+      entities: {
+        user: {
+          testUser: {
+            id: 'testUser',
+            roles: [{ roleType: 'TOO' }],
+          },
+        },
+      },
     };
 
-    renderWithState(updatedState, '/');
+    renderOfficeApp({ state: updatedState });
     await waitFor(() => {
       expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
       expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
     });
   });
   it('handles the SignIn URL for not logged in user and fetches inital data', async () => {
-    renderWithState(defaultState, '/');
+    renderOfficeApp();
 
     expect(screen.getByText('Skip to content')).toBeInTheDocument();
     expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument();
@@ -273,7 +235,7 @@ describe('Office App', () => {
       },
     };
 
-    renderWithState(updatedState, '/');
+    renderOfficeApp({ state: updatedState });
     await waitFor(() => {
       expect(screen.getByText(/trace-id-123/)).toBeInTheDocument();
       expect(screen.getByText(/something isn't working, but we're not sure what/i)).toBeInTheDocument();
@@ -281,7 +243,7 @@ describe('Office App', () => {
   });
   describe('logged out routing', () => {
     it('handles the SignIn URL for not logged in user', async () => {
-      renderOfficeAppAtRoute('/sign-in');
+      renderOfficeApp({ path: '/sign-in' });
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -292,7 +254,7 @@ describe('Office App', () => {
       await waitFor(() => expect(screen.getByText('Mock Sign In Component')));
     });
     it('handles the Invalid Permissions URL for not logged in user', async () => {
-      renderOfficeAppAtRoute('/invalid-permissions');
+      renderOfficeApp({ path: '/invalid-permissions' });
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -304,7 +266,7 @@ describe('Office App', () => {
     });
 
     it('handles a bad URL for not logged in user', async () => {
-      renderOfficeAppAtRoute('/bad-path');
+      renderOfficeApp({ path: '/bad-path' });
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -318,7 +280,7 @@ describe('Office App', () => {
 
   describe('logged in routing', () => {
     it('handles the Invalid Permissions URL', async () => {
-      renderOfficeAppAtRoute('/invalid-permissions', roleTypes.TOO);
+      renderOfficeApp({ path: '/invalid-permissions', role: roleTypes.TOO });
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -330,7 +292,7 @@ describe('Office App', () => {
     });
 
     it('renders the 404 component when the route is not found', async () => {
-      renderOfficeAppAtRoute('/not-a-real-route', roleTypes.QAE);
+      renderOfficeApp({ path: '/not-a-real-route', role: roleTypes.QAE });
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -389,7 +351,7 @@ describe('Office App', () => {
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
       ['Services Counseling Move Info', '/moves/move123/shipments/:shipmentId/advance', roleTypes.TOO],
     ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {
-      renderOfficeAppAtRoute(path, role);
+      renderOfficeApp({ path, role });
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -476,7 +438,7 @@ describe('Office App', () => {
       ['QAE CSR Move Search', '/qaecsr/search', roleTypes.TIO],
       ['TXO Move Info', '/moves/move123', roleTypes.PRIME_SIMULATOR],
     ])('denies access to %s when user has insufficient permission', async (component, path, role) => {
-      renderOfficeAppAtRoute(path, role);
+      renderOfficeApp({ path, role });
 
       // Header content should be rendered
       expect(screen.getByText('Skip to content')).toBeInTheDocument(); // BypassBlock
@@ -484,7 +446,10 @@ describe('Office App', () => {
       expect(screen.getByText('Sign out')).toBeInTheDocument(); // Sign Out button
 
       // Wait for lazy load, validate invalid permissions component was rendered
-      await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
+      await waitFor(() => {
+        expect(screen.queryByText(`Mock ${component} Component`)).not.toBeInTheDocument();
+        expect(screen.getByText('Mock Invalid Permissions Component')).toBeInTheDocument();
+      });
     });
   });
 });
