@@ -803,19 +803,39 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 				Model:    subtestData.mto,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+				},
+			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		startDate := time.Now().AddDate(-10, 0, 0)
+		sitDepartureDate := time.Now().Add(time.Hour * 72)
+		endDate := startDate.AddDate(10, 1, 1)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
+				},
+			})
 
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
-			MoveTaskOrderID: subtestData.mto.ID,
-			MTOShipmentID:   &subtestData.mtoShipment.ID,
-			ReService:       models.ReService{},
-			Reason:          models.StringPointer("lorem ipsum"),
-			SITEntryDate:    &sitEntryDate,
-			SITPostalCode:   &sitPostalCode,
+			MoveTaskOrderID:  subtestData.mto.ID,
+			MTOShipmentID:    &subtestData.mtoShipment.ID,
+			ReService:        models.ReService{},
+			Reason:           models.StringPointer("lorem ipsum"),
+			SITEntryDate:     &sitEntryDate,
+			SITDepartureDate: &sitDepartureDate,
+			SITPostalCode:    &sitPostalCode,
 		}
 
 		return subtestData
