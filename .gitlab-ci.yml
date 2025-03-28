@@ -1396,7 +1396,8 @@ integration_test_my:
     paths:
       - playwright-report/
       - complete-playwright-report.zip
-      - playwright-results.xml
+      - playwright-results.
+      - $CI_PROJECT_DIR/playwright_test_my.output
     when: always
   after_script:
     - *announce_failure
@@ -1477,6 +1478,7 @@ integration_test_office:
       - playwright-report/
       - complete-playwright-report.zip
       - playwright-results.xml
+      - $CI_PROJECT_DIR/playwright_test_office.output
     when: always
   after_script:
     - *announce_failure
