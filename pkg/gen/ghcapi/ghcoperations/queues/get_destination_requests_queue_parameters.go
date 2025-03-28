@@ -80,6 +80,10 @@ type GetDestinationRequestsQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*order type
+	  In: query
+	*/
+	OrderType *string
 	/*
 	  Unique: true
 	  In: query
@@ -177,6 +181,11 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 
 	qOrder, qhkOrder, _ := qs.GetOK("order")
 	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOrderType, qhkOrderType, _ := qs.GetOK("orderType")
+	if err := o.bindOrderType(qOrderType, qhkOrderType, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -447,6 +456,24 @@ func (o *GetDestinationRequestsQueueParams) validateOrder(formats strfmt.Registr
 	if err := validate.EnumCase("order", "query", *o.Order, []interface{}{"asc", "desc"}, true); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindOrderType binds and validates parameter OrderType from query.
+func (o *GetDestinationRequestsQueueParams) bindOrderType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OrderType = &raw
 
 	return nil
 }
