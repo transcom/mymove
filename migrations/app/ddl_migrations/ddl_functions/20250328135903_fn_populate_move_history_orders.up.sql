@@ -2,7 +2,7 @@
 -- Sub-function: populate orders
 -- ============================================
 CREATE OR REPLACE FUNCTION fn_populate_move_history_orders(v_move_id UUID)
-RETURNS VOID AS '
+RETURNS VOID AS $$
 DECLARE
     v_count INT;
 BEGIN
@@ -18,12 +18,12 @@ BEGIN
             NULLIF(
                 jsonb_agg(jsonb_strip_nulls(
                     jsonb_build_object(
-                        ''origin_duty_location_name'',
+                        'origin_duty_location_name',
                         (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.origin_duty_location_id)),
-                        ''new_duty_location_name'',
+                        'new_duty_location_name',
                         (SELECT duty_locations.name FROM duty_locations WHERE duty_locations.id = uuid(c.new_duty_location_id))
                     )
-                ))::TEXT, ''[{}]''::TEXT
+                ))::TEXT, '[{}]'::TEXT
             ) AS context,
             NULL AS context_id,
             v_move_id AS move_id,
@@ -36,9 +36,9 @@ BEGIN
             origin_duty_location_id TEXT,
             new_duty_location_id TEXT
         ) ON TRUE
-        WHERE audit_history.table_name = ''orders''
+        WHERE audit_history.table_name = 'orders'
             AND moves.id = v_move_id
         GROUP BY audit_history.id;
     END IF;
 END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;

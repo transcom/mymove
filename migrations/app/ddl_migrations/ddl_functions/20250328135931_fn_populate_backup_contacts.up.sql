@@ -3,7 +3,7 @@
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_backup_contacts(p_move_id UUID)
 RETURNS void AS
-'
+$$
 DECLARE v_count INTEGER;
 BEGIN
   SELECT COUNT(*) INTO v_count
@@ -25,9 +25,9 @@ BEGIN
     JOIN service_members ON service_members.id = backup_contacts.service_member_id
     JOIN orders ON orders.service_member_id = service_members.id
     JOIN moves ON moves.orders_id = orders.id
-    WHERE audit_history.table_name = ''backup_contacts''
+    WHERE audit_history.table_name = 'backup_contacts'
       AND moves.id = p_move_id
     GROUP BY audit_history.id, moves.id;
   END IF;
 END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;

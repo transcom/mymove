@@ -3,7 +3,7 @@
 -- ======================================================
 CREATE OR REPLACE FUNCTION fn_populate_uploads_expense_receipt(p_move_id UUID)
 RETURNS void AS
-'
+$$
 DECLARE v_count INTEGER;
 BEGIN
   SELECT COUNT(*) INTO v_count
@@ -20,12 +20,12 @@ BEGIN
     INSERT INTO audit_hist_temp
     SELECT audit_history.*,
            json_agg(json_build_object(
-             ''filename'', uploads.filename,
-             ''upload_type'', ''expenseReceipt'',
-             ''shipment_type'', mto_shipments.shipment_type,
-             ''shipment_id_abbr'', LEFT(mto_shipments.id::TEXT, 5),
-             ''moving_expense_type'', moving_expenses.moving_expense_type::TEXT,
-             ''shipment_locator'', mto_shipments.shipment_locator
+             'filename', uploads.filename,
+             'upload_type', 'expenseReceipt',
+             'shipment_type', mto_shipments.shipment_type,
+             'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
+             'moving_expense_type', moving_expenses.moving_expense_type::TEXT,
+             'shipment_locator', mto_shipments.shipment_locator
            ))::TEXT AS context,
            NULL AS context_id,
            moves.id AS move_id,
@@ -38,9 +38,9 @@ BEGIN
     JOIN mto_shipments ON mto_shipments.id = ppm_shipments.shipment_id
     JOIN moves ON mto_shipments.move_id = moves.id
     JOIN uploads ON user_uploads.upload_id = uploads.id
-    WHERE audit_history.table_name = ''user_uploads''
+    WHERE audit_history.table_name = 'user_uploads'
       AND moves.id = p_move_id
     GROUP BY audit_history.id, moves.id, mto_shipments.id;
   END IF;
 END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
