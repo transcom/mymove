@@ -1252,7 +1252,7 @@ integration_test_admin:
     - <<: *yarn_cache
     - <<: *node_cache
   tags:
-    - $Gitlab_Runner_Tag
+    - $EKS_CLUSTER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1336,7 +1336,7 @@ integration_test_my:
     - <<: *yarn_cache
     - <<: *node_cache
   tags:
-    - $Gitlab_Runner_Tag
+    - $EKS_CLUSTER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1418,7 +1418,7 @@ integration_test_office:
     - <<: *yarn_cache
     - <<: *node_cache
   tags:
-    - $Gitlab_Runner_Tag
+    - $EKS_CLUSTER_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
