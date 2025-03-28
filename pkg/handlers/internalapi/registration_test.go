@@ -27,6 +27,8 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 
 		// these mocked endpoints fetch an exact user
 		mockAndActivateOktaGETEndpointExistingUserNoError(provider)
+		mockAndActivateOktaGroupGETEndpointNoError(provider)
+		mockAndActivateOktaGroupAddEndpointNoError(provider)
 
 		affiliation := internalmessages.AffiliationARMY
 		body := &internalmessages.CreateOktaAndMilMoveUser{
@@ -81,6 +83,8 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 
 		// these mocked endpoints fetch an exact user
 		mockAndActivateOktaGETEndpointExistingUserNoError(provider)
+		mockAndActivateOktaGroupGETEndpointNoError(provider)
+		mockAndActivateOktaGroupAddEndpointNoError(provider)
 
 		affiliation := internalmessages.AffiliationARMY
 		body := &internalmessages.CreateOktaAndMilMoveUser{
@@ -689,6 +693,29 @@ func mockAndActivateOktaPOSTEndpointsNoError(provider *okta.Provider) {
 			"login": "email@email.com"
 		}
 	}`, oktaID)))
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupGETEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	getGroupsEndpoint := provider.GetUserGroupsURL(oktaID)
+
+	httpmock.RegisterResponder("GET", getGroupsEndpoint,
+		httpmock.NewStringResponder(200, `[]`))
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupAddEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	groupID := "00g3ja8t0dwKG8Mmi0k6"
+	addGroupEndpoint := provider.AddUserToGroupURL(groupID, oktaID)
+
+	httpmock.RegisterResponder("PUT", addGroupEndpoint,
+		httpmock.NewStringResponder(204, ""))
 
 	httpmock.Activate()
 }
