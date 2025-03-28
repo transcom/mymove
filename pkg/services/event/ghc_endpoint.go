@@ -133,6 +133,9 @@ const GhcAcknowledgeExcessWeightRiskEndpointKey = "Ghc.AcknowledgeExcessWeightRi
 // GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey is the key for the AcknowledgeExcessUnaccompaniedBaggageWeightRisk endpoint in ghc
 const GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey = "Ghc.GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey"
 
+// GhcTerminateShipmentEndpointKey is the key for the CreateTermination endpoint in ghc
+const GhcTerminateShipmentEndpointKey = "Ghc.CreateTermination"
+
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
 	GhcGetCustomerEndpointKey: {
@@ -298,5 +301,9 @@ var ghcEndpoints = EndpointMapType{
 	GhcAcknowledgeExcessUnaccompaniedBaggageWeightRiskEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "AcknowledgeExcessUnaccompaniedBaggageWeightRisk",
+	},
+	GhcTerminateShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "createTermination",
 	},
 }

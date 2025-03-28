@@ -175,7 +175,7 @@ describe('QAECSRMoveSearch page', () => {
     });
   });
 
-  it('can navigate to move afer search', async () => {
+  it('can navigate to move afer search and it defaults to details', async () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResultsWithMove);
     render(
       <MockProviders>
@@ -198,6 +198,32 @@ describe('QAECSRMoveSearch page', () => {
 
       await screen.getByTestId('locator-0').click();
       expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/details');
+    });
+  });
+
+  it('navigates to a custom landingPath when provided', async () => {
+    useMoveSearchQueries.mockReturnValue(mockSearchResultsWithMove);
+    render(
+      <MockProviders>
+        <QAECSRMoveSearch landingPath="mto" />
+      </MockProviders>,
+    );
+    await act(async () => {
+      const submitButton = screen.getByTestId('searchTextSubmit');
+      await screen.getByLabelText('Move Code').click();
+      await userEvent.type(screen.getByLabelText('Search'), 'MOVE12');
+      await waitFor(() => {
+        expect(screen.getByLabelText('Search')).toHaveValue('MOVE12');
+        expect(screen.getByLabelText('Move Code')).toBeChecked();
+      });
+      expect(submitButton).toBeEnabled();
+      await userEvent.click(submitButton);
+
+      const noResults = await screen.queryByText('Results (1)');
+      expect(noResults).toBeInTheDocument();
+
+      await screen.getByTestId('locator-0').click();
+      expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/mto');
     });
   });
 });

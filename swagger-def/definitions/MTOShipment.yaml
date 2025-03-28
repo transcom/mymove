@@ -221,3 +221,11 @@ properties:
     $ref: 'Port.yaml'
   poeLocation:
     $ref: 'Port.yaml'
+  terminationComments:
+    type: string
+    x-nullable: true
+    readOnly: true
+  terminatedAt:
+    format: date-time
+    type: string
+    x-nullable: true

@@ -233,6 +233,14 @@ type MTOShipment struct {
 	// tac type
 	TacType *LOAType `json:"tacType,omitempty"`
 
+	// terminated at
+	// Format: date-time
+	TerminatedAt *strfmt.DateTime `json:"terminatedAt,omitempty"`
+
+	// termination comments
+	// Read Only: true
+	TerminationComments *string `json:"terminationComments,omitempty"`
+
 	// tertiary delivery address
 	TertiaryDeliveryAddress *Address `json:"tertiaryDeliveryAddress,omitempty"`
 
@@ -393,6 +401,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTacType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTerminatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1013,6 +1025,18 @@ func (m *MTOShipment) validateTacType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateTerminatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.TerminatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("terminatedAt", "body", "date-time", m.TerminatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
 		return nil
@@ -1156,6 +1180,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateTacType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTerminationComments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1600,6 +1628,15 @@ func (m *MTOShipment) contextValidateTacType(ctx context.Context, formats strfmt
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateTerminationComments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "terminationComments", "body", m.TerminationComments); err != nil {
+		return err
 	}
 
 	return nil
