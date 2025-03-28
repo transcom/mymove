@@ -18,6 +18,7 @@ import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { getPPMTypeLabel } from 'shared/constants';
 
 const PPMShipmentInfoList = ({
   className,
@@ -30,6 +31,7 @@ const PPMShipmentInfoList = ({
   onErrorModalToggle,
 }) => {
   const {
+    ppmType,
     hasRequestedAdvance,
     advanceAmountRequested,
     advanceStatus,
@@ -86,6 +88,14 @@ const PPMShipmentInfoList = ({
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
+
+  const ppmTypeElementFlags = getDisplayFlags('ppmType');
+  const ppmTypeElement = (
+    <div className={ppmTypeElementFlags.classes}>
+      <dt>PPM Type</dt>
+      <dd data-testid="ppmType">{getPPMTypeLabel(ppmType)}</dd>
+    </div>
+  );
 
   const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
   const expectedDepartureDateElement = (
@@ -285,6 +295,7 @@ const PPMShipmentInfoList = ({
       )}
       data-testid="ppm-shipment-info-list"
     >
+      {ppmTypeElement}
       {!actualMoveDate && expectedDepartureDateElement}
       {actualMoveDate && actualDepartureDateElement}
       {pickupAddressElement}

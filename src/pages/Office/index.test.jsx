@@ -160,7 +160,7 @@ const renderOfficeApp = ({ state = defaultState, path = '/', role = null } = {})
 };
 
 describe('Office App', () => {
-  it('renders Sign In page when user is logged out', async () => {
+  it('renders Sign In page when user is logged outs', async () => {
     renderOfficeApp({ path: '/sign-in' });
     await waitFor(() => expect(screen.getByText(/sign in/i)).toBeInTheDocument());
   });
