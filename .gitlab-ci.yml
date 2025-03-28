@@ -318,13 +318,6 @@ stages:
 .e2e_tests_playwright: &e2e_tests_playwright
   - |
      echo "Preparing the environment"
-     export MIL_MOVE_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
-     export MIL_MOVE_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
-     export MIL_MOVE_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)
-     export CLIENT_AUTH_SECRET_KEY=$(cat config/tls/devlocal-client_auth_secret.key)
-     export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-     export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
-     export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
      sed 's,^,export ,' config/env/review.app.env > server_env
      source server_env
      make db_dev_create
@@ -1267,6 +1260,14 @@ integration_test_admin:
     # KUBERNETES_MEMORY_REQUEST: "6Gi"
     # KUBERNETES_MEMORY_LIMIT: "6Gi"
     # FF_NETWORK_PER_BUILD: "true"
+    MIL_MOVE_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MIL_MOVE_DOD_TLS_CERT: $(cat /builds/milmove/mymove/onfig/tls/devlocal-https.pem)
+    MIL_MOVE_DOD_TLS_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1350,6 +1351,14 @@ integration_test_my:
     # KUBERNETES_CPU_REQUEST: "2"
     # KUBERNETES_MEMORY_REQUEST: "6Gi"
     # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    MIL_MOVE_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MIL_MOVE_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+    MIL_MOVE_DOD_TLS_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
@@ -1432,6 +1441,14 @@ integration_test_office:
     # KUBERNETES_CPU_REQUEST: "2"
     # KUBERNETES_MEMORY_REQUEST: "6Gi"
     # KUBERNETES_MEMORY_LIMIT: "6Gi"
+    MIL_MOVE_DOD_CA_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-ca.pem)
+    MIL_MOVE_DOD_TLS_CERT: $(cat /builds/milmove/mymove/config/tls/devlocal-https.pem)
+    MIL_MOVE_DOD_TLS_KEY: $(cat /builds/milmove/mymove//tls/devlocal-https.key)
+    CLIENT_AUTH_SECRET_KEY: $(cat /builds/milmove/mymove/config/tls/devlocal-client_auth_secret.key)
+    LOGIN_GOV_SECRET_KEY: $(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
+    HERE_MAPS_APP_ID: $E2E_HERE_MAPS_APP_ID
+    HERE_MAPS_APP_CODE: $E2E_HERE_MAPS_APP_CODE
+
     PLAYWRIGHT_MY_URL: http://milmovelocal:4000
     PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
     PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
