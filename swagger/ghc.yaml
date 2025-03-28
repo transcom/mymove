@@ -122,6 +122,46 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  /office-users/{officeUserId}:
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Updates an Office User
+      description: >-
+        This endpoint updates a single Office User by ID. This is to be used by
+        office users to update their profile.
+      operationId: updateOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: officeUser
+          description: Office User information
+          required: true
+          schema:
+            $ref: '#/definitions/OfficeUserUpdate'
+      responses:
+        '200':
+          description: Successfully updated Office User
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -3832,6 +3872,7 @@ paths:
             - CLOSEOUT
             - TASK_ORDER
             - PAYMENT_REQUEST
+            - DESTINATION_REQUESTS
       responses:
         '200':
           description: Successfully returned bulk assignment data
@@ -4206,6 +4247,11 @@ paths:
           name: counselingOffice
           type: string
           description: filters using a counselingOffice name of the move
+        - in: query
+          name: activeRole
+          type: string
+          description: |
+            user's actively logged in role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -5004,10 +5050,10 @@ paths:
         name: body
         schema:
           properties:
-            roleType:
+            queueType:
               type: string
           required:
-            - roleType
+            - queueType
     patch:
       consumes:
         - application/json
@@ -5305,6 +5351,16 @@ definitions:
       - telephone
       - transportationOfficeId
       - roles
+  OfficeUserUpdate:
+    type: object
+    properties:
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+    required:
+      - telephone
   OfficeUserRole:
     type: object
     properties:
@@ -5938,6 +5994,8 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       TIOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
+      TOODestinationAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
   MoveHistory:
     properties:
       id:
@@ -6379,6 +6437,14 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - serviceMemberId
       - issueDate
@@ -6452,6 +6518,14 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - issueDate
       - reportByDate
@@ -6525,6 +6599,14 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - issueDate
       - reportByDate
@@ -7963,6 +8045,7 @@ definitions:
           - CLOSEOUT
           - TASK_ORDER
           - PAYMENT_REQUEST
+          - DESTINATION_REQUESTS
   BulkAssignmentForUser:
     type: object
     properties:
@@ -8653,6 +8736,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   TransportationOffices:
     type: array
     items:
@@ -8661,10 +8748,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/VLocation'
-  ReServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/ReServiceItem'
   GBLOCs:
     type: array
     items:
@@ -8769,11 +8852,11 @@ definitions:
       officeUserId:
         type: string
         format: uuid
-      roleType:
+      queueType:
         type: string
     required:
       - officeUserId
-      - roleType
+      - queueType
   AssignedOfficeUser:
     type: object
     properties:

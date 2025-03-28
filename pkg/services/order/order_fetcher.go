@@ -315,15 +315,15 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 // this is a custom/temporary struct used in the below service object to get destination queue moves
 type MoveWithCount struct {
 	models.Move
-	OrdersRaw           json.RawMessage              `json:"orders" db:"orders"`
-	Orders              *models.Order                `json:"-"`
-	MTOShipmentsRaw     json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
-	MTOShipments        *models.MTOShipments         `json:"-"`
-	CounselingOfficeRaw json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
-	CounselingOffice    *models.TransportationOffice `json:"-"`
-	TOOAssignedRaw      json.RawMessage              `json:"too_assigned" db:"too_assigned"`
-	TOOAssignedUser     *models.OfficeUser           `json:"-"`
-	TotalCount          int64                        `json:"total_count" db:"total_count"`
+	OrdersRaw                     json.RawMessage              `json:"orders" db:"orders"`
+	Orders                        *models.Order                `json:"-"`
+	MTOShipmentsRaw               json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments                  *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice              *models.TransportationOffice `json:"-"`
+	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
+	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
+	TotalCount                    int64                        `json:"total_count" db:"total_count"`
 }
 
 type JSONB []byte
@@ -363,7 +363,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		params.Branch,
 		strings.Join(params.OriginDutyLocation, " "),
 		params.CounselingOffice,
-		params.TOOAssignedUser,
+		params.TOODestinationAssignedUser,
 		params.Page,
 		params.PerPage,
 		params.Sort,
@@ -410,11 +410,11 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 
 		// populating Moves.TOOAssigned struct
 		var tooAssigned models.OfficeUser
-		if err := json.Unmarshal(movesWithCount[i].TOOAssignedRaw, &tooAssigned); err != nil {
+		if err := json.Unmarshal(movesWithCount[i].TOODestinationAssignedUserRaw, &tooAssigned); err != nil {
 			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
 		}
-		movesWithCount[i].TOOAssignedRaw = nil
-		movesWithCount[i].TOOAssignedUser = &tooAssigned
+		movesWithCount[i].TOODestinationAssignedUserRaw = nil
+		movesWithCount[i].TOODestinationAssignedUser = &tooAssigned
 	}
 
 	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func

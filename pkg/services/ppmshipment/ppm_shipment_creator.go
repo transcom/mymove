@@ -58,18 +58,6 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a DRAFT or SUBMITTED status associated with PPM shipment")
 		}
 
-		var mtoShipment models.MTOShipment
-		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
-			return err
-		}
-
-		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-			mtoShipment.Status = models.MTOShipmentStatusApproved
-			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
-			now := time.Now()
-			ppmShipment.ApprovedAt = &now
-		}
-
 		// default PPM type is incentive based
 		if ppmShipment.PPMType == "" {
 			ppmShipment.PPMType = models.PPMType(models.PPMTypeIncentiveBased)
@@ -171,6 +159,18 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return err
 		}
 		ppmShipment.MaxIncentive = maxIncentive
+
+		var mtoShipment models.MTOShipment
+		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
+			return err
+		}
+
+		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			mtoShipment.Status = models.MTOShipmentStatusApproved
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+			now := time.Now()
+			ppmShipment.ApprovedAt = &now
+		}
 
 		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)

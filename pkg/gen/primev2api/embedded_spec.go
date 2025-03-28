@@ -1480,6 +1480,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -2117,6 +2122,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -2356,6 +2367,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
@@ -3544,6 +3561,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -5467,6 +5489,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -6104,6 +6131,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -6343,6 +6376,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
@@ -7533,6 +7572,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

@@ -6,13 +6,13 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './OrdersInfoForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -40,6 +40,10 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [hasDependents, setHasDependents] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [ordersType, setOrdersType] = useState('');
+  const [grade, setGrade] = useState('');
+  const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
+  const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
 
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
@@ -70,6 +74,12 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       : Yup.number().notRequired(),
     dependents_twelve_and_over: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
+      : Yup.number().notRequired(),
+    civilian_tdy_ub_allowance: isCivilianTDYMove
+      ? Yup.number()
+          .transform((value) => (Number.isNaN(value) ? 0 : value))
+          .min(0, 'UB weight allowance must be 0 or more')
+          .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.')
       : Yup.number().notRequired(),
   });
 
@@ -127,6 +137,29 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       }
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
+
+  useEffect(() => {
+    if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      if (
+        isOconusMove &&
+        ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
+        grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
+      ) {
+        setIsCivilianTDYMove(true);
+      } else {
+        setIsCivilianTDYMove(false);
+      }
+    }
+  }, [
+    currentDutyLocation,
+    newDutyLocation,
+    isOconusMove,
+    hasDependents,
+    enableUB,
+    ordersType,
+    grade,
+    isCivilianTDYMove,
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -189,6 +222,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
         const handleOrderTypeChange = (e) => {
           const { value } = e.target;
+          setOrdersType(value);
           if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
             setHasDependentsDisabled(true);
             handleHasDependentsChange({ target: { value: 'yes' } });
@@ -202,6 +236,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
             }
           }
           setPrevOrderType(value);
+        };
+
+        // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
+        const showcivilianTDYUBAllowanceWarning =
+          values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
+
+        let civilianTDYUBAllowanceWarning = '';
+        if (showcivilianTDYUBAllowanceWarning) {
+          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+        }
+
+        const toggleCivilianTDYUBTooltip = () => {
+          setShowCivilianTDYUBTooltip((prev) => !prev);
         };
 
         return (
@@ -434,7 +481,49 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 id="grade"
                 required
                 options={payGradeOptions}
+                onChange={(e) => {
+                  setGrade(e.target.value);
+                  handleChange(e);
+                }}
               />
+
+              {isCivilianTDYMove && (
+                <FormGroup>
+                  <div>
+                    <MaskedTextField
+                      data-testid="civilianTDYUBAllowance"
+                      warning={civilianTDYUBAllowanceWarning}
+                      defaultValue="0"
+                      name="civilian_tdy_ub_allowance"
+                      id="civilianTDYUBAllowance"
+                      mask={Number}
+                      scale={0}
+                      signed={false}
+                      thousandsSeparator=","
+                      lazy={false}
+                      labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
+                      label={
+                        <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
+                          If your orders specify a specific UB weight allowance, enter it here.
+                          <ToolTip
+                            text={
+                              <span className={styles.toolTipText}>
+                                If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                              </span>
+                            }
+                            position="left"
+                            icon="info-circle"
+                            color="blue"
+                            data-testid="civilianTDYUBAllowanceToolTip"
+                            isVisible={showCivilianTDYUBTooltip}
+                            closeOnLeave
+                          />
+                        </Label>
+                      }
+                    />
+                  </div>
+                </FormGroup>
+              )}
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -465,6 +554,7 @@ OrdersInfoForm.propTypes = {
     dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,
     counseling_office_id: PropTypes.string,
+    civilian_tdy_ub_allowance: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

@@ -11,13 +11,13 @@ export const Default = () => (
   <TabNav
     items={[
       <a href="#" className="usa-current usa-nav__link">
-        <span className="tab-title">Move details</span>
+        <span className="tab-title">Move Details</span>
       </a>,
       <a href="#" className="usa-nav__link">
-        <span className="tab-title">Move task order</span>
+        <span className="tab-title">Move Task Order</span>
       </a>,
       <a href="#" className="usa-nav__link">
-        <span className="tab-title">Payment requests</span>
+        <span className="tab-title">Payment Requests</span>
       </a>,
     ]}
     role="navigation"
@@ -28,14 +28,14 @@ export const withTag = () => (
   <TabNav
     items={[
       <a href="#" className="usa-nav__link">
-        <span className="tab-title">Move details</span>
+        <span className="tab-title">Move Details</span>
         <Tag>2</Tag>
       </a>,
       <a href="#" className="usa-current usa-nav__link">
-        <span className="tab-title">Move task order</span>
+        <span className="tab-title">Move Task Order</span>
       </a>,
       <a href="#" className="usa-nav__link">
-        <span className="tab-title">Payment requests</span>
+        <span className="tab-title">Payment Requests</span>
       </a>,
     ]}
     role="navigation"

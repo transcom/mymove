@@ -61,8 +61,8 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [enableBoat, setEnableBoat] = useState(false);
@@ -549,7 +549,7 @@ const MoveDetails = ({
               )}
             </Grid>
             <Grid col={12} className={styles.tooMoveDetailsHeadingFlexbox}>
-              <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+              <h1 className={styles.tooMoveDetailsH1}>Move Details</h1>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div>
                   <FinancialReviewButton

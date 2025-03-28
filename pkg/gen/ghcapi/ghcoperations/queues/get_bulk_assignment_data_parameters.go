@@ -84,7 +84,7 @@ func (o *GetBulkAssignmentDataParams) bindQueueType(rawData []string, hasKey boo
 // validateQueueType carries on validations for parameter QueueType
 func (o *GetBulkAssignmentDataParams) validateQueueType(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("queueType", "query", *o.QueueType, []interface{}{"COUNSELING", "CLOSEOUT", "TASK_ORDER", "PAYMENT_REQUEST"}, true); err != nil {
+	if err := validate.EnumCase("queueType", "query", *o.QueueType, []interface{}{"COUNSELING", "CLOSEOUT", "TASK_ORDER", "PAYMENT_REQUEST", "DESTINATION_REQUESTS"}, true); err != nil {
 		return err
 	}
 

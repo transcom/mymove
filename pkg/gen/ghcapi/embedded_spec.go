@@ -2765,10 +2765,10 @@ func init() {
           "in": "body",
           "schema": {
             "required": [
-              "roleType"
+              "queueType"
             ],
             "properties": {
-              "roleType": {
+              "queueType": {
                 "type": "string"
               }
             }
@@ -2915,6 +2915,63 @@ func init() {
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/office-users/{officeUserId}": {
+      "patch": {
+        "description": "This endpoint updates a single Office User by ID. This is to be used by office users to update their profile.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "officeUsers"
+        ],
+        "summary": "Updates an Office User",
+        "operationId": "updateOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Office User",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -4554,7 +4611,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUESTS"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -5024,6 +5082,12 @@ func init() {
             "type": "string",
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -7317,14 +7381,14 @@ func init() {
       "type": "object",
       "required": [
         "officeUserId",
-        "roleType"
+        "queueType"
       ],
       "properties": {
         "officeUserId": {
           "type": "string",
           "format": "uuid"
         },
-        "roleType": {
+        "queueType": {
           "type": "string"
         }
       }
@@ -7555,7 +7619,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
@@ -7719,6 +7784,12 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -8244,6 +8315,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counselingOfficeId": {
           "type": "string",
@@ -10759,6 +10836,9 @@ func init() {
         "TOOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
+        "TOODestinationAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -11654,6 +11734,20 @@ func init() {
           "title": "roleType",
           "x-nullable": true,
           "example": "task_ordering_officer"
+        }
+      }
+    },
+    "OfficeUserUpdate": {
+      "type": "object",
+      "required": [
+        "telephone"
+      ],
+      "properties": {
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "example": "212-555-5555"
         }
       }
     },
@@ -15146,6 +15240,12 @@ func init() {
         "originDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -19717,10 +19817,10 @@ func init() {
           "in": "body",
           "schema": {
             "required": [
-              "roleType"
+              "queueType"
             ],
             "properties": {
-              "roleType": {
+              "queueType": {
                 "type": "string"
               }
             }
@@ -19878,6 +19978,78 @@ func init() {
             "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/office-users/{officeUserId}": {
+      "patch": {
+        "description": "This endpoint updates a single Office User by ID. This is to be used by office users to update their profile.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "officeUsers"
+        ],
+        "summary": "Updates an Office User",
+        "operationId": "updateOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Office User",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -22014,7 +22186,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUESTS"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -22514,6 +22687,12 @@ func init() {
             "type": "string",
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -25225,14 +25404,14 @@ func init() {
       "type": "object",
       "required": [
         "officeUserId",
-        "roleType"
+        "queueType"
       ],
       "properties": {
         "officeUserId": {
           "type": "string",
           "format": "uuid"
         },
-        "roleType": {
+        "queueType": {
           "type": "string"
         }
       }
@@ -25463,7 +25642,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
@@ -25631,6 +25811,12 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -26156,6 +26342,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counselingOfficeId": {
           "type": "string",
@@ -28671,6 +28863,9 @@ func init() {
         "TOOAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
+        "TOODestinationAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -29566,6 +29761,20 @@ func init() {
           "title": "roleType",
           "x-nullable": true,
           "example": "task_ordering_officer"
+        }
+      }
+    },
+    "OfficeUserUpdate": {
+      "type": "object",
+      "required": [
+        "telephone"
+      ],
+      "properties": {
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "example": "212-555-5555"
         }
       }
     },
@@ -33190,6 +33399,12 @@ func init() {
         "originDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"

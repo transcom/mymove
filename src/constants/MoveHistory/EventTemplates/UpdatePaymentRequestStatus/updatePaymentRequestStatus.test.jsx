@@ -46,14 +46,14 @@ describe('When given a updatePaymentRequestStatus event', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Submitted payment request 4462-6355-1')).toBeInTheDocument();
+    expect(screen.getByText('Reviewed payment request 4462-6355-1')).toBeInTheDocument();
   });
 
   it('should display the event name with the correct payment request number using changedValues', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord2));
-    expect(screen.getByText('Submitted payment request 4462-6355-2')).toBeInTheDocument();
+    expect(screen.getByText('Reviewed payment request 4462-6355-2')).toBeInTheDocument();
   });
 
   it('should render the expected svg icons', () => {

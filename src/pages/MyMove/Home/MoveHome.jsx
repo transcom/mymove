@@ -456,6 +456,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
               </dd>
             </div>
           )}
+          {orders?.entitlement?.ub_weight_restriction > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>UB weight restriction</dt>
+              <dd>{formatWeight(orders?.entitlement?.ub_weight_restriction)}</dd>
+            </div>
+          )}
           {move.moveCode && (
             <div className={styles.subheaderSubsection}>
               <dt>Move code</dt>

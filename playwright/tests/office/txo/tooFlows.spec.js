@@ -413,7 +413,7 @@ test.describe('TOO user', () => {
 
       // Edit orders page | Save
       await page.getByRole('button', { name: 'Save' }).click();
-      await page.getByRole('heading', { name: 'Move details' }).waitFor();
+      await page.getByRole('heading', { name: 'Move Details' }).waitFor();
 
       // Verify edited values are saved
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/details`);
@@ -496,9 +496,9 @@ test.describe('TOO user', () => {
 
     // Test that the TOO is blocked from doing QAE actions
     test('is unable to see create report buttons', async ({ page }) => {
-      await page.getByText('Quality assurance').click();
+      await page.getByText('Quality Assurance').click();
       await tooFlowPage.waitForLoading();
-      await expect(page.getByText('Quality assurance reports')).toBeVisible();
+      await expect(page.getByText('Quality Assurance Reports')).toBeVisible();
 
       // Make sure there are no create report buttons on the page
       await expect(page.getByText('Create report')).not.toBeVisible();

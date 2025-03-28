@@ -63,6 +63,7 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		ContractNumber:                                 moveTaskOrder.Contractor.ContractNumber,
 		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		PrimeAcknowledgedAt:                            handlers.FmtDateTimePtr(moveTaskOrder.PrimeAcknowledgedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -681,6 +682,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
 		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
+		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
 	}
 
 	// Set up address payloads
@@ -934,11 +936,25 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev3messages.MTOServiceItemDomesticShuttle{
-			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
-			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			RequestApprovalsRequestedStatus: mtoServiceItem.RequestedApprovalsRequestedStatus,
+			EstimatedWeight:                 handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:                    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+
+	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
+		var portCode string
+		if mtoServiceItem.POELocation != nil {
+			portCode = mtoServiceItem.POELocation.Port.PortCode
+		} else if mtoServiceItem.PODLocation != nil {
+			portCode = mtoServiceItem.PODLocation.Port.PortCode
+		}
+		payload = &primev3messages.MTOServiceItemInternationalFuelSurcharge{
+			ReServiceCode: string(mtoServiceItem.ReService.Code),
+			PortCode:      portCode,
+		}
+
 	case models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
 		shuttleSI := &primev3messages.MTOServiceItemInternationalShuttle{
 			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
@@ -965,19 +981,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 		}
 
 		payload = shuttleSI
-
-	case models.ReServiceCodePODFSC, models.ReServiceCodePOEFSC:
-		var portCode string
-		if mtoServiceItem.POELocation != nil {
-			portCode = mtoServiceItem.POELocation.Port.PortCode
-		} else if mtoServiceItem.PODLocation != nil {
-			portCode = mtoServiceItem.PODLocation.Port.PortCode
-		}
-		payload = &primev3messages.MTOServiceItemInternationalFuelSurcharge{
-			ReServiceCode: string(mtoServiceItem.ReService.Code),
-			PortCode:      portCode,
-		}
-
 	default:
 		// otherwise, basic service item
 		payload = &primev3messages.MTOServiceItemBasic{

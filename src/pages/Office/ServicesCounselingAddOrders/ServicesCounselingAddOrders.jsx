@@ -79,7 +79,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   }, []);
 
   const isSafetyPrivileged =
-    isSafetyMoveFF && isSafetyMoveSelected !== false
+    isSafetyMoveFF && isSafetyMoveSelected
       ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
       : false;
 
@@ -111,6 +111,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
     accompaniedTour: '',
     dependentsUnderTwelve: '',
     dependentsTwelveAndOver: '',
+    civilianTdyUbAllowance: '',
   };
 
   const handleSubmit = (values) => {
