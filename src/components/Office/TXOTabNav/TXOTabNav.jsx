@@ -66,7 +66,7 @@ const TXOTabNav = ({
       to={`/moves/${moveCode}/details`}
       data-testid="MoveDetails-Tab"
     >
-      <span className="tab-title">Move details</span>
+      <span className="tab-title">Move Details</span>
       {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
     </NavLink>,
     <NavLink
@@ -75,7 +75,7 @@ const TXOTabNav = ({
       className={({ isActive }) => (isActive ? 'usa-current' : '')}
       to={`/moves/${moveCode}/mto`}
     >
-      <span className="tab-title">Move task order</span>
+      <span className="tab-title">Move Task Order</span>
       {moveTaskOrderTagCount > 0 && <Tag>{moveTaskOrderTagCount}</Tag>}
     </NavLink>,
     <NavLink
@@ -83,7 +83,7 @@ const TXOTabNav = ({
       className={({ isActive }) => (isActive ? 'usa-current' : '')}
       to={`/moves/${moveCode}/payment-requests`}
     >
-      <span className="tab-title">Payment requests</span>
+      <span className="tab-title">Payment Requests</span>
       {pendingPaymentRequestCount > 0 && <Tag>{pendingPaymentRequestCount}</Tag>}
     </NavLink>,
     <NavLink
@@ -91,13 +91,13 @@ const TXOTabNav = ({
       className={({ isActive }) => (isActive ? 'usa-current' : '')}
       to={`/moves/${moveCode}/customer-support-remarks`}
     >
-      <span className="tab-title">Customer support remarks</span>
+      <span className="tab-title">Customer Support Remarks</span>
     </NavLink>,
     <NavLink className={({ isActive }) => (isActive ? 'usa-current' : '')} to={`/moves/${moveCode}/evaluation-reports`}>
-      <span className="tab-title">Quality assurance</span>
+      <span className="tab-title">Quality Assurance</span>
     </NavLink>,
     <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={`/moves/${moveCode}/history`}>
-      <span className="tab-title">Move history</span>
+      <span className="tab-title">Move History</span>
     </NavLink>,
   ];
 
