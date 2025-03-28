@@ -935,14 +935,19 @@ const ShipmentForm = (props) => {
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
-                    <Fieldset>
+                    <Fieldset data-testid="requestedPickupDateFieldSet">
                       {isRequestedPickupDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
                           {requestedPickupDateAlertMessage}
                         </Alert>
                       )}
                       {requestedPickupDateErrorMessage && (
-                        <Alert type="error" aria-live="assertive" headingLevel="h4">
+                        <Alert
+                          type="error"
+                          aria-live="assertive"
+                          headingLevel="h4"
+                          data-testid="requestedPickupDateAlert"
+                        >
                           {requestedPickupDateErrorMessage}
                         </Alert>
                       )}

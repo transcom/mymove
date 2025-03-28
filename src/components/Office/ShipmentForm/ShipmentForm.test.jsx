@@ -2,6 +2,7 @@
 import React from 'react';
 import { render, screen, waitFor, within, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
 
 import ShipmentForm from './ShipmentForm';
 
@@ -13,6 +14,7 @@ import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -742,6 +744,94 @@ describe('ShipmentForm component', () => {
       });
       expect(screen.getByText('We can use the zip of their new duty location:')).toBeTruthy();
       expect(screen.queryByLabelText('Destination type')).toBeNull();
+    });
+  });
+
+  it('when touched - requestedPickupDate must be in the future', async () => {
+    renderWithRouter(
+      <ShipmentForm
+        {...defaultProps}
+        isCreatePage={false}
+        shipmentType={SHIPMENT_OPTIONS.HHG}
+        displayDestinationType={false}
+      />,
+    );
+
+    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+
+    await act(async () => {
+      const node = screen.getByLabelText('Requested pickup date');
+      await userEvent.clear(node);
+      await userEvent.paste('26 Mar 2022');
+      node.blur();
+    });
+
+    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
+    expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+      'Requested pickup date must be in the future.',
+    );
+    expect(
+      await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
+    ).toHaveTextContent('Required');
+
+    const now = formatDateForDatePicker(formatDateWithUTC(new Date()));
+    await act(async () => {
+      const node = screen.getByLabelText('Requested pickup date');
+      await userEvent.clear(node);
+      await userEvent.paste(now);
+      node.blur();
+    });
+
+    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(now);
+    expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+      'Requested pickup date must be in the future.',
+    );
+    expect(
+      await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
+    ).toHaveTextContent('Required');
+  });
+
+  it('when touched - valid requestedPickupDate hides errors', async () => {
+    renderWithRouter(
+      <ShipmentForm
+        {...defaultProps}
+        isCreatePage={false}
+        shipmentType={SHIPMENT_OPTIONS.HHG}
+        displayDestinationType={false}
+      />,
+    );
+
+    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+
+    await act(async () => {
+      const node = screen.getByLabelText('Requested pickup date');
+      await userEvent.clear(node);
+      await userEvent.paste('26 Mar 2022');
+      node.blur();
+    });
+
+    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
+    expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+      'Requested pickup date must be in the future.',
+    );
+    expect(
+      await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
+    ).toHaveTextContent('Required');
+
+    const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+    await act(async () => {
+      const node = screen.getByLabelText('Requested pickup date');
+      await userEvent.clear(node);
+      await userEvent.paste(tomorrow);
+      node.blur();
+    });
+
+    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrow);
+    await waitFor(() => {
+      expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
+      ).not.toBeInTheDocument();
     });
   });
 
