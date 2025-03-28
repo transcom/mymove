@@ -60,6 +60,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		rejectionReason := "Test rejection Reason"
 		rejectionReason2 := "Test rejection2 Reason"
 		rejectedOn := time.Date(2025, 03, 05, 1, 1, 1, 1, time.Local)
+		rejectedOn2 := time.Date(2024, 03, 07, 1, 1, 1, 1, time.Local)
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -83,6 +84,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice2.ID,
 					RejectionReason:        &rejectionReason2,
+					RejectedOn:             &rejectedOn2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
@@ -95,6 +97,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 					Status:                 &status,
 					TransportationOfficeID: transportationOffice2.ID,
 					RejectionReason:        &rejectionReason,
+					RejectedOn:             &rejectedOn2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
@@ -223,7 +226,7 @@ func (suite *HandlerSuite) TestIndexRejectedOfficeUsersHandler() {
 		suite.Contains(*okResponse.Payload[0].RejectionReason, reasonSearch)
 
 		// rejectedOn search
-		rejectedOnSearch := "03"
+		rejectedOnSearch := "5"
 		filterJSON = fmt.Sprintf("{\"rejectedOn\":\"%s\"}", rejectedOnSearch)
 		params = rejectedofficeuserop.IndexRejectedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/rejected_office_users"),
