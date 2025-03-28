@@ -80,7 +80,7 @@ type OktaError struct {
 }
 
 type OktaGroupProfile struct {
-	Name        string `json:"id"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
@@ -329,7 +329,7 @@ func GetOktaUserGroups(appCtx appcontext.AppContext, provider *okta.Provider, ap
 	// https://developer.okta.com/docs/api/openapi/okta-management/management/tag/UserResources/#tag/UserResources/operation/listUserGroups
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		appCtx.Logger().Error("could not create GET request when fetching groups for user", zap.Error(err))
+		appCtx.Logger().Error("could not create GET request when fetching user groups", zap.Error(err))
 		return nil, err
 	}
 	req.Header.Add("Authorization", "SSWS "+apiKey)
@@ -339,20 +339,20 @@ func GetOktaUserGroups(appCtx appcontext.AppContext, provider *okta.Provider, ap
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		appCtx.Logger().Error("could not execute GET request when fetching existing okta users for registration", zap.Error(err))
+		appCtx.Logger().Error("could not execute GET request when fetching user groups", zap.Error(err))
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	response, err := io.ReadAll(resp.Body)
 	if err != nil {
-		appCtx.Logger().Error("could not read GET response when fetching existing okta users for registration", zap.Error(err))
+		appCtx.Logger().Error("could not read GET response when fetching user groups", zap.Error(err))
 		return nil, err
 	}
 
 	var groups []OktaGroup
 	if err := json.Unmarshal(response, &groups); err != nil {
-		appCtx.Logger().Error("could not unmarshal GET response when fetching existing okta users for registration", zap.Error(err))
+		appCtx.Logger().Error("could not unmarshal GET response when fetching user groups", zap.Error(err))
 		return nil, err
 	}
 	return groups, nil
@@ -369,7 +369,7 @@ func AddOktaUserToGroup(appCtx appcontext.AppContext, provider *okta.Provider, a
 	// https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Group/#tag/Group/operation/assignUserToGroup
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
-		appCtx.Logger().Error("could not create PUT request when fetching groups for user", zap.Error(err))
+		appCtx.Logger().Error("could not create PUT request when adding user to Okta group", zap.Error(err))
 		return err
 	}
 	req.Header.Add("Authorization", "SSWS "+apiKey)
@@ -379,14 +379,14 @@ func AddOktaUserToGroup(appCtx appcontext.AppContext, provider *okta.Provider, a
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		appCtx.Logger().Error("could not execute GET request when fetching existing okta users for registration", zap.Error(err))
+		appCtx.Logger().Error("could not execute PUT request when adding user to Okta group", zap.Error(err))
 		return err
 	}
 	defer resp.Body.Close()
 
 	response, err := io.ReadAll(resp.Body)
 	if err != nil {
-		appCtx.Logger().Error("could not read GET response when fetching existing okta users for registration", zap.Error(err))
+		appCtx.Logger().Error("could not read PUT response when adding user to Okta group", zap.Error(err))
 		return err
 	}
 
@@ -401,7 +401,7 @@ func AddOktaUserToGroup(appCtx appcontext.AppContext, provider *okta.Provider, a
 		return err
 	}
 
-	// If you want to return an error only if Okta provided one, you might do:
+	// if we can see the error summary, we will send that back
 	if oktaErr.ErrorSummary != "" {
 		return errors.New(oktaErr.ErrorSummary)
 	}

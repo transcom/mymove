@@ -199,13 +199,14 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params registrationo
 						}
 					}
 
+					// if they are not already in the customer group, then we need to add them
+					// use case of this would be for office users that are registering for customer accounts
 					if !found {
 						err = models.AddOktaUserToGroup(appCtx, provider, apiKey, customerGroupID, oktaUser.ID)
 						if err != nil {
 							return nil, err
 						}
 					}
-
 					break
 				}
 			}
