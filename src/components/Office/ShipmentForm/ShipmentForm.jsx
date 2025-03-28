@@ -742,6 +742,14 @@ const ShipmentForm = (props) => {
           }
         };
 
+        const validatePickupDate = (e) => {
+          let error = validateDate(e);
+          if (!error && requestedPickupDateErrorMessage) {
+            error = 'Required';
+          }
+          return error;
+        };
+
         const handleDeliveryDateChange = (e) => {
           setValues({
             ...values,
@@ -942,7 +950,7 @@ const ShipmentForm = (props) => {
                         name="pickup.requestedDate"
                         label="Requested pickup date"
                         id="requestedPickupDate"
-                        validate={validateDate}
+                        validate={validatePickupDate}
                         onChange={handlePickupDateChange}
                       />
                     </Fieldset>
