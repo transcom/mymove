@@ -13503,6 +13503,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "assignable": {
           "type": "boolean"
         },
@@ -31605,6 +31611,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "assignable": {
           "type": "boolean"
