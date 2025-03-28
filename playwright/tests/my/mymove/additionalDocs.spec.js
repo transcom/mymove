@@ -10,7 +10,7 @@ test.describe('Additional Documents', () => {
   test('Users can download documents uploaded to Additional Documents', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
 
     // Sign-in and navigate to move home page
     await customerPage.signInAsExistingCustomer(userId);

@@ -45,7 +45,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async signInForPPMWithMove(move) {
-    await this.signInAsExistingCustomer(move.Orders.ServiceMember.user_id);
+    const userId = move?.Orders?.service_member?.user_id;
+    await this.signInAsExistingCustomer(userId);
   }
 
   /**
@@ -163,16 +164,18 @@ export class CustomerPpmPage extends CustomerPage {
     // this helps debounce the API calls that would be triggered in quick succession
     await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
-    const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
+    const pickupLocation = 'YUMA, AZ 85369 (YUMA)';
+    const destinationLocation = 'YUMA, AZ 85366 (YUMA)';
+    const w2Location = 'YUMA, AZ 85367 (YUMA)';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
     await this.page.locator('input[id="pickupAddress-input"]').fill('85369');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-input"]').fill('85369');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.locator('input[id="destinationAddress-input"]').fill('85366');
+    await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     if (options?.selectAdvance) {
@@ -183,8 +186,8 @@ export class CustomerPpmPage extends CustomerPage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="w2Address-input"]').fill('85369');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.locator('input[id="w2Address-input"]').fill('85367');
+    await expect(this.page.getByText(w2Location, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
