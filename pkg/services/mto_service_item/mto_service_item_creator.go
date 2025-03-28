@@ -3,6 +3,7 @@ package mtoserviceitem
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"slices"
 	"strconv"
 	"time"
@@ -27,17 +28,25 @@ type createMTOServiceItemQueryBuilder interface {
 }
 
 type mtoServiceItemCreator struct {
-	planner             route.Planner
-	builder             createMTOServiceItemQueryBuilder
-	createNewBuilder    func() createMTOServiceItemQueryBuilder
-	moveRouter          services.MoveRouter
-	unpackPricer        services.DomesticUnpackPricer
-	packPricer          services.DomesticPackPricer
-	linehaulPricer      services.DomesticLinehaulPricer
-	shorthaulPricer     services.DomesticShorthaulPricer
-	originPricer        services.DomesticOriginPricer
-	destinationPricer   services.DomesticDestinationPricer
-	fuelSurchargePricer services.FuelSurchargePricer
+	planner                   route.Planner
+	builder                   createMTOServiceItemQueryBuilder
+	createNewBuilder          func() createMTOServiceItemQueryBuilder
+	moveRouter                services.MoveRouter
+	unpackPricer              services.DomesticUnpackPricer
+	packPricer                services.DomesticPackPricer
+	linehaulPricer            services.DomesticLinehaulPricer
+	shorthaulPricer           services.DomesticShorthaulPricer
+	originPricer              services.DomesticOriginPricer
+	destinationPricer         services.DomesticDestinationPricer
+	fuelSurchargePricer       services.FuelSurchargePricer
+	destinationFirstDayPricer services.DomesticDestinationFirstDaySITPricer
+	destinationDeliveryPricer services.DomesticDestinationSITDeliveryPricer
+	destinationAddlPricer     services.DomesticDestinationAdditionalDaysSITPricer
+	destinationFuelPricer     services.DomesticDestinationSITFuelSurchargePricer
+	originFirstDayPricer      services.DomesticOriginFirstDaySITPricer
+	originDeliveryPricer      services.DomesticOriginSITPickupPricer
+	originAddlPricer          services.DomesticOriginAdditionalDaysSITPricer
+	originFuelPricer          services.DomesticOriginSITFuelSurchargePricer
 }
 
 // FindEstimatedPrice finds the estimated price for a service item
@@ -196,6 +205,150 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 		}
 		return price, nil
 	}
+	return 0, nil
+}
+
+func calcTotalSITDuration(entryDate, departureDate time.Time) int {
+	difference := departureDate.Sub(entryDate)
+	days := difference.Hours() / 24
+	return int(math.Ceil(days))
+}
+
+func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+	if serviceItem.CheckIsSITServiceItem() {
+		isPPM := false
+		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+			isPPM = true
+		}
+
+		var requestedPickupDate time.Time
+		if mtoShipment.RequestedPickupDate != nil {
+			requestedPickupDate = *mtoShipment.RequestedPickupDate
+		} else {
+			return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No requested pickup date exists for this shipment.")
+		}
+		currTime := time.Now()
+		var distance int
+
+		contractCode, err := FetchContractCode(appCtx, currTime)
+		if err != nil {
+			contractCode, err = FetchContractCode(appCtx, requestedPickupDate)
+			if err != nil {
+				return 0, err
+			}
+		}
+
+		var adjustedWeight *unit.Pound
+		if isPPM {
+			adjustedWeight = GetAdjustedWeight(*mtoShipment.PPMShipment.EstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+		} else if mtoShipment.PrimeEstimatedWeight != nil {
+			adjustedWeight = GetAdjustedWeight(*mtoShipment.PrimeEstimatedWeight, mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage)
+
+		} else {
+			return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No estimated weight exists for this service item.")
+		}
+
+		var price unit.Cents
+
+		switch serviceItem.ReService.Code {
+		case models.ReServiceCodeDDFSIT:
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+
+			price, _, err = o.destinationFirstDayPricer.Price(
+				appCtx,
+				contractCode,
+				requestedPickupDate,
+				*adjustedWeight,
+				domesticServiceArea.ServiceArea,
+				false)
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeDDDSIT:
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+
+			price, _, err = o.destinationDeliveryPricer.Price(
+				appCtx,
+				contractCode,
+				requestedPickupDate,
+				*adjustedWeight,
+				domesticServiceArea.ServiceArea,
+				domesticServiceArea.SITPDSchedule,
+				mtoShipment.PickupAddress.PostalCode,
+				serviceItem.SITDestinationOriginalAddress.PostalCode,
+				unit.Miles(distance))
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeDDASIT:
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+
+			daysSIT := calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+
+			price, _, err = o.destinationAddlPricer.Price(
+				appCtx,
+				contractCode,
+				requestedPickupDate,
+				*adjustedWeight,
+				domesticServiceArea.ServiceArea,
+				daysSIT,
+				false)
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeDDSFSC:
+			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, requestedPickupDate)
+			if err != nil {
+				return 0, err
+			}
+
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *adjustedWeight)
+			if err != nil {
+				return 0, err
+			}
+			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+			if err != nil {
+				return 0, err
+			}
+
+			price, _, err = o.destinationFuelPricer.Price(appCtx, requestedPickupDate, unit.Miles(distance), *adjustedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		default:
+			price = 0
+			// case models.ReServiceCodeDOPSIT:
+			// case models.ReServiceCodeDOFSIT:
+			// case models.ReServiceCodeDOASIT:
+			// case models.ReServiceCodeDOSFSC:
+		}
+
+		return price, nil
+	}
+
 	return 0, nil
 }
 
@@ -645,6 +798,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 	}
 
+	// calculate estimated prices for SIT service items on creation
+	if serviceItem.CheckIsSITServiceItem() {
+		price, err := o.FindSITEstimatedPrice(appCtx, serviceItem, mtoShipment)
+		if err != nil {
+			return nil, nil, apperror.NewConflictError(serviceItem.ID, err.Error())
+		}
+
+		serviceItem.PricingEstimate = &price
+	}
+
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
@@ -816,13 +979,52 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, unpackPricer services.DomesticUnpackPricer, packPricer services.DomesticPackPricer, linehaulPricer services.DomesticLinehaulPricer, shorthaulPricer services.DomesticShorthaulPricer, originPricer services.DomesticOriginPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(
+	planner route.Planner,
+	builder createMTOServiceItemQueryBuilder,
+	moveRouter services.MoveRouter,
+	unpackPricer services.DomesticUnpackPricer,
+	packPricer services.DomesticPackPricer,
+	linehaulPricer services.DomesticLinehaulPricer,
+	shorthaulPricer services.DomesticShorthaulPricer,
+	originPricer services.DomesticOriginPricer,
+	destinationPricer services.DomesticDestinationPricer,
+	fuelSurchargePricer services.FuelSurchargePricer,
+	destinationFirstDayPricer services.DomesticDestinationFirstDaySITPricer,
+	destinationDeliveryPricer services.DomesticDestinationSITDeliveryPricer,
+	destinationAddlPricer services.DomesticDestinationAdditionalDaysSITPricer,
+	destinationFuelPricer services.DomesticDestinationSITFuelSurchargePricer,
+	originFirstDayPricer services.DomesticOriginFirstDaySITPricer,
+	originDeliveryPricer services.DomesticOriginSITPickupPricer,
+	originAddlPricer services.DomesticOriginAdditionalDaysSITPricer,
+	originFuelPricer services.DomesticOriginSITFuelSurchargePricer,
+) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func() createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, unpackPricer: unpackPricer, packPricer: packPricer, linehaulPricer: linehaulPricer, shorthaulPricer: shorthaulPricer, originPricer: originPricer, destinationPricer: destinationPricer, fuelSurchargePricer: fuelSurchargePricer}
+	return &mtoServiceItemCreator{
+		planner:                   planner,
+		builder:                   builder,
+		createNewBuilder:          createNewBuilder,
+		moveRouter:                moveRouter,
+		unpackPricer:              unpackPricer,
+		packPricer:                packPricer,
+		linehaulPricer:            linehaulPricer,
+		shorthaulPricer:           shorthaulPricer,
+		originPricer:              originPricer,
+		destinationPricer:         destinationPricer,
+		fuelSurchargePricer:       fuelSurchargePricer,
+		destinationFirstDayPricer: destinationFirstDayPricer,
+		destinationDeliveryPricer: destinationDeliveryPricer,
+		destinationAddlPricer:     destinationAddlPricer,
+		destinationFuelPricer:     destinationFuelPricer,
+		originFirstDayPricer:      originFirstDayPricer,
+		originDeliveryPricer:      originDeliveryPricer,
+		originAddlPricer:          originAddlPricer,
+		originFuelPricer:          originFuelPricer,
+	}
 }
 
 func validateTimeMilitaryField(_ appcontext.AppContext, timeMilitary string) error {

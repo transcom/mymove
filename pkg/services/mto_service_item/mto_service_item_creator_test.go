@@ -234,7 +234,26 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	creator := NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
 
 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemForUnapprovedMove)
@@ -262,7 +281,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	creator := NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	// Happy path: If the service item is created successfully it should be returned
 	suite.Run("200 Success - Destination SIT Service Item Creation", func() {
@@ -1125,7 +1162,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -1174,7 +1229,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.NotNil(createdServiceItems)
@@ -1248,7 +1321,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		// Successful creation of DOFSIT
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
@@ -1383,7 +1474,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Error(err)
 		expectedError := fmt.Sprintf(
@@ -1428,7 +1537,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Error(err)
 		expectedError := fmt.Sprintf(
@@ -1463,7 +1590,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
@@ -1497,7 +1642,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
@@ -1530,7 +1693,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
@@ -1605,7 +1786,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -1639,7 +1838,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 		return shipment, creator, reServiceDDFSIT
@@ -1964,6 +2181,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	suite.Run("Failure - DDASIT creation needs DDFSIT", func() {
 
 		// Make the necessary SIT code objects
+		_, creator, _ := setupTestData()
 		reServiceDDASIT, _, _ := setupAdditionalSIT()
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
@@ -1987,15 +2205,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
 
 		suite.Nil(createdServiceItems)
@@ -2058,6 +2267,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	suite.Run("Failure - cannot create domestic service item international domestic shipment", func() {
+		_, creator, _ := setupTestData()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		dimension := models.MTOServiceItemDimension{
 			Type:      models.DimensionTypeItem,
@@ -2096,16 +2306,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			SITDestinationFinalAddress:   &destAddress,
 		}
 
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &internationalServiceItem)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -2115,6 +2315,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	suite.Run("Failure - cannot create international service item for domestic shipment", func() {
+		_, creator, _ := setupTestData()
+
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		dimension := models.MTOServiceItemDimension{
 			Type:      models.DimensionTypeItem,
@@ -2152,16 +2354,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			SITDestinationFinalAddressID: &destAddress.ID,
 			SITDestinationFinalAddress:   &destAddress,
 		}
-
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &internationalServiceItem)
 		suite.Nil(createdServiceItems)
@@ -2446,7 +2638,25 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
 		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
@@ -2744,7 +2954,25 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.Anything,
 			mock.Anything,
 		).Return(800, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
 		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
