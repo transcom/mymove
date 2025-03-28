@@ -1132,20 +1132,17 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 	}
 
 	payload := &ghcmessages.ProGearWeightTicket{
-		ID:                        strfmt.UUID(progear.ID.String()),
-		PpmShipmentID:             ppmShipmentID,
-		CreatedAt:                 *handlers.FmtDateTime(progear.CreatedAt),
-		UpdatedAt:                 *handlers.FmtDateTime(progear.UpdatedAt),
-		DocumentID:                *handlers.FmtUUID(progear.DocumentID),
-		Document:                  document,
-		Weight:                    handlers.FmtPoundPtr(progear.Weight),
-		SubmittedWeight:           handlers.FmtPoundPtr(progear.SubmittedWeight),
-		BelongsToSelf:             progear.BelongsToSelf,
-		SubmittedBelongsToSelf:    progear.SubmittedBelongsToSelf,
-		HasWeightTickets:          progear.HasWeightTickets,
-		SubmittedHasWeightTickets: progear.SubmittedHasWeightTickets,
-		Description:               progear.Description,
-		ETag:                      etag.GenerateEtag(progear.UpdatedAt),
+		ID:               strfmt.UUID(progear.ID.String()),
+		PpmShipmentID:    ppmShipmentID,
+		CreatedAt:        *handlers.FmtDateTime(progear.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(progear.UpdatedAt),
+		DocumentID:       *handlers.FmtUUID(progear.DocumentID),
+		Document:         document,
+		Weight:           handlers.FmtPoundPtr(progear.Weight),
+		BelongsToSelf:    progear.BelongsToSelf,
+		HasWeightTickets: progear.HasWeightTickets,
+		Description:      progear.Description,
+		ETag:             etag.GenerateEtag(progear.UpdatedAt),
 	}
 
 	if progear.Status != nil {

@@ -26,7 +26,6 @@ import {
   getAllMoves,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
@@ -254,12 +253,6 @@ const ProGear = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Pro-gear</h1>
             {renderError()}
-            <div className={closingPageStyles['closing-section']}>
-              <p>
-                If you moved pro-gear for yourself or your spouse as part of this PPM, document the total weight here.
-                Reminder: This pro-gear should be included in your total weight moved.
-              </p>
-            </div>
             <ProGearForm
               entitlements={proGearEntitlements}
               proGear={currentProGearWeightTicket}
