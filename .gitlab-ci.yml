@@ -1094,7 +1094,7 @@ integration_tests:
 
 
 integration_test_mtls:
-  stage: pre_pre_checks
+  stage: test
   interruptible: true
   cache:
     - <<: *yarn_cache
@@ -1493,7 +1493,7 @@ integration_test_office:
    - *check_integration_ignore_branch
 
 integration_test_e2e_generic:
-  stage: pre_pre_checks
+  stage: test
   interruptible: true
   cache:
     - <<: *yarn_cache
