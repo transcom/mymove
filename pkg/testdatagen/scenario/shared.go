@@ -9034,6 +9034,7 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 	move.TIORemarks = &tioRemarks
 	testdatagen.MustSave(db, &move)
 	reweighedWeight := unit.Pound(800)
+	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		UserUploader: userUploader,
 		MTOShipment: models.MTOShipment{
@@ -9042,6 +9043,15 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 		},
 		Reweigh: models.Reweigh{
 			Weight: &reweighedWeight,
+		},
+		Address: models.Address{
+			UsPostRegionCityID: &usprcId,
+		},
+		PickupAddress: models.Address{
+			UsPostRegionCityID: &usprcId,
+		},
+		DestinationAddress: models.Address{
+			UsPostRegionCityID: &usprcId,
 		},
 	})
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{UserUploader: userUploader})
