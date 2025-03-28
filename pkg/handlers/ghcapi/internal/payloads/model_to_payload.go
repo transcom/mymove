@@ -2404,10 +2404,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
-		var approvalRequestTypes []string
-		if activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeHQ) {
-			approvalRequestTypes = attachApprovalRequestTypes(move)
-		}
+		approvalRequestTypes := attachApprovalRequestTypes(move)
 
 		// queue assignment logic below
 
