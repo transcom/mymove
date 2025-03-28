@@ -13,7 +13,19 @@ func (suite *ReportViolationSuite) TestAddAppealToViolation() {
 	appealAdder := NewReportViolationsAddAppeal()
 	suite.Run("Successfully adds an appeal to a violation", func() {
 		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
-		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+		})
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		remarks := "Test remarks"
@@ -33,7 +45,19 @@ func (suite *ReportViolationSuite) TestAddAppealToViolation() {
 	})
 
 	suite.Run("Returns error for nil reportID", func() {
-		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+		})
 		officeUserID := uuid.Must(uuid.NewV4())
 		remarks := "Test remarks"
 		appealStatus := "sustained"
@@ -74,7 +98,19 @@ func (suite *ReportViolationSuite) TestAddAppealToViolation() {
 
 	suite.Run("Returns error for nil officeUserID", func() {
 		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
-		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+		})
 		remarks := "Test remarks"
 		appealStatus := "sustained"
 
@@ -94,7 +130,19 @@ func (suite *ReportViolationSuite) TestAddAppealToViolation() {
 
 	suite.Run("Returns error for invalid appeal status", func() {
 		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
-		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+		violation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+		})
 		officeUserID := uuid.Must(uuid.NewV4())
 		remarks := "Test remarks"
 		appealStatus := "invalid_status"

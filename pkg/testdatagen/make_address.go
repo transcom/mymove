@@ -67,6 +67,6 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 }
 
 // MakeDefaultAddress makes an Address with default values
-func MakeDefaultAddress(db *pop.Connection) models.Address {
-	return MakeAddress(db, Assertions{})
+func MakeDefaultAddress(db *pop.Connection, assertions Assertions) models.Address {
+	return MakeAddress(db, assertions)
 }

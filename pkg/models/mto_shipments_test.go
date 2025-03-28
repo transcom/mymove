@@ -285,15 +285,24 @@ func (suite *ModelSuite) TestDetermineMarketCode() {
 func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 	suite.Run("test creating approved service items for shipment", func() {
 
+		usprc1, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc1)
+		suite.FatalNoError(err)
+
+		usprc2, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99695", "ANCHORAGE")
+		suite.NotNil(usprc2)
+		suite.FatalNoError(err)
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
+					StreetAddress1:     "some address",
+					City:               "city",
+					State:              "CA",
+					PostalCode:         "90210",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &usprc1.ID,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -304,16 +313,18 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					StreetAddress1:     "some address",
+					City:               "city",
+					State:              "AK",
+					PostalCode:         "99695",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc2.ID,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
-		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
+
+		err = models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
 		suite.NoError(err)
 	})
 

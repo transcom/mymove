@@ -51,6 +51,9 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Under test: assembleMTOServiceItemPayload
 		// Set up:     Create a DDFSIT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DDFSIT details
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+
 		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
@@ -62,6 +65,15 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 				Code: models.ReServiceCodeDDFSIT,
 				Name: "Destination 1st Day SIT",
 			},
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
 		})
 		customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
@@ -72,6 +84,15 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			},
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDFSIT,
+			},
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
 			},
 		})
 		mtoServiceItemDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{

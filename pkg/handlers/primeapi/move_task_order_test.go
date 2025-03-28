@@ -388,12 +388,24 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		now := time.Now()
 		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Move: successMove,
 			Reweigh: models.Reweigh{
 				VerificationReason:     models.StringPointer("Justification"),
 				VerificationProvidedAt: &nowDate,
 				Weight:                 models.PoundPointer(4000),
+			},
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
 			},
 		})
 
@@ -1371,12 +1383,27 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		later := nowDate.AddDate(0, 0, 3) // this is an arbitrary amount
 		finalAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+
+		usprc2, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+
 		contact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				DateOfContact:              time.Date(2023, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
 				FirstAvailableDeliveryDate: time.Date(2023, time.December, 02, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeFirst,
+			},
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc2.ID,
 			},
 		})
 
@@ -1386,6 +1413,15 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				TimeMilitary:               "1600Z",
 				FirstAvailableDeliveryDate: time.Date(2023, time.December, 07, 0, 0, 0, 0, time.UTC),
 				Type:                       models.CustomerContactTypeSecond,
+			},
+			Address: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			PickupAddress: models.Address{
+				UsPostRegionCityID: &usprc.ID,
+			},
+			DestinationAddress: models.Address{
+				UsPostRegionCityID: &usprc2.ID,
 			},
 		})
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{

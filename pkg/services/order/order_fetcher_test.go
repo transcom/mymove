@@ -2428,14 +2428,20 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				},
 			},
 		}, nil)
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "30813", "GROVETOWN")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		// Create data for a second Origin ZANY
 		dutyLocationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "Anchor 1212",
-					City:           "Fort Eisenhower",
-					State:          "GA",
-					PostalCode:     "89898",
+					StreetAddress1:     "Anchor 1212",
+					City:               "Fort Eisenhower",
+					State:              "GA",
+					PostalCode:         "89898",
+					UsPostRegionCityID: &usprc.ID,
 				},
 			},
 		}, nil)
@@ -3180,10 +3186,14 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		postalCode := "AGFM"
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "AGFM", "AGFM")
 
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "35007", "ALABASTER")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		// setting up two moves, each with requested destination SIT service items
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: postalCode},
+				Model: models.Address{PostalCode: postalCode, UsPostRegionCityID: &usprc.ID},
 			},
 		}, nil)
 

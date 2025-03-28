@@ -456,6 +456,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -465,13 +470,15 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "33",
+					PostalCode:         "33",
+					UsPostRegionCityID: &usprc.ID,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					PostalCode: "90103",
+					PostalCode:         "90103",
+					UsPostRegionCityID: &usprc.ID,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -502,16 +509,23 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "33607",
+					PostalCode:         "33607",
+					UsPostRegionCityID: &usprc.ID,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					PostalCode: "901",
+					PostalCode:         "901",
+					UsPostRegionCityID: &usprc.ID,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},

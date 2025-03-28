@@ -23,7 +23,7 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	dutyLocation := assertions.Order.NewDutyLocation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyLocationID) {
-		dutyLocation = fetchOrMakeDefaultNewOrdersDutyLocation(db)
+		dutyLocation = fetchOrMakeDefaultNewOrdersDutyLocation(db, assertions)
 	}
 
 	document := assertions.Order.UploadedOrders

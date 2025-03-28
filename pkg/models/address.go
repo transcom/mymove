@@ -50,7 +50,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	}
 	address := Address{}
 	var response *Address
-	if err := dbConnection.Q().Eager("Country").Find(&address, id); err != nil {
+	if err := dbConnection.Q().Eager("Country", "UsPostRegionCity").Find(&address, id); err != nil {
 		response = nil
 		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
@@ -69,6 +69,7 @@ func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: a.City, Name: "City"},
 		&validators.StringIsPresent{Field: a.State, Name: "State"},
 		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
+		&validators.StringIsPresent{Field: a.UsPostRegionCityID.String(), Name: "UsPostRegionCityID"},
 	), nil
 }
 
