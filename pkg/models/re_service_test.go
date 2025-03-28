@@ -42,8 +42,8 @@ func (suite *ModelSuite) TestFetchReServiceBycode() {
 }
 
 func (suite *ModelSuite) TestIsDestinationRequest() {
-	suite.Run("returns true when a service item is a destination request", func() {
-		destinationSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+	suite.Run("returns true when a service item is a domestic destination request", func() {
+		destinationSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDFSIT,
@@ -51,18 +51,30 @@ func (suite *ModelSuite) TestIsDestinationRequest() {
 			},
 		}, nil)
 
-		destinationSITBool := models.IsDestinationRequest(destinationSit.ReService.Code)
+		destinationSITBool := models.IsDestinationRequest(destinationSIT.ReService.Code)
+		suite.True(destinationSITBool)
+	})
+	suite.Run("returns true when a service item is a international destination request", func() {
+		intlDestinationSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDFSIT,
+				},
+			},
+		}, nil)
+
+		destinationSITBool := models.IsDestinationRequest(intlDestinationSIT.ReService.Code)
 		suite.True(destinationSITBool)
 	})
 	suite.Run("returns false when a service item is not a destination request", func() {
-		originSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		originSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
-		originSITBool := models.IsDestinationRequest(originSit.ReService.Code)
+		originSITBool := models.IsDestinationRequest(originSIT.ReService.Code)
 		suite.False(originSITBool)
 	})
 }

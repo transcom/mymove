@@ -832,8 +832,8 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, moveCount)
 		suite.Equal(1, len(moves))
 		suite.Equal(2, len(moves[0].MTOServiceItems))
-		suite.Equal("Domestic origin 1st day SIT", moves[0].MTOServiceItems[0].ReService.Name)
-		suite.Equal("Domestic crating", moves[0].MTOServiceItems[1].ReService.Name)
+		suite.Equal(models.ReServiceCode("DOFSIT"), moves[0].MTOServiceItems[0].ReService.Code)
+		suite.Equal(models.ReServiceCode("DCRT"), moves[0].MTOServiceItems[1].ReService.Code)
 	})
 
 	suite.Run("task order queue returns a move with origin requested SIT service items", func() {
