@@ -122,3 +122,5 @@ export { default as approveShipments } from './ApproveShipments/approveShipments
 export { default as approveShipmentsUpdateAllowances } from './ApproveShipments/approveShipmentsUpdateAllowances';
 export { default as approveShipmentsApproveMove } from './ApproveShipments/approveShipmentsApproveMove';
 export { default as approveShipmentsServiceItem } from './ApproveShipments/approveShipmentsServiceItem';
+export { default as acknowledgMove } from './AcknowledgeMovesAndShipments/acknowledgeMove';
+export { default as acknowledgeShipment } from './AcknowledgeMovesAndShipments/acknowledgeShipment';
