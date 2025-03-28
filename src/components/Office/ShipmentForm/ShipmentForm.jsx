@@ -631,7 +631,17 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
+      {({
+        values,
+        isValid,
+        isSubmitting,
+        setValues,
+        handleSubmit,
+        setFieldError,
+        validateForm,
+        setFieldTouched,
+        ...formikProps
+      }) => {
         const {
           ppmType,
           hasSecondaryDestination,
@@ -680,6 +690,11 @@ const ShipmentForm = (props) => {
         if (values.year === null && !formikProps.touched.year && formikProps.errors.year === 'Required') {
           setFieldError('year', null);
         }
+
+        const updateAddressTouched = (e, fieldName, address) => {
+          handleAddressToggleChange(e, values, setValues, address);
+          setFieldTouched(`${fieldName}.usPostRegionCitiesID`, true);
+        };
 
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -963,7 +978,7 @@ const ShipmentForm = (props) => {
                                     title="Yes, I have a second pickup address"
                                     checked={hasSecondaryPickup === 'true'}
                                     disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                    onChange={(e) => updateAddressTouched(e, 'secondaryPickup.address', blankAddress)}
                                   />
                                   <Field
                                     as={Radio}
@@ -1004,7 +1019,7 @@ const ShipmentForm = (props) => {
                                               )
                                             }
                                             onChange={(e) =>
-                                              handleAddressToggleChange(e, values, setValues, blankAddress)
+                                              updateAddressTouched(e, 'tertiaryPickup.address', blankAddress)
                                             }
                                           />
                                           <Field
@@ -1127,7 +1142,7 @@ const ShipmentForm = (props) => {
                                 title="Yes, I have a second destination location"
                                 checked={hasSecondaryDelivery === 'true'}
                                 disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                onChange={(e) => updateAddressTouched(e, 'secondaryDelivery.address', blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -1167,7 +1182,9 @@ const ShipmentForm = (props) => {
                                             values.secondaryDelivery.address,
                                           )
                                         }
-                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                        onChange={(e) =>
+                                          updateAddressTouched(e, 'tertiaryDelivery.address', blankAddress)
+                                        }
                                       />
                                       <Field
                                         as={Radio}
@@ -1262,9 +1279,7 @@ const ShipmentForm = (props) => {
                                 value="false"
                                 title="No, I do not know my delivery address"
                                 checked={hasDeliveryAddress === 'false'}
-                                onChange={(e) =>
-                                  handleAddressToggleChange(e, values, setValues, newDutyLocationAddress)
-                                }
+                                onChange={(e) => updateAddressTouched(e, 'delivery.address', newDutyLocationAddress)}
                               />
                             </div>
                           </FormGroup>
@@ -1299,7 +1314,9 @@ const ShipmentForm = (props) => {
                                         disabled={
                                           !isPreceedingAddressComplete(hasDeliveryAddress, values.delivery.address)
                                         }
-                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                        onChange={(e) =>
+                                          updateAddressTouched(e, 'secondaryDelivery.address', blankAddress)
+                                        }
                                       />
                                       <Field
                                         as={Radio}
@@ -1342,7 +1359,7 @@ const ShipmentForm = (props) => {
                                                   )
                                                 }
                                                 onChange={(e) =>
-                                                  handleAddressToggleChange(e, values, setValues, blankAddress)
+                                                  updateAddressTouched(e, 'tertiaryDelivery.address', blankAddress)
                                                 }
                                               />
                                               <Field
@@ -1507,7 +1524,7 @@ const ShipmentForm = (props) => {
                                   title="Yes, there is a second pickup address"
                                   checked={hasSecondaryPickup === 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                  onChange={(e) => updateAddressTouched(e, 'secondaryPickup.address', blankAddress)}
                                 />
                                 <Field
                                   as={Radio}
@@ -1551,7 +1568,7 @@ const ShipmentForm = (props) => {
                                             )
                                           }
                                           onChange={(e) =>
-                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                            updateAddressTouched(e, 'tertiaryPickup.address', blankAddress)
                                           }
                                         />
                                         <Field
@@ -1612,7 +1629,9 @@ const ShipmentForm = (props) => {
                                   disabled={
                                     !isPreceedingAddressPPMPrimaryDestinationComplete(values.destination.address)
                                   }
-                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                  onChange={(e) =>
+                                    updateAddressTouched(e, 'secondaryDestination.address', blankAddress)
+                                  }
                                 />
                                 <Field
                                   as={Radio}
@@ -1658,7 +1677,7 @@ const ShipmentForm = (props) => {
                                             )
                                           }
                                           onChange={(e) =>
-                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                            updateAddressTouched(e, 'tertiaryDestination.address', blankAddress)
                                           }
                                         />
                                         <Field
