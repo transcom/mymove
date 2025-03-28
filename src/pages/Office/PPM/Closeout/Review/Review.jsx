@@ -38,7 +38,7 @@ import {
 } from 'utils/shipments';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { deleteWeightTicket } from 'services/ghcApi';
+import { deleteWeightTicket, deleteProGearWeightTicket } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
@@ -93,6 +93,14 @@ const Review = () => {
     },
   });
 
+  const { mutate: mutateProGearWeightTicket } = useMutation(deleteProGearWeightTicket, {
+    onSuccess: () => {
+      setIsDeleteModalVisible(false);
+      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+      setIsDeleting(false);
+    },
+  });
+
   const weightTicketCreatePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
     moveCode,
     shipmentId,
@@ -124,8 +132,8 @@ const Review = () => {
 
   const onDeleteSubmit = (itemType, itemId, itemNumber) => {
     if (isDeleting) return;
-
     const ppmShipmentId = mtoShipment.ppmShipment?.id;
+
     if (itemType === 'weightTicket') {
       setIsDeleting(true);
       mutateWeightTicket(
@@ -142,8 +150,22 @@ const Review = () => {
       );
     }
     if (itemType === 'proGear') {
-      // TODO
-      if (ppmShipmentId && itemId) setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }); // remove this line and add in the logic for deleting proGear
+      setIsDeleting(true);
+      mutateProGearWeightTicket(
+        { ppmShipmentId, proGearWeightTicketId: itemId },
+        {
+          onSuccess: () => {
+            setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` });
+          },
+          onError: (error) => {
+            setIsDeleting(false);
+            setAlert({
+              type: 'error',
+              message: `${error} Something went wrong deleting ${itemNumber}. Please try again.`,
+            });
+          },
+        },
+      );
     }
     if (itemType === 'expense') {
       // TODO
