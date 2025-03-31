@@ -62,7 +62,6 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 		suite.NoError(err)
 		suite.Equal(move2.ID, dbMove2.ID)
 		suite.Equal(move2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
-
 		// Move 2 shipment 1
 		suite.Equal(move2.MTOShipments[0].ID, dbMove2.MTOShipments[0].ID)
 		suite.Equal(move2.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
