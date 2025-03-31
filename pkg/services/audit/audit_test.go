@@ -38,7 +38,7 @@ func TestCapture(t *testing.T) {
 			AdminUserID: adminUserID,
 		}
 
-		appCtx := appcontext.NewAppContext(nil, logger, &session)
+		appCtx := appcontext.NewAppContext(nil, logger, &session, nil)
 
 		req := &http.Request{
 			URL: &url.URL{
@@ -84,7 +84,7 @@ func TestCapture(t *testing.T) {
 			AdminUserID: adminUserID,
 		}
 
-		appCtx := appcontext.NewAppContext(nil, logger, &session)
+		appCtx := appcontext.NewAppContext(nil, logger, &session, nil)
 
 		req := &http.Request{
 			URL: &url.URL{
@@ -121,7 +121,7 @@ func TestCapture(t *testing.T) {
 			ServiceMemberID: serviceMemberID,
 		}
 
-		appCtx := appcontext.NewAppContext(nil, logger, &session)
+		appCtx := appcontext.NewAppContext(nil, logger, &session, nil)
 
 		zapFields, _ := Capture(appCtx, &model, nil, &dummyRequest)
 
@@ -138,7 +138,7 @@ func TestCapture(t *testing.T) {
 	t.Run("success when a non-pointer is passed in", func(t *testing.T) {
 		session := auth.Session{}
 
-		appCtx := appcontext.NewAppContext(nil, logger, &session)
+		appCtx := appcontext.NewAppContext(nil, logger, &session, nil)
 
 		zapFields, err := Capture(appCtx, model, nil, &dummyRequest)
 
@@ -158,7 +158,7 @@ func TestCapture(t *testing.T) {
 	t.Run("success when a non-struct is passed in", func(t *testing.T) {
 		session := auth.Session{}
 
-		appCtx := appcontext.NewAppContext(nil, logger, &session)
+		appCtx := appcontext.NewAppContext(nil, logger, &session, nil)
 
 		invalidArg := 5
 		zapFields, err := Capture(appCtx, &invalidArg, nil, &dummyRequest)
@@ -194,7 +194,7 @@ func TestCaptureAccountStatus(t *testing.T) {
 		AdminUserID: adminUserID,
 	}
 
-	appCtx := appcontext.NewAppContext(nil, logger, &session)
+	appCtx := appcontext.NewAppContext(nil, logger, &session, nil)
 
 	req := &http.Request{
 		URL: &url.URL{
