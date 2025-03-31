@@ -1998,24 +1998,18 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 			},
 		},
 	}, nil)
-	destinationServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-		{
-			Model: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusSubmitted,
-			},
-		},
-		{
-			Model:    shipment,
-			LinkOnly: true,
-		},
-		{
-			Model: models.ReService{
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		},
-	}, nil)
 
-	suite.Run("successfully attaches origin service item request to move", func() {
+	suite.Run("successfully attaches approvalRequestTypes to move", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+
+		var empty []string
+		suite.Len(queueMoves, 1)
+		suite.Nil(queueMoves[0].ApprovalRequestTypes)
+		suite.Equal(empty, queueMoves[0].ApprovalRequestTypes)
+	})
+	suite.Run("successfully attaches submitted service item request to move", func() {
 		serviceItems := models.MTOServiceItems{}
 		serviceItems = append(serviceItems, originSITServiceItem)
 		move.MTOServiceItems = serviceItems
@@ -2031,22 +2025,6 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 	suite.Run("does not attach a service item if it is not in submitted status", func() {
 		serviceItems := models.MTOServiceItems{}
 		serviceItems = append(serviceItems, originSITServiceItem, approvedServiceItem)
-		move.MTOServiceItems = serviceItems
-
-		moves := models.Moves{}
-		moves = append(moves, move)
-
-		suite.Len(moves[0].MTOServiceItems, 2)
-
-		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
-
-		suite.Len(queueMoves, 1)
-		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
-		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
-	})
-	suite.Run("does not attach a service item if it is a destination service item", func() {
-		serviceItems := models.MTOServiceItems{}
-		serviceItems = append(serviceItems, originSITServiceItem, destinationServiceItem)
 		move.MTOServiceItems = serviceItems
 
 		moves := models.Moves{}
