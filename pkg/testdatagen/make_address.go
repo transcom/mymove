@@ -19,6 +19,16 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 		IsOconus:       models.BoolPointer(false),
 	}
 
+	if db != nil {
+		var err error
+		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+		}
+
+		address.UsPostRegionCity = usprc
+		address.UsPostRegionCityID = &usprc.ID
+	}
+
 	mergeModels(&address, assertions.Address)
 
 	mustCreate(db, &address, assertions.Stub)
@@ -37,6 +47,16 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 		PostalCode:     "94535",
 		IsOconus:       models.BoolPointer(false),
 		County:         models.StringPointer("SOLANO"),
+	}
+
+	if db != nil {
+		var err error
+		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+		}
+
+		address.UsPostRegionCity = usprc
+		address.UsPostRegionCityID = &usprc.ID
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -59,6 +79,16 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 		IsOconus:       models.BoolPointer(false),
 	}
 
+	if db != nil {
+		var err error
+		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+		}
+
+		address.UsPostRegionCity = usprc
+		address.UsPostRegionCityID = &usprc.ID
+	}
+
 	mergeModels(&address, assertions.Address)
 
 	mustCreate(db, &address, assertions.Stub)
@@ -67,6 +97,6 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 }
 
 // MakeDefaultAddress makes an Address with default values
-func MakeDefaultAddress(db *pop.Connection, assertions Assertions) models.Address {
-	return MakeAddress(db, assertions)
+func MakeDefaultAddress(db *pop.Connection) models.Address {
+	return MakeAddress(db, Assertions{})
 }

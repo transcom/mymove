@@ -142,11 +142,15 @@ func (suite *FactorySuite) TestBuildAddress() {
 		precount, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
 
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "77083", "HOUSTON")
+		suite.NoError(err)
+
 		address := BuildAddress(nil, []Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: customAddress1,
-					IsOconus:       models.BoolPointer(false),
+					StreetAddress1:     customAddress1,
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &usprc.ID,
 				},
 			},
 		}, []Trait{
@@ -223,16 +227,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		// Set up:          No customizations or traits provided
 		// Expected outcome: Address should be created with default values
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-
-		address := BuildMinimalAddress(suite.DB(), []Customization{
-			{
-				Model: models.Address{
-					UsPostRegionCityID: &usprc.ID,
-				},
-			},
-		}, nil)
+		address := BuildMinimalAddress(suite.DB(), nil, nil)
 
 		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
 		suite.NoError(err)
@@ -249,16 +244,12 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		// Set up:          Create a minimal address with a customized StreetAddress1 and PostalCode
 		// Expected outcome: Address should be created with custom values
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-
 		address := BuildMinimalAddress(suite.DB(), []Customization{
 			{
 				Model: models.Address{
-					StreetAddress1:     customStreet,
-					PostalCode:         customPostalCode,
-					IsOconus:           models.BoolPointer(false),
-					UsPostRegionCityID: &usprc.ID,
+					StreetAddress1: customStreet,
+					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -278,16 +269,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		// Set up:          Create a minimal address with a trait
 		// Expected outcome: Address should be created with trait values
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
-
-		address := BuildMinimalAddress(suite.DB(), []Customization{
-			{
-				Model: models.Address{
-					UsPostRegionCityID: &usprc.ID,
-				},
-			},
-		}, []Trait{
+		address := BuildMinimalAddress(suite.DB(), nil, []Trait{
 			GetTraitAddress2,
 		})
 
@@ -340,17 +322,13 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		precount, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-
 		address := BuildMinimalAddress(suite.DB(), []Customization{
 			{
 				Model: models.Address{
-					ID:                 uuid.Must(uuid.NewV4()),
-					StreetAddress1:     customStreet,
-					PostalCode:         customPostalCode,
-					IsOconus:           models.BoolPointer(false),
-					UsPostRegionCityID: &usprc.ID,
+					ID:             uuid.Must(uuid.NewV4()),
+					StreetAddress1: customStreet,
+					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 				LinkOnly: true,
 			},
