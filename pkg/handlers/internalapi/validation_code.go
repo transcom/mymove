@@ -41,7 +41,6 @@ func (h ValidationCodeValidationCodeHandler) Handle(params vcodeops.ValidateCode
 
 			parameterValuePayload := payloadForApplicationParametersModel(result)
 
-			// TODO: Review me in tests
 			return vcodeops.NewValidateCodeOK().WithPayload(&parameterValuePayload), nil
 		})
 }
