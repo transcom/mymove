@@ -3725,7 +3725,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
-		move2, shipment2 := buildMoveKKFA("CC1234", "Spaceman")
+		move2, shipment2 := buildMoveKKFA("BB1234", "Spaceman")
 		// destination shuttle
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -3748,7 +3748,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
-		move3, shipment3 := buildMoveKKFA("CC1234", "Spaceman")
+		move3, shipment3 := buildMoveKKFA("AA6789", "Landman")
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -3780,7 +3780,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
-		move4, shipment4 := buildMoveKKFA("CC1234", "Spaceman")
+		move4, shipment4 := buildMoveKKFA("AA1234", "Spaceman")
 		// build the destination SIT service items and update their status to SUBMITTED
 		oneMonthLater := time.Now().AddDate(0, 1, 0)
 		factory.BuildDestSITServiceItems(suite.DB(), move4, shipment4, &oneMonthLater, nil)

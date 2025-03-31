@@ -904,11 +904,11 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 	}
 }
 
-// When a queue is sorted by a non-unique value (ex: status, branch) the order within each vlaue is inconsistent at different page sizes
+// When a queue is sorted by a non-unique value (ex: status, branch) the order within each value is inconsistent at different page sizes
 // Adding a secondary sort ensures a consistent order within the primary sort column
 func secondarySortOrder(sort *string) QueryOption {
 	return func(query *pop.Query) {
-		if sort == nil || (sort != nil && *sort != "locator") {
+		if sort == nil || *sort != "locator" {
 			query.Order("moves.locator asc")
 		}
 	}
