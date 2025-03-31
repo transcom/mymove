@@ -99,33 +99,18 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           <div className={styles.flashMessage}>
             <ConnectedFlashMessage />
           </div>
-          {serviceMemberMoves &&
-          serviceMemberMoves.previousMoves &&
-          serviceMemberMoves.previousMoves.length === 0 &&
-          serviceMemberMoves.currentMove &&
-          serviceMemberMoves.currentMove.length === 0 ? (
-            <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-              <p data-testid="welcomeHeader">
-                Select &quot;Create a Move&quot; to get started. <br />
-                <br />
-                If you encounter any issues please contact your local Transportation Office or the Help Desk for further
-                assistance.
-              </p>
-            </Helper>
-          ) : (
-            <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-              <p data-testid="welcomeHeaderPrevMoves">
-                Select &quot;Create a Move&quot; to get started. If you already have a move, select &quot;Go to
-                Move&quot; on the applicable move code below. <br /> <br />
-                If you are creating a new move and have an existing profile, please validate your information, click the
-                &quot;Validate Profile&quot; button and proceed to starting your move.
-                <br /> <br />
-                If you encounter any issues please contact your local Transportation Office or the
-                <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
-                for further assistance.
-              </p>
-            </Helper>
-          )}
+          <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
+            <p data-testid="welcomeHeader">
+              Select &quot;Create a Move&quot; to get started. If you already have a move, select &quot;Go to Move&quot;
+              on the applicable move code below. <br /> <br />
+              If you are creating a new move and have an existing profile, please validate your information, click the
+              &quot;Validate Profile&quot; button and proceed to starting your move.
+              <br /> <br />
+              If you encounter any issues please contact your local Transportation Office or the
+              <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
+              for further assistance.
+            </p>
+          </Helper>
           <div className={styles.centeredContainer}>
             <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick} data-testid="createMoveBtn">
               <span>Create a Move</span>
