@@ -106,7 +106,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalOriginSITFuelSurch
 					eiaFuelPrice:                     iosfscFuelPrice,
 					isPPM:                            false,
 				},
-				errorMessage: "Distance must be greater than 0",
+				errorMessage: "Distance must be greater than equal to 0",
 			},
 		}
 
