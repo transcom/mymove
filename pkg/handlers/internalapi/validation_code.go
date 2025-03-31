@@ -16,9 +16,6 @@ type ValidationCodeValidationCodeHandler struct {
 	handlers.HandlerConfig
 }
 
-// TODO: Tests and replace the frontend validation code fetch with this endpoint
-// TODO: Make sure the swagger def summary and desc is good
-
 // Handler receives a POST request containing a parameter value
 // if the value is present, it returns it back, if not, it returns an empty object
 func (h ValidationCodeValidationCodeHandler) Handle(params vcodeops.ValidateCodeParams) middleware.Responder {

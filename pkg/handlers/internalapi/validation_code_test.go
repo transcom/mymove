@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestValidationValidateHander() {
-	suite.Run("error for unauthenticated user outside the customer app", func() {
+	suite.Run("can lookup application values if within the customer app", func() {
 		user := factory.BuildDefaultUser(suite.DB())
 
 		req := httptest.NewRequest("POST", "/open/validation_code", nil)
