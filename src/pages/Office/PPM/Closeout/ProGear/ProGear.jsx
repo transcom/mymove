@@ -13,7 +13,7 @@ import {
   patchProGearWeightTicket,
   createUploadForPPMDocument,
   deleteUploadForDocument,
-  updateMTOShipment,
+  // updateMTOShipment,
   getMTOShipments,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
@@ -34,6 +34,7 @@ const ProGear = () => {
   const appName = APP_NAME.OFFICE;
   const ppmShipment = mtoShipment?.ppmShipment;
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
+  const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
 
   const currentProGearWeightTicket = proGearWeightTickets?.find((item) => item.id === proGearId) ?? null;
   const currentIndex = Array.isArray(proGearWeightTickets)
@@ -59,10 +60,18 @@ const ProGear = () => {
     },
   });
 
-  const { mutate: mutateGetMtoShipments } = useMutation(getMTOShipments);
-  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment);
+  //  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment);
+  const { mutate: mutateGetMtoShipments } = useMutation(getMTOShipments, {
+    onSuccess: () => {},
+    onError: () => {
+      setIsSubmitted(false);
+      setErrorMessage('Failed to get mtoshipment for update');
+    },
+  });
+
   const { mutate: mutatePatchProGearWeightTicket } = useMutation(patchProGearWeightTicket, {
     onSuccess: () => {
+      mutateGetMtoShipments(null, moveTaskOrderID);
       queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
     },
@@ -151,43 +160,43 @@ const ProGear = () => {
     });
   };
 
-  const updateShipment = (values, moveTaskOrderID, shipmentToUpdate) => {
-    const belongsToSelf = values.belongsToSelf === 'true';
-    let proGear;
-    let spouseProGear;
-    if (belongsToSelf) {
-      proGear = values.weight;
-    }
-    if (!belongsToSelf) {
-      spouseProGear = values.weight;
-    }
+  // const updateShipment = (values, moveTaskOrderID, shipmentToUpdate) => {
+  //   const belongsToSelf = values.belongsToSelf === 'true';
+  //   let proGear;
+  //   let spouseProGear;
+  //   if (belongsToSelf) {
+  //     proGear = values.weight;
+  //   }
+  //   if (!belongsToSelf) {
+  //     spouseProGear = values.weight;
+  //   }
 
-    const shipmentPayload = {
-      belongsToSelf,
-      ppmShipment: {
-        id: shipmentToUpdate.ppmShipment.id,
-      },
-      shipmentType: shipmentToUpdate.shipmentType,
-      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
-      actualProGearWeight: parseInt(proGear, 10),
-      shipmentLocator: values.shipmentLocator,
-      eTag: shipmentToUpdate.eTag,
-    };
+  //   const shipmentPayload = {
+  //     belongsToSelf,
+  //     ppmShipment: {
+  //       id: shipmentToUpdate.ppmShipment.id,
+  //     },
+  //     shipmentType: shipmentToUpdate.shipmentType,
+  //     actualSpouseProGearWeight: parseInt(spouseProGear, 10),
+  //     actualProGearWeight: parseInt(proGear, 10),
+  //     shipmentLocator: values.shipmentLocator,
+  //     eTag: shipmentToUpdate.eTag,
+  //   };
 
-    mutateUpdateMtoShipment({
-      moveTaskOrderID,
-      shipmentID: shipmentToUpdate.id,
-      ifMatchETag: shipmentPayload.eTag,
-      body: shipmentPayload,
-    });
-  };
+  //   mutateUpdateMtoShipment({
+  //     moveTaskOrderID,
+  //     shipmentID: shipmentToUpdate.id,
+  //     ifMatchETag: shipmentPayload.eTag,
+  //     body: shipmentPayload,
+  //   });
+  // };
 
-  const getShipments = (values) => {
-    const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
-    const shipmentToUpdate = mutateGetMtoShipments(moveTaskOrderID);
+  // const getShipments = (values) => {
+  //   const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
+  //   const shipmentToUpdate = mutateGetMtoShipments(moveTaskOrderID);
 
-    updateShipment(values, moveTaskOrderID, shipmentToUpdate);
-  };
+  //   updateShipment(values, moveTaskOrderID, shipmentToUpdate);
+  // };
 
   const handleSubmit = async (values) => {
     if (isSubmitted) return;
@@ -195,7 +204,6 @@ const ProGear = () => {
     setIsSubmitted(true);
     setErrorMessage(null);
     updateProGearWeightTicket(values);
-    getShipments(values);
   };
 
   const renderError = () => {
