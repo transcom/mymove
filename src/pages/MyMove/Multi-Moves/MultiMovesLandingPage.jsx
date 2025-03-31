@@ -26,6 +26,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import { profileStates } from 'constants/customerStates';
 import { getAllMoves } from 'services/internalApi';
+import { milmoveHelpDesk } from 'shared/constants';
 
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves, setCanAddOrders }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
@@ -107,7 +108,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
               &quot;Validate Profile&quot; button and proceed to starting your move.
               <br /> <br />
               If you encounter any issues please contact your local Transportation Office or the
-              <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
+              <a href={milmoveHelpDesk}> Help Desk </a>
               for further assistance.
             </p>
           </Helper>

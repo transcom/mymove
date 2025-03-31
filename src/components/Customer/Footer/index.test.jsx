@@ -4,6 +4,8 @@ import { render } from '@testing-library/react';
 
 import Footer from './index';
 
+import { milmoveHelpDesk } from 'shared/constants';
+
 describe('Footer', () => {
   it('has helpdesk email', () => {
     render(
@@ -16,7 +18,7 @@ describe('Footer', () => {
 
     Object.keys(obj).forEach((key) => {
       if (key === 'href') {
-        expect(obj[key]).toContain('mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil');
+        expect(obj[key]).toContain(milmoveHelpDesk);
       }
     });
   });
