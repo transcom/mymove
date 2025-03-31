@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/entitlements"
@@ -2587,6 +2588,11 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 				LinkOnly: true,
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeSAFETY,
+				},
+			},
 		}, nil)
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
@@ -2664,7 +2670,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 		suite.IsType(&queues.GetDestinationRequestsQueueOK{}, response)
 		payload := response.(*queues.GetDestinationRequestsQueueOK).Payload
 		suite.Len(payload.QueueMoves, 1)
-		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 2)
+		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
 	})
 	suite.Run("returns assigned users supervisor role without safetymove privilege", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
