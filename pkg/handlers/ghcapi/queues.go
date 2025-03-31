@@ -753,6 +753,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -774,6 +775,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -795,6 +797,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeTOO,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -816,6 +819,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeTIO,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -837,6 +841,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeTOO,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
