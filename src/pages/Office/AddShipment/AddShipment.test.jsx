@@ -220,7 +220,9 @@ describe('AddShipment component', () => {
         expect(saveButton).not.toBeDisabled();
       });
 
-      await userEvent.click(saveButton);
+      await waitFor(() => {
+        userEvent.click(saveButton);
+      });
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/moves/move123/details');

@@ -400,7 +400,9 @@ describe('EditOrders Page', () => {
     const submitButton = await screen.findByRole('button', { name: 'Save' });
     expect(submitButton).not.toBeDisabled();
 
-    await userEvent.click(submitButton);
+    await waitFor(() => {
+      userEvent.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);

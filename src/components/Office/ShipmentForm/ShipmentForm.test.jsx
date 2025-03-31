@@ -2349,11 +2349,13 @@ describe('ShipmentForm component', () => {
 
       const submitButton = screen.getByRole('button', { name: 'Save' });
 
-      await act(async () => {
+      await waitFor(() => {
         userEvent.click(submitButton);
       });
 
-      expect(submitButton).toBeDisabled();
+      await waitFor(() => {
+        expect(submitButton).toBeDisabled();
+      });
     });
 
     it('validates the year field is within the valid range', async () => {
@@ -2452,11 +2454,13 @@ describe('ShipmentForm component', () => {
 
       const submitButton = screen.getByRole('button', { name: 'Save' });
 
-      await act(async () => {
+      await waitFor(async () => {
         userEvent.click(submitButton);
       });
 
-      expect(submitButton).toBeDisabled();
+      await waitFor(async () => {
+        expect(submitButton).toBeDisabled();
+      });
     });
 
     it('validates the year field is within the valid range', async () => {
