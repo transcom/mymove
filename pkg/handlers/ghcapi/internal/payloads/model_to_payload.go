@@ -2311,7 +2311,7 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 func attachApprovalRequestTypes(move models.Move) []string {
 	var requestTypes []string
 	for _, item := range move.MTOServiceItems {
-		if item.Status == models.MTOServiceItemStatusSubmitted && !models.IsDestinationRequest(item.ReService.Code) {
+		if item.Status == models.MTOServiceItemStatusSubmitted {
 			requestTypes = append(requestTypes, string(item.ReService.Code))
 		}
 	}
