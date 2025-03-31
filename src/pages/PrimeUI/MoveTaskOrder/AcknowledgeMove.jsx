@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Formik } from 'formik';
 import { func } from 'prop-types';
 import { connect } from 'react-redux';
+import { useMutation } from '@tanstack/react-query';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useParams, useNavigate, generatePath } from 'react-router-dom';
 
+import { acknowledgeMovesAndShipments } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -16,8 +18,9 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { DatePickerInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { formatDateWithUTC } from 'shared/dates';
+import { formatDateForSwagger, formatDateWithUTC } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import scrollToTop from 'shared/scrollToTop';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const AcknowledgeMove = ({ setFlashMessage }) => {
@@ -25,6 +28,37 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const { moveCodeOrID } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+
+  const { mutate: acknowledgeMoveRequestMutation } = useMutation(acknowledgeMovesAndShipments, {
+    onSuccess: () => {
+      setFlashMessage(`ACKNOWLEDGE_MOVE_SUCCESS${moveCodeOrID}`, 'success', 'Successfully acknowledged move', '', true);
+
+      navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        let additionalDetails = '';
+        if (body.invalidFields) {
+          Object.keys(body.invalidFields).forEach((key) => {
+            additionalDetails += `:\n${key} - ${body.invalidFields[key]}`;
+          });
+        }
+
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}${additionalDetails}`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error',
+          detail: 'An unknown error has occurred.',
+        });
+      }
+      scrollToTop();
+    },
+  });
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -34,6 +68,19 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
   };
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+  };
+
+  const onSubmit = (values) => {
+    const { primeAcknowledgedAt } = values;
+
+    const body = [
+      {
+        id: moveTaskOrder.id,
+        primeAcknowledgedAt: formatDateForSwagger(primeAcknowledgedAt),
+      },
+    ];
+
+    acknowledgeMoveRequestMutation({ body });
   };
 
   return (
@@ -49,7 +96,7 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
             </div>
           )}
           <SectionWrapper className={formStyles.formSection}>
-            <Formik initialValues={initialValues} validateOnMount>
+            <Formik initialValues={initialValues} onSubmit={onSubmit}>
               {({ isValid, isSubmitting, handleSubmit }) => {
                 return (
                   <Form className={formStyles.form}>

@@ -1,11 +1,17 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import AcknowledgeMove from './AcknowledgeMove';
 import { renderWithProviders } from 'testUtils';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
+import userEvent from '@testing-library/user-event';
+import { acknowledgeMovesAndShipments } from 'services/primeApi';
 
 jest.mock('hooks/queries', () => ({
   usePrimeSimulatorGetMove: jest.fn(),
+}));
+
+jest.mock('services/primeApi', () => ({
+  acknowledgeMovesAndShipments: jest.fn(),
 }));
 
 const acknowledgedMoveReturnValue = {
@@ -28,7 +34,9 @@ const unacknowledgedMoveReturnValue = {
   isError: false,
 };
 
-describe('PrimeUI AcknowledgeMove', () => {
+const primeAcknowledgedAtText = 'Prime Acknowledged At';
+
+describe('PrimeUI AcknowledgeMove Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -41,6 +49,7 @@ describe('PrimeUI AcknowledgeMove', () => {
     usePrimeSimulatorGetMove.mockReturnValue(acknowledgedMoveReturnValue);
     renderWithProviders(<AcknowledgeMove />);
 
+    // Verify fields are present and populated
     const moveCodeElement = screen.getByText('Move Code:');
     expect(moveCodeElement).toBeInTheDocument();
     expect(moveCodeElement.nextSibling).toHaveTextContent('DEPPRQ');
@@ -52,6 +61,7 @@ describe('PrimeUI AcknowledgeMove', () => {
     const primeAcknowledgedAtText = 'Prime Acknowledged At';
     const primeAcknowledgedAtLabel = screen.getByText(primeAcknowledgedAtText);
     expect(primeAcknowledgedAtLabel).toBeInTheDocument();
+
     const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
     expect(dateInput).toBeInTheDocument();
     expect(dateInput).toHaveValue('13 Apr 2025');
@@ -69,11 +79,38 @@ describe('PrimeUI AcknowledgeMove', () => {
     expect(moveIdElement).toBeInTheDocument();
     expect(moveIdElement.nextSibling).toHaveTextContent('2');
 
-    const primeAcknowledgedAtText = 'Prime Acknowledged At';
     const primeAcknowledgedAtLabel = screen.getByText(primeAcknowledgedAtText);
     expect(primeAcknowledgedAtLabel).toBeInTheDocument();
+
+    // Verify prime acknowledged date is empty
     const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
     expect(dateInput).toBeInTheDocument();
     expect(dateInput).not.toHaveValue();
+  });
+
+  it('calls acknowledgeMovesAndShipments when the form is submitted', async () => {
+    usePrimeSimulatorGetMove.mockReturnValue(unacknowledgedMoveReturnValue);
+    renderWithProviders(<AcknowledgeMove />);
+
+    // Input a prime acknowledged at date
+    const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
+    userEvent.clear(dateInput);
+    fireEvent.change(dateInput, { target: { value: '17 May 2024' } });
+
+    // Submit the form
+    const submitButton = screen.getByText('Save');
+    userEvent.click(submitButton);
+
+    // Verify that the mutation function was called with the correct parameters
+    await waitFor(() => {
+      expect(acknowledgeMovesAndShipments).toHaveBeenCalledWith({
+        body: [
+          {
+            id: '2',
+            primeAcknowledgedAt: '2024-05-17',
+          },
+        ],
+      });
+    });
   });
 });
