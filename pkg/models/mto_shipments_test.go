@@ -562,3 +562,100 @@ func (suite *ModelSuite) TestIsPPMShipment() {
 		suite.Equal(isPPM, false)
 	})
 }
+
+func (suite *ModelSuite) TestIsShipmentOCOUS() {
+	suite.Run("dest OCONUS but pickup CONUS", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "AK",
+					PostalCode:     "98765",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.True(isOCONUS)
+	})
+
+	suite.Run("pickup OCONUS but dest CONUS", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "AK",
+					PostalCode:     "98765",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.True(isOCONUS)
+	})
+
+	suite.Run("pickup CONUS, dest CONUS", func() {
+		// default factory is two CONUS addresses
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.False(isOCONUS)
+	})
+
+	suite.Run("both OCONUS addresses", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "AK",
+					PostalCode:     "98765",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some other address",
+					City:           "city",
+					State:          "AK",
+					PostalCode:     "98765",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.True(isOCONUS)
+	})
+}
