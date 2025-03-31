@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +19,7 @@ func NewInternationalDestinationSITFuelSurchargePricer() services.InternationalD
 }
 
 func (p internationalDestinationSITFuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceIntlFuelSurcharge(appCtx, models.ReServiceCodeIDSFSC, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	return priceIntlFuelSurchargeSIT(appCtx, models.ReServiceCodeIDSFSC, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 }
 
 func (p internationalDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
@@ -31,19 +29,15 @@ func (p internationalDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx 
 	}
 
 	var paymentServiceItem models.PaymentServiceItem
-	mtoShipment := params[0].PaymentServiceItem.MTOServiceItem.MTOShipment
 
-	if mtoShipment.ID == uuid.Nil {
-		err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment", "MTOServiceItem.SITDestinationFinalAddress").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return unit.Cents(0), nil, apperror.NewNotFoundError(params[0].PaymentServiceItemID, "looking for PaymentServiceItem")
-			default:
-				return unit.Cents(0), nil, apperror.NewQueryError("PaymentServiceItem", err, "")
-			}
+	err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment", "MTOServiceItem.SITDestinationFinalAddress").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return unit.Cents(0), nil, apperror.NewNotFoundError(params[0].PaymentServiceItemID, "looking for PaymentServiceItem")
+		default:
+			return unit.Cents(0), nil, apperror.NewQueryError("PaymentServiceItem", err, "")
 		}
-		mtoShipment = paymentServiceItem.MTOServiceItem.MTOShipment
 	}
 
 	// do not calculate mileage if destination address is OCONUS. this is to prevent pricing to be calculated.
