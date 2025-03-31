@@ -320,9 +320,26 @@ func priceIntlFuelSurcharge(_ appcontext.AppContext, fuelSurchargeCode models.Re
 	return totalCost, displayParams, nil
 }
 
-func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
 	if pickupDeliverySITCode != models.ReServiceCodeIOPSIT && pickupDeliverySITCode != models.ReServiceCodeIDDSIT {
 		return 0, nil, fmt.Errorf("unsupported Intl PickupDeliverySIT code of %s", pickupDeliverySITCode)
+	}
+
+	// Validate parameters
+	if len(contractCode) == 0 {
+		return 0, nil, errors.New("ContractCode is required")
+	}
+
+	if referenceDate.IsZero() {
+		return 0, nil, errors.New("ReferenceDate is required")
+	}
+
+	if weight < minInternationalWeight {
+		return 0, nil, fmt.Errorf("weight must be a minimum of %d", minInternationalWeight)
+	}
+
+	if perUnitCents == 0 {
+		return 0, nil, errors.New("perUnitCents is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)

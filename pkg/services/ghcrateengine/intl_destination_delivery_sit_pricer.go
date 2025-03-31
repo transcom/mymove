@@ -18,18 +18,13 @@ func NewInternationalDestinationSITDeliveryPricer() services.InternationalDestin
 }
 
 // Price determines the price for international destination SIT delivery
-func (p internationalDestinationSITDeliveryPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceIntlPickupDeliverySIT(appCtx, models.ReServiceCodeIDDSIT, contractCode, referenceDate, weight, perUnitCents, distance)
+func (p internationalDestinationSITDeliveryPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceIntlPickupDeliverySIT(appCtx, models.ReServiceCodeIDDSIT, contractCode, referenceDate, weight, perUnitCents)
 }
 
 // PriceUsingParams determines the price for international destination SIT delivery given PaymentServiceItemParams
 func (p internationalDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
-	distanceZipSITOrigin, err := getParamInt(params, models.ServiceItemParamNameDistanceZipSITOrigin)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -49,5 +44,5 @@ func (p internationalDestinationSITDeliveryPricer) PriceUsingParams(appCtx appco
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), perUnitCents, unit.Miles(distanceZipSITOrigin))
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), perUnitCents)
 }

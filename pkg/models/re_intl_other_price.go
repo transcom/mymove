@@ -22,7 +22,7 @@ type ReIntlOtherPrice struct {
 	PerUnitCents  unit.Cents `json:"per_unit_cents" db:"per_unit_cents"`
 	CreatedAt     time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at" db:"updated_at"`
-	IsLess50Miles bool       `json:"is_less_50_miles" db:"is_less_50_miles"`
+	IsLess50Miles *bool      `json:"is_less_50_miles" db:"is_less_50_miles"`
 
 	// Associations
 	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`
