@@ -69,6 +69,22 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
+export const UPLOAD_DOC_STATUS = {
+  UPLOADING: 'UPLOADING',
+  SCANNING: 'SCANNING',
+  ESTABLISHING: 'ESTABLISHING',
+  LOADED: 'LOADED',
+};
+
+export const UPLOAD_DOC_STATUS_DISPLAY_MESSAGE = {
+  FILE_NOT_FOUND: 'File Not Found',
+  UPLOADING: 'Uploading',
+  SCANNING: 'Scanning',
+  ESTABLISHING_DOCUMENT_FOR_VIEWING: 'Establishing document for viewing',
+  INFECTED_FILE_MESSAGE:
+    'Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a photo of the original document instead.',
+};
+
 export const CONUS_STATUS = {
   CONUS: 'CONUS',
   OCONUS: 'OCONUS',
@@ -101,6 +117,18 @@ export const SHIPMENT_TYPES = {
   MOBILE_HOME: 'MOBILE_HOME',
   UNACCOMPANIED_BAGGAGE: 'UNACCOMPANIED_BAGGAGE',
 };
+
+export const PPM_TYPES = {
+  INCENTIVE_BASED: 'INCENTIVE_BASED',
+  ACTUAL_EXPENSE: 'ACTUAL_EXPENSE',
+  SMALL_PACKAGE: 'SMALL_PACKAGE',
+};
+
+export const ppmTypeLabels = [
+  { key: PPM_TYPES.INCENTIVE_BASED, label: 'Incentive-based' },
+  { key: PPM_TYPES.ACTUAL_EXPENSE, label: 'Actual Expense' },
+  { key: PPM_TYPES.SMALL_PACKAGE, label: 'Small Package' },
+];
 
 // These constants are used for forming URLs that have the shipment type in
 // them so that they are human readable.
@@ -203,6 +231,7 @@ export const DEFAULT_EMPTY_VALUE = '—'; // emdash
 
 export const FEATURE_FLAG_KEYS = {
   PPM: 'ppm',
+  PPM_SPR: 'ppm_spr',
   NTS: 'nts',
   NTSR: 'ntsr',
   BOAT: 'boat',
@@ -210,6 +239,8 @@ export const FEATURE_FLAG_KEYS = {
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
   BULK_ASSIGNMENT: 'bulk_assignment',
+  CUSTOMER_REGISTRATION: 'customer_registration',
+  COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

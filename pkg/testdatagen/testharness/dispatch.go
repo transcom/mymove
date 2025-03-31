@@ -104,6 +104,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithIntlCratingServiceItemsTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx)
 	},
+	"HHGMoveWithIntlShuttleServiceItemsTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithIntlShuttleServiceItemsTOO(appCtx)
+	},
 	"HHGMoveForTOOAfterActualPickupDate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForTOOAfterActualPickupDate(appCtx)
 	},
@@ -224,6 +227,12 @@ var actionDispatcher = map[string]actionFunc{
 	"OfficeUserWithTOOAndTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeOfficeUserWithTOOAndTIO(appCtx)
 	},
+	"RequestedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeRequestedOfficeUserWithTOO(appCtx)
+	},
+	"RejectedOfficeUser": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeRejectedOfficeUserWithTOO(appCtx)
+	},
 	"WebhookSubscription": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return testdatagen.MakeWebhookSubscription(appCtx.DB(), testdatagen.Assertions{})
 	},
@@ -271,6 +280,298 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"InternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeBasicInternationalHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx)
+	},
+	"IntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveWithCratingUncratingServiceItemsAndPaymentRequestsForTIO(appCtx)
+	},
+	// basic iHHG move with CONUS -> AK needing TOO approval
+	"IntlHHGMoveDestAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveDestAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveDestAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveDestAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveDestAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveDestAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAKZone2USMC(appCtx)
+	},
+	// basic iHHG move with AK -> CONUS needing TOO approval
+	"IntlHHGMovePickupAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone1Army(appCtx)
+	},
+	"IntlHHGMovePickupAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone2Army(appCtx)
+	},
+	"IntlHHGMovePickupAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMovePickupAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMovePickupAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMovePickupAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMovePickupAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone1USMC(appCtx)
+	},
+	"IntlHHGMovePickupAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMovePickupAKZone2USMC(appCtx)
+	},
+	// iHHG with international origin SIT in SUBMITTED status
+	"IntlHHGMoveOriginSITRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveOriginSITRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveOriginSITRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveOriginSITRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with international destination SIT in SUBMITTED status
+	"IntlHHGMoveDestSITRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveDestSITRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveDestSITRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveDestSITRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveDestSITRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestSITRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestSITRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveDestSITRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with BOTH international origin & destination SIT in SUBMITTED status
+	"IntlHHGMoveBothSITRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveBothSITRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveBothSITRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveBothSITRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveBothSITRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveBothSITRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveBothSITRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveBothSITRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothSITRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with international origin shuttle in SUBMITTED status
+	"IntlHHGMoveOriginShuttleRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveOriginShuttleRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveOriginShuttleRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveOriginShuttleRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveOriginShuttleRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveOriginShuttleRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveOriginShuttleRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveOriginShuttleRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginShuttleRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with international destination shuttle in SUBMITTED status
+	"IntlHHGMoveDestShuttleRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveDestShuttleRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveDestShuttleRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveDestShuttleRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveDestShuttleRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestShuttleRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestShuttleRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveDestShuttleRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestShuttleRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with BOTH international origin & destination shuttle in SUBMITTED status
+	"IntlHHGMoveBothShuttleRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveBothShuttleRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveBothShuttleRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveBothShuttleRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveBothShuttleRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveBothShuttleRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveBothShuttleRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveBothShuttleRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveBothShuttleRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with a destination address request in REQUESTED status
+	"IntlHHGMoveDestAddressRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveDestAddressRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveDestAddressRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveDestAddressRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveDestAddressRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestAddressRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestAddressRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveDestAddressRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestAddressRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with a PENDING SIT extension request containing origin SIT
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveOriginSITExtensionRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveOriginSITExtensionRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with a PENDING SIT extension request containing destination SIT
+	"IntlHHGMoveDestSITExtensionRequestedAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveDestSITExtensionRequestedAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone2Army(appCtx)
+	},
+	"IntlHHGMoveDestSITExtensionRequestedAKZone1AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone1AirForce(appCtx)
+	},
+	"IntlHHGMoveDestSITExtensionRequestedAKZone2AirForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone2AirForce(appCtx)
+	},
+	"IntlHHGMoveDestSITExtensionRequestedAKZone1SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone1SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestSITExtensionRequestedAKZone2SpaceForce": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone2SpaceForce(appCtx)
+	},
+	"IntlHHGMoveDestSITExtensionRequestedAKZone1USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone1USMC(appCtx)
+	},
+	"IntlHHGMoveDestSITExtensionRequestedAKZone2USMC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveDestSITExtensionRequestedAKZone2USMC(appCtx)
+	},
+	// iHHG with a PENDING excess weight notification
+	"IntlHHGMoveExcessWeightAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveExcessWeightAKZone1Army(appCtx)
+	},
+	"IntlHHGMoveExcessWeightAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveExcessWeightAKZone2Army(appCtx)
+	},
+	// iUB with a PENDING excess UB weight notification
+	"IntlUBMoveExcessWeightAKZone1Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlUBMoveExcessWeightAKZone1Army(appCtx)
+	},
+	"IntlUBMoveExcessWeightAKZone2Army": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlUBMoveExcessWeightAKZone2Army(appCtx)
 	},
 }
 
