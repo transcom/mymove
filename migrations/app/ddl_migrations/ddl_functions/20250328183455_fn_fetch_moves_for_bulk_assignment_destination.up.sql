@@ -1,5 +1,6 @@
 -- DROP FUNCTION public.fetch_moves_for_bulk_assignment_destination(text, bool);
 
+--B-22151 Jonathan Spight  added fetch_moves_for_bulk_assignment_destination
 CREATE OR REPLACE FUNCTION public.fetch_moves_for_bulk_assignment_destination(v_gbloc text, v_show boolean)
  RETURNS TABLE(ID uuid, earliest_date date)
  LANGUAGE plpgsql
