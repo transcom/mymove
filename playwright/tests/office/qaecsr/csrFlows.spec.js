@@ -8,7 +8,7 @@
 import { test, expect } from '../../utils/office/officeTest';
 
 test.describe('Customer Support User Flows', () => {
-  test.describe('Customer support remarks', () => {
+  test.describe('Customer Support Remarks', () => {
     test('is able to add, edit, and delete a remark', async ({ page, officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
       const moveLocator = move.locator;
@@ -16,14 +16,14 @@ test.describe('Customer Support User Flows', () => {
       await officePage.signInAsNewCustomerServiceRepresentativeUser();
       await officePage.csrSearchForAndNavigateToMove(moveLocator);
 
-      // Go to Customer support remarks
-      await page.getByText('Customer support remarks').click();
+      // Go to Customer Support Remarks
+      await page.getByText('Customer Support Remarks').click();
       await officePage.waitForLoading();
       expect(page.url()).toContain(`/moves/${moveLocator}/customer-support-remarks`);
       await expect(page.getByText('Past remarks')).toBeVisible();
 
       // Validate remarks page content
-      await expect(page.locator('h1')).toContainText('Customer support remarks');
+      await expect(page.locator('h1')).toContainText('Customer Support Remarks');
       await expect(page.locator('h2').getByText('Remarks', { exact: true })).toBeVisible();
       await expect(page.locator('h3')).toContainText('Past remarks');
       await expect(page.locator('small')).toContainText(
@@ -106,8 +106,8 @@ test.describe('Customer Support User Flows', () => {
       await officePage.signInAsNewCustomerServiceRepresentativeUser();
       await officePage.csrSearchForAndNavigateToMove(moveLocator);
 
-      // Go to Customer support remarks
-      await page.getByText('Customer support remarks').click();
+      // Go to Customer Support Remarks
+      await page.getByText('Customer Support Remarks').click();
       await officePage.waitForLoading();
 
       // Edited remark should exist but no edit/delete buttons as I am a different user
