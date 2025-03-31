@@ -54,7 +54,7 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, addressCr
 	// Change the SITDeliveryMiles of origin SIT service items
 	var updatedMtoServiceItems models.MTOServiceItems
 
-	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems"}
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems"}
 	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
 	if err != nil {
 		return &updatedMtoServiceItems, err
@@ -69,21 +69,8 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, addressCr
 			reServiceCode == models.ReServiceCodeIOPSIT ||
 			reServiceCode == models.ReServiceCodeIOSFSC {
 
-			if serviceItem.SITOriginHHGOriginalAddress != nil {
-				// Double check if new address postal code is different than from SITOriginHHGActualAddress. If different
-				// update service item with new actual postal code.
-				if serviceItem.SITOriginHHGActualAddress.PostalCode != newAddress.PostalCode {
-					clonedAddress := newAddress.Copy()
-					clonedAddress.ID = uuid.Nil
-					newSITOriginHHGActualAddress, err := addressCreator.CreateAddress(appCtx, clonedAddress)
-					if err != nil {
-						return nil, err
-					}
-					// update SITOriginHHGActualAddress with new postal code
-					serviceItem.SITOriginHHGActualAddress = newSITOriginHHGActualAddress
-					serviceItem.SITOriginHHGActualAddressID = &newSITOriginHHGActualAddress.ID
-				}
-				milesCalculated, err := planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGOriginalAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
+			if serviceItem.SITOriginHHGActualAddress != nil {
+				milesCalculated, err := planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
 				if err != nil {
 					return nil, err
 				}
@@ -92,7 +79,6 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, addressCr
 				updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
 
 			} else {
-				// When will origin serviceItem not have SITOriginHHGOriginalAddress?
 				milesCalculated, err := planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
 				if err != nil {
 					return nil, err

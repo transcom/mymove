@@ -284,7 +284,7 @@ func priceIntlCratingUncrating(appCtx appcontext.AppContext, cratingUncratingCod
 	return totalCost, displayParams, nil
 }
 
-func priceIntlFuelSurcharge(_ appcontext.AppContext, fuelSurchargeCode models.ReServiceCode, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func priceIntlFuelSurchargeSIT(_ appcontext.AppContext, fuelSurchargeCode models.ReServiceCode, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	if fuelSurchargeCode != models.ReServiceCodeIOSFSC && fuelSurchargeCode != models.ReServiceCodeIDSFSC {
 		return 0, nil, fmt.Errorf("unsupported international fuel surcharge code of %s", fuelSurchargeCode)
 	}
@@ -296,7 +296,7 @@ func priceIntlFuelSurcharge(_ appcontext.AppContext, fuelSurchargeCode models.Re
 	// zero represents pricing will not be calculated
 	// this to handle when origin/destination addresses are OCONUS
 	if distance < 0 {
-		return 0, nil, errors.New("Distance must be greater than 0")
+		return 0, nil, errors.New("Distance must be greater than equal to 0")
 	}
 	if weight < minInternationalWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)

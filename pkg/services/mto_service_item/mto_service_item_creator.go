@@ -307,10 +307,13 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 		serviceItem.ReService.Code == models.ReServiceCodeIOSFSC ||
 		serviceItem.ReService.Code == models.ReServiceCodeIOPSIT {
 		// Creation: Origin SIT: distance between shipment pickup address & service item pickup address
-		// On creation, shipment pickup and service item pickup are the same only if prime does not change
-		// the pickup address on add. Always want to compare between mtoShipment.PickupAddress.PostalCode and serviceItem.SITOriginHHGOriginalAddress.PostalCode
-		if mtoShipment.PickupAddress != nil && serviceItem.SITOriginHHGOriginalAddress != nil {
-			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+		// On creation, shipment pickup and service item pickup are the same
+		var originalSITAddressZip string
+		if mtoShipment.PickupAddress != nil {
+			originalSITAddressZip = mtoShipment.PickupAddress.PostalCode
+		}
+		if mtoShipment.PickupAddress != nil && originalSITAddressZip != "" {
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, originalSITAddressZip)
 		}
 	}
 

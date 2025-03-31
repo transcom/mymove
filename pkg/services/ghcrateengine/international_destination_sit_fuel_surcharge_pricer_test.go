@@ -100,7 +100,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 					fscWeightBasedDistanceMultiplier: idsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     idsfscFuelPrice,
 				},
-				errorMessage: "Distance must be greater than 0",
+				errorMessage: "Distance must be greater than equal to 0",
 			},
 		}
 
@@ -163,7 +163,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsInternationalDestina
 			},
 			{
 				Model:    conusAddress,
-				Type:     &factory.Addresses.SITDestinationOriginalAddress,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
 				LinkOnly: true,
 			},
 		}, nil)
