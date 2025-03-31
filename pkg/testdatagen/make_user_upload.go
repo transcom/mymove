@@ -40,7 +40,7 @@ func makeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 		}
 		// Ugh. Use the global logger. All testdatagen methods should
 		// take a logger
-		appCtx := appcontext.NewAppContext(db, zap.L(), nil)
+		appCtx := appcontext.NewAppContext(db, zap.L(), nil, nil)
 
 		userUpload, verrs, err = assertions.UserUploader.CreateUserUploadForDocument(
 			appCtx,

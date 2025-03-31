@@ -83,7 +83,12 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
       ],
       onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag, `Trip ${i + 1}`),
       renderEditLink: () => (
-        <Link to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}>Edit</Link>
+        <Link
+          data-testid={`weightMoved-${i + 1}`}
+          to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}
+        >
+          Edit
+        </Link>
       ),
     };
     if (weightTicket.vehicleDescription === null) {

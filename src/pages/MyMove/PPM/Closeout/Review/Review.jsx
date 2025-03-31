@@ -13,7 +13,7 @@ import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
+import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
   formatAboutYourPPMItem,
@@ -36,7 +36,7 @@ import {
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { PPM_TYPES } from 'shared/constants';
