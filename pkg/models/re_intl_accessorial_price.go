@@ -29,6 +29,17 @@ var validMarkets = []string{
 	string(MarketOconus),
 }
 
+func (m Market) FullString() string {
+	switch m {
+	case MarketConus:
+		return "CONUS"
+	case MarketOconus:
+		return "OCONUS"
+	default:
+		return ""
+	}
+}
+
 // ReIntlAccessorialPrice model struct
 type ReIntlAccessorialPrice struct {
 	ID           uuid.UUID  `json:"id" db:"id"`
@@ -60,15 +71,4 @@ func (r *ReIntlAccessorialPrice) Validate(_ *pop.Connection) (*validate.Errors, 
 		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
 		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: -1},
 	), nil
-}
-
-func (m Market) FullString() string {
-	switch m {
-	case MarketConus:
-		return "CONUS"
-	case MarketOconus:
-		return "OCONUS"
-	default:
-		return ""
-	}
 }

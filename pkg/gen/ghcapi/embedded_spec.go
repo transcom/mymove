@@ -1516,7 +1516,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move task order status to make it available to prime",
+        "description": "Changes move task order status",
         "consumes": [
           "application/json"
         ],
@@ -1526,7 +1526,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
+        "summary": "Change the status of a move task order",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -4273,7 +4273,172 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "delete": {
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a weight ticket by ID",
+        "operationId": "deleteWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the weight ticket to be deleted",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the weight ticket"
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
         "consumes": [
@@ -4403,6 +4568,46 @@ func init() {
             "schema": {
               "$ref": "#/definitions/BulkAssignmentData"
             }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/bulk-assignment/assign": {
+      "post": {
+        "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Assigns one or more moves to one or more office users",
+        "operationId": "saveBulkAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "assigned"
           },
           "401": {
             "$ref": "#/responses/PermissionDenied"
@@ -4617,6 +4822,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4665,6 +4876,162 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/destination-requests": {
+      "get": {
+        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC that have both CONUS \u0026 OCONUS destination requests (destination SIT, destination shuttle, address requests)",
+        "operationId": "getDestinationRequestsQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "requestedMoveDate",
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "SUBMITTED",
+                "SERVICE COUNSELING COMPLETED",
+                "APPROVALS REQUESTED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
             }
           },
           "403": {
@@ -4820,6 +5187,12 @@ func init() {
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4973,6 +5346,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -5244,6 +5623,64 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/shipments/approve": {
+      "post": {
+        "description": "Approves multiple shipments in one request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves multiple shipments at once",
+        "operationId": "approveShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveShipments"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MTOShipment"
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
     },
     "/shipments/{shipmentID}": {
       "get": {
@@ -6252,7 +6689,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved transportation offices",
+            "description": "Successfully retrieved GBLOCs",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -6271,6 +6708,57 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -6394,6 +6882,58 @@ func init() {
         "responses": {
           "204": {
             "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
           },
           "400": {
             "description": "invalid request",
@@ -6746,6 +7286,33 @@ func init() {
         }
       }
     },
+    "ApproveShipments": {
+      "type": "object",
+      "required": [
+        "approveShipments"
+      ],
+      "properties": {
+        "approveShipments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "shipmentID",
+              "eTag"
+            ],
+            "properties": {
+              "eTag": {
+                "type": "string"
+              },
+              "shipmentID": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      }
+    },
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
@@ -6809,7 +7376,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -6943,6 +7511,23 @@ func init() {
         }
       }
     },
+    "BulkAssignmentForUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer",
+          "x-omitempty": false
+        }
+      }
+    },
+    "BulkAssignmentMoveData": {
+      "type": "string",
+      "format": "uuid"
+    },
     "BulkAssignmentMoveID": {
       "type": "string",
       "format": "uuid",
@@ -6952,6 +7537,33 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
+    },
+    "BulkAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "moveData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentMoveData"
+          }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
+        },
+        "userData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
       }
     },
     "ClientError": {
@@ -6991,6 +7603,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -7002,10 +7638,6 @@ func init() {
         },
         "agency": {
           "$ref": "#/definitions/Affiliation"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
@@ -7062,6 +7694,18 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -7078,6 +7722,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -7597,6 +8245,12 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -7687,6 +8341,11 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "closeoutOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "destinationAddress": {
           "allOf": [
             {
@@ -7740,6 +8399,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -8264,11 +8926,23 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -8493,6 +9167,11 @@ func init() {
     },
     "FetchLineOfAccountingPayload": {
       "type": "object",
+      "required": [
+        "effectiveDate",
+        "departmentIndicator",
+        "tacCode"
+      ],
       "properties": {
         "departmentIndicator": {
           "$ref": "#/definitions/DepartmentIndicator"
@@ -9451,6 +10130,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
+          "x-nullable": true
+        },
         "standaloneCrate": {
           "type": "boolean",
           "x-nullable": true
@@ -10112,6 +10796,15 @@ func init() {
           "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
           "type": "string",
           "format": "uuid",
           "x-nullable": true
@@ -11344,6 +12037,27 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",
           "type": "integer",
@@ -11886,6 +12600,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -12098,6 +12815,16 @@ func init() {
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
         "COMPLETED"
+      ]
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
       ]
     },
     "PWSViolation": {
@@ -14071,10 +14798,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -14130,6 +14853,18 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -14415,6 +15150,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "grade": {
           "$ref": "#/definitions/Grade"
         },
@@ -14600,6 +15339,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -14898,6 +15640,18 @@ func init() {
           "description": "The weight of the vehicle when full.",
           "type": "integer"
         },
+        "missingEmptyWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "netWeightRemarks": {
           "description": "Remarks explaining any edits made to the net weight",
           "type": "string"
@@ -14916,6 +15670,12 @@ func init() {
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean"
+        },
+        "vehicleDescription": {
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -17408,7 +18168,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move task order status to make it available to prime",
+        "description": "Changes move task order status",
         "consumes": [
           "application/json"
         ],
@@ -17418,7 +18178,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
+        "summary": "Change the status of a move task order",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -20865,7 +21625,233 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Create a new upload for a PPM weight ticket, pro-gear, or moving expense document",
+        "operationId": "createPPMUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppm shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to add an upload to",
+            "name": "documentId",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/ppm-shipments/{ppmShipmentId}/weight-ticket": {
+      "post": {
+        "description": "Created a weight ticket document with the given information",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a weight ticket document",
+        "operationId": "createWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns new weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/WeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}": {
+      "delete": {
+        "description": "Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database. This may change the PPM shipment's final\nincentive.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a weight ticket by ID",
+        "operationId": "deleteWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the weight ticket to be deleted",
+            "name": "weightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the weight ticket"
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's weight ticket document with new information. Only some of the weight ticket document's\nfields are editable because some have to be set by the customer, e.g. vehicle description.\n",
         "consumes": [
@@ -21042,6 +22028,55 @@ func init() {
             "schema": {
               "$ref": "#/definitions/BulkAssignmentData"
             }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/bulk-assignment/assign": {
+      "post": {
+        "description": "Supervisor office users are able to assign moves. This endpoint saves office user assignments to multiple moves.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Assigns one or more moves to one or more office users",
+        "operationId": "saveBulkAssignmentData",
+        "parameters": [
+          {
+            "name": "bulkAssignmentSavePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentSavePayload"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "assigned"
           },
           "401": {
             "description": "The request was denied",
@@ -21265,6 +22300,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21319,6 +22360,168 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/destination-requests": {
+      "get": {
+        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items, destination shuttle service items and destination address requests that are not yet approved by the TOO.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC that have both CONUS \u0026 OCONUS destination requests (destination SIT, destination shuttle, address requests)",
+        "operationId": "getDestinationRequestsQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "requestedMoveDate",
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "SUBMITTED",
+                "SERVICE COUNSELING COMPLETED",
+                "APPROVALS REQUESTED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
             }
           },
           "403": {
@@ -21480,6 +22683,12 @@ func init() {
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
+            "in": "query"
           }
         ],
         "responses": {
@@ -21639,6 +22848,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role",
+            "name": "activeRole",
             "in": "query"
           }
         ],
@@ -21985,6 +23200,82 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/shipments/approve": {
+      "post": {
+        "description": "Approves multiple shipments in one request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves multiple shipments at once",
+        "operationId": "approveShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApproveShipments"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MTOShipment"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
     },
     "/shipments/{shipmentID}": {
       "get": {
@@ -23263,7 +24554,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved transportation offices",
+            "description": "Successfully retrieved GBLOCs",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -23297,6 +24588,66 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices/{serviceMemberId}": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member, some counseling offices are branch specific",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -23435,6 +24786,58 @@ func init() {
         "responses": {
           "204": {
             "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/status": {
+      "get": {
+        "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns status of an upload",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to return status of",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested upload status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INFECTED",
+                "CLEAN",
+                "PROCESSING"
+              ],
+              "readOnly": true
+            }
           },
           "400": {
             "description": "invalid request",
@@ -23788,6 +25191,36 @@ func init() {
         }
       }
     },
+    "ApproveShipments": {
+      "type": "object",
+      "required": [
+        "approveShipments"
+      ],
+      "properties": {
+        "approveShipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ApproveShipmentsApproveShipmentsItems0"
+          }
+        }
+      }
+    },
+    "ApproveShipmentsApproveShipmentsItems0": {
+      "type": "object",
+      "required": [
+        "shipmentID",
+        "eTag"
+      ],
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
@@ -23851,7 +25284,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "workload": {
-          "type": "integer"
+          "type": "integer",
+          "x-omitempty": false
         }
       }
     },
@@ -23985,6 +25419,23 @@ func init() {
         }
       }
     },
+    "BulkAssignmentForUser": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moveAssignments": {
+          "type": "integer",
+          "x-omitempty": false
+        }
+      }
+    },
+    "BulkAssignmentMoveData": {
+      "type": "string",
+      "format": "uuid"
+    },
     "BulkAssignmentMoveID": {
       "type": "string",
       "format": "uuid",
@@ -23994,6 +25445,33 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
+    },
+    "BulkAssignmentSavePayload": {
+      "type": "object",
+      "properties": {
+        "moveData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentMoveData"
+          }
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CLOSEOUT",
+            "TASK_ORDER",
+            "PAYMENT_REQUEST"
+          ]
+        },
+        "userData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BulkAssignmentForUser"
+          }
+        }
       }
     },
     "ClientError": {
@@ -24033,6 +25511,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -24044,10 +25546,6 @@ func init() {
         },
         "agency": {
           "$ref": "#/definitions/Affiliation"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
@@ -24108,6 +25606,18 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for a move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -24124,6 +25634,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -24643,6 +26157,12 @@ func init() {
           "x-nullable": true,
           "example": true
         },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -24733,6 +26253,11 @@ func init() {
         "hasProGear"
       ],
       "properties": {
+        "closeoutOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "destinationAddress": {
           "allOf": [
             {
@@ -24786,6 +26311,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -25310,11 +26838,23 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
         "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "weightRestriction": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -25539,6 +27079,11 @@ func init() {
     },
     "FetchLineOfAccountingPayload": {
       "type": "object",
+      "required": [
+        "effectiveDate",
+        "departmentIndicator",
+        "tacCode"
+      ],
       "properties": {
         "departmentIndicator": {
           "$ref": "#/definitions/DepartmentIndicator"
@@ -26497,6 +28042,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sort": {
+          "description": "Sort order for service items to be displayed for a given shipment type.",
+          "type": "string",
+          "x-nullable": true
+        },
         "standaloneCrate": {
           "type": "boolean",
           "x-nullable": true
@@ -27158,6 +28708,15 @@ func init() {
           "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
           "type": "string",
           "format": "uuid",
           "x-nullable": true
@@ -28390,6 +29949,27 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "intlLinehaulPrice": {
+          "description": "The full price of international shipping and linehaul (ISLH)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlPackPrice": {
+          "description": "The full price of international packing (IHPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "intlUnpackPrice": {
+          "description": "The full price of international unpacking (IHUPK)",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "miles": {
           "description": "The distance between the old address and the new address in miles.",
           "type": "integer",
@@ -29006,6 +30586,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -29218,6 +30801,16 @@ func init() {
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
         "COMPLETED"
+      ]
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
       ]
     },
     "PWSViolation": {
@@ -31245,10 +32838,6 @@ func init() {
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "dependentsTwelveAndOver": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
@@ -31308,6 +32897,18 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ubWeightRestriction": {
+          "description": "Indicates the UB weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
+        },
+        "weightRestriction": {
+          "description": "Indicates the weight restriction for the move to a particular location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1500
         }
       }
     },
@@ -31593,6 +33194,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "grade": {
           "$ref": "#/definitions/Grade"
         },
@@ -31779,6 +33384,9 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -32081,6 +33689,18 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
+        "missingEmptyWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when empty.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "missingFullWeightTicket": {
+          "description": "Indicates if the customer is missing a weight ticket for the vehicle weight when full.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "netWeightRemarks": {
           "description": "Remarks explaining any edits made to the net weight",
           "type": "string"
@@ -32099,6 +33719,12 @@ func init() {
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean"
+        },
+        "vehicleDescription": {
+          "description": "Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },

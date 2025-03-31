@@ -236,7 +236,6 @@ export class OfficeApp extends Component {
     });
     const script = document.createElement('script');
 
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
     script.async = true;
     document.body.appendChild(script);
     return (
@@ -292,7 +291,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                            <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                            <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} activeRole={activeRole} />
                           </PrivateRoute>
                         }
                       />
@@ -301,7 +300,10 @@ export class OfficeApp extends Component {
                         path="/invoicing/queue"
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                            <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                            <PaymentRequestQueue
+                              isQueueManagementFFEnabled={queueManagementFlag}
+                              activeRole={activeRole}
+                            />
                           </PrivateRoute>
                         }
                       />
@@ -311,7 +313,10 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                            <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
+                            <HeadquartersQueues
+                              isQueueManagementFFEnabled={queueManagementFlag}
+                              activeRole={activeRole}
+                            />
                           </PrivateRoute>
                         }
                       />
@@ -336,6 +341,7 @@ export class OfficeApp extends Component {
                                 userPrivileges={userPrivileges}
                                 isQueueManagementFFEnabled={queueManagementFlag}
                                 isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                                activeRole={activeRole}
                               />
                             </PrivateRoute>
                           }
@@ -367,6 +373,7 @@ export class OfficeApp extends Component {
                                 isQueueManagementFFEnabled={queueManagementFlag}
                                 userPrivileges={userPrivileges}
                                 isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                                activeRole={activeRole}
                               />
                             </PrivateRoute>
                           }
@@ -382,6 +389,7 @@ export class OfficeApp extends Component {
                                 isQueueManagementFFEnabled={queueManagementFlag}
                                 userPrivileges={userPrivileges}
                                 isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                                activeRole={activeRole}
                               />
                             </PrivateRoute>
                           }
@@ -394,7 +402,10 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                              <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
+                              <HeadquartersQueues
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                                activeRole={activeRole}
+                              />
                             </PrivateRoute>
                           }
                         />

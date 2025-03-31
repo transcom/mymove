@@ -34,6 +34,31 @@ export async function getPPMDocuments(key, shipmentID) {
   return makeGHCRequest('ppm.getPPMDocuments', { shipmentID }, { normalize: false });
 }
 
+export async function createWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteWeightTicket({ ppmShipmentId, weightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteWeightTicket',
+    {
+      ppmShipmentId,
+      weightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateWeightTicket',
@@ -144,6 +169,11 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
 
 export async function getBulkAssignmentData(queueType) {
   return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
+}
+
+export async function saveBulkAssignmentData({ queueType, bulkAssignmentSavePayload }) {
+  const body = { queueType, ...bulkAssignmentSavePayload };
+  return makeGHCRequest('queues.saveBulkAssignmentData', { bulkAssignmentSavePayload: body }, { normalize: false });
 }
 
 export async function createCustomerSupportRemarkForMove({ body, locator }) {
@@ -485,6 +515,17 @@ export function updateMTOShipmentStatus({
   );
 }
 
+export function updateMultipleShipmentStatus({ payload, normalize = true }) {
+  const operationPath = 'shipment.approveShipments';
+  return makeGHCRequest(
+    operationPath,
+    {
+      body: { approveShipments: payload },
+    },
+    { normalize },
+  );
+}
+
 export function updateMTOShipmentRequestReweigh({
   shipmentID,
   ifMatchETag,
@@ -618,9 +659,25 @@ export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shi
 
 export async function getMovesQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
 ) {
   const operationPath = 'queues.getMovesQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
+export async function getDestinationRequestsQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+) {
+  const operationPath = 'queues.getDestinationRequestsQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;
@@ -634,7 +691,16 @@ export async function getMovesQueue(
 
 export async function getServicesCounselingQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = false, viewAsGBLOC },
+  {
+    sort,
+    order,
+    filters = [],
+    currentPage = 1,
+    currentPageSize = 20,
+    needsPPMCloseout = false,
+    viewAsGBLOC,
+    activeRole,
+  },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
@@ -651,6 +717,7 @@ export async function getServicesCounselingQueue(
       perPage: currentPageSize,
       needsPPMCloseout,
       viewAsGBLOC,
+      activeRole,
       ...paramFilters,
     },
 
@@ -674,7 +741,16 @@ export async function getServicesCounselingOriginLocations(needsPPMCloseout, vie
 
 export async function getServicesCounselingPPMQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = true, viewAsGBLOC },
+  {
+    sort,
+    order,
+    filters = [],
+    currentPage = 1,
+    currentPageSize = 20,
+    needsPPMCloseout = true,
+    viewAsGBLOC,
+    activeRole,
+  },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
@@ -684,14 +760,23 @@ export async function getServicesCounselingPPMQueue(
 
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, needsPPMCloseout, viewAsGBLOC, ...paramFilters },
+    {
+      sort,
+      order,
+      page: currentPage,
+      perPage: currentPageSize,
+      needsPPMCloseout,
+      viewAsGBLOC,
+      ...paramFilters,
+      activeRole,
+    },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
 
 export async function getPaymentRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
 ) {
   const operationPath = 'queues.getPaymentRequestsQueue';
   const paramFilters = {};
@@ -700,7 +785,7 @@ export async function getPaymentRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
 }
@@ -763,6 +848,10 @@ export async function getGBLOCs() {
   return makeGHCRequest(operationPath, {}, { normalize: false });
 }
 
+export async function showCounselingOffices(dutyLocationId, serviceMemberId) {
+  return makeGHCRequestRaw('transportationOffice.showCounselingOffices', { dutyLocationId, serviceMemberId });
+}
+
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
   const operationPath = 'shipment.reviewShipmentAddressUpdate';
   const schemaKey = 'ShipmentAddressUpdate';
@@ -797,6 +886,21 @@ export async function createUploadForDocument(file, documentId) {
     {
       documentId,
       file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForPPMDocument(ppmShipmentId, documentId, file, weightReceipt) {
+  return makeGHCRequest(
+    'ppm.createPPMUpload',
+    {
+      ppmShipmentId,
+      documentId,
+      file,
+      weightReceipt,
     },
     {
       normalize: false,

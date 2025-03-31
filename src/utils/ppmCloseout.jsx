@@ -5,6 +5,7 @@ import moment from 'moment';
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
+import PPMDocumentsStatus from 'constants/ppms';
 
 export const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
@@ -80,7 +81,12 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
       ],
       onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag, `Trip ${i + 1}`),
       renderEditLink: () => (
-        <Link to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}>Edit</Link>
+        <Link
+          data-testid={`weightMoved-${i + 1}`}
+          to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}
+        >
+          Edit
+        </Link>
       ),
     };
     if (weightTicket.vehicleDescription === null) {
@@ -166,7 +172,10 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
 };
 
 export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
+  const excludedExpenseStatuses = [PPMDocumentsStatus.EXCLUDED, PPMDocumentsStatus.REJECTED]; //  EXCLUDED and REJECTED expenses aren't included in the total.
   return movingExpenses.reduce((prev, curr) => {
-    return curr.amount && !Number.isNaN(Number(curr.amount)) ? prev + curr.amount : prev;
+    return curr.amount && !Number.isNaN(Number(curr.amount)) && !excludedExpenseStatuses.includes(curr.status)
+      ? prev + curr.amount
+      : prev;
   }, 0);
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Button } from '@trussworks/react-uswds';
+import { GridContainer, Button, Grid, Alert } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
+import { useMutation } from '@tanstack/react-query';
 
 import styles from './TableQueue.module.scss';
 import TableCSVExportButton from './TableCSVExportButton';
@@ -27,6 +28,8 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
+import { saveBulkAssignmentData } from 'services/ghcApi';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -56,6 +59,9 @@ const TableQueue = ({
   isBulkAssignmentFFEnabled,
   officeUser,
   activeRole,
+  queueType,
+  refetchQueue,
+  setRefetchQueue,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -106,9 +112,6 @@ const TableQueue = ({
     setIsBulkAssignModalVisible(true);
   };
 
-  const handleCloseBulkAssignModal = () => {
-    setIsBulkAssignModalVisible(false);
-  };
   const {
     queueResult: {
       totalCount = 0,
@@ -118,6 +121,7 @@ const TableQueue = ({
     },
     isInitialLoading: isLoading,
     isError,
+    refetch,
   } = useQueries({
     sort: id,
     order: desc ? 'desc' : 'asc',
@@ -125,7 +129,9 @@ const TableQueue = ({
     currentPage,
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
+    activeRole,
   });
+  const tableData = useMemo(() => data, [data]);
 
   // react-table setup below
   const defaultColumn = useMemo(
@@ -135,7 +141,23 @@ const TableQueue = ({
     }),
     [],
   );
-  const tableData = useMemo(() => data, [data]);
+
+  const [successMessageEnabled, setSuccessMessageEnabled] = useState(false);
+
+  const { mutate: mutateBulkAssignment } = useMutation(saveBulkAssignmentData, {
+    onSuccess: async () => {
+      await refetch();
+
+      setSuccessMessageEnabled(true);
+    },
+  });
+
+  useEffect(() => {
+    if (refetchQueue)
+      refetch().then(() => {
+        setRefetchQueue(false);
+      });
+  }, [refetch, setRefetchQueue, refetchQueue]);
 
   const tableColumns = useMemo(() => columns, [columns]);
   const {
@@ -202,9 +224,12 @@ const TableQueue = ({
     }
   }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, isPageReload, sessionStorageKey]);
 
+  useEffect(() => {
+    gotoPage(0);
+  }, [filters, gotoPage]);
+
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
   const isDateFilterValue = (value) => {
     return !Number.isNaN(Date.parse(value));
   };
@@ -316,18 +341,42 @@ const TableQueue = ({
     return '';
   };
 
+  const handleCloseBulkAssignModal = () => {
+    setIsBulkAssignModalVisible(false);
+  };
+
+  const onSubmitBulk = (bulkAssignmentSaveData) => {
+    const bulkAssignmentSavePayload = { ...bulkAssignmentSaveData };
+    bulkAssignmentSavePayload.bulkAssignmentSavePayload.userData =
+      bulkAssignmentSaveData.bulkAssignmentSavePayload.userData.filter((user) => user.moveAssignments > 0);
+    mutateBulkAssignment({ queueType, ...bulkAssignmentSavePayload });
+  };
+
   return (
     <div className={styles.tabContent}>
+      {successMessageEnabled && (
+        <Grid col={12} className={styles.alertContainer}>
+          <Alert headingLevel="h4" slim type="success">
+            Moves assigned successfully
+          </Alert>
+        </Grid>
+      )}
+
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
-          <BulkAssignmentModal isOpen={isBulkAssignModalVisible} onClose={handleCloseBulkAssignModal} />
+          <BulkAssignmentModal
+            isOpen={isBulkAssignModalVisible}
+            onSubmit={onSubmitBulk}
+            onClose={handleCloseBulkAssignModal}
+            queueType={queueType}
+          />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
           <div className={styles.queueHeader}>
             <h1>{`${title} (${totalCount})`}</h1>
             <div className={styles.queueButtonWrapper}>
               {isSupervisor && isBulkAssignmentFFEnabled && (
-                <Button className={styles.btn} type="button" onClick={handleShowBulkAssignMoveModal}>
+                <Button className={styles.bulkModal} type="button" onClick={handleShowBulkAssignMoveModal}>
                   Bulk Assignment
                 </Button>
               )}
@@ -342,7 +391,6 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
-                  isHeadquartersUser={activeRole === roleTypes.HQ}
                 />
               )}
             </div>
@@ -441,7 +489,10 @@ const mapStateToProps = (state) => {
   return {
     officeUser: user?.office_user || {},
     activeRole: state.auth.activeRole,
+    refetchQueue: state?.generalState?.refetchQueue || false,
   };
 };
 
-export default connect(mapStateToProps)(TableQueue);
+const mapDispatchToProps = { setRefetchQueue: setRefetchQueueAction };
+
+export default connect(mapStateToProps, mapDispatchToProps)(TableQueue);

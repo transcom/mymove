@@ -798,7 +798,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	var shipmentNeedsCloseout models.PPMShipment
 	var needsCloseoutSM models.ServiceMember
 
-	suite.PreloadData(func() {
+	setupPPMData := func() {
 		shipmentNeedsResubmitted = factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), userUploader, nil)
 		shipmentNeedsResubmitted.SubmittedAt = &submissionTime
 		suite.NoError(suite.DB().Save(&shipmentNeedsResubmitted))
@@ -806,7 +806,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 		shipmentNeedsCloseout = factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		needsCloseoutSM = shipmentNeedsCloseout.Shipment.MoveTaskOrder.Orders.ServiceMember
-	})
+	}
 
 	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, serviceMember models.ServiceMember, payload *internalmessages.SavePPMShipmentSignedCertification) (ppmops.ResubmitPPMShipmentDocumentationParams, ResubmitPPMShipmentDocumentationHandler) {
 		endpoint := fmt.Sprintf(
@@ -840,6 +840,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	}
 
 	suite.Run("Returns an error if the PPM shipment is not found", func() {
+		setupPPMData()
 		shipmentWithUnknownID := models.PPMShipment{
 			ID: uuid.Must(uuid.NewV4()),
 			SignedCertification: &models.SignedCertification{
@@ -863,6 +864,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the signed certification is not found", func() {
+		setupPPMData()
 		shipmentWithUnknownSignedCert := models.PPMShipment{
 			ID: shipmentNeedsResubmitted.ID,
 			SignedCertification: &models.SignedCertification{
@@ -886,6 +888,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Returns an error if the PPM shipment is not in the right status", func() {
+		setupPPMData()
 		params, handler := setUpParamsAndHandler(shipmentNeedsCloseout, needsCloseoutSM, &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("certification text"),
 			Signature:         handlers.FmtString("signature"),
@@ -909,6 +912,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	})
 
 	suite.Run("Can successfully resubmit a PPM shipment for close out", func() {
+		setupPPMData()
 		newCertText := "new certification text"
 		newSignature := "new signature"
 		newSignDate := time.Now().AddDate(0, 0, 1)
@@ -998,7 +1002,8 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		}
 
 		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, nil)
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, "", nil)
+		mockAOAPacketCreator.On("CleanupAOAPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -1034,7 +1039,8 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		}
 
 		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, errors.New("Mock error"))
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, "", errors.New("Mock error"))
+		mockAOAPacketCreator.On("CleanupAOAPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -1095,7 +1101,8 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		}
 
 		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, errors.New("Mock error"))
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, "", errors.New("Mock error"))
+		mockAOAPacketCreator.On("CleanupAOAPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -1127,7 +1134,9 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 		mockPaymentPacketCreator.On("GenerateDefault",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID")).Return(nil, nil)
+			mock.AnythingOfType("uuid.UUID")).Return(nil, "", nil)
+
+		mockPaymentPacketCreator.On("CleanupPaymentPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -1153,8 +1162,9 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 		mockPaymentPacketCreator.On("GenerateDefault",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+			mock.AnythingOfType("uuid.UUID")).Return(nil, "", errors.New("Mock error"))
 
+		mockPaymentPacketCreator.On("CleanupPaymentPacketDir", mock.AnythingOfType("string")).Return(nil)
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		ppmshipmentid := ppmShipment.ID
@@ -1179,7 +1189,9 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 		mockPaymentPacketCreator.On("GenerateDefault",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NotFoundError{})
+			mock.AnythingOfType("uuid.UUID")).Return(nil, "", apperror.NotFoundError{})
+
+		mockPaymentPacketCreator.On("CleanupPaymentPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -1205,7 +1217,9 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 		mockPaymentPacketCreator.On("GenerateDefault",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.ForbiddenError{})
+			mock.AnythingOfType("uuid.UUID")).Return(nil, "", apperror.ForbiddenError{})
+
+		mockPaymentPacketCreator.On("CleanupPaymentPacketDir", mock.AnythingOfType("string")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)

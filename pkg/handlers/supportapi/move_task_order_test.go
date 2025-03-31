@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -26,11 +27,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
 	// unavailable MTO
 	factory.BuildMove(suite.DB(), nil, nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	moveTaskOrder := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -55,7 +58,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	handler := ListMTOsHandler{
 		HandlerConfig:        handlerConfig,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	response := handler.Handle(params)
@@ -167,14 +170,12 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 	}
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -227,10 +228,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		HTTPRequest:     request,
 		MoveTaskOrderID: move.ID.String(),
 	}
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	handlerConfig := suite.HandlerConfig()
 	handler := GetMoveTaskOrderHandlerFunc{handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
@@ -384,14 +386,12 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			IfMatch:         createdMTO.ETag,
 		}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(400, nil)
 
 		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {

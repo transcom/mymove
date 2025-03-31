@@ -20,6 +20,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
@@ -33,38 +34,27 @@ import (
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
 func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
-	reServiceID, _ := uuid.NewV4()
-	serviceItemID, _ := uuid.NewV4()
-	mtoShipmentID, _ := uuid.NewV4()
-	var mtoID uuid.UUID
 
-	setupTestData := func() (models.User, models.MTOServiceItems) {
+	setupTestData := func() (models.User, models.MTOServiceItems, uuid.UUID) {
 		mto := factory.BuildMove(suite.DB(), nil, nil)
-		mtoID = mto.ID
 		reService := factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
-					ID:   reServiceID,
 					Code: "TEST10000",
 				},
 			},
 		}, nil)
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{ID: mtoShipmentID},
-			},
-		}, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		requestUser := factory.BuildUser(nil, nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model: models.MTOServiceItem{
-					ID: serviceItemID,
-				},
+				Model: models.MTOServiceItem{},
 			},
 			{
 				Model:    mto,
@@ -131,11 +121,70 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 		serviceItems := models.MTOServiceItems{serviceItem, originSit, destinationSit}
 
-		return requestUser, serviceItems
+		return requestUser, serviceItems, mto.ID
+	}
+
+	setupIUBTestData := func() (models.User, models.MTOServiceItems, uuid.UUID) {
+		mto := factory.BuildMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:   models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+		requestUser := factory.BuildUser(nil, nil, nil)
+
+		poeFsc := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+		}, nil)
+
+		ubp := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeUBP,
+				},
+			},
+		}, nil)
+
+		serviceItems := models.MTOServiceItems{poeFsc, ubp}
+
+		return requestUser, serviceItems, mto.ID
 	}
 
 	suite.Run("Successful list fetch - Integration Test", func() {
-		requestUser, serviceItems := setupTestData()
+		requestUser, serviceItems, mtoID := setupTestData()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -202,8 +251,54 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		}
 	})
 
+	suite.Run("Successful sorted serviceItems for UB", func() {
+		requestUser, serviceItems, mtoID := setupIUBTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.ListMTOServiceItemsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItems[0].MoveTaskOrderID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		listFetcher := fetch.NewListFetcher(queryBuilder)
+		fetcher := fetch.NewFetcher(queryBuilder)
+		counselingPricer := ghcrateengine.NewCounselingServicesPricer()
+		moveManagementPricer := ghcrateengine.NewManagementServicesPricer()
+		handler := ListMTOServiceItemsHandler{
+			suite.createS3HandlerConfig(),
+			listFetcher,
+			fetcher,
+			counselingPricer,
+			moveManagementPricer,
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsOK{}, response)
+		okResponse := response.(*mtoserviceitemop.ListMTOServiceItemsOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+		fmt.Println(okResponse.Payload)
+
+		suite.Len(okResponse.Payload, 2)
+		// Validate that sort field is populated for service items which have it.
+		// These test values can be updated to match any DB changes.
+		for _, payload := range okResponse.Payload {
+			if payload.ReServiceCode != nil && *payload.ReServiceCode == models.ReServiceCodePOEFSC.String() {
+				suite.Equal("2", *payload.Sort)
+			}
+			if payload.ReServiceCode != nil && *payload.ReServiceCode == models.ReServiceCodeUBP.String() {
+				suite.Equal("1", *payload.Sort)
+			}
+		}
+	})
+
 	suite.Run("Failure list fetch - Internal Server Error", func() {
-		requestUser, serviceItems := setupTestData()
+		requestUser, serviceItems, mtoID := setupTestData()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -251,7 +346,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	})
 
 	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
-		requestUser, serviceItems := setupTestData()
+		requestUser, serviceItems, mtoID := setupTestData()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -304,7 +399,7 @@ func (suite *HandlerSuite) createServiceItem() (models.MTOServiceItem, models.Mo
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
@@ -312,10 +407,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
-		false,
 	).Return(400, nil)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -325,14 +418,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	mockSender := suite.TestNotificationSender()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	moveTaskOrderID, _ := uuid.NewV4()
@@ -557,7 +650,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
 		portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -566,10 +659,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -599,7 +690,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// by the handler is working as expected.
 	suite.Run("Successful status update of MTO service item and event trigger", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -629,10 +720,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -736,6 +825,8 @@ func (suite *HandlerSuite) TestGetMTOServiceItemHandler() {
 
 func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 	serviceItemID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	var requestUser models.User
 	newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
 
@@ -765,10 +856,8 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
-		false,
 	).Return(400, nil)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -778,14 +867,14 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 	mockSender := suite.TestNotificationSender()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	suite.Run("200 - success response", func() {

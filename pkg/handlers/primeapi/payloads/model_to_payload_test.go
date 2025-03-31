@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -32,6 +33,16 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	originDutyGBLOC := "KKFA"
 	shipmentGBLOC := "AGFM"
 
+	backupContacts := models.BackupContacts{}
+	backupContacts = append(backupContacts, models.BackupContact{
+		Name:  "Backup contact name",
+		Phone: "555-555-5555",
+		Email: "backup@backup.com",
+	})
+	serviceMember := models.ServiceMember{
+		BackupContacts: backupContacts,
+	}
+
 	basicMove := models.Move{
 		ID:                      moveTaskOrderID,
 		Locator:                 "TESTTEST",
@@ -39,7 +50,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		AvailableToPrimeAt:      &primeTime,
 		ApprovedAt:              &primeTime,
 		OrdersID:                ordersID,
-		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
+		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC, ServiceMember: serviceMember},
 		ReferenceID:             &referenceID,
 		PaymentRequests:         models.PaymentRequests{},
 		SubmittedAt:             &submittedAt,
@@ -79,6 +90,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
 	})
 }
 
@@ -279,6 +293,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 }
 
 func (suite *PayloadsSuite) TestEntitlement() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
@@ -336,12 +351,15 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			ProGearWeightSpouse: 750,
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
+			UBWeightRestriction: models.IntPointer(1200),
 		}
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
-
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 		payload := Entitlement(&entitlement)
 
 		suite.Equal(strfmt.UUID(entitlement.ID.String()), payload.ID)
@@ -357,6 +375,8 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(true, payload.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(int64(1000), payload.ProGearWeight)
 		suite.Equal(int64(750), payload.ProGearWeightSpouse)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
+		suite.Equal(int64(1200), *payload.UbWeightRestriction)
 		suite.NotEmpty(payload.ETag)
 		suite.Equal(etag.GenerateEtag(entitlement.UpdatedAt), payload.ETag)
 	})
@@ -381,7 +401,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 
@@ -720,6 +742,136 @@ func (suite *PayloadsSuite) TestAddress() {
 	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
 }
 
+func (suite *PayloadsSuite) TestMTOServiceItemDestSIT() {
+	reServiceCode := models.ReServiceCodeDDFSIT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	sitDepartureDate := time.Now().AddDate(0, 1, 0)
+	sitEntryDate := time.Now().AddDate(0, 0, -30)
+	finalAddress := models.Address{
+		StreetAddress1: "dummyStreet",
+		City:           "dummyCity",
+		State:          "FL",
+		PostalCode:     "55555",
+	}
+	mtoShipmentID := uuid.Must(uuid.NewV4())
+
+	mtoServiceItemDestSIT := &models.MTOServiceItem{
+		ID:                         uuid.Must(uuid.NewV4()),
+		ReService:                  models.ReService{Code: reServiceCode},
+		Reason:                     &reason,
+		SITDepartureDate:           &sitDepartureDate,
+		SITEntryDate:               &sitEntryDate,
+		SITDestinationFinalAddress: &finalAddress,
+		MTOShipmentID:              &mtoShipmentID,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultDestSIT := MTOServiceItem(mtoServiceItemDestSIT)
+	suite.NotNil(resultDestSIT)
+	destSIT, ok := resultDestSIT.(*primemessages.MTOServiceItemDestSIT)
+	suite.True(ok)
+
+	suite.Equal(string(reServiceCode), string(*destSIT.ReServiceCode))
+	suite.Equal(reason, *destSIT.Reason)
+	suite.Equal(strfmt.Date(sitDepartureDate).String(), destSIT.SitDepartureDate.String())
+	suite.Equal(strfmt.Date(sitEntryDate).String(), destSIT.SitEntryDate.String())
+	suite.Equal(strfmt.Date(dateOfContact1).String(), destSIT.DateOfContact1.String())
+	suite.Equal(timeMilitary1, *destSIT.TimeMilitary1)
+	suite.Equal(strfmt.Date(firstAvailableDeliveryDate1).String(), destSIT.FirstAvailableDeliveryDate1.String())
+	suite.Equal(strfmt.Date(dateOfContact2).String(), destSIT.DateOfContact2.String())
+	suite.Equal(timeMilitary2, *destSIT.TimeMilitary2)
+	suite.Equal(strfmt.Date(firstAvailableDeliveryDate2).String(), destSIT.FirstAvailableDeliveryDate2.String())
+	suite.Equal(finalAddress.StreetAddress1, *destSIT.SitDestinationFinalAddress.StreetAddress1)
+	suite.Equal(finalAddress.City, *destSIT.SitDestinationFinalAddress.City)
+	suite.Equal(finalAddress.State, *destSIT.SitDestinationFinalAddress.State)
+	suite.Equal(finalAddress.PostalCode, *destSIT.SitDestinationFinalAddress.PostalCode)
+	suite.Equal(mtoShipmentID.String(), destSIT.MtoShipmentID().String())
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemInternationalDestSIT() {
+	reServiceCode := models.ReServiceCodeIDFSIT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	sitDepartureDate := time.Now().AddDate(0, 1, 0)
+	sitEntryDate := time.Now().AddDate(0, 0, -30)
+	finalAddress := models.Address{
+		StreetAddress1: "dummyStreet",
+		City:           "dummyCity",
+		State:          "FL",
+		PostalCode:     "55555",
+	}
+	mtoShipmentID := uuid.Must(uuid.NewV4())
+
+	mtoServiceItemDestSIT := &models.MTOServiceItem{
+		ID:                         uuid.Must(uuid.NewV4()),
+		ReService:                  models.ReService{Code: reServiceCode},
+		Reason:                     &reason,
+		SITDepartureDate:           &sitDepartureDate,
+		SITEntryDate:               &sitEntryDate,
+		SITDestinationFinalAddress: &finalAddress,
+		MTOShipmentID:              &mtoShipmentID,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultDestSIT := MTOServiceItem(mtoServiceItemDestSIT)
+	suite.NotNil(resultDestSIT)
+	destSIT, ok := resultDestSIT.(*primemessages.MTOServiceItemInternationalDestSIT)
+	suite.True(ok)
+
+	suite.Equal(string(reServiceCode), string(*destSIT.ReServiceCode))
+	suite.Equal(reason, *destSIT.Reason)
+	suite.Equal(strfmt.Date(sitDepartureDate).String(), destSIT.SitDepartureDate.String())
+	suite.Equal(strfmt.Date(sitEntryDate).String(), destSIT.SitEntryDate.String())
+	suite.Equal(strfmt.Date(dateOfContact1).String(), destSIT.DateOfContact1.String())
+	suite.Equal(timeMilitary1, *destSIT.TimeMilitary1)
+	suite.Equal(strfmt.Date(firstAvailableDeliveryDate1).String(), destSIT.FirstAvailableDeliveryDate1.String())
+	suite.Equal(strfmt.Date(dateOfContact2).String(), destSIT.DateOfContact2.String())
+	suite.Equal(timeMilitary2, *destSIT.TimeMilitary2)
+	suite.Equal(strfmt.Date(firstAvailableDeliveryDate2).String(), destSIT.FirstAvailableDeliveryDate2.String())
+	suite.Equal(finalAddress.StreetAddress1, *destSIT.SitDestinationFinalAddress.StreetAddress1)
+	suite.Equal(finalAddress.City, *destSIT.SitDestinationFinalAddress.City)
+	suite.Equal(finalAddress.State, *destSIT.SitDestinationFinalAddress.State)
+	suite.Equal(finalAddress.PostalCode, *destSIT.SitDestinationFinalAddress.PostalCode)
+	suite.Equal(mtoShipmentID.String(), destSIT.MtoShipmentID().String())
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItemDCRTandDOFSITandDDFSIT() {
 	reServiceCode := models.ReServiceCodeDCRT
 	reServiceCodeSIT := models.ReServiceCodeDOFSIT
@@ -834,6 +986,120 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRTandDOFSITandDDFSIT() {
 	suite.True(ok)
 }
 
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIOFSITandIDFSIT() {
+	reServiceCode := models.ReServiceCodeICRT
+	reServiceCodeSIT := models.ReServiceCodeIOFSIT
+	reServiceCodeIDFSIT := models.ReServiceCodeIDFSIT
+
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:        uuid.Must(uuid.NewV4()),
+		ReService: models.ReService{Code: reServiceCode},
+		Reason:    &reason,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+	year, month, day := time.Now().Date()
+	aWeekAgo := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+	departureDate := aWeekAgo.Add(time.Hour * 24 * 30)
+	actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+	requestApprovalRequestedStatus := false
+	mtoServiceItemIOFSIT := &models.MTOServiceItem{
+		ID:                        uuid.Must(uuid.NewV4()),
+		ReService:                 models.ReService{Code: reServiceCodeSIT},
+		Reason:                    &reason,
+		SITDepartureDate:          &departureDate,
+		SITEntryDate:              &aWeekAgo,
+		SITPostalCode:             models.StringPointer("90210"),
+		SITOriginHHGActualAddress: &actualPickupAddress,
+		SITCustomerContacted:      &aWeekAgo,
+		SITRequestedDelivery:      &aWeekAgo,
+		SITOriginHHGOriginalAddress: &models.Address{
+			StreetAddress1: "dummyStreet2",
+			City:           "dummyCity2",
+			State:          "FL",
+			PostalCode:     "55555",
+		},
+		RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+	mtoServiceItemIDFSIT := &models.MTOServiceItem{
+		ID:                        uuid.Must(uuid.NewV4()),
+		ReService:                 models.ReService{Code: reServiceCodeIDFSIT},
+		Reason:                    &reason,
+		SITDepartureDate:          &departureDate,
+		SITEntryDate:              &aWeekAgo,
+		SITPostalCode:             models.StringPointer("90210"),
+		SITOriginHHGActualAddress: &actualPickupAddress,
+		SITCustomerContacted:      &aWeekAgo,
+		SITRequestedDelivery:      &aWeekAgo,
+		SITOriginHHGOriginalAddress: &models.Address{
+			StreetAddress1: "dummyStreet2",
+			City:           "dummyCity2",
+			State:          "FL",
+			PostalCode:     "55555",
+		},
+		RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIOFSIT := MTOServiceItem(mtoServiceItemIOFSIT)
+	resultIDFSIT := MTOServiceItem(mtoServiceItemIDFSIT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIOFSIT)
+	suite.NotNil(resultIDFSIT)
+	_, ok := resultICRT.(*primemessages.MTOServiceItemInternationalCrating)
+
+	suite.True(ok)
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
 	icrtReServiceCode := models.ReServiceCodeICRT
 	iucrtReServiceCode := models.ReServiceCodeIUCRT
@@ -940,7 +1206,89 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 
 	suite.NotNil(resultDDSHUT)
 
-	_, ok := resultDDSHUT.(*primemessages.MTOServiceItemShuttle)
+	_, ok := resultDDSHUT.(*primemessages.MTOServiceItemDomesticShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIDSHUT() {
+	reServiceCode := models.ReServiceCodeIDSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIDSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIDSHUT := MTOServiceItem(mtoServiceItemIDSHUT)
+
+	suite.NotNil(resultIDSHUT)
+
+	_, ok := resultIDSHUT.(*primemessages.MTOServiceItemInternationalShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIOSHUT() {
+	reServiceCode := models.ReServiceCodeIOSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIOSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIOSHUT := MTOServiceItem(mtoServiceItemIOSHUT)
+
+	suite.NotNil(resultIOSHUT)
+
+	_, ok := resultIOSHUT.(*primemessages.MTOServiceItemInternationalShuttle)
 
 	suite.True(ok)
 }
@@ -1141,4 +1489,31 @@ func (suite *PayloadsSuite) TestMTOServiceItemsPODFSC() {
 	suite.True(ok)
 	suite.Equal(portLocation.Port.PortCode, internationalFuelSurchargeItem.PortCode)
 	suite.Equal(podfscServiceItem.ReService.Code.String(), internationalFuelSurchargeItem.ReServiceCode)
+}
+
+func (suite *PayloadsSuite) TestVLocation() {
+	suite.Run("correctly maps VLocation with all fields populated", func() {
+		city := "LOS ANGELES"
+		state := "CA"
+		postalCode := "90210"
+		county := "LOS ANGELES"
+		usPostRegionCityID := uuid.Must(uuid.NewV4())
+
+		vLocation := &models.VLocation{
+			CityName:             city,
+			StateName:            state,
+			UsprZipID:            postalCode,
+			UsprcCountyNm:        county,
+			UsPostRegionCitiesID: &usPostRegionCityID,
+		}
+
+		payload := VLocation(vLocation)
+
+		suite.IsType(payload, &primemessages.VLocation{})
+		suite.Equal(handlers.FmtUUID(usPostRegionCityID), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
+		suite.Equal(city, payload.City, "Expected City to match")
+		suite.Equal(state, payload.State, "Expected State to match")
+		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
+		suite.Equal(county, *(payload.County), "Expected County to match")
+	})
 }

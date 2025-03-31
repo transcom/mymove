@@ -141,6 +141,17 @@ func (s *ServiceMember) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
+// FetchServiceMemberByUserID finds the service member based off of the user_id value
+func FetchServiceMemberByUserID(db *pop.Connection, userId string) (*ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Where("user_id = $1", userId).First(&serviceMember)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceMember, nil
+}
+
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
@@ -332,7 +343,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 }
 
 // CreateBackupContact creates a backup contact model tied to the service member
-func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone *string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
+func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone string, permission BackupContactPermission) (BackupContact, *validate.Errors, error) {
 	newContact := BackupContact{
 		ServiceMemberID: s.ID,
 		ServiceMember:   s,

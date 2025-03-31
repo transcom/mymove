@@ -14,8 +14,45 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
+
+func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
+	startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+	endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+
+	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			StartDate: startDate,
+			EndDate:   endDate,
+		},
+	})
+
+	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.AppContextForTest().DB(), testdatagen.Assertions{
+		ReDomesticServiceArea: models.ReDomesticServiceArea{
+			ServiceArea:      "004",
+			ServicesSchedule: 2,
+		},
+		ReContract: testdatagen.FetchOrMakeReContract(suite.AppContextForTest().DB(), testdatagen.Assertions{}),
+	})
+
+	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			Contract:              originalDomesticServiceArea.Contract,
+			ContractID:            originalDomesticServiceArea.ContractID,
+			DomesticServiceArea:   originalDomesticServiceArea,
+			DomesticServiceAreaID: originalDomesticServiceArea.ID,
+			WeightLower:           unit.Pound(500),
+			WeightUpper:           unit.Pound(9999),
+			MilesLower:            500,
+			MilesUpper:            9999,
+			PriceMillicents:       unit.Millicents(606800),
+			IsPeakPeriod:          false,
+		},
+	})
+}
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
 	setupTestData := func() models.Move {
@@ -63,7 +100,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	}
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Successfully create ShipmentAddressUpdate for a domestic shipment", func() {
@@ -71,15 +108,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Twice()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
@@ -113,15 +146,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Twice()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 
@@ -184,8 +213,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"99505",
 			"99506",
-			false,
-			true,
 		).Return(49, nil)
 		move := setupTestData()
 
@@ -266,8 +293,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			false,
-			false,
 		).Return(0, fmt.Errorf("error calculating distance 2")).Once()
 
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
@@ -407,15 +432,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Times(4)
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Twice()
 
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -441,15 +462,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -490,15 +507,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -539,15 +552,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-			false,
-			false,
 		).Return(0, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"89503",
-			false,
-			false,
 		).Return(200, nil).Once()
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -670,15 +679,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			"87108",
-			false,
-			false,
 		).Return(500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			"87053",
-			false,
-			false,
 		).Return(501, nil).Once()
 		suite.NotEmpty(move.MTOShipments)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -732,22 +737,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-			false,
-			false,
 		).Return(0, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94523",
 			"90210",
-			false,
-			false,
 		).Return(500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"90210",
-			false,
-			false,
 		).Return(501, nil).Once()
 
 		// request the update
@@ -763,22 +762,103 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.Equal(*addressUpdate.OldSitDistanceBetween, 0)
 		suite.Equal(*addressUpdate.SitOriginalAddressID, *serviceItemDDASIT.SITDestinationOriginalAddressID)
 	})
+
+	suite.Run("destination address request succeeds when containing international destination SIT", func() {
+		move := setupTestData()
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Anchorage",
+			State:          "AK",
+			PostalCode:     "99695",
+		}
+
+		setupInternationalSITCodes := []models.ReServiceCode{
+			models.ReServiceCodeIDASIT,
+			models.ReServiceCodeIDDSIT,
+			models.ReServiceCodeIDFSIT,
+			models.ReServiceCodeIDSFSC,
+		}
+
+		// loop through test codes to verify updates are applied for expected international SITs
+		for _, reServiceCode := range setupInternationalSITCodes {
+			shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						MarketCode: models.MarketCodeInternational,
+					},
+				},
+			}, nil)
+
+			// building service item to get dest SIT checks
+			serviceItemDDASIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOServiceItem{
+						Status:                          models.MTOServiceItemStatusApproved,
+						SITDestinationOriginalAddressID: shipment.DestinationAddressID,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    shipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.ReService{
+						Code: reServiceCode,
+					},
+				},
+			}, nil)
+
+			// mock ZipTransitDistance function
+			mockPlanner.On("ZipTransitDistance",
+				mock.AnythingOfType("*appcontext.appContext"),
+				"94535",
+				"94535",
+			).Return(0, nil).Once()
+			mockPlanner.On("ZipTransitDistance",
+				mock.AnythingOfType("*appcontext.appContext"),
+				"94523",
+				"99695",
+			).Return(500, nil).Once()
+			mockPlanner.On("ZipTransitDistance",
+				mock.AnythingOfType("*appcontext.appContext"),
+				"94535",
+				"99695",
+			).Return(1000, nil).Once()
+
+			// request the update
+			update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+			suite.NoError(err)
+			suite.NotNil(update)
+
+			// querying the address update to make sure that SIT data was populated
+			var addressUpdate models.ShipmentAddressUpdate
+			err = suite.DB().Find(&addressUpdate, update.ID)
+			suite.NoError(err)
+			suite.Equal(*addressUpdate.NewSitDistanceBetween, 1000)
+			suite.Equal(*addressUpdate.OldSitDistanceBetween, 0)
+			suite.Equal(*addressUpdate.SitOriginalAddressID, *serviceItemDDASIT.SITDestinationOriginalAddressID)
+		}
+	})
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequest() {
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
-		false,
 	).Return(400, nil)
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("TOO approves address change", func() {
+
+		suite.setupServiceItemData()
 
 		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
@@ -1149,16 +1229,12 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(300, nil)
 
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			true,
-			true,
 		).Return(300, nil)
 
 		newDestUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99703")
@@ -1369,8 +1445,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(300, nil)
 
 		newDestUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99703")
@@ -1466,7 +1540,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	}
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Service items are rejected and regenerated when pricing type changes post TOO approval", func() {
@@ -1474,17 +1548,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1544,17 +1617,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1610,6 +1682,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 	suite.Run("Service items are not rejected when pricing type does not change post TOO approval", func() {
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		//Generate service items to test their statuses upon approval
@@ -1626,15 +1701,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-			false,
-			false,
 		).Return(2500, nil).Once()
 
 		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -1656,17 +1727,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1721,15 +1791,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"89503",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
 			"90210",
-			false,
-			false,
 		).Return(2500, nil).Once()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -1738,6 +1804,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			PostalCode:     "90210",
 		}
 		move := setupTestData()
+
+		suite.setupServiceItemData()
+
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -1785,8 +1854,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-			false,
-			false,
 		).Return(30, nil)
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)

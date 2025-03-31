@@ -270,6 +270,38 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /move-task-orders/acknowledge:
+    patch:
+      summary: acknowledgeMovesAndShipments
+      description: >
+        ### Functionality
+
+        This endpoint **updates** the Moves and Shipments to indicate that the
+        Prime has acknowledged the Moves and Shipments have been received.
+
+        The Move and Shipment data is expected to be sent in the request body.
+      operationId: acknowledgeMovesAndShipments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AcknowledgeMoves'
+      tags:
+        - moveTaskOrder
+      responses:
+        '200':
+          description: Successfully updated Move and Shipment Acknowledgements.
+          schema:
+            $ref: '#/definitions/AcknowledgeMovesShipmentsSuccessResponse'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /mto-shipments:
     post:
       summary: createMTOShipment
@@ -956,6 +988,112 @@ paths:
 
         Additional DDASIT service items can be created and added to an existing
         shipment that **includes a DDFSIT service item**.
+
+
+        ---
+
+
+        **`MTOServiceItemInternationalOriginSIT`**
+
+
+        MTOServiceItemInternationalOriginSIT is a subtype of MTOServiceItem.
+
+
+        This model type describes a international origin SIT service item. Items
+        can be created using this
+
+        model type with the following codes:
+
+
+        **IOFSIT**
+
+
+        **1st day origin SIT service item**. When a IOFSIT is requested, the API
+        will auto-create the following group of service items:
+          * IOFSIT - International origin 1st day SIT
+          * IOASIT - International origin Additional day SIT
+          * IOPSIT - International origin SIT pickup
+          * IOSFSC - International origin SIT fuel surcharge
+
+        **IOASIT**
+
+
+        **Addt'l days origin SIT service item**. This represents an additional
+        day of storage for the same item.
+
+        Additional IOASIT service items can be created and added to an existing
+        shipment that **includes a IOFSIT service item**.
+
+
+        ---
+
+
+        **`MTOServiceItemInternationalDestSIT`**
+
+
+        MTOServiceItemInternationalDestSIT is a subtype of MTOServiceItem.
+
+
+        This model type describes a international destination SIT service item.
+        Items can be created using this
+
+        model type with the following codes:
+
+
+        **IDFSIT**
+
+
+        **1st day destination SIT service item**.
+
+
+        These additional fields are optional for creating a IDFSIT:
+          * `firstAvailableDeliveryDate1`
+            * string <date>
+            * First available date that Prime can deliver SIT service item.
+            * firstAvailableDeliveryDate1, dateOfContact1, and timeMilitary1 are required together
+          * `dateOfContact1`
+            * string <date>
+            * Date of attempted contact by the prime corresponding to `timeMilitary1`
+            * dateOfContact1, timeMilitary1, and firstAvailableDeliveryDate1 are required together
+          * `timeMilitary1`
+            * string\d{4}Z
+            * Time of attempted contact corresponding to `dateOfContact1`, in military format.
+            * timeMilitary1, dateOfContact1, and firstAvailableDeliveryDate1 are required together
+          * `firstAvailableDeliveryDate2`
+            * string <date>
+            * Second available date that Prime can deliver SIT service item.
+            * firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 are required together
+          * `dateOfContact2`
+            * string <date>
+            * Date of attempted contact delivery by the prime corresponding to `timeMilitary2`
+            * dateOfContact2, timeMilitary2, and firstAvailableDeliveryDate2 are required together
+          * `timeMilitary2`
+            * string\d{4}Z
+            * Time of attempted contact corresponding to `dateOfContact2`, in military format.
+            * timeMilitary2, dateOfContact2, and firstAvailableDeliveryDate2 are required together
+
+        When a IDFSIT is requested, the API will auto-create the following group
+        of service items:
+          * IDFSIT - International destination 1st day SIT
+          * IDASIT - International destination Additional day SIT
+          * IDDSIT - International destination SIT delivery
+          * IDSFSC - International destination SIT fuel surcharge
+
+        **NOTE** When providing the `sitEntryDate` value in the payload, please
+        ensure that the date is not BEFORE
+
+        `firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it
+        is, you will receive an error response.
+
+
+        **IDASIT**
+
+
+        **Addt'l days destination SIT service item**. This represents an
+        additional day of storage for the same item.
+
+        Additional IDASIT service items can be created and added to an existing
+        shipment that **includes a IDFSIT service item**.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1025,16 +1163,17 @@ paths:
         [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
 
 
-        * Resubmitting rejected SIT service items: This endpoint will handle the
-        logic of changing the status of rejected SIT service items from
+        * Resubmitting rejected SIT/Accessorial service items: This endpoint
+        will handle the logic of changing the status of rejected SIT/Accessorial
+        service items from
 
         REJECTED to SUBMITTED. Please provide the
         `requestedApprovalsRequestedStatus: true` when resubmitting as this will
         give attention to the TOO to
 
-        review the resubmitted SIT service item. Another note, `updateReason`
-        must have a different value than the current `reason` value on the
-        service item.
+        review the resubmitted SIT/Accessorial service item. Another note,
+        `updateReason` must have a different value than the current `reason`
+        value on the service item.
 
         If this value is not updated, then an error will be sent back.
 
@@ -1058,9 +1197,33 @@ paths:
 
         - DOSFSC
 
+        - IDASIT
 
-        At a MINIMUM, the payload for resubmitting a rejected SIT service item
-        must look like this:
+        - IDDSIT
+
+        - IDFSIT
+
+        - IOASIT
+
+        - IOPSIT
+
+        - IOFSIT
+
+        - IDSFSC
+
+        - IOSFSC
+
+
+        The following Accessorial service items can be resubmitted following a
+        rejection:
+
+        - IOSHUT
+
+        - IDSHUT
+
+
+        At a MINIMUM, the payload for resubmitting a rejected SIT/Accessorial
+        service item must look like this:
 
         ```json
 
@@ -1096,6 +1259,38 @@ paths:
           "modelType": "UpdateMTOServiceItemInternationalPortFSC",
           "portCode": "SEA",
           "reServiceCode": "POEFSC"
+        }
+
+        ```
+
+
+        The following crating/uncrating service items can be resubmitted
+        following a rejection:
+
+        - ICRT
+
+        - IUCRT
+
+
+        At a MINIMUM, the payload for resubmitting a rejected crating/uncrating
+        service item must look like this:
+
+        ```json
+
+        {
+          "item": {
+            "length": 10000,
+            "width": 10000,
+            "height": 10000
+          },
+          "crate": {
+            "length": 20000,
+            "width": 20000,
+            "height": 20000
+          },
+          "updateReason": "A reason that differs from the previous reason",
+          "modelType": "UpdateMTOServiceItemCrating",
+          "requestApprovalsRequestedStatus": true
         }
 
         ```
@@ -1601,6 +1796,36 @@ paths:
         ```
 
         ---
+
+
+        International Basic Service Items & Accepted Payment Request Parameters:
+
+        ---
+
+        **IOSHUT - International origin shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **IDSHUT - International destination shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        ---
       operationId: createPaymentRequest
       tags:
         - paymentRequest
@@ -1775,6 +2000,36 @@ paths:
           $ref: '#/responses/NotFound'
         '422':
           $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /addresses/zip-city-lookup/{search}:
+    get:
+      summary: >-
+        Returns city, state, postal code, and county associated with the
+        specified full/partial postal code or city state string
+      description: >-
+        Find by API using full/partial postal code or city name that returns an
+        us_post_region_cities json object containing city, state, county and
+        postal code.
+      operationId: getLocationByZipCityState
+      tags:
+        - addresses
+      parameters:
+        - in: path
+          name: search
+          type: string
+          required: true
+      responses:
+        '200':
+          description: the requested list of city, state, county, and postal code matches
+          schema:
+            $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
 definitions:
@@ -2281,6 +2536,96 @@ definitions:
           - reServiceCode
           - sitEntryDate
           - reason
+  MTOServiceItemInternationalDestSIT:
+    description: >-
+      Describes a international destination SIT service item. Subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IDFSIT
+              - IDASIT
+          dateOfContact1:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary1`.
+            x-nullable: true
+          dateOfContact2:
+            format: date
+            type: string
+            description: >-
+              Date of attempted contact by the prime corresponding to
+              `timeMilitary2`.
+            x-nullable: true
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of attempted contact corresponding to `dateOfContact1`, in
+              military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: >-
+              Time of attempted contact corresponding to `dateOfContact2`, in
+              military format.
+            pattern: \d{4}Z
+            x-nullable: true
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+            x-nullable: true
+          sitDestinationFinalAddress:
+            $ref: '#/definitions/Address'
+          reason:
+            type: string
+            description: |
+              The reason item has been placed in SIT.
+            x-nullable: true
+            x-omitempty: false
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
+        required:
+          - reServiceCode
+          - sitEntryDate
+          - reason
   MTOServiceItemDomesticCrating:
     description: >-
       Describes a domestic crating/uncrating service item subtype of a
@@ -2439,8 +2784,107 @@ definitions:
           - reason
           - sitPostalCode
           - sitEntryDate
+  MTOServiceItemInternationalOriginSIT:
+    description: >-
+      Describes a international origin SIT service item. Subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IOFSIT
+              - IOASIT
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
+          sitPostalCode:
+            type: string
+            format: zip
+            example: '90210'
+            pattern: ^(\d{5}([\-]\d{4})?)$
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            x-nullable: true
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
+          sitHHGActualOrigin:
+            $ref: '#/definitions/Address'
+          sitHHGOriginalOrigin:
+            $ref: '#/definitions/Address'
+          requestApprovalsRequestedStatus:
+            type: boolean
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
+        required:
+          - reServiceCode
+          - reason
+          - sitPostalCode
+          - sitEntryDate
   MTOServiceItemShuttle:
     description: Describes a shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >
+              A unique code for the service item. Indicates if shuttling is
+              requested for the shipment origin (`DOSHUT`) or destination
+              (`DDSHUT`).
+            enum:
+              - DOSHUT
+              - DDSHUT
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: >
+              The contractor's explanation for why a shuttle service is
+              requested. Used by the TOO while deciding to approve or reject the
+              service item.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              the shuttling service.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: >-
+              A record of the actual weight that was shuttled. Provided by the
+              movers, based on weight tickets.
+            x-nullable: true
+            x-omitempty: false
+        required:
+          - reason
+          - reServiceCode
+  MTOServiceItemDomesticShuttle:
+    description: Describes a domestic shuttle service item.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -2499,6 +2943,60 @@ definitions:
           portCode:
             description: A unique code for a Port
             type: string
+  MTOServiceItemInternationalShuttle:
+    description: Describes an international shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >
+              A unique code for the service item. Indicates if shuttling is
+              requested for the international shipment origin (`IOSHUT`) or
+              destination (`IDSHUT`).
+            enum:
+              - IOSHUT
+              - IDSHUT
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: >
+              The contractor's explanation for why a shuttle service is
+              requested. Used by the TOO while deciding to approve or reject the
+              service item.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              the shuttling service.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: >-
+              A record of the actual weight that was shuttled. Provided by the
+              movers, based on weight tickets.
+            x-nullable: true
+            x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          market:
+            type: string
+            enum:
+              - CONUS
+              - OCONUS
+            example: CONUS
+            description: >-
+              To identify whether the service was provided within (CONUS) or
+              (OCONUS)
+        required:
+          - reason
+          - reServiceCode
   MTOShipment:
     type: object
     properties:
@@ -2541,6 +3039,8 @@ definitions:
           This should be populated for the following service items:
             * DOASIT(Domestic origin Additional day SIT)
             * DDASIT(Domestic destination Additional day SIT)
+            * IOASIT(International origin Additional day SIT)
+            * IDASIT(International destination Additional day SIT)
 
           Both take in the following param keys:
             * `SITPaymentRequestStart`
@@ -2589,10 +3089,22 @@ definitions:
         * DOFSIT - UpdateMTOServiceItemSIT
         * DOSFSC - UpdateMTOServiceItemSIT
         * DDSFSC - UpdateMTOServiceItemSIT
+        * IDDSIT - UpdateMTOServiceItemSIT
+        * IDFSIT - UpdateMTOServiceItemSIT
+        * IDASIT - UpdateMTOServiceItemSIT
+        * IOPSIT - UpdateMTOServiceItemSIT
+        * IOASIT - UpdateMTOServiceItemSIT
+        * IOFSIT - UpdateMTOServiceItemSIT
+        * IOSFSC - UpdateMTOServiceItemSIT
+        * IDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
         * PODFSC - UpdateMTOServiceItemInternationalPortFSC
         * POEFSC - UpdateMTOServiceItemInternationalPortFSC
+        * IDSHUT - UpdateMTOServiceItemInternationalShuttle
+        * IOSHUT - UpdateMTOServiceItemInternationalShuttle
+        * ICRT - UpdateMTOServiceItemCrating
+        * IUCRT - UpdateMTOServiceItemCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -2600,6 +3112,8 @@ definitions:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
       - UpdateMTOServiceItemInternationalPortFSC
+      - UpdateMTOServiceItemInternationalShuttle
+      - UpdateMTOServiceItemCrating
   UpdateMTOServiceItemShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
@@ -2631,6 +3145,41 @@ definitions:
             enum:
               - DDSHUT
               - DOSHUT
+  UpdateMTOServiceItemInternationalShuttle:
+    description: >
+      Subtype used to provide the estimated weight and actual weight for
+      shuttle. This is not creating a new service item but rather updating an
+      existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          actualWeight:
+            type: integer
+            example: 4000
+            description: >-
+              Provided by the movers, based on weight tickets. Relevant for
+              shuttling (IDSHUT & IOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              a shuttling (IDSHUT & IOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - IDSHUT
+              - IOSHUT
   UpdateMTOServiceItemSIT:
     description: >
       Subtype used to provide the departure date for origin or destination SIT.
@@ -2652,6 +3201,14 @@ definitions:
               - DOASIT
               - DOFSIT
               - DOSFSC
+              - IDDSIT
+              - IDASIT
+              - IDFSIT
+              - IDSFSC
+              - IOPSIT
+              - IOASIT
+              - IOFSIT
+              - IOSFSC
           sitDepartureDate:
             format: date
             type: string
@@ -2753,6 +3310,47 @@ definitions:
             enum:
               - PODFSC
               - POEFSC
+  UpdateMTOServiceItemCrating:
+    description: >
+      Subtype used to provide the size and types for crating. This is not
+      creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+            x-nullable: true
+          updateReason:
+            type: string
+            description: Reason for updating service item.
+            x-nullable: true
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
+          externalCrate:
+            type: boolean
+            x-nullable: true
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - ICRT
+              - IUCRT
   UpdateMTOShipment:
     properties:
       actualProGearWeight:
@@ -2996,6 +3594,10 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
+  VLocations:
+    type: array
+    items:
+      $ref: '#/definitions/VLocation'
   ClientError:
     type: object
     properties:
@@ -3183,6 +3785,20 @@ definitions:
       - city
       - state
       - postalCode
+  BackupContact:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Bob Smith
+      phone:
+        type: string
+        format: telephone
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        example: fake@example.com
   Customer:
     type: object
     properties:
@@ -3220,6 +3836,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      backupContact:
+        $ref: '#/definitions/BackupContact'
   Entitlements:
     type: object
     properties:
@@ -3279,6 +3897,16 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      weightRestriction:
+        example: 1500
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      ubWeightRestriction:
+        example: 1200
+        type: integer
+        x-formatting: weight
+        x-nullable: true
       eTag:
         type: string
         readOnly: true
@@ -3663,7 +4291,11 @@ definitions:
       corresponding to the service item type.
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
+        * IOFSIT, IOASIT - MTOServiceItemInternationalOriginSIT
+        * IDFSIT, IDASIT - MTOServiceItemInternationalDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DOSHUT, DDSHUT - MTOServiceItemDomesticShuttle
+        * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
         * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
@@ -3674,7 +4306,11 @@ definitions:
       - MTOServiceItemBasic
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
+      - MTOServiceItemInternationalOriginSIT
+      - MTOServiceItemInternationalDestSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemDomesticShuttle
+      - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
       - MTOSerivceItemInternationalFuelSurcharge
@@ -4675,6 +5311,172 @@ definitions:
                 type: string
         required:
           - invalidFields
+  AcknowledgeShipment:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+      primeAcknowledgedAt:
+        type: string
+        format: date-time
+        example: '2025-04-13T14:15:33Z'
+  AcknowledgeMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
+      primeAcknowledgedAt:
+        type: string
+        format: date-time
+        example: '2025-04-13T14:15:22Z'
+      mtoShipments:
+        type: array
+        items:
+          $ref: '#/definitions/AcknowledgeShipment'
+  AcknowledgeMoves:
+    type: array
+    items:
+      $ref: '#/definitions/AcknowledgeMove'
+  AcknowledgeMovesShipmentsSuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Moves/Shipments acknowledgement successfully completed
+  VLocation:
+    description: A postal code, city, and state lookup
+    type: object
+    properties:
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}?)$
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   ReServiceCode:
     type: string
     description: >

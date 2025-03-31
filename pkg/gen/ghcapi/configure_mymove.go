@@ -4,6 +4,7 @@ package ghcapi
 
 import (
 	"crypto/tls"
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -64,7 +65,12 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
+	api.TextEventStreamProducer = runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+		return errors.NotImplemented("textEventStream producer has not yet been implemented")
+	})
 
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// ppm.CreatePPMUploadMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// uploads.CreateUploadMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
@@ -105,6 +111,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentApproveShipmentDiversionHandler == nil {
 		api.ShipmentApproveShipmentDiversionHandler = shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
+		})
+	}
+	if api.ShipmentApproveShipmentsHandler == nil {
+		api.ShipmentApproveShipmentsHandler = shipment.ApproveShipmentsHandlerFunc(func(params shipment.ApproveShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipments has not yet been implemented")
 		})
 	}
 	if api.ReportViolationsAssociateReportViolationsHandler == nil {
@@ -167,6 +178,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
 		})
 	}
+	if api.PpmCreatePPMUploadHandler == nil {
+		api.PpmCreatePPMUploadHandler = ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
+		})
+	}
 	if api.OfficeUsersCreateRequestedOfficeUserHandler == nil {
 		api.OfficeUsersCreateRequestedOfficeUserHandler = office_users.CreateRequestedOfficeUserHandlerFunc(func(params office_users.CreateRequestedOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateRequestedOfficeUser has not yet been implemented")
@@ -175,6 +191,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.UploadsCreateUploadHandler == nil {
 		api.UploadsCreateUploadHandler = uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
+		})
+	}
+	if api.PpmCreateWeightTicketHandler == nil {
+		api.PpmCreateWeightTicketHandler = ppm.CreateWeightTicketHandlerFunc(func(params ppm.CreateWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateWeightTicket has not yet been implemented")
 		})
 	}
 	if api.MoveDeleteAssignedOfficeUserHandler == nil {
@@ -200,6 +221,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.UploadsDeleteUploadHandler == nil {
 		api.UploadsDeleteUploadHandler = uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")
+		})
+	}
+	if api.PpmDeleteWeightTicketHandler == nil {
+		api.PpmDeleteWeightTicketHandler = ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		})
 	}
 	if api.ShipmentDenySITExtensionHandler == nil {
@@ -240,6 +266,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler == nil {
 		api.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler = customer_support_remarks.GetCustomerSupportRemarksForMoveHandlerFunc(func(params customer_support_remarks.GetCustomerSupportRemarksForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.GetCustomerSupportRemarksForMove has not yet been implemented")
+		})
+	}
+	if api.QueuesGetDestinationRequestsQueueHandler == nil {
+		api.QueuesGetDestinationRequestsQueueHandler = queues.GetDestinationRequestsQueueHandlerFunc(func(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetDestinationRequestsQueue has not yet been implemented")
 		})
 	}
 	if api.GhcDocumentsGetDocumentHandler == nil {
@@ -392,6 +423,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		})
 	}
+	if api.UploadsGetUploadStatusHandler == nil {
+		api.UploadsGetUploadStatusHandler = uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
+		})
+	}
 	if api.CalendarIsDateWeekendHolidayHandler == nil {
 		api.CalendarIsDateWeekendHolidayHandler = calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
@@ -447,6 +483,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation shipment.ReviewShipmentAddressUpdate has not yet been implemented")
 		})
 	}
+	if api.QueuesSaveBulkAssignmentDataHandler == nil {
+		api.QueuesSaveBulkAssignmentDataHandler = queues.SaveBulkAssignmentDataHandlerFunc(func(params queues.SaveBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.SaveBulkAssignmentData has not yet been implemented")
+		})
+	}
 	if api.EvaluationReportsSaveEvaluationReportHandler == nil {
 		api.EvaluationReportsSaveEvaluationReportHandler = evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
@@ -470,6 +511,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PpmShowAOAPacketHandler == nil {
 		api.PpmShowAOAPacketHandler = ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
+		})
+	}
+	if api.TransportationOfficeShowCounselingOfficesHandler == nil {
+		api.TransportationOfficeShowCounselingOfficesHandler = transportation_office.ShowCounselingOfficesHandlerFunc(func(params transportation_office.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.ShowCounselingOffices has not yet been implemented")
 		})
 	}
 	if api.PpmShowPaymentPacketHandler == nil {

@@ -10,7 +10,9 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	paperwork "github.com/transcom/mymove/pkg/paperwork"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	acknowledgemovesshipments "github.com/transcom/mymove/pkg/services/acknowledge_moves_shipments"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/move"
@@ -28,6 +30,7 @@ import (
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -41,16 +44,19 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	if err != nil {
 		log.Fatalln(err)
 	}
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	primeAPI := primeoperations.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	vLocation := address.NewVLocation()
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -79,12 +85,12 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
-		movetaskorder.NewMoveTaskOrderFetcher(),
+		movetaskorder.NewMoveTaskOrderFetcher(waf),
 	}
 
 	primeAPI.MoveTaskOrderCreateExcessWeightRecordHandler = CreateExcessWeightRecordHandler{
@@ -108,9 +114,15 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		mtoserviceitem.NewServiceRequestDocumentUploadCreator(handlerConfig.FileStorer()),
 	}
 
+	primeAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
+		handlerConfig,
+		vLocation,
+	}
+
 	primeAPI.MtoShipmentUpdateShipmentDestinationAddressHandler = UpdateShipmentDestinationAddressHandler{
 		handlerConfig,
 		shipmentaddressupdate.NewShipmentAddressUpdateRequester(handlerConfig.HHGPlanner(), addressCreator, moveRouter),
+		vLocation,
 	}
 
 	addressUpdater := address.NewAddressUpdater()
@@ -155,6 +167,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
 		handlerConfig,
 		mtoshipment.NewMTOShipmentAddressUpdater(handlerConfig.HHGPlanner(), addressCreator, addressUpdater),
+		vLocation,
 	}
 
 	primeAPI.MtoShipmentCreateMTOAgentHandler = CreateMTOAgentHandler{
@@ -187,8 +200,13 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.MoveTaskOrderDownloadMoveOrderHandler = DownloadMoveOrderHandler{
 		handlerConfig,
 		move.NewMoveSearcher(),
-		order.NewOrderFetcher(),
+		order.NewOrderFetcher(waf),
 		primeDownloadMoveUploadPDFGenerator,
+	}
+
+	primeAPI.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler = AcknowledgeMovesAndShipmentsHandler{
+		handlerConfig,
+		acknowledgemovesshipments.NewMoveAndShipmentAcknowledgementUpdater(),
 	}
 
 	return primeAPI

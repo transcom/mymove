@@ -3,14 +3,17 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -32,6 +35,22 @@ const (
 	MarketCodeDomestic      MarketCode = "d" // domestic
 	MarketCodeInternational MarketCode = "i" // international
 )
+
+// Add to this list as international service items are implemented
+var internationalAccessorialServiceItems = []ReServiceCode{
+	ReServiceCodeICRT,
+	ReServiceCodeIUCRT,
+	ReServiceCodeIOASIT,
+	ReServiceCodeIDASIT,
+	ReServiceCodeIOFSIT,
+	ReServiceCodeIDFSIT,
+	ReServiceCodeIOPSIT,
+	ReServiceCodeIDDSIT,
+	ReServiceCodeIDSHUT,
+	ReServiceCodeIOSHUT,
+	ReServiceCodeIOSFSC,
+	ReServiceCodeIDSFSC,
+}
 
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
@@ -101,74 +120,75 @@ const (
 
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
-	ID                               uuid.UUID              `db:"id"`
-	MoveTaskOrder                    Move                   `belongs_to:"moves" fk_id:"move_id"`
-	MoveTaskOrderID                  uuid.UUID              `db:"move_id"`
-	ScheduledPickupDate              *time.Time             `db:"scheduled_pickup_date"`
-	RequestedPickupDate              *time.Time             `db:"requested_pickup_date"`
-	RequestedDeliveryDate            *time.Time             `db:"requested_delivery_date"`
-	ApprovedDate                     *time.Time             `db:"approved_date"`
-	FirstAvailableDeliveryDate       *time.Time             `db:"first_available_delivery_date"`
-	ActualPickupDate                 *time.Time             `db:"actual_pickup_date"`
-	RequiredDeliveryDate             *time.Time             `db:"required_delivery_date"`
-	ScheduledDeliveryDate            *time.Time             `db:"scheduled_delivery_date"`
-	ActualDeliveryDate               *time.Time             `db:"actual_delivery_date"`
-	CustomerRemarks                  *string                `db:"customer_remarks"`
-	CounselorRemarks                 *string                `db:"counselor_remarks"`
-	PickupAddress                    *Address               `belongs_to:"addresses" fk_id:"pickup_address_id"`
-	PickupAddressID                  *uuid.UUID             `db:"pickup_address_id"`
-	DestinationAddress               *Address               `belongs_to:"addresses" fk_id:"destination_address_id"`
-	DestinationAddressID             *uuid.UUID             `db:"destination_address_id"`
-	DestinationType                  *DestinationType       `db:"destination_address_type"`
-	MTOAgents                        MTOAgents              `has_many:"mto_agents" fk_id:"mto_shipment_id"`
-	MTOServiceItems                  MTOServiceItems        `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
-	SecondaryPickupAddress           *Address               `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
-	SecondaryPickupAddressID         *uuid.UUID             `db:"secondary_pickup_address_id"`
-	HasSecondaryPickupAddress        *bool                  `db:"has_secondary_pickup_address"`
-	SecondaryDeliveryAddress         *Address               `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
-	SecondaryDeliveryAddressID       *uuid.UUID             `db:"secondary_delivery_address_id"`
-	HasSecondaryDeliveryAddress      *bool                  `db:"has_secondary_delivery_address"`
-	TertiaryPickupAddress            *Address               `belongs_to:"addresses" fk_id:"tertiary_pickup_address_id"`
-	TertiaryPickupAddressID          *uuid.UUID             `db:"tertiary_pickup_address_id"`
-	HasTertiaryPickupAddress         *bool                  `db:"has_tertiary_pickup_address"`
-	TertiaryDeliveryAddress          *Address               `belongs_to:"addresses" fk_id:"tertiary_delivery_address_id"`
-	TertiaryDeliveryAddressID        *uuid.UUID             `db:"tertiary_delivery_address_id"`
-	HasTertiaryDeliveryAddress       *bool                  `db:"has_tertiary_delivery_address"`
-	SITDaysAllowance                 *int                   `db:"sit_days_allowance"`
-	SITDurationUpdates               SITDurationUpdates     `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
-	PrimeEstimatedWeight             *unit.Pound            `db:"prime_estimated_weight"`
-	PrimeEstimatedWeightRecordedDate *time.Time             `db:"prime_estimated_weight_recorded_date"`
-	PrimeActualWeight                *unit.Pound            `db:"prime_actual_weight"`
-	BillableWeightCap                *unit.Pound            `db:"billable_weight_cap"`
-	BillableWeightJustification      *string                `db:"billable_weight_justification"`
-	NTSRecordedWeight                *unit.Pound            `db:"nts_recorded_weight"`
-	ShipmentType                     MTOShipmentType        `db:"shipment_type"`
-	Status                           MTOShipmentStatus      `db:"status"`
-	Diversion                        bool                   `db:"diversion"`
-	DiversionReason                  *string                `db:"diversion_reason"`
-	DivertedFromShipmentID           *uuid.UUID             `db:"diverted_from_shipment_id"`
-	ActualProGearWeight              *unit.Pound            `db:"actual_pro_gear_weight"`
-	ActualSpouseProGearWeight        *unit.Pound            `db:"actual_spouse_pro_gear_weight"`
-	RejectionReason                  *string                `db:"rejection_reason"`
-	Distance                         *unit.Miles            `db:"distance"`
-	Reweigh                          *Reweigh               `has_one:"reweighs" fk_id:"shipment_id"`
-	UsesExternalVendor               bool                   `db:"uses_external_vendor"`
-	StorageFacility                  *StorageFacility       `belongs_to:"storage_facilities" fk:"storage_facility_id"`
-	StorageFacilityID                *uuid.UUID             `db:"storage_facility_id"`
-	ServiceOrderNumber               *string                `db:"service_order_number"`
-	TACType                          *LOAType               `db:"tac_type"`
-	SACType                          *LOAType               `db:"sac_type"`
-	PPMShipment                      *PPMShipment           `has_one:"ppm_shipment" fk_id:"shipment_id"`
-	BoatShipment                     *BoatShipment          `has_one:"boat_shipment" fk_id:"shipment_id"`
-	DeliveryAddressUpdate            *ShipmentAddressUpdate `has_one:"shipment_address_update" fk_id:"shipment_id"`
-	CreatedAt                        time.Time              `db:"created_at"`
-	UpdatedAt                        time.Time              `db:"updated_at"`
-	DeletedAt                        *time.Time             `db:"deleted_at"`
-	ShipmentLocator                  *string                `db:"shipment_locator"`
-	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
-	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
-	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
-	MarketCode                       MarketCode             `db:"market_code"`
+	ID                               uuid.UUID              `json:"id" db:"id"`
+	MoveTaskOrder                    Move                   `json:"move_task_order" belongs_to:"moves" fk_id:"move_id"`
+	MoveTaskOrderID                  uuid.UUID              `json:"move_task_order_id" db:"move_id"`
+	ScheduledPickupDate              *time.Time             `json:"scheduled_pickup_date" db:"scheduled_pickup_date"`
+	RequestedPickupDate              *time.Time             `json:"requested_pickup_date" db:"requested_pickup_date"`
+	RequestedDeliveryDate            *time.Time             `json:"requested_delivery_date" db:"requested_delivery_date"`
+	ApprovedDate                     *time.Time             `json:"approved_date" db:"approved_date"`
+	FirstAvailableDeliveryDate       *time.Time             `json:"first_available_delivery_date" db:"first_available_delivery_date"`
+	ActualPickupDate                 *time.Time             `json:"actual_pickup_date" db:"actual_pickup_date"`
+	RequiredDeliveryDate             *time.Time             `json:"required_delivery_date" db:"required_delivery_date"`
+	ScheduledDeliveryDate            *time.Time             `json:"scheduled_delivery_date" db:"scheduled_delivery_date"`
+	ActualDeliveryDate               *time.Time             `json:"actual_delivery_date" db:"actual_delivery_date"`
+	CustomerRemarks                  *string                `json:"customer_remarks" db:"customer_remarks"`
+	CounselorRemarks                 *string                `json:"counselor_remarks" db:"counselor_remarks"`
+	PickupAddress                    *Address               `json:"pickup_address" belongs_to:"addresses" fk_id:"pickup_address_id"`
+	PickupAddressID                  *uuid.UUID             `json:"pickup_address_id" db:"pickup_address_id"`
+	DestinationAddress               *Address               `json:"destination_address" belongs_to:"addresses" fk_id:"destination_address_id"`
+	DestinationAddressID             *uuid.UUID             `json:"destination_address_id" db:"destination_address_id"`
+	DestinationType                  *DestinationType       `json:"destination_type" db:"destination_address_type"`
+	MTOAgents                        MTOAgents              `json:"mto_agents" has_many:"mto_agents" fk_id:"mto_shipment_id"`
+	MTOServiceItems                  MTOServiceItems        `json:"mto_service_items" has_many:"mto_service_items" fk_id:"mto_shipment_id"`
+	SecondaryPickupAddress           *Address               `json:"secondary_pickup_address" belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
+	SecondaryPickupAddressID         *uuid.UUID             `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
+	HasSecondaryPickupAddress        *bool                  `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
+	SecondaryDeliveryAddress         *Address               `json:"secondary_delivery_address" belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
+	SecondaryDeliveryAddressID       *uuid.UUID             `json:"secondary_delivery_address_id" db:"secondary_delivery_address_id"`
+	HasSecondaryDeliveryAddress      *bool                  `json:"has_secondary_delivery_address" db:"has_secondary_delivery_address"`
+	TertiaryPickupAddress            *Address               `json:"tertiary_pickup_address" belongs_to:"addresses" fk_id:"tertiary_pickup_address_id"`
+	TertiaryPickupAddressID          *uuid.UUID             `json:"tertiary_pickup_address_id" db:"tertiary_pickup_address_id"`
+	HasTertiaryPickupAddress         *bool                  `json:"has_tertiary_pickup_address" db:"has_tertiary_pickup_address"`
+	TertiaryDeliveryAddress          *Address               `json:"tertiary_delivery_address" belongs_to:"addresses" fk_id:"tertiary_delivery_address_id"`
+	TertiaryDeliveryAddressID        *uuid.UUID             `json:"tertiary_delivery_address_id" db:"tertiary_delivery_address_id"`
+	HasTertiaryDeliveryAddress       *bool                  `json:"has_tertiary_delivery_address" db:"has_tertiary_delivery_address"`
+	SITDaysAllowance                 *int                   `json:"sit_days_allowance" db:"sit_days_allowance"`
+	SITDurationUpdates               SITDurationUpdates     `json:"sit_duration_updates" has_many:"sit_extensions" fk_id:"mto_shipment_id"`
+	PrimeEstimatedWeight             *unit.Pound            `json:"prime_estimated_weight" db:"prime_estimated_weight"`
+	PrimeEstimatedWeightRecordedDate *time.Time             `json:"prime_estimated_weight_recorded_date" db:"prime_estimated_weight_recorded_date"`
+	PrimeActualWeight                *unit.Pound            `json:"prime_actual_weight" db:"prime_actual_weight"`
+	BillableWeightCap                *unit.Pound            `json:"billable_weight_cap" db:"billable_weight_cap"`
+	BillableWeightJustification      *string                `json:"billable_weight_justification" db:"billable_weight_justification"`
+	NTSRecordedWeight                *unit.Pound            `json:"nts_recorded_weight" db:"nts_recorded_weight"`
+	ShipmentType                     MTOShipmentType        `json:"shipment_type" db:"shipment_type"`
+	Status                           MTOShipmentStatus      `json:"status" db:"status"`
+	Diversion                        bool                   `json:"diversion" db:"diversion"`
+	DiversionReason                  *string                `json:"diversion_reason" db:"diversion_reason"`
+	DivertedFromShipmentID           *uuid.UUID             `json:"diverted_from_shipment_id" db:"diverted_from_shipment_id"`
+	ActualProGearWeight              *unit.Pound            `json:"actual_pro_gear_weight" db:"actual_pro_gear_weight"`
+	ActualSpouseProGearWeight        *unit.Pound            `json:"actual_spouse_pro_gear_weight" db:"actual_spouse_pro_gear_weight"`
+	RejectionReason                  *string                `json:"rejection_reason" db:"rejection_reason"`
+	Distance                         *unit.Miles            `json:"distance" db:"distance"`
+	Reweigh                          *Reweigh               `json:"reweigh" has_one:"reweighs" fk_id:"shipment_id"`
+	UsesExternalVendor               bool                   `json:"uses_external_vendor" db:"uses_external_vendor"`
+	StorageFacility                  *StorageFacility       `json:"storage_facility" belongs_to:"storage_facilities" fk:"storage_facility_id"`
+	StorageFacilityID                *uuid.UUID             `json:"storage_facility_id" db:"storage_facility_id"`
+	ServiceOrderNumber               *string                `json:"service_order_number" db:"service_order_number"`
+	TACType                          *LOAType               `json:"tac_type" db:"tac_type"`
+	SACType                          *LOAType               `json:"sac_type" db:"sac_type"`
+	PPMShipment                      *PPMShipment           `json:"ppm_shipment" has_one:"ppm_shipment" fk_id:"shipment_id"`
+	BoatShipment                     *BoatShipment          `json:"boat_shipment" has_one:"boat_shipment" fk_id:"shipment_id"`
+	DeliveryAddressUpdate            *ShipmentAddressUpdate `json:"delivery_address_update" has_one:"shipment_address_update" fk_id:"shipment_id"`
+	CreatedAt                        time.Time              `json:"created_at" db:"created_at"`
+	UpdatedAt                        time.Time              `json:"updated_at" db:"updated_at"`
+	DeletedAt                        *time.Time             `json:"deleted_at" db:"deleted_at"`
+	ShipmentLocator                  *string                `json:"shipment_locator" db:"shipment_locator"`
+	OriginSITAuthEndDate             *time.Time             `json:"origin_sit_auth_end_date" db:"origin_sit_auth_end_date"`
+	DestinationSITAuthEndDate        *time.Time             `json:"destination_sit_auth_end_date" db:"dest_sit_auth_end_date"`
+	MobileHome                       *MobileHome            `json:"mobile_home" has_one:"mobile_home" fk_id:"shipment_id"`
+	MarketCode                       MarketCode             `json:"market_code" db:"market_code"`
+	PrimeAcknowledgedAt              *time.Time             `db:"prime_acknowledged_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -275,33 +295,6 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", shipmentID, err)
 	}
 	return &serviceMember, nil
-}
-
-func (m *MTOShipment) UpdateOrdersDestinationGBLOC(db *pop.Connection) error {
-	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
-	if uuid.UUID.IsNil(m.ID) {
-		return fmt.Errorf("error updating orders destination GBLOC for shipment due to no shipment ID provided")
-	}
-
-	var err error
-	var order Order
-
-	err = db.Load(&m, "MoveTaskOrder.OrdersID")
-	if err != nil {
-		return fmt.Errorf("error loading orders for shipment ID: %s with error %w", m.ID, err)
-	}
-
-	order, err = FetchOrder(db, m.MoveTaskOrder.OrdersID)
-	if err != nil {
-		return fmt.Errorf("error fetching order for shipment ID: %s with error %w", m.ID, err)
-	}
-
-	err = order.UpdateDestinationGBLOC(db)
-	if err != nil {
-		return fmt.Errorf("error fetching GBLOC for postal code with error %w", err)
-	}
-
-	return nil
 }
 
 // Helper function to check that an MTO Shipment contains a PPM Shipment
@@ -459,6 +452,28 @@ func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShip
 	return nil
 }
 
+func CreateInternationalAccessorialServiceItemsForShipment(db *pop.Connection, shipmentId uuid.UUID, mtoServiceItems MTOServiceItems) ([]string, error) {
+	if len(mtoServiceItems) == 0 {
+		err := fmt.Errorf("must request service items to create: %s", shipmentId)
+		return nil, apperror.NewInvalidInputError(shipmentId, err, nil, err.Error())
+	}
+
+	for _, serviceItem := range mtoServiceItems {
+		if !slices.Contains(internationalAccessorialServiceItems, serviceItem.ReService.Code) {
+			err := fmt.Errorf("cannot create domestic service items for international shipment: %s", shipmentId)
+			return nil, apperror.NewInvalidInputError(shipmentId, err, nil, err.Error())
+		}
+	}
+
+	createdServiceItemIDs := []string{}
+	err := db.RawQuery("CALL create_accessorial_service_items_for_shipment($1, $2, $3)", shipmentId, pq.Array(mtoServiceItems), pq.StringArray(createdServiceItemIDs)).All(&createdServiceItemIDs)
+	if err != nil {
+		return nil, apperror.NewInvalidInputError(shipmentId, err, nil, err.Error())
+	}
+
+	return createdServiceItemIDs, nil
+}
+
 // a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:
 // iHHG
 // iUB
@@ -502,4 +517,24 @@ func FetchShipmentByID(db *pop.Connection, shipmentID uuid.UUID) (*MTOShipment, 
 		return nil, err
 	}
 	return &mtoShipment, nil
+}
+
+// filters the returned MtoShipments for each move.
+// Ignoring mto shipments that have been deleted, cancelled, or rejected.
+func FilterDeletedRejectedCanceledMtoShipments(unfilteredShipments MTOShipments) MTOShipments {
+	if len(unfilteredShipments) == 0 {
+		return unfilteredShipments
+	}
+
+	filteredShipments := MTOShipments{}
+	for _, shipment := range unfilteredShipments {
+		if shipment.DeletedAt == nil &&
+			(shipment.Status != MTOShipmentStatusDraft) &&
+			(shipment.Status != MTOShipmentStatusRejected) &&
+			(shipment.Status != MTOShipmentStatusCanceled) {
+			filteredShipments = append(filteredShipments, shipment)
+		}
+	}
+
+	return filteredShipments
 }

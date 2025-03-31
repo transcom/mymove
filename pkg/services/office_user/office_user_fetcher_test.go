@@ -3,6 +3,7 @@ package officeuser
 import (
 	"errors"
 	"reflect"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -14,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type testOfficeUserQueryBuilder struct {
@@ -36,6 +38,14 @@ func (t *testOfficeUserQueryBuilder) UpdateOne(_ appcontext.AppContext, _ interf
 }
 
 func (t *testOfficeUserQueryBuilder) QueryForAssociations(_ appcontext.AppContext, _ interface{}, _ services.QueryAssociations, _ []services.QueryFilter, _ services.Pagination, _ services.QueryOrder) error {
+	return nil
+}
+
+func (t *testOfficeUserQueryBuilder) DeleteOne(_ appcontext.AppContext, _ interface{}) error {
+	return nil
+}
+
+func (t *testOfficeUserQueryBuilder) DeleteMany(_ appcontext.AppContext, _ interface{}, _ []services.QueryFilter) error {
 	return nil
 }
 
@@ -80,27 +90,6 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUser{}, officeUser)
-	})
-}
-
-func (suite *OfficeUserServiceSuite) TestFetchOfficeUserByID() {
-	suite.Run("FetchOfficeUserByID returns office user on success", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		fetcher := NewOfficeUserFetcherPop()
-
-		fetchedUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), officeUser.ID)
-
-		suite.NoError(err)
-		suite.Equal(officeUser.ID, fetchedUser.ID)
-	})
-
-	suite.Run("FetchOfficeUserByID returns zero value office user on error", func() {
-		fetcher := NewOfficeUserFetcherPop()
-		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
-
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(uuid.Nil, officeUser.ID)
 	})
 }
 
@@ -172,4 +161,34 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(uuid.Nil, officeUser.ID)
 	})
+
+	suite.Run("does not return office users with deleted role", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
+			},
+		}, nil)
+		deletedAt := time.Now()
+		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+			User: officeUser.User,
+			UsersRoles: models.UsersRoles{
+				RoleID:    tooRole.ID,
+				DeletedAt: &deletedAt,
+			},
+		})
+
+		fetchedUsers, err := fetcher.FetchOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
+		suite.NoError(err)
+		suite.Len(fetchedUsers, 0)
+	})
+
 }

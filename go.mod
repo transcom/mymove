@@ -21,6 +21,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/rds v1.78.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.59.0
 	github.com/aws/aws-sdk-go-v2/service/ses v1.25.3
+	github.com/aws/aws-sdk-go-v2/service/sns v1.31.8
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.34.6
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.52.8
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.7
 	github.com/aws/smithy-go v1.20.4
@@ -49,7 +51,7 @@ require (
 	github.com/gobuffalo/validate/v3 v3.3.3
 	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380
 	github.com/gofrs/uuid v4.4.0+incompatible
-	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.2
@@ -277,3 +279,5 @@ require (
 	pault.ag/go/othername v0.0.0-20190316144542-859caba4369b // indirect
 	pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c // indirect
 )
+
+replace github.com/pdfcpu/pdfcpu => github.com/transcom/pdfcpu v0.0.0-20250225161110-ce2f81788248

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -13,7 +14,7 @@ import (
 //
 //go:generate mockery --name RequestedOfficeUserListFetcher
 type RequestedOfficeUserListFetcher interface {
-	FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.OfficeUsers, error)
+	FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filterFuncs []func(*pop.Query), pagination Pagination, ordering QueryOrder) (models.OfficeUsers, int, error)
 	FetchRequestedOfficeUsersCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
 }
 
@@ -22,13 +23,6 @@ type RequestedOfficeUserListFetcher interface {
 //go:generate mockery --name RequestedOfficeUserFetcher
 type RequestedOfficeUserFetcher interface {
 	FetchRequestedOfficeUser(appCtx appcontext.AppContext, filters []QueryFilter) (models.OfficeUser, error)
-}
-
-// RequestedOfficeUserFetcherPop is the exported interface for fetching a single office user
-//
-//go:generate mockery --name RequestedOfficeUserFetcherPop
-type RequestedOfficeUserFetcherPop interface {
-	FetchRequestedOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
 }
 
 // RequestedOfficeUserFetcher is the exported interface for updating a requested office user

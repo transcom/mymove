@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_file"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_files"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/rejected_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
@@ -72,6 +73,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation webhook_subscriptions.CreateWebhookSubscription has not yet been implemented")
 		})
 	}
+	if api.OfficeUsersDeleteOfficeUserHandler == nil {
+		api.OfficeUsersDeleteOfficeUserHandler = office_users.DeleteOfficeUserHandlerFunc(func(params office_users.DeleteOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
+		})
+	}
 	if api.AdminUsersGetAdminUserHandler == nil {
 		api.AdminUsersGetAdminUserHandler = admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
@@ -105,6 +111,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OfficeUsersGetOfficeUserHandler == nil {
 		api.OfficeUsersGetOfficeUserHandler = office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
+		})
+	}
+	if api.RejectedOfficeUsersGetRejectedOfficeUserHandler == nil {
+		api.RejectedOfficeUsersGetRejectedOfficeUserHandler = rejected_office_users.GetRejectedOfficeUserHandlerFunc(func(params rejected_office_users.GetRejectedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation rejected_office_users.GetRejectedOfficeUser has not yet been implemented")
 		})
 	}
 	if api.RequestedOfficeUsersGetRequestedOfficeUserHandler == nil {
@@ -170,6 +181,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler == nil {
 		api.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler = payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandlerFunc(func(params payment_request_syncada_files.IndexPaymentRequestSyncadaFilesParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request_syncada_files.IndexPaymentRequestSyncadaFiles has not yet been implemented")
+		})
+	}
+	if api.RejectedOfficeUsersIndexRejectedOfficeUsersHandler == nil {
+		api.RejectedOfficeUsersIndexRejectedOfficeUsersHandler = rejected_office_users.IndexRejectedOfficeUsersHandlerFunc(func(params rejected_office_users.IndexRejectedOfficeUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation rejected_office_users.IndexRejectedOfficeUsers has not yet been implemented")
 		})
 	}
 	if api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {

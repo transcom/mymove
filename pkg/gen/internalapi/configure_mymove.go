@@ -29,6 +29,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/registration"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
@@ -83,6 +84,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
 		api.FeatureFlagsBooleanFeatureFlagForUserHandler = feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
+		api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
 		})
 	}
 	if api.OfficeCancelMoveHandler == nil {
@@ -153,6 +159,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		api.MoveDocsCreateWeightTicketDocumentHandler = move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
+		})
+	}
+	if api.RegistrationCustomerRegistrationHandler == nil {
+		api.RegistrationCustomerRegistrationHandler = registration.CustomerRegistrationHandlerFunc(func(params registration.CustomerRegistrationParams) middleware.Responder {
+			return middleware.NotImplemented("operation registration.CustomerRegistration has not yet been implemented")
 		})
 	}
 	if api.MoveDocsDeleteMoveDocumentHandler == nil {

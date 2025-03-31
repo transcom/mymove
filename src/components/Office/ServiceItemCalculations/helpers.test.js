@@ -11,12 +11,12 @@ function testData(code) {
       'Crating size (cu ft)': '4.00',
     };
   }
-  if (code === 'DCRT') {
+  if (code === 'DCRT' || code === 'ICRT') {
     result = {
       ...result,
       'Crating price (per cu ft)': '1.71',
     };
-  } else if (code === 'DUCRT') {
+  } else if (code === 'DUCRT' || code === 'IUCRT') {
     result = {
       ...result,
       'Uncrating price (per cu ft)': '1.71',
@@ -334,13 +334,57 @@ describe('DomesticDestinationSITDelivery', () => {
     testAB(result, expected);
   });
 
-  // it('returns correct data for DomesticMobileHomeFactor', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticMobileHomeFactor);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for ISLH', () => {
+    const result = makeCalculations('ISLH', 99999, testParams.InternationalShippingAndLinehaul);
+    const expected = testData('ISLH');
+    testAB(result, expected);
+  });
 
-  // it('returns correct data for DomesticTowAwayBoatFactor', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticTowAwayBoatFactor);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for IHPK', () => {
+    const result = makeCalculations('IHPK', 99999, testParams.InternationalHHGPack);
+    const expected = testData('IHPK');
+    testAB(result, expected);
+  });
+
+  it('returns correct data for IHUPK', () => {
+    const result = makeCalculations('IHUPK', 99999, testParams.InternationalHHGUnpack);
+    const expected = testData('IHUPK');
+    testAB(result, expected);
+  });
+
+  it('returns correct data for POEFSC', () => {
+    const result = makeCalculations('POEFSC', 99998, testParams.PortOfEmbarkation);
+    const expected = testData('POEFSC');
+    testAB(result, expected);
+  });
+
+  it('returns correct data for PODFSC', () => {
+    const result = makeCalculations('PODFSC', 99998, testParams.PortOfDebarkation);
+    const expected = testData('PODFSC');
+    testAB(result, expected);
+  });
+
+  it('returns correct data for ICRT', () => {
+    const result = makeCalculations(
+      'ICRT',
+      99999,
+      testParams.InternationalCrating,
+      testParams.additionalCratingDataDCRT,
+    );
+    const expected = testData('ICRT');
+
+    testAB(result, expected);
+  });
+
+  it('returns correct data for IUCRT', () => {
+    const result = makeCalculations(
+      'IUCRT',
+      99999,
+      testParams.InternationalUncrating,
+      testParams.additionalCratingDataDCRT,
+    );
+    const expected = testData('IUCRT');
+
+    testAB(result, expected);
+  });
 });

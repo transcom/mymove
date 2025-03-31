@@ -1,7 +1,7 @@
 import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from '../../../constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
 
-import { SHIPMENT_OPTIONS, MTOAgentType } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MTOAgentType, PPM_TYPES } from 'shared/constants';
 
 export const shipments = [
   {
@@ -169,6 +169,67 @@ export const shipments = [
     shipmentType: SHIPMENT_OPTIONS.NTS,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
+  },
+];
+
+export const shipmentsNoApprovedDate = [
+  {
+    createdAt: '2020-06-10T15:58:02.404029Z',
+    customerRemarks: 'please treat gently',
+    counselorRemarks: 'looks good',
+    destinationAddress: {
+      city: 'Fairfield',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODk0MTJa',
+      id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+      postalCode: '94535',
+      state: 'CA',
+      streetAddress1: '987 Any Avenue',
+      streetAddress2: 'P.O. Box 9876',
+      streetAddress3: 'c/o Some Person',
+    },
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+    id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+    moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    pickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    rejectionReason: 'shipment not good enough',
+    requestedPickupDate: '2018-03-15',
+    scheduledPickupDate: '2018-03-16',
+    secondaryDeliveryAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zOTkzMlo=',
+      id: '15e8f6cc-e1d7-44b2-b1e0-fcb3d6442831',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    secondaryPickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zOTM4OTZa',
+      id: '9b79e0c3-8ed5-4fb8-aa36-95845707d8ee',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+    status: 'SUBMITTED',
+    updatedAt: '2020-06-10T15:58:02.404031Z',
   },
 ];
 
@@ -353,6 +414,7 @@ export const zeroIncentivePPM = [
       streetAddress3: 'c/o Some Person',
     },
     ppmShipment: {
+      ppmType: PPM_TYPES.INCENTIVE_BASED,
       pickupAddress: {
         streetAddress1: '812 S 129th St',
         streetAddress2: '#123',
@@ -431,6 +493,126 @@ export const ordersInfo = {
   departmentIndicator: DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD,
   ordersNumber: 'ORDER3',
   ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  ordersTypeDetail: 'TBD',
+  ordersDocuments: [
+    {
+      'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+        bytes: 2202009,
+        contentType: 'application/pdf',
+        createdAt: '2024-10-23T16:31:21.085Z',
+        filename: 'testFile.pdf',
+        id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+        status: 'PROCESSING',
+        updatedAt: '2024-10-23T16:31:21.085Z',
+        uploadType: 'USER',
+        url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+      },
+    },
+  ],
+  tacMDC: '',
+  sacSDN: '',
+};
+
+export const ordersInfoOCONUS = {
+  newDutyLocation: {
+    address: {
+      city: 'Augusta',
+      country: 'United States',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+      id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+      postalCode: '30813',
+      state: 'GA',
+      streetAddress1: 'Fort Gordon',
+      isOconus: false,
+    },
+    address_id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+    id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
+    name: 'Fort Gordon',
+  },
+  currentDutyLocation: {
+    address: {
+      city: 'JBER',
+      country: 'AK',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42NjEwODFa',
+      id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+      postalCode: '99702',
+      state: 'AK',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+      isOconus: true,
+    },
+    address_id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42Njg5MDFa',
+    id: '07282a8f-a496-4648-ae24-119775eef57d',
+    name: 'vC6w22RPYC',
+  },
+  issuedDate: '2018-03-15',
+  reportByDate: '2018-08-01',
+  departmentIndicator: DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD,
+  ordersNumber: 'ORDER3',
+  ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  ordersTypeDetail: 'TBD',
+  ordersDocuments: [
+    {
+      'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+        bytes: 2202009,
+        contentType: 'application/pdf',
+        createdAt: '2024-10-23T16:31:21.085Z',
+        filename: 'testFile.pdf',
+        id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+        status: 'PROCESSING',
+        updatedAt: '2024-10-23T16:31:21.085Z',
+        uploadType: 'USER',
+        url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+      },
+    },
+  ],
+  tacMDC: '',
+  sacSDN: '',
+};
+
+export const ordersInfoOCONUSLocalMove = {
+  newDutyLocation: {
+    address: {
+      city: 'Augusta',
+      country: 'United States',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+      id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+      postalCode: '30813',
+      state: 'GA',
+      streetAddress1: 'Fort Gordon',
+      isOconus: false,
+    },
+    address_id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+    id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
+    name: 'Fort Gordon',
+  },
+  currentDutyLocation: {
+    address: {
+      city: 'JBER',
+      country: 'AK',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42NjEwODFa',
+      id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+      postalCode: '99702',
+      state: 'AK',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+      isOconus: true,
+    },
+    address_id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42Njg5MDFa',
+    id: '07282a8f-a496-4648-ae24-119775eef57d',
+    name: 'vC6w22RPYC',
+  },
+  issuedDate: '2018-03-15',
+  reportByDate: '2018-08-01',
+  departmentIndicator: DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD,
+  ordersNumber: 'ORDER3',
+  ordersType: ORDERS_TYPE.LOCAL_MOVE,
   ordersTypeDetail: 'TBD',
   ordersDocuments: [
     {

@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -21,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -28,6 +30,7 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -36,6 +39,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestListMovesHandler() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
 	suite.Run("Test returns updated with no amendments count", func() {
 		now := time.Now()
 		lastFetch := now.Add(-time.Second)
@@ -59,7 +64,7 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 		// Validate incoming payload: no body to validate
 
 		// make the request
-		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
@@ -131,7 +136,7 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 		// Validate incoming payload: no body to validate
 
 		// make the request
-		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
 		response := handler.Handle(params)
 
 		suite.IsNotErrResponse(response)
@@ -150,6 +155,7 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	waf := entitlements.NewWeightAllotmentFetcher()
 
 	verifyAddressFields := func(address *models.Address, payload *primemessages.Address) {
 		suite.Equal(address.ID.String(), payload.ID.String())
@@ -169,7 +175,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success with Prime-available move by ID", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -200,7 +206,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success with Prime-available move by Locator", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -230,7 +236,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success returns reweighs on shipments if they exist", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -284,7 +290,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns sit extensions on shipments if they exist", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -342,7 +348,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - filters shipments handled by an external vendor", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -397,7 +403,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns shipment with attached PpmShipment", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -433,7 +439,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		// This tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
@@ -548,7 +554,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns all the fields associated with StorageFacility within MtoShipments", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -604,7 +610,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - returns all the fields associated with Agents within MtoShipments", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -655,7 +661,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all base fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		now := time.Now()
 		aWeekAgo := now.AddDate(0, 0, -7)
@@ -707,7 +713,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all Order fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		currentAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
@@ -721,6 +727,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			HTTPRequest: request,
 			MoveID:      successMove.Locator,
 		}
+
+		backupContacts := models.BackupContacts{}
+		backupContacts = append(backupContacts, models.BackupContact{
+			Name:  "Backup contact name",
+			Phone: "555-555-5555",
+			Email: "backup@backup.com",
+		})
+		successMove.Orders.ServiceMember.BackupContacts = backupContacts
 
 		// Validate incoming payload: no body to validate
 
@@ -751,6 +765,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(orders.ServiceMember.ID.String(), ordersPayload.Customer.ID.String())
 		suite.Equal(*orders.ServiceMember.Edipi, ordersPayload.Customer.DodID)
 		suite.Equal(orders.ServiceMember.UserID.String(), ordersPayload.Customer.UserID.String())
+		suite.Equal(orders.ServiceMember.BackupContacts[0].Name, backupContacts[0].Name)
+		suite.Equal(orders.ServiceMember.BackupContacts[0].Phone, backupContacts[0].Phone)
+		suite.Equal(orders.ServiceMember.BackupContacts[0].Email, backupContacts[0].Email)
 
 		verifyAddressFields(orders.ServiceMember.ResidentialAddress, ordersPayload.Customer.CurrentAddress)
 
@@ -794,10 +811,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(ordersPayload.OriginDutyLocation.ETag)
 	})
 
-	suite.Run("Success - return all PaymentRequests fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all PaymentRequests fields associated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -938,10 +955,20 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		suite.Len(movePayload.PaymentRequests, 2)
-		paymentRequestPayload := movePayload.PaymentRequests[0]
+		var paymentRequestPayload *primemessages.PaymentRequest
+		// Correctly grab the payment request by id
+		for _, pr := range movePayload.PaymentRequests {
+			if pr.ID.String() == paymentRequest.ID.String() {
+				paymentRequestPayload = pr
+				break
+			}
+		}
+		suite.NotNil(paymentRequestPayload)
 		suite.Equal(paymentRequest.ID.String(), paymentRequestPayload.ID.String())
 		suite.Equal(successMove.ID.String(), paymentRequestPayload.MoveTaskOrderID.String())
 		suite.Equal(paymentRequest.IsFinal, *paymentRequestPayload.IsFinal)
+		suite.NotNil(paymentRequest.RejectionReason)
+		suite.NotNil(paymentRequestPayload.RejectionReason)
 		suite.Equal(*paymentRequest.RejectionReason, *paymentRequestPayload.RejectionReason)
 		suite.Equal(paymentRequest.Status.String(), string(paymentRequestPayload.Status))
 		suite.Equal(paymentRequest.PaymentRequestNumber, paymentRequestPayload.PaymentRequestNumber)
@@ -989,7 +1016,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemBasic fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1068,7 +1095,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemOriginSIT fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1182,7 +1209,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemDestSIT fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1304,10 +1331,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(payload.ETag())
 	})
 
-	suite.Run("Success - return all MTOServiceItemShuttle fields assoicated with the getMoveTaskOrder", func() {
+	suite.Run("Success - return all MTOServiceItemDomesticShuttle fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1371,14 +1398,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		json, err := json.Marshal(serviceItemPayload)
 		suite.NoError(err)
-		payload := primemessages.MTOServiceItemShuttle{}
+		payload := primemessages.MTOServiceItemDomesticShuttle{}
 		err = payload.UnmarshalJSON(json)
 		suite.NoError(err)
 
 		suite.Equal(serviceItem.MoveTaskOrderID.String(), payload.MoveTaskOrderID().String())
 		suite.Equal(serviceItem.MTOShipmentID.String(), payload.MtoShipmentID().String())
 		suite.Equal(serviceItem.ID.String(), payload.ID().String())
-		suite.Equal("MTOServiceItemShuttle", string(payload.ModelType()))
+		suite.Equal("MTOServiceItemDomesticShuttle", string(payload.ModelType()))
 		suite.Equal(string(serviceItem.ReService.Code), string(*payload.ReServiceCode))
 		suite.Equal(serviceItem.ReService.Name, payload.ReServiceName())
 		suite.Equal(string(serviceItem.Status), string(payload.Status()))
@@ -1393,7 +1420,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Success - return all MTOServiceItemDomesticCrating fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1521,7 +1548,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
 			suite.HandlerConfig(),
-			movetaskorder.NewMoveTaskOrderFetcher(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
 		}
 		failureMove := factory.BuildMove(suite.DB(), nil, nil) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{
@@ -1704,14 +1731,12 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(400, nil)
 
 		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -1789,15 +1814,13 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(400, nil)
 
 		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -2006,6 +2029,8 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 	uri := "/moves/%s/documents"
 	paramTypeAll := "ALL"
+	fs := afero.NewMemMapFs()
+
 	suite.Run("Successful DownloadMoveOrder - 200", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
@@ -2033,12 +2058,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
 		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, nil)
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, nil)
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2083,12 +2115,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
 		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("error"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("error"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2268,12 +2307,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, apperror.NewUnprocessableEntityError("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, apperror.NewUnprocessableEntityError("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2314,12 +2360,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2361,12 +2414,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUploadAll, //Verify ALL enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2408,12 +2468,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUpload, //Verify Order only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2432,7 +2499,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
 	})
 
-	suite.Run("DownloadMoveOrder: Orders Only - service returns unprocess entity - 422", func() {
+	suite.Run("DownloadMoveOrder: Amendments Only - service returns unprocess entity - 422", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
@@ -2456,12 +2523,19 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		outputFile, err := fs.Create("testFile")
+		suite.NoError(err)
+
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderAmendmentUpload, //Verify Amendment only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("bool"),
+			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
+
+		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
+			mock.AnythingOfType("*mem.File")).Return(nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2478,5 +2552,113 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
+	})
+}
+
+func (suite *HandlerSuite) TestAcknowledgeMovesAndShipmentsHandler() {
+	suite.Run("Successful Acknowledge Moves and Shipments - 200", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		mockMoveAndShipmentAcknowledgementUpdater.On("AcknowledgeMovesAndShipments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.Moves"),
+		).Return(nil)
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		acknowledgeShipment := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(move.MTOShipments[0].ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+
+		payload := primemessages.AcknowledgeMoves{
+			&primemessages.AcknowledgeMove{
+				ID: strfmt.UUID(move.ID.String()),
+				MtoShipments: []*primemessages.AcknowledgeShipment{
+					&acknowledgeShipment,
+				},
+				PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -2)),
+			},
+		}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsOK)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsOK{}, handlerResponse)
+		suite.Equal("Successfully updated acknowledgement for moves and shipments", handlerResponse.Payload.Message)
+	})
+
+	suite.Run("Unsuccessful Acknowledge Moves and Shipments - 500", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		mockError := errors.New("error executing prime_acknowledge_moves_shipments procedure")
+		mockMoveAndShipmentAcknowledgementUpdater.On("AcknowledgeMovesAndShipments",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.Moves"),
+		).Return(mockError)
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		acknowledgeShipment := primemessages.AcknowledgeShipment{
+			ID:                  strfmt.UUID(move.MTOShipments[0].ID.String()),
+			PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -1)),
+		}
+
+		payload := primemessages.AcknowledgeMoves{
+			&primemessages.AcknowledgeMove{
+				ID: strfmt.UUID(move.ID.String()),
+				MtoShipments: []*primemessages.AcknowledgeShipment{
+					&acknowledgeShipment,
+				},
+				PrimeAcknowledgedAt: strfmt.DateTime(time.Now().AddDate(0, 0, -2)),
+			},
+		}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsInternalServerError)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsInternalServerError{}, handlerResponse)
+	})
+
+	suite.Run("Unsuccessful Acknowledge Moves and Shipments - 422", func() {
+		mockMoveAndShipmentAcknowledgementUpdater := mocks.MoveAndShipmentAcknowledgementUpdater{}
+		handlerConfig := suite.HandlerConfig()
+		handler := AcknowledgeMovesAndShipmentsHandler{
+			HandlerConfig:                         handlerConfig,
+			MoveAndShipmentAcknowledgementUpdater: &mockMoveAndShipmentAcknowledgementUpdater,
+		}
+
+		requestUser := factory.BuildUser(nil, nil, nil)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/acknowledge", nil)
+
+		payload := primemessages.AcknowledgeMoves{}
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.AcknowledgeMovesAndShipmentsParams{
+			HTTPRequest: request,
+			Body:        payload,
+		}
+		response := handler.Handle(params)
+		handlerResponse := response.(*movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity)
+		suite.Assertions.IsType(&movetaskorderops.AcknowledgeMovesAndShipmentsUnprocessableEntity{}, handlerResponse)
 	})
 }

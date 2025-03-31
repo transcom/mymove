@@ -17,6 +17,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   DistanceZipSITDest: 'DistanceZipSITDest',
   DistanceZipSITOrigin: 'DistanceZipSITOrigin',
   EIAFuelPrice: 'EIAFuelPrice',
+  ExternalCrate: 'ExternalCrate',
   FSCPriceDifferenceInCents: 'FSCPriceDifferenceInCents',
   EscalationCompounded: 'EscalationCompounded',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
@@ -24,6 +25,8 @@ const SERVICE_ITEM_PARAM_KEYS = {
   NTSPackingFactor: 'NTSPackingFactor',
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
+  PerUnitCents: 'PerUnitCents',
+  PortZip: 'PortZip',
   PriceRateOrFactor: 'PriceRateOrFactor',
   ReferenceDate: 'ReferenceDate',
   RequestedDeliveryDate: 'RequestedDeliveryDate',
@@ -52,18 +55,23 @@ const SERVICE_ITEM_PARAM_KEYS = {
   StandaloneCrate: 'StandaloneCrate',
   StandaloneCrateCap: 'StandaloneCrateCap',
   UncappedRequestTotal: 'UncappedRequestTotal',
+  MarketOrigin: 'MarketOrigin',
+  MarketDest: 'MarketDest',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]: 'Pickup date',
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
+  [SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating]: 'Actual size',
   [SERVICE_ITEM_PARAM_KEYS.DestinationPrice]: 'Destination price',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
+  [SERVICE_ITEM_PARAM_KEYS.ExternalCrate]: 'External crate',
   [SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]: 'Baseline rate difference',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.OriginPrice]: 'Origin price',
+  [SERVICE_ITEM_PARAM_KEYS.PortZip]: 'Port ZIP',
   [SERVICE_ITEM_PARAM_KEYS.ReferenceDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
@@ -98,12 +106,16 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   Dimensions: 'Dimensions',
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Mileage factor',
+  InternationalShippingAndLinehaul: 'ISLH price',
+  Market: 'Market',
   Mileage: 'Mileage',
+  MinSizeCrateApplied: 'Minimum crating size applied',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
   NTSPackingFactor: 'NTS packing factor',
   NTSReleaseReferenceDate: 'Actual pickup',
   PackPrice: 'Pack price',
+  PackPriceInternational: 'International Pack price',
   PickupDate: 'Pickup date',
   PickupSITPrice: 'SIT pickup price',
   PriceEscalationFactor: 'Price escalation factor',
@@ -112,11 +124,12 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   SITDeliveryPrice: 'SIT delivery price',
   FuelRateAdjustment: 'Fuel rate adjustment',
   UnpackPrice: 'Unpack price',
+  UnpackPriceInternational: 'International Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
   SITFuelSurchargePrice: 'SIT mileage factor',
-  StandaloneCrate: 'Standalone Crate Cap',
-  UncappedRequestTotal: 'Uncapped Request Total',
+  StandaloneCrate: 'Standalone crate cap',
+  UncappedRequestTotal: 'Uncapped request total',
   Total: 'Total',
 };
 
@@ -132,12 +145,15 @@ const SERVICE_ITEM_CODES = {
   DOP: 'DOP',
   DOPSIT: 'DOPSIT',
   DOSHUT: 'DOSHUT',
+  IOSHUT: 'IOSHUT',
   DPK: 'DPK',
   DNPK: 'DNPK',
   DSH: 'DSH',
   DUPK: 'DUPK',
   FSC: 'FSC',
   DDSHUT: 'DDSHUT',
+  IDSHUT: 'IDSHUT',
+  DCRTSA: 'DCRTSA',
   DCRT: 'DCRT',
   DUCRT: 'DUCRT',
   ICRT: 'ICRT',
@@ -150,6 +166,17 @@ const SERVICE_ITEM_CODES = {
   IHPK: 'IHPK',
   IHUPK: 'IHUPK',
   ISLH: 'ISLH',
+  IDDSIT: 'IDDSIT',
+  IDASIT: 'IDASIT',
+  IOASIT: 'IOASIT',
+  IOFSIT: 'IOFSIT',
+  IOPSIT: 'IOPSIT',
+  IDFSIT: 'IDFSIT',
+  IOSFSC: 'IOSFSC',
+  IDSFSC: 'IDSFSC',
+  IUBPK: 'IUBPK',
+  IUBUPK: 'IUBUPK',
+  UBP: 'UBP',
 };
 
 const SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM = [
@@ -177,8 +204,18 @@ const SERVICE_ITEMS_ALLOWED_UPDATE = [
   SERVICE_ITEM_CODES.DDFSIT,
   SERVICE_ITEM_CODES.DOSFSC,
   SERVICE_ITEM_CODES.DDSFSC,
+  SERVICE_ITEM_CODES.IDSHUT,
+  SERVICE_ITEM_CODES.IOSHUT,
   SERVICE_ITEM_CODES.PODFSC,
   SERVICE_ITEM_CODES.POEFSC,
+  SERVICE_ITEM_CODES.IDDSIT,
+  SERVICE_ITEM_CODES.IDASIT,
+  SERVICE_ITEM_CODES.IOASIT,
+  SERVICE_ITEM_CODES.IOFSIT,
+  SERVICE_ITEM_CODES.IOPSIT,
+  SERVICE_ITEM_CODES.IDFSIT,
+  SERVICE_ITEM_CODES.IOSFSC,
+  SERVICE_ITEM_CODES.IDSFSC,
 ];
 
 /**
@@ -197,6 +234,18 @@ const SIT_SERVICE_ITEM_CODES = {
   DDASIT: 'DDASIT',
   /** Domestic destination SIT delivery */
   DDDSIT: 'DDDSIT',
+  /** International origin 1st day SIT */
+  IOFSIT: 'IOFSIT',
+  /** International origin Additional day SIT */
+  IOASIT: 'IOASIT',
+  /** International origin SIT pickup */
+  IOPSIT: 'IOPSIT',
+  /** International destination 1st day SIT */
+  IDFSIT: 'IDFSIT',
+  /** International destination Additional day SIT */
+  IDASIT: 'IDASIT',
+  /** International destination SIT delivery */
+  IDDSIT: 'IDDSIT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -211,17 +260,28 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DOP,
   SERVICE_ITEM_CODES.DOPSIT,
   SERVICE_ITEM_CODES.DOSHUT,
+  SERVICE_ITEM_CODES.IOSHUT,
   SERVICE_ITEM_CODES.DPK,
   SERVICE_ITEM_CODES.DNPK,
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DUPK,
   SERVICE_ITEM_CODES.FSC,
   SERVICE_ITEM_CODES.DDSHUT,
+  SERVICE_ITEM_CODES.IDSHUT,
   SERVICE_ITEM_CODES.DCRT,
   SERVICE_ITEM_CODES.DUCRT,
   SERVICE_ITEM_CODES.DOSFSC,
   SERVICE_ITEM_CODES.DDSFSC,
+  SERVICE_ITEM_CODES.IHPK,
+  SERVICE_ITEM_CODES.IHUPK,
+  SERVICE_ITEM_CODES.ISLH,
+  SERVICE_ITEM_CODES.POEFSC,
+  SERVICE_ITEM_CODES.PODFSC,
+  SERVICE_ITEM_CODES.ICRT,
+  SERVICE_ITEM_CODES.IUCRT,
 ];
+
+const EXTERNAL_CRATE_MIN_CUBIC_FT = '4.00';
 
 export default SERVICE_ITEM_STATUSES;
 
@@ -234,4 +294,5 @@ export {
   SERVICE_ITEM_STATUSES,
   SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM,
   SERVICE_ITEMS_ALLOWED_UPDATE,
+  EXTERNAL_CRATE_MIN_CUBIC_FT,
 };

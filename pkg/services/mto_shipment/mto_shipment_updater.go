@@ -844,7 +844,19 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		newShipment = models.DetermineShipmentMarketCode(newShipment)
+		if newShipment.ShipmentType != models.MTOShipmentTypePPM {
+			newShipment = models.DetermineShipmentMarketCode(newShipment)
+		}
+
+		// RDD for UB shipments only need the pick up date, shipment origin address and destination address to determine required delivery date
+		if newShipment.ScheduledPickupDate != nil && !newShipment.ScheduledPickupDate.IsZero() && newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			calculatedRDD, err := CalculateRequiredDeliveryDate(appCtx, f.planner, *newShipment.PickupAddress, *newShipment.DestinationAddress, *newShipment.ScheduledPickupDate, newShipment.PrimeEstimatedWeight.Int(), newShipment.MarketCode, newShipment.MoveTaskOrderID, newShipment.ShipmentType)
+			if err != nil {
+				return err
+			}
+
+			newShipment.RequiredDeliveryDate = calculatedRDD
+		}
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
@@ -877,7 +889,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					destZip = newShipment.DestinationAddress.PostalCode
 				}
 				// we need to get the mileage from DTOD first, the db proc will consume that
-				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+				mileage, err := f.planner.ZipTransitDistance(appCtx, pickupZip, destZip)
 				if err != nil {
 					return err
 				}
@@ -1073,7 +1085,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = shipment.DestinationAddress
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int(), shipment.MarketCode)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int(), shipment.MarketCode, shipment.MoveTaskOrderID, shipment.ShipmentType)
 		if calcErr != nil {
 			return calcErr
 		}
@@ -1190,21 +1202,8 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses
 // the value returned to make a fetch on the ghc_domestic_transit_times table and returns a required delivery date
 // based on the max_days_transit_time.
-func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int, marketCode models.MarketCode) (*time.Time, error) {
-	// Okay, so this is something to get us able to take care of the 20 day condition over in the gdoc linked in this
-	// story: https://dp3.atlassian.net/browse/MB-1141
-	// We unfortunately didn't get a lot of guidance regarding vicinity. So for now we're taking zip codes that are the
-	// explicitly mentioned 20 day cities and those in the same county (that I've manually compiled together here).
-	// If a move is in that group it adds 20 days, if it's not in that group, but is in Alaska it adds 10 days.
-	// Else it will not do either of those things.
-	// The cities for 20 days are: Adak, Kodiak, Juneau, Ketchikan, and Sitka. As well as others in their 'vicinity.'
-	twentyDayAKZips := [28]string{"99546", "99547", "99591", "99638", "99660", "99685", "99692", "99550", "99608",
-		"99615", "99619", "99624", "99643", "99644", "99697", "99650", "99801", "99802", "99803", "99811", "99812",
-		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
-
-	internationalShipment := marketCode == models.MarketCodeInternational
-	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, false, internationalShipment)
+func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int, marketCode models.MarketCode, moveID uuid.UUID, shipmentType models.MTOShipmentType) (*time.Time, error) {
+	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode)
 	if err != nil {
 		return nil, err
 	}
@@ -1223,20 +1222,73 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	// Add the max transit time to the pickup date to get the new required delivery date
 	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 
-	// Let's add some days if we're dealing with an alaska shipment.
-	if destinationAddress.State == "AK" {
-		for _, zip := range twentyDayAKZips {
-			if destinationAddress.PostalCode == zip {
-				// Add an extra 10 days here, so that after we add the 10 for being in AK we wind up with a total of 20
-				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, 10)
-				break
+	destinationIsAlaska, err := destinationAddress.IsAddressAlaska()
+	if err != nil {
+		return nil, fmt.Errorf("destination address is nil for move ID: %s", moveID)
+	}
+	pickupIsAlaska, err := pickupAddress.IsAddressAlaska()
+	if err != nil {
+		return nil, fmt.Errorf("pickup address is nil for move ID: %s", moveID)
+	}
+	// Let's add some days if we're dealing with a shipment between CONUS/Alaska
+	if (destinationIsAlaska || pickupIsAlaska) && !(destinationIsAlaska && pickupIsAlaska) {
+		var intlTransTime models.InternationalTransitTime
+
+		contract, err := models.FetchContractForMove(appCtx, moveID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching contract for move ID: %s", moveID)
+		}
+
+		pickupAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
+		}
+
+		destinationAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
+		}
+
+		if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			intlTransTime, err = models.FetchInternationalTransitTime(appCtx.DB(), pickupAddressRateAreaID, destinationAddressRateAreaID)
+			if err != nil {
+				return nil, fmt.Errorf("error fetching intl transit record for origin rate area ID: %s and destination rate area ID: %s", pickupAddressRateAreaID, destinationAddressRateAreaID)
+			}
+
+			if intlTransTime.UbTransitTime != nil {
+				requiredDeliveryDate = pickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
+			}
+		} else {
+			if destinationIsAlaska {
+				err = appCtx.DB().Where("destination_rate_area_id = $1", destinationAddressRateAreaID).First(&intlTransTime)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, fmt.Errorf("no international transit time found for destination rate area ID: %s", destinationAddressRateAreaID)
+					default:
+						return nil, err
+					}
+				}
+			}
+
+			if pickupIsAlaska {
+				err = appCtx.DB().Where("origin_rate_area_id = $1", pickupAddressRateAreaID).First(&intlTransTime)
+				if err != nil {
+					switch err {
+					case sql.ErrNoRows:
+						return nil, fmt.Errorf("no international transit time found for pickup rate area ID: %s", pickupAddressRateAreaID)
+					default:
+						return nil, err
+					}
+				}
+			}
+
+			if intlTransTime.HhgTransitTime != nil {
+				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
 			}
 		}
-		// Add an extra 10 days for being in AK
-		requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, 10)
 	}
 
-	// return the value
 	return &requiredDeliveryDate, nil
 }
 
@@ -1305,7 +1357,8 @@ func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipm
 	mtoServiceItems := mtoShipment.MTOServiceItems
 
 	// Only update these serviceItems address ID
-	serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC}
+	serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC,
+		models.ReServiceCodeIDDSIT, models.ReServiceCodeIDFSIT, models.ReServiceCodeIDASIT, models.ReServiceCodeIDSFSC}
 
 	for _, serviceItem := range mtoServiceItems {
 
@@ -1348,18 +1401,20 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
 		if reServiceCode == models.ReServiceCodeDDDSIT ||
-			reServiceCode == models.ReServiceCodeDDSFSC {
+			reServiceCode == models.ReServiceCodeDDSFSC ||
+			reServiceCode == models.ReServiceCodeIDDSIT ||
+			reServiceCode == models.ReServiceCodeIDSFSC {
 
 			var milesCalculated int
 
 			if TOOApprovalRequired {
 				if serviceItem.SITDestinationOriginalAddress != nil {
 					// if TOO approval was required, shipment destination address has been updated at this point
-					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+					milesCalculated, err = planner.ZipTransitDistance(appCtx, shipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 				}
 			} else {
 				// if TOO approval was not required, use the newAddress
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 			}
 			if err != nil {
 				return err

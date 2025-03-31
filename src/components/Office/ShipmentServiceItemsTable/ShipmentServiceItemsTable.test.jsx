@@ -11,21 +11,21 @@ const reServiceItemResponse = [
     isAutoApproved: true,
     marketCode: 'i',
     serviceCode: 'POEFSC',
-    serviceName: 'International POE Fuel Surcharge',
+    serviceName: 'International POE fuel surcharge',
     shipmentType: 'UNACCOMPANIED_BAGGAGE',
   },
   {
     isAutoApproved: true,
     marketCode: 'i',
     serviceCode: 'PODFSC',
-    serviceName: 'International POD Fuel Surcharge',
+    serviceName: 'International POD fuel surcharge',
     shipmentType: 'UNACCOMPANIED_BAGGAGE',
   },
   {
     isAutoApproved: true,
     marketCode: 'i',
     serviceCode: 'UBP',
-    serviceName: 'International UB',
+    serviceName: 'International UB price',
     shipmentType: 'UNACCOMPANIED_BAGGAGE',
   },
   {
@@ -46,21 +46,21 @@ const reServiceItemResponse = [
     isAutoApproved: true,
     marketCode: 'i',
     serviceCode: 'POEFSC',
-    serviceName: 'International POE Fuel Surcharge',
+    serviceName: 'International POE fuel surcharge',
     shipmentType: 'HHG',
   },
   {
     isAutoApproved: true,
     marketCode: 'i',
     serviceCode: 'PODFSC',
-    serviceName: 'International POD Fuel Surcharge',
+    serviceName: 'International POD fuel surcharge',
     shipmentType: 'HHG',
   },
   {
     isAutoApproved: true,
     marketCode: 'i',
     serviceCode: 'ISLH',
-    serviceName: 'International Shipping & Linehaul',
+    serviceName: 'International shipping & linehaul',
     shipmentType: 'HHG',
   },
   {
@@ -200,25 +200,25 @@ const reServiceItemResponse = [
   {
     marketCode: 'i',
     serviceCode: 'IOSFSC',
-    serviceName: 'International Origin SIT Fuel Surcharge',
+    serviceName: 'International origin SIT fuel surcharge',
     shipmentType: 'HHG',
   },
   {
     marketCode: 'i',
     serviceCode: 'IDSFSC',
-    serviceName: 'International Destination SIT Fuel Surcharge',
+    serviceName: 'International destination SIT fuel surcharge',
     shipmentType: 'HHG',
   },
   {
     marketCode: 'i',
     serviceCode: 'IOSFSC',
-    serviceName: 'International Origin SIT Fuel Surcharge',
+    serviceName: 'International origin SIT fuel surcharge',
     shipmentType: 'UNACCOMPANIED_BAGGAGE',
   },
   {
     marketCode: 'i',
     serviceCode: 'IDSFSC',
-    serviceName: 'International Destination SIT Fuel Surcharge',
+    serviceName: 'International destination SIT fuel furcharge',
     shipmentType: 'UNACCOMPANIED_BAGGAGE',
   },
 ];
@@ -294,6 +294,13 @@ const intlUbOconusToConusShipment = {
   destinationAddress,
 };
 
+const intlUbOconusToOconusShipment = {
+  shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
+  marketCode: MARKET_CODES.INTERNATIONAL,
+  pickupAddress: oconusPickupAddress,
+  destinationAddress: oconusDestinationAddress,
+};
+
 describe('Shipment Service Items Table', () => {
   describe('renders the hhg longhaul shipment type with service items', () => {
     it.each([
@@ -363,8 +370,8 @@ describe('Shipment Service Items Table', () => {
 
   describe('renders the intl UB shipment type (CONUS -> OCONUS) with service items', () => {
     it.each([
-      ['International UB'],
-      ['International POE Fuel Surcharge'],
+      ['International UB price'],
+      ['International POE fuel surcharge'],
       ['International UB pack'],
       ['International UB unpack'],
     ])('expects %s to be in the document', async (serviceItem) => {
@@ -378,8 +385,8 @@ describe('Shipment Service Items Table', () => {
 
   describe('renders the intl UB shipment type (OCONUS -> CONUS) with service items', () => {
     it.each([
-      ['International UB'],
-      ['International POD Fuel Surcharge'],
+      ['International UB price'],
+      ['International POD fuel surcharge'],
       ['International UB pack'],
       ['International UB unpack'],
     ])('expects %s to be in the document', async (serviceItem) => {
@@ -389,5 +396,18 @@ describe('Shipment Service Items Table', () => {
       ).toBeInTheDocument();
       expect(screen.getByText(serviceItem)).toBeInTheDocument();
     });
+  });
+
+  describe('renders the intl UB shipment type (OCONUS -> OCONUS) with service items', () => {
+    it.each([['International UB price'], ['International UB pack'], ['International UB unpack']])(
+      'expects %s to be in the document',
+      async (serviceItem) => {
+        render(<ShipmentServiceItemsTable shipment={intlUbOconusToOconusShipment} />);
+        expect(
+          await screen.findByRole('heading', { name: 'Service items for this shipment 3 items', level: 4 }),
+        ).toBeInTheDocument();
+        expect(screen.getByText(serviceItem)).toBeInTheDocument();
+      },
+    );
   });
 });

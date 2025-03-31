@@ -15,7 +15,9 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
+	servicemocks "github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
@@ -43,25 +45,26 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		planner := &mocks.Planner{}
 		addressCreator := address.NewAddressCreator()
 		addressUpdater := address.NewAddressUpdater()
+		vLocationServices := address.NewVLocation()
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
-			false,
 		).Return(400, nil)
+
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{
 			suite.HandlerConfig(),
 			mtoshipment.NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater),
+			vLocationServices,
 		}
 		return handler, availableMove
 	}
 
 	newAddress := models.Address{
 		StreetAddress1: "7 Q St",
-		City:           "Framington",
-		State:          "MA",
+		City:           "Acmar",
+		State:          "AL",
 		PostalCode:     "35004",
 	}
 
@@ -121,7 +124,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
 			City:           "Alameda",
 			State:          "CA",
-			PostalCode:     "35004",
+			PostalCode:     "94502",
 		}
 
 		// Update with new address
@@ -353,5 +356,209 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Failure - Unprocessable when updating address with invalid data", func() {
+		// Testcase:   address is updated on a shipment that's available to MTO with invalid address
+		// Expected:   Failure response 422
+		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
+		handler, availableMove := setupTestData()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		newAddress2 := models.Address{
+			StreetAddress1: "7 Q St",
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
+			City:           "Bad City",
+			State:          "CA",
+			PostalCode:     "99999", // invalid postal code
+		}
+
+		// Update with new address
+		payload := payloads.Address(&newAddress2)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(shipment.PickupAddress.ID),
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Failure - Unprocessable with AK FF off and valid AK address", func() {
+		// Testcase:   address is updated on a shipment that's available to MTO with AK address but FF off
+		// Expected:   Failure response 422
+		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
+		handler, availableMove := setupTestData()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		newAddress2 := models.Address{
+			StreetAddress1: "7 Q St",
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
+			City:           "JUNEAU",
+			State:          "AK",
+			PostalCode:     "99801",
+		}
+
+		// setting the AK flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &servicemocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler.HandlerConfig = handlerConfig
+
+		// Update with new address
+		payload := payloads.Address(&newAddress2)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(shipment.PickupAddress.ID),
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Failure - Unprocessable with HI FF off and valid HI address", func() {
+		// Testcase:   address is updated on a shipment that's available to MTO with HI address but FF off
+		// Expected:   Failure response 422
+		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
+		handler, availableMove := setupTestData()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		newAddress2 := models.Address{
+			StreetAddress1: "7 Q St",
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
+			City:           "HONOLULU",
+			State:          "HI",
+			PostalCode:     "96835",
+		}
+
+		// setting the HI flag to false and use a valid address
+		handlerConfig := suite.HandlerConfig()
+
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &servicemocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler.HandlerConfig = handlerConfig
+
+		// Update with new address
+		payload := payloads.Address(&newAddress2)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(shipment.PickupAddress.ID),
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Failure - Internal Error mock GetLocationsByZipCityState return error", func() {
+		// Testcase:   address is updated on a shipment that's available to MTO with invalid address
+		// Expected:   Failure response 422
+		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
+		handler, availableMove := setupTestData()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		newAddress2 := models.Address{
+			StreetAddress1: "7 Q St",
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
+		// Update with new address
+		payload := payloads.Address(&newAddress2)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(shipment.PickupAddress.ID),
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		expectedError := models.ErrFetchNotFound
+		vLocationFetcher := &servicemocks.VLocation{}
+		vLocationFetcher.On("GetLocationsByZipCityState",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+
+		handler.VLocation = vLocationFetcher
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressInternalServerError{}, response)
 	})
 }

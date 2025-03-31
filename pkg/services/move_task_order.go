@@ -57,13 +57,15 @@ type MoveTaskOrderFetcher interface {
 //
 //go:generate mockery --name MoveTaskOrderUpdater
 type MoveTaskOrderUpdater interface {
-	MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
+	ApproveMoveAndCreateServiceItems(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
 	UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateReviewedBillableWeightsAt(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 	UpdateTIORemarks(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, remarks string) (*models.Move, error)
 	ShowHide(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error)
 	UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error)
+	MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, bool, error)
+	SignCertificationPPMCounselingCompleted(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error
 }
 
 // MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state

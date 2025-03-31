@@ -19,6 +19,31 @@ jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueuePPMQueries: jest.fn(),
+  useBulkAssignmentQueries: () => {
+    return {
+      availableOfficeUsers: [
+        {
+          firstName: 'John',
+          lastName: 'Snow',
+          officeUserId: '123',
+          workload: 0,
+        },
+        {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          officeUserId: '456',
+          workload: 1,
+        },
+        {
+          firstName: 'Jimmy',
+          lastName: 'Page',
+          officeUserId: '789',
+          workload: 2,
+        },
+      ],
+      bulkAssignmentMoveIDs: ['1', '2', '3'],
+    };
+  },
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -420,7 +445,7 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('12345');
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('ARMY');
     expect(wrapper.find('[data-testid="pagination"] select[id="table-rows-per-page"]').instance().value).toBe('10');
-    expect(wrapper.find('[data-testid="pagination"] select[id="table-pagination"]').instance().value).toBe('2');
+    expect(wrapper.find('[data-testid="pagination"] select[id="table-pagination"]').instance().value).toBe('0');
     expect(wrapper.find('th[data-testid="customerName"][role="columnheader"]').instance().className).toBe(
       'sortAscending',
     );

@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -50,6 +51,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// payment_request.CreateUploadMaxParseMemory = 32 << 20
 
+	if api.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler == nil {
+		api.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler = move_task_order.AcknowledgeMovesAndShipmentsHandlerFunc(func(params move_task_order.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.AcknowledgeMovesAndShipments has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
 		api.MoveTaskOrderCreateExcessWeightRecordHandler = move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.CreateExcessWeightRecord has not yet been implemented")
@@ -98,6 +104,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderDownloadMoveOrderHandler == nil {
 		api.MoveTaskOrderDownloadMoveOrderHandler = move_task_order.DownloadMoveOrderHandlerFunc(func(params move_task_order.DownloadMoveOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.DownloadMoveOrder has not yet been implemented")
+		})
+	}
+	if api.AddressesGetLocationByZipCityStateHandler == nil {
+		api.AddressesGetLocationByZipCityStateHandler = addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {

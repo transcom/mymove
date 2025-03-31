@@ -1,6 +1,9 @@
 package models
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"sort"
 	"time"
 
@@ -67,14 +70,14 @@ type Order struct {
 	CreatedAt                      time.Time                          `json:"created_at" db:"created_at"`
 	UpdatedAt                      time.Time                          `json:"updated_at" db:"updated_at"`
 	ServiceMemberID                uuid.UUID                          `json:"service_member_id" db:"service_member_id"`
-	ServiceMember                  ServiceMember                      `belongs_to:"service_members" fk_id:"service_member_id"`
+	ServiceMember                  ServiceMember                      `json:"service_member" belongs_to:"service_members" fk_id:"service_member_id"`
 	IssueDate                      time.Time                          `json:"issue_date" db:"issue_date"`
 	ReportByDate                   time.Time                          `json:"report_by_date" db:"report_by_date"`
 	OrdersType                     internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
 	OrdersTypeDetail               *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents                  bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear               bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyLocation             *DutyLocation                      `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	OriginDutyLocation             *DutyLocation                      `json:"origin_duty_location" belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 	OriginDutyLocationID           *uuid.UUID                         `json:"origin_duty_location_id" db:"origin_duty_location_id"`
 	NewDutyLocationID              uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
 	NewDutyLocation                DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
@@ -185,6 +188,18 @@ func (o *Order) Cancel() error {
 	return nil
 }
 
+var ordersTypeToAllotmentAppParamName = map[internalmessages.OrdersType]string{
+	internalmessages.OrdersTypeSTUDENTTRAVEL: "studentTravelHhgAllowance",
+}
+
+// Helper func to enforce strict unmarshal of application param values into a given  interface
+func strictUnmarshal(data []byte, v interface{}) error {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	// Fail on unknown fields
+	decoder.DisallowUnknownFields()
+	return decoder.Decode(v)
+}
+
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
@@ -207,6 +222,52 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
+	}
+
+	// Conduct allotment lookup
+	if order.Entitlement != nil && order.Grade != nil {
+		switch order.OrdersType {
+		case internalmessages.OrdersTypeSTUDENTTRAVEL:
+			// We currently store orders allotment overrides as an application parameter
+			// as it is a current one-off use case introduced by E-06189
+			var jsonData json.RawMessage
+			if paramName, ok := ordersTypeToAllotmentAppParamName[order.OrdersType]; ok {
+				err := db.RawQuery(`
+				SELECT parameter_json
+				FROM application_parameters
+				WHERE parameter_name = $1
+				`, paramName).First(&jsonData)
+
+				if err != nil {
+					return Order{}, fmt.Errorf("failed to fetch weight allotment for orders type %s: %w", order.OrdersType, err)
+				}
+
+				// Convert the JSON data to the WeightAllotment struct
+				err = strictUnmarshal(jsonData, &order.Entitlement.WeightAllotted)
+				if err != nil {
+					return Order{}, fmt.Errorf("failed to parse weight allotment JSON for orders type %s: %w", order.OrdersType, err)
+				}
+			}
+		default:
+			var hhgAllowance HHGAllowance
+			err = db.RawQuery(`
+				SELECT hhg_allowances.*
+				FROM hhg_allowances
+				INNER JOIN pay_grades ON hhg_allowances.pay_grade_id = pay_grades.id
+				WHERE pay_grades.grade = $1
+				LIMIT 1
+			`, order.Grade).First(&hhgAllowance)
+			if err != nil {
+				return Order{}, fmt.Errorf("failed to parse weight allotment JSON for orders type %s: %w", order.OrdersType, err)
+			}
+			order.Entitlement.WeightAllotted = &WeightAllotment{
+				TotalWeightSelf:               hhgAllowance.TotalWeightSelf,
+				TotalWeightSelfPlusDependents: hhgAllowance.TotalWeightSelfPlusDependents,
+				ProGearWeight:                 hhgAllowance.ProGearWeight,
+				ProGearWeightSpouse:           hhgAllowance.ProGearWeightSpouse,
+			}
+
+		}
 	}
 
 	// TODO: Handle case where more than one user is authorized to modify orders
@@ -421,45 +482,16 @@ func (o Order) FetchAllShipmentsExcludingRejected(db *pop.Connection) (map[uuid.
 }
 
 /*
- * GetDestinationGBLOC returns a map of destination GBLOCs for the first shipments from all of
- * the moves that are associated with an order. If there are no shipments returned on a particular move,
- * it will return the GBLOC of the new duty station address for that move.
- */
-func (o Order) GetDestinationGBLOC(db *pop.Connection) (map[uuid.UUID]string, error) {
-	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
-	if uuid.UUID.IsNil(o.ID) {
-		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination GBLOC.")
-	}
-
-	destinationPostalCodesMap, err := o.GetDestinationPostalCodeForAssociatedMoves(db)
-	if err != nil {
-		return nil, err
-	}
-
-	destinationGBLOCsMap := make(map[uuid.UUID]string)
-	for k, v := range destinationPostalCodesMap {
-		var gblocResult PostalCodeToGBLOC
-		gblocResult, err = FetchGBLOCForPostalCode(db, v)
-		if err != nil {
-			return nil, errors.WithMessage(err, "Could not get GBLOC for postal code "+v+" for move ID "+k.String())
-		}
-		destinationGBLOCsMap[k] = gblocResult.GBLOC
-	}
-
-	return destinationGBLOCsMap, nil
-}
-
-/*
-* GetDestinationPostalCodeForAssociatedMove returns a map of Postal Codes of the destination address for the first shipments from each of
+* GetDestinationAddressForAssociatedMoves returns the destination Address for the first shipments from each of
 * the moves that are associated with an order. If there are no shipments returned, it will return the
-* Postal Code of the new duty station addresses.
+* Address of the new duty station addresses.
  */
-func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (map[uuid.UUID]string, error) {
+func (o Order) GetDestinationAddressForAssociatedMoves(db *pop.Connection) (*Address, error) {
 	if uuid.UUID.IsNil(o.ID) {
-		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination Postal Code.")
+		return nil, errors.WithMessage(ErrInvalidOrderID, "You must create the order in the DB before getting the destination Address.")
 	}
 
-	err := db.Load(&o, "Moves", "NewDutyLocation.Address.PostalCode")
+	err := db.Load(&o, "Moves", "NewDutyLocation.Address")
 	if err != nil {
 		if err.Error() == RecordNotFoundErrorString {
 			return nil, errors.WithMessage(err, "No Moves were found for the order ID "+o.ID.String())
@@ -467,8 +499,8 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 		return nil, err
 	}
 
-	// zipsMap is a map of key, value pairs where the key is the move id and the value is the destination postal code
-	zipsMap := make(map[uuid.UUID]string)
+	// addrMap is a map of key, value pairs where the key is the move id and the value is the destination address
+	var destinationAddress Address
 	for i, m := range o.Moves {
 		err = db.Load(&o.Moves[i], "MTOShipments")
 		if err != nil {
@@ -502,71 +534,23 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 				return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
 			})
 
-			var addressResult *Address
-			addressResult, err = shipments[0].GetDestinationAddress(db)
+			addressResult, err := shipments[0].GetDestinationAddress(db)
 			if err != nil {
-				if err == ErrMissingDestinationAddress || err == ErrUnsupportedShipmentType {
-					zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
-				}
 				return nil, err
 			}
 
 			if addressResult != nil {
-				zipsMap[o.Moves[i].ID] = addressResult.PostalCode
+				destinationAddress = *addressResult
 			} else {
 				return nil, errors.WithMessage(ErrMissingDestinationAddress, "No destination address was able to be found for the order ID "+o.ID.String())
 			}
 		} else {
 			// No valid shipments, use new duty location
-			zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
+			destinationAddress = o.NewDutyLocation.Address
 		}
 	}
 
-	if len(zipsMap) == 0 {
-		return nil, errors.New("No destination postal codes were found for the order ID " + o.ID.String())
-	}
-
-	return zipsMap, nil
-}
-
-// UpdateDestinationGBLOC updates the destination GBLOC for the associated Order in the DB
-func (o Order) UpdateDestinationGBLOC(db *pop.Connection) error {
-	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
-	if uuid.UUID.IsNil(o.ID) {
-		return errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before updating the destination GBLOC.")
-	}
-
-	var dbOrder Order
-	err := db.Find(&dbOrder, o.ID)
-	if err != nil {
-		if err.Error() == RecordNotFoundErrorString {
-			return errors.WithMessage(err, "No Order was found for the order ID "+o.ID.String())
-		}
-		return err
-	}
-
-	err = db.Load(&o, "NewDutyLocation.Address.PostalCode")
-	if err != nil {
-		if err.Error() == RecordNotFoundErrorString {
-			return errors.WithMessage(err, "No New Duty Location Address Postal Code was found for the order ID "+o.ID.String())
-		}
-		return err
-	}
-
-	var gblocResult PostalCodeToGBLOC
-	gblocResult, err = FetchGBLOCForPostalCode(db, o.NewDutyLocation.Address.PostalCode)
-	if err != nil {
-		return errors.WithMessage(err, "Could not get GBLOC for postal code "+o.NewDutyLocation.Address.PostalCode)
-	}
-
-	dbOrder.DestinationGBLOC = &gblocResult.GBLOC
-
-	err = db.Save(&dbOrder)
-	if err != nil {
-		return errors.WithMessage(err, "Could not save the updated destination GBLOC for order ID "+o.ID.String())
-	}
-
-	return nil
+	return &destinationAddress, nil
 }
 
 // IsCompleteForGBL checks if orders have all fields necessary to generate a GBL

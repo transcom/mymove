@@ -996,6 +996,40 @@ func init() {
           }
         }
       },
+      "delete": {
+        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Deletes an Office User",
+        "operationId": "deleteOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
       "patch": {
         "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
@@ -1358,6 +1392,114 @@ func init() {
           },
           "404": {
             "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users": {
+      "get": {
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "List of Office Rejected Requesting Office Users Accounts",
+        "operationId": "indexRejectedOfficeUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "Get a Rejected Office User",
+        "operationId": "getRejectedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -2243,6 +2385,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -2778,6 +2926,11 @@ func init() {
             "$ref": "#/definitions/Privilege"
           }
         },
+        "rejectedOn": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -2925,6 +3078,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "firstName": {
@@ -3115,7 +3274,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -3261,16 +3422,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",
@@ -3474,6 +3625,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -3654,6 +3811,13 @@ func init() {
     {
       "description": "Information about requested office users",
       "name": "Requested office users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about rejected office users",
+      "name": "Rejected office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
@@ -4653,6 +4817,40 @@ func init() {
           }
         }
       },
+      "delete": {
+        "description": "Deletes a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to delete an office user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Deletes an Office User",
+        "operationId": "deleteOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
       "patch": {
         "description": "This endpoint updates a single Office User by ID. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
@@ -5015,6 +5213,114 @@ func init() {
           },
           "404": {
             "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users": {
+      "get": {
+        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "List of Office Rejected Requesting Office Users Accounts",
+        "operationId": "indexRejectedOfficeUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/rejected-office-users/{officeUserId}": {
+      "get": {
+        "description": "Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Rejected office users"
+        ],
+        "summary": "Get a Rejected Office User",
+        "operationId": "getRejectedOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Office User not found"
           },
           "500": {
             "description": "server error"
@@ -5900,6 +6206,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -6436,6 +6748,11 @@ func init() {
             "$ref": "#/definitions/Privilege"
           }
         },
+        "rejectedOn": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "rejectionReason": {
           "type": "string"
         },
@@ -6583,6 +6900,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "firstName": {
@@ -6773,7 +7096,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -6919,16 +7244,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "latitude": {
-          "type": "number",
-          "format": "float",
-          "example": 29.382973
-        },
-        "longitude": {
-          "type": "number",
-          "format": "float",
-          "example": -98.62759
         },
         "name": {
           "type": "string",
@@ -7132,6 +7447,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -7316,6 +7637,13 @@ func init() {
     {
       "description": "Information about requested office users",
       "name": "Requested office users",
+      "externalDocs": {
+        "url": "https://transcom.github.io/mymove-docs/docs/api"
+      }
+    },
+    {
+      "description": "Information about rejected office users",
+      "name": "Rejected office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

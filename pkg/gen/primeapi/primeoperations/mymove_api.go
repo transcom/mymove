@@ -19,6 +19,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -49,6 +50,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
 
+		MoveTaskOrderAcknowledgeMovesAndShipmentsHandler: move_task_order.AcknowledgeMovesAndShipmentsHandlerFunc(func(params move_task_order.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.AcknowledgeMovesAndShipments has not yet been implemented")
+		}),
 		MoveTaskOrderCreateExcessWeightRecordHandler: move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.CreateExcessWeightRecord has not yet been implemented")
 		}),
@@ -78,6 +82,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderDownloadMoveOrderHandler: move_task_order.DownloadMoveOrderHandlerFunc(func(params move_task_order.DownloadMoveOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.DownloadMoveOrder has not yet been implemented")
+		}),
+		AddressesGetLocationByZipCityStateHandler: addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
@@ -157,6 +164,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// MoveTaskOrderAcknowledgeMovesAndShipmentsHandler sets the operation handler for the acknowledge moves and shipments operation
+	MoveTaskOrderAcknowledgeMovesAndShipmentsHandler move_task_order.AcknowledgeMovesAndShipmentsHandler
 	// MoveTaskOrderCreateExcessWeightRecordHandler sets the operation handler for the create excess weight record operation
 	MoveTaskOrderCreateExcessWeightRecordHandler move_task_order.CreateExcessWeightRecordHandler
 	// MtoShipmentCreateMTOAgentHandler sets the operation handler for the create m t o agent operation
@@ -177,6 +186,8 @@ type MymoveAPI struct {
 	MtoShipmentDeleteMTOShipmentHandler mto_shipment.DeleteMTOShipmentHandler
 	// MoveTaskOrderDownloadMoveOrderHandler sets the operation handler for the download move order operation
 	MoveTaskOrderDownloadMoveOrderHandler move_task_order.DownloadMoveOrderHandler
+	// AddressesGetLocationByZipCityStateHandler sets the operation handler for the get location by zip city state operation
+	AddressesGetLocationByZipCityStateHandler addresses.GetLocationByZipCityStateHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
@@ -280,6 +291,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler == nil {
+		unregistered = append(unregistered, "move_task_order.AcknowledgeMovesAndShipmentsHandler")
+	}
 	if o.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
 		unregistered = append(unregistered, "move_task_order.CreateExcessWeightRecordHandler")
 	}
@@ -309,6 +323,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveTaskOrderDownloadMoveOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.DownloadMoveOrderHandler")
+	}
+	if o.AddressesGetLocationByZipCityStateHandler == nil {
+		unregistered = append(unregistered, "addresses.GetLocationByZipCityStateHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -432,6 +449,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/acknowledge"] = move_task_order.NewAcknowledgeMovesAndShipments(o.context, o.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -472,6 +493,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{locator}/documents"] = move_task_order.NewDownloadMoveOrder(o.context, o.MoveTaskOrderDownloadMoveOrderHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/zip-city-lookup/{search}"] = addresses.NewGetLocationByZipCityState(o.context, o.AddressesGetLocationByZipCityStateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

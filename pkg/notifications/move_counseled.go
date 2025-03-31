@@ -6,6 +6,7 @@ import (
 	html "html/template"
 	text "text/template"
 
+	"github.com/dustin/go-humanize"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -91,12 +92,30 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
+	var weightRestriction *int64
+	var weightRestrictionFormatted string
+	if orders.Entitlement != nil && orders.Entitlement.WeightRestriction != nil {
+		weightRestrictionInt64 := int64(*orders.Entitlement.WeightRestriction)
+		weightRestriction = &weightRestrictionInt64
+		weightRestrictionFormatted = humanize.Comma(int64(*weightRestriction))
+	}
+
+	var ubWeightRestriction *int64
+	var ubWeightRestrictionFormatted string
+	if orders.Entitlement != nil && orders.Entitlement.UBWeightRestriction != nil {
+		ubWeightRestrictionInt64 := int64(*orders.Entitlement.UBWeightRestriction)
+		ubWeightRestriction = &ubWeightRestrictionInt64
+		ubWeightRestrictionFormatted = humanize.Comma(int64(*ubWeightRestriction))
+	}
+
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
 		OriginDutyLocation:         originDutyLocationName,
 		DestinationLocation:        destinationAddress,
 		Locator:                    move.Locator,
 		MyMoveLink:                 MyMoveLink,
 		ActualExpenseReimbursement: actualExpenseReimbursement,
+		WeightRestriction:          weightRestrictionFormatted,
+		UbWeightRestriction:        ubWeightRestrictionFormatted,
 	})
 
 	if err != nil {
@@ -115,8 +134,8 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
-}
 
+}
 func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCounseledEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
@@ -135,6 +154,8 @@ type MoveCounseledEmailData struct {
 	Locator                    string
 	MyMoveLink                 string
 	ActualExpenseReimbursement bool
+	WeightRestriction          string
+	UbWeightRestriction        string
 }
 
 // RenderHTML renders the html for the email

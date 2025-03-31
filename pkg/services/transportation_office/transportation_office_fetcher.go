@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -46,8 +47,8 @@ func (o transportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.
 	return &transportationOffice, nil
 }
 
-func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error) {
-	officeList, err := FindTransportationOffice(appCtx, search, forPpm)
+func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool, forAdminOfficeUserReqFilter bool) (*models.TransportationOffices, error) {
+	officeList, err := FindTransportationOffice(appCtx, search, forPpm, forAdminOfficeUserReqFilter)
 
 	if err != nil {
 		switch err {
@@ -61,8 +62,14 @@ func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext
 	return &officeList, nil
 }
 
-func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPpm bool) (models.TransportationOffices, error) {
+func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPpm bool, forAdminOfficeUserReqFilter bool) (models.TransportationOffices, error) {
 	var officeList []models.TransportationOffice
+
+	// Changing return limit for Admin Requested Office Users Transportation Office Filter implementation
+	var limit = 5
+	if forAdminOfficeUserReqFilter {
+		limit = 50
+	}
 
 	// The % operator filters out strings that are below this similarity threshold
 	err := appCtx.DB().Q().RawQuery("SET pg_trgm.similarity_threshold = 0.03").Exec()
@@ -80,13 +87,13 @@ func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPp
 	}
 	sqlQuery += `
 		order by sim desc
-        limit 5)
+        limit $2)
 		select office.*
         from names n inner join transportation_offices office on n.transportation_office_id = office.id
         group by office.id
         order by max(n.sim) desc, office.name
-        limit 5`
-	query := appCtx.DB().Q().RawQuery(sqlQuery, search)
+        limit $2`
+	query := appCtx.DB().Q().RawQuery(sqlQuery, search, limit)
 	if err := query.All(&officeList); err != nil {
 		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
 			return officeList, err
@@ -127,8 +134,10 @@ func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
 	return gblocList, err
 }
 
-func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error) {
-	officeList, err := findCounselingOffice(appCtx, dutyLocationID)
+// return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
+// serviceMemberID is only provided when this function is called by the office handler
+func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffices, error) {
+	officeList, err := models.GetCounselingOffices(appCtx.DB(), dutyLocationID, serviceMemberID)
 
 	if err != nil {
 		switch err {
@@ -143,7 +152,8 @@ func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.App
 }
 
 // return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
-func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
+// serviceMemberID is only provided when this function is called by the office handler
+func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (models.TransportationOffices, error) {
 	var officeList []models.TransportationOffice
 
 	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
@@ -157,7 +167,7 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 	// Find for oconus duty location
 	// ********************************
 	if *duty_location.Address.IsOconus {
-		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location)
+		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, serviceMemberID)
 		if err != nil {
 			return officeList, err
 		}
@@ -238,8 +248,8 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 	return officeList, nil
 }
 
-func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocation models.DutyLocation) (*oconusGblocDepartmentIndicator, error) {
-	serviceMember, err := models.FetchServiceMember(appCtx.DB(), appCtx.Session().ServiceMemberID)
+func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocation models.DutyLocation, serviceMemberID uuid.UUID) (*oconusGblocDepartmentIndicator, error) {
+	serviceMember, err := models.FetchServiceMember(appCtx.DB(), serviceMemberID)
 	if err != nil {
 		return nil, err
 	}
@@ -304,4 +314,92 @@ func findOconusGblocDepartmentIndicator(appCtx appcontext.AppContext, dutyLocati
 	// There is no default and department specific oconusGblocDepartmentIndicator. There is nothing in system to support. This should never happen.
 	return nil, apperror.NewImplementationError(fmt.Sprintf("Error: Cannot determine GBLOC -- serviceMember.Affiliation: %s, DutyLocaton: %s, departmentIndicator: %s, dutyLocation.Address.ID: %s",
 		serviceMember.Affiliation, dutyLocation.Name, *departmentIndicator, dutyLocation.Address.ID))
+}
+
+// Return the closest transportation office in the GBLOC of the given duty location for oconus/conus duty locations for a prime counseled
+func (o transportationOfficesFetcher) FindCounselingOfficeForPrimeCounseled(appCtx appcontext.AppContext, dutyLocationID uuid.UUID, serviceMemberID uuid.UUID) (*models.TransportationOffice, error) {
+	var closestOffice models.TransportationOffice
+	duty_location, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
+	if err != nil {
+		appCtx.Logger().Error("Failed to fetch duty location", zap.Error(err))
+		return &closestOffice, err
+	}
+	var sqlQuery string
+
+	// Find for oconus duty location
+	if *duty_location.Address.IsOconus {
+		gblocDepartmentIndicator, err := findOconusGblocDepartmentIndicator(appCtx, duty_location, serviceMemberID)
+		if err != nil {
+			appCtx.Logger().Error("Failed to find OCONUS GBLOC department indicator", zap.Error(err))
+			return &closestOffice, err
+		}
+
+		sqlQuery = `
+        WITH counseling_offices AS (
+            SELECT transportation_offices.id, transportation_offices.name, transportation_offices.address_id AS counseling_address,
+              SUBSTRING(a.postal_code, 1, 3) AS origin_zip, SUBSTRING(a2.postal_code, 1, 3) AS dest_zip
+            FROM duty_locations
+            JOIN addresses a ON duty_locations.address_id = a.id
+            JOIN v_locations v ON (a.us_post_region_cities_id = v.uprc_id OR v.uprc_id IS NULL)
+            JOIN re_oconus_rate_areas r ON r.us_post_region_cities_id = v.uprc_id
+            JOIN gbloc_aors ON gbloc_aors.oconus_rate_area_id = r.id
+            JOIN jppso_regions j ON gbloc_aors.jppso_regions_id = j.id
+            JOIN transportation_offices ON j.code = transportation_offices.gbloc
+            JOIN addresses a2 ON a2.id = transportation_offices.address_id
+            WHERE duty_locations.id = $1 AND j.code = $2
+                AND transportation_offices.provides_ppm_closeout = true
+        )
+        SELECT counseling_offices.id, counseling_offices.name
+        FROM counseling_offices
+        JOIN addresses cnsl_address ON counseling_offices.counseling_address = cnsl_address.id
+        LEFT JOIN zip3_distances ON (
+            (SUBSTRING(cnsl_address.postal_code, 1, 3) = zip3_distances.to_zip3
+            AND counseling_offices.origin_zip = zip3_distances.from_zip3)
+            OR
+            (SUBSTRING(cnsl_address.postal_code, 1, 3) = zip3_distances.from_zip3
+            AND counseling_offices.origin_zip = zip3_distances.to_zip3)
+        )
+        GROUP BY counseling_offices.id, counseling_offices.name, zip3_distances.distance_miles
+        ORDER BY COALESCE(zip3_distances.distance_miles, 0) ASC
+        FETCH FIRST 1 ROW ONLY`
+
+		if err := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID, gblocDepartmentIndicator.Gbloc).First(&closestOffice); err != nil {
+			appCtx.Logger().Error("Failed to execute OCONUS SQL query", zap.Error(err))
+			return &closestOffice, err
+		}
+		return &closestOffice, nil
+	} else {
+
+		// Find for conus duty location
+		sqlQuery = `
+    WITH counseling_offices AS (
+        SELECT transportation_offices.id, transportation_offices.name, transportation_offices.address_id AS counseling_address, SUBSTRING(addresses.postal_code, 1, 3) AS pickup_zip
+        FROM postal_code_to_gblocs
+        JOIN addresses ON postal_code_to_gblocs.postal_code = addresses.postal_code
+        JOIN duty_locations ON addresses.id = duty_locations.address_id
+        JOIN transportation_offices ON postal_code_to_gblocs.gbloc = transportation_offices.gbloc
+        WHERE duty_locations.id = $1
+    )
+    SELECT counseling_offices.id, counseling_offices.name
+    FROM counseling_offices
+    JOIN duty_locations duty_locations2 ON counseling_offices.id = duty_locations2.transportation_office_id
+    JOIN addresses ON counseling_offices.counseling_address = addresses.id
+    JOIN re_us_post_regions ON addresses.postal_code = re_us_post_regions.uspr_zip_id
+    LEFT JOIN zip3_distances ON (
+        (re_us_post_regions.zip3 = zip3_distances.to_zip3 AND counseling_offices.pickup_zip = zip3_distances.from_zip3)
+        OR
+        (re_us_post_regions.zip3 = zip3_distances.from_zip3 AND counseling_offices.pickup_zip = zip3_distances.to_zip3)
+    )
+    WHERE duty_locations2.provides_services_counseling = true
+    GROUP BY counseling_offices.id, counseling_offices.name, zip3_distances.distance_miles
+    ORDER BY COALESCE(zip3_distances.distance_miles, 0), counseling_offices.name ASC
+    FETCH FIRST 1 ROW ONLY`
+
+		if err := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID).First(&closestOffice); err != nil {
+			appCtx.Logger().Error("Failed to execute CONUS SQL query", zap.Error(err))
+			return &closestOffice, err
+		}
+	}
+
+	return &closestOffice, nil
 }

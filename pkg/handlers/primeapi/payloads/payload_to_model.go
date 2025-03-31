@@ -233,7 +233,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 		StreetAddress1: "Deprecated Endpoint Prime V2",
 		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
 		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
-		City:           "DEPV2",
+		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
 	}
@@ -470,6 +470,49 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 			model.SITOriginHHGActualAddressID = &model.SITOriginHHGActualAddress.ID
 		}
 
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalOriginSIT:
+
+		originsit := mtoServiceItem.(*primemessages.MTOServiceItemInternationalOriginSIT)
+
+		if originsit.ReServiceCode != nil {
+			model.ReService.Code = models.ReServiceCode(*originsit.ReServiceCode)
+		}
+
+		model.Reason = originsit.Reason
+		// Check for reason required field on a IOASIT
+		if model.ReService.Code == models.ReServiceCodeIOASIT {
+			reasonVerrs := validateReasonInternationalOriginSIT(*originsit)
+
+			if reasonVerrs.HasAny() {
+				return nil, reasonVerrs
+			}
+		}
+
+		if model.ReService.Code == models.ReServiceCodeIOFSIT {
+			reasonVerrs := validateReasonInternationalOriginSIT(*originsit)
+
+			if reasonVerrs.HasAny() {
+				return nil, reasonVerrs
+			}
+		}
+
+		sitEntryDate := handlers.FmtDatePtrToPopPtr(originsit.SitEntryDate)
+
+		if sitEntryDate != nil {
+			model.SITEntryDate = sitEntryDate
+		}
+
+		if originsit.SitDepartureDate != nil {
+			model.SITDepartureDate = handlers.FmtDatePtrToPopPtr(originsit.SitDepartureDate)
+		}
+
+		model.SITPostalCode = originsit.SitPostalCode
+
+		model.SITOriginHHGActualAddress = AddressModel(originsit.SitHHGActualOrigin)
+		if model.SITOriginHHGActualAddress != nil {
+			model.SITOriginHHGActualAddressID = &model.SITOriginHHGActualAddress.ID
+		}
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:
 		destsit := mtoServiceItem.(*primemessages.MTOServiceItemDestSIT)
 
@@ -529,8 +572,83 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalDestSIT:
+		destsit := mtoServiceItem.(*primemessages.MTOServiceItemInternationalDestSIT)
+
+		if destsit.ReServiceCode != nil {
+			model.ReService.Code = models.ReServiceCode(*destsit.ReServiceCode)
+
+		}
+
+		model.Reason = destsit.Reason
+		sitEntryDate := handlers.FmtDatePtrToPopPtr(destsit.SitEntryDate)
+
+		// Check for required fields on a IDFSIT
+		if model.ReService.Code == models.ReServiceCodeIDFSIT {
+			verrs := validateIDFSITForCreate(*destsit)
+			reasonVerrs := validateReasonInternationalDestSIT(*destsit)
+
+			if verrs.HasAny() {
+				return nil, verrs
+			}
+
+			if reasonVerrs.HasAny() {
+				return nil, reasonVerrs
+			}
+		}
+
+		var customerContacts models.MTOServiceItemCustomerContacts
+
+		if destsit.TimeMilitary1 != nil && destsit.FirstAvailableDeliveryDate1 != nil && destsit.DateOfContact1 != nil {
+			customerContacts = append(customerContacts, models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Time(*destsit.DateOfContact1),
+				TimeMilitary:               *destsit.TimeMilitary1,
+				FirstAvailableDeliveryDate: time.Time(*destsit.FirstAvailableDeliveryDate1),
+			})
+		}
+		if destsit.TimeMilitary2 != nil && destsit.FirstAvailableDeliveryDate2 != nil && destsit.DateOfContact2 != nil {
+			customerContacts = append(customerContacts, models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeSecond,
+				DateOfContact:              time.Time(*destsit.DateOfContact2),
+				TimeMilitary:               *destsit.TimeMilitary2,
+				FirstAvailableDeliveryDate: time.Time(*destsit.FirstAvailableDeliveryDate2),
+			})
+		}
+
+		model.CustomerContacts = customerContacts
+
+		if sitEntryDate != nil {
+			model.SITEntryDate = sitEntryDate
+		}
+
+		if destsit.SitDepartureDate != nil {
+			model.SITDepartureDate = handlers.FmtDatePtrToPopPtr(destsit.SitDepartureDate)
+		}
+
+		model.SITDestinationFinalAddress = AddressModel(destsit.SitDestinationFinalAddress)
+		if model.SITDestinationFinalAddress != nil {
+			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+		}
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticShuttle:
+		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemDomesticShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalShuttle:
+		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemInternationalShuttle)
 		// values to get from payload
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
@@ -725,6 +843,20 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemInternationalShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if shuttle.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *shuttle.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+			model.Status = models.MTOServiceItemStatusSubmitted
+		}
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
 
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalPortFSC:
 		portFsc := mtoServiceItem.(*primemessages.UpdateMTOServiceItemInternationalPortFSC)
@@ -830,6 +962,31 @@ func validateDDFSITForCreate(m primemessages.MTOServiceItemDestSIT) *validate.Er
 	return verrs
 }
 
+// validateIDFSITForCreate validates IDFSIT service item has all required fields
+func validateIDFSITForCreate(m primemessages.MTOServiceItemInternationalDestSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.FirstAvailableDeliveryDate1 == nil && m.DateOfContact1 != nil && m.TimeMilitary1 != nil {
+		verrs.Add("firstAvailableDeliveryDate1", "firstAvailableDeliveryDate1, dateOfContact1, and timeMilitary1 must be provided together in body.")
+	}
+	if m.DateOfContact1 == nil && m.TimeMilitary1 != nil && m.FirstAvailableDeliveryDate1 != nil {
+		verrs.Add("DateOfContact1", "dateOfContact1, timeMilitary1, and firstAvailableDeliveryDate1 must be provided together in body.")
+	}
+	if m.TimeMilitary1 == nil && m.DateOfContact1 != nil && m.FirstAvailableDeliveryDate1 != nil {
+		verrs.Add("timeMilitary1", "timeMilitary1, dateOfContact1, and firstAvailableDeliveryDate1 must be provided together in body.")
+	}
+	if m.FirstAvailableDeliveryDate2 == nil && m.DateOfContact2 != nil && m.TimeMilitary2 != nil {
+		verrs.Add("firstAvailableDeliveryDate2", "firstAvailableDeliveryDate2, dateOfContact2, and timeMilitary2 must be provided together in body.")
+	}
+	if m.DateOfContact2 == nil && m.TimeMilitary2 != nil && m.FirstAvailableDeliveryDate2 != nil {
+		verrs.Add("DateOfContact2", "dateOfContact2, firstAvailableDeliveryDate2, and timeMilitary2 must be provided together in body.")
+	}
+	if m.TimeMilitary2 == nil && m.DateOfContact2 != nil && m.FirstAvailableDeliveryDate2 != nil {
+		verrs.Add("timeMilitary2", "timeMilitary2, firstAvailableDeliveryDate2, and dateOfContact2 must be provided together in body.")
+	}
+	return verrs
+}
+
 // validateDestSITForUpdate validates DDDSIT service item has all required fields
 func validateDestSITForUpdate(m primemessages.UpdateMTOServiceItemSIT) *validate.Errors {
 	verrs := validate.NewErrors()
@@ -865,6 +1022,16 @@ func validateReasonDestSIT(m primemessages.MTOServiceItemDestSIT) *validate.Erro
 	return verrs
 }
 
+// validateReasonInternationalDestSIT validates that International Destination SIT service items have required Reason field
+func validateReasonInternationalDestSIT(m primemessages.MTOServiceItemInternationalDestSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.Reason == nil || m.Reason == models.StringPointer("") {
+		verrs.Add("reason", "reason is required in body.")
+	}
+	return verrs
+}
+
 // validateReasonOriginSIT validates that Origin SIT service items have required Reason field
 func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.Errors {
 	verrs := validate.NewErrors()
@@ -873,4 +1040,65 @@ func validateReasonOriginSIT(m primemessages.MTOServiceItemOriginSIT) *validate.
 		verrs.Add("reason", "reason is required in body.")
 	}
 	return verrs
+}
+
+func VLocationModel(vLocation *primemessages.VLocation) *models.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+
+	usPostRegionCitiesID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+
+	return &models.VLocation{
+		CityName:             vLocation.City,
+		StateName:            vLocation.State,
+		UsprZipID:            vLocation.PostalCode,
+		UsprcCountyNm:        *vLocation.County,
+		UsPostRegionCitiesID: &usPostRegionCitiesID,
+	}
+}
+
+// validateReasonInternationalOriginSIT validates that International Origin SIT service items have required Reason field
+func validateReasonInternationalOriginSIT(m primemessages.MTOServiceItemInternationalOriginSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.Reason == nil || m.Reason == models.StringPointer("") {
+		verrs.Add("reason", "reason is required in body.")
+	}
+	return verrs
+}
+
+func MovesModelFromAcknowledgeMovesAndShipments(acknowledgeMoves *primemessages.AcknowledgeMoves) (*models.Moves, *validate.Errors) {
+	verrs := validate.NewErrors()
+	if acknowledgeMoves == nil || len(*acknowledgeMoves) == 0 {
+		verrs.Add("acknowledgeMoves", "value cannot be nil or empty")
+		return nil, verrs
+	}
+	var moves = models.Moves{}
+	for _, movePayload := range *acknowledgeMoves {
+		if movePayload.ID.String() == "" {
+			verrs.Add("AcknowledgeMove.ID", "value cannot be empty")
+			return nil, verrs
+		}
+		move := models.Move{
+			ID:                  uuid.FromStringOrNil(movePayload.ID.String()),
+			PrimeAcknowledgedAt: (*time.Time)(&movePayload.PrimeAcknowledgedAt),
+		}
+		if movePayload.MtoShipments != nil {
+			for _, mtoShipmentPayload := range movePayload.MtoShipments {
+				if mtoShipmentPayload.ID.String() == "" {
+					verrs.Add("AcknowledgeShipment.ID", "value cannot be empty")
+					return nil, verrs
+				}
+				mtoShipment := models.MTOShipment{
+					ID:                  uuid.FromStringOrNil(mtoShipmentPayload.ID.String()),
+					PrimeAcknowledgedAt: (*time.Time)(&mtoShipmentPayload.PrimeAcknowledgedAt),
+				}
+				move.MTOShipments = append(move.MTOShipments, mtoShipment)
+			}
+		}
+		moves = append(moves, move)
+	}
+
+	return &moves, nil
 }

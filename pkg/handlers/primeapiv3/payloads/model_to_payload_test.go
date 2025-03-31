@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -38,6 +39,16 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	streetAddress2 := "Apt 1"
 	streetAddress3 := "Apt 1"
 
+	backupContacts := models.BackupContacts{}
+	backupContacts = append(backupContacts, models.BackupContact{
+		Name:  "Backup contact name",
+		Phone: "555-555-5555",
+		Email: "backup@backup.com",
+	})
+	serviceMember := models.ServiceMember{
+		BackupContacts: backupContacts,
+	}
+
 	basicMove := models.Move{
 		ID:                 moveTaskOrderID,
 		Locator:            "TESTTEST",
@@ -51,6 +62,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			MethodOfPayment:                models.MethodOfPayment,
 			NAICS:                          models.NAICS,
 			PackingAndShippingInstructions: packingInstructions,
+			ServiceMember:                  serviceMember,
 		},
 		ReferenceID:          &referenceID,
 		PaymentRequests:      models.PaymentRequests{},
@@ -112,6 +124,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
 		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
+		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
 	})
 
 	suite.Run("Success - payload with RateArea", func() {
@@ -136,11 +151,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		const fairbanksAlaskaPostalCode = "99716"
 		const anchorageAlaskaPostalCode = "99521"
 		const wasillaAlaskaPostalCode = "99652"
+		const beverlyHillsCAPostalCode = "90210"
 
 		//clear MTOShipment and rebuild with specifics for test
 		newMove.MTOShipments = newMove.MTOShipments[:0]
 
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			MarketCode: models.MarketCodeInternational,
 			PickupAddress: &models.Address{
 				StreetAddress1: "123 Main St",
 				StreetAddress2: &streetAddress2,
@@ -160,6 +177,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			MarketCode: models.MarketCodeInternational,
 			PickupAddress: &models.Address{
 				StreetAddress1: "123 Main St",
 				StreetAddress2: &streetAddress2,
@@ -180,6 +198,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
 			ShipmentType: models.MTOShipmentTypePPM,
+			MarketCode:   models.MarketCodeInternational,
 			PPMShipment: &models.PPMShipment{
 				ID:                          uuid.Must(uuid.NewV4()),
 				ApprovedAt:                  models.TimePointer(time.Now()),
@@ -209,6 +228,8 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
+			MarketCode:   models.MarketCodeDomestic,
 			PPMShipment: &models.PPMShipment{
 				ID:                          uuid.Must(uuid.NewV4()),
 				ApprovedAt:                  models.TimePointer(time.Now()),
@@ -225,7 +246,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					StreetAddress3: &streetAddress3,
 					City:           "Beverly Hills",
 					State:          "CA",
-					PostalCode:     "90210",
+					PostalCode:     beverlyHillsCAPostalCode,
 				},
 				DestinationAddress: &models.Address{
 					StreetAddress1: "123 Main St",
@@ -233,18 +254,19 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					StreetAddress3: &streetAddress3,
 					City:           "Beverly Hills",
 					State:          "CA",
-					PostalCode:     "90210",
+					PostalCode:     beverlyHillsCAPostalCode,
 				},
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			MarketCode: models.MarketCodeDomestic,
 			PickupAddress: &models.Address{
 				StreetAddress1:   "123 Main St",
 				StreetAddress2:   &streetAddress2,
 				StreetAddress3:   &streetAddress3,
 				City:             "Beverly Hills",
 				State:            "CA",
-				PostalCode:       "90210",
+				PostalCode:       beverlyHillsCAPostalCode,
 				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 			DestinationAddress: &models.Address{
@@ -253,13 +275,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 				StreetAddress3:   &streetAddress3,
 				City:             "Beverly Hills",
 				State:            "CA",
-				PostalCode:       "90210",
+				PostalCode:       beverlyHillsCAPostalCode,
 				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
 
 		// no ShipmentPostalCodeRateArea passed in
-		returnedModel := MoveTaskOrderWithShipmentOconusRateArea(suite.AppContextForTest(), newMove, nil)
+		returnedModel := MoveTaskOrderWithShipmentRateAreas(suite.AppContextForTest(), newMove, nil)
 
 		suite.IsType(&primev3messages.MoveTaskOrder{}, returnedModel)
 		suite.Equal(strfmt.UUID(newMove.ID.String()), returnedModel.ID)
@@ -320,9 +342,17 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					Name: wasillaAlaskaPostalCode,
 				},
 			},
+			{
+				PostalCode: beverlyHillsCAPostalCode,
+				RateArea: &models.ReRateArea{
+					ID:   uuid.Must(uuid.NewV4()),
+					Code: beverlyHillsCAPostalCode,
+					Name: beverlyHillsCAPostalCode,
+				},
+			},
 		}
 
-		returnedModel = MoveTaskOrderWithShipmentOconusRateArea(suite.AppContextForTest(), newMove, &shipmentPostalCodeRateArea)
+		returnedModel = MoveTaskOrderWithShipmentRateAreas(suite.AppContextForTest(), newMove, &shipmentPostalCodeRateArea)
 
 		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
 		for _, i := range shipmentPostalCodeRateArea {
@@ -513,7 +543,7 @@ func (suite *PayloadsSuite) TestSitExtension() {
 }
 
 func (suite *PayloadsSuite) TestEntitlement() {
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
@@ -530,6 +560,8 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			ProGearWeightSpouse: 0,
 			CreatedAt:           time.Now(),
 			UpdatedAt:           time.Now(),
+			WeightRestriction:   models.IntPointer(1000),
+			UBWeightRestriction: models.IntPointer(1200),
 		}
 
 		payload := Entitlement(&entitlement)
@@ -552,6 +584,8 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
 		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
+		suite.Equal(int64(1000), *payload.WeightRestriction)
+		suite.Equal(int64(1200), *payload.UbWeightRestriction)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
@@ -574,7 +608,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 
@@ -616,7 +652,9 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
 		// 9000 lbs with dependents
-		entitlement.SetWeightAllotment(string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE5), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.NoError(err)
+		entitlement.WeightAllotted = &allotment
 
 		payload := Entitlement(&entitlement)
 
@@ -981,6 +1019,72 @@ func (suite *PayloadsSuite) TestMTOServiceItemDestSIT() {
 	suite.Equal(finalAddress.PostalCode, *destSIT.SitDestinationFinalAddress.PostalCode)
 	suite.Equal(mtoShipmentID.String(), destSIT.MtoShipmentID().String())
 }
+
+func (suite *PayloadsSuite) TestMTOServiceItemInternationalDestSIT() {
+	reServiceCode := models.ReServiceCodeIDFSIT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	sitDepartureDate := time.Now().AddDate(0, 1, 0)
+	sitEntryDate := time.Now().AddDate(0, 0, -30)
+	finalAddress := models.Address{
+		StreetAddress1: "dummyStreet",
+		City:           "dummyCity",
+		State:          "FL",
+		PostalCode:     "55555",
+	}
+	mtoShipmentID := uuid.Must(uuid.NewV4())
+
+	mtoServiceItemDestSIT := &models.MTOServiceItem{
+		ID:                         uuid.Must(uuid.NewV4()),
+		ReService:                  models.ReService{Code: reServiceCode},
+		Reason:                     &reason,
+		SITDepartureDate:           &sitDepartureDate,
+		SITEntryDate:               &sitEntryDate,
+		SITDestinationFinalAddress: &finalAddress,
+		MTOShipmentID:              &mtoShipmentID,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultDestSIT := MTOServiceItem(mtoServiceItemDestSIT)
+	suite.NotNil(resultDestSIT)
+	destSIT, ok := resultDestSIT.(*primev3messages.MTOServiceItemInternationalDestSIT)
+	suite.True(ok)
+
+	suite.Equal(string(reServiceCode), string(*destSIT.ReServiceCode))
+	suite.Equal(reason, *destSIT.Reason)
+	suite.Equal(strfmt.Date(sitDepartureDate).String(), destSIT.SitDepartureDate.String())
+	suite.Equal(strfmt.Date(sitEntryDate).String(), destSIT.SitEntryDate.String())
+	suite.Equal(strfmt.Date(dateOfContact1).String(), destSIT.DateOfContact1.String())
+	suite.Equal(timeMilitary1, *destSIT.TimeMilitary1)
+	suite.Equal(strfmt.Date(firstAvailableDeliveryDate1).String(), destSIT.FirstAvailableDeliveryDate1.String())
+	suite.Equal(strfmt.Date(dateOfContact2).String(), destSIT.DateOfContact2.String())
+	suite.Equal(timeMilitary2, *destSIT.TimeMilitary2)
+	suite.Equal(strfmt.Date(firstAvailableDeliveryDate2).String(), destSIT.FirstAvailableDeliveryDate2.String())
+	suite.Equal(finalAddress.StreetAddress1, *destSIT.SitDestinationFinalAddress.StreetAddress1)
+	suite.Equal(finalAddress.City, *destSIT.SitDestinationFinalAddress.City)
+	suite.Equal(finalAddress.State, *destSIT.SitDestinationFinalAddress.State)
+	suite.Equal(finalAddress.PostalCode, *destSIT.SitDestinationFinalAddress.PostalCode)
+	suite.Equal(mtoShipmentID.String(), destSIT.MtoShipmentID().String())
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 	reServiceCode := models.ReServiceCodeDCRT
 	reason := "reason"
@@ -1126,7 +1230,89 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 
 	suite.NotNil(resultDDSHUT)
 
-	_, ok := resultDDSHUT.(*primev3messages.MTOServiceItemShuttle)
+	_, ok := resultDDSHUT.(*primev3messages.MTOServiceItemDomesticShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIDSHUT() {
+	reServiceCode := models.ReServiceCodeIDSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIDSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIDSHUT := MTOServiceItem(mtoServiceItemIDSHUT)
+
+	suite.NotNil(resultIDSHUT)
+
+	_, ok := resultIDSHUT.(*primev3messages.MTOServiceItemInternationalShuttle)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIOSHUT() {
+	reServiceCode := models.ReServiceCodeIOSHUT
+	reason := "reason"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
+
+	mtoServiceItemIOSHUT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultIOSHUT := MTOServiceItem(mtoServiceItemIOSHUT)
+
+	suite.NotNil(resultIOSHUT)
+
+	_, ok := resultIOSHUT.(*primev3messages.MTOServiceItemInternationalShuttle)
 
 	suite.True(ok)
 }

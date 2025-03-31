@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -29,13 +30,16 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
+	waf := entitlements.NewWeightAllotmentFetcher()
 	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
 	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -73,6 +77,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Sac:                  handlers.FmtString("SacNumber"),
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
 		Grade:                ghcmessages.GradeE1.Pointer(),
+		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -83,7 +88,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
@@ -106,20 +111,72 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
-	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
-	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	waf := entitlements.NewWeightAllotmentFetcher()
 
-	originDutyLocation := factory.BuildDutyLocation(suite.AppContextForTest().DB(), []factory.Customization{
+	customAffiliation := models.AffiliationARMY
+	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
 		{
-			Model: models.DutyLocation{
-				Name: "Not Yuma AFB",
+			Model: models.ServiceMember{
+				Affiliation: &customAffiliation,
 			},
 		},
 	}, nil)
-	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
+	usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
+
+	address := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				IsOconus:           models.BoolPointer(true),
+				UsPostRegionCityID: &usprc.ID,
+			},
+		},
+	}, nil)
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      factory.MakeRandomString(8),
+				AddressID: address.ID,
+			},
+		},
+	}, nil)
+
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
+
+	contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+	rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+	rateArea := testdatagen.FetchOrMakeReRateArea(suite.DB(), testdatagen.Assertions{
+		ReRateArea: models.ReRateArea{
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		},
+	})
+	suite.NotNil(rateArea)
+
+	us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+	suite.NotNil(us_country)
+	suite.Nil(err)
+
+	oconusRateArea, err := models.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
+	suite.NotNil(oconusRateArea)
+	suite.Nil(err)
+
+	jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPK")
+	suite.NotNil(jppsoRegion)
+	suite.Nil(err)
+
+	gblocAors, err := models.FetchGblocAorsByJppsoCodeRateAreaDept(suite.DB(), jppsoRegion.ID, oconusRateArea.ID, models.DepartmentIndicatorARMY.String())
+	suite.NotNil(gblocAors)
+	suite.Nil(err)
+
+	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
@@ -159,7 +216,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, waf}
 
 	response := createHandler.Handle(params)
 
@@ -171,6 +228,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.CustomerID.String())
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrderNumber)
+	suite.Assertions.Equal(ghcmessages.GBLOC("MAPK"), okResponse.Payload.OriginDutyLocationGBLOC)
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
@@ -186,7 +244,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-
+	waf := entitlements.NewWeightAllotmentFetcher()
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	order := move.Orders
 	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
@@ -199,7 +257,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	handlerConfig := suite.HandlerConfig()
 	handler := GetOrdersHandler{
 		handlerConfig,
-		orderservice.NewOrderFetcher(),
+		orderservice.NewOrderFetcher(waf),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -234,7 +292,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 func (suite *HandlerSuite) TestWeightAllowances() {
 	suite.Run("With E-1 rank and no dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
@@ -288,7 +346,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 	})
 
 	suite.Run("With E-1 rank and dependents", func() {
-		order := factory.BuildOrder(nil, []factory.Customization{
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
 					ID:            uuid.Must(uuid.NewV4()),
@@ -392,14 +450,12 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -702,6 +758,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 		Sac:                  nullable.NewString("987654321"),
 		NtsTac:               nullable.NewString("E19A"),
 		NtsSac:               nullable.NewString("987654321"),
+		DependentsAuthorized: models.BoolPointer(true),
 	}
 
 	return subtestData
@@ -727,7 +784,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -760,6 +817,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
+		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 	})
 
 	// We need to confirm whether a user who only has the TIO role should indeed
@@ -995,6 +1053,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 		Sac:                  nullable.NewString("987654321"),
 		NtsTac:               nullable.NewString("E19A"),
 		NtsSac:               nullable.NewString("987654321"),
+		DependentsAuthorized: models.BoolPointer(true),
 	}
 
 	return subtestData
@@ -1019,7 +1078,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := CounselingUpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1048,6 +1107,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(body.Sac.Value, ordersPayload.Sac)
 		suite.Equal(body.NtsTac.Value, ordersPayload.NtsTac)
 		suite.Equal(body.NtsSac.Value, ordersPayload.NtsSac)
+		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -1194,9 +1254,8 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	rmeWeight := models.Int64Pointer(10000)
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
-		Agency:               &affiliation,
-		DependentsAuthorized: models.BoolPointer(true),
-		Grade:                &grade,
+		Agency: &affiliation,
+		Grade:  &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
@@ -1267,7 +1326,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1289,7 +1348,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
-		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 		suite.Equal(*body.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
@@ -1468,14 +1526,14 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	rmeWeight := models.Int64Pointer(10000)
 
 	body := &ghcmessages.CounselingUpdateAllowancePayload{
-		Agency:               &affiliation,
-		DependentsAuthorized: models.BoolPointer(true),
-		Grade:                &grade,
+		Agency: &affiliation,
+		Grade:  &grade,
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(80),
+		WeightRestriction:              models.Int64Pointer(0),
 	}
 
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
@@ -1495,7 +1553,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := CounselingUpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1517,7 +1575,6 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(order.ID.String(), ordersPayload.ID.String())
 		suite.Equal(body.Grade, ordersPayload.Grade)
 		suite.Equal(body.Agency, ordersPayload.Agency)
-		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 		suite.Equal(*body.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
@@ -1653,7 +1710,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			Body:        body,
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateMaxBillableWeightAsTIOHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -1816,7 +1873,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			Body:        body,
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateBillableWeightHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2032,7 +2089,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := AcknowledgeExcessWeightRiskHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2205,7 +2262,7 @@ func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHa
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 		}
 
-		router := moverouter.NewMoveRouter()
+		router := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2615,7 +2672,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	orderUpdater := orderservice.NewOrderUpdater(moverouter.NewMoveRouter())
+	orderUpdater := orderservice.NewOrderUpdater(moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()))
 
 	setUpRequestAndParams := func(orders models.Order) *orderop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())

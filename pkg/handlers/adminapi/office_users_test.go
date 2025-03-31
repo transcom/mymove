@@ -4,12 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
+	"slices"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -17,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -29,36 +31,41 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
-	setupTestData := func() models.OfficeUsers {
-		return models.OfficeUsers{
+	// test that everything is wired up
+	suite.Run("integration test ok response", func() {
+		officeUsers := models.OfficeUsers{
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae, roles.RoleTypeQae, roles.RoleTypeCustomer, roles.RoleTypeContractingOfficer, roles.RoleTypeContractingOfficer}),
 		}
-	}
-
-	// test that everything is wired up
-	suite.Run("integration test ok response", func() {
-		officeUsers := setupTestData()
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
 		}
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
-			NewQueryFilter: query.NewQueryFilter,
-			ListFetcher:    fetch.NewListFetcher(queryBuilder),
-			NewPagination:  pagination.NewPagination,
+			HandlerConfig:         suite.HandlerConfig(),
+			NewQueryFilter:        query.NewQueryFilter,
+			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
 
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 3)
-		suite.Equal(officeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
-		suite.Equal(string(officeUsers[0].User.Roles[0].RoleType), *okResponse.Payload[0].Roles[0].RoleType)
+
+		actualOfficeUsers := okResponse.Payload
+		suite.Equal(len(officeUsers), len(actualOfficeUsers))
+
+		expectedOfficeUser1Id := officeUsers[0].ID.String()
+		expectedOfficeUser2Id := officeUsers[1].ID.String()
+		expectedOfficeUser3Id := officeUsers[2].ID.String()
+		expectedOfficeUserIDs := []string{expectedOfficeUser1Id, expectedOfficeUser2Id, expectedOfficeUser3Id}
+
+		for i := 0; i < len(actualOfficeUsers); i++ {
+			suite.True(slices.Contains(expectedOfficeUserIDs, actualOfficeUsers[i].ID.String()))
+		}
 	})
 
 	// Test that user roles list is not returning duplicate roles
@@ -72,10 +79,10 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
-			NewQueryFilter: query.NewQueryFilter,
-			ListFetcher:    fetch.NewListFetcher(queryBuilder),
-			NewPagination:  pagination.NewPagination,
+			HandlerConfig:         suite.HandlerConfig(),
+			NewQueryFilter:        query.NewQueryFilter,
+			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -103,12 +110,8 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.Len(officeUsers[0].User.Roles, 3)
 	})
 
-	suite.Run("fetch return an empty list", func() {
-		setupTestData()
-		// TEST:				IndexOfficeUserHandler, Fetcher
-		// Set up:				Provide an invalid search that won't be found
-		// Expected Outcome:	An empty list is returned and we get a 200 OK.
-		fakeFilter := "{\"search\":\"something\"}"
+	suite.Run("invalid search returns no results", func() {
+		fakeFilter := "{\"search\":\"invalidSearch\"}"
 
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
@@ -117,16 +120,177 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
-			ListFetcher:    fetch.NewListFetcher(queryBuilder),
-			NewQueryFilter: query.NewQueryFilter,
-			NewPagination:  pagination.NewPagination,
+			HandlerConfig:         suite.HandlerConfig(),
+			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
+			NewQueryFilter:        query.NewQueryFilter,
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
 
 		suite.Len(okResponse.Payload, 0)
+	})
+
+	suite.Run("able to search and filter", func() {
+		status := models.OfficeUserStatusAPPROVED
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "JPPO Test Office",
+				},
+			},
+		}, nil)
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Angelina",
+					LastName:  "Jolie",
+					Email:     "laraCroft@mail.mil",
+					Status:    &status,
+					Telephone: "555-555-5555",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Billy",
+					LastName:  "Bob",
+					Email:     "bigBob@mail.mil",
+					Status:    &status,
+					Telephone: "555-555-5555",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Nick",
+					LastName:  "Cage",
+					Email:     "conAirKilluh@mail.mil",
+					Status:    &status,
+					Telephone: "555-555-5555",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName:              "Nick",
+					LastName:               "Cage",
+					Email:                  "conAirKilluh2@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice.ID,
+					Telephone:              "415-555-5555",
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// partial name search
+		nameSearch := "Nick"
+		filterJSON := fmt.Sprintf("{\"search\":\"%s\"}", nameSearch)
+		params := officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexOfficeUsersHandler{
+			HandlerConfig:         suite.HandlerConfig(),
+			NewQueryFilter:        query.NewQueryFilter,
+			OfficeUserListFetcher: officeuser.NewOfficeUsersListFetcher(queryBuilder),
+			NewPagination:         pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 2)
+		suite.Equal(nameSearch, *okResponse.Payload[0].FirstName)
+		suite.Equal(nameSearch, *okResponse.Payload[1].FirstName)
+
+		// email search
+		emailSearch := "conAirKilluh2"
+		filterJSON = fmt.Sprintf("{\"email\":\"%s\"}", emailSearch)
+		params = officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+
+		respEmail := *okResponse.Payload[0].Email
+		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+
+		// telephone search
+		phoneSearch := "415-"
+		filterJSON = fmt.Sprintf("{\"phone\":\"%s\"}", phoneSearch)
+		params = officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+
+		respPhone := *okResponse.Payload[0].Telephone
+		suite.Equal(phoneSearch, respPhone[0:len(phoneSearch)])
+
+		// firstName search
+		firstSearch := "Angelina"
+		filterJSON = fmt.Sprintf("{\"firstName\":\"%s\"}", firstSearch)
+		params = officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(firstSearch, *okResponse.Payload[0].FirstName)
+
+		// lastName search
+		lastSearch := "Cage"
+		filterJSON = fmt.Sprintf("{\"lastName\":\"%s\"}", lastSearch)
+		params = officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 2)
+		suite.Equal(lastSearch, *okResponse.Payload[0].LastName)
+		suite.Equal(lastSearch, *okResponse.Payload[1].LastName)
+
+		// transportation office search
+		filterJSON = "{\"office\":\"JPPO\"}"
+		params = officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(strfmt.UUID(transportationOffice.ID.String()), *okResponse.Payload[0].TransportationOfficeID)
+
 	})
 }
 
@@ -749,5 +913,109 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 		mockRevoker.AssertNumberOfCalls(suite.T(), "RevokeUserSession", 1)
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
+	suite.Run("deleted requested users results in no content (successful) response", func() {
+		user := factory.BuildDefaultUser(suite.DB())
+		status := models.OfficeUserStatusREQUESTED
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					UserID: &user.ID,
+					Email:  user.OktaEmail,
+					Status: &status,
+				},
+			},
+			{
+				Model:    user,
+				LinkOnly: true,
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		officeUserID := officeUser.ID
+
+		params := officeuserop.DeleteOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/office_users/%s", officeUserID)),
+			OfficeUserID: *handlers.FmtUUID(officeUserID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteOfficeUserHandler{
+			HandlerConfig:     suite.HandlerConfig(),
+			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.DeleteOfficeUserNoContent{}, response)
+
+		var dbUser models.User
+		err := suite.DB().Where("id = ?", user.ID).First(&dbUser)
+		suite.Error(err)
+		suite.Equal(sql.ErrNoRows, err, "sql: no rows in result set")
+
+		var dbOfficeUser models.OfficeUser
+		err = suite.DB().Where("user_id = ?", user.ID).First(&dbOfficeUser)
+		suite.Error(err)
+		suite.Equal(sql.ErrNoRows, err, "sql: no rows in result set")
+
+		// .All does not return a sql no rows error, so we will verify that the struct is empty
+		var userRoles []models.UsersRoles
+		err = suite.DB().Where("user_id = ?", user.ID).All(&userRoles)
+		suite.NoError(err)
+		suite.Empty(userRoles, "Expected no roles to remain for the user")
+
+		var userPrivileges []models.UsersPrivileges
+		err = suite.DB().Where("user_id = ?", user.ID).All(&userPrivileges)
+		suite.NoError(err)
+		suite.Empty(userPrivileges, "Expected no privileges to remain for the user")
+	})
+
+	suite.Run("get an error when the office user does not exist", func() {
+		officeUserID := uuid.Must(uuid.NewV4())
+
+		params := officeuserop.DeleteOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/office_users/%s", officeUserID)),
+			OfficeUserID: *handlers.FmtUUID(officeUserID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteOfficeUserHandler{
+			HandlerConfig:     suite.HandlerConfig(),
+			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.DeleteOfficeUserNotFound{}, response)
+	})
+
+	suite.Run("error response when a user is not in the admin application", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+		officeUserID := officeUser.ID
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/office_users/%s", officeUserID), nil)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    officeUserID,
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
+		params := officeuserop.DeleteOfficeUserParams{
+			HTTPRequest:  req.WithContext(ctx),
+			OfficeUserID: *handlers.FmtUUID(officeUserID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteOfficeUserHandler{
+			HandlerConfig:     suite.HandlerConfig(),
+			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.DeleteOfficeUserUnauthorized{}, response)
 	})
 }

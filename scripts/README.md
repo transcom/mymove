@@ -99,6 +99,7 @@ These scripts are primarily used for CircleCI workflows.
 | Script Name                        | Description                                                                                             |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `check-deployed-commit`            | checks that the deployed commit and given commit match.                                                 |
+| `check-failed-test`            | used for gitlab to check failed xml test results and exit 1.
 | `check-generated-code`             | checks that the generated code has not changed                                                          |
 | `check-tls-pair`                   | checks that the TLS CERT and KEY match using openssl                                                    |
 | `circleci-announce-broken-branch`  | announce that a branch is broken                                                                        |
@@ -170,6 +171,7 @@ migrations.
 | `download-secure-migration` | A script to download secure migrations from all environments                                 |
 | `generate-secure-migration` | A script to help manage the creation of secure migrations                                    |
 | `upload-secure-migration`   | A script to upload secure migrations to all environments in both commercial and GovCloud AWS |
+| `generate-ddl-migration`   | A script to help manage the creation of DDL migrations                                      |
 
 ### Database Scripts
 

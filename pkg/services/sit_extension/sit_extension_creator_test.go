@@ -7,16 +7,19 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move_task_order"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *SitExtensionServiceSuite) TestSITExtensionCreator() {
 
 	// Create move router for SitExtension Createor
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	sitExtensionCreator := NewSitExtensionCreator(moveRouter)
-	movefetcher := movefetcher.NewMoveTaskOrderFetcher()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	movefetcher := movefetcher.NewMoveTaskOrderFetcher(waf)
 
 	suite.Run("Success - CreateSITExtension with no status passed in", func() {
 		// Under test:	CreateSITExtension
