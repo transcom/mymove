@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -258,5 +259,155 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) TestPriceIntlFuelSurchargeSIT() {
+	fscPriceDifferenceInCents := (idsfscFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
+	fscMultiplier := idsfscWeightDistanceMultiplier * idsfscTestDistance.Float64()
+
+	suite.Run("invalid service code", func() {
+		invalidCode := models.ReServiceCodeIOSHUT
+		_, _, err := priceIntlFuelSurcharge(suite.AppContextForTest(), invalidCode, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.NotNil(err)
+	})
+
+	suite.Run("success with IOSFSC", func() {
+		totalCost, displayParams, err := priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, iosfscFuelPrice)
+		suite.NoError(err)
+		suite.Equal(iosfscPriceCents, totalCost)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
+			{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
+		}
+
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("success with IDSFSC", func() {
+		totalCost, displayParams, err := priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIDSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.NoError(err)
+		suite.Equal(idsfscPriceCents, totalCost)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
+			{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
+		}
+
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("Invalid parameters to Price", func() {
+
+		invalidActualPickupDate := time.Time{}
+		_, _, err := priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, invalidActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "ActualPickupDate is required")
+
+		invalidDistance := unit.Miles(-1)
+		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, invalidDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Distance must be greater than 0")
+
+		invalidWeight := unit.Pound(0)
+		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, invalidWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), fmt.Sprintf("Weight must be a minimum of %d", minInternationalWeight))
+
+		invalidWeightDistanceMultiplier := float64(0)
+		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, invalidWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "WeightBasedDistanceMultiplier is required")
+
+		invalidFuelPrice := unit.Millicents(0)
+		_, _, err = priceIntlFuelSurcharge(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, invalidFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "EIAFuelPrice is required")
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) TestPriceIntlPickupDeliverySIT() {
+	suite.Run("invalid service code", func() {
+		invalidCode := models.ReServiceCodeIOSHUT
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), invalidCode, "test", iopsitTestRequestedPickupDate, unit.Pound(1000), 1000)
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported Intl PickupDeliverySIT code")
+
+	})
+
+	suite.Run("success  - valid codes", func() {
+		cy := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: iopsitTestEscalationCompounded,
+				},
+			})
+
+		for _, code := range []models.ReServiceCode{models.ReServiceCodeIOPSIT, models.ReServiceCodeIDDSIT} {
+			priceCents, displayParams, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), code, cy.Contract.Code, cy.StartDate.AddDate(0, 0, 1), iopsitTestWeight, int(iopsitTestPerUnitCents))
+			suite.NoError(err)
+			suite.Equal(expectIOPSITTestTotalCost, priceCents)
+
+			expectedParams := services.PricingDisplayParams{
+				{
+					Key:   models.ServiceItemParamNamePriceRateOrFactor,
+					Value: FormatCents(unit.Cents(iopsitTestPerUnitCents)),
+				},
+				{
+					Key:   models.ServiceItemParamNameContractYearName,
+					Value: cy.Name,
+				},
+				{
+					Key:   models.ServiceItemParamNameIsPeak,
+					Value: FormatBool(false),
+				},
+				{
+					Key:   models.ServiceItemParamNameEscalationCompounded,
+					Value: FormatEscalation(iopsitTestEscalationCompounded),
+				},
+			}
+			suite.validatePricerCreatedParams(expectedParams, displayParams)
+		}
+	})
+
+	suite.Run("failure - unable to retrieve contract by code", func() {
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, "UNKNOWN_CONTRACT_CODE", iopsitTestRequestedPickupDate, iopsitTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not retrieve contract by code")
+	})
+
+	suite.Run("failure - could not calculate escalated price", func() {
+		cy := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: iopsitTestEscalationCompounded,
+				},
+			})
+		outOfBoundRequestTime := time.Date(2028, time.July, 5, 10, 22, 11, 456, time.UTC)
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, cy.Contract.Code, outOfBoundRequestTime, iopsitTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not calculate escalated price")
+	})
+
+	suite.Run("Invalid parameters to Price", func() {
+
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, "", iopsitTestRequestedPickupDate, idsfscTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "ContractCode is required")
+
+		invalidActualPickupDate := time.Time{}
+		_, _, err = priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, testdatagen.DefaultContractCode, invalidActualPickupDate, idsfscTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "ReferenceDate is required")
+
+		invalidWeight := unit.Pound(0)
+		_, _, err = priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, testdatagen.DefaultContractCode, idsfscActualPickupDate, invalidWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), fmt.Sprintf("weight must be a minimum of %d", minInternationalWeight))
+
+		_, _, err = priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, testdatagen.DefaultContractCode, idsfscActualPickupDate, idsfscTestWeight, 0)
+		suite.Error(err)
+		suite.Contains(err.Error(), "perUnitCents is required")
 	})
 }
