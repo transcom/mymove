@@ -413,7 +413,7 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: 'PPM Review Complete' }).click();
     await scPage.waitForPage.moveDetails();
 
     await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
@@ -680,7 +680,7 @@ test.describe('Services counselor user', () => {
         expect(await page.locator('[data-testid="tag"]').count()).toBe(1);
         await page.getByText('Accept').click();
         await page.getByTestId('closeSidebar').click();
-        await expect(page.getByRole('heading', { name: 'Move details' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Move Details' })).toBeVisible();
         await expect(page.getByText('actual expense reimbursement')).toBeVisible();
       });
     });
