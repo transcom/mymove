@@ -327,20 +327,20 @@ export const formatAgeToDays = (age) => {
  */
 export function formatReviewShipmentWeightsDate(date) {
   if (!date) return DEFAULT_EMPTY_VALUE;
-  return moment(date).format('MMM DD YYYY');
+  return moment.utc(date).format('MMM DD YYYY');
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
   if (!date) return DEFAULT_EMPTY_VALUE;
-  return moment(date).format('DD MMM YYYY');
+  return moment.utc(date).format('DD MMM YYYY');
 }
 // Format dates for customer remarks in the office app (ex. 25 Dec 2020 8:00)
 export function formatCustomerSupportRemarksDate(date) {
-  return moment(date).format('DD MMM YYYY HH:mm');
+  return moment.utc(date).format('DD MMM YYYY HH:mm');
 }
 
 export function formatSignatureDate(date) {
-  return moment(date).format('YYYY-MM-DD');
+  return moment.utc(date).format('YYYY-MM-DD');
 }
 
 // Translate boolean (true/false) into capitalized "Yes"/"No" string
@@ -603,28 +603,27 @@ export const constructSCOrderOconusFields = (values) => {
 
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
-  const newValues = {};
-  if (!context) return newValues;
+  if (!context || context.length === 0) return {};
 
   const name = `${context[0].assigned_office_user_last_name}, ${context[0].assigned_office_user_first_name}`;
+  const newValues = {};
+  const isServiceCounseling = oldValues.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
-  if (changedValues?.sc_assigned_id) {
-    if (oldValues.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING) {
-      if (oldValues.sc_assigned_id === null) newValues.assigned_sc = name;
-      if (oldValues.sc_assigned_id !== null) newValues.re_assigned_sc = name;
-    } else {
-      if (oldValues.sc_assigned_id === null) newValues.assigned_sc_ppm = name;
-      if (oldValues.sc_assigned_id !== null) newValues.re_assigned_sc_ppm = name;
+  const assignOfficeUser = (key, assignedKey, reassignedKey) => {
+    if (changedValues?.[key]) {
+      newValues[oldValues[key] === null ? assignedKey : reassignedKey] = name;
     }
-  }
-  if (changedValues?.too_assigned_id) {
-    if (oldValues.too_assigned_id === null) newValues.assigned_too = name;
-    if (oldValues.too_assigned_id !== null) newValues.re_assigned_too = name;
-  }
-  if (changedValues?.tio_assigned_id) {
-    if (oldValues.tio_assigned_id === null) newValues.assigned_tio = name;
-    if (oldValues.tio_assigned_id !== null) newValues.re_assigned_tio = name;
-  }
+  };
+
+  assignOfficeUser(
+    'sc_assigned_id',
+    isServiceCounseling ? 'assigned_sc' : 'assigned_sc_ppm',
+    isServiceCounseling ? 're_assigned_sc' : 're_assigned_sc_ppm',
+  );
+
+  assignOfficeUser('too_assigned_id', 'assigned_too', 're_assigned_too');
+  assignOfficeUser('tio_assigned_id', 'assigned_tio', 're_assigned_tio');
+  assignOfficeUser('too_destination_assigned_id', 'assigned_too', 're_assigned_too');
   return newValues;
 };
 
