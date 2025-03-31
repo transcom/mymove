@@ -43,7 +43,7 @@ func makeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 // location - Yuma AFB
 //
 // Deprecated: use factory.FetchOrMakeDefaultCurrentDutyLocation
-func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLocation {
+func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err == nil {
 		return defaultLocation
@@ -83,7 +83,6 @@ func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection, assertions Assert
 			DutyLocation: models.DutyLocation{
 				Name: "Yuma AFB",
 			},
-			Address: assertions.Address,
 		})
 	}
 	err = db.RawQuery(commitSavepoint).Exec()
@@ -98,7 +97,7 @@ func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection, assertions Assert
 // location - Yuma AFB
 //
 // Deprecated: use factory.fetchOrMakeDefaultNewOrdersDutyLocation
-func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLocation {
+func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 	// Check if Fort Eisenhower exists, if not, create
 	// Move date picker for this test case only works with an address of street name "Fort Eisenhower"
 	fortEisenhower, err := models.FetchDutyLocationByName(db, "Fort Eisenhower, GA 30813")
@@ -118,8 +117,6 @@ func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection, assertions Asse
 			Name: "Fort Eisenhower, GA 30813",
 		},
 	}
-
-	mergeModels(&fortEisenhowerAssertions.Address, assertions.Address)
 
 	return makeDutyLocation(db, fortEisenhowerAssertions)
 }

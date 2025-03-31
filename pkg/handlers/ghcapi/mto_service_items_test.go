@@ -96,20 +96,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-
-		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
 		destinationSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{

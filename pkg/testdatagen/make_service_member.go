@@ -52,7 +52,7 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	}
 
 	if currentAddressID == nil || isZeroUUID(*currentAddressID) {
-		newAddress := MakeDefaultAddress(db, assertions)
+		newAddress := MakeDefaultAddress(db)
 		currentAddressID = &newAddress.ID
 		currentAddress = &newAddress
 	}
@@ -95,12 +95,12 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 		army := models.AffiliationARMY
 		affiliation = &army
 	}
-	residentialAddress := MakeDefaultAddress(db, assertions)
+	residentialAddress := MakeDefaultAddress(db)
 	backupMailingAddress := MakeAddress2(db, assertions)
 
 	dutyLocation := assertions.OriginDutyLocation
 	if isZeroUUID(dutyLocation.ID) {
-		dutyLocation = fetchOrMakeDefaultCurrentDutyLocation(db, assertions)
+		dutyLocation = fetchOrMakeDefaultCurrentDutyLocation(db)
 	}
 
 	gbloc, err := models.FetchGBLOCForPostalCode(db, dutyLocation.Address.PostalCode)

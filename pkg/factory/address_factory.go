@@ -118,6 +118,15 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		IsOconus:       models.BoolPointer(false),
 	}
 
+	if db != nil {
+		usprc, err := models.FindByZipCodeAndCity(db, "30813", "GROVETOWN")
+		if err != nil {
+		}
+
+		address.UsPostRegionCityID = &usprc.ID
+		address.UsPostRegionCity = usprc
+	}
+
 	// Find/create the Country if customization is provided
 	var country models.Country
 	if result := findValidCustomization(customs, Country); result != nil {

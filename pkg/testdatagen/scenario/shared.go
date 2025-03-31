@@ -5971,7 +5971,6 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	firstDeliveryDate := models.TimePointer(time.Now())
 	dateOfContact := models.TimePointer(time.Now())
-	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
@@ -5979,15 +5978,6 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
-		},
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
 		},
 	})
 
@@ -5998,15 +5988,6 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
-		},
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
 		},
 	})
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
@@ -6926,7 +6907,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
-	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
@@ -6934,15 +6914,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
-		},
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
 		},
 	})
 
@@ -6953,15 +6924,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
-		},
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
 		},
 	})
 
@@ -8017,7 +7979,6 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		},
 	}, nil)
 
-	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
@@ -8025,15 +7986,6 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			DateOfContact:              time.Now().Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
 			FirstAvailableDeliveryDate: time.Now(),
-		},
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
 		},
 	})
 
@@ -8043,15 +7995,6 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			DateOfContact:              time.Now().Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
-		},
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
 		},
 	})
 
@@ -9113,18 +9056,6 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 	})
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		UserUploader: userUploader,
-		Reweigh: models.Reweigh{
-			Weight: &reweighedWeight,
-		},
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
 	})
 }
 
@@ -11811,18 +11742,8 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			LinkOnly: true,
 		},
 	}, nil)
-	usprcId := uuid.FromStringOrNil("fd674d71-e754-426f-9253-0995f267babc")
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: dddsit,
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
 	})
 
 	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
@@ -11830,15 +11751,6 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			Type: models.CustomerContactTypeSecond,
 		},
 		MTOServiceItem: dddsit,
-		Address: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		PickupAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
-		DestinationAddress: models.Address{
-			UsPostRegionCityID: &usprcId,
-		},
 	})
 
 	return dddsit

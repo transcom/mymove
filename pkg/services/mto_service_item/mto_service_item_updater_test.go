@@ -56,19 +56,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		return serviceItem, eTag
 	}
@@ -209,23 +197,12 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 	// Success for DDDSIT with an existing customer contact
 	suite.Run("Successful update of DDDSIT service item that already has Customer Contacts", func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
 		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
 				DateOfContact:              time.Date(1984, time.March, 24, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "0400Z",
 				FirstAvailableDeliveryDate: time.Date(1984, time.March, 20, 0, 0, 0, 0, time.UTC),
-			},
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
 			},
 		})
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -1622,19 +1599,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test successful Basic validation
 	suite.Run("UpdateMTOServiceItemBasicValidator - success", func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItem := models.MTOServiceItem{
 			ID:              oldServiceItem.ID,
 			MTOShipmentID:   oldServiceItem.MTOShipmentID,
@@ -1654,19 +1619,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Basic validation
 	suite.Run("UpdateMTOServiceItemBasicValidator - failure", func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItem := models.MTOServiceItem{
 			ID:            oldServiceItem.ID,
 			MTOShipmentID: &oldServiceItem.ID, // bad value
@@ -1921,19 +1874,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test unsuccessful Prime validation - Not available to Prime
 	suite.Run("UpdateMTOServiceItemPrimeValidator - not available failure", func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItemNotPrime := oldServiceItem // this service item should not be Prime-available
 
 		serviceItemData := updateMTOServiceItemData{
@@ -2016,19 +1957,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test with empty string key (successful Base validation)
 	suite.Run("empty validatorKey - success", func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		newServiceItem := oldServiceItem
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newServiceItem,
@@ -3233,19 +3162,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		return serviceItem, eTag
 	}

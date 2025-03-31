@@ -217,20 +217,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 		sitEntryDate := time.Now()
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-
-		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
+		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
 		serviceItemBasic := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{

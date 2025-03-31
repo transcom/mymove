@@ -15,7 +15,7 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 		transportationOfficeID = uuid.Must(uuid.NewV4())
 	}
 
-	address := MakeDefaultAddress(db, assertions)
+	address := MakeDefaultAddress(db)
 
 	office := models.TransportationOffice{
 		ID:        transportationOfficeID,

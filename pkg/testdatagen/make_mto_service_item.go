@@ -60,8 +60,8 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 }
 
 // MakeDefaultMTOServiceItem returns a MTOServiceItem with default values
-func MakeDefaultMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
-	return MakeMTOServiceItem(db, assertions)
+func MakeDefaultMTOServiceItem(db *pop.Connection) models.MTOServiceItem {
+	return MakeMTOServiceItem(db, Assertions{})
 }
 
 // MakeMTOServiceItem creates a single MTOServiceItem and associated set relationships
@@ -79,7 +79,7 @@ func MakeMTOServiceItemBasic(db *pop.Connection, assertions Assertions) models.M
 // MakeMTOServiceItems makes an array of MTOServiceItems
 func MakeMTOServiceItems(db *pop.Connection, assertions Assertions) models.MTOServiceItems {
 	var serviceItemList models.MTOServiceItems
-	serviceItemList = append(serviceItemList, MakeDefaultMTOServiceItem(db, assertions))
+	serviceItemList = append(serviceItemList, MakeDefaultMTOServiceItem(db))
 	return serviceItemList
 }
 
