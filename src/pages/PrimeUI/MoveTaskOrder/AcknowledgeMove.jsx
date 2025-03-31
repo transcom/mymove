@@ -16,21 +16,25 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { DatePickerInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { formatDateWithUTC } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const AcknowledgeMove = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
-
+  const navigate = useNavigate();
   const { moveCodeOrID } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
-  const navigate = useNavigate();
-  const handleClose = () => {
-    navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
-  };
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const initialValues = {
+    primeAcknowledgedAt: formatDateWithUTC(moveTaskOrder.primeAcknowledgedAt, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+  };
+  const handleClose = () => {
+    navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
+  };
 
   return (
     <div className={classnames('grid-container-desktop-lg', 'usa-prose', primeStyles.primeContainer)}>
@@ -45,7 +49,7 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
             </div>
           )}
           <SectionWrapper className={formStyles.formSection}>
-            <Formik validateOnMount>
+            <Formik initialValues={initialValues} validateOnMount>
               {({ isValid, isSubmitting, handleSubmit }) => {
                 return (
                   <Form className={formStyles.form}>
