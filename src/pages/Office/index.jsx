@@ -236,6 +236,7 @@ export class OfficeApp extends Component {
     });
     const script = document.createElement('script');
 
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
     script.async = true;
     document.body.appendChild(script);
     return (
