@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -37,5 +38,43 @@ func (suite *ModelSuite) TestFetchReServiceBycode() {
 		suite.Error(err)
 		suite.Nil(reService)
 		suite.Contains(err.Error(), "error fetching from re_services - required code not provided")
+	})
+}
+
+func (suite *ModelSuite) TestIsDestinationRequest() {
+	suite.Run("returns true when a service item is a domestic destination request", func() {
+		destinationSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+
+		destinationSITBool := models.IsDestinationRequest(destinationSIT.ReService.Code)
+		suite.True(destinationSITBool)
+	})
+	suite.Run("returns true when a service item is a international destination request", func() {
+		intlDestinationSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDFSIT,
+				},
+			},
+		}, nil)
+
+		destinationSITBool := models.IsDestinationRequest(intlDestinationSIT.ReService.Code)
+		suite.True(destinationSITBool)
+	})
+	suite.Run("returns false when a service item is not a destination request", func() {
+		originSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		originSITBool := models.IsDestinationRequest(originSIT.ReService.Code)
+		suite.False(originSITBool)
 	})
 }
