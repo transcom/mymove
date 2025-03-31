@@ -13,8 +13,8 @@ import {
   patchProGearWeightTicket,
   createUploadForPPMDocument,
   deleteUploadForDocument,
-  // updateMTOShipment,
-  getMTOShipments,
+  updateMTOShipment,
+  // getMTOShipments,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -29,12 +29,13 @@ const ProGear = () => {
   const queryClient = useQueryClient();
   const { moveCode, shipmentId, proGearId } = useParams();
 
-  const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const { mtoShipment, refetchMTOShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const { orders } = useReviewShipmentWeightsQuery(moveCode);
   const appName = APP_NAME.OFFICE;
   const ppmShipment = mtoShipment?.ppmShipment;
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
+  let shipmentToUpdate;
 
   const currentProGearWeightTicket = proGearWeightTickets?.find((item) => item.id === proGearId) ?? null;
   const currentIndex = Array.isArray(proGearWeightTickets)
@@ -60,18 +61,44 @@ const ProGear = () => {
     },
   });
 
-  //  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment);
-  const { mutate: mutateGetMtoShipments } = useMutation(getMTOShipments, {
-    onSuccess: () => {},
-    onError: () => {
-      setIsSubmitted(false);
-      setErrorMessage('Failed to get mtoshipment for update');
-    },
-  });
+  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment);
+  const updateShipment = (values) => {
+    const belongsToSelf = values.belongsToSelf === 'true';
+    let proGear;
+    let spouseProGear;
+    if (belongsToSelf) {
+      proGear = values.weight;
+    }
+    if (!belongsToSelf) {
+      spouseProGear = values.weight;
+    }
+
+    const shipmentPayload = {
+      belongsToSelf,
+      ppmShipment: {
+        id: shipmentToUpdate.ppmShipment.id,
+      },
+      shipmentType: shipmentToUpdate.shipmentType,
+      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
+      actualProGearWeight: parseInt(proGear, 10),
+      shipmentLocator: values.shipmentLocator,
+      eTag: shipmentToUpdate.eTag,
+    };
+
+    mutateUpdateMtoShipment({
+      moveTaskOrderID,
+      shipmentID: shipmentToUpdate.id,
+      ifMatchETag: shipmentPayload.eTag,
+      body: shipmentPayload,
+    });
+  };
 
   const { mutate: mutatePatchProGearWeightTicket } = useMutation(patchProGearWeightTicket, {
-    onSuccess: () => {
-      mutateGetMtoShipments(null, moveTaskOrderID);
+    onSuccess: (values) => {
+      shipmentToUpdate = async () => {
+        await refetchMTOShipment();
+      };
+      updateShipment(values);
       queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
     },
@@ -160,7 +187,7 @@ const ProGear = () => {
     });
   };
 
-  // const updateShipment = (values, moveTaskOrderID, shipmentToUpdate) => {
+  // const updateShipment = (values, shipmentToUpdate) => {
   //   const belongsToSelf = values.belongsToSelf === 'true';
   //   let proGear;
   //   let spouseProGear;
