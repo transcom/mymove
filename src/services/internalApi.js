@@ -22,11 +22,16 @@ export function getResponseError(response, defaultErrorMessage) {
   if (!response) return defaultErrorMessage;
 
   const detail = response.body?.detail || response.statusText || defaultErrorMessage;
-  const invalidFields = response.body?.invalidFields;
+  const invalidFields = response.body?.invalidFields || response.body?.invalid_fields;
 
   if (invalidFields && typeof invalidFields === 'object') {
     const fieldErrors = Object.entries(invalidFields)
-      .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+      .map(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          return `${field}: ${messages.join(', ')}`;
+        }
+        return `${field}: ${messages}`;
+      })
       .join('\n');
 
     return `${detail}\n${fieldErrors}`;

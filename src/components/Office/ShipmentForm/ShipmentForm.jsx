@@ -201,10 +201,10 @@ const ShipmentForm = (props) => {
   };
 
   const handleSetError = (error, defaultErrorMessage) => {
-    const response = error?.response;
+    const { response } = error;
 
-    if (setErrorCode && response?.statusCode) {
-      setErrorCode(response.statusCode);
+    if (setErrorCode && (response?.statusCode || response?.status)) {
+      setErrorCode(response?.statusCode || response?.status);
     }
 
     const message = getResponseError(response, defaultErrorMessage);

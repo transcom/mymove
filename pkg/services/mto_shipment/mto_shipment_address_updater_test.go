@@ -210,4 +210,28 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			}
 		}
 	})
+
+	suite.Run("UB shipment without any OCONUS address should error", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		// default factory is OCONUS pickup and CONUS destination
+		ubShipment := factory.BuildUBShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		updatedAddress := conusAddress
+		updatedAddress.ID = *ubShipment.DestinationAddressID
+		eTag := etag.GenerateEtag(ubShipment.DestinationAddress.UpdatedAt)
+
+		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, ubShipment.ID, eTag, false)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "UB shipments are required to have one OCONUS address")
+	})
+
 }
