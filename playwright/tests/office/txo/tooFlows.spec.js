@@ -18,6 +18,8 @@ const SearchTerms = ['SITEXT', '8796353598', 'Spacemen'];
 
 const StatusFilterOptions = ['Draft', 'New Move', 'Needs Counseling', 'Service counseling completed', 'Move approved'];
 
+const terminatingShipmentsEnabled = process.env.FEATURE_FLAG_TERMINATING_SHIPMENTS;
+
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
@@ -171,6 +173,34 @@ test.describe('TOO user', () => {
 
       await expect(page.getByText('Customer search must contain a value')).toBeVisible();
       await expect(page.getByRole('table')).not.toBeVisible();
+    });
+  });
+
+  test.describe('with terminated moves', () => {
+    test.beforeEach(() => {
+      test.skip(!terminatingShipmentsEnabled, 'Skip if terminating shipments FF is false');
+    });
+    test('cannot request cancellation of a terminated shipment on an HHG move', async ({ officePage, page }) => {
+      // Setup
+      const move = await officePage.testHarness.buildHHGMoveInTerminatedStatus();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
+
+      // We're here, begin the checks
+      await expect(page.getByText('TERMINATED FOR CAUSE')).toBeVisible();
+      // First make sure we can't edit the terminated shipment
+      await expect(page.getByRole('button', { name: 'Edit shipment' })).toBeDisabled();
+      // Now let's go to the move task order tab where the rest of the checks are
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      expect(page.url()).toContain('/mto');
+      // We shouldn't be able to see or click "Request Cancellation"
+      await expect(page.getByRole('button', { name: 'Request Cancellation' })).toBeDisabled();
+      // Shouldn't see request diversion either
+      await expect(page.getByRole('button', { name: 'Request Diversion' })).toBeDisabled();
+      // Or reweigh
+      await expect(page.getByRole('button', { name: 'Request Reweigh' })).toBeDisabled();
     });
   });
 
