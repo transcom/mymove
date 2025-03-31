@@ -2324,6 +2324,36 @@ func getAssignedUserAndID(activeRole string, queueType string, move models.Move)
 	return nil, nil
 }
 
+func attachApprovalRequestTypes(move models.Move) []string {
+	var requestTypes []string
+	for _, item := range move.MTOServiceItems {
+		if item.Status == models.MTOServiceItemStatusSubmitted {
+			requestTypes = append(requestTypes, string(item.ReService.Code))
+		}
+	}
+	if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestAmendedOrders))
+	}
+	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
+	for _, shipment := range move.MTOShipments {
+		if shipment.Status == models.MTOShipmentStatusSubmitted && shipment.Diversion {
+			requestTypes = append(requestTypes, string(models.ApprovalRequestDiversion))
+		}
+		if shipment.DeliveryAddressUpdate != nil && shipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+			requestTypes = append(requestTypes, string(models.ApprovalRequestDestinationAddressUpdate))
+		}
+		for _, sitDurationUpdate := range shipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestSITExtension))
+			}
+		}
+	}
+
+	return requestTypes
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -2392,6 +2422,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				}
 			}
 		}
+
+		approvalRequestTypes := attachApprovalRequestTypes(move)
 
 		// queue assignment logic below
 
@@ -2473,6 +2505,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			AssignedTo:              assignedToUser,
 			Assignable:              assignable,
 			AvailableOfficeUsers:    apiAvailableOfficeUsers,
+			ApprovalRequestTypes:    approvalRequestTypes,
 		}
 	}
 	return &queueMoves

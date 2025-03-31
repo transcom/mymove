@@ -147,6 +147,18 @@ const (
 	ServiceLocationB ServiceLocationType = "B"
 )
 
+type ApprovalRequestType string
+
+// ApprovalRequestTypes are actions that will trigger a move appearing in the TOO queue
+// and also include all of the above ReServiceCodes
+const (
+	ApprovalRequestAmendedOrders            ApprovalRequestType = "AMENDED_ORDERS"
+	ApprovalRequestExcessWeight             ApprovalRequestType = "EXCESS_WEIGHT"
+	ApprovalRequestSITExtension             ApprovalRequestType = "SIT_EXTENSION"
+	ApprovalRequestDestinationAddressUpdate ApprovalRequestType = "DESTINATION_ADDRESS_UPDATE"
+	ApprovalRequestDiversion                ApprovalRequestType = "DIVERSION"
+)
+
 // ReService model struct
 type ReService struct {
 	ID              uuid.UUID            `json:"id" db:"id" rw:"r"`
@@ -243,4 +255,18 @@ func FetchReServiceByCode(db *pop.Connection, code ReServiceCode) (*ReService, e
 		return &reService, err
 	}
 	return nil, fmt.Errorf("error fetching from re_services - required code not provided")
+}
+
+func IsDestinationRequest(code ReServiceCode) bool {
+	for _, domesticService := range ValidDomesticDestinationSITReServiceCodes {
+		if code == domesticService {
+			return true
+		}
+	}
+	for _, internationalService := range ValidInternationalDestinationSITReServiceCodes {
+		if code == internationalService {
+			return true
+		}
+	}
+	return false
 }
