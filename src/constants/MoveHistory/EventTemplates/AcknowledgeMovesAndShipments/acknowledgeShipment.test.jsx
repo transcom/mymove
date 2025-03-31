@@ -10,6 +10,12 @@ const historyRecord = {
     action: a.UPDATE,
     eventName: o.acknowledgeMovesAndShipments,
     tableName: t.mto_shipments,
+    context: [
+      {
+        shipment_type: 'HHG',
+        shipment_locator: 'RQ38D4-01',
+      },
+    ],
     changedValues: {
       prime_acknowledged_at: '2025-04-13T12:15:33.12345+00:00',
     },
@@ -24,5 +30,7 @@ describe('When a shipment is acknowledged by the prime', () => {
     expect(label).toBeInTheDocument();
     const dateElement = screen.getByText('2025-04-13T12:15:33.12345+00:00');
     expect(dateElement).toBeInTheDocument();
+    const shipmentInfoElement = screen.getByText('HHG shipment #RQ38D4-01');
+    expect(shipmentInfoElement).toBeInTheDocument();
   });
 });
