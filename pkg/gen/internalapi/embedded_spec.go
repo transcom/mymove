@@ -157,6 +157,43 @@ func init() {
         }
       }
     },
+    "/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -1629,43 +1666,6 @@ func init() {
         }
       }
     },
-    "/open/application_parameters": {
-      "post": {
-        "description": "Searches for an application parameter by name and value, returns nil if not found",
-        "tags": [
-          "application_parameters"
-        ],
-        "summary": "Searches for an application parameter by name and value, returns nil if not found",
-        "operationId": "validate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Application Parameters",
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/open/feature-flags/boolean/{key}": {
       "post": {
         "description": "Determines if a feature flag is enabled.",
@@ -1751,6 +1751,51 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -9057,6 +9102,43 @@ func init() {
         }
       }
     },
+    "/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -10617,43 +10699,6 @@ func init() {
         }
       }
     },
-    "/open/application_parameters": {
-      "post": {
-        "description": "Searches for an application parameter by name and value, returns nil if not found",
-        "tags": [
-          "application_parameters"
-        ],
-        "summary": "Searches for an application parameter by name and value, returns nil if not found",
-        "operationId": "validate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Application Parameters",
-            "schema": {
-              "$ref": "#/definitions/ApplicationParameters"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/open/feature-flags/boolean/{key}": {
       "post": {
         "description": "Determines if a feature flag is enabled.",
@@ -10742,6 +10787,51 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
