@@ -5487,7 +5487,13 @@ func (suite *HandlerSuite) TestTerminateShipmentHandler() {
 	})
 
 	suite.Run("Returns 200 when shipment is successfully terminated", func() {
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
 		contractingOfficer := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeContractingOfficer})
 		terminator := mtoshipment.NewShipmentTermination()
 
