@@ -30,7 +30,7 @@ func NewValidate(ctx *middleware.Context, handler ValidateHandler) *Validate {
 }
 
 /*
-	Validate swagger:route POST /open/application_parameters application_parameters validate
+	Validate swagger:route POST /application_parameters application_parameters validate
 
 # Searches for an application parameter by name and value, returns nil if not found
 

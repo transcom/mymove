@@ -10,10 +10,10 @@ import (
 )
 
 func (suite *HandlerSuite) TestApplicationParametersValidateHandler() {
-	suite.Run("error for unauthenticated user outside the customer app", func() {
+	suite.Run("can lookup application values if within the customer app", func() {
 		user := factory.BuildDefaultUser(suite.DB())
 
-		req := httptest.NewRequest("POST", "/open/application_parameters", nil)
+		req := httptest.NewRequest("POST", "/application_parameters", nil)
 		req = suite.AuthenticateUserRequest(req, user)
 
 		validationCode := "validation_code"
@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestApplicationParametersValidateHandler() {
 	})
 
 	suite.Run("error for unauthenticated user outside the customer app", func() {
-		req := httptest.NewRequest("POST", "/open/application_parameters", nil)
+		req := httptest.NewRequest("POST", "/application_parameters", nil)
 		session := &auth.Session{
 			ApplicationName: auth.OfficeApp,
 		}
