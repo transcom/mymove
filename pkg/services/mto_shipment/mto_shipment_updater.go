@@ -1428,9 +1428,6 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 				return err
 			}
 
-			if err != nil {
-				return err
-			}
 			serviceItem.SITDeliveryMiles = &milesCalculated
 
 			mtoServiceItems = append(mtoServiceItems, serviceItem)
@@ -1456,7 +1453,22 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 }
 
 func UpdateSITServiceItemsSITIfPostalCodeChanged(planner route.Planner, appCtx appcontext.AppContext, addressCreator services.AddressCreator, newShipment *models.MTOShipment) error {
-	eagerAssociations := []string{"DestinationAddress", "MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
+	var expectedSITs = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC,
+		models.ReServiceCodeIOPSIT, models.ReServiceCodeIOSFSC, models.ReServiceCodeDDDSIT,
+		models.ReServiceCodeDDSFSC, models.ReServiceCodeIDDSIT, models.ReServiceCodeIDSFSC}
+
+	containsSIT := false
+	for _, serviceItem := range newShipment.MTOServiceItems {
+		if slices.Contains(expectedSITs, serviceItem.ReService.Code) {
+			containsSIT = true
+		}
+	}
+
+	if !containsSIT {
+		return nil
+	}
+
+	eagerAssociations := []string{"DestinationAddress", "MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGActualAddress", "MTOServiceItems.SITDestinationFinalAddress", "MTOServiceItems.SITDestinationOriginalAddress"}
 	mtoShipment, err := FindShipment(appCtx, newShipment.ID, eagerAssociations...)
 	if err != nil {
 		return err

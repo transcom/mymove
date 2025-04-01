@@ -30,7 +30,7 @@ func (p internationalDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx 
 
 	var paymentServiceItem models.PaymentServiceItem
 
-	err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment", "MTOServiceItem.SITDestinationFinalAddress").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
+	err = appCtx.DB().Eager("MTOServiceItem", "MTOServiceItem.SITDestinationFinalAddress").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
