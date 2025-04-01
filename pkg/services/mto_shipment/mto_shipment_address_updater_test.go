@@ -216,13 +216,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		// default factory is OCONUS pickup and CONUS destination
+		// default factory is OCONUS dest and CONUS pickup
 		ubShipment := factory.BuildUBShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    availableToPrimeMove,
 				LinkOnly: true,
 			},
 		}, nil)
+
+		suite.True(*ubShipment.DestinationAddress.IsOconus)
+		suite.False(*ubShipment.PickupAddress.IsOconus)
 
 		updatedAddress := conusAddress
 		updatedAddress.ID = *ubShipment.DestinationAddressID
