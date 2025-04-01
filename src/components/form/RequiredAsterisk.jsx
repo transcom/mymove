@@ -2,6 +2,8 @@ import React from 'react';
 
 import styles from './RequiredAsterisk.module.scss';
 
+import Hint from 'components/Hint';
+
 export const RequiredAsterisk = () => {
   return (
     <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
@@ -11,9 +13,9 @@ export const RequiredAsterisk = () => {
 };
 
 export const requiredAsteriskMessage = (
-  <div data-testid="reqAsteriskMsg">
+  <Hint data-testid="reqAsteriskMsg">
     Fields marked with <span className={styles.requiredAsterisk}>*</span> are required.
-  </div>
+  </Hint>
 );
 
 export default RequiredAsterisk;
