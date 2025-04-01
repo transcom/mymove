@@ -2930,3 +2930,128 @@ func (suite *MTOServiceItemServiceSuite) TestGetAdjustedWeight() {
 		suite.Equal(unit.Pound(1100), *adjustedWeight)
 	})
 }
+
+func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
+	entry := time.Now()
+	departure := entry.AddDate(0, 0, 10)
+	makeSubtestData := func() models.MTOShipment {
+		startDate := time.Now().AddDate(-10, 0, 0)
+		endDate := startDate.AddDate(20, 1, 1)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
+				},
+			})
+
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    deliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+					RequestedPickupDate:  models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+
+		return mtoShipment
+	}
+
+	suite.Run("check domestic SIT service items for estimated prices", func() {
+		mtoShipment := makeSubtestData()
+
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{reServiceCode: models.ReServiceCodeDDFSIT},
+			{reServiceCode: models.ReServiceCodeDOFSIT},
+		}
+
+		for _, tc := range testCases {
+			factory.FetchReServiceByCode(suite.DB(), tc.reServiceCode)
+
+			sitServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				// {
+				// 	Model:    mtoShipment.PickupAddress,
+				// 	LinkOnly: true,
+				// 	Type:     &factory.Addresses.SITOriginHHGActualAddress,
+				// },
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate:     &entry,
+						SITDepartureDate: &departure,
+						SITPostalCode:    models.StringPointer("94510"),
+					},
+				},
+			}, nil)
+
+			createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
+			suite.NoError(err)
+			suite.Nil(verrs)
+			suite.NotNil(createdServiceItems)
+
+			for _, serviceItem := range *createdServiceItems {
+				suite.NotNil(serviceItem.PricingEstimate)
+			}
+		}
+	})
+}
