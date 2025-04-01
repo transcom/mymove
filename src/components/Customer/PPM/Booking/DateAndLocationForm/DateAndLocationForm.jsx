@@ -198,7 +198,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="pickupAddress.address"
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   render={(fields) => (
                     <>
@@ -250,7 +249,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields
                             labelHint="Required"
                             name="secondaryPickupAddress.address"
-                            locationLookup
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -319,7 +317,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <AddressFields
                               labelHint="Required"
                               name="tertiaryPickupAddress.address"
-                              locationLookup
                               formikProps={formikProps}
                             />
                           </>
@@ -333,7 +330,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="destinationAddress.address"
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   // White spaces are used specifically to override incoming labelHint prop
                   // not to display anything.
@@ -395,7 +391,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields
                             name="secondaryDestinationAddress.address"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -465,7 +460,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <AddressFields
                               name="tertiaryDestinationAddress.address"
                               labelHint="Required"
-                              locationLookup
                               formikProps={formikProps}
                             />
                           </>
