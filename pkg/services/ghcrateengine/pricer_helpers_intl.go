@@ -295,7 +295,7 @@ func priceIntlFuelSurchargeSIT(_ appcontext.AppContext, fuelSurchargeCode models
 	// zero represents pricing will not be calculated
 	// this to handle when origin/destination addresses are OCONUS
 	if distance < 0 {
-		return 0, nil, errors.New("Distance must be greater than equal to 0")
+		return 0, nil, errors.New("Distance cannot be less than 0")
 	}
 	if weight < minInternationalWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
