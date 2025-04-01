@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	reportViolationop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	reportviolationservice "github.com/transcom/mymove/pkg/services/report_violation"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -29,14 +28,8 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 			ReportViolationFetcher: fetcher,
 		}
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		reportViolation, err := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
 		suite.NoError(err)
-
-		reportViolation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/report-violations/%s",
 			reportViolation.ReportID.String()), nil)

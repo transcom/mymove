@@ -10,11 +10,15 @@ import (
 )
 
 // MakeReweigh creates a reweigh request for a shipment with required fields
-func MakeReweigh(db *pop.Connection, assertions Assertions) models.Reweigh {
+func MakeReweigh(db *pop.Connection, assertions Assertions) (models.Reweigh, error) {
 	shipment := assertions.MTOShipment
 	if isZeroUUID(shipment.ID) {
 		assertions.MTOShipment.Status = models.MTOShipmentStatusApproved
-		shipment = makeMTOShipment(db, assertions)
+		var err error
+		shipment, err = makeMTOShipment(db, assertions)
+		if err != nil {
+			return models.Reweigh{}, err
+		}
 	}
 
 	reweigh := models.Reweigh{
@@ -28,7 +32,7 @@ func MakeReweigh(db *pop.Connection, assertions Assertions) models.Reweigh {
 
 	mustCreate(db, &reweigh, assertions.Stub)
 
-	return reweigh
+	return reweigh, nil
 }
 
 // MakeReweighForShipment creates a reweigh request for given shipment and a given weight.

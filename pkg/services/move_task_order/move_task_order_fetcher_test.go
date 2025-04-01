@@ -217,7 +217,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 		sitEntryDate := time.Now()
 
-		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
+		customerContact, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
+		suite.NoError(err)
+
 		serviceItemBasic := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -943,9 +945,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
 	primeMove4 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	shipmentForPrimeMove4 := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
-	reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+	reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 		MTOShipment: shipmentForPrimeMove4,
 	})
+	suite.NoError(err)
+
 	suite.Logger().Info(fmt.Sprintf("Reweigh %s", reweigh.ID))
 	// Move primeMove1, primeMove3, and primeMove4 into the past so we can exclude them:
 	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3, $4);",
@@ -1009,9 +1013,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		factory.BuildMTOShipmentWithMove(&primeMove3, suite.DB(), nil, nil)
 		primeMove4 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipmentForPrimeMove4 := factory.BuildMTOShipmentWithMove(&primeMove4, suite.DB(), nil, nil)
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipmentForPrimeMove4,
 		})
+		suite.NoError(err)
+
 		suite.Logger().Info(fmt.Sprintf("Reweigh %s", reweigh.ID))
 
 		primeMove5 := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)

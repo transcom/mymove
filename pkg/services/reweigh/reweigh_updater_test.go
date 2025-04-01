@@ -52,9 +52,11 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 				},
 			},
 		}, nil)
-		oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		oldReweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
+		suite.NoError(err)
+
 		eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
 
 		newReweigh := oldReweigh
@@ -68,23 +70,14 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 	})
 	// Test NotFoundError
 	suite.Run("Not Found Error", func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		notFoundReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		notFoundReweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 			Reweigh: models.Reweigh{
 				ID: uuid.Must(uuid.NewV4()),
 			},
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
 		})
+		suite.NoError(err)
+
 		eTag := etag.GenerateEtag(time.Now())
 
 		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &notFoundReweigh, eTag)
@@ -104,9 +97,11 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 				},
 			},
 		}, nil)
-		oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		oldReweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: shipment,
 		})
+		suite.NoError(err)
+
 		// bad etag value
 		eTag := etag.GenerateEtag(time.Now())
 		newReweigh := oldReweigh
