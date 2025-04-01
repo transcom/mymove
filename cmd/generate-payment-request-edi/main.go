@@ -118,7 +118,7 @@ func main() {
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil, nil)
 
 	isProd := false
 	envFlag := v.GetString(cli.EnvironmentFlag)
