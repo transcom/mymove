@@ -851,14 +851,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		if newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-			if newShipment.PickupAddress != nil && newShipment.DestinationAddress != nil {
-				isShipmentOCONUS := models.IsShipmentOCONUS(*newShipment)
-				if !isShipmentOCONUS {
-					errorMsg := "UB shipments are required to have at least one OCONUS address"
-					ubVerrs := validate.NewErrors()
-					ubVerrs.Add("UB shipment error", errorMsg)
-					return apperror.NewInvalidInputError(uuid.Nil, nil, ubVerrs, errorMsg)
-				}
+			isShipmentOCONUS := models.IsShipmentOCONUS(*newShipment)
+			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
+				errorMsg := "UB shipments are required to have at least one OCONUS address"
+				ubVerrs := validate.NewErrors()
+				ubVerrs.Add("UB shipment error", errorMsg)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, ubVerrs, errorMsg)
 			}
 		}
 

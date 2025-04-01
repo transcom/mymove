@@ -539,17 +539,16 @@ func FilterDeletedRejectedCanceledMtoShipments(unfilteredShipments MTOShipments)
 	return filteredShipments
 }
 
-// this function determines if a shipment is OCONUS or not
-func IsShipmentOCONUS(shipment MTOShipment) bool {
-	var isPickupOCONUS bool
-	if shipment.PickupAddress != nil && shipment.PickupAddress.IsOconus != nil {
-		isPickupOCONUS = *shipment.PickupAddress.IsOconus
+// returns a pointer to a bool indicating whether the shipment is OCONUS
+// returns nil if either PickupAddress.IsOconus or DestinationAddress.IsOconus is nil
+func IsShipmentOCONUS(shipment MTOShipment) *bool {
+	if shipment.PickupAddress == nil || shipment.DestinationAddress == nil {
+		return nil
+	}
+	if shipment.PickupAddress.IsOconus == nil || shipment.DestinationAddress.IsOconus == nil {
+		return nil
 	}
 
-	var isDestinationOCONUS bool
-	if shipment.DestinationAddress != nil && shipment.DestinationAddress.IsOconus != nil {
-		isDestinationOCONUS = *shipment.DestinationAddress.IsOconus
-	}
-
-	return isPickupOCONUS || isDestinationOCONUS
+	isOCONUS := *shipment.PickupAddress.IsOconus || *shipment.DestinationAddress.IsOconus
+	return &isOCONUS
 }
