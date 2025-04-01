@@ -2577,24 +2577,6 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
-		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-				},
-			},
-			{
-				Model:    transportationOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CounselingOffice,
-			},
-			{
-				Model: models.Order{
-					OrdersType: internalmessages.OrdersTypeSAFETY,
-				},
-			},
-		}, nil)
-
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -2606,6 +2588,11 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 				Model:    transportationOffice,
 				LinkOnly: true,
 				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeSAFETY,
+				},
 			},
 		}, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
