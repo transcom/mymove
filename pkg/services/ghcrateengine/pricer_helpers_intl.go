@@ -283,3 +283,40 @@ func priceIntlCratingUncrating(appCtx appcontext.AppContext, cratingUncratingCod
 
 	return totalCost, displayParams, nil
 }
+
+func priceIntlFuelSurchargeSIT(_ appcontext.AppContext, fuelSurchargeCode models.ReServiceCode, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+	if fuelSurchargeCode != models.ReServiceCodeIOSFSC && fuelSurchargeCode != models.ReServiceCodeIDSFSC {
+		return 0, nil, fmt.Errorf("unsupported international fuel surcharge code of %s", fuelSurchargeCode)
+	}
+
+	// Validate parameters
+	if actualPickupDate.IsZero() {
+		return 0, nil, errors.New("ActualPickupDate is required")
+	}
+	// zero represents pricing will not be calculated
+	// this to handle when origin/destination addresses are OCONUS
+	if distance < 0 {
+		return 0, nil, errors.New("Distance cannot be less than 0")
+	}
+	if weight < minInternationalWeight {
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
+	}
+	if fscWeightBasedDistanceMultiplier == 0 {
+		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
+	}
+	if eiaFuelPrice == 0 {
+		return 0, nil, errors.New("EIAFuelPrice is required")
+	}
+
+	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
+	fscMultiplier := fscWeightBasedDistanceMultiplier * distance.Float64()
+	fscPrice := fscMultiplier * fscPriceDifferenceInCents * 100
+	totalCost := unit.Cents(math.Round(fscPrice))
+
+	displayParams := services.PricingDisplayParams{
+		{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
+		{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
+	}
+
+	return totalCost, displayParams, nil
+}
