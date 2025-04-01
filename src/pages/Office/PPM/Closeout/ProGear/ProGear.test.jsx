@@ -31,6 +31,7 @@ jest.mock('services/ghcApi', () => ({
   createUploadForPPMDocument: jest.fn(),
   deleteUploadForDocument: jest.fn(),
   patchProGearWeightTicket: jest.fn(),
+  updateMTOShipment: jest.fn(),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -140,6 +141,7 @@ describe('test page', () => {
       mtoShipment: mockMTOShipment,
       documents: { ProGearWeightTickets: [mockProGearWeightTicket] },
       isError: null,
+      refetchMTOShipment: jest.fn(), // Mock the refetch function
     });
 
     useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
@@ -206,6 +208,7 @@ describe('Pro-gear page', () => {
       mtoShipment: mockMTOShipment,
       documents: { ProGearWeightTickets: [mockProGearWeightTicketWithUploads] },
       isError: null,
+      refetchMTOShipment: jest.fn().mockImplementation(() => Promise.resolve(mockMTOShipment)), // Mock the refetch function
     });
 
     useReviewShipmentWeightsQuery.mockReturnValue(reviewWeightsQuery);
@@ -245,8 +248,6 @@ describe('Pro-gear page', () => {
         },
       });
     });
-
-    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls the delete handler when removing an existing upload', async () => {

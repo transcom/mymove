@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		return subtestData
 	}
 
-	suite.Run("Successfully Create Weight Ticket - Integration Test", func() {
+	suite.Run("Successfully Create ProGear Weight Ticket - Integration Test", func() {
 		subtestData := makeCreateSubtestData(true)
 
 		response := subtestData.handler.Handle(subtestData.params)
@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		return subtestData
 	}
 
-	suite.Run("Successfully Update Weight Ticket - Integration Test", func() {
+	suite.Run("Successfully Update ProGear Weight Ticket - Integration Test", func() {
 		appCtx := suite.AppContextForTest()
 
 		subtestData := makeUpdateSubtestData(appCtx, true)
