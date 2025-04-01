@@ -50,6 +50,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
 
+		MoveTaskOrderAcknowledgeMovesAndShipmentsHandler: move_task_order.AcknowledgeMovesAndShipmentsHandlerFunc(func(params move_task_order.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.AcknowledgeMovesAndShipments has not yet been implemented")
+		}),
 		MoveTaskOrderCreateExcessWeightRecordHandler: move_task_order.CreateExcessWeightRecordHandlerFunc(func(params move_task_order.CreateExcessWeightRecordParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.CreateExcessWeightRecord has not yet been implemented")
 		}),
@@ -161,6 +164,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// MoveTaskOrderAcknowledgeMovesAndShipmentsHandler sets the operation handler for the acknowledge moves and shipments operation
+	MoveTaskOrderAcknowledgeMovesAndShipmentsHandler move_task_order.AcknowledgeMovesAndShipmentsHandler
 	// MoveTaskOrderCreateExcessWeightRecordHandler sets the operation handler for the create excess weight record operation
 	MoveTaskOrderCreateExcessWeightRecordHandler move_task_order.CreateExcessWeightRecordHandler
 	// MtoShipmentCreateMTOAgentHandler sets the operation handler for the create m t o agent operation
@@ -286,6 +291,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler == nil {
+		unregistered = append(unregistered, "move_task_order.AcknowledgeMovesAndShipmentsHandler")
+	}
 	if o.MoveTaskOrderCreateExcessWeightRecordHandler == nil {
 		unregistered = append(unregistered, "move_task_order.CreateExcessWeightRecordHandler")
 	}
@@ -441,6 +449,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/acknowledge"] = move_task_order.NewAcknowledgeMovesAndShipments(o.context, o.MoveTaskOrderAcknowledgeMovesAndShipmentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
