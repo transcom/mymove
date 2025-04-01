@@ -262,6 +262,15 @@ describe('PrimeUI MoveDetails page', () => {
       expect(uploadButton).toBeInTheDocument();
     });
 
+    it('displays the move acknowledge button', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      renderWithProviders(<MoveDetails />);
+
+      const acknowledgeButton = screen.getByLabelText('Acknowledge Move');
+      expect(acknowledgeButton).toBeInTheDocument();
+      expect(acknowledgeButton).toHaveAttribute('href');
+    });
+
     it('counseling ready to be completed', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
       renderWithProviders(<MoveDetails />);
