@@ -76,6 +76,26 @@ const validationSchema = (maxWeight) => {
       is: expenseTypes.STORAGE,
       then: (schema) => schema.oneOf(sitLocationOptions.map((i) => i.key)).required('Required'),
     }),
+    weightShipped: Yup.number().when('movingExpenseType', {
+      is: expenseTypes.SMALL_PACKAGE,
+      then: (schema) => schema.required('Required').min(0, 'Weight shipped must be at least 1 lb.'),
+    }),
+    isProGear: Yup.string().when('movingExpenseType', {
+      is: expenseTypes.SMALL_PACKAGE,
+      then: (schema) => schema.required('Required'),
+    }),
+    proGearBelongsToSelf: Yup.string()
+      .nullable()
+      .when('isProGear', {
+        is: 'true',
+        then: (schema) => schema.required('Required'),
+        otherwise: (schema) => schema.strip(),
+      }),
+    proGearDescription: Yup.string().when('isProGear', {
+      is: 'true',
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema.strip(),
+    }),
   });
 };
 
@@ -107,9 +127,9 @@ export default function ReviewExpense({
     weightShipped,
     trackingNumber,
     isProGear,
+    proGearBelongsToSelf,
+    proGearDescription,
   } = expense || {};
-
-  console.log('expense', expense);
 
   const { mutate: patchExpenseMutation } = useMutation(patchExpense, {
     onSuccess,
@@ -142,6 +162,10 @@ export default function ReviewExpense({
     sitLocation: ppmSITLocation,
     weightShipped: weightShipped?.toString() || '',
     isProGear: isProGear ? 'true' : 'false',
+    ...(isProGear && {
+      proGearBelongsToSelf: proGearBelongsToSelf ? 'true' : 'false',
+      proGearDescription: proGearDescription || '',
+    }),
     trackingNumber: trackingNumber || '',
   };
 
@@ -233,6 +257,13 @@ export default function ReviewExpense({
       sitLocation: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? ppmSITLocation : undefined,
       sitReimburseableAmount:
         llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? actualSITReimbursed : undefined,
+      weightShipped: parseInt(values.weightShipped, 10),
+      trackingNumber: values.trackingNumber,
+      isProGear: values.isProGear === 'true',
+      ...(values.isProGear === 'true' && {
+        proGearBelongsToSelf: values.proGearBelongsToSelf === 'true',
+        proGearDescription: values.proGearDescription,
+      }),
     };
 
     patchExpenseMutation({

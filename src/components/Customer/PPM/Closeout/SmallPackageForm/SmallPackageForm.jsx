@@ -83,7 +83,12 @@ const SmallPackageForm = () => {
               checked={values.proGearBelongsToSelf === 'false'}
             />
           </div>
-          <TextField label="Brief description of the pro-gear" name="proGearDescription" id="proGearDescription" />
+          <TextField
+            label="Brief description of the pro-gear"
+            name="proGearDescription"
+            id="proGearDescription"
+            showRequiredAsterisk={values.isProGear}
+          />
           <MaskedTextField
             name="weightShipped"
             label="Pro-gear weight"
@@ -91,10 +96,10 @@ const SmallPackageForm = () => {
             id="weightShipped"
             mask={Number}
             scale={0}
-            signed={false}
             thousandsSeparator=","
             lazy={false}
             suffix="lbs"
+            showRequiredAsterisk={values.isProGear}
           />
         </>
       ) : (
@@ -105,7 +110,6 @@ const SmallPackageForm = () => {
           id="weightShipped"
           mask={Number}
           scale={0}
-          signed={false}
           thousandsSeparator=","
           lazy={false}
           suffix="lbs"

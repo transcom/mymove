@@ -6024,7 +6024,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -6033,6 +6034,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -15433,7 +15435,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -15442,6 +15445,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"

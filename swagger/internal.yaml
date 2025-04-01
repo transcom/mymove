@@ -3313,6 +3313,7 @@ definitions:
       - STORAGE
       - TOLLS
       - WEIGHING_FEE
+      - SMALL_PACKAGE
     x-display-value:
       CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
@@ -3323,6 +3324,7 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+      SMALL_PACKAGE: Small package reimbursement
     x-nullable: true
     x-omitempty: false
   SubmittedMovingExpenseType:
