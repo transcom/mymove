@@ -52,7 +52,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		// Set up:     Create a DDFSIT in the db, assemble the webhook notification payload
 		// Expected outcome: Payload should contain the DDFSIT details
 
-		customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+		customerContact1, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
 				DateOfContact:              time.Now(),
@@ -64,7 +64,9 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 				Name: "Destination 1st Day SIT",
 			},
 		})
-		customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+		suite.NoError(err)
+
+		customerContact2, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeSecond,
 				DateOfContact:              time.Now(),
@@ -75,6 +77,8 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 				Code: models.ReServiceCodeDDFSIT,
 			},
 		})
+		suite.NoError(err)
+
 		mtoServiceItemDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{

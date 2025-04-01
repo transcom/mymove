@@ -3,7 +3,6 @@ package reportviolation
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -19,13 +18,8 @@ func (suite *ReportViolationSuite) TestFetchReportViolationsByReportID() {
 	})
 	suite.Run("fetch by reportId when there are report-violations for the report should be successful", func() {
 		fetcher := NewReportViolationFetcher()
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		reportViolation, err := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
 		suite.NoError(err)
-		reportViolation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
 
 		fetchedReportViolations, err := fetcher.FetchReportViolationsByReportID(suite.AppContextForTest(), reportViolation.ReportID)
 

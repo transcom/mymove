@@ -413,10 +413,13 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		}, nil)
 
 	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
+	mtoServiceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: MTOShipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -7314,7 +7317,7 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 		},
 	}, nil)
 
-	destinationAddress := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
+	destinationAddress, err := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				City:       orders.OriginDutyLocation.Address.City,
@@ -7324,6 +7327,9 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 			},
 		},
 	}, nil)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
 		{

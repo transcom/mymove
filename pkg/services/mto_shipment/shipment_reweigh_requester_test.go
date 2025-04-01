@@ -71,20 +71,9 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	})
 
 	suite.Run("When a reweigh already exists for the shipment, returns ConflictError", func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
 		suite.NoError(err)
 
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-		})
 		existingShipment := reweigh.Shipment
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,

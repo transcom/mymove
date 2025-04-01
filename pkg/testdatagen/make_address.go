@@ -7,7 +7,7 @@ import (
 )
 
 // MakeAddress creates a single Address and associated service member.
-func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
+func MakeAddress(db *pop.Connection, assertions Assertions) (models.Address, error) {
 	address := models.Address{
 		StreetAddress1: "123 Any Street",
 		StreetAddress2: models.StringPointer("P.O. Box 12345"),
@@ -23,6 +23,7 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 		var err error
 		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
 		if err != nil {
+			return models.Address{}, err
 		}
 
 		address.UsPostRegionCity = usprc
@@ -33,11 +34,11 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 	mustCreate(db, &address, assertions.Stub)
 
-	return address
+	return address, nil
 }
 
 // MakeAddress2 creates a different single Address and associated service member.
-func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
+func MakeAddress2(db *pop.Connection, assertions Assertions) (models.Address, error) {
 	address := models.Address{
 		StreetAddress1: "987 Any Avenue",
 		StreetAddress2: models.StringPointer("P.O. Box 9876"),
@@ -53,6 +54,7 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 		var err error
 		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
 		if err != nil {
+			return models.Address{}, err
 		}
 
 		address.UsPostRegionCity = usprc
@@ -63,11 +65,11 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 
 	mustCreate(db, &address, assertions.Stub)
 
-	return address
+	return address, nil
 }
 
 // MakeAddress3 creates a different single Address and associated service member.
-func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
+func MakeAddress3(db *pop.Connection, assertions Assertions) (models.Address, error) {
 	address := models.Address{
 		StreetAddress1: "987 Other Avenue",
 		StreetAddress2: models.StringPointer("P.O. Box 1234"),
@@ -83,6 +85,7 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 		var err error
 		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
 		if err != nil {
+			return models.Address{}, err
 		}
 
 		address.UsPostRegionCity = usprc
@@ -93,10 +96,10 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 
 	mustCreate(db, &address, assertions.Stub)
 
-	return address
+	return address, nil
 }
 
 // MakeDefaultAddress makes an Address with default values
-func MakeDefaultAddress(db *pop.Connection) models.Address {
+func MakeDefaultAddress(db *pop.Connection) (models.Address, error) {
 	return MakeAddress(db, Assertions{})
 }

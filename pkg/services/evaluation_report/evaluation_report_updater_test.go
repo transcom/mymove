@@ -209,24 +209,17 @@ func (suite EvaluationReportSuite) TestUpdateEvaluationReport() {
 
 	suite.Run("saving report with pre-existing violations should be removed or preserved based on observedViolations bool", func() {
 		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-		testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{ReportViolation: models.ReportViolation{
-			ReportID:    report.ID,
-			Violation:   models.PWSViolation{},
-			ViolationID: uuid.UUID{},
-		},
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
+
+		_, err := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{
+			ReportViolation: models.ReportViolation{
+				ReportID:    report.ID,
+				Violation:   models.PWSViolation{},
+				ViolationID: uuid.UUID{},
 			},
 		},
 		)
+		suite.NoError(err)
+
 		report.ViolationsObserved = models.BoolPointer(true)
 
 		// do the update

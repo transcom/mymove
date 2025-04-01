@@ -113,26 +113,15 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		now := time.Now()
 		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Move: successMove,
 			Reweigh: models.Reweigh{
 				VerificationReason:     models.StringPointer("Justification"),
 				VerificationProvidedAt: &nowDate,
 				Weight:                 models.PoundPointer(4000),
 			},
-			Address: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			PickupAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
-			DestinationAddress: models.Address{
-				UsPostRegionCityID: &usprc.ID,
-			},
 		})
+		suite.NoError(err)
 
 		// Validate incoming payload: no body to validate
 
@@ -1111,7 +1100,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		later := nowDate.AddDate(0, 0, 3) // this is an arbitrary amount
 		finalAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		contact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+		contact1, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				DateOfContact:              time.Date(2023, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
@@ -1119,8 +1108,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Type:                       models.CustomerContactTypeFirst,
 			},
 		})
+		suite.NoError(err)
 
-		contact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+		contact2, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				DateOfContact:              time.Date(2023, time.December, 8, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1600Z",
@@ -1128,6 +1118,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Type:                       models.CustomerContactTypeSecond,
 			},
 		})
+		suite.NoError(err)
+
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{

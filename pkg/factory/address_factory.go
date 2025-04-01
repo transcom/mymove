@@ -96,7 +96,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	return address
 }
 
-func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []Trait) models.Address {
+func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []Trait) (models.Address, error) {
 	customs = setupCustomizations(customs, traits)
 
 	// Find address customization and extract the custom address
@@ -104,7 +104,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	if result := findValidCustomization(customs, Address); result != nil {
 		cAddress = result.Model.(models.Address)
 		if result.LinkOnly {
-			return cAddress
+			return cAddress, nil
 		}
 	}
 
@@ -121,6 +121,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	if db != nil {
 		usprc, err := models.FindByZipCodeAndCity(db, "30813", "GROVETOWN")
 		if err != nil {
+			return models.Address{}, err
 		}
 
 		address.UsPostRegionCityID = &usprc.ID
@@ -153,7 +154,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		mustCreate(db, &address)
 	}
 
-	return address
+	return address, nil
 }
 
 // BuildDefaultAddress makes an Address with default values
