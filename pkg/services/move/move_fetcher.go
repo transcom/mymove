@@ -295,9 +295,8 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx a
 }
 func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentDestination(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
 	var moves []models.MoveWithEarliestDate
-	err := appCtx.DB().RawQuery("SELECT * FROM fetch_moves_for_bulk_assignment_destination($1, $2)",
-		gbloc,
-		models.BoolPointer(true)).
+	err := appCtx.DB().RawQuery("SELECT * FROM fetch_moves_for_bulk_assignment_destination($1)",
+		gbloc).
 		All(&moves)
 
 	if err != nil {

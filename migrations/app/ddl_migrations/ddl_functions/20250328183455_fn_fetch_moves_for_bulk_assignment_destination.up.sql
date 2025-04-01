@@ -1,7 +1,6 @@
 --B-22151 Jonathan Spight  added fetch_moves_for_bulk_assignment_destination
 CREATE OR REPLACE FUNCTION public.fetch_moves_for_bulk_assignment_destination(
-    v_gbloc text,
-    v_show boolean
+    v_gbloc text
 )
 RETURNS TABLE (ID uuid, earliest_date date)
 LANGUAGE plpgsql
@@ -33,7 +32,7 @@ BEGIN
         AND moves.status IN (
             'APPROVALS REQUESTED'
         )
-        AND moves.show = v_show
+        AND moves.show = TRUE
         AND moves.too_destination_assigned_id IS NULL
         AND orders.orders_type NOT IN (
             'BLUEBARK',
