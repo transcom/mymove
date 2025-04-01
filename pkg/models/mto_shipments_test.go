@@ -562,3 +562,19 @@ func (suite *ModelSuite) TestIsPPMShipment() {
 		suite.Equal(isPPM, false)
 	})
 }
+
+func (suite *ModelSuite) TestMtoShipmentTriggers() {
+	suite.Run("trigger mto_shipments_prevent_update_if_terminated should raise a db error if UPDATE is called on terminated shipment", func() {
+		// Setup a terminated shipment
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil) // Factories update the shipment constantly so I can't pass it as a customization here
+		hhgShipment.Status = models.MTOShipmentStatusTerminatedForCause
+		hhgShipment.TerminationComments = models.StringPointer("I'll be back")
+		err := suite.DB().Save(&hhgShipment)
+		suite.NoError(err)
+		// Now it should fail to update
+		hhgShipment.TerminationComments = models.StringPointer("I'm back")
+		err = suite.DB().Save(&hhgShipment)
+		suite.Error(err)
+		suite.EqualError(err, "pq: Cannot update mto_shipments row: shipment status is TERMINATED_FOR_CAUSE and is protected from update operations")
+	})
+}
