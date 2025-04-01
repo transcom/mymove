@@ -42,7 +42,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 				},
 			}, nil)
 
-			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment, false)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
@@ -74,7 +74,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 				},
 			}, nil)
 
-			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment, false)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -109,7 +109,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 				},
 			}, nil)
 
-			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
+			err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment, false)
 
 			if suite.Error(err) {
 				suite.IsType(apperror.ConflictError{}, err)
@@ -143,7 +143,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 			},
 		}, nil)
 
-		err := shipmentRouter.Approve(suite.AppContextForTest(), &ppmShipment.Shipment)
+		err := shipmentRouter.Approve(suite.AppContextForTest(), &ppmShipment.Shipment, false)
 
 		if suite.NoError(err) {
 			suite.Equal(models.MTOShipmentStatusApproved, ppmShipment.Shipment.Status)
@@ -167,7 +167,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 			},
 		}, nil)
 
-		err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment)
+		err := shipmentRouter.Approve(suite.AppContextForTest(), &shipment, false)
 
 		suite.Contains(err.Error(), "cannot approve a shipment if it uses an external vendor")
 		suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status)

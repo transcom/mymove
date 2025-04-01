@@ -975,7 +975,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 	case models.MTOShipmentStatusCancellationRequested:
 		err = shipmentRouter.RequestCancellation(appCtx, shipment)
 	case models.MTOShipmentStatusApproved:
-		err = shipmentRouter.Approve(appCtx, shipment)
+		err = shipmentRouter.Approve(appCtx, shipment, false)
 	case models.MTOShipmentStatusCanceled:
 		err = shipmentRouter.Cancel(appCtx, shipment)
 	case models.MTOShipmentStatusDiversionRequested:
