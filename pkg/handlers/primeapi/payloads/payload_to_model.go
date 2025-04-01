@@ -1073,3 +1073,38 @@ func validateReasonInternationalOriginSIT(m primemessages.MTOServiceItemInternat
 	}
 	return verrs
 }
+
+func MovesModelFromAcknowledgeMovesAndShipments(acknowledgeMoves *primemessages.AcknowledgeMoves) (*models.Moves, *validate.Errors) {
+	verrs := validate.NewErrors()
+	if acknowledgeMoves == nil || len(*acknowledgeMoves) == 0 {
+		verrs.Add("acknowledgeMoves", "value cannot be nil or empty")
+		return nil, verrs
+	}
+	var moves = models.Moves{}
+	for _, movePayload := range *acknowledgeMoves {
+		if movePayload.ID.String() == "" {
+			verrs.Add("AcknowledgeMove.ID", "value cannot be empty")
+			return nil, verrs
+		}
+		move := models.Move{
+			ID:                  uuid.FromStringOrNil(movePayload.ID.String()),
+			PrimeAcknowledgedAt: (*time.Time)(&movePayload.PrimeAcknowledgedAt),
+		}
+		if movePayload.MtoShipments != nil {
+			for _, mtoShipmentPayload := range movePayload.MtoShipments {
+				if mtoShipmentPayload.ID.String() == "" {
+					verrs.Add("AcknowledgeShipment.ID", "value cannot be empty")
+					return nil, verrs
+				}
+				mtoShipment := models.MTOShipment{
+					ID:                  uuid.FromStringOrNil(mtoShipmentPayload.ID.String()),
+					PrimeAcknowledgedAt: (*time.Time)(&mtoShipmentPayload.PrimeAcknowledgedAt),
+				}
+				move.MTOShipments = append(move.MTOShipments, mtoShipment)
+			}
+		}
+		moves = append(moves, move)
+	}
+
+	return &moves, nil
+}
