@@ -1,11 +1,11 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
+import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { MockProviders } from 'testUtils';
-import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';
 
 export default {
-  title: 'Customer Components / PPM Closeout / Pro Gear',
+  title: 'Shared Components / PPM Closeout / Pro Gear',
   component: ProGearForm,
   decorators: [
     (Story) => (

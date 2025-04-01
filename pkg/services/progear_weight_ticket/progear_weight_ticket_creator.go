@@ -14,6 +14,13 @@ type progearWeightTicketCreator struct {
 	checks []progearWeightTicketValidator
 }
 
+// NewOfficeProgearWeightTicketCreator creates a new progearWeightTicketCreator struct with the basic checks
+func NewOfficeProgearWeightTicketCreator() services.ProgearWeightTicketCreator {
+	return &progearWeightTicketCreator{
+		checks: basicChecksForCreate(),
+	}
+}
+
 // NewCustomerProgearWeightTicketCreator creates a new progearWeightTicketCreator struct with the basic checks
 func NewCustomerProgearWeightTicketCreator() services.ProgearWeightTicketCreator {
 	return &progearWeightTicketCreator{
@@ -36,10 +43,18 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 
 	// This serves as a way of ensuring that the PPM shipment exists. It also ensures a shipment belongs to the logged
 	//  in user, for customer app requests.
-	ppmShipment, ppmShipmentErr := shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, nil, nil)
+	eagerPreloadAssociations := []string{"Shipment.MoveTaskOrder.Orders.ServiceMember"}
+	ppmShipment, ppmShipmentErr := shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, eagerPreloadAssociations, nil)
 
 	if ppmShipmentErr != nil {
 		return nil, ppmShipmentErr
+	}
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
+	if appCtx.Session().IsMilApp() {
+		if serviceMemberID != appCtx.Session().ServiceMemberID {
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "Service member ID in the Orders does not match Service member ID in the current session")
+		}
 	}
 
 	var progearWeightTicket models.ProgearWeightTicket
@@ -47,7 +62,7 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 
 		document := &models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
+			ServiceMemberID: serviceMemberID,
 		}
 
 		verrs, err := appCtx.DB().ValidateAndCreate(document)
