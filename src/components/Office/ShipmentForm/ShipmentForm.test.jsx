@@ -1184,9 +1184,11 @@ describe('ShipmentForm component', () => {
         />,
       );
 
+      const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+
       await act(async () => {
-        screen.getByLabelText('Requested pickup date').focus();
-        await userEvent.paste('26 Mar 2022');
+        await userEvent.clear(screen.getByLabelText('Requested pickup date'));
+        await userEvent.paste(tomorrow);
         await userEvent.click(screen.getByTestId('useCurrentResidence'));
       });
 
