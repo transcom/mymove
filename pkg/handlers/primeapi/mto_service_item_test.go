@@ -1127,7 +1127,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		startDate := time.Now().AddDate(-1, 0, 0)
 		endDate := startDate.AddDate(1, 1, 1)
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
@@ -1148,6 +1147,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			{
 				Model: models.MTOShipment{
 					PrimeEstimatedWeight: models.PoundPointer(1000),
+					RequestedPickupDate:  models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
