@@ -58,7 +58,7 @@ test.describe('TOO user', () => {
 
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
-      await page.locator('input[id="delivery.address-location-input"]').fill('99505');
+      await page.locator('input[id="delivery.address-input"]').fill('99505');
 
       await page.getByRole('button', { name: 'Save' }).click();
       await tooFlowPage.waitForPage.moveDetails();
@@ -175,7 +175,7 @@ test.describe('TOO user', () => {
 
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
-      await page.locator('input[id="delivery.address-location-input"]').fill('99505');
+      await page.locator('input[id="delivery.address-input"]').fill('99505');
 
       await page.getByRole('button', { name: 'Save' }).click();
       await tooFlowPage.waitForPage.moveDetails();
