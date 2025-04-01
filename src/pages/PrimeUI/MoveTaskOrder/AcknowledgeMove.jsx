@@ -95,6 +95,7 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
               </Alert>
             </div>
           )}
+          <h2>Acknowledge Move</h2>
           <SectionWrapper className={formStyles.formSection}>
             <Formik initialValues={initialValues} onSubmit={onSubmit}>
               {({ isValid, isSubmitting, handleSubmit, dirty }) => {
