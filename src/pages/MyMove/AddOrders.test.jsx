@@ -311,7 +311,7 @@ describe('Add Orders page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
     // Select a CONUS current duty location
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
     await waitFor(() => {
       expect(setShowLoadingSpinner).toHaveBeenCalled();
@@ -327,7 +327,7 @@ describe('Add Orders page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
     // Select a CONUS current duty location and new duty location
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
@@ -351,7 +351,7 @@ describe('Add Orders page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
     // Select a CONUS current duty location
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
     // Select an OCONUS new duty location
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -374,7 +374,7 @@ describe('Add Orders page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
     // Select a CONUS current duty location
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
     // Select an OCONUS new duty location
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -439,7 +439,7 @@ describe('Add Orders page', () => {
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-      const selectedOptionCurrent = await screen.findByText(/Altus/);
+      const selectedOptionCurrent = await screen.findByText('Altus');
       await userEvent.click(selectedOptionCurrent);
 
       // Test New Duty Location Search Box interaction
@@ -538,7 +538,7 @@ describe('Add Orders page', () => {
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-      const selectedOptionCurrent = await screen.findByText(/Altus/);
+      const selectedOptionCurrent = await screen.findByText('Altus');
       await userEvent.click(selectedOptionCurrent);
       // Select an OCONUS new duty location
       await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -638,7 +638,8 @@ describe('Add Orders page', () => {
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-      const selectedOptionCurrent = await screen.findByText(/Altus/);
+
+      const selectedOptionCurrent = await screen.findByText('Altus');
       await userEvent.click(selectedOptionCurrent);
       // Select an CONUS new duty location
       await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
