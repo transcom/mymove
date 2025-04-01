@@ -122,7 +122,7 @@ func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) (models.DutyLoc
 	}
 	fortEisenhowerAssertions := Assertions{
 		Address: models.Address{
-			City:       "Fort Eisenhower",
+			City:       "GROVETOWN",
 			State:      "GA",
 			PostalCode: "30813",
 		},
