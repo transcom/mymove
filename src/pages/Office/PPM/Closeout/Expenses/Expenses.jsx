@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import styles from './Expenses.module.scss';
 
-import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
@@ -31,7 +31,7 @@ const Expenses = () => {
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const ppmShipment = mtoShipment?.ppmShipment;
-  const expenses = documents?.ppmShipment?.movingExpenses ?? [];
+  const expenses = documents?.MovingExpenses ?? [];
 
   const currentExpense = expenses?.find((item) => item.id === expenseId) ?? null;
   const currentIndex = Array.isArray(expenses) ? expenses.findIndex((ele) => ele.id === expenseId) : -1;
@@ -91,7 +91,7 @@ const Expenses = () => {
 
     createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, false)
       .then((upload) => {
-        documents?.ppmShipment?.movingExpenses[currentIndex][fieldName]?.uploads.push(upload);
+        documents?.MovingExpenses[currentIndex][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
         return upload;
       })
@@ -110,10 +110,10 @@ const Expenses = () => {
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
     deleteUpload(uploadId, null, ppmShipment?.id)
       .then(() => {
-        const filteredUploads = documents?.ppmShipment.movingExpenses[currentIndex][fieldName]?.uploads.filter(
+        const filteredUploads = documents?.MovingExpenses[currentIndex][fieldName]?.uploads.filter(
           (upload) => upload.id !== uploadId,
         );
-        documents.ppmShipment.movingExpenses[currentIndex][fieldName].uploads = filteredUploads;
+        documents.MovingExpenses[currentIndex][fieldName].uploads = filteredUploads;
 
         setFieldValue(fieldName, filteredUploads, true);
         setFieldTouched(fieldName, true, true);
@@ -174,7 +174,7 @@ const Expenses = () => {
   }
 
   return (
-    <div className={classnames(styles.Expenses, ppmPageStyles.ppmPageStyle)}>
+    <div className={classnames(styles.Expenses, ppmStyles.ppmPageStyle)}>
       <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
