@@ -161,6 +161,8 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"PPMShipment",
 				"PPMShipment.WeightTickets",
 				"PPMShipment.FinalIncentive",
+				"PPMShipment.ProGearWeight",
+				"PPMShipment.SpouseProGearWeight",
 				"BoatShipment",
 				"MobileHome",
 				"Distance"}
