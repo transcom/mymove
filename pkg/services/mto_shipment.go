@@ -121,7 +121,7 @@ type MTOShipmentAddressUpdater interface {
 //go:generate mockery --name ShipmentRouter
 type ShipmentRouter interface {
 	Submit(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
-	Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+	Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment, ppmException bool) error
 	RequestCancellation(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 	Cancel(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 	Reject(appCtx appcontext.AppContext, shipment *models.MTOShipment, rejectionReason *string) error
