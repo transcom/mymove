@@ -758,6 +758,7 @@ describe('ShipmentForm component', () => {
     );
 
     expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+    expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
 
     await act(async () => {
       const node = screen.getByLabelText('Requested pickup date');

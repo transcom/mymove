@@ -270,7 +270,7 @@ class MtoShipmentForm extends Component {
             );
             // preferredPickupDate must be in the future for non-PPM shipments
             if (new Date(formatDateWithUTC(e) || null).setHours(0, 0, 0, 0) <= new Date().setHours(0, 0, 0, 0)) {
-              setPreferredPickupDateErrorMessage('Requested pickup date must be in the future.');
+              setPreferredPickupDateErrorMessage('Preferred pickup date must be in the future.');
             }
           };
 
@@ -346,7 +346,7 @@ class MtoShipmentForm extends Component {
                       {showPickupFields && (
                         <SectionWrapper className={formStyles.formSection}>
                           {showDeliveryFields && <h2>Pickup info</h2>}
-                          <Fieldset legend="Date">
+                          <Fieldset legend="Date" data-testid="preferredPickupDateFieldSet">
                             <Hint id="pickupDateHint" data-testid="pickupDateHint">
                               This is the day movers would put this shipment on their truck. Packing starts earlier.
                               Dates will be finalized when you talk to your Customer Care Representative. Your requested
