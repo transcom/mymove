@@ -99,6 +99,12 @@ const customStyles = {
     ...provided,
     display: 'flex',
   }),
+  // fixes a bug with AsyncSelect highlighting all results blue
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? '#f0f0f0' : 'white', // Change background color on focus
+    color: 'black', // Change text color
+  }),
 };
 
 export const LocationSearchBoxComponent = ({
@@ -182,6 +188,7 @@ export const LocationSearchBoxComponent = ({
     if (handleLocationOnChange !== null) {
       handleLocationOnChange(selectedValue);
     }
+
     return selectedValue;
   };
 
@@ -203,12 +210,20 @@ export const LocationSearchBoxComponent = ({
 
   const handleKeyDown = (event) => {
     if (event.key === 'Backspace' && !inputValue) {
-      onChange(null);
+      if (handleLocationOnChange) {
+        handleLocationOnChange(null);
+      } else {
+        onChange(null);
+      }
     }
   };
 
   const handleFocus = () => {
-    onChange(null);
+    if (handleLocationOnChange) {
+      handleLocationOnChange(null);
+    } else {
+      onChange(null);
+    }
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
@@ -217,7 +232,7 @@ export const LocationSearchBoxComponent = ({
   return (
     <FormGroup>
       <div className="labelWrapper">
-        <Label hint={hint} htmlFor={inputId} className={labelClasses}>
+        <Label hint={hint} htmlFor={inputId} className={labelClasses} data-testid={`${name}-label`}>
           <span>
             {title} {showRequiredAsterisk && <RequiredAsterisk />}
           </span>
@@ -232,12 +247,18 @@ export const LocationSearchBoxComponent = ({
           cacheOptions
           formatOptionLabel={handleLocationOnChange ? formatLocation : formatOptionLabel}
           getOptionValue={getOptionName}
+          getOptionLabel={(option) => option.name}
           loadOptions={loadOptions}
           onChange={selectOption}
           onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
           placeholder={placeholder || 'Start typing a duty location...'}
-          value={hasLocation ? value : null}
+          value={
+            (handleLocationOnChange && !!value && value.city != null && value.city !== '') ||
+            (!handleLocationOnChange && hasLocation)
+              ? value
+              : ''
+          }
           noOptionsMessage={noOptionsMessage}
           onFocus={handleFocus}
           styles={isDisabled ? disabledStyles : customStyles}
