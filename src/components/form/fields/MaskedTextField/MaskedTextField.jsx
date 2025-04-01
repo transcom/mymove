@@ -12,6 +12,7 @@ import { OptionalTag } from 'components/form/OptionalTag';
 import { ErrorMessage } from 'components/form/index';
 import Hint from 'components/Hint';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const MaskedTextField = ({
   containerClassName,
@@ -63,12 +64,9 @@ const MaskedTextField = ({
         })}
       >
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
-          {label}
-          {showRequiredAsterisk && (
-            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
-              *
-            </span>
-          )}
+          <span>
+            {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
         {description && (
           <div className={styles.description} id={`description_${descriptionRef.current}`}>
