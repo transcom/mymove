@@ -162,7 +162,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			FirstName:     "First",
 			Telephone:     handlers.FmtString("223-455-3399"),
 			Affiliation:   &affiliation,
-			Edipi:         "",
+			Edipi:         "1234567890",
 			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
@@ -212,6 +212,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 
 		suite.Equal(body.FirstName, createdCustomerPayload.FirstName)
 		suite.Equal(body.LastName, createdCustomerPayload.LastName)
+		suite.Equal(body.Edipi, *createdCustomerPayload.Edipi)
 		suite.Equal(body.Telephone, createdCustomerPayload.Telephone)
 		suite.Equal(body.BackupContact.Name, createdCustomerPayload.BackupContact.Name)
 		suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
@@ -219,6 +220,84 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
 		suite.Equal(true, createdCustomerPayload.CacValidated)
 		suite.Nil(body.Emplid)
+	})
+
+	suite.Run("Unsuccessful creation due to existing email in Okta", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeServicesCounselor,
+		})
+
+		provider, err := factory.BuildOktaProvider(officeProviderName)
+		suite.NoError(err)
+
+		// this func returns a simulated error from Okta
+		mockAndActivateOktaEndpointsWithError(provider)
+
+		residentialAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 New Street"),
+			City:           handlers.FmtString("Newcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02110"),
+		}
+
+		backupAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 Backup Street"),
+			City:           handlers.FmtString("Backupcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02115"),
+		}
+
+		affiliation := ghcmessages.AffiliationARMY
+
+		body := &ghcmessages.CreateCustomerPayload{
+			LastName:      "Last",
+			FirstName:     "First",
+			Telephone:     handlers.FmtString("223-455-3399"),
+			Affiliation:   &affiliation,
+			Edipi:         "1234567890",
+			Emplid:        handlers.FmtString(""),
+			PersonalEmail: *handlers.FmtString("email@email.com"),
+			BackupContact: &ghcmessages.BackupContact{
+				Name:  handlers.FmtString("New Backup Contact"),
+				Phone: handlers.FmtString("445-345-1212"),
+				Email: handlers.FmtString("newbackup@mail.com"),
+			},
+			ResidentialAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: residentialAddress,
+			},
+			BackupMailingAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: backupAddress,
+			},
+			CreateOktaAccount: true,
+			CacUser:           false,
+		}
+
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
+
+		request := httptest.NewRequest("POST", "/customer", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := customerops.CreateCustomerWithOktaOptionParams{
+			HTTPRequest: request,
+			Body:        body,
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateCustomerWithOktaOptionHandler{
+			handlerConfig,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&customerops.CreateCustomerWithOktaOptionUnprocessableEntity{}, response)
+		errorResponse := response.(*customerops.CreateCustomerWithOktaOptionUnprocessableEntity)
+		expectedDetail := "An Okta user already exists with the email email@email.com"
+		suite.Contains(*errorResponse.Payload.ClientError.Detail, expectedDetail)
 	})
 
 	suite.Run("Unable to create customer when using an existing DODID", func() {
@@ -473,6 +552,27 @@ func mockAndActivateOktaEndpoints(provider *okta.Provider) {
 			"login": "email@email.com"
 		}
 	}`, oktaID)))
+
+	httpmock.Activate()
+}
+
+// Generate and activate Okta endpoints that will be using during the auth handlers.
+func mockAndActivateOktaEndpointsWithError(provider *okta.Provider) {
+	activate := "true"
+	createUserEndpoint := provider.GetCreateUserURL(activate)
+
+	httpmock.RegisterResponder("POST", createUserEndpoint,
+		httpmock.NewStringResponder(400, `{
+			"errorCode": "E0000001",
+			"errorSummary": "Api validation failed: login",
+			"errorLink": "E0000001",
+			"errorId": "oaeTzpFzbNTQd6UVR6vSjyEmA",
+			"errorCauses": [
+				{
+					"errorSummary": "login: An object with this field already exists in the current organization"
+				}
+			]
+		}`))
 
 	httpmock.Activate()
 }
