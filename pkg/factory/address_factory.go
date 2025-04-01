@@ -118,16 +118,6 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		IsOconus:       models.BoolPointer(false),
 	}
 
-	if db != nil {
-		usprc, err := models.FindByZipCodeAndCity(db, "30813", "GROVETOWN")
-		if err != nil {
-			return models.Address{}, err
-		}
-
-		address.UsPostRegionCityID = &usprc.ID
-		address.UsPostRegionCity = usprc
-	}
-
 	// Find/create the Country if customization is provided
 	var country models.Country
 	if result := findValidCustomization(customs, Country); result != nil {
@@ -148,6 +138,16 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
+
+	if db != nil {
+		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			return models.Address{}, err
+		}
+
+		address.UsPostRegionCityID = &usprc.ID
+		address.UsPostRegionCity = usprc
+	}
 
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {

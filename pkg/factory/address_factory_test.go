@@ -220,7 +220,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 	defaultPostalCode := "30813"
 
 	customStreet := "101 Custom Street"
-	customPostalCode := "98765"
+	customPostalCode := "30813"
 
 	suite.Run("Successful creation of default minimal address", func() {
 		// Under test:      BuildMinimalAddress
