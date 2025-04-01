@@ -204,7 +204,7 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmsitops.SubmitPPM
 
 			ppmShipment, err := h.PPMShipmentNewSubmitter.SubmitNewCustomerCloseOut(appCtx, ppmShipmentID, models.SignedCertification{})
 			if err != nil {
-				appCtx.Logger().Error("internalapi.SubmitPPMShipmentDocumentationHandler", zap.Error(err))
+				appCtx.Logger().Error("ghcapi.SubmitPPMShipmentDocumentationHandler", zap.Error(err))
 				return handleError(err)
 			}
 
