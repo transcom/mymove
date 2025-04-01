@@ -251,6 +251,19 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText(/New duty location/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/Pay grade/)).toBeInstanceOf(HTMLSelectElement);
       expect(getByLabelText(/Current duty location/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
   });
 
@@ -304,7 +317,7 @@ describe('OrdersInfoForm component', () => {
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
@@ -429,7 +442,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
     await userEvent.click(selectedOptionCurrent);
 
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -453,8 +466,8 @@ describe('OrdersInfoForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.type(screen.getByLabelText(/Current duty location/, { exact: false }), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
@@ -531,7 +544,7 @@ describe('OrdersInfoForm component', () => {
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
