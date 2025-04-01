@@ -35,6 +35,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
 import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
+import SmallPackageForm from 'components/Customer/PPM/Closeout/SmallPackageForm/SmallPackageForm';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -103,7 +104,12 @@ export default function ReviewExpense({
     reason,
     weightStored,
     sitLocation,
+    weightShipped,
+    trackingNumber,
+    isProGear,
   } = expense || {};
+
+  console.log('expense', expense);
 
   const { mutate: patchExpenseMutation } = useMutation(patchExpense, {
     onSuccess,
@@ -134,6 +140,9 @@ export default function ReviewExpense({
     reason: reason || '',
     weightStored: weightStoredValue?.toString() || '',
     sitLocation: ppmSITLocation,
+    weightShipped: weightShipped?.toString() || '',
+    isProGear: isProGear ? 'true' : 'false',
+    trackingNumber: trackingNumber || '',
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
@@ -392,26 +401,29 @@ export default function ReviewExpense({
                     )}
                   </>
                 )}
-                <MaskedTextField
-                  defaultValue="0"
-                  name="amount"
-                  label="Amount Requested"
-                  id="amount"
-                  mask={Number}
-                  scale={2} // digits after point, 0 for integers
-                  radix="." // fractional delimiter
-                  mapToRadix={['.']} // symbols to process as radix
-                  padFractionalZeros // if true, then pads zeros at end to the length of scale
-                  signed={false} // disallow negative
-                  thousandsSeparator=","
-                  lazy={false} // immediate masking evaluation
-                  prefix="$"
-                  isDisabled={readOnly}
-                  onBlur={(e) => {
-                    const newAmount = e.target.value.replace(/[,.]/g, '');
-                    setAmountValue(newAmount);
-                  }}
-                />
+                {movingExpenseType !== expenseTypes.SMALL_PACKAGE && (
+                  <MaskedTextField
+                    defaultValue="0"
+                    name="amount"
+                    label="Amount Requested"
+                    id="amount"
+                    mask={Number}
+                    scale={2} // digits after point, 0 for integers
+                    radix="." // fractional delimiter
+                    mapToRadix={['.']} // symbols to process as radix
+                    padFractionalZeros // if true, then pads zeros at end to the length of scale
+                    signed={false} // disallow negative
+                    thousandsSeparator=","
+                    lazy={false} // immediate masking evaluation
+                    prefix="$"
+                    isDisabled={readOnly}
+                    onBlur={(e) => {
+                      const newAmount = e.target.value.replace(/[,.]/g, '');
+                      setAmountValue(newAmount);
+                    }}
+                  />
+                )}
+                {movingExpenseType === expenseTypes.SMALL_PACKAGE && <SmallPackageForm />}
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
                     <div>

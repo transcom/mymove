@@ -124,7 +124,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     name="actualMoveDate"
                     label={
                       ppmType === PPM_TYPES.SMALL_PACKAGE
-                        ? 'When did you ship your packcage?'
+                        ? 'When did you ship your package?'
                         : 'When did you leave your origin?'
                     }
                   />
