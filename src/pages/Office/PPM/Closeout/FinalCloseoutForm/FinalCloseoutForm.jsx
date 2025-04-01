@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 
 import styles from './FinalCloseoutForm.module.scss';
 
@@ -16,11 +15,6 @@ import {
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import affiliations from 'content/serviceMemberAgencies';
-
-const validationSchema = Yup.object().shape({
-  signature: Yup.string().required('Required'),
-  date: Yup.string(),
-});
 
 const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove }) => {
   const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
@@ -36,7 +30,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
   const totalExpensesClaimed = calculateTotalMovingExpensesAmount(mtoShipment?.ppmShipment?.movingExpenses);
 
   return (
-    <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
+    <Formik initialValues={initialValues} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit }) => (
         <div className={styles.FinalCloseoutForm}>
           <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalIncentive || 0)}</h2>
