@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import classnames from 'classnames';
-
-// import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import styles from './Expenses.module.scss';
 
@@ -18,54 +16,59 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { createMovingExpense } from 'services/ghcApi';
 // TBD: internal apis to be converted
 import { createUploadForPPMDocument, deleteUpload, patchMovingExpense } from 'services/internalApi';
-import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
+import { DOCUMENTS } from 'constants/queryKeys';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-
-  const dispatch = useDispatch();
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { moveCode, shipmentId, expenseId } = useParams();
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
-  // const moveId = mtoShipment?.moveId;
-
+  const ppmShipment = mtoShipment?.ppmShipment;
   const expenses = documents?.ppmShipment?.movingExpenses ?? [];
 
   const currentExpense = expenses?.find((item) => item.id === expenseId) ?? null;
   const currentIndex = Array.isArray(expenses) ? expenses.findIndex((ele) => ele.id === expenseId) : -1;
 
-  const expensePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_PATH, {
-    moveCode,
-    shipmentId,
+  const reviewPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_REVIEW_PATH, { moveCode, shipmentId });
+
+  const { mutate: mutateCreateMovingExpense } = useMutation(createMovingExpense, {
+    onSuccess: (createdMovingExpense) => {
+      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+      const path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+        moveCode,
+        shipmentId,
+        expenseId: createdMovingExpense?.id,
+      });
+      navigate(path, { replace: true });
+    },
+    onError: () => {
+      setErrorMessage(`Failed to create trip record`);
+    },
+  });
+
+  const { mutate: mutatePatchMovingExpense } = useMutation(patchMovingExpense, {
+    onSuccess: () => {
+      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+      navigate(reviewPath);
+    },
+    onError: () => {
+      setIsSubmitted(false);
+      setErrorMessage('Failed to save updated trip record');
+    },
   });
 
   useEffect(() => {
-    if (!expenseId && mtoShipment?.ppmShipment?.id) {
-      createMovingExpense(mtoShipment?.ppmShipment?.id)
-        .then((resp) => {
-          if (mtoShipment?.ppmShipment?.movingExpenses) {
-            mtoShipment.ppmShipment.movingExpenses.push(resp);
-          } else {
-            mtoShipment.ppmShipment.movingExpenses = [resp];
-          }
-          const path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
-            moveCode,
-            shipmentId,
-            expenseId: resp.id,
-          });
-          navigate(path, { replace: true });
-          dispatch(updateMTOShipment(mtoShipment));
-        })
-        .catch(() => {
-          setErrorMessage('Failed to create trip record');
-        });
+    if (!expenseId) {
+      mutateCreateMovingExpense(ppmShipment?.id);
     }
-  }, [expenseId, moveCode, shipmentId, navigate, dispatch, mtoShipment]);
+  }, [mutateCreateMovingExpense, ppmShipment?.id, expenseId]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
@@ -86,10 +89,9 @@ const Expenses = () => {
     // Create and return a new File object with the new filename
     const newFile = new File([file], newFileName, { type: file.type });
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, false)
+    createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, false)
       .then((upload) => {
-        mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.push(upload);
-        dispatch(updateMTOShipment(mtoShipment));
+        documents?.ppmShipment?.movingExpenses[currentIndex][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
         return upload;
       })
@@ -98,6 +100,7 @@ const Expenses = () => {
       });
   };
 
+  // jeh: Resume editing here
   const handleUploadComplete = (err) => {
     if (err) {
       setErrorMessage('Encountered error when completing file upload');
@@ -105,16 +108,15 @@ const Expenses = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
-    deleteUpload(uploadId, null, mtoShipment?.ppmShipment?.id)
+    deleteUpload(uploadId, null, ppmShipment?.id)
       .then(() => {
-        const filteredUploads = mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads.filter(
+        const filteredUploads = documents?.ppmShipment.movingExpenses[currentIndex][fieldName]?.uploads.filter(
           (upload) => upload.id !== uploadId,
         );
-        mtoShipment.ppmShipment.movingExpenses[currentIndex][fieldName].uploads = filteredUploads;
+        documents.ppmShipment.movingExpenses[currentIndex][fieldName].uploads = filteredUploads;
 
         setFieldValue(fieldName, filteredUploads, true);
         setFieldTouched(fieldName, true, true);
-        dispatch(updateMTOShipment(mtoShipment));
       })
       .catch(() => {
         setErrorMessage('Failed to delete the file upload');
@@ -122,13 +124,16 @@ const Expenses = () => {
   };
 
   const handleBack = () => {
-    navigate(expensePath);
+    navigate(reviewPath);
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values) => {
+    if (isSubmitted) return;
+
+    setIsSubmitted(true);
     setErrorMessage(null);
     const payload = {
-      ppmShipmentId: mtoShipment.ppmShipment.id,
+      ppmShipmentId: ppmShipment?.id,
       movingExpenseType: values.expenseType,
       amount: convertDollarsToCents(values.amount),
       description: values.description,
@@ -140,17 +145,12 @@ const Expenses = () => {
       SITLocation: values.sitLocation,
     };
 
-    patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)
-      .then((resp) => {
-        setSubmitting(false);
-        mtoShipment.ppmShipment.movingExpenses[currentIndex] = resp;
-        navigate(generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, { shipmentId }));
-        dispatch(updateMTOShipment(mtoShipment));
-      })
-      .catch(() => {
-        setSubmitting(false);
-        setErrorMessage('Failed to save updated trip record');
-      });
+    mutatePatchMovingExpense({
+      ppmShipmentId: mtoShipment?.ppmShipment?.id,
+      movingExpenseId: currentExpense.id,
+      payload,
+      eTag: currentExpense.eTag,
+    });
   };
 
   const renderError = () => {
