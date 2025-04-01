@@ -53,10 +53,13 @@ BEGIN
         AND (
             shipment_address_updates.status = 'REQUESTED'
             OR (
-sit_extensions.status = 'PENDING'
-AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC', 'DDSHUT', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSFSC', 'IDSHUT')
-)
-OR (
+                sit_extensions.status = 'PENDING'
+                AND re_services.code IN (
+                    'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC', 'DDSHUT',
+                    'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSFSC', 'IDSHUT'
+                )
+            )
+            OR (
                 mto_service_items.status = 'SUBMITTED'
                 AND re_services.code IN (
                     'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
