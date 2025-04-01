@@ -256,7 +256,7 @@ func MakeHHGMoveInTerminatedStatus(appCtx appcontext.AppContext) models.Move {
 	sitDaysAllowance := 270
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
-	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
@@ -271,6 +271,18 @@ func MakeHHGMoveInTerminatedStatus(appCtx appcontext.AppContext) models.Move {
 			LinkOnly: true,
 		},
 	}, nil)
+
+	// Add current sit so we can review the modal
+	// At time of writing it needs to be:
+	// current
+	// days remaining <=30
+	// --break--
+	// We're gonna go well over 90 days so that
+	// we can see the convert to customer expense button.
+	twoYearsAgo := time.Now().AddDate(-2, 0, 0)
+	aMonthAhead := time.Now().AddDate(0, 1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, shipment, &twoYearsAgo, &aMonthAhead)
+	scenario.MakeSITExtensionsForShipment(appCtx, shipment)
 
 	return mto
 }
