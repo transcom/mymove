@@ -4796,7 +4796,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 				})
 		}
 
-		factory.BuildMTOServiceItem(suite.DB(), customization, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), customization, nil)
+
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, serviceItem)
 
 		return shipment, pickupAddress, destinationAddress
 	}
