@@ -988,6 +988,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	payloadPPMShipment := &ghcmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		PpmType:                        ghcmessages.PPMType(ppmShipment.PPMType),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
@@ -2436,9 +2437,9 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				}
 				if !userFound {
 					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
 				}
 			}
-
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
 				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
 			}
