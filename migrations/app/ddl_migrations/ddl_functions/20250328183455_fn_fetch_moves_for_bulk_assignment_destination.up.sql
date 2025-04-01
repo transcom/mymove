@@ -26,6 +26,7 @@ BEGIN
     LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
     LEFT JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
     LEFT JOIN shipment_address_updates ON shipment_address_updates.shipment_id = mto_shipments.id
+    LEFT JOIN sit_extensions ON sit_extensions.mto_shipment_id = mto_shipments.id
     JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = moves.id
     WHERE
         mto_shipments.deleted_at IS NULL
@@ -52,10 +53,14 @@ BEGIN
         AND (
             shipment_address_updates.status = 'REQUESTED'
             OR (
+sit_extensions.status = 'PENDING'
+AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC', 'DDSHUT', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSFSC', 'IDSHUT')
+)
+OR (
                 mto_service_items.status = 'SUBMITTED'
                 AND re_services.code IN (
                     'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC',
-                    'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT'
+                    'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT', 'IDSFSC'
                 )
             )
         )
