@@ -229,6 +229,14 @@ type DomesticDestinationSITFuelSurchargePricer interface {
 	ParamsPricer
 }
 
+// InternationalDestinationSITFuelSurchargePricer prices international destination SIT fuel surcharge
+//
+//go:generate mockery --name InternationalDestinationSITFuelSurchargePricer
+type InternationalDestinationSITFuelSurchargePricer interface {
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
 // DomesticOriginSITFuelSurchargePricer prices domestic origin SIT fuel surcharge
 //
 //go:generate mockery --name DomesticOriginSITFuelSurchargePricer
@@ -241,6 +249,25 @@ type DomesticOriginSITFuelSurchargePricer interface {
 		fscWeightBasedDistanceMultiplier float64,
 		eiaFuelPrice unit.Millicents,
 		isPPM bool,
+	) (
+		unit.Cents,
+		PricingDisplayParams,
+		error,
+	)
+	ParamsPricer
+}
+
+// InternationalOriginSITFuelSurchargePricer prices international origin SIT fuel surcharge
+//
+//go:generate mockery --name InternationalOriginSITFuelSurchargePricer
+type InternationalOriginSITFuelSurchargePricer interface {
+	Price(
+		appCtx appcontext.AppContext,
+		actualPickupDate time.Time,
+		distance unit.Miles,
+		weight unit.Pound,
+		fscWeightBasedDistanceMultiplier float64,
+		eiaFuelPrice unit.Millicents,
 	) (
 		unit.Cents,
 		PricingDisplayParams,
@@ -347,7 +374,7 @@ type IntlUBUnpackPricer interface {
 
 // IntlUBPricer prices international UB Shipments
 //
-//go:generate mockery --name IntlUBUPricer
+//go:generate mockery --name IntlUBPricer
 type IntlUBPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer

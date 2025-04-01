@@ -12,9 +12,9 @@ import { test, expect } from '../utils/admin/adminTest';
  * @param {string} email
  */
 async function searchForOfficeUser(page, email) {
-  await page.getByLabel('Search').click();
-  await page.getByLabel('Search').fill(email);
-  await page.getByLabel('Search').press('Enter');
+  await page.getByPlaceholder('Search').click();
+  await page.getByPlaceholder('Search').fill(email);
+  await page.getByPlaceholder('Search').press('Enter');
 }
 
 test.describe('Office Users List Page', () => {
@@ -324,7 +324,7 @@ test.describe('Office Users Edit Page', () => {
     await page.getByRole('link', { name: 'Edit' }).click();
     await adminPage.waitForPage.adminPage();
 
-    const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
+    const disabledFields = ['id', 'userId', 'createdAt', 'updatedAt'];
     for (const field of disabledFields) {
       await expect(page.locator(`#${field}`)).toBeDisabled();
     }
@@ -399,7 +399,7 @@ test.describe('Office Users Edit Page', () => {
     await page.getByRole('link', { name: 'Edit' }).click();
     await adminPage.waitForPage.adminPage();
 
-    const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
+    const disabledFields = ['id', 'userId', 'createdAt', 'updatedAt'];
     for (const field of disabledFields) {
       await expect(page.locator(`#${field}`)).toBeDisabled();
     }

@@ -10,6 +10,7 @@ import styles from './LocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
 import { DutyLocationShape } from 'types';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const getOptionName = (option) => option.name;
 
@@ -98,6 +99,12 @@ const customStyles = {
     ...provided,
     display: 'flex',
   }),
+  // fixes a bug with AsyncSelect highlighting all results blue
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? '#f0f0f0' : 'white', // Change background color on focus
+    color: 'black', // Change text color
+  }),
 };
 
 export const LocationSearchBoxComponent = ({
@@ -112,6 +119,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
   handleLocationOnChange,
+  showRequiredAsterisk,
 }) => {
   const { value, onChange, locationState, name: inputName } = input;
 
@@ -180,6 +188,7 @@ export const LocationSearchBoxComponent = ({
     if (handleLocationOnChange !== null) {
       handleLocationOnChange(selectedValue);
     }
+
     return selectedValue;
   };
 
@@ -201,12 +210,20 @@ export const LocationSearchBoxComponent = ({
 
   const handleKeyDown = (event) => {
     if (event.key === 'Backspace' && !inputValue) {
-      onChange(null);
+      if (handleLocationOnChange) {
+        handleLocationOnChange(null);
+      } else {
+        onChange(null);
+      }
     }
   };
 
   const handleFocus = () => {
-    onChange(null);
+    if (handleLocationOnChange) {
+      handleLocationOnChange(null);
+    } else {
+      onChange(null);
+    }
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
@@ -215,8 +232,10 @@ export const LocationSearchBoxComponent = ({
   return (
     <FormGroup>
       <div className="labelWrapper">
-        <Label hint={hint} htmlFor={inputId} className={labelClasses}>
-          {title}
+        <Label hint={hint} htmlFor={inputId} className={labelClasses} data-testid={`${name}-label`}>
+          <span>
+            {title} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
       </div>
       <div className={inputContainerClasses}>
@@ -228,12 +247,18 @@ export const LocationSearchBoxComponent = ({
           cacheOptions
           formatOptionLabel={handleLocationOnChange ? formatLocation : formatOptionLabel}
           getOptionValue={getOptionName}
+          getOptionLabel={(option) => option.name}
           loadOptions={loadOptions}
           onChange={selectOption}
           onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
           placeholder={placeholder || 'Start typing a duty location...'}
-          value={hasLocation ? value : null}
+          value={
+            (handleLocationOnChange && !!value && value.city != null && value.city !== '') ||
+            (!handleLocationOnChange && hasLocation)
+              ? value
+              : ''
+          }
           noOptionsMessage={noOptionsMessage}
           onFocus={handleFocus}
           styles={isDisabled ? disabledStyles : customStyles}
@@ -296,12 +321,14 @@ LocationSearchBoxComponent.propTypes = {
   searchLocations: PropTypes.func,
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
+  showRequiredAsterisk: PropTypes.bool,
 };
 
 LocationSearchBoxComponent.defaultProps = {
   ...LocationSearchBoxContainer.defaultProps,
   searchLocations: SearchDutyLocations,
   isDisabled: false,
+  showRequiredAsterisk: false,
 };
 
 export default LocationSearchBoxContainer;

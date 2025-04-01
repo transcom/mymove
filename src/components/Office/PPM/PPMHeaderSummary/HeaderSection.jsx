@@ -14,6 +14,7 @@ import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -59,7 +60,7 @@ const OpenModalButton = ({ onClick, isDisabled, dataTestId, ariaLabel }) => (
 const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly, grade) => {
   const aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
   const aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
-  const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
+  const isCivilian = grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
 
   const renderHaulType = (haulType) => {
     if (haulType === '') {
@@ -388,8 +389,8 @@ export default function HeaderSection({
   updatedItemName,
   setUpdatedItemName,
   readOnly,
-  grade,
   expanded,
+  grade,
 }) {
   const requestDetailsButtonTestId = `${sectionInfo.type}-showRequestDetailsButton`;
   const { shipmentId, moveCode } = useParams();

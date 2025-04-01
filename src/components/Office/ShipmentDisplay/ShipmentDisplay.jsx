@@ -47,8 +47,8 @@ const ShipmentDisplay = ({
   const tac = retrieveTAC(displayInfo.tacType, ordersLOA);
   const sac = retrieveSAC(displayInfo.sacType, ordersLOA);
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
-  const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
+  const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -71,16 +71,10 @@ const ShipmentDisplay = ({
 
   useEffect(() => {
     const fetchData = async () => {
+      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
       setEnableCompletePPMCloseoutForCustomer(
         await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER),
       );
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
     };
     fetchData();
   }, []);
