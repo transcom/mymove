@@ -102,12 +102,13 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           </div>
           <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
             <p data-testid="welcomeHeader">
-              Select &quot;Create a Move&quot; to get started. If you already have a move, select &quot;Go to Move&quot;
-              on the applicable move code below. <br /> <br />
-              If you are creating a new move and have an existing profile, please validate your information, click the
-              &quot;Validate Profile&quot; button and proceed to starting your move.
+              Select &quot;Create a Move&quot; to get started. If you already have a move, locate the applicable move
+              code below and select
+              <br /> &quot;Go to Move&quot;
+              <br /> <br /> If you are creating a new move and have an existing profile, please validate your
+              information, click the &quot;Validate Profile&quot; button and proceed to starting your move.
               <br /> <br />
-              If you encounter any issues please contact your local Transportation Office or the
+              If you encounter any issues, please contact your local Transportation Office or the
               <a href={milmoveHelpDesk}> Help Desk </a>
               for further assistance.
             </p>
