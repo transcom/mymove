@@ -5595,6 +5595,10 @@ definitions:
         type: boolean
   FetchLineOfAccountingPayload:
     type: object
+    required:
+      - effectiveDate
+      - departmentIndicator
+      - tacCode
     properties:
       departmentIndicator:
         $ref: '#/definitions/DepartmentIndicator'
