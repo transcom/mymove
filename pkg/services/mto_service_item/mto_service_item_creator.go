@@ -369,8 +369,56 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDOFSIT:
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+		if err != nil {
+			return 0, err
+		}
+
+		price, _, err = o.originFirstDayPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, false)
+		if err != nil {
+			return 0, err
+		}
 	case models.ReServiceCodeDOASIT:
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+		if err != nil {
+			return 0, err
+		}
+
+		daysSIT := 0
+		if serviceItem.SITDepartureDate != nil {
+			daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+		}
+
+		price, _, err = o.originAddlPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, daysSIT, false)
+		if err != nil {
+			return 0, err
+		}
 	case models.ReServiceCodeDOSFSC:
+		eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, requestedPickupDate)
+		if err != nil {
+			return 0, err
+		}
+
+		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+		}
+
+		fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *adjustedWeight)
+		if err != nil {
+			return 0, err
+		}
+		fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+		if err != nil {
+			return 0, err
+		}
+
+		price, _, err = o.originFuelPricer.Price(appCtx, requestedPickupDate, unit.Miles(distance), *adjustedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+		if err != nil {
+			return 0, err
+		}
 	default:
 		price = 0
 	}
@@ -821,15 +869,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
 		}
-		// if serviceItem.CheckIsSITServiceItem() {
-		// 	price, err := o.FindSITEstimatedPrice(appCtx, serviceItem, mtoShipment)
-		// 	if err != nil {
-		// 		return nil, nil, apperror.NewConflictError(serviceItem.ID, err.Error())
-		// 	}
-
-		// 	serviceItem.PricingEstimate = &price
-		// } else {
-		// }
 	}
 
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)

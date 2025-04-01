@@ -275,6 +275,12 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== undefined || null
+                  ? toDollarString(formatCents(details.estimatedPrice))
+                  : '-',
+            })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
@@ -327,6 +333,12 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== undefined || null
+                  ? toDollarString(formatCents(details.estimatedPrice))
+                  : '-',
+            })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
@@ -365,6 +377,12 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== undefined || null
+                  ? toDollarString(formatCents(details.estimatedPrice))
+                  : '-',
+            })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
