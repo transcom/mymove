@@ -65,6 +65,9 @@ describe('PrimeUI AcknowledgeMove Page', () => {
     const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
     expect(dateInput).toBeInTheDocument();
     expect(dateInput).toHaveValue('13 Apr 2025');
+
+    // Prime Acknowledged Date field is disabled since a value is already present
+    expect(dateInput).toBeDisabled();
   });
 
   it('renders the form with the data from an unacknowledged move', async () => {
@@ -86,6 +89,9 @@ describe('PrimeUI AcknowledgeMove Page', () => {
     const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
     expect(dateInput).toBeInTheDocument();
     expect(dateInput).not.toHaveValue();
+
+    // Prime Acknowledged Date field is enabled since it is empty
+    expect(dateInput).toBeEnabled();
   });
 
   it('calls acknowledgeMovesAndShipments when the form is submitted', async () => {
@@ -111,6 +117,29 @@ describe('PrimeUI AcknowledgeMove Page', () => {
           },
         ],
       });
+    });
+  });
+
+  it('enables the save button when the user inputs a valid date', async () => {
+    usePrimeSimulatorGetMove.mockReturnValue(unacknowledgedMoveReturnValue);
+    renderWithProviders(<AcknowledgeMove />);
+
+    const dateInput = screen.getByLabelText(primeAcknowledgedAtText);
+    expect(dateInput).toBeInTheDocument();
+    expect(dateInput).not.toHaveValue();
+
+    const saveButton = screen.getByRole('button', { name: /Save/ });
+    expect(saveButton).toBeInTheDocument();
+
+    // Save button is initially disabled
+    expect(saveButton).toBeDisabled();
+
+    // Set a date value
+    fireEvent.change(dateInput, { target: { value: '2025-04-01' } });
+
+    await waitFor(() => {
+      // Save button is now enabled since we inputted a valid date
+      expect(saveButton).toBeEnabled();
     });
   });
 });

@@ -97,7 +97,7 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
           )}
           <SectionWrapper className={formStyles.formSection}>
             <Formik initialValues={initialValues} onSubmit={onSubmit}>
-              {({ isValid, isSubmitting, handleSubmit }) => {
+              {({ isValid, isSubmitting, handleSubmit, dirty }) => {
                 return (
                   <Form className={formStyles.form}>
                     <dl className={descriptionListStyles.descriptionList} data-testid="moveDetails">
@@ -114,12 +114,13 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
                         data-testid="primeAcknowledgedAt"
                         name="primeAcknowledgedAt"
                         label="Prime Acknowledged At"
+                        disabled={moveTaskOrder.primeAcknowledgedAt}
                       />
                     </dl>
                     <div className={formStyles.formActions}>
                       <WizardNavigation
                         editMode
-                        disableNext={!isValid || isSubmitting}
+                        disableNext={!isValid || !dirty || isSubmitting}
                         onCancelClick={handleClose}
                         onNextClick={handleSubmit}
                       />
