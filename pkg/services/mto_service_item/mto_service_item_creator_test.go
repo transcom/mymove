@@ -2932,45 +2932,58 @@ func (suite *MTOServiceItemServiceSuite) TestGetAdjustedWeight() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
-	builder := query.NewQueryBuilder()
-	// mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-	planner := &mocks.Planner{}
-	planner.On("ZipTransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(400, nil)
-	creator := NewMTOServiceItemCreator(
-		planner,
-		builder,
-		moveRouter,
-		ghcrateengine.NewDomesticUnpackPricer(),
-		ghcrateengine.NewDomesticPackPricer(),
-		ghcrateengine.NewDomesticLinehaulPricer(),
-		ghcrateengine.NewDomesticShorthaulPricer(),
-		ghcrateengine.NewDomesticOriginPricer(),
-		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer(),
-		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-		ghcrateengine.NewDomesticOriginSITPickupPricer(),
-		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+				},
+			},
+		}, nil)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
-	type localSubtestData struct {
-		mtoShipment           models.MTOShipment
-		mtoServiceItem        models.MTOServiceItem
-		actualPickupAddress   models.Address
-		originalPickupAddress *models.Address
-	}
+		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		startDate := time.Now().AddDate(-10, 0, 0)
+		endDate := startDate.AddDate(10, 1, 1)
 
-	makeSubtestData := func() (subtestData *localSubtestData) {
-		startDate := time.Now().AddDate(-1, 0, 0)
-		endDate := startDate.AddDate(1, 1, 1)
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
@@ -2981,95 +2994,77 @@ func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 				},
 			})
 
-		subtestData = &localSubtestData{}
-		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    mto,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					PrimeEstimatedWeight: models.PoundPointer(1000),
-					RequestedPickupDate:  models.TimePointer(time.Now()),
-				},
-			},
-		}, nil)
-		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-		sitEntryDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)
-		sitDepartureDate := time.Date(2024, time.February, 28, 0, 0, 0, 0, time.UTC)
-		sitPostalCode := "00000"
+		return shipment, creator, reServiceDDFSIT
 
-		// Original customer pickup address
-		subtestData.originalPickupAddress = subtestData.mtoShipment.PickupAddress
-		subtestData.actualPickupAddress = *subtestData.mtoShipment.PickupAddress
-
-		// Customer gets new pickup address
-
-		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
-		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
-
-		subtestData.mtoServiceItem = models.MTOServiceItem{
-			MoveTaskOrderID:             mto.ID,
-			MTOShipmentID:               &subtestData.mtoShipment.ID,
-			ReService:                   models.ReService{},
-			Reason:                      models.StringPointer("lorem ipsum"),
-			SITEntryDate:                &sitEntryDate,
-			SITDepartureDate:            &sitDepartureDate,
-			SITPostalCode:               &sitPostalCode,
-			SITOriginHHGOriginalAddress: subtestData.originalPickupAddress,
-			SITOriginHHGActualAddress:   &subtestData.actualPickupAddress,
-		}
-
-		return subtestData
 	}
 
-	suite.Run("check domestic SIT service items for estimated prices", func() {
-		subtestData := makeSubtestData()
+	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
+		deliveryDate := time.Now()
+		attemptedContact := time.Now()
+		contact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "0815Z",
+		}
+		contact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "1430Z",
+		}
+		var contacts models.MTOServiceItemCustomerContacts
+		contacts = append(contacts, contact1, contact2)
+		return contacts
+	}
 
-		testCases := []struct {
-			reServiceCode models.ReServiceCode
-		}{
-			{reServiceCode: models.ReServiceCodeDDFSIT},
-			{reServiceCode: models.ReServiceCodeDOFSIT},
+	sitEntryDate := time.Now().AddDate(0, 0, 1)
+
+	// Successful creation of DDFSIT MTO service item.
+	suite.Run("Success - Creation of Domestic Destination SIT MTO Service Items with estimated prices", func() {
+
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		for _, tc := range testCases {
-			serviceItem := subtestData.mtoServiceItem
-			serviceItem.ReService.Code = tc.reServiceCode
+		serviceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.NoError(err)
+		suite.NotNil(serviceItems)
 
-			// handler := CreateMTOServiceItemHandler{
-			// 	suite.HandlerConfig(),
-			// 	creator,
-			// 	mtoChecker,
-			// }
+		for _, serviceItem := range *serviceItems {
+			suite.NotNil(serviceItem.PricingEstimate)
+		}
+	})
 
-			// // CALL FUNCTION UNDER TEST
-			// req := httptest.NewRequest("POST", "/mto-service-items", nil)
-			// params := mtoserviceitemops.CreateMTOServiceItemParams{
-			// 	HTTPRequest: req,
-			// 	Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
-			// }
+	// Successful creation of DOFSIT MTO service item.
+	suite.Run("Success - Creation of Domestic Origin SIT MTO Service Items with estimated prices", func() {
 
-			// // CHECK RESULTS
+		shipment, creator, reServiceDOFSIT := setupTestData()
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDOFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
 
-			// // Validate incoming payload
-			// suite.NoError(params.Body.Validate(strfmt.Default))
+		serviceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.NoError(err)
+		suite.NotNil(serviceItems)
 
-			// response := handler.Handle(params)
-			// suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-			// okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-
-			// factory.FetchReServiceByCode(suite.DB(), tc.reServiceCode)
-
-			createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
-			suite.NoError(err)
-			suite.Nil(verrs)
-			suite.NotNil(createdServiceItems)
-
-			for _, serviceItem := range *createdServiceItems {
-				suite.NotNil(serviceItem.PricingEstimate)
-			}
+		for _, serviceItem := range *serviceItems {
+			suite.NotNil(serviceItem.PricingEstimate)
 		}
 	})
 }

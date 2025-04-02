@@ -419,8 +419,6 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		if err != nil {
 			return 0, err
 		}
-	default:
-		price = 0
 	}
 
 	return price, nil

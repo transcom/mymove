@@ -36,6 +36,7 @@ const serviceItemWithContact = {
   serviceItem: 'Domestic destination 1st day SIT',
   code: 'DDFSIT',
   details: {
+    estimatedPrice: 123456,
     sitEntryDate: '',
     customerContacts: [
       {
@@ -58,6 +59,7 @@ const serviceItemWithDetails = {
     pickupPostalCode: '20050',
     SITPostalCode: '12345',
     reason: 'Took a detour',
+    estimatedPrice: 243550,
   },
 };
 
@@ -100,22 +102,24 @@ const testDetails = (wrapper) => {
   expect(detailDefinitions.at(4).text().includes('-')).toBe(true);
   expect(detailTypes.at(5).text()).toBe('Delivery miles into SIT:');
   expect(detailDefinitions.at(5).text().includes('-')).toBe(true);
-  expect(detailTypes.at(6).text()).toBe('Original Delivery Address:');
-  expect(detailDefinitions.at(6).text().includes('-')).toBe(true);
-  expect(detailTypes.at(7).text()).toBe('SIT entry date:');
+  expect(detailTypes.at(6).text()).toBe('Estimated Price:');
+  expect(detailDefinitions.at(6).text().includes('-')).toBe(false);
+  expect(detailTypes.at(7).text()).toBe('Original Delivery Address:');
   expect(detailDefinitions.at(7).text().includes('-')).toBe(true);
-  expect(detailTypes.at(8).text()).toBe('First available delivery date 1:');
-  expect(detailDefinitions.at(8).text().includes('15 Sep 2020')).toBe(true);
-  expect(detailTypes.at(9).text()).toBe('Customer contact attempt 1:');
-  expect(detailDefinitions.at(9).text().includes('15 Sep 2020, 1200Z')).toBe(true);
+  expect(detailTypes.at(8).text()).toBe('SIT entry date:');
+  expect(detailDefinitions.at(8).text().includes('-')).toBe(true);
+  expect(detailTypes.at(9).text()).toBe('First available delivery date 1:');
+  expect(detailDefinitions.at(9).text().includes('15 Sep 2020')).toBe(true);
+  expect(detailTypes.at(10).text()).toBe('Customer contact attempt 1:');
+  expect(detailDefinitions.at(10).text().includes('15 Sep 2020, 1200Z')).toBe(true);
 
-  expect(detailTypes.at(10).text()).toBe('First available delivery date 2:');
-  expect(detailDefinitions.at(10).text().includes('21 Sep 2020')).toBe(true);
-  expect(detailTypes.at(11).text()).toBe('Customer contact attempt 2:');
-  expect(detailDefinitions.at(11).text().includes('21 Sep 2020, 2300Z')).toBe(true);
+  expect(detailTypes.at(11).text()).toBe('First available delivery date 2:');
+  expect(detailDefinitions.at(11).text().includes('21 Sep 2020')).toBe(true);
+  expect(detailTypes.at(12).text()).toBe('Customer contact attempt 2:');
+  expect(detailDefinitions.at(12).text().includes('21 Sep 2020, 2300Z')).toBe(true);
 
-  expect(detailTypes.at(12).text()).toBe('Reason:');
-  expect(detailDefinitions.at(12).text().includes('Took a detour')).toBe(true);
+  expect(detailTypes.at(13).text()).toBe('Reason:');
+  expect(detailDefinitions.at(13).text().includes('Took a detour')).toBe(true);
 };
 
 describe('RequestedServiceItemsTable', () => {
