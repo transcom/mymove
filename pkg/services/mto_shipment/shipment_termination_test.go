@@ -68,4 +68,23 @@ func (suite *MTOShipmentServiceSuite) TestTerminateShipment() {
 
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
+
+	suite.Run(("Won't allow termination of a shipment tied to a PPM"), func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		// Fetch `mto_shipments` entry
+		var mtoShipment models.MTOShipment
+		err := suite.DB().Where("id = ?", ppmShipment.ShipmentID).First(&mtoShipment)
+		suite.NoError(err)
+		suite.NotEmpty(mtoShipment)
+
+		// Attempt to terminate the parent mto_shipment
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		terminatedShipment, err := terminator.TerminateShipment(session, mtoShipment.ID, "this will fail")
+		suite.Error(err)
+		suite.Nil(terminatedShipment)
+		suite.EqualError(err, "Shipments tied to PPMs do not qualify for termination")
+	})
 }

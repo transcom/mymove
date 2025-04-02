@@ -82,7 +82,10 @@ const ShipmentDisplay = ({
     "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
 
   const canTerminate =
-    !displayInfo.actualPickupDate && displayInfo.shipmentStatus === shipmentStatuses.APPROVED && terminatingShipmentsFF;
+    !displayInfo.actualPickupDate &&
+    displayInfo.shipmentStatus === shipmentStatuses.APPROVED &&
+    terminatingShipmentsFF &&
+    !displayInfo.ppmShipment;
 
   const queryClient = useQueryClient();
   const { mutate: mutateShipmentTermination } = useMutation(terminateShipment, {

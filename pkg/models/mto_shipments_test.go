@@ -590,4 +590,18 @@ func (suite *ModelSuite) TestMtoShipmentTriggers() {
 		suite.Error(err)
 		suite.EqualError(err, "pq: Cannot update mto_shipments row: shipment status is TERMINATED_FOR_CAUSE and is protected from update operations")
 	})
+	suite.Run(`trigger mto_shipments_prevent_termination_if_tied_to_ppm should raise a
+	db error if UPDATE is setting status to TERMINATED_FOR_CAUSE while being tied to a PPM`, func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		// Fetch `mto_shipments` entry
+		var mtoShipment models.MTOShipment
+		err := suite.DB().Where("id = ?", ppmShipment.ShipmentID).First(&mtoShipment)
+		suite.NoError(err)
+		suite.NotEmpty(mtoShipment)
+		// Attempt to set mto_shipments to terminated, db should throw an error
+		mtoShipment.Status = models.MTOShipmentStatusTerminatedForCause
+		err = suite.DB().Save(&mtoShipment)
+		suite.Error(err)
+		suite.EqualError(err, "pq: Cannot update mto_shipments row: Cannot set status to TERMINATED_FOR_CAUSE: shipment is associated with a PPM and PPMs do not qualify for termination")
+	})
 }
