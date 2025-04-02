@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -34,20 +35,22 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 
-	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-	suite.NotNil(usprc)
-	suite.FatalNoError(err)
+	// usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	// suite.NotNil(usprc)
+	// suite.FatalNoError(err)
 
+	// var usprcId string
+	var usprc models.UsPostRegionCity
 	newAddress := m.Address{
 		UsPostRegionCityID: &usprc.ID,
-		UsPostRegionCity:   usprc,
 	}
 
 	expErrors := map[string][]string{
-		"street_address1": {"StreetAddress1 can not be blank."},
-		"city":            {"City can not be blank."},
-		"state":           {"State can not be blank."},
-		"postal_code":     {"PostalCode can not be blank."},
+		"street_address1":        {"StreetAddress1 can not be blank."},
+		"city":                   {"City can not be blank."},
+		"state":                  {"State can not be blank."},
+		"postal_code":            {"PostalCode can not be blank."},
+		"us_post_region_city_id": {"UsPostRegionCityID can not be blank."},
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors)
 }

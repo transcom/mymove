@@ -76,6 +76,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 			if ts.hasResult {
 				suite.NotNil(payload, "Should have address record")
 				suite.Equal(payload.ID.String(), ts.resultID, "Address ID doest match")
+				suite.Equal(payload.UsPostRegionCitiesID.String(), usprc.ID.String())
 			} else {
 				suite.Nil(payload, "Should not have address record")
 			}

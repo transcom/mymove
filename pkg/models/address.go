@@ -69,7 +69,7 @@ func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: a.City, Name: "City"},
 		&validators.StringIsPresent{Field: a.State, Name: "State"},
 		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
-		&validators.StringIsPresent{Field: a.UsPostRegionCityID.String(), Name: "UsPostRegionCityID"},
+		&validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"},
 	), nil
 }
 

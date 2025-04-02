@@ -76,6 +76,66 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		suite.Equal(actualCustomer.BackupContacts[0].Name, "Updated Backup Contact")
 	})
 
+	suite.Run("Customer fields are update returns error when USPRC lookup fails", func() {
+		defaultCustomer := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		var backupContacts []models.BackupContact
+		backupContact := models.BackupContact{
+			Email: "newbackup@mail.com",
+			Name:  "New Backup Contact",
+			Phone: "445-345-1212",
+		}
+		backupContacts = append(backupContacts, backupContact)
+
+		updatedCustomer := models.ServiceMember{
+			ID:        defaultCustomer.ID,
+			LastName:  models.StringPointer("Newlastname"),
+			FirstName: models.StringPointer("Newfirstname"),
+			Telephone: models.StringPointer("123-455-3399"),
+			ResidentialAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "29229",
+			},
+			BackupContacts: backupContacts,
+			CacValidated:   true,
+		}
+
+		expectedETag := etag.GenerateEtag(defaultCustomer.UpdatedAt)
+		actualCustomer, err := customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
+
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BARRE.")
+		suite.Nil(actualCustomer)
+
+		updatedCustomer = models.ServiceMember{
+			ID:        defaultCustomer.ID,
+			LastName:  models.StringPointer("Newlastname"),
+			FirstName: models.StringPointer("Newfirstname"),
+			Telephone: models.StringPointer("123-455-3399"),
+			ResidentialAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "01005",
+			},
+			BackupMailingAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "29229",
+			},
+			BackupContacts: backupContacts,
+			CacValidated:   true,
+		}
+
+		expectedETag = etag.GenerateEtag(defaultCustomer.UpdatedAt)
+		actualCustomer, err = customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
+
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BARRE.")
+		suite.Nil(actualCustomer)
+	})
+
 	suite.Run("Empty customer is updated", func() {
 		defaultCustomer := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{

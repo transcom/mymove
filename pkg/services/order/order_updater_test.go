@@ -107,7 +107,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode:         "77777",
+					PostalCode:         usprc.UsprZipID,
 					UsPostRegionCityID: &usprc.ID,
 				},
 			},
