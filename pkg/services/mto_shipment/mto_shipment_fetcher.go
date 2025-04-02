@@ -61,8 +61,6 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
 			"PPMShipment.ProgearWeightTickets",
-			"PPMShipment.ProGearWeight",
-			"PPMShipment.SpouseProGearWeight",
 			"PPMShipment.PickupAddress",
 			"PPMShipment.SecondaryPickupAddress",
 			"PPMShipment.TertiaryPickupAddress",
