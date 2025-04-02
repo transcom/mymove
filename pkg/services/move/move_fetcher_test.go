@@ -790,53 +790,21 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
-		postalCode := "90210"
-
-		destinationMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+		assignedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					Status: models.MoveStatusServiceCounselingCompleted,
-					Show:   models.BoolPointer(true),
-				},
-			}}, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{PostalCode: postalCode},
-			},
-		}, nil)
-		destinationShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status: models.MoveStatusAPPROVALSREQUESTED,
 				},
 			},
 			{
-				Model:    destinationMove,
+				Model:    transportationOffice,
 				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
-				Model:    destinationAddress,
+				Model:    officeUser,
 				LinkOnly: true,
-			},
-		}, nil)
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model:    destinationMove,
-				LinkOnly: true,
-			},
-			{
-				Model:    destinationShipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusSubmitted,
-				},
+				Type:     &factory.OfficeUsers.TOODestinationAssignedUser,
 			},
 		}, nil)
 
@@ -845,18 +813,18 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 
 		// confirm that the assigned move isn't returned
 		for _, move := range moves {
-			suite.NotEqual(move.ID, destinationMove.ID)
+			suite.NotEqual(move.ID, assignedMove.ID)
 		}
 
 		// confirm that the rest of the details are correct
 		// move is SERVICE COUNSELING COMPLETED
-		suite.Equal(destinationMove.Status, models.MoveStatusServiceCounselingCompleted)
+		suite.Equal(assignedMove.Status, models.MoveStatusAPPROVALSREQUESTED)
 		// GBLOC is the same
-		suite.Equal(*destinationMove.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		suite.Equal(*assignedMove.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
-		suite.Equal(destinationMove.Show, models.BoolPointer(true))
+		suite.Equal(assignedMove.Show, models.BoolPointer(true))
 		// Orders type isn't WW, BB, or Safety
-		suite.Equal(destinationMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
 	suite.Run("TOO: Does not return payment requests with Marines if GBLOC not USMC", func() {
