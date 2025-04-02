@@ -5,6 +5,8 @@ import userEvent from '@testing-library/user-event';
 import CreateAccount from './CreateAccount';
 
 import { MockProviders } from 'testUtils';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
+import { validateCode } from 'services/internalApi';
 
 const dummySetShowLoadingSpinner = jest.fn();
 
@@ -12,6 +14,16 @@ const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabledUnauthenticated: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  validateCode: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 describe('CreateAccount Component', () => {
@@ -102,5 +114,36 @@ describe('CreateAccount Component', () => {
     expect(screen.getByText('DoD ID numbers must match')).toBeInTheDocument();
     expect(screen.getByText('EMPLID numbers must match')).toBeInTheDocument();
     expect(screen.getByText('Emails must match')).toBeInTheDocument();
+  });
+
+  it('renders the validation code screen when FF is on, able to submit and create account', async () => {
+    isBooleanFlagEnabledUnauthenticated.mockImplementation(() => Promise.resolve(true));
+
+    validateCode.mockImplementation(() =>
+      Promise.resolve({
+        body: {
+          parameterValue: 'TestCode123123',
+          parameterName: 'validation_code',
+        },
+      }),
+    );
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Please enter a validation code to begin creating a move')).toBeInTheDocument();
+    });
+
+    // submit the validation code
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    expect(nextBtn).toBeDisabled();
+    await userEvent.type(screen.getByLabelText('Validation code'), 'TestCode123123');
+    expect(nextBtn).toBeEnabled();
+    await userEvent.click(nextBtn);
+
+    // should now see the CAC validated modal
+    await waitFor(() => {
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
+    });
   });
 });
