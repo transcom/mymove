@@ -670,7 +670,7 @@ compile_app_server:
       policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "6"
-    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
     - pre_deps_golang
