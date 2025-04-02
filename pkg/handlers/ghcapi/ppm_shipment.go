@@ -218,33 +218,11 @@ func (h SendPPMToCustomerHandler) Handle(params ppm.SendPPMToCustomerParams) mid
 				return handleError(err)
 			}
 			fmt.Println("TESTING", ppmShipment.ID)
-			// err = h.SendToCustomer(appCtx, ppmShipment)
-			// if err != nil {
-			// 	return handleError(err)
-			// }
 
 			ppmShipment, err = h.UpdateStatusServiceCounselingSendPPMToCustomer(appCtx, *ppmShipment, params.IfMatch, &ppmShipment.Shipment.MoveTaskOrder)
 			if err != nil {
 				return handleError(err)
 			}
-
-			// ppmShipment, err = h.UpdatePPMSendToCustomer(appCtx, ppmShipment, ppmShipment.ShipmentID)
-			// if err != nil {
-			// 	return handleError(err)
-			// }
-
-			// ppmShipment.SITLocation = (*models.SITLocationType)(payload.SitLocation)
-
-			// // We set sitExpected to true because this is a storage moving expense therefore SIT has to be true
-			// // The case where this could be false at this point is when the Customer created the shipment they answered No to SIT Expected question,
-			// // but later decided they needed SIT and submitted a moving expense for storage or if the Service Counselor adds one.
-			// sitExpected := true
-			// ppmShipment.SITExpected = &sitExpected
-			// updatedPPMShipment, err := h.PPMShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, ppmShipment)
-
-			// if err != nil {
-			// 	return handleError(err)
-			// }
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
