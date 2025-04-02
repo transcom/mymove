@@ -100,7 +100,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceInternationalDestinationSITFuel
 					fscWeightBasedDistanceMultiplier: idsfscWeightDistanceMultiplier,
 					eiaFuelPrice:                     idsfscFuelPrice,
 				},
-				errorMessage: "Distance must be greater than equal to 0",
+				errorMessage: "Distance cannot be less than 0",
 			},
 		}
 

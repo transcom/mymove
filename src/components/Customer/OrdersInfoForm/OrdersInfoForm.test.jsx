@@ -251,6 +251,19 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText(/New duty location/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/Pay grade/)).toBeInstanceOf(HTMLSelectElement);
       expect(getByLabelText(/Current duty location/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
   });
 
