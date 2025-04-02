@@ -2651,14 +2651,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			OfficeUserID:    too.ID,
 		}
 		session.Roles = append(session.Roles, too.User.Roles...)
-		// expectedMileage := 314
 		plannerSITFSC := &mocks.Planner{}
-		// expecting 50314/50314 for IOSFSC mileage lookup for source, destination
 		plannerSITFSC.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(300, nil)
+		).Return(1, nil)
 
 		mtoShipmentUpdater := NewOfficeMTOShipmentUpdater(builder, fetcher, plannerSITFSC, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
 
@@ -2671,7 +2669,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NoError(err)
 		suite.Equal(2, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC || serviceItems[i].ReService.Code == models.ReServiceCodeIDSFSC)
+			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOFSIT || serviceItems[i].ReService.Code == models.ReServiceCodeIDFSIT)
 			suite.True(*serviceItems[i].PricingEstimate > 0)
 		}
 	})
