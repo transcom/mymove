@@ -15,7 +15,13 @@ func (suite *MTOShipmentServiceSuite) TestTerminateShipment() {
 	terminator := NewShipmentTermination()
 
 	suite.Run("If the shipment is terminated successfully, it should update the shipment status, terminated_at, and termination_comments", func() {
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
@@ -53,6 +59,7 @@ func (suite *MTOShipmentServiceSuite) TestTerminateShipment() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
 					ActualPickupDate: &now,
 				},
 			},
@@ -67,6 +74,49 @@ func (suite *MTOShipmentServiceSuite) TestTerminateShipment() {
 		suite.Nil(terminatedShipment)
 
 		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("Shipment cannot have an actual pickup date set in order to terminate for cause", err.Error())
+	})
+
+	suite.Run("Returns invalid input error if shipment is in a non-approved status and a termination is attempted", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		terminatedShipment, err := terminator.TerminateShipment(session, shipment.ID, "get in the choppuh")
+		suite.Error(err)
+		suite.Nil(terminatedShipment)
+
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("Shipment must be in APPROVED status in order to terminate for cause", err.Error())
+	})
+
+	suite.Run("Returns invalid input error if shipment is already in TERMINATED_FOR_CAUSE status and a termination is attempted", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusTerminatedForCause,
+				},
+			},
+		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		terminatedShipment, err := terminator.TerminateShipment(session, shipment.ID, "get in the choppuh")
+		suite.Error(err)
+		suite.Nil(terminatedShipment)
+
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Equal("Shipment in TERMINATED FOR CAUSE status cannot be terminated for cause again", err.Error())
 	})
 
 	suite.Run(("Won't allow termination of a shipment tied to a PPM"), func() {
