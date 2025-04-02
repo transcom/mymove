@@ -791,6 +791,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
+
 		assignedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
