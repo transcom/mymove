@@ -646,7 +646,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		ReDomesticServiceArea: serviceArea,
 	})
 
-	baseLinehaulPrice := testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
 			Contract:              contractYear.Contract,
@@ -660,16 +660,16 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 	})
 
-	_ = testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
-		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-			ContractID:            contractYear.Contract.ID,
-			Contract:              contractYear.Contract,
-			DomesticServiceAreaID: serviceArea.ID,
-			DomesticServiceArea:   serviceArea,
-			IsPeakPeriod:          true,
-			PriceMillicents:       baseLinehaulPrice.PriceMillicents - 2500, // minus $0.025
-		},
-	})
+	// _ = testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	// 	ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+	// 		ContractID:            contractYear.Contract.ID,
+	// 		Contract:              contractYear.Contract,
+	// 		DomesticServiceAreaID: serviceArea.ID,
+	// 		DomesticServiceArea:   serviceArea,
+	// 		IsPeakPeriod:          true,
+	// 		PriceMillicents:       baseLinehaulPrice.PriceMillicents - 2500, // minus $0.025
+	// 	},
+	// })
 
 	csService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 	csTaskOrderFee := models.ReTaskOrderFee{
