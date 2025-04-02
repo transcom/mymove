@@ -408,26 +408,45 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 
 // SumWeightTickets return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
 func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
-	if len(ppmShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-				originalTotalWeight += 0
-			} else if weightTicket.AdjustedNetWeight != nil {
-				originalTotalWeight += *weightTicket.AdjustedNetWeight
-			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+	// small package PPMs will not have weight tickets, so we need to instead use moving expenses
+	if newPPMShipment.PPMType != models.PPMTypeSmallPackage {
+		if len(ppmShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range ppmShipment.WeightTickets {
+				if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+					originalTotalWeight += 0
+				} else if weightTicket.AdjustedNetWeight != nil {
+					originalTotalWeight += *weightTicket.AdjustedNetWeight
+				} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+					originalTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+				}
 			}
 		}
-	}
 
-	if len(newPPMShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range newPPMShipment.WeightTickets {
-			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+		if len(newPPMShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range newPPMShipment.WeightTickets {
+				if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+					newTotalWeight += 0
+				} else if weightTicket.AdjustedNetWeight != nil {
+					newTotalWeight += *weightTicket.AdjustedNetWeight
+				} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+					newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+				}
+			}
+		}
+	} else {
+		for _, expense := range ppmShipment.MovingExpenses {
+			if expense.Status != nil && *expense.Status == models.PPMDocumentStatusRejected {
+				originalTotalWeight += 0
+			} else if expense.WeightShipped != nil {
+				originalTotalWeight += *expense.WeightShipped
+			}
+		}
+
+		for _, expense := range newPPMShipment.MovingExpenses {
+			if expense.Status != nil && *expense.Status == models.PPMDocumentStatusRejected {
 				newTotalWeight += 0
-			} else if weightTicket.AdjustedNetWeight != nil {
-				newTotalWeight += *weightTicket.AdjustedNetWeight
-			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
-				newTotalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			} else if expense.WeightShipped != nil {
+				newTotalWeight += *expense.WeightShipped
 			}
 		}
 	}

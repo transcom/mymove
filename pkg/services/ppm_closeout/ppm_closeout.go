@@ -153,8 +153,14 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 
 	// Create a single weight ticket with the max weight, and use that to price the GCC
 	// GCC is priced as if all was moved in one lot and must be to/from the authorized ZIPs/addresses
-	fullEntitlementPPM.WeightTickets = models.WeightTickets{ppmShipment.WeightTickets[0]}
-	fullEntitlementPPM.WeightTickets[0].AdjustedNetWeight = &fullEntitlementWeight
+	var weightTicket models.WeightTicket
+	if (ppmShipment.WeightTickets != nil) && len(ppmShipment.WeightTickets) > 0 {
+		weightTicket = ppmShipment.WeightTickets[0]
+	} else {
+		weightTicket = models.WeightTicket{}
+	}
+	weightTicket.AdjustedNetWeight = &fullEntitlementWeight
+	fullEntitlementPPM.WeightTickets = models.WeightTickets{weightTicket}
 
 	finalIncentive, err := p.estimator.FinalIncentiveWithDefaultChecks(appCtx, ppmShipment, &fullEntitlementPPM)
 	if err != nil {
@@ -195,6 +201,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"ActualMoveDate",
 			"EstimatedWeight",
 			"WeightTickets",
+			"MovingExpenses",
 			"ProgearWeightTickets",
 			"FinalIncentive",
 			"AdvanceAmountReceived",

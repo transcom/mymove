@@ -224,6 +224,28 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
           ) : (
             <>
               <div>
+                <Label>Allowable Weight</Label>
+                {isFetchingItems && updatedItemName === 'allowableWeight' ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  <>
+                    <span>{formatWeight(sectionInfo.allowableWeight)}</span>
+                    <OpenModalButton
+                      onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
+                      isDisabled={isFetchingItems || readOnly}
+                      dataTestId="editAllowableWeightButton"
+                      ariaLabel="Edit allowable weight"
+                    />
+                  </>
+                )}
+                <ToolTip
+                  icon="info-circle"
+                  style={{ display: 'inline-block', height: '15px', margin: '0' }}
+                  textAreaSize="large"
+                  text="The total PPM weight sent via Small Package (all shipments combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's remaining weight entitlement."
+                />
+              </div>
+              <div>
                 <Label>Total Weight Shipped</Label>
                 <span>{formatWeight(getTotalPackageWeightSPR(sectionInfo.movingExpenses))}</span>
               </div>

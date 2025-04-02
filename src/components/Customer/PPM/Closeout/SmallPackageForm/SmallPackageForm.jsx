@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Radio } from '@trussworks/react-uswds';
+import { Label, Radio } from '@trussworks/react-uswds';
 import { Field, useFormikContext } from 'formik';
+
+import styles from './SmallPackageForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
-import formStyles from 'styles/form.module.scss';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const SmallPackageForm = () => {
   const { values } = useFormikContext();
@@ -41,9 +43,9 @@ const SmallPackageForm = () => {
         above.
       </Hint>
       <TextField label="Tracking number" name="trackingNumber" id="trackingNumber" />
-      <legend className="usa-label">
-        Was this pro-gear?<span className={formStyles.requiredAsterisk}>*</span>
-      </legend>
+      <Label className={styles.labelWithAsterisk}>
+        Was this pro-gear? <RequiredAsterisk />
+      </Label>
       <div>
         <Field
           as={Radio}
@@ -64,7 +66,9 @@ const SmallPackageForm = () => {
       </div>
       {showProGear ? (
         <>
-          <legend className="usa-label">Who does this pro-gear belong to?</legend>
+          <Label className={styles.labelWithAsterisk}>
+            Who does this pro-gear belong to? {values.isProGear && <RequiredAsterisk />}
+          </Label>
           <div>
             <Field
               as={Radio}
@@ -91,9 +95,9 @@ const SmallPackageForm = () => {
           />
           <MaskedTextField
             name="weightShipped"
-            label="Pro-gear weight"
+            label="Package weight"
             data-testid="proGearWeight"
-            id="weightShipped"
+            id="proGearWeight"
             mask={Number}
             scale={0}
             thousandsSeparator=","
@@ -105,7 +109,7 @@ const SmallPackageForm = () => {
       ) : (
         <MaskedTextField
           name="weightShipped"
-          label="Weight shipped"
+          label="Package weight"
           data-testid="weightShipped"
           id="weightShipped"
           mask={Number}

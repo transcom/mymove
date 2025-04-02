@@ -35,6 +35,8 @@ type PPMCloseoutSummary struct {
 	RemainingIncentive          *unit.Cents `json:"remaining_incentive" db:"remaining_incentive"`
 	GTCCPaidSIT                 *unit.Cents `json:"gtcc_paid_sit" db:"gtcc_paid_sit"`
 	MemberPaidSIT               *unit.Cents `json:"member_paid_sit" db:"member_paid_sit"`
+	GTCCPaidSmallPackage        *unit.Cents `json:"gtcc_paid_small_package" db:"gtcc_paid_small_package"`
+	MemberPaidSmallPackage      *unit.Cents `json:"member_paid_small_package" db:"member_paid_small_package"`
 	GTCCDisbursement            *unit.Cents `json:"gtcc_disbursement" db:"gtcc_disbursement"`
 	MemberDisbursement          *unit.Cents `json:"member_disbursement" db:"member_disbursement"`
 	CreatedAt                   time.Time   `json:"created_at" db:"created_at"`

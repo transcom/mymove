@@ -36,6 +36,7 @@ import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
 import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
 import SmallPackageForm from 'components/Customer/PPM/Closeout/SmallPackageForm/SmallPackageForm';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -356,7 +357,9 @@ export default function ReviewExpense({
                 <hr />
                 <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
                 <div className="labelWrapper">
-                  <Label htmlFor="movingExpenseType">Expense Type</Label>
+                  <Label htmlFor="movingExpenseType" className={styles.labelWithAsterisk}>
+                    Expense Type <RequiredAsterisk />
+                  </Label>
                 </div>
                 <select
                   label="Expense Type"
@@ -375,7 +378,7 @@ export default function ReviewExpense({
                     <option key={x.key}>{x.value}</option>
                   ))}
                 </select>
-                {movingExpenseType !== expenseTypes.SMALL_PACKAGE && (
+                {llvmExpenseTypes[selectedExpenseType] !== expenseTypes.SMALL_PACKAGE && (
                   <TextField
                     defaultValue={description}
                     name="description"
@@ -432,7 +435,7 @@ export default function ReviewExpense({
                     )}
                   </>
                 )}
-                {movingExpenseType !== expenseTypes.SMALL_PACKAGE && (
+                {llvmExpenseTypes[selectedExpenseType] !== expenseTypes.SMALL_PACKAGE && (
                   <MaskedTextField
                     defaultValue="0"
                     name="amount"
@@ -454,7 +457,7 @@ export default function ReviewExpense({
                     }}
                   />
                 )}
-                {movingExpenseType === expenseTypes.SMALL_PACKAGE && <SmallPackageForm />}
+                {llvmExpenseTypes[selectedExpenseType] === expenseTypes.SMALL_PACKAGE && <SmallPackageForm />}
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
                     <div>

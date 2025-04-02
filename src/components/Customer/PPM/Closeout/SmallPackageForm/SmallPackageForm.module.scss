@@ -4,3 +4,11 @@
     font-weight: 100;
     color: $base;
 }
+
+.labelWithAsterisk {
+    justify-content: flex-start !important;
+}
+
+.labelWithAsterisk>*:last-child {
+    margin-left: 2px;
+}
