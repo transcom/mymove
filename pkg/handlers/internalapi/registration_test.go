@@ -25,6 +25,11 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 		provider, err := factory.BuildOktaProvider(milProviderName)
 		suite.NoError(err)
 
+		// mocking the okta customer group id env variable
+		originalGroupID := os.Getenv("OKTA_CUSTOMER_GROUP_ID")
+		os.Setenv("OKTA_CUSTOMER_GROUP_ID", "notrealcustomergroupId")
+		defer os.Setenv("OKTA_CUSTOMER_GROUP_ID", originalGroupID)
+
 		// these mocked endpoints fetch an exact user
 		mockAndActivateOktaGETEndpointExistingUserNoError(provider)
 		mockAndActivateOktaGroupGETEndpointNoError(provider)
@@ -77,6 +82,9 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 
 		// setting the dodid_unique flag to true
 		os.Setenv("FEATURE_FLAG_DODID_UNIQUE", "true")
+		originalGroupID := os.Getenv("OKTA_CUSTOMER_GROUP_ID")
+		os.Setenv("OKTA_CUSTOMER_GROUP_ID", "notrealcustomergroupId")
+		defer os.Setenv("OKTA_CUSTOMER_GROUP_ID", originalGroupID)
 
 		provider, err := factory.BuildOktaProvider(milProviderName)
 		suite.NoError(err)
@@ -711,7 +719,7 @@ func mockAndActivateOktaGroupGETEndpointNoError(provider *okta.Provider) {
 func mockAndActivateOktaGroupAddEndpointNoError(provider *okta.Provider) {
 
 	oktaID := "fakeSub"
-	groupID := "00g3ja8t0dwKG8Mmi0k6"
+	groupID := "notrealcustomergroupId"
 	addGroupEndpoint := provider.AddUserToGroupURL(groupID, oktaID)
 
 	httpmock.RegisterResponder("PUT", addGroupEndpoint,
