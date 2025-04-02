@@ -14,17 +14,17 @@ type ShipmentRouter struct {
 	mock.Mock
 }
 
-// Approve provides a mock function with given fields: appCtx, shipment, ppmException
-func (_m *ShipmentRouter) Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment, ppmException bool) error {
-	ret := _m.Called(appCtx, shipment, ppmException)
+// Approve provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentRouter) Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, shipment)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Approve")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, bool) error); ok {
-		r0 = rf(appCtx, shipment, ppmException)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Error(0)
 	}

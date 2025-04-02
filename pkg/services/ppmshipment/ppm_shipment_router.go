@@ -78,7 +78,7 @@ func (p *ppmShipmentRouter) SendToCustomer(appCtx appcontext.AppContext, ppmShip
 	}
 
 	if ppmShipment.Shipment.Status != models.MTOShipmentStatusApproved {
-		err := p.ShipmentRouter.Approve(appCtx, &ppmShipment.Shipment, true)
+		err := p.ShipmentRouter.Approve(appCtx, &ppmShipment.Shipment)
 
 		if err != nil {
 			return err
