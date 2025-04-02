@@ -2204,7 +2204,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			{
 				Model: models.Address{
 					StreetAddress1: "JBER1",
-					City:           "Anchorage1",
+					City:           "Anchorage",
 					State:          "AK",
 					PostalCode:     "99505",
 					IsOconus:       models.BoolPointer(true),
@@ -2394,7 +2394,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			{
 				Model: models.Address{
 					StreetAddress1: "JBER1",
-					City:           "Anchorage1",
+					City:           "Anchorage",
 					State:          "AK",
 					PostalCode:     "99505",
 					IsOconus:       models.BoolPointer(true),
