@@ -36,27 +36,23 @@ func (router shipmentRouter) Submit(_ appcontext.AppContext, shipment *models.MT
 
 // Approve checks if a shipment can be approved, and if so, sets the appropriate status and date. It's up to the caller
 // to save the shipment.
-func (router shipmentRouter) Approve(_ appcontext.AppContext, shipment *models.MTOShipment, ppmException bool) error {
+func (router shipmentRouter) Approve(_ appcontext.AppContext, shipment *models.MTOShipment) error {
 	// When a shipment is approved, service items automatically get created, but
 	// service items can only be created if a Move's status is either Approved
 	// or Approvals Requested, so check and fail early.
-	// PPMs can sometimes be approved independently of move status per business rules,
-	// so we want to allow PPM-specific approval regardless of move status
-	if !ppmException {
-		move := shipment.MoveTaskOrder
-		if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED && !(shipment.ShipmentType == models.MTOShipmentTypePPM && move.Status == models.MoveStatusNeedsServiceCounseling) {
-			return apperror.NewConflictError(
+	move := shipment.MoveTaskOrder
+	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED && !(shipment.ShipmentType == models.MTOShipmentTypePPM && move.Status == models.MoveStatusNeedsServiceCounseling) {
+		return apperror.NewConflictError(
+			move.ID,
+			fmt.Sprintf(
+				"Cannot approve a shipment if the move status isn't %s or %s, or if it isn't a PPM shipment with a move status of %s. The current status for the move with ID %s is %s",
+				models.MoveStatusAPPROVED,
+				models.MoveStatusAPPROVALSREQUESTED,
+				models.MoveStatusNeedsServiceCounseling,
 				move.ID,
-				fmt.Sprintf(
-					"Cannot approve a shipment if the move status isn't %s or %s, or if it isn't a PPM shipment with a move status of %s. The current status for the move with ID %s is %s",
-					models.MoveStatusAPPROVED,
-					models.MoveStatusAPPROVALSREQUESTED,
-					models.MoveStatusNeedsServiceCounseling,
-					move.ID,
-					move.Status,
-				),
-			)
-		}
+				move.Status,
+			),
+		)
 	}
 	if shipment.UsesExternalVendor {
 		return apperror.NewConflictError(

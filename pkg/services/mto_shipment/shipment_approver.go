@@ -53,7 +53,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.Approve(appCtx, shipment, false)
+	err = f.router.Approve(appCtx, shipment)
 	if err != nil {
 		return nil, err
 	}
