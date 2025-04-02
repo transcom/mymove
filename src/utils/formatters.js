@@ -3,6 +3,7 @@ import path from 'path';
 import moment from 'moment';
 import numeral from 'numeral';
 
+import { ASSIGNMENT_IDS, ASSIGNMENT_NAMES } from 'constants/MoveHistory/officeUserAssignment';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
@@ -616,13 +617,30 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   };
 
   assignOfficeUser(
-    'sc_assigned_id',
-    isServiceCounseling ? 'assigned_sc' : 'assigned_sc_ppm',
-    isServiceCounseling ? 're_assigned_sc' : 're_assigned_sc_ppm',
+    ASSIGNMENT_IDS.SERVICE_COUNSELOR,
+    isServiceCounseling ? ASSIGNMENT_NAMES.SERVICE_COUNSELOR.ASSIGNED : ASSIGNMENT_NAMES.SERVICE_COUNSELOR_PPM.ASSIGNED,
+    isServiceCounseling
+      ? ASSIGNMENT_NAMES.SERVICE_COUNSELOR.RE_ASSIGNED
+      : ASSIGNMENT_NAMES.SERVICE_COUNSELOR_PPM.RE_ASSIGNED,
   ); // counseling/ppm queues
-  assignOfficeUser('too_assigned_id', 'assigned_too', 're_assigned_too'); // task order queue
-  assignOfficeUser('tio_assigned_id', 'assigned_tio', 're_assigned_tio'); // payment request queue
-  assignOfficeUser('too_destination_assigned_id', 'assigned_too', 're_assigned_too'); // destination request queue
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.TASK_ORDERING_OFFICER,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.RE_ASSIGNED,
+  ); // task order queue
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.TASK_INVOICING_OFFICER,
+    ASSIGNMENT_NAMES.TASK_INVOICING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.TASK_INVOICING_OFFICER.RE_ASSIGNED,
+  ); // payment request queue
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.TASK_ORDERING_OFFICER_DESTINATION,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.RE_ASSIGNED,
+  ); // destination request queue
   return newValues;
 };
 
