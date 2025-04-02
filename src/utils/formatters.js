@@ -619,11 +619,10 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
     'sc_assigned_id',
     isServiceCounseling ? 'assigned_sc' : 'assigned_sc_ppm',
     isServiceCounseling ? 're_assigned_sc' : 're_assigned_sc_ppm',
-  );
-
-  assignOfficeUser('too_assigned_id', 'assigned_too', 're_assigned_too');
-  assignOfficeUser('tio_assigned_id', 'assigned_tio', 're_assigned_tio');
-  assignOfficeUser('too_destination_assigned_id', 'assigned_too', 're_assigned_too');
+  ); // counseling/ppm queues
+  assignOfficeUser('too_assigned_id', 'assigned_too', 're_assigned_too'); // task order queue
+  assignOfficeUser('tio_assigned_id', 'assigned_tio', 're_assigned_tio'); // payment request queue
+  assignOfficeUser('too_destination_assigned_id', 'assigned_too', 're_assigned_too'); // destination request queue
   return newValues;
 };
 
