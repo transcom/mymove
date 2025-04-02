@@ -1028,9 +1028,9 @@ integration_tests:
     - pre_deps_golang
     - compile_app_client
     - compile_app_server
-    - integration_test_my
-    - integration_test_office
-    - integration_test_admin
+    # - integration_test_my
+    # - integration_test_office
+    # - integration_test_admin
     - integration_test_devseed
   before_script: *setup_milmove_env
   script:
