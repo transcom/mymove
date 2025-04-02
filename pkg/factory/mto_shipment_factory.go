@@ -185,13 +185,14 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			result := findValidCustomization(customs, Addresses.DeliveryAddress)
 			if result != nil {
 				tempDeliveryAddressCustoms = convertCustomizationInList(tempDeliveryAddressCustoms, Addresses.DeliveryAddress, Address)
+			} else {
+				if newMTOShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+					traits = append(traits, GetTraitAddressAKZone1)
+				} else {
+					traits = append(traits, GetTraitAddress2)
+				}
 			}
 
-			if newMTOShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				traits = append(traits, GetTraitAddressAKZone1)
-			} else {
-				traits = append(traits, GetTraitAddress2)
-			}
 			deliveryAddress := BuildAddress(db, tempDeliveryAddressCustoms, traits)
 			if db == nil {
 				// fake an id for stubbed address, needed by the MTOShipmentCreator

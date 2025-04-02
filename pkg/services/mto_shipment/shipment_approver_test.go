@@ -1300,20 +1300,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 	suite.Run("If the OCONUS to CONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
 		var scheduledPickupDate time.Time
-		estimatedUBWeight := unit.Pound(300)
-		deliveryAddress := factory.BuildAddress(suite.AppContextForTest().DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "Tester Address",
-					City:           "Des Moines",
-					State:          "IA",
-					PostalCode:     "50314",
-					IsOconus:       models.BoolPointer(false),
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, nil)
-
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1332,17 +1318,21 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:           models.MarketCodeInternational,
-					Status:               models.MTOShipmentStatusSubmitted,
-					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
-					ScheduledPickupDate:  &scheduledPickupDate,
-					PrimeEstimatedWeight: &estimatedUBWeight,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate: &scheduledPickupDate,
 				},
 			},
 			{
-				Model:    deliveryAddress,
-				LinkOnly: true,
-				Type:     &factory.Addresses.DeliveryAddress,
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
 
