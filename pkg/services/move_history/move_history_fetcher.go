@@ -76,7 +76,7 @@ func (f moveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, param
 			if strings.Contains(err.Error(), "Move record not found for") {
 				return &models.MoveHistory{}, 0, apperror.NewNotFoundError(uuid.Nil, "move locator "+params.Locator)
 			}
-			return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory", err, "")
+			return &models.MoveHistory{}, 0, apperror.NewQueryError("AuditHistory", err, err.Error())
 		}
 	}
 
