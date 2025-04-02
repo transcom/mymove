@@ -217,16 +217,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 	suite.Run("Successful - UpdateMTOShipmentAddress - Test updating international origin SITDeliveryMiles on shipment pickup address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "177 Q st",
-					City:           "Solomons",
-					State:          "MD",
-					PostalCode:     "20688",
-				},
-			},
-		}, nil)
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 		actualAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{

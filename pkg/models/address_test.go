@@ -443,3 +443,64 @@ func (suite *ModelSuite) TestIsAddressAlaska() {
 	suite.NoError(err)
 	suite.Equal(m.BoolPointer(true), &bool4)
 }
+
+func (suite *ModelSuite) TestValidateUSPRCAssignment() {
+
+	suite.Run("returns false for invalid assignment", func() {
+		incorrectUSPRCID := uuid.Must(uuid.NewV4())
+
+		newAddress := &m.Address{
+			StreetAddress1:     "street 1",
+			StreetAddress2:     m.StringPointer("street 2"),
+			StreetAddress3:     m.StringPointer("street 3"),
+			City:               "BEVERLY HILLS",
+			State:              "CA",
+			PostalCode:         "90210",
+			County:             m.StringPointer("County"),
+			UsPostRegionCityID: &incorrectUSPRCID,
+		}
+
+		valid, err := m.ValidateUSPRCAssignment(suite.DB(), *newAddress)
+		suite.NoError(err)
+		suite.Equal(false, valid)
+	})
+
+	suite.Run("returns true for valid assignment", func() {
+
+		newAddress := &m.Address{
+			StreetAddress1: "street 1",
+			StreetAddress2: m.StringPointer("street 2"),
+			StreetAddress3: m.StringPointer("street 3"),
+			City:           "BEVERLY HILLS",
+			State:          "CA",
+			PostalCode:     "90210",
+			County:         m.StringPointer("County"),
+		}
+
+		expectedUSPRC, err := m.FindByZipCodeAndCity(suite.DB(), newAddress.PostalCode, newAddress.City)
+		suite.NoError(err)
+
+		newAddress.UsPostRegionCityID = &expectedUSPRC.ID
+
+		valid, err := m.ValidateUSPRCAssignment(suite.DB(), *newAddress)
+		suite.NoError(err)
+		suite.Equal(true, valid)
+	})
+
+	suite.Run("returns error when fails to lookup USPRC", func() {
+
+		newAddress := &m.Address{
+			StreetAddress1: "street 1",
+			StreetAddress2: m.StringPointer("street 2"),
+			StreetAddress3: m.StringPointer("street 3"),
+			City:           "BEVERLY HILLS",
+			State:          "CA",
+			PostalCode:     "29229",
+			County:         m.StringPointer("County"),
+		}
+
+		valid, err := m.ValidateUSPRCAssignment(suite.DB(), *newAddress)
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BEVERLY HILLS.")
+		suite.Equal(false, valid)
+	})
+}
