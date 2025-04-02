@@ -181,11 +181,16 @@ func (h SendPPMToCustomerHandler) Handle(params ppm.SendPPMToCustomerParams) mid
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("UpdatePPMSendToCustomer error", zap.Error(err))
 				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
-				switch err.(type) {
+				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return ppm.NewSendPPMToCustomerNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
 					return ppm.NewSendPPMToCustomerForbidden().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return ppm.NewSendPPMToCustomerPreconditionFailed().WithPayload(payload), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "SendShipmentToCustomer", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return ppm.NewSendPPMToCustomerUnprocessableEntity().WithPayload(payload), err
 				case apperror.QueryError:
 					return ppm.NewSendPPMToCustomerInternalServerError().WithPayload(payload), err
 				default:

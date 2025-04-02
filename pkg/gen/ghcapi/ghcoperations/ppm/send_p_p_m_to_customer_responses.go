@@ -238,51 +238,6 @@ func (o *SendPPMToCustomerNotFound) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
-// SendPPMToCustomerConflictCode is the HTTP code returned for type SendPPMToCustomerConflict
-const SendPPMToCustomerConflictCode int = 409
-
-/*
-SendPPMToCustomerConflict Conflict error
-
-swagger:response sendPPMToCustomerConflict
-*/
-type SendPPMToCustomerConflict struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewSendPPMToCustomerConflict creates SendPPMToCustomerConflict with default headers values
-func NewSendPPMToCustomerConflict() *SendPPMToCustomerConflict {
-
-	return &SendPPMToCustomerConflict{}
-}
-
-// WithPayload adds the payload to the send p p m to customer conflict response
-func (o *SendPPMToCustomerConflict) WithPayload(payload *ghcmessages.Error) *SendPPMToCustomerConflict {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the send p p m to customer conflict response
-func (o *SendPPMToCustomerConflict) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *SendPPMToCustomerConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(409)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // SendPPMToCustomerPreconditionFailedCode is the HTTP code returned for type SendPPMToCustomerPreconditionFailed
 const SendPPMToCustomerPreconditionFailedCode int = 412
 
