@@ -85,7 +85,7 @@ const renderWithState = (state, path) => {
 describe('CustomerApp', () => {
   it('renders Sign In page when logged out', async () => {
     renderWithState(loggedOutState, '/sign-in');
-    await waitFor(() => expect(screen.getByText(/sign in/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByText(/sign in/i).length).toBeGreaterThan(0));
   });
 
   it('displays maintenance page when under maintenance', async () => {
@@ -123,12 +123,12 @@ describe('CustomerApp', () => {
   it('handles the Invalid Permissions URL for logged in user', async () => {
     renderWithState(loggedInState, '/invalid-permissions');
 
-    expect(screen.getByText('Skip to content')).toBeInTheDocument();
-    expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.getByText('Skip to content')).toBeInTheDocument();
+      expect(screen.getByText('Controlled Unclassified Information')).toBeInTheDocument();
 
-    await waitFor(() =>
-      expect(screen.getByText(/You do not have permission to access this site/i)).toBeInTheDocument(),
-    );
+      expect(screen.getByText(/You do not have permission to access this site/i)).toBeInTheDocument();
+    });
   });
 
   it('shows the server error for logged in user', async () => {

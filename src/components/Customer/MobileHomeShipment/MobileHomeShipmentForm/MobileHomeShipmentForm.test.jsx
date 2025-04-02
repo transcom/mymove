@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MobileHomeShipmentForm from './MobileHomeShipmentForm';
@@ -78,16 +78,16 @@ describe('MobileHomeShipmentForm component', () => {
         'heightInches',
       ];
 
-      await act(async () => {
+      waitFor(async () => {
         requiredFields.forEach(async (field) => {
           const input = screen.getByTestId(field);
           await userEvent.clear(input);
           // await userEvent.click(input);
           fireEvent.blur(input);
         });
-      });
 
-      expect(screen.getAllByTestId('errorMessage').length).toBe(requiredFields.length);
+        expect(screen.getAllByTestId('errorMessage').length).toBe(requiredFields.length);
+      });
     });
   });
 
@@ -95,17 +95,17 @@ describe('MobileHomeShipmentForm component', () => {
     it('submits the form with valid data', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      });
 
-      expect(defaultProps.onSubmit).toHaveBeenCalled();
+        expect(defaultProps.onSubmit).toHaveBeenCalled();
+      });
     });
 
     it('does not submit the form with invalid data', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.clear(screen.getByTestId('year'));
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });

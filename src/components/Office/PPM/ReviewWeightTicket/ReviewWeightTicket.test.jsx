@@ -511,13 +511,10 @@ describe('ReviewWeightTicket component', () => {
       expect(netWeightDisplay).toHaveTextContent('7,000');
       expect(screen.getByLabelText('No')).toBeChecked();
 
-      await act(async () => {
-        await userEvent.clear(fullWeightInput);
-        await userEvent.type(fullWeightInput, '10,000');
-        fullWeightInput.blur();
-      });
-
       await waitFor(() => {
+        userEvent.clear(fullWeightInput);
+        userEvent.type(fullWeightInput, '10,000');
+        fullWeightInput.blur();
         expect(netWeightDisplay).toHaveTextContent('9,000');
       });
     });

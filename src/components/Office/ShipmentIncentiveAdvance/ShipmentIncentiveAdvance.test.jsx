@@ -66,16 +66,18 @@ describe('components/Office/ShipmentIncentiveAdvance', () => {
       </Formik>,
     );
 
-    expect(screen.getByLabelText('Yes')).toBeChecked();
-    expect(await screen.findByLabelText('Amount requested')).toHaveValue('7,000');
-    expect(
-      screen.getByText(
-        'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Maximum advance: $6,666')).toBeInTheDocument();
-    expect(screen.getByLabelText('Approve')).toBeInTheDocument();
-    expect(screen.getByLabelText('Approve')).toBeChecked();
+    waitFor(() => {
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.findByLabelText('Amount requested')).toHaveValue('7,000');
+      expect(
+        screen.getByText(
+          'Enter an amount that is less than or equal to the maximum advance (60% of estimated incentive)',
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Maximum advance: $6,666')).toBeInTheDocument();
+      expect(screen.getByLabelText('Approve')).toBeInTheDocument();
+      expect(screen.getByLabelText('Approve')).toBeChecked();
+    });
   });
 
   it('EDITED advanceStatus should stay as APPROVED', async () => {

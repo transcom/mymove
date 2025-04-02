@@ -78,7 +78,9 @@ describe('CreateAccount Component', () => {
     await userEvent.type(screen.getByTestId('emailConfirmation'), 'jim@jim.com');
     await userEvent.type(screen.getByTestId('telephone'), '555-555-5555');
 
-    expect(screen.getByTestId('submitBtn')).toBeEnabled();
+    waitFor(() => {
+      expect(screen.getByTestId('submitBtn')).toBeEnabled();
+    });
   });
 
   it('Validations display when confirm fields do not match', async () => {

@@ -307,8 +307,10 @@ describe('validates form fields and displays error messages', () => {
         </Provider>,
       );
 
-      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      waitFor(() => {
+        userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
+        userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
@@ -385,7 +387,7 @@ describe('validates form fields and displays error messages', () => {
     });
   });
   it('displays tertiary delivery address input when hasTertiaryDestinationAddress is true', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
@@ -413,7 +415,7 @@ describe('validates form fields and displays error messages', () => {
   });
 
   it('remove Required alert when secondary pickup/delivery streetAddress1 is cleared but the toggle is switched to No', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const newPPM = {
         ...defaultProps,
         mtoShipment: {

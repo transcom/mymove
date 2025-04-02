@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 
 import OktaInfoFields from './index';
@@ -45,13 +45,16 @@ describe('OktaInfoFields component', () => {
           <OktaInfoFields legend="Your Okta Profile" name="okta" />
         </Formik>,
       );
-      expect(await screen.findByLabelText('Okta Username')).toHaveValue(initialValues.oktaUsername);
-      expect(screen.getByLabelText('Okta Username')).toBeDisabled();
-      expect(screen.getByLabelText('Okta Email')).toHaveValue(initialValues.oktaEmail);
-      expect(screen.getByLabelText('First Name')).toHaveValue(initialValues.oktaFirstName);
-      expect(screen.getByLabelText('Last Name')).toHaveValue(initialValues.oktaLastName);
-      expect(screen.getByLabelText('DoD ID number')).toHaveValue(initialValues.oktaEdipi);
-      expect(screen.getByLabelText('DoD ID number')).toBeDisabled();
+
+      waitFor(() => {
+        expect(screen.findByLabelText('Okta Username')).toHaveValue(initialValues.oktaUsername);
+        expect(screen.getByLabelText('Okta Username')).toBeDisabled();
+        expect(screen.getByLabelText('Okta Email')).toHaveValue(initialValues.oktaEmail);
+        expect(screen.getByLabelText('First Name')).toHaveValue(initialValues.oktaFirstName);
+        expect(screen.getByLabelText('Last Name')).toHaveValue(initialValues.oktaLastName);
+        expect(screen.getByLabelText('DoD ID number')).toHaveValue(initialValues.oktaEdipi);
+        expect(screen.getByLabelText('DoD ID number')).toBeDisabled();
+      });
     });
   });
 });

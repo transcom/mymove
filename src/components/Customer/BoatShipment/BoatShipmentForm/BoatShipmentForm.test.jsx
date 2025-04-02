@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import BoatShipmentForm from './BoatShipmentForm';
@@ -75,7 +75,7 @@ describe('BoatShipmentForm component', () => {
       render(<BoatShipmentForm {...defaultProps} />);
       expect(screen.getByText('Is the trailer roadworthy?')).toBeInTheDocument();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByTestId('hasTrailerNo'));
       });
 
@@ -99,7 +99,7 @@ describe('BoatShipmentForm component', () => {
         'heightInches',
       ];
 
-      await act(async () => {
+      await waitFor(async () => {
         requiredFields.forEach(async (field) => {
           const input = screen.getByTestId(field);
           await userEvent.clear(input);
@@ -108,7 +108,9 @@ describe('BoatShipmentForm component', () => {
         });
       });
 
-      expect(screen.getAllByTestId('errorMessage').length).toBe(requiredFields.length);
+      waitFor(() => {
+        expect(screen.getAllByTestId('errorMessage').length).toBe(requiredFields.length);
+      });
     });
   });
 
@@ -116,7 +118,7 @@ describe('BoatShipmentForm component', () => {
     it('submits the form with valid data', async () => {
       render(<BoatShipmentForm {...defaultProps} />);
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
 
@@ -126,7 +128,7 @@ describe('BoatShipmentForm component', () => {
     it('does not submit the form with invalid data', async () => {
       render(<BoatShipmentForm {...defaultProps} />);
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.clear(screen.getByTestId('year'));
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });

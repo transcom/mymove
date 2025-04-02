@@ -1,6 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { render, renderHook, act } from '@testing-library/react';
 
 import { Modal, connectModal, useModal } from './MigratedModal';
 

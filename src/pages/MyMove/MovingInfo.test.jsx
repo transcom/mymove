@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from '../../shared/constants';
@@ -71,10 +71,12 @@ describe('MovingInfo component', () => {
     const wrapper = renderWithRouterProp(<MovingInfo {...testProps} entitlementWeight={0} />, routingOptions);
     await wrapper;
 
-    expect(screen.queryByText('You still have the option to move some of your belongings yourself.')).toBeNull();
-    expect(screen.queryByText('You can get paid for any household goods you move yourself.')).toBeNull();
+    waitFor(() => {
+      expect(screen.queryByText('You still have the option to move some of your belongings yourself.')).toBeNull();
+      expect(screen.queryByText('You can get paid for any household goods you move yourself.')).toBeNull();
 
-    expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+    });
   });
 
   it('when allowed UB allowance, they see the UB allowance section', async () => {

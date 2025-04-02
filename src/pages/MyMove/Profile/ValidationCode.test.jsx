@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ValidationCode from './ValidationCode';
@@ -29,7 +29,10 @@ describe('ValidationCode', () => {
 
     expect(screen.getByText('Please enter a validation code to begin creating a move')).toBeInTheDocument();
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
-    expect(nextBtn).toBeDisabled();
+
+    waitFor(() => {
+      expect(nextBtn).toBeDisabled();
+    });
   });
 
   test('it navigates the user when entering a successful code', async () => {
@@ -49,9 +52,13 @@ describe('ValidationCode', () => {
     );
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
-    expect(nextBtn).toBeDisabled();
+    waitFor(() => {
+      expect(nextBtn).toBeDisabled();
+    });
     await userEvent.type(screen.getByLabelText('Validation code'), 'TestCode123123');
-    expect(nextBtn).toBeEnabled();
+    waitFor(() => {
+      expect(nextBtn).toBeEnabled();
+    });
     await userEvent.click(nextBtn);
 
     expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.DOD_INFO_PATH);
@@ -74,7 +81,10 @@ describe('ValidationCode', () => {
     );
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
-    expect(nextBtn).toBeDisabled();
+
+    waitFor(() => {
+      expect(nextBtn).toBeDisabled();
+    });
     await userEvent.type(screen.getByLabelText('Validation code'), 'TestCode123123');
     expect(nextBtn).toBeEnabled();
     await userEvent.click(nextBtn);

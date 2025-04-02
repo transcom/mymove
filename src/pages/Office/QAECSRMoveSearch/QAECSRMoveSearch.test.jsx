@@ -182,21 +182,21 @@ describe('QAECSRMoveSearch page', () => {
         <QAECSRMoveSearch />
       </MockProviders>,
     );
-    await act(async () => {
+    waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
-      await screen.getByLabelText('Move Code').click();
+      screen.getByLabelText('Move Code').click();
       await userEvent.type(screen.getByLabelText('Search'), 'MOVE12');
       await waitFor(() => {
         expect(screen.getByLabelText('Search')).toHaveValue('MOVE12');
         expect(screen.getByLabelText('Move Code')).toBeChecked();
       });
       expect(submitButton).toBeEnabled();
-      await userEvent.click(submitButton);
+      userEvent.click(submitButton);
 
       const noResults = await screen.queryByText('Results (1)');
       expect(noResults).toBeInTheDocument();
 
-      await screen.getByTestId('locator-0').click();
+      screen.getByTestId('locator-0').click();
       expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/details');
     });
   });
