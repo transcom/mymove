@@ -222,7 +222,6 @@ func (h SendPPMToCustomerHandler) Handle(params ppm.SendPPMToCustomerParams) mid
 			if err != nil {
 				return handleError(err)
 			}
-			fmt.Println("TESTING", ppmShipment.ID)
 
 			ppmShipment, err = h.UpdateStatusServiceCounselingSendPPMToCustomer(appCtx, *ppmShipment, params.IfMatch, &ppmShipment.Shipment.MoveTaskOrder)
 			if err != nil {
