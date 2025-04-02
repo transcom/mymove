@@ -281,6 +281,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 			if serviceMember.ResidentialAddress != nil && strings.TrimSpace(serviceMember.ResidentialAddress.PostalCode) != "" && strings.TrimSpace(serviceMember.ResidentialAddress.City) != "" {
 				usprc, err := FindByZipCodeAndCity(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode, strings.ToUpper(serviceMember.ResidentialAddress.City))
 				if err != nil {
+					responseError = err
 					return err
 				}
 
@@ -291,6 +292,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 			if serviceMember.BackupMailingAddress != nil && strings.TrimSpace(serviceMember.BackupMailingAddress.PostalCode) != "" && strings.TrimSpace(serviceMember.BackupMailingAddress.City) != "" {
 				usprc, err := FindByZipCodeAndCity(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode, strings.ToUpper(serviceMember.BackupMailingAddress.City))
 				if err != nil {
+					responseError = err
 					return err
 				}
 
