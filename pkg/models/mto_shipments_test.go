@@ -54,6 +54,17 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 	})
 
 	suite.Run("test validation failures", func() {
+		// Start an original shipment to check against db verrs
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		// Passing the terminated status to the factory will fail as the factory
+		// tries updating after already saving as terminated, thus failing
+		hhgShipment.Status = models.MTOShipmentStatusTerminatedForCause
+		hhgShipment.TerminationComments = models.StringPointer("I'll be back")
+		err := suite.DB().Save(&hhgShipment)
+		suite.NoError(err)
+
+		// Proceed with verr checks
+
 		// mock weights
 		estimatedWeight := unit.Pound(-1000)
 		actualWeight := unit.Pound(-980)
@@ -64,6 +75,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		tacType := models.LOAType("FAKE")
 		marketCode := models.MarketCode("x")
 		invalidMTOShipment := models.MTOShipment{
+			ID:                          hhgShipment.ID,
 			MoveTaskOrderID:             uuid.Must(uuid.NewV4()),
 			Status:                      models.MTOShipmentStatusRejected,
 			PrimeEstimatedWeight:        &estimatedWeight,
@@ -89,6 +101,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"tactype":                       {"TACType is not in the list [HHG, NTS]."},
 			"sactype":                       {"SACType is not in the list [HHG, NTS]."},
 			"market_code":                   {"MarketCode is not in the list [d, i]."},
+			"status":                        {"Cannot update shipment with status TERMINATED_FOR_CAUSE"},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
 	})
@@ -560,5 +573,35 @@ func (suite *ModelSuite) TestIsPPMShipment() {
 		isPPM := nonPPMshipment.IsPPMShipment()
 		suite.NotNil(isPPM)
 		suite.Equal(isPPM, false)
+	})
+}
+
+func (suite *ModelSuite) TestMtoShipmentTriggers() {
+	suite.Run("trigger mto_shipments_prevent_update_if_terminated should raise a db error if UPDATE is called on terminated shipment", func() {
+		// Setup a terminated shipment
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil) // Factories update the shipment constantly so I can't pass it as a customization here
+		hhgShipment.Status = models.MTOShipmentStatusTerminatedForCause
+		hhgShipment.TerminationComments = models.StringPointer("I'll be back")
+		err := suite.DB().Save(&hhgShipment)
+		suite.NoError(err)
+		// Now it should fail to update
+		hhgShipment.TerminationComments = models.StringPointer("I'm back")
+		err = suite.DB().Save(&hhgShipment)
+		suite.Error(err)
+		suite.EqualError(err, "pq: Cannot update mto_shipments row: shipment status is TERMINATED_FOR_CAUSE and is protected from update operations")
+	})
+	suite.Run(`trigger mto_shipments_prevent_termination_if_tied_to_ppm should raise a
+	db error if UPDATE is setting status to TERMINATED_FOR_CAUSE while being tied to a PPM`, func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		// Fetch `mto_shipments` entry
+		var mtoShipment models.MTOShipment
+		err := suite.DB().Where("id = ?", ppmShipment.ShipmentID).First(&mtoShipment)
+		suite.NoError(err)
+		suite.NotEmpty(mtoShipment)
+		// Attempt to set mto_shipments to terminated, db should throw an error
+		mtoShipment.Status = models.MTOShipmentStatusTerminatedForCause
+		err = suite.DB().Save(&mtoShipment)
+		suite.Error(err)
+		suite.EqualError(err, "pq: Cannot update mto_shipments row: Cannot set status to TERMINATED_FOR_CAUSE: shipment is associated with a PPM and PPMs do not qualify for termination")
 	})
 }

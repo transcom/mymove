@@ -2,14 +2,14 @@ import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import styles from './QAECSRMoveSearch.module.scss';
+import styles from './MoveSearch.module.scss';
 
 import { useMoveSearchQueries } from 'hooks/queries';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
-const QAECSRMoveSearch = ({ landingPath }) => {
+const MoveSearch = ({ landingPath }) => {
   const navigate = useNavigate();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
@@ -44,8 +44,8 @@ const QAECSRMoveSearch = ({ landingPath }) => {
   }, []);
 
   return (
-    <div className={styles.QAECSRMoveSearchWrapper}>
-      <div data-testid="move-search" className={styles.QAECSRMoveSearchPage}>
+    <div className={styles.MoveSearchWrapper}>
+      <div data-testid="move-search" className={styles.MoveSearchPage}>
         <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} />
         {searchHappened && (
@@ -69,12 +69,12 @@ const QAECSRMoveSearch = ({ landingPath }) => {
   );
 };
 
-QAECSRMoveSearch.propTypes = {
+MoveSearch.propTypes = {
   landingPath: PropTypes.string,
 };
 
-QAECSRMoveSearch.defaultProps = {
+MoveSearch.defaultProps = {
   landingPath: 'details',
 };
 
-export default QAECSRMoveSearch;
+export default MoveSearch;

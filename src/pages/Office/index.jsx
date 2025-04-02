@@ -99,7 +99,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
   import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateDestinationAddress'),
 );
 
-const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
+const MoveSearch = lazy(() => import('pages/Office/MoveSearch/MoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
@@ -587,13 +587,13 @@ export class OfficeApp extends Component {
 
                       {/* QAE/CSR/GSR */}
                       <Route
-                        key="qaeCSRMoveSearchPath"
+                        key="moveSearchPath"
                         path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                         element={
                           <PrivateRoute
                             requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE, roleTypes.GSR]}
                           >
-                            <QAECSRMoveSearch />
+                            <MoveSearch />
                           </PrivateRoute>
                         }
                       />
@@ -604,7 +604,7 @@ export class OfficeApp extends Component {
                         path={contractingOfficerRoutes.MOVE_SEARCH_PATH}
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.CONTRACTING_OFFICER]}>
-                            <QAECSRMoveSearch landingPath="mto" />
+                            <MoveSearch landingPath="mto" />
                           </PrivateRoute>
                         }
                       />
@@ -653,10 +653,10 @@ export class OfficeApp extends Component {
                       {(activeRole === roleTypes.QAE ||
                         activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE ||
                         (activeRole === roleTypes.GSR && gsrRoleFlag)) && (
-                        <Route end path="/" element={<QAECSRMoveSearch />} />
+                        <Route end path="/" element={<MoveSearch />} />
                       )}
                       {activeRole === roleTypes.CONTRACTING_OFFICER && (
-                        <Route end path="/" element={<QAECSRMoveSearch landingPath="mto" />} />
+                        <Route end path="/" element={<MoveSearch landingPath="mto" />} />
                       )}
                       {activeRole === roleTypes.GSR && !gsrRoleFlag && (
                         <Route end path="/*" element={<InvalidPermissions />} />
