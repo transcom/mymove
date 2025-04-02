@@ -2933,6 +2933,7 @@ func (suite *MTOServiceItemServiceSuite) TestGetAdjustedWeight() {
 
 func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 	builder := query.NewQueryBuilder()
+	// mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -2960,13 +2961,16 @@ func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
 		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
-	entry := time.Now()
-	departure := entry.AddDate(0, 0, 10)
-	makeSubtestData := func() models.MTOShipment {
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(20, 1, 1)
+	type localSubtestData struct {
+		mtoShipment           models.MTOShipment
+		mtoServiceItem        models.MTOServiceItem
+		actualPickupAddress   models.Address
+		originalPickupAddress *models.Address
+	}
 
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+	makeSubtestData := func() (subtestData *localSubtestData) {
+		startDate := time.Now().AddDate(-1, 0, 0)
+		endDate := startDate.AddDate(1, 1, 1)
 		testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
@@ -2977,24 +2981,12 @@ func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 				},
 			})
 
-		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
-		deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
-
+		subtestData = &localSubtestData{}
 		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
 				LinkOnly: true,
-			},
-			{
-				Model:    pickupAddress,
-				LinkOnly: true,
-				Type:     &factory.Addresses.PickupAddress,
-			},
-			{
-				Model:    deliveryAddress,
-				LinkOnly: true,
-				Type:     &factory.Addresses.DeliveryAddress,
 			},
 			{
 				Model: models.MTOShipment{
@@ -3003,12 +2995,37 @@ func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 				},
 			},
 		}, nil)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		sitEntryDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)
+		sitDepartureDate := time.Date(2024, time.February, 28, 0, 0, 0, 0, time.UTC)
+		sitPostalCode := "00000"
 
-		return mtoShipment
+		// Original customer pickup address
+		subtestData.originalPickupAddress = subtestData.mtoShipment.PickupAddress
+		subtestData.actualPickupAddress = *subtestData.mtoShipment.PickupAddress
+
+		// Customer gets new pickup address
+
+		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+
+		subtestData.mtoServiceItem = models.MTOServiceItem{
+			MoveTaskOrderID:             mto.ID,
+			MTOShipmentID:               &subtestData.mtoShipment.ID,
+			ReService:                   models.ReService{},
+			Reason:                      models.StringPointer("lorem ipsum"),
+			SITEntryDate:                &sitEntryDate,
+			SITDepartureDate:            &sitDepartureDate,
+			SITPostalCode:               &sitPostalCode,
+			SITOriginHHGOriginalAddress: subtestData.originalPickupAddress,
+			SITOriginHHGActualAddress:   &subtestData.actualPickupAddress,
+		}
+
+		return subtestData
 	}
 
 	suite.Run("check domestic SIT service items for estimated prices", func() {
-		mtoShipment := makeSubtestData()
+		subtestData := makeSubtestData()
 
 		testCases := []struct {
 			reServiceCode models.ReServiceCode
@@ -3018,33 +3035,34 @@ func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 		}
 
 		for _, tc := range testCases {
-			factory.FetchReServiceByCode(suite.DB(), tc.reServiceCode)
+			serviceItem := subtestData.mtoServiceItem
+			serviceItem.ReService.Code = tc.reServiceCode
 
-			sitServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
-				{
-					Model: models.ReService{
-						Code: tc.reServiceCode,
-					},
-				},
-				{
-					Model:    mtoShipment,
-					LinkOnly: true,
-				},
-				// {
-				// 	Model:    mtoShipment.PickupAddress,
-				// 	LinkOnly: true,
-				// 	Type:     &factory.Addresses.SITOriginHHGActualAddress,
-				// },
-				{
-					Model: models.MTOServiceItem{
-						SITEntryDate:     &entry,
-						SITDepartureDate: &departure,
-						SITPostalCode:    models.StringPointer("94510"),
-					},
-				},
-			}, nil)
+			// handler := CreateMTOServiceItemHandler{
+			// 	suite.HandlerConfig(),
+			// 	creator,
+			// 	mtoChecker,
+			// }
 
-			createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
+			// // CALL FUNCTION UNDER TEST
+			// req := httptest.NewRequest("POST", "/mto-service-items", nil)
+			// params := mtoserviceitemops.CreateMTOServiceItemParams{
+			// 	HTTPRequest: req,
+			// 	Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
+			// }
+
+			// // CHECK RESULTS
+
+			// // Validate incoming payload
+			// suite.NoError(params.Body.Validate(strfmt.Default))
+
+			// response := handler.Handle(params)
+			// suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+			// okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+
+			// factory.FetchReServiceByCode(suite.DB(), tc.reServiceCode)
+
+			createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem)
 			suite.NoError(err)
 			suite.Nil(verrs)
 			suite.NotNil(createdServiceItems)
