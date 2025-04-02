@@ -1385,6 +1385,10 @@ describe('Home component', () => {
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
     });
 
+    it('has specific text for PPM moves in the Helper Header', () => {
+      expect(wrapper.text()).toContain('(check your email for approval notification)');
+    });
+
     it('cancel move button is not visible', () => {
       const cancelMoveButton = wrapper.find('button[data-testid="cancel-move-button"]');
       expect(cancelMoveButton.length).toBe(0);
