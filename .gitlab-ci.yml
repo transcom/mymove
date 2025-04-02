@@ -53,7 +53,6 @@ variables:
   redis: &redis harbor.csde.caci.com/docker.io/library/redis:5.0.6
 
 stages:
-- pre_pre_checks
 - pre_checks
 - build
 - test
@@ -1239,7 +1238,7 @@ integration_test_mtls:
    - *check_integration_mtls_ignore_branch
 
 integration_test_admin:
-  stage: pre_pre_checks
+  stage: test
   interruptible: true
   cache:
     - <<: *yarn_cache
@@ -1324,7 +1323,7 @@ integration_test_admin:
    - *check_integration_ignore_branch
 
 integration_test_my:
-  stage: pre_pre_checks
+  stage: test
   interruptible: true
   cache:
     - <<: *yarn_cache
@@ -1414,7 +1413,7 @@ integration_test_my:
    - *check_integration_ignore_branch
 
 integration_test_office:
-  stage: pre_pre_checks
+  stage: test
   interruptible: true
   cache:
     - <<: *yarn_cache
