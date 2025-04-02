@@ -1098,22 +1098,22 @@ paths:
         '200':
           description: Successfully updated the specified MTO shipment.
           schema:
-            $ref: "definitions/MTOShipment.yaml"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
-  "/shipments/approve":
+            $ref: 'definitions/MTOShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/shipments/approve':
     post:
       consumes:
         - application/json
@@ -1124,26 +1124,26 @@ paths:
           name: body
           required: true
           schema:
-            $ref: "#/definitions/ApproveShipments"
+            $ref: '#/definitions/ApproveShipments'
       responses:
-        "200":
+        '200':
           description: Successfully approved the shipments
           schema:
             type: array
             items:
-              $ref: "definitions/MTOShipment.yaml"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "409":
-          $ref: "#/responses/Conflict"
-        "412":
-          $ref: "#/responses/PreconditionFailed"
-        "422":
-          $ref: "#/responses/UnprocessableEntity"
-        "500":
-          $ref: "#/responses/ServerError"
+              $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
       tags:
         - shipment
       description: Approves multiple shipments in one request
@@ -1151,7 +1151,7 @@ paths:
       summary: Approves multiple shipments at once
       x-permissions:
         - update.shipment
-  "/shipments/{shipmentID}/approve":
+  '/shipments/{shipmentID}/approve':
     parameters:
       - description: ID of the shipment
         in: path
@@ -1700,6 +1700,83 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/uploads:
+    post:
+      summary: Create a new upload for a PPM weight ticket, pro-gear, or moving expense document
+      description: Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.
+      operationId: createPPMUpload
+      tags:
+        - ppm
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '413':
+          description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/weight-ticket:
+    post:
+      summary: Creates a weight ticket document
+      description: Created a weight ticket document with the given information
+      operationId: createWeightTicket
+      tags:
+        - ppm
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+      responses:
+        '200':
+          description: returns new weight ticket object
+          schema:
+            $ref: 'definitions/WeightTicket.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -1738,6 +1815,42 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a weight ticket by ID
+      description: |
+        Removes a single weight ticket from the closeout line items for a PPM shipment. Soft deleted
+        records are not visible in milmove, but are kept in the database. This may change the PPM shipment's final
+        incentive.
+      operationId: deleteWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - description: ID of the weight ticket to be deleted
+          in: path
+          name: weightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the weight ticket
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -3803,11 +3916,11 @@ paths:
         '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/QueueMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/destination-requests:
     get:
       produces:
@@ -3910,14 +4023,14 @@ paths:
           type: string
           description: filters using a counselingOffice name of the move
       responses:
-        "200":
+        '200':
           description: Successfully returned all moves matching the criteria
           schema:
-            $ref: "#/definitions/QueueMovesResult"
-        "403":
-          $ref: "#/responses/PermissionDenied"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/payment-requests:
     get:
       produces:
@@ -4397,57 +4510,6 @@ paths:
           description: payload is too large
         '500':
           description: server error
-  /uploads/ppmUpload/{ppmShipmentId}:
-    post:
-      summary: Create a new upload for a PPM weight ticket, pro-gear, or moving expense document
-      description: Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.
-      operationId: createPPMUpload
-      tags:
-        - uploads
-      consumes:
-        - multipart/form-data
-      parameters:
-        - in: path
-          name: ppmShipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppm shipment
-        - in: query
-          name: documentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the document to add an upload to
-        - in: formData
-          name: file
-          type: file
-          description: The file to upload.
-          required: true
-        - in: query
-          name: weightReceipt
-          type: boolean
-          description: If the upload is a Weight Receipt
-          required: true
-      responses:
-        '201':
-          description: created upload
-          schema:
-            $ref: '#/definitions/Upload'
-        '400':
-          description: invalid request
-          schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '413':
-          description: payload is too large
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /re-service-items:
     get:
       summary: Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)
@@ -5257,6 +5319,10 @@ definitions:
         type: boolean
   FetchLineOfAccountingPayload:
     type: object
+    required:
+      - effectiveDate
+      - departmentIndicator
+      - tacCode
     properties:
       departmentIndicator:
         $ref: 'definitions/DepartmentIndicator.yaml'
@@ -5566,7 +5632,7 @@ definitions:
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
         x-nullable: true
       counselingOffice:
-        $ref: "definitions/TransportationOffice.yaml"
+        $ref: 'definitions/TransportationOffice.yaml'
       counselingOfficeId:
         type: string
         format: uuid
@@ -6097,7 +6163,7 @@ definitions:
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
       grade:
-        $ref: "#/definitions/Grade"
+        $ref: '#/definitions/Grade'
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6713,6 +6779,8 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -6920,14 +6988,29 @@ definitions:
   UpdateWeightTicket:
     type: object
     properties:
+      vehicleDescription:
+        description: Description of the vehicle used for the trip. E.g. make/model, type of truck/van, etc.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       emptyWeight:
         description: Weight of the vehicle when empty.
         type: integer
         minimum: 0
+      missingEmptyWeightTicket:
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       fullWeight:
         description: The weight of the vehicle when full.
         type: integer
         minimum: 0
+      missingFullWeightTicket:
+        description: Indicates if the customer is missing a weight ticket for the vehicle weight when full.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       ownsTrailer:
         description: Indicates if the customer used a trailer they own for the move.
         type: boolean
@@ -7158,6 +7241,8 @@ definitions:
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
+      ppmType:
+        $ref: 'definitions/PPMType.yaml'
       expectedDepartureDate:
         description: >
           Date the customer expects to move.
@@ -7630,10 +7715,10 @@ definitions:
         format: uuid
         type: string
       destinationGBLOC:
-        example: "AGFM"
+        example: 'AGFM'
         type: string
       destinationPostalCode:
-        example: "90210"
+        example: '90210'
         type: string
       referenceId:
         example: 1001-3456
@@ -8201,7 +8286,7 @@ definitions:
   CounselingOffices:
     type: array
     items:
-      $ref: "#/definitions/CounselingOffice"
+      $ref: '#/definitions/CounselingOffice'
   CounselingOffice:
     type: object
     properties:

@@ -2040,6 +2040,8 @@ definitions:
       A personally procured move is a type of shipment that a service members
       moves themselves.
     properties:
+      ppmType:
+        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -2083,6 +2085,8 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
+      ppmType:
+        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -3046,7 +3050,6 @@ definitions:
     type: string
     title: PPM Type
     description: Defines a PPM type
-    readOnly: true
     enum:
       - INCENTIVE_BASED
       - ACTUAL_EXPENSE
@@ -4627,6 +4630,37 @@ paths:
                 type: boolean
         '400':
           description: invalid request
+        '500':
+          description: server error
+  /open/validation_code:
+    post:
+      summary: Verifies if the provided validation code is active
+      description: Verifies if the provided validation code is active
+      operationId: validateCode
+      tags:
+        - validation_code
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - validationCode
+            properties:
+              validationCode:
+                type: string
+      responses:
+        '200':
+          description: Application Parameters
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+        '400':
+          description: invalid request
+        '401':
+          description: >-
+            request was not made with a supported session - it must come from
+            the customer app
         '500':
           description: server error
   /application_parameters:

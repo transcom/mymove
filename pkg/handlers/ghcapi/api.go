@@ -56,7 +56,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/upload"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
-	weightparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -121,6 +121,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(pdfGenerator)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -641,7 +648,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
 			ppmshipment.NewPPMShipmentRouter(mtoshipment.NewShipmentRouter()),
-			signedCertificationCreator, signedCertificationUpdater,
+			signedCertificationCreator, signedCertificationUpdater, SSWPPMComputer,
 		),
 	}
 
@@ -663,13 +670,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ppmshipment.NewPPMShipmentFetcher(),
 	}
 
-	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
-
-	parserComputer := weightparser.NewWeightTicketComputer()
-	weightGenerator, err := weightparser.NewWeightTicketParserGenerator(pdfGenerator)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	ghcAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
+	ghcAPI.PpmCreateWeightTicketHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewOfficeWeightTicketCreator()}
+	ghcAPI.PpmDeleteWeightTicketHandler = DeleteWeightTicketHandler{handlerConfig, weightticket.NewWeightTicketDeleter(weightTicketFetcher, ppmEstimator)}
 
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
 		handlerConfig,
@@ -741,7 +744,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	ghcAPI.UploadsUpdateUploadHandler = UpdateUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
-	ghcAPI.UploadsCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
 	ghcAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.TextEventStreamProducer = runtime.ByteStreamProducer() // GetUploadStatus produces Event Stream
 

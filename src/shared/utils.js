@@ -226,3 +226,14 @@ export function isPreceedingAddressComplete(hasAddress, addressValues) {
   }
   return false;
 }
+
+export function isPreceedingAddressPPMPrimaryDestinationComplete(addressValues) {
+  if (addressValues === undefined) {
+    return false;
+  }
+
+  if (addressValues.state !== '' && addressValues.city !== '' && addressValues.postalCode !== '') {
+    return true;
+  }
+  return false;
+}
