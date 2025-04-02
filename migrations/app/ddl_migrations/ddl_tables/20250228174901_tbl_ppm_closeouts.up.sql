@@ -1,4 +1,5 @@
 --B-22540  Alex Lusk  Create ppm_closeouts table to store dollar values for Advana
+--B-22545  Alex Lusk  Remove unused storage expense columns
 
 CREATE TABLE IF NOT EXISTS ppm_closeouts (
     id UUID PRIMARY KEY NOT NULL,
@@ -16,8 +17,6 @@ CREATE TABLE IF NOT EXISTS ppm_closeouts (
 	member_paid_tolls integer,
 	gtcc_paid_oil integer,
 	member_paid_oil integer,
-	gtcc_paid_storage integer,
-	member_paid_storage integer,
 	gtcc_paid_other integer,
 	member_paid_other integer,
 	total_gtcc_paid_expenses integer,
@@ -47,8 +46,6 @@ COMMENT on COLUMN ppm_closeouts.gtcc_paid_tolls IS 'Amount paid for tolls using 
 COMMENT on COLUMN ppm_closeouts.member_paid_tolls IS 'Amount paid for tolls by the service member. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.gtcc_paid_oil IS 'Amount paid for oil using the service member''s GTCC. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.member_paid_oil IS 'Amount paid for oil by the service member. Stored in cents.';
-COMMENT on COLUMN ppm_closeouts.gtcc_paid_storage IS 'Amount paid for storage using the service member''s GTCC. Stored in cents.';
-COMMENT on COLUMN ppm_closeouts.member_paid_storage IS 'Amount paid for SIT by the service member. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.gtcc_paid_other IS 'Amount paid for other expenses using the service member''s GTCC. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.member_paid_other IS 'Amount paid for other expenses by the service member. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.total_gtcc_paid_expenses IS 'Total amount paid using the service member''s GTCC. Stored in cents.';
@@ -62,3 +59,7 @@ COMMENT on COLUMN ppm_closeouts.created_at IS 'Date that this closeout was creat
 COMMENT on COLUMN ppm_closeouts.updated_at IS 'Date that this closeout was updated.';
 
 CREATE INDEX IF NOT EXISTS ppm_closeouts_ppm_shipment_id_idx ON ppm_closeouts (ppm_shipment_id);
+
+ALTER TABLE ppm_closeouts
+	DROP COLUMN IF EXISTS gtcc_paid_storage,
+	DROP COLUMN IF EXISTS member_paid_storage;

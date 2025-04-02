@@ -8,6 +8,7 @@ import { MockProviders } from 'testUtils';
 import Review from 'pages/Office/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { deleteWeightTicket } from 'services/ghcApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
@@ -161,6 +162,11 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('hooks/queries', () => ({
   usePPMShipmentAndDocsOnlyQueries: jest.fn(),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  deleteWeightTicket: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -379,5 +385,31 @@ describe('Review page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
 
     expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
+  });
+
+  it('calls the delete weight ticket api when confirm is clicked', async () => {
+    const mockDeleteWeightTicket = jest.fn().mockResolvedValue({});
+    deleteWeightTicket.mockImplementationOnce(mockDeleteWeightTicket);
+
+    renderReviewPage();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+
+    const weightTicket = mockMTOShipmentWithWeightTicket.ppmShipment.weightTickets[0];
+    await waitFor(() => {
+      expect(mockDeleteWeightTicket).toHaveBeenCalledWith({
+        ppmShipmentId: mockMTOShipmentWithWeightTicket.ppmShipment.id,
+        weightTicketId: weightTicket.id,
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Trip 1 successfully deleted.'));
+    });
   });
 });

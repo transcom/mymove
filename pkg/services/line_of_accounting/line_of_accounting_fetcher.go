@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	edi "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -74,10 +75,10 @@ func sortTransportationAccountingCodesAndLinesOfAccounting(tacs []models.Transpo
 func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []models.LineOfAccounting, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
 	var err error
 	var validHhgProgramCodeForLoa bool
-	var validLoaForTac bool
 	for currLoaIndex, loa := range linesOfAccounting {
-
 		// if LOA Household Goods Program Code is null, invalid
+		// This is NOT part of the DFAS elements, but is still required
+		// for validity
 		if loa.LoaHsGdsCd == nil {
 			validHhgProgramCodeForLoa = false
 		} else {
@@ -85,120 +86,18 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 		}
 		linesOfAccounting[currLoaIndex].ValidHhgProgramCodeForLoa = &validHhgProgramCodeForLoa
 
-		// if any LOA DFAS elements are missing, invalid
-		var missingLoaFields []string
-		if loa.LoaSysID == nil {
-			missingLoaFields = append(missingLoaFields, "loa.LoaSysID")
-		}
-		if loa.LoaDptID == nil { // Department Indicator (A1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaDptID")
-		}
-		if loa.LoaTnsfrDptNm == nil { // Transfer from Department (A2)
-			missingLoaFields = append(missingLoaFields, "loa.LoaTnsfrDptNm")
-		}
-		if loa.LoaBgFyTx == nil || loa.LoaEndFyTx == nil { // Ending Fiscal Year Indicator (A3)
-			// A3 is a concatenation of both LoaBgFyTx and LoaEndFyTx
-			if loa.LoaBgFyTx == nil {
-				missingLoaFields = append(missingLoaFields, "loa.LoaBgFyTx")
-			}
-			if loa.LoaEndFyTx == nil {
-				missingLoaFields = append(missingLoaFields, "loa.LoaEndFyTx")
-			}
-		}
-		if loa.LoaBafID == nil { // Basic Symbol Number (A4)
-			missingLoaFields = append(missingLoaFields, "loa.LoaBafID")
-		}
-		if loa.LoaTrsySfxTx == nil { // Subhead/Limit (A5)
-			missingLoaFields = append(missingLoaFields, "loa.LoaTrsySfxTx")
-		}
-		if loa.LoaMajClmNm == nil { // Fund Code/MC (A6)
-			missingLoaFields = append(missingLoaFields, "loa.LoaMajClmNm")
-		}
-		if loa.LoaOpAgncyID == nil { // Operating Agency Code/Fund Admin (B1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaOpAgncyID")
-		}
-		if loa.LoaAlltSnID == nil { // Allotment Serial Number (B2)
-			missingLoaFields = append(missingLoaFields, "loa.LoaAlltSnID")
-		}
-		if loa.LoaUic == nil { // Activity Address Code/UIC (B3)
-			missingLoaFields = append(missingLoaFields, "loa.LoaUic")
-		}
-		if loa.LoaPgmElmntID == nil { // Program Element (C1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaPgmElmntID")
-		}
-		if loa.LoaTskBdgtSblnTx == nil { // Project Task or Budget Sub line (C2)
-			missingLoaFields = append(missingLoaFields, "loa.LoaTskBdgtSblnTx")
-		}
-		if loa.LoaDfAgncyAlctnRcpntID == nil { // Defense Agency Allocation Recipient (D1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaDfAgncyAlctnRcpntID")
-		}
-		if loa.LoaJbOrdNm == nil { // Job Order/Work Order Code (D4)
-			missingLoaFields = append(missingLoaFields, "loa.LoaJbOrdNm")
-		}
-		if loa.LoaSbaltmtRcpntID == nil { // Sub-allotment Recipient (D6)
-			missingLoaFields = append(missingLoaFields, "loa.LoaSbaltmtRcpntID")
-		}
-		if loa.LoaWkCntrRcpntNm == nil { // Work Center Recipient (D7)
-			missingLoaFields = append(missingLoaFields, "loa.LoaWkCntrRcpntNm")
-		}
-		if loa.LoaMajRmbsmtSrcID == nil { // Major Reimbursement Source Code (E1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaMajRmbsmtSrcID")
-		}
-		if loa.LoaDtlRmbsmtSrcID == nil { // Detail Reimbursement Source Code (E2)
-			missingLoaFields = append(missingLoaFields, "loa.LoaDtlRmbsmtSrcID")
-		}
-		if loa.LoaCustNm == nil { // Customer Indicator/MPC (E3)
-			missingLoaFields = append(missingLoaFields, "loa.LoaCustNm")
-		}
-		if loa.LoaObjClsID == nil { // Object Class (F1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaObjClsID")
-		}
-		if loa.LoaSrvSrcID == nil { // Government or Public Sector Identifier (F3)
-			missingLoaFields = append(missingLoaFields, "loa.LoaSrvSrcID")
-		}
-		if loa.LoaSpclIntrID == nil { // Special Interest Code or Special Program Cost Code (G2)
-			missingLoaFields = append(missingLoaFields, "loa.LoaSpclIntrID")
-		}
-		if loa.LoaBdgtAcntClsNm == nil { // Abbreviated Department of Defense (DoD) Budget and Accounting (I1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaBdgtAcntClsNm")
-		}
-		if loa.LoaDocID == nil { // (SDN) Document or Record Reference Number (J1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaDocID")
-		}
-		if loa.LoaClsRefID == nil { // (ACRN) Accounting Classification Reference Code (K6)
-			missingLoaFields = append(missingLoaFields, "loa.LoaClsRefID")
-		}
-		if loa.LoaInstlAcntgActID == nil { // Accounting Installation Number (L1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaInstlAcntgActID")
-		}
-		if loa.LoaLclInstlID == nil { // Local Installation Data (M1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaLclInstlID")
-		}
-		if loa.LoaTrnsnID == nil { // Transaction ID (N1)
-			missingLoaFields = append(missingLoaFields, "loa.LoaTrnsnID")
-		}
-		if loa.LoaFmsTrnsactnID == nil { // Transaction Type (P5)
-			missingLoaFields = append(missingLoaFields, "loa.LoaFmsTrnsactnID")
-		}
-
-		if missingLoaFields != nil {
-			validLoaForTac = false
-
+		missingRequiredDfasFields := validateDFASFields(loa)
+		valid := len(missingRequiredDfasFields) == 0
+		if !valid {
 			var errMessage string
-			if len(missingLoaFields) == 1 {
-				errMessage += missingLoaFields[0]
-			} else {
-				for i := range missingLoaFields {
-					errMessage += missingLoaFields[i] + ", "
-				}
+			for _, missingField := range missingRequiredDfasFields {
+				errMessage += missingField + ", "
 			}
 			// If any LOA DFAS elements are missing, log it for informational purposes
 			appCtx.Logger().Info("LOA with ID "+loa.ID.String()+" missing information: "+errMessage, zap.Error(err))
-		} else {
-			validLoaForTac = true
 		}
 
-		linesOfAccounting[currLoaIndex].ValidLoaForTac = &validLoaForTac
+		linesOfAccounting[currLoaIndex].ValidLoaForTac = &valid
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
@@ -219,6 +118,36 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 	}
 
 	return linesOfAccounting, err
+}
+
+// Helper function to run the LOA through the DFAS validator
+// and return whether or not it is valid as well as which required
+// DFAS fields it may be missing.
+// NOTE: This only returns REQUIRED missing fields, not optional.
+func validateDFASFields(loa models.LineOfAccounting) []string {
+	dfasFields := newDfasValidator()
+
+	// Only track the missing codes that ARE "REQUIRED"
+	var missingRequiredCodes []string
+
+	// Pull the DFAS fields from the LOA with
+	// special DFAS getters
+	for _, field := range dfasFields {
+		val := field.Getter(&loa)
+		// In the past we've had a field be empty strings
+		// It shouldn't be possible anymore, but just in case
+		if val == nil || strings.TrimSpace(*val) == "" {
+			// Field is missing, check if it's a required field
+			// to be considered invalid
+			if field.Required {
+				// Required field is missing!
+				missingRequiredCodes = append(missingRequiredCodes, field.Code)
+			}
+		}
+	}
+
+	// If we have any required fields missing, this LOA is invalid
+	return missingRequiredCodes
 }
 
 func (f linesOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
@@ -348,4 +277,229 @@ func (f linesOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.Lin
 	longLoa = strings.ReplaceAll(longLoa, " *", "*")
 
 	return longLoa
+}
+
+// dfasField Allows us to map a DFAS code in a LOA
+// to its getter and if it is required or not
+type dfasField struct {
+	Code     string
+	Required bool
+	Getter   func(*models.LineOfAccounting) *string
+}
+
+// Helper function for accessing DFAS fields from the LOA, pairing them
+// with a special "getter". This is needed because certain fields such as A3
+// require special concat logic and comparison of 2 different fields
+//
+// "Required" is set by the MilMove government representatives.
+// This is due to how it is decided to mark a field as valid or invalid.
+// LOA data is a mess, and if it's too strict then everything is invalid,
+// so this is our middle ground... for now. Subject to all kinds of change in
+// the future. It is NOT the official "DFAS Valid/Invalid Guideline"
+func newDfasValidator() []dfasField {
+	// Return all known DFAS fields mapping their code
+	// to their getter and whether or not it's required
+	return []dfasField{
+		{
+			Code:     edi.FA2DetailCodeA1.String(),
+			Required: true,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaDptID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeA2.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaTnsfrDptNm
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeA3.String(),
+			Required: true,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				// A3 is a concatenation of the fiscal years
+				if loa.LoaBgFyTx == nil || loa.LoaEndFyTx == nil {
+					return nil
+				}
+				concatFy := fmt.Sprintf("%d%d", *loa.LoaBgFyTx, *loa.LoaEndFyTx)
+				return &concatFy
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeA4.String(),
+			Required: true,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaBafID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeA5.String(),
+			Required: true,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaTrsySfxTx
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeA6.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaMajClmNm
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeB1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaOpAgncyID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeB2.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaAlltSnID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeB3.String(),
+			Required: true,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaUic
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeC1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaPgmElmntID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeC2.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaTskBdgtSblnTx
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeD1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaDfAgncyAlctnRcpntID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeD4.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaJbOrdNm
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeD6.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaSbaltmtRcpntID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeD7.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaWkCntrRcpntNm
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeE1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaMajRmbsmtSrcID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeE2.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaDtlRmbsmtSrcID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeE3.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaCustNm
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeF1.String(),
+			Required: true,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaObjClsID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeF3.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaSrvSrcID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeG2.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaSpclIntrID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeI1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaBdgtAcntClsNm
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeJ1.String(),
+			Required: true,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaDocID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeK6.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaClsRefID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeL1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaInstlAcntgActID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeM1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaLclInstlID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeN1.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaTrnsnID
+			},
+		},
+		{
+			Code:     edi.FA2DetailCodeP5.String(),
+			Required: false,
+			Getter: func(loa *models.LineOfAccounting) *string {
+				return loa.LoaFmsTrnsactnID
+			},
+		},
+	}
 }

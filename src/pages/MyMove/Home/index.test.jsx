@@ -6,6 +6,7 @@ import { mount } from 'enzyme';
 import moment from 'moment';
 import { generatePath, MemoryRouter } from 'react-router-dom';
 import { v4 } from 'uuid';
+import { Provider } from 'react-redux';
 
 import { Home } from './index';
 
@@ -24,6 +25,9 @@ import {
   createSubmittedPPMShipment,
 } from 'utils/test/factories/ppmShipment';
 import { downloadPPMAOAPacket } from 'services/internalApi';
+import { configureStore } from 'shared/store';
+
+const mockStore = configureStore({});
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -601,7 +605,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -616,7 +622,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -631,7 +639,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -647,7 +657,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -671,7 +683,9 @@ describe('Home component', () => {
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
@@ -704,7 +718,9 @@ describe('Home component', () => {
 
         render(
           <MemoryRouter>
-            <Home {...props} />
+            <Provider store={mockStore.store}>
+              <Home {...props} />
+            </Provider>
           </MemoryRouter>,
         );
 

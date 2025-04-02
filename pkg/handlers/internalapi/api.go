@@ -302,6 +302,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		vLocation,
 	}
 
+	internalAPI.ValidationCodeValidateCodeHandler = ValidationCodeValidationCodeHandler{
+		handlerConfig,
+	}
+
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
 	internalAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 

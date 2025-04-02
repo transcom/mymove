@@ -34,7 +34,11 @@ export async function makeInternalRequestRaw(operationPath, params = {}) {
 }
 
 export async function validateCode(body) {
-  return makeInternalRequestRaw('application_parameters.validate', { body });
+  return makeInternalRequestRaw('validation_code.validateCode', {
+    body: {
+      validationCode: body.parameterValue,
+    },
+  });
 }
 
 export async function getLoggedInUser(normalize = true) {

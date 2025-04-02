@@ -1,8 +1,10 @@
-import React from 'react';
 import { Button } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import styles from './AsyncPacketDownloadLink.module.scss';
+
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 
 export const onPacketDownloadSuccessHandler = (response) => {
   // dynamically update DOM to trigger browser to display SAVE AS download file modal
@@ -40,25 +42,41 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {string} id uuid to download
  * @param {string} label link text
  * @param {Promise} asyncRetrieval asynch document retrieval
- * @param {func} onSucccess on success response handler
+ * @param {func} onSuccess on success response handler
  * @param {func} onFailure on failure response handler
+ * @param {func} setShowLoadingSpinner used for loading spinner mask
+ * @param {string} loadingMessage used for setting the loading message on spinner mask
  */
-const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSucccess, onFailure, className }) => {
+const AsyncPacketDownloadLink = ({
+  id,
+  label,
+  asyncRetrieval,
+  onSuccess,
+  onFailure,
+  className,
+  setShowLoadingSpinner,
+  loadingMessage,
+}) => {
   const dataTestId = `asyncPacketDownloadLink${id}`;
+
+  const handleClick = () => {
+    setShowLoadingSpinner(true, loadingMessage);
+    asyncRetrieval(id)
+      .then((response) => {
+        onSuccess(response);
+        setShowLoadingSpinner(false, null);
+      })
+      .catch(() => {
+        onFailure();
+        setShowLoadingSpinner(false, null);
+      });
+  };
 
   return (
     <Button
       data-testid={dataTestId}
       className={className ? className : styles.downloadButtonToLink}
-      onClick={() =>
-        asyncRetrieval(id)
-          .then((response) => {
-            onSucccess(response);
-          })
-          .catch(() => {
-            onFailure();
-          })
-      }
+      onClick={handleClick}
     >
       {label}
     </Button>
@@ -69,14 +87,22 @@ AsyncPacketDownloadLink.propTypes = {
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   asyncRetrieval: PropTypes.func.isRequired,
-  onSucccess: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
   onFailure: PropTypes.func.isRequired,
   className: PropTypes.string,
+  setShowLoadingSpinner: PropTypes.func,
+  loadingMessage: PropTypes.string,
 };
 
 AsyncPacketDownloadLink.defaultProps = {
-  onSucccess: onPacketDownloadSuccessHandler,
+  onSuccess: onPacketDownloadSuccessHandler,
   onFailure: () => {},
+  setShowLoadingSpinner: () => {},
+  loadingMessage: null,
 };
 
-export default AsyncPacketDownloadLink;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(AsyncPacketDownloadLink);

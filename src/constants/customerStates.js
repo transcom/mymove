@@ -1,7 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 
 export const profileStates = {
-  VALIDATION_REQUIRED: 'VALIDATION_REQUIRED',
   EMPTY_PROFILE: 'EMPTY_PROFILE',
   DOD_INFO_COMPLETE: 'DOD_INFO_COMPLETE',
   NAME_COMPLETE: 'NAME_COMPLETE',
@@ -12,7 +11,6 @@ export const profileStates = {
 };
 
 export const orderedProfileStates = [
-  profileStates.VALIDATION_REQUIRED,
   profileStates.EMPTY_PROFILE,
   profileStates.DOD_INFO_COMPLETE,
   profileStates.NAME_COMPLETE,

@@ -1755,6 +1755,51 @@ func init() {
         }
       }
     },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -10736,6 +10781,51 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
