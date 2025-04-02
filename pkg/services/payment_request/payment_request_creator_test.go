@@ -34,9 +34,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	suite.PreloadData(func() {
 		// Create some records we'll need to link to
 		moveTaskOrder = factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EndDate: time.Now().Add(time.Hour * 24),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 		estimatedWeight := unit.Pound(2048)
