@@ -234,3 +234,18 @@ func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember Servic
 
 	return gbloc, nil
 }
+
+// Validate an addresses USPRC assignment
+func ValidateUSPRCAssignment(db *pop.Connection, address Address) (bool, error) {
+
+	expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
+	if err != nil {
+		return false, err
+	}
+
+	if expectedUSPRC.ID == *address.UsPostRegionCityID {
+		return true, nil
+	}
+
+	return false, nil
+}

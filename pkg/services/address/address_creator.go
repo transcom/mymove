@@ -68,13 +68,23 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 	transformedAddress.IsOconus = &isOconus
 
 	if (transformedAddress.UsPostRegionCityID == nil || transformedAddress.UsPostRegionCity == nil) && strings.TrimSpace(transformedAddress.City) != "" && strings.TrimSpace(transformedAddress.PostalCode) != "" {
-		usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), transformedAddress.PostalCode, strings.ToUpper(transformedAddress.City))
+		usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), transformedAddress.PostalCode, transformedAddress.City)
 		if err != nil {
 			return nil, err
 		}
 
 		transformedAddress.UsPostRegionCity = usprc
 		transformedAddress.UsPostRegionCityID = &usprc.ID
+	}
+
+	if strings.TrimSpace(transformedAddress.City) != "" && strings.TrimSpace(transformedAddress.PostalCode) != "" {
+		validUSPRC, err := models.ValidateUSPRCAssignment(appCtx.DB(), transformedAddress)
+		if err != nil {
+			return nil, err
+		}
+		if !validUSPRC {
+			return nil, fmt.Errorf("address has invalid us post region city assignment")
+		}
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {

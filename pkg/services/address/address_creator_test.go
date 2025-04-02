@@ -219,6 +219,50 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 		suite.NotNil(err)
 		suite.Nil(address)
-		suite.Equal("No UsPostRegionCity found for provided zip code 46254 and city CHARLOTTE.", err.Error())
+		suite.Equal("No UsPostRegionCity found for provided zip code 46254 and city Charlotte.", err.Error())
+	})
+
+	suite.Run("returns error when address has an invalid USPRC assignment", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "29229", "Columbia")
+		suite.NoError(err)
+
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1:     "7645 Ballinshire N",
+			City:               "Indianapolis",
+			State:              "IN",
+			PostalCode:         "46254",
+			Country:            country,
+			UsPostRegionCityID: &usprc.ID,
+			UsPostRegionCity:   usprc,
+		})
+
+		suite.Nil(address)
+		suite.Error(err, "address has invalid us post region city assignment")
+	})
+
+	suite.Run("returns error when USPRC validation fails", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "29229", "Columbia")
+		suite.NoError(err)
+
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1:     "7645 Ballinshire N",
+			City:               "Indianapolis",
+			State:              "IN",
+			PostalCode:         "29229",
+			Country:            country,
+			UsPostRegionCityID: &usprc.ID,
+			UsPostRegionCity:   usprc,
+		})
+
+		suite.Nil(address)
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city Indianapolis.")
 	})
 }
