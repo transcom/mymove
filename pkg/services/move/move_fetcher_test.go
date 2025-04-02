@@ -611,7 +611,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 					Show:   models.BoolPointer(true),
 				},
 			}}, nil)
-		// setting up two moves, one we will see and the other we won't
+
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{PostalCode: postalCode},
