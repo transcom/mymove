@@ -280,7 +280,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params := subtestData.params
 		params.Body.ShipmentType = internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE.Pointer()
 
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "International St.",
@@ -294,9 +294,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			}}, nil)
 
 		// UB shipments need one address to be OCONUS
-		params.Body.PickupAddress.PostalCode = &destinationAddress.PostalCode
-		params.Body.PickupAddress.City = &destinationAddress.City
-		params.Body.PickupAddress.State = &destinationAddress.State
+		params.Body.PickupAddress.PostalCode = &pickupAddress.PostalCode
+		params.Body.PickupAddress.City = &pickupAddress.City
+		params.Body.PickupAddress.State = &pickupAddress.State
 
 		response := subtestData.handler.Handle(subtestData.params)
 
