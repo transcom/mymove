@@ -782,6 +782,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 	suite.Run("Destination: Does not return moves that are already assigned", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		postalCode := "90210"
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -805,6 +806,49 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				Model:    officeUser,
 				LinkOnly: true,
 				Type:     &factory.OfficeUsers.TOODestinationAssignedUser,
+			},
+		}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		destinationShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    assignedMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    assignedMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
 			},
 		}, nil)
 
