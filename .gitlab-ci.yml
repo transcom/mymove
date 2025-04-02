@@ -172,10 +172,10 @@ stages:
   - if: '$debug == "true"'
 
 .check_integration_ignore_branch: &check_integration_ignore_branch
-  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_IGNORE_BRANCH'
+  - if: '$CI_COMMIT_BRANCH == "main_donotrunfornow" || $CI_COMMIT_BRANCH == $INTEGRATION_IGNORE_BRANCH'
 
 .check_integration_mtls_ignore_branch: &check_integration_mtls_ignore_branch
-  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $INTEGRATION_MTLS_IGNORE_BRANCH'
+  - if: '$CI_COMMIT_BRANCH == "main_donotrunfornow" || $CI_COMMIT_BRANCH == $INTEGRATION_MTLS_IGNORE_BRANCH'
 
 .check_client_ignore_branch: &check_client_ignore_branch
   - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == $CLIENT_IGNORE_BRANCH'
@@ -785,8 +785,8 @@ server_test:
     - name: $redis
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "10Gi"
-    KUBERNETES_MEMORY_LIMIT: "10Gi"
+    KUBERNETES_MEMORY_REQUEST: "14Gi"
+    KUBERNETES_MEMORY_LIMIT: "14Gi"
     APPLICATION: app
     # 8 since this runs on xlarge with 8 CPUs
     GOTEST_PARALLEL: 8
@@ -897,8 +897,8 @@ client_test:
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "10Gi"
-    KUBERNETES_MEMORY_LIMIT: "10Gi"
+    KUBERNETES_MEMORY_REQUEST: "14Gi"
+    KUBERNETES_MEMORY_LIMIT: "14Gi"
   needs:
     - pre_deps_yarn
   cache:
@@ -1015,7 +1015,7 @@ integration_test_devseed:
      allow_failure: true
    - if: '$INTEGRATION_TEST_ALLOW_FAILURE == "false"'
      allow_failure: false
-   - *check_integration_ignore_branch
+   - *check_client_ignore_branch
 
 integration_tests:
   stage: test
