@@ -730,6 +730,61 @@ func BuildPPMShipmentWithApprovedDocuments(db *pop.Connection) models.PPMShipmen
 	return ppmShipment
 }
 
+// BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses creates a PPM-SPR with two moving expenses that are approved
+func BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db, nil, []Customization{{
+		Model: models.PPMShipment{
+			PPMType: models.PPMTypeSmallPackage,
+		},
+	}})
+
+	trackingNumber := "TRK1234"
+	isProGear := true
+	proGearBelongsToSelf := true
+	proGearDescription := "Pro gear updated description"
+	weightShipped := 2000
+	spr := models.MovingExpenseReceiptTypeSmallPackage
+	approvedStatus := models.PPMDocumentStatusApproved
+
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader,
+		&models.MovingExpense{
+			MovingExpenseType:    &spr,
+			Status:               &approvedStatus,
+			PaidWithGTCC:         models.BoolPointer(false),
+			MissingReceipt:       models.BoolPointer(false),
+			Amount:               models.CentPointer(unit.Cents(8675309)),
+			TrackingNumber:       &trackingNumber,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		},
+	)
+
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader,
+		&models.MovingExpense{
+			MovingExpenseType:    &spr,
+			Status:               &approvedStatus,
+			PaidWithGTCC:         models.BoolPointer(false),
+			MissingReceipt:       models.BoolPointer(false),
+			Amount:               models.CentPointer(unit.Cents(8675309)),
+			TrackingNumber:       &trackingNumber,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		},
+	)
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
 // BuildPPMShipmentWithAllDocTypesApprovedMissingPaymentPacket creates
 // a PPMShipment that has at least one of each doc type, all approved,
 // but missing the payment packet.

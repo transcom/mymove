@@ -60,11 +60,30 @@ func checkAdditionalRequiredFields() movingExpenseValidator {
 					verrs.Add("SITStartDate", "SITStartDate must be before SITEndDate")
 				}
 			}
+		} else if *newMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeSmallPackage {
+			if newMovingExpense.WeightShipped == nil {
+				verrs.Add("WeightShipped", "WeightShipped is required for small package expenses")
+			}
+
+			if newMovingExpense.IsProGear == nil {
+				verrs.Add("IsProGear", "IsProGear is required for small package expenses")
+			}
+
+			if newMovingExpense.IsProGear != nil && *newMovingExpense.IsProGear {
+				if newMovingExpense.ProGearBelongsToSelf == nil {
+					verrs.Add("ProGearBelongsToSelf", "ProGearBelongsToSelf is required when small package expense is pro gear")
+				}
+				if newMovingExpense.ProGearDescription == nil {
+					verrs.Add("ProGearDescription", "ProGearDescription is required when small package expense is pro gear")
+				}
+			}
+
 		}
 
-		if *newMovingExpense.MovingExpenseType != models.MovingExpenseReceiptTypeSmallPackage &&
-			(newMovingExpense.Description == nil || (newMovingExpense.Description != nil && *newMovingExpense.Description == "")) {
-			verrs.Add("Description", "Description must have a value of at least 0")
+		if newMovingExpense.Description == nil || *newMovingExpense.Description == "" {
+			if newMovingExpense.MovingExpenseType == nil || *newMovingExpense.MovingExpenseType != models.MovingExpenseReceiptTypeSmallPackage {
+				verrs.Add("Description", "Description must have a value")
+			}
 		}
 
 		if newMovingExpense.PaidWithGTCC == nil {

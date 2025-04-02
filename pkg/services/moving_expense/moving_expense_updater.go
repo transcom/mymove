@@ -180,6 +180,28 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 			mergedMovingExpense.SITReimburseableAmount = nil
 		}
 
+		if movingExpenseReceiptType == models.MovingExpenseReceiptTypeSmallPackage {
+			mergedMovingExpense.TrackingNumber = services.SetOptionalStringField(updatedMovingExpense.TrackingNumber, mergedMovingExpense.TrackingNumber)
+			mergedMovingExpense.IsProGear = services.SetNoNilOptionalBoolField(updatedMovingExpense.IsProGear, mergedMovingExpense.IsProGear)
+
+			if updatedMovingExpense.ProGearBelongsToSelf != nil {
+				mergedMovingExpense.ProGearBelongsToSelf = updatedMovingExpense.ProGearBelongsToSelf
+			}
+			if updatedMovingExpense.ProGearDescription != nil {
+				mergedMovingExpense.ProGearDescription = updatedMovingExpense.ProGearDescription
+			}
+			if *updatedMovingExpense.WeightShipped != 0 {
+				mergedMovingExpense.WeightShipped = services.SetOptionalPoundField(updatedMovingExpense.WeightShipped, mergedMovingExpense.WeightShipped)
+			}
+		} else if originalMovingExpense.MovingExpenseType != nil && *originalMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeSmallPackage {
+			// clearing related SPR values if expense type is being changed
+			mergedMovingExpense.TrackingNumber = nil
+			mergedMovingExpense.IsProGear = nil
+			mergedMovingExpense.ProGearBelongsToSelf = nil
+			mergedMovingExpense.ProGearDescription = nil
+			mergedMovingExpense.WeightShipped = nil
+		}
+
 	} else {
 		mergedMovingExpense.MovingExpenseType = nil
 	}
@@ -203,18 +225,6 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 	mergedMovingExpense.Amount = services.SetNoNilOptionalCentField(updatedMovingExpense.Amount, mergedMovingExpense.Amount)
 	mergedMovingExpense.PaidWithGTCC = services.SetNoNilOptionalBoolField(updatedMovingExpense.PaidWithGTCC, mergedMovingExpense.PaidWithGTCC)
 	mergedMovingExpense.MissingReceipt = services.SetNoNilOptionalBoolField(updatedMovingExpense.MissingReceipt, mergedMovingExpense.MissingReceipt)
-	mergedMovingExpense.TrackingNumber = services.SetOptionalStringField(updatedMovingExpense.TrackingNumber, mergedMovingExpense.TrackingNumber)
-	mergedMovingExpense.IsProGear = services.SetNoNilOptionalBoolField(updatedMovingExpense.IsProGear, mergedMovingExpense.IsProGear)
-
-	if updatedMovingExpense.ProGearBelongsToSelf != nil {
-		mergedMovingExpense.ProGearBelongsToSelf = updatedMovingExpense.ProGearBelongsToSelf
-	}
-	if updatedMovingExpense.ProGearDescription != nil {
-		mergedMovingExpense.ProGearDescription = updatedMovingExpense.ProGearDescription
-	}
-	if *updatedMovingExpense.WeightShipped != 0 {
-		mergedMovingExpense.WeightShipped = services.SetOptionalPoundField(updatedMovingExpense.WeightShipped, mergedMovingExpense.WeightShipped)
-	}
 
 	// TBD may be able to use the updater service for soft deleting instead of adding a dedicated one
 	mergedMovingExpense.DeletedAt = services.SetOptionalDateTimeField(updatedMovingExpense.DeletedAt, mergedMovingExpense.DeletedAt)

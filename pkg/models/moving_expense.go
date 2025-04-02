@@ -116,5 +116,8 @@ func (m *MovingExpense) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&StringIsNilOrNotBlank{Name: "Reason", Field: m.Reason},
 		&OptionalTimeIsPresent{Name: "SITStartDate", Field: m.SITStartDate},
 		&OptionalTimeIsPresent{Name: "SITEndDate", Field: m.SITEndDate},
+		&StringIsNilOrNotBlank{Name: "TrackingNumber", Field: m.TrackingNumber},
+		&OptionalPoundIsNonNegative{Name: "WeightShipped", Field: m.WeightShipped},
+		&StringIsNilOrNotBlank{Name: "ProGearDescription", Field: m.ProGearDescription},
 	), nil
 }

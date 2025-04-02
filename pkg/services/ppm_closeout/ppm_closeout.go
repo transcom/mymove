@@ -252,7 +252,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 
 	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status or if weight ticket was reviewed already, if not, it's not ready for closeout
 	if weightTicket.Status == nil && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
-		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
+		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "PPM is not ready for closeout - must be in NEEDS_CLOSEOUT or CLOSEOUT_COMPLETE status")
 	}
 
 	return &ppmShipment, err
@@ -260,9 +260,18 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 
 func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error) {
 	var totalWeight unit.Pound
-	// small package PPMs do not have an actual weight because they are expense-based only
+	// small package PPMs do not have weight tickets so we will add up moving expenses
 	if ppmShipment.PPMType == models.PPMTypeSmallPackage {
-		return unit.Pound(0), nil
+		if len(ppmShipment.MovingExpenses) >= 1 {
+			for _, movingExpense := range ppmShipment.MovingExpenses {
+				if movingExpense.WeightShipped != nil && *movingExpense.Status != models.PPMDocumentStatusRejected {
+					totalWeight += *movingExpense.WeightShipped
+				}
+			}
+			return totalWeight, nil
+		} else {
+			return unit.Pound(0), nil
+		}
 	}
 
 	if len(ppmShipment.WeightTickets) >= 1 {
