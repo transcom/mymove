@@ -48,7 +48,7 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 
 	for name, test := range testCases {
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&test.ediProcessing, test.expectedErrs) //#nosec G601
+			suite.verifyValidationErrors(&test.ediProcessing, test.expectedErrs, nil) //#nosec G601
 		})
 	}
 

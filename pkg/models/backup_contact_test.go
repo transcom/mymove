@@ -32,7 +32,7 @@ func (suite *ModelSuite) Test_BackupContactValidations() {
 		"permission": {"Permission can not be blank."},
 	}
 
-	suite.verifyValidationErrors(contact, expErrors)
+	suite.verifyValidationErrors(contact, expErrors, nil)
 }
 
 func (suite *ModelSuite) Test_FetchBackupContact() {

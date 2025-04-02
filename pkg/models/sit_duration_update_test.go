@@ -80,7 +80,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			CustomerExpense:   models.BoolPointer(false),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validSITExtension, expErrors)
+		suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 	})
 
 	suite.Run("test valid SITDurationUpdate for a SIT duration decrease", func() {
@@ -100,7 +100,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			CustomerExpense:   models.BoolPointer(false),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validSITExtension, expErrors)
+		suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 	})
 
 	reasons := []models.SITDurationUpdateRequestReason{
@@ -122,7 +122,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 				Status:        models.SITExtensionStatusPending,
 			}
 			expErrors := map[string][]string{}
-			suite.verifyValidationErrors(&validSITExtension, expErrors)
+			suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 		})
 	}
 
@@ -141,7 +141,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 				Status:        status,
 			}
 			expErrors := map[string][]string{}
-			suite.verifyValidationErrors(&validSITExtension, expErrors)
+			suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 		})
 	}
 
@@ -164,6 +164,6 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			"status":         {"Status is not in the list [PENDING, APPROVED, DENIED]."},
 			"decision_date":  {"DecisionDate can not be blank."},
 		}
-		suite.verifyValidationErrors(&validSITExtension, expErrors)
+		suite.verifyValidationErrors(&validSITExtension, expErrors, nil)
 	})
 }

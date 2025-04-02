@@ -12,7 +12,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 			DistanceMiles: 24,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validZip3Distance, expErrors)
+		suite.verifyValidationErrors(&validZip3Distance, expErrors, nil)
 	})
 
 	suite.Run("test invalid Zip3Distance", func() {
@@ -22,7 +22,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 			"to_zip3":        {"ToZip3 not in range(3, 3)"},
 			"distance_miles": {"DistanceMiles can not be blank."},
 		}
-		suite.verifyValidationErrors(&emptyZip3Distance, expErrors)
+		suite.verifyValidationErrors(&emptyZip3Distance, expErrors, nil)
 	})
 
 	suite.Run("test when from_zip3 is not a length of 3", func() {
@@ -34,7 +34,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 		expErrors := map[string][]string{
 			"from_zip3": {"FromZip3 not in range(3, 3)"},
 		}
-		suite.verifyValidationErrors(&invalidFromZip3Distance, expErrors)
+		suite.verifyValidationErrors(&invalidFromZip3Distance, expErrors, nil)
 	})
 
 	suite.Run("test when to_zip3 is not a length of 3", func() {
@@ -46,7 +46,7 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 		expErrors := map[string][]string{
 			"to_zip3": {"ToZip3 not in range(3, 3)"},
 		}
-		suite.verifyValidationErrors(&invalidToZip3Distance, expErrors)
+		suite.verifyValidationErrors(&invalidToZip3Distance, expErrors, nil)
 	})
 
 	suite.Run("test when distance_miles is not provided", func() {
@@ -57,6 +57,6 @@ func (suite *ModelSuite) TestZip3DistanceValidations() {
 		expErrors := map[string][]string{
 			"distance_miles": {"DistanceMiles can not be blank."},
 		}
-		suite.verifyValidationErrors(&invalidDistance, expErrors)
+		suite.verifyValidationErrors(&invalidDistance, expErrors, nil)
 	})
 }

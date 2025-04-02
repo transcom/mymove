@@ -31,7 +31,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 		"status":    {"Status can not be blank."},
 	}
 
-	suite.verifyValidationErrors(move, expErrors)
+	suite.verifyValidationErrors(move, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {

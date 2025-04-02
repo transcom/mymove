@@ -27,5 +27,5 @@ func (suite *ModelSuite) TestOrganizationCreationWithoutValues() {
 		"name": {"Name can not be blank."},
 	}
 
-	suite.verifyValidationErrors(newOrganization, expErrors)
+	suite.verifyValidationErrors(newOrganization, expErrors, nil)
 }

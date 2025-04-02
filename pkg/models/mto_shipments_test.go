@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			MarketCode:           marketCode,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMTOShipment, expErrors)
+		suite.verifyValidationErrors(&validMTOShipment, expErrors, nil)
 	})
 
 	suite.Run("test empty MTOShipment", func() {
@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"move_task_order_id": {"MoveTaskOrderID can not be blank."},
 			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED, TERMINATED_FOR_CAUSE]."},
 		}
-		suite.verifyValidationErrors(&emptyMTOShipment, expErrors)
+		suite.verifyValidationErrors(&emptyMTOShipment, expErrors, suite.AppContextForTest())
 	})
 
 	suite.Run("test rejected MTOShipment", func() {
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			RejectionReason: &rejectionReason,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&rejectedMTOShipment, expErrors)
+		suite.verifyValidationErrors(&rejectedMTOShipment, expErrors, nil)
 	})
 
 	suite.Run("test validation failures", func() {
@@ -103,7 +103,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"market_code":                   {"MarketCode is not in the list [d, i]."},
 			"status":                        {"Cannot update shipment with status TERMINATED_FOR_CAUSE"},
 		}
-		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
+		suite.verifyValidationErrors(&invalidMTOShipment, expErrors, suite.AppContextForTest())
 	})
 	suite.Run("test MTO Shipment has a PPM Shipment", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)

@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 			Factor:     1.20,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReShipmentTypePrice, expErrors)
+		suite.verifyValidationErrors(&validReShipmentTypePrice, expErrors, nil)
 	})
 
 	suite.Run("test invalid ReShipmentTypePrice", func() {
@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 			"service_id":  {"ServiceID can not be blank."},
 			"market":      {"Market can not be blank.", "Market is not in the list [C, O]."},
 		}
-		suite.verifyValidationErrors(&invalidReShipmentTypePrice, expErrors)
+		suite.verifyValidationErrors(&invalidReShipmentTypePrice, expErrors, nil)
 	})
 
 	suite.Run("test invalid market for ReShipmentTypePrice", func() {
@@ -38,7 +38,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 		expErrors := map[string][]string{
 			"market": {"Market is not in the list [C, O]."},
 		}
-		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors)
+		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors, nil)
 	})
 
 	suite.Run("test factor hundredths less than 1 for ReShipmentTypePrice", func() {
@@ -51,6 +51,6 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 		expErrors := map[string][]string{
 			"factor": {"-3.000000 is not greater than -0.010000."},
 		}
-		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors)
+		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors, nil)
 	})
 }

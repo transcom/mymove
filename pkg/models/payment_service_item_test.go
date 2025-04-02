@@ -23,7 +23,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 			PriceCents:       &cents,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validPaymentServiceItem, expErrors)
+		suite.verifyValidationErrors(&validPaymentServiceItem, expErrors, nil)
 	})
 
 	suite.Run("test empty PaymentServiceItem", func() {
@@ -36,7 +36,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 			"requested_at":       {"RequestedAt can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
+		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors, nil)
 	})
 
 	suite.Run("test invalid status for PaymentServiceItem", func() {
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 		expErrors := map[string][]string{
 			"status": {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID, EDI_ERROR]."},
 		}
-		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
+		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors, nil)
 	})
 }
 
