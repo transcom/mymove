@@ -7525,13 +7525,14 @@ definitions:
   BulkReAssignmentSavePayload:
     type: object
     properties:
+      queueType:
+        type: string
+        description: A string corresponding to the queue type
       officeUserToReassign:
         type: string
         format: uuid
       officeUsersTakingWork:
-        type: array
-        items:
-          $ref: '#/definitions/BulkReAssignmentTakingWork'
+        $ref: '#/definitions/BulkReAssignmentTakingWork'
       isCounselor:
         type: boolean
   BulkAssignmentForUser:

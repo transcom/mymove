@@ -387,3 +387,254 @@ func (suite *MoveServiceSuite) TestBulkMoveAssignment() {
 		suite.Nil(move3.TIOAssignedID)
 	})
 }
+
+func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
+	moveAssigner := NewMoveAssignerBulkAssignment()
+
+	setupTestData := func() (models.TransportationOffice, models.Move, models.Move, models.Move) {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		move1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		move2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		move3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		return transportationOffice, move1, move2, move3
+	}
+
+	suite.Run("properly redistributes moves", func() {
+		transportationOffice, reAmove1, reAmove2, reAmove3 := setupTestData()
+		reAmove4 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		reAmove5 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		reAmove6 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		reAmove7 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		reAmove8 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		officeUser1 := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+		officeUser2 := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser2@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+		officeUser3 := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser3@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+		officeUser4 := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser4@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		moves := []models.Move{reAmove1, reAmove2, reAmove3, reAmove4, reAmove5, reAmove6}
+		userData := []*ghcmessages.BulkAssignmentForUser{
+			{ID: strfmt.UUID(officeUser1.ID.String()), MoveAssignments: 1},
+			{ID: strfmt.UUID(officeUser2.ID.String()), MoveAssignments: 2},
+			{ID: strfmt.UUID(officeUser3.ID.String()), MoveAssignments: 3},
+			{ID: strfmt.UUID(officeUser4.ID.String()), MoveAssignments: 2},
+		}
+
+		// Initial Assignments
+		_, err := moveAssigner.BulkMoveAssignment(suite.AppContextForTest(), string(models.QueueTypeCounseling), userData, moves)
+
+		suite.NoError(err)
+
+		reassignTouserData := ghcmessages.BulkReAssignmentTakingWork{
+			OfficeUserToReassign: strfmt.UUID(officeUser4.ID.String()),
+			OfficeUsersTakingWork: []*ghcmessages.OfficeUserTakingWork{
+				{ID: officeUser1.ID.String(), MoveCount: 3},
+				{ID: officeUser2.ID.String(), MoveCount: 3},
+				{ID: officeUser3.ID.String(), MoveCount: 3},
+			},
+		}
+
+		_, err2 := moveAssigner.BulkMoveReAssignment(suite.AppContextForTest(), string(models.QueueTypeCounseling), &reassignTouserData, reassignTouserData.OfficeUserToReassign)
+		print(err)
+		suite.NoError(err2)
+
+		// reload move data to check assigned
+		suite.NoError(suite.DB().Reload(&reAmove1))
+		suite.NoError(suite.DB().Reload(&reAmove2))
+		suite.NoError(suite.DB().Reload(&reAmove3))
+		suite.NoError(suite.DB().Reload(&reAmove4))
+		suite.NoError(suite.DB().Reload(&reAmove5))
+		suite.NoError(suite.DB().Reload(&reAmove6))
+		suite.NoError(suite.DB().Reload(&reAmove7))
+		suite.NoError(suite.DB().Reload(&reAmove8))
+
+		suite.Equal(officeUser1.ID, *reAmove1.SCAssignedID)
+		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
+		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
+		suite.Equal(officeUser1.ID, *reAmove1.SCAssignedID)
+		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
+	})
+}

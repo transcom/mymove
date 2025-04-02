@@ -1011,7 +1011,7 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 		})
 }
 
-// SaveBulkAssignmentDataHandler saves the bulk assignment data
+// SaveBulkAssignmentDataHandler saves the bulk re assignment data
 type SaveBulkReAssignmentDataHandler struct {
 	handlers.HandlerConfig
 	services.OfficeUserFetcherPop
@@ -1048,22 +1048,11 @@ func (h SaveBulkReAssignmentDataHandler) Handle(
 				return queues.NewSaveBulkReAssignmentDataUnauthorized(), err
 			}
 
-			isCounselor := params.BulkReAssignmentSavePayload.IsCounselor
+			queueType := params.BulkReAssignmentSavePayload.QueueType
 			officeUserToReassign := params.BulkReAssignmentSavePayload.OfficeUserToReassign
 			officeUsersTakingWork := params.BulkReAssignmentSavePayload.OfficeUsersTakingWork
 
-			// fetch the moves available to be assigned to their office users
-			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, moveData)
-			if err != nil {
-				appCtx.Logger().Error("Error retreiving moves for assignment", zap.Error(err))
-				return queues.NewSaveBulkReAssignmentDataInternalServerError(), err
-			}
-
-			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, officeUserToReassign, nil, movesForAssignment)
-			if err != nil {
-				appCtx.Logger().Error("Error assigning moves", zap.Error(err))
-				return queues.NewGetBulkReAssignmentDataInternalServerError(), err
-			}
+			_, err = h.MoveAssigner.BulkMoveReAssignment(appCtx, queueType, officeUsersTakingWork, officeUserToReassign)
 
 			return queues.NewSaveBulkReAssignmentDataNoContent(), nil
 		})

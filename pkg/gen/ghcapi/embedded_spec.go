@@ -7507,10 +7507,11 @@ func init() {
           "format": "uuid"
         },
         "officeUsersTakingWork": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/BulkReAssignmentTakingWork"
-          }
+          "$ref": "#/definitions/BulkReAssignmentTakingWork"
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string"
         }
       }
     },
@@ -25323,10 +25324,11 @@ func init() {
           "format": "uuid"
         },
         "officeUsersTakingWork": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/BulkReAssignmentTakingWork"
-          }
+          "$ref": "#/definitions/BulkReAssignmentTakingWork"
+        },
+        "queueType": {
+          "description": "A string corresponding to the queue type",
+          "type": "string"
         }
       }
     },
