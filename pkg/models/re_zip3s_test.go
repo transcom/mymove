@@ -16,7 +16,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 			DomesticServiceAreaID: uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReZip3, expErrors)
+		suite.verifyValidationErrors(&validReZip3, expErrors, nil)
 	})
 
 	suite.Run("test invalid ReZip3", func() {
@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 			"state":                    {"State can not be blank."},
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
 		}
-		suite.verifyValidationErrors(&emptyReZip3, expErrors)
+		suite.verifyValidationErrors(&emptyReZip3, expErrors, nil)
 	})
 
 	suite.Run("test when zip3 is not a length of 3", func() {
@@ -42,7 +42,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 		expErrors := map[string][]string{
 			"zip3": {"Zip3 not in range(3, 3)"},
 		}
-		suite.verifyValidationErrors(&invalidReZip3, expErrors)
+		suite.verifyValidationErrors(&invalidReZip3, expErrors, nil)
 	})
 
 	suite.Run("test FetchReZip3Item", func() {

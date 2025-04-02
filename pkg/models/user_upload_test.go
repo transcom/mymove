@@ -31,7 +31,7 @@ func (suite *ModelSuite) Test_UserUploadCreate() {
 
 	var expErrors = map[string][]string{}
 
-	suite.verifyValidationErrors(&uploadUser, expErrors)
+	suite.verifyValidationErrors(&uploadUser, expErrors, nil)
 }
 
 func (suite *ModelSuite) Test_UserUploadValidations() {
@@ -41,7 +41,7 @@ func (suite *ModelSuite) Test_UserUploadValidations() {
 		"uploader_id": {"UploaderID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(uploadUser, expErrors)
+	suite.verifyValidationErrors(uploadUser, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestCreateUserUploadWithNoUpload() {

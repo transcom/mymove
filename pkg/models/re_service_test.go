@@ -11,7 +11,7 @@ func (suite *ModelSuite) TestReServiceValidation() {
 			Name: "California",
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReService, expErrors)
+		suite.verifyValidationErrors(&validReService, expErrors, nil)
 	})
 
 	suite.Run("test empty ReService", func() {
@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestReServiceValidation() {
 			"code": {"Code can not be blank."},
 			"name": {"Name can not be blank."},
 		}
-		suite.verifyValidationErrors(&emptyReService, expErrors)
+		suite.verifyValidationErrors(&emptyReService, expErrors, nil)
 	})
 }
 

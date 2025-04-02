@@ -27,13 +27,13 @@ func (suite *ModelSuite) TestElectronicOrderValidations() {
 		"issuer":        {"Issuer is not in the list [air-force, army, coast-guard, marine-corps, navy]."},
 	}
 
-	suite.verifyValidationErrors(order, expErrors)
+	suite.verifyValidationErrors(order, expErrors, nil)
 
 	order.Edipi = "wrongfmt"
 
 	expErrors["edipi"] = []string{"Edipi does not match the expected format."}
 
-	suite.verifyValidationErrors(order, expErrors)
+	suite.verifyValidationErrors(order, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrder() {
