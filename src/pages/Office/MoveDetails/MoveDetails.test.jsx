@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 
@@ -10,6 +11,7 @@ import MoveDetails from './MoveDetails';
 import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
@@ -28,6 +30,11 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ moveCode: mockRequestedMoveCode }),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const requestedMoveDetailsQuery = {
@@ -911,6 +918,62 @@ const undefinedMTOShipmentsMoveDetailsQuery = {
   mtoShipments: undefined,
 };
 
+const shipmentInvalidRequestedPickupDate = {
+  customerRemarks: 'please treat gently',
+  counselorRemarks: 'all good',
+  destinationAddress: {
+    city: 'Fairfield',
+    country: 'US',
+    id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+    postalCode: '94535',
+    state: 'CA',
+    streetAddress1: '987 Any Avenue',
+    streetAddress2: 'P.O. Box 9876',
+    streetAddress3: 'c/o Some Person',
+  },
+  eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+  id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+  moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+  pickupAddress: {
+    city: 'Beverly Hills',
+    country: 'US',
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+    id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+    postalCode: '90210',
+    state: 'CA',
+    streetAddress1: '123 Any Street',
+    streetAddress2: 'P.O. Box 12345',
+    streetAddress3: 'c/o Some Person',
+  },
+  secondaryPickupAddress: {
+    city: 'Los Angeles',
+    country: 'US',
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+    id: 'b941a74a-e77e-4575-bea3-e7e01b226422',
+    postalCode: '90222',
+    state: 'CA',
+    streetAddress1: '456 Any Street',
+    streetAddress2: 'P.O. Box 67890',
+    streetAddress3: 'c/o A Friendly Person',
+  },
+  secondaryDeliveryAddress: {
+    city: 'Beverly Hills',
+    country: 'US',
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+    id: '1686751b-ab36-43cf-eeee-c0f467d13c19',
+    postalCode: '90215',
+    state: 'CA',
+    streetAddress1: '123 Any Street',
+    streetAddress2: 'P.O. Box 12345',
+    streetAddress3: 'c/o Some Person',
+  },
+  requestedPickupDate: new Date(),
+  scheduledPickupDate: new Date(),
+  shipmentType: 'HHG',
+  status: 'SUBMITTED',
+  updatedAt: '2020-05-10T15:58:02.404031Z',
+};
+
 const loadingReturnValue = {
   isLoading: true,
   isError: false,
@@ -986,7 +1049,7 @@ describe('MoveDetails page', () => {
 
     it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-move-details' }).exists()).toBe(true);
-      expect(wrapper.containsMatchingElement(<h1>Move details</h1>)).toBe(true);
+      expect(wrapper.containsMatchingElement(<h1>Move Details</h1>)).toBe(true);
     });
 
     it('renders side navigation for each section', () => {
@@ -1299,6 +1362,87 @@ describe('MoveDetails page', () => {
       expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
     });
 
+    it('renders add a new shipment button and does not show UB when orders type is local move', async () => {
+      const localMoveDetailsQuery = {
+        ...noRequestedAndNoApprovedMoveDetailsQuery,
+        order: {
+          ...noRequestedAndNoApprovedMoveDetailsQuery.order,
+          order_type: ORDERS_TYPE.LOCAL_MOVE,
+          originDutyLocation: {
+            address: {
+              isOconus: true,
+            },
+          },
+        },
+      };
+      useMoveDetailsQueries.mockReturnValue(localMoveDetailsQuery);
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      render(
+        <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      // Get the combobox (dropdown button)
+      const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+
+      expect(combobox).toBeInTheDocument();
+
+      // Simulate a user clicking the dropdown
+      await userEvent.click(combobox);
+
+      // Check if all expected options appear
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+      });
+      // UB option does not appear when orders type is local move
+      expect(screen.queryByRole('option', { name: 'UB' })).not.toBeInTheDocument();
+    });
+
+    it('renders add a new shipment button and shows UB when orders type is NOT local move', async () => {
+      const pcsMoveDetailsQuery = {
+        ...noRequestedAndNoApprovedMoveDetailsQuery,
+        order: {
+          ...noRequestedAndNoApprovedMoveDetailsQuery.order,
+          order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          originDutyLocation: {
+            address: {
+              isOconus: true,
+            },
+          },
+        },
+      };
+      useMoveDetailsQueries.mockReturnValue(pcsMoveDetailsQuery);
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      render(
+        <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      const combobox = await screen.getByRole('combobox', { name: 'Add a new shipment' });
+
+      expect(combobox).toBeInTheDocument();
+
+      await userEvent.click(combobox);
+
+      // Check if all expected options appear
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'HHG' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'PPM' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'NTS-release' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Boat' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Mobile Home' })).toBeInTheDocument();
+      });
+      expect(screen.getByRole('option', { name: 'UB' })).toBeInTheDocument();
+    });
+
     it('renders add new shipment button even when there are no shipments on the move', async () => {
       useMoveDetailsQueries.mockReturnValue(noRequestedAndNoApprovedMoveDetailsQuery);
 
@@ -1424,6 +1568,40 @@ describe('MoveDetails page', () => {
       );
 
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when a shipment has an invalid requestedPickupDate', () => {
+    it('error indicators shown and shipment cannot be selected for approvals', async () => {
+      useMoveDetailsQueries.mockReturnValue({
+        ...undefinedMTOShipmentsMoveDetailsQuery,
+        mtoShipments: [shipmentInvalidRequestedPickupDate],
+      });
+
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <MoveDetails
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
+          />
+        </MockProviders>,
+      );
+
+      expect((await screen.findByTestId('requestedPickupDate')).parentElement.classList).toContain('missingInfoError');
+
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeVisible();
+
+      expect(await screen.findByTestId('shipment-display-checkbox')).toBeInTheDocument();
+      expect(await screen.findByTestId('shipment-display-checkbox')).toBeDisabled();
+
+      expect(await screen.findByTestId('shipmentApproveButton')).toBeInTheDocument();
+      expect(await screen.findByTestId('shipmentApproveButton')).toBeDisabled();
     });
   });
 });

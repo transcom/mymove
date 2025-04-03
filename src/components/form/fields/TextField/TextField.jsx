@@ -7,6 +7,7 @@ import { FormGroup, Label, TextInput, Textarea, ErrorMessage } from '@trussworks
 
 import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 /**
  * This component renders a ReactUSWDS TextInput component inside of a FormGroup,
@@ -36,6 +37,7 @@ const TextField = ({
   display,
   button,
   disablePaste,
+  showRequiredAsterisk,
   ...inputProps
 }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
@@ -52,7 +54,15 @@ const TextField = ({
     switch (displayType) {
       case 'textarea':
         return (
-          <Textarea id={id} name={name} disabled={isDisabled} onPaste={pasteHandler} {...fieldProps} {...inputProps} />
+          <Textarea
+            id={id}
+            name={name}
+            disabled={isDisabled}
+            onPaste={pasteHandler}
+            {...fieldProps}
+            {...inputProps}
+            aria-describedby={showError ? `${id}-error` : undefined}
+          />
         );
       case 'readonly':
         return (
@@ -62,7 +72,15 @@ const TextField = ({
         );
       default:
         return (
-          <TextInput id={id} name={name} disabled={isDisabled} onPaste={pasteHandler} {...fieldProps} {...inputProps} />
+          <TextInput
+            id={id}
+            name={name}
+            disabled={isDisabled}
+            onPaste={pasteHandler}
+            {...fieldProps}
+            {...inputProps}
+            aria-describedby={showError ? `${id}-error` : undefined}
+          />
         );
     }
   };
@@ -71,13 +89,15 @@ const TextField = ({
     <FormGroup className={formGroupClasses} error={showError}>
       <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
-          {label}
+          <span>
+            {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
         {optional && <OptionalTag />}
       </div>
 
       {showError && (
-        <ErrorMessage display={showError} className={errorClassName}>
+        <ErrorMessage id={`${id}-error`} role="alert" aria-live="assertive" className={errorClassName}>
           {metaProps.error ? metaProps.error : errorMessage}
         </ErrorMessage>
       )}

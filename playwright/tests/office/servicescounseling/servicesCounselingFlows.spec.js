@@ -115,7 +115,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
@@ -283,7 +283,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
@@ -331,7 +331,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
@@ -413,7 +413,7 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: 'PPM Review Complete' }).click();
     await scPage.waitForPage.moveDetails();
 
     await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
@@ -591,6 +591,35 @@ test.describe('Services counselor user', () => {
         await page.getByRole('button', { name: 'Save & Continue' }).click();
         await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
       });
+
+      test('can add, edit, and delete Weight moved', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // Add Weight Ticket
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByText('Add More Weight').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await scPage.fillOutWeightTicketPage({ hasTrailer: true, ownTrailer: true });
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Edit
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMoved-1').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Delete
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMovedDelete-1').click();
+        await expect(page.getByRole('heading', { name: 'Delete this?' })).toBeVisible();
+        await page.getByRole('button', { name: 'Yes, Delete' }).click();
+        await expect(page.getByText('Trip 1 successfully deleted.')).toBeVisible();
+        await expect(page.getByTestId('weightMovedDelete-1')).not.toBeVisible();
+      });
     });
   });
 
@@ -651,7 +680,7 @@ test.describe('Services counselor user', () => {
         expect(await page.locator('[data-testid="tag"]').count()).toBe(1);
         await page.getByText('Accept').click();
         await page.getByTestId('closeSidebar').click();
-        await expect(page.getByRole('heading', { name: 'Move details' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Move Details' })).toBeVisible();
         await expect(page.getByText('actual expense reimbursement')).toBeVisible();
       });
     });

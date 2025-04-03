@@ -1,11 +1,13 @@
 package officeuser
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -16,34 +18,40 @@ type officeUserUpdater struct {
 }
 
 // UpdateOfficeUser updates an office user
-func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeID uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
+func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *models.OfficeUser, primaryTransportationOfficeID uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
+	updateUserAndOkta := false
 	var foundUser models.OfficeUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundUser, filters)
-
 	if err != nil {
 		return nil, nil, err
-
 	}
 
-	if payload.FirstName != nil {
-		foundUser.FirstName = *payload.FirstName
-	}
+	if payload != nil {
+		if payload.Email != "" && payload.Email != foundUser.Email {
+			foundUser.Email = payload.Email
+			updateUserAndOkta = true
+		}
 
-	if payload.MiddleInitials != nil {
-		foundUser.MiddleInitials = payload.MiddleInitials
-	}
+		if payload.FirstName != "" {
+			foundUser.FirstName = payload.FirstName
+		}
 
-	if payload.LastName != nil {
-		foundUser.LastName = *payload.LastName
-	}
+		if payload.MiddleInitials != nil {
+			foundUser.MiddleInitials = payload.MiddleInitials
+		}
 
-	if payload.Telephone != nil {
-		foundUser.Telephone = *payload.Telephone
-	}
+		if payload.LastName != "" {
+			foundUser.LastName = payload.LastName
+		}
 
-	if payload.Active != nil {
-		foundUser.Active = *payload.Active
+		if payload.Telephone != "" {
+			foundUser.Telephone = payload.Telephone
+		}
+
+		if payload.Active != foundUser.Active {
+			foundUser.Active = payload.Active
+		}
 	}
 
 	transportationOfficeID := primaryTransportationOfficeID.String()
@@ -62,9 +70,68 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 		foundUser.TransportationOfficeID = uuid.FromStringOrNil(transportationOfficeID)
 	}
 
-	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
-	if verrs != nil || err != nil {
-		return nil, verrs, err
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		verrs, err := o.builder.UpdateOne(txnCtx, &foundUser, nil)
+		if err != nil {
+			return err
+		}
+		if verrs != nil && verrs.HasAny() {
+			return verrs
+		}
+
+		// if the email is being updated, we need to also update the user email & okta email
+		if updateUserAndOkta {
+			var existingUser models.User
+			filters := []services.QueryFilter{query.NewQueryFilter("id", "=", foundUser.UserID.String())}
+			err := o.builder.FetchOne(appCtx, &existingUser, filters)
+			if err != nil {
+				return err
+			}
+
+			existingUser.OktaEmail = foundUser.Email
+			verrs, err := o.builder.UpdateOne(txnCtx, &existingUser, nil)
+			if err != nil {
+				return err
+			}
+			if verrs != nil && verrs.HasAny() {
+				return verrs
+			}
+
+			if existingUser.OktaID != "" && appCtx.Session().IDToken != "devlocal" {
+				apiKey := models.GetOktaAPIKey()
+				oktaID := existingUser.OktaID
+				req := appCtx.HTTPRequest()
+				if req == nil {
+					return fmt.Errorf("failed to retrieve HTTP request from session")
+				}
+
+				provider, err := okta.GetOktaProviderForRequest(req)
+				if err != nil {
+					return fmt.Errorf("error retrieving Okta provider: %w", err)
+				}
+
+				// verifying the okta user exists but we also need all the okta profile info prior to updating
+				existingOktaUser, err := models.GetOktaUser(appCtx, provider, oktaID, apiKey)
+				if err != nil {
+					return fmt.Errorf("error getting Okta user prior to updating: %w", err)
+				}
+				if existingOktaUser == nil {
+					return fmt.Errorf("okta user cannot be nil before updating okta email of office user")
+				}
+				existingOktaUser.Profile.Email = existingUser.OktaEmail
+				existingOktaUser.Profile.Login = existingUser.OktaEmail
+
+				_, err = models.UpdateOktaUser(appCtx, provider, oktaID, apiKey, *existingOktaUser)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, nil, transactionError
 	}
 
 	return &foundUser, nil, nil

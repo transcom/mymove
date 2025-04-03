@@ -35,10 +35,11 @@ describe('MaskedTextField', () => {
 
     it('render a Label', () => {
       const label = wrapper.find(FormGroup).find(Label);
+      const labelChild = wrapper.find(FormGroup).find(Label).dive();
       expect(label.length).toBe(1);
       expect(label.prop('error')).toBe(true);
       expect(label.prop('htmlFor')).toBe('firstName');
-      expect(label.prop('children')).toBe('First Name');
+      expect(labelChild.text()).toContain('First Name');
     });
 
     it('render a IMaskInput', () => {
@@ -93,6 +94,25 @@ describe('MaskedTextField', () => {
     it('render a IMaskInput with expected unmasked prop value', () => {
       const textInput = wrapper.find(FormGroup).find(IMaskInput).getDOMNode();
       expect(textInput.value).toBe('8,000 lbs');
+    });
+  });
+
+  describe('with showRequiredAsterisk prop', () => {
+    const wrapper = shallow(
+      <MaskedTextField
+        className="sample-class"
+        name="firstName"
+        label="First Name"
+        type="text"
+        id="firstName"
+        showRequiredAsterisk
+      />,
+    );
+
+    it('renders a required asterisk', () => {
+      const requiredAsterisk = wrapper.find('RequiredAsterisk').dive();
+      const asterisk = requiredAsterisk.find('[data-testid="requiredAsterisk"]');
+      expect(asterisk.exists()).toBe(true);
     });
   });
 

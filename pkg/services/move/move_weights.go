@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -26,11 +27,12 @@ const AutoReweighRequestThreshold = .9
 type moveWeights struct {
 	ReweighRequestor       services.ShipmentReweighRequester
 	WeightAllotmentFetcher services.WeightAllotmentFetcher
+	Sender                 notifications.NotificationSender
 }
 
 // NewMoveWeights creates a new moveWeights service
-func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher) services.MoveWeights {
-	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher}
+func NewMoveWeights(reweighRequestor services.ShipmentReweighRequester, weightAllotmentFetcher services.WeightAllotmentFetcher, sender notifications.NotificationSender) services.MoveWeights {
+	return &moveWeights{ReweighRequestor: reweighRequestor, WeightAllotmentFetcher: weightAllotmentFetcher, Sender: sender}
 }
 
 func validateAndSave(appCtx appcontext.AppContext, move *models.Move) (*validate.Errors, error) {
@@ -126,7 +128,11 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	if *move.Orders.Entitlement.DependentsAuthorized {
 		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
-	ubWeightAllowance, err := models.GetUBWeightAllowance(appCtx, move.Orders.OriginDutyLocation.Address.IsOconus, move.Orders.NewDutyLocation.Address.IsOconus, move.Orders.ServiceMember.Affiliation, move.Orders.Grade, &move.Orders.OrdersType, move.Orders.Entitlement.DependentsAuthorized, move.Orders.Entitlement.AccompaniedTour, move.Orders.Entitlement.DependentsUnderTwelve, move.Orders.Entitlement.DependentsTwelveAndOver)
+	civilianTDYUBAllowance := 0
+	if move.Orders.Entitlement.UBAllowance != nil {
+		civilianTDYUBAllowance = *move.Orders.Entitlement.UBAllowance
+	}
+	ubWeightAllowance, err := models.GetUBWeightAllowance(appCtx, move.Orders.OriginDutyLocation.Address.IsOconus, move.Orders.NewDutyLocation.Address.IsOconus, move.Orders.ServiceMember.Affiliation, move.Orders.Grade, &move.Orders.OrdersType, move.Orders.Entitlement.DependentsAuthorized, move.Orders.Entitlement.AccompaniedTour, move.Orders.Entitlement.DependentsUnderTwelve, move.Orders.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -262,8 +268,8 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 	return sumOfWeights
 }
 
-// getAutoReweighShipments returns all shipments that need to be reweighed
-func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+// getAutoReweighShipments returns all shipments that need to be reweighed (made public just for testing)
+func (w moveWeights) GetAutoReweighShipments(appCtx appcontext.AppContext, move *models.Move, updatedShipment *models.MTOShipment) (*models.MTOShipments, error) {
 	if move == nil {
 		return nil, apperror.NewBadDataError("received a nil move, a move must be supplied for checking reweighs")
 	}
@@ -288,81 +294,114 @@ func (w moveWeights) getAutoReweighShipments(appCtx appcontext.AppContext, move 
 
 	totalActualWeight := 0
 	totalEstimatedWeight := 0
-	for i := range move.MTOShipments {
-		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM &&
-			availableShipmentStatus(move.MTOShipments[i].Status) &&
-			move.MTOShipments[i].DeletedAt == nil &&
-			updatedShipment.ID != move.MTOShipments[i].ID {
-			if move.MTOShipments[i].PrimeActualWeight != nil {
-				totalActualWeight += lowerShipmentActualWeight(move.MTOShipments[i])
+	reweighActiveForMove := false // Reweighs should be active for all shipments in a move
+	for _, shipment := range move.MTOShipments {
+		if shipment.ShipmentType != models.MTOShipmentTypePPM { // Don't include PPMs for reweighs
+			if shipment.Reweigh != nil && shipment.Reweigh.ID != uuid.Nil { // Should only trigger reweights once, skip if one already exists
+				reweighActiveForMove = true // Also set var so we know to apply reweigh to any shipments in move that don't yet have one
+				break
 			}
-			if move.MTOShipments[i].PrimeEstimatedWeight != nil {
-				totalEstimatedWeight += lowerShipmentEstimatedWeight(move.MTOShipments[i])
+			if availableShipmentStatus(shipment.Status) &&
+				shipment.DeletedAt == nil &&
+				updatedShipment.ID != shipment.ID {
+				if shipment.PrimeActualWeight != nil {
+					totalActualWeight += lowerShipmentActualWeight(shipment)
+				}
+				if shipment.PrimeEstimatedWeight != nil {
+					totalEstimatedWeight += lowerShipmentEstimatedWeight(shipment)
+				}
+				results = append(results, shipment)
+			} else if shipment.ID == updatedShipment.ID {
+				if updatedShipment.PrimeActualWeight != nil {
+					totalActualWeight += lowerShipmentActualWeight(*updatedShipment)
+				}
+				if updatedShipment.PrimeEstimatedWeight != nil {
+					totalEstimatedWeight += lowerShipmentEstimatedWeight(*updatedShipment)
+				}
+				results = append(results, *updatedShipment)
 			}
-			results = append(results, move.MTOShipments[i])
-		} else if move.MTOShipments[i].ID == updatedShipment.ID {
-			if updatedShipment.PrimeActualWeight != nil {
-				totalActualWeight += lowerShipmentActualWeight(*updatedShipment)
-			}
-			if updatedShipment.PrimeEstimatedWeight != nil {
-				totalEstimatedWeight += lowerShipmentEstimatedWeight(*updatedShipment)
-			}
-			results = append(results, *updatedShipment)
 		}
+	}
+
+	// If reweigh active , restart and make sure that each shipment without a reweigh gets a reweigh request
+	if reweighActiveForMove {
+		results = models.MTOShipments{}
+		for _, shipment := range move.MTOShipments {
+			if shipment.Reweigh == nil &&
+				availableShipmentStatus(shipment.Status) &&
+				shipment.ShipmentType != models.MTOShipmentTypePPM {
+				results = append(results, shipment)
+			}
+		}
+	}
+
+	// If there was a shipment added after a reweigh was originally requested, we need to send that reqweigh request regardless of weight
+	if reweighActiveForMove {
+		return &results, nil
 	}
 
 	// Check actual weight first
 	if int(totalActualWeight) >= maxWeight {
-		return results, nil
+		return &results, nil
 	}
 
 	// Check estimated weight second
 	if int(totalEstimatedWeight) >= maxWeight {
-		return results, nil
+		return &results, nil
 	}
 
-	return models.MTOShipments{}, nil
+	return &models.MTOShipments{}, nil
 }
 
-func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
+func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) error {
 	if updatedShipment == nil {
-		return nil, apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs")
+		return apperror.NewBadDataError("received a nil MTO shipment, an MTO shipment must be supplied for checking reweighs")
 	}
 
 	var move models.Move
-	err := appCtx.DB().Eager("MTOShipments", "Orders", "Orders.Entitlement", "MTOShipments.ShipmentType", "MTOShipments.Status", "MTOShipments.DeletedAt", "MTOShipments.PrimeActualWeight", "MTOShipments.PrimeEstimatedWeight").Find(&move, moveID)
+	err := appCtx.DB().EagerPreload("MTOShipments", "Orders", "Orders.Entitlement", "MTOShipments.Reweigh", "MTOShipments.ShipmentType", "MTOShipments.Status", "MTOShipments.DeletedAt", "MTOShipments.PrimeActualWeight", "MTOShipments.PrimeEstimatedWeight").Find(&move, moveID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(moveID, "looking for Move")
+			return apperror.NewNotFoundError(moveID, "looking for Move")
 		default:
-			return nil, apperror.NewQueryError("Move", err, "")
+			return apperror.NewQueryError("Move", err, "")
 		}
 	}
 
 	if move.Orders.Grade == nil {
-		return nil, errors.New("could not determine excess weight entitlement without grade")
+		return errors.New("could not determine excess weight entitlement without grade")
 	}
 
 	if move.Orders.Entitlement.DependentsAuthorized == nil {
-		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
+		return errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	autoReweighShipments, err := w.getAutoReweighShipments(appCtx, &move, updatedShipment)
+	autoReweighShipments, err := w.GetAutoReweighShipments(appCtx, &move, updatedShipment)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if len(autoReweighShipments) > 0 {
-		for _, shipment := range autoReweighShipments {
+	if autoReweighShipments != nil && len(*autoReweighShipments) > 0 {
+		for _, shipment := range *autoReweighShipments {
 			reweigh, err := w.ReweighRequestor.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 			if err != nil {
-				return nil, err
+				return err
+			}
+
+			/* Don't send emails to BLUEBARK moves */
+			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
+				err := w.Sender.SendNotification(appCtx,
+					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
+				)
+				if err != nil {
+					return err
+				}
 			}
 
 			shipment.Reweigh = reweigh
 		}
 	}
 
-	return autoReweighShipments, nil
+	return nil
 }

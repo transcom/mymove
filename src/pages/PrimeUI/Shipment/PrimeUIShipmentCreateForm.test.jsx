@@ -227,18 +227,11 @@ describe('PrimeUIShipmentCreateForm', () => {
       initialValues.ppmShipment.pickupAddress.streetAddress1,
     );
 
-    expect(screen.getAllByText('City')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('State')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('County')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
-
     expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
     );
-    expect(screen.getAllByText('City')[1]).toBeInTheDocument();
-    expect(screen.getAllByText('State')[1]).toBeInTheDocument();
-    expect(screen.getAllByText('County')[1]).toBeInTheDocument();
-    expect(screen.getAllByText('ZIP')[1]).toBeInTheDocument();
+
+    expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
 
     expect(await screen.findByText('Storage In Transit (SIT)')).toBeInTheDocument();
     const sitExpectedInput = await screen.findByLabelText('SIT Expected');
@@ -457,7 +450,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
 
     expect(
-      screen.getByText('Will the movers deliver any belongings from a third address?', {
+      screen.getByText('Will the movers deliver any belongings to a third address?', {
         exact: false,
       }),
     ).toBeInTheDocument();
