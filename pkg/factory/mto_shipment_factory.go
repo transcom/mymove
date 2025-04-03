@@ -115,7 +115,11 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 		if shipmentHasPickupDetails {
 			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
-			newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			if cMtoShipment.ScheduledPickupDate == nil {
+				newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
+			} else {
+				newMTOShipment.ScheduledPickupDate = cMtoShipment.ScheduledPickupDate
+			}
 			newMTOShipment.ActualPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
 		}
 
@@ -212,8 +216,12 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		}
 
 		if cMtoShipment.ScheduledPickupDate != nil {
-			requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
-			newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+			if cMtoShipment.RequiredDeliveryDate != nil {
+				newMTOShipment.RequiredDeliveryDate = cMtoShipment.RequiredDeliveryDate
+			} else {
+				requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+				newMTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+			}
 		}
 	}
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -232,7 +233,40 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				oktaUser, oktaErr = createOktaProfile(appCtx, params)
 				if oktaErr != nil {
 					appCtx.Logger().Error("error creating okta profile", zap.Error(oktaErr))
-					return customercodeop.NewCreateCustomerWithOktaOptionBadRequest(), oktaErr
+					rawErrMsg := oktaErr.Error()
+					// filtering the overly complex Okta error that gets sent back
+					const prefix = "API error (status "
+					if strings.HasPrefix(rawErrMsg, prefix) {
+						if idx := strings.Index(rawErrMsg, "): "); idx != -1 {
+							rawErrMsg = rawErrMsg[idx+3:]
+						}
+					}
+
+					var parsedErr models.OktaError
+					if err := json.Unmarshal([]byte(rawErrMsg), &parsedErr); err != nil {
+						// if unmarshalling fails, fall back to the original error message
+						parsedErr.ErrorSummary = rawErrMsg
+					}
+
+					var detail string
+					if len(parsedErr.ErrorCauses) > 0 {
+						detail = parsedErr.ErrorCauses[0].ErrorSummary
+					} else {
+						detail = parsedErr.ErrorSummary
+					}
+
+					// office users don't know that login means email so handling error returns to make it easier to understand
+					switch {
+					case strings.Contains(detail, "cac_edipi: An object with this field already exists in the current organization"):
+						detail = "An Okta user already exists with the DODID " + payload.Edipi
+					case strings.Contains(detail, "login: An object with this field already exists in the current organization"):
+						detail = "An Okta user already exists with the email " + payload.PersonalEmail
+					default:
+						detail = "Okta error - " + detail
+					}
+
+					payload := payloadForValidationError("Unable to create Okta profile", detail, h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), oktaErr
 				}
 				oktaSub = oktaUser.ID
 			}
@@ -347,14 +381,16 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 	oktaEmail := payload.PersonalEmail
 	oktaFirstName := payload.FirstName
 	oktaLastName := payload.LastName
+	edipi := payload.Edipi
 	oktaPhone := payload.Telephone
 
 	// Creating the Profile struct
-	profile := models.Profile{
+	profile := models.OktaProfile{
 		FirstName:   oktaFirstName,
 		LastName:    oktaLastName,
 		Email:       oktaEmail,
 		Login:       oktaEmail,
+		CacEdipi:    edipi,
 		MobilePhone: *oktaPhone,
 	}
 
@@ -408,6 +444,7 @@ func createOktaProfile(appCtx appcontext.AppContext, params customercodeop.Creat
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("API error (status %d): %s", resp.StatusCode, string(response))
 		if resp.StatusCode == http.StatusInternalServerError {
 			return nil, err
 		}
