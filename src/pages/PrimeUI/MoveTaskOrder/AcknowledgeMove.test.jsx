@@ -1,9 +1,11 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import AcknowledgeMove from './AcknowledgeMove';
+
 import { renderWithProviders } from 'testUtils';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import userEvent from '@testing-library/user-event';
 import { acknowledgeMovesAndShipments } from 'services/primeApi';
 
 jest.mock('hooks/queries', () => ({
@@ -58,7 +60,6 @@ describe('PrimeUI AcknowledgeMove Page', () => {
     expect(moveIdElement).toBeInTheDocument();
     expect(moveIdElement.nextSibling).toHaveTextContent('1');
 
-    const primeAcknowledgedAtText = 'Prime Acknowledged At';
     const primeAcknowledgedAtLabel = screen.getByText(primeAcknowledgedAtText);
     expect(primeAcknowledgedAtLabel).toBeInTheDocument();
 
