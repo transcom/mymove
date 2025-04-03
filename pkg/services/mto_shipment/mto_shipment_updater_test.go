@@ -1074,7 +1074,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		fieldErrors, exists := ve.Errors["UB shipment error"]
 		suite.True(exists, "expected validation error for 'UB shipment error'")
 		joinedErrors := strings.Join(fieldErrors, " ")
-		suite.Contains(joinedErrors, "UB shipments are required to have at least one OCONUS address")
+		suite.Contains(joinedErrors, "At least one address for a UB shipment must be OCONUS")
 
 	})
 

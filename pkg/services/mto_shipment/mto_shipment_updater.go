@@ -853,7 +853,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			isShipmentOCONUS := models.IsShipmentOCONUS(*newShipment)
 			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
-				errorMsg := "UB shipments are required to have at least one OCONUS address"
+				errorMsg := "At least one address for a UB shipment must be OCONUS"
 				ubVerrs := validate.NewErrors()
 				ubVerrs.Add("UB shipment error", errorMsg)
 				return apperror.NewInvalidInputError(uuid.Nil, nil, ubVerrs, errorMsg)
