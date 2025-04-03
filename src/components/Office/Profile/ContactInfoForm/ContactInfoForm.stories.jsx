@@ -6,7 +6,7 @@ import ContactInfoForm from './ContactInfoForm';
 import { configureStore } from 'shared/store';
 
 export default {
-  title: 'Office Components / Forms / ContactInfoForm',
+  title: 'Office Components/ContactInfoForm',
   component: ContactInfoForm,
   argTypes: {
     onSubmit: {
