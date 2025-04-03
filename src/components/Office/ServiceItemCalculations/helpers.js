@@ -921,6 +921,16 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // International NTS packing
+    case SERVICE_ITEM_CODES.INPK:
+      result = [
+        billableWeight(params),
+        internationalPackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        ntsPackingFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // Domestic shorthaul
     case SERVICE_ITEM_CODES.DSH:
       result = [

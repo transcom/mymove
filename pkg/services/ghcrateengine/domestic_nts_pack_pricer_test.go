@@ -19,8 +19,8 @@ const (
 	dnpkTestServicesScheduleOrigin = 1
 	dnpkTestContractYearName       = "DNPK Test Year"
 	dnpkTestBasePriceCents         = unit.Cents(6544)
-	dnpkTestFactor                 = 1.35
-	dnpkTestPriceCents             = unit.Cents(193064)
+	dnpkTestFactor                 = 1.32 // CONUS default db value
+	dnpkTestPriceCents             = unit.Cents(188773)
 )
 
 var dnpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 5, 5, 5, 5, time.UTC)
@@ -128,14 +128,4 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int,
 			},
 		},
 	}, nil)
-
-	ntsPackService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDNPK)
-	shipmentTypePrice := models.ReShipmentTypePrice{
-		ContractID: contractYear.Contract.ID,
-		ServiceID:  ntsPackService.ID,
-		Market:     market,
-		Factor:     factor,
-	}
-
-	suite.MustSave(&shipmentTypePrice)
 }
