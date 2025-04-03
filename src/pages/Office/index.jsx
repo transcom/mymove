@@ -37,7 +37,13 @@ import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { RouterShape, UserRolesShape } from 'types/index';
-import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
+import {
+  servicesCounselingRoutes,
+  primeSimulatorRoutes,
+  tooRoutes,
+  qaeCSRRoutes,
+  officeRoutes,
+} from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
@@ -100,6 +106,8 @@ const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo')
 const ServicesCounselingAddOrders = lazy(() =>
   import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
 );
+const OfficeUserProfile = lazy(() => import('pages/Office/Profile/Profile'));
+const OfficeUserEditContactInfo = lazy(() => import('pages/Office/Profile/ContactInfo'));
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -640,6 +648,9 @@ export class OfficeApp extends Component {
                       {activeRole === roleTypes.GSR && !gsrRoleFlag && (
                         <Route end path="/*" element={<InvalidPermissions />} />
                       )}
+
+                      <Route end path={officeRoutes.PROFILE_PATH} element={<OfficeUserProfile />} />
+                      <Route end path={officeRoutes.CONTACT_INFO_EDIT_PATH} element={<OfficeUserEditContactInfo />} />
 
                       {/* 404 */}
                       <Route path="*" element={<NotFound />} />

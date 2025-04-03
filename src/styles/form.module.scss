@@ -183,3 +183,8 @@ p + .radioGroup {
 .pBeforeFormGroup {
   @include u-margin-bottom(0);
 }
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
