@@ -380,12 +380,33 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				if err != nil {
 					return nil, err
 				}
+
+				// final incentive cannot exceed max incentive
+				if finalIncentive != nil {
+					final := finalIncentive.Float64()
+					max := newPPMShipment.MaxIncentive.Float64()
+
+					if final > max {
+						finalIncentive = newPPMShipment.MaxIncentive
+					}
+				}
+
 				return finalIncentive, nil
 			}
 		} else {
 			finalIncentive = nil
 
 			return finalIncentive, nil
+		}
+
+		// final incentive cannot exceed max incentive
+		if finalIncentive != nil {
+			final := finalIncentive.Float64()
+			max := newPPMShipment.MaxIncentive.Float64()
+
+			if final > max {
+				finalIncentive = newPPMShipment.MaxIncentive
+			}
 		}
 
 		return finalIncentive, nil
@@ -399,6 +420,17 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			if err != nil {
 				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
+
+			// final incentive cannot exceed max incentive
+			if finalIncentive != nil {
+				final := finalIncentive.Float64()
+				max := newPPMShipment.MaxIncentive.Float64()
+
+				if final > max {
+					finalIncentive = newPPMShipment.MaxIncentive
+				}
+			}
+
 			return finalIncentive, nil
 		} else {
 			return nil, nil
