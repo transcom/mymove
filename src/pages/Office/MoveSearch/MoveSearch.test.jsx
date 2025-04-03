@@ -3,7 +3,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
-import QAECSRMoveSearch from './QAECSRMoveSearch';
+import MoveSearch from './MoveSearch';
 
 import { MockProviders } from 'testUtils';
 import { useMoveSearchQueries } from 'hooks/queries';
@@ -60,11 +60,11 @@ const mockSearchResultsWithMove = {
   isSuccess: true,
 };
 
-describe('QAECSRMoveSearch page', () => {
+describe('MoveSearch page', () => {
   it('page loads', async () => {
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
 
@@ -79,7 +79,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
     await act(async () => {
@@ -102,7 +102,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
 
@@ -128,7 +128,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
 
@@ -154,7 +154,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
     await act(async () => {
@@ -179,7 +179,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResultsWithMove);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
     await act(async () => {
@@ -205,7 +205,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResultsWithMove);
     render(
       <MockProviders>
-        <QAECSRMoveSearch landingPath="mto" />
+        <MoveSearch landingPath="mto" />
       </MockProviders>,
     );
     await act(async () => {
