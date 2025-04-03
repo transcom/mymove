@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { selectServiceMemberProfileState } from 'store/entities/selectors';
 import { findNextServiceMemberStep } from 'utils/customer';
-import { orderedProfileStates, profileStates } from 'constants/customerStates';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { orderedProfileStates } from 'constants/customerStates';
 
 export const getIsAllowedProfileState = (requiredState, currentProfileState) => {
   const requiredStatePosition = orderedProfileStates.indexOf(requiredState);
@@ -25,15 +24,10 @@ const requireCustomerState = (Component, requiredState) => {
 
     useEffect(() => {
       const fetchData = async () => {
-        let validatedProfileState = currentProfileState;
-        const validationCodeFlag = await isBooleanFlagEnabled('validation_code_required');
+        const validatedProfileState = currentProfileState;
 
         // Only verify state on mount (once)
         const isAllowedState = getIsAllowedProfileState(requiredState, validatedProfileState);
-
-        if (validationCodeFlag && currentProfileState === profileStates.EMPTY_PROFILE) {
-          validatedProfileState = profileStates.VALIDATION_REQUIRED;
-        }
 
         if (!isAllowedState && requiredState !== undefined) {
           const redirectTo = findNextServiceMemberStep(validatedProfileState);
