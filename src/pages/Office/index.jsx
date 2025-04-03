@@ -39,7 +39,13 @@ import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { RouterShape, UserRolesShape } from 'types/index';
-import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes } from 'constants/routes';
+import {
+  servicesCounselingRoutes,
+  primeSimulatorRoutes,
+  tooRoutes,
+  qaeCSRRoutes,
+  contractingOfficerRoutes,
+} from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
@@ -96,7 +102,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
   import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateDestinationAddress'),
 );
 
-const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
+const MoveSearch = lazy(() => import('pages/Office/MoveSearch/MoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
 const CreateMoveCustomerInfo = lazy(() => import('pages/Office/CreateMoveCustomerInfo/CreateMoveCustomerInfo'));
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
@@ -572,6 +578,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                 )}
               </Suspense>
             </main>
+
           </div>
         </div>
         <div id="modal-root" />
