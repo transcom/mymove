@@ -75,7 +75,6 @@ class AdminWrapper extends Component {
     const { oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
     const script = document.createElement('script');
 
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
     script.async = true;
 
     document.body.appendChild(script);
