@@ -1133,39 +1133,16 @@ export const useListGBLOCsQueries = () => {
 };
 
 export const useRolesPrivilegesQueries = () => {
-  const { data, ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES], ({ queryKey }) =>
+  const { data = [], ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES], ({ queryKey }) =>
     getRolesPrivileges(...queryKey),
   );
-
-  const mappings = data.body || [];
-  const uniqueRolesMap = new Map();
-  const uniquePrivilegesMap = new Map();
-
-  mappings.forEach((mapping) => {
-    if (mapping.roleType) {
-      if (!uniqueRolesMap.has(mapping.roleType)) {
-        uniqueRolesMap.set(mapping.roleType, {
-          roleType: mapping.roleType,
-          roleName: mapping.roleName || mapping.roleType,
-        });
-      }
-    }
-    if (mapping.privilegeType) {
-      if (!uniquePrivilegesMap.has(mapping.privilegeType)) {
-        uniquePrivilegesMap.set(mapping.privilegeType, {
-          privilegeType: mapping.privilegeType,
-          privilegeName: mapping.privilegeName || mapping.privilegeType,
-        });
-      }
-    }
-  });
-
-  const roles = Array.from(uniqueRolesMap.values());
-  const privileges = Array.from(uniquePrivilegesMap.values());
+  const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
+  const rolesPrivs = data;
 
   return {
-    roles,
-    privileges,
-    ...rolesPrivilegesQuery,
+    result: rolesPrivs,
+    isLoading,
+    isError,
+    isSuccess,
   };
 };
