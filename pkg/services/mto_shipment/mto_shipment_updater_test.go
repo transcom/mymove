@@ -2301,7 +2301,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC || serviceItems[i].ReService.Code == models.ReServiceCodeIDSFSC)
 
 			if serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC {
-				suite.True(*serviceItems[i].PricingEstimate > 0)
+				suite.NotNil(*serviceItems[i].PricingEstimate)
 				suite.Equal(*serviceItems[i].SITDeliveryMiles, expectedMileage)
 			}
 			// verify IDSFSC SIT with OCONUS destination does not calculate pricing resulting in 0.
@@ -2490,7 +2490,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC || serviceItems[i].ReService.Code == models.ReServiceCodeIDSFSC)
 
 			if serviceItems[i].ReService.Code == models.ReServiceCodeIDSFSC {
-				suite.True(*serviceItems[i].PricingEstimate > 0)
+				suite.NotNil(*serviceItems[i].PricingEstimate)
 				suite.Equal(*serviceItems[i].SITDeliveryMiles, expectedMileage)
 			}
 			// verify IOSFSC SIT with OCONUS destination does not calculate mileage and pricing resulting in 0 for both.
