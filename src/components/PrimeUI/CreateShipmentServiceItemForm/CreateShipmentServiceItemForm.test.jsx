@@ -105,11 +105,9 @@ describe('CreateShipmentServiceItemForm component', () => {
       );
     });
 
-    waitFor(() => {
-      const dropdown = screen.getByRole('combobox', { name: 'Service item type' });
-      userEvent.selectOptions(dropdown, [serviceItemType]);
+    const dropdown = screen.getByRole('combobox', { name: 'Service item type' });
+    userEvent.selectOptions(dropdown, [serviceItemType]);
 
-      expect(screen.getByRole('form', { testid: formName })).toBeInTheDocument();
-    })
+    await expect(screen.getByRole('form', { testid: formName })).toBeInTheDocument();
   });
 });

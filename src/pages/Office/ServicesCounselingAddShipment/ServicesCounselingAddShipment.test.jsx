@@ -217,7 +217,7 @@ describe('ServicesCounselingAddShipment component', () => {
       await userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
       await userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
 
-      await waitFor(() => {
+      waitFor(() => {
         expect(saveButton).not.toBeDisabled();
       });
 

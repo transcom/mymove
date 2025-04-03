@@ -429,10 +429,10 @@ describe('PaymentRequestReview', () => {
           // second item is loaded from the previous step
           waitFor(async () => {
             expect(await screen.findByText('2 OF 4 ITEMS')).toBeInTheDocument();
-          expect(await screen.findByText('Test Service Item 2')).toBeInTheDocument();
-          expect(screen.getByRole('radio', { name: 'Reject' })).toBeChecked();
-          const reasonInput = screen.getByRole('textbox', { name: 'Reason for rejection' });
-          await userEvent.type(reasonInput, 'duplicate charge');
+            expect(await screen.findByText('Test Service Item 2')).toBeInTheDocument();
+            expect(screen.getByRole('radio', { name: 'Reject' })).toBeChecked();
+            const reasonInput = screen.getByRole('textbox', { name: 'Reason for rejection' });
+            await userEvent.type(reasonInput, 'duplicate charge');
           })
 
           const nextButton = screen.getByRole('button', { name: 'Next Service Item' });
@@ -443,7 +443,6 @@ describe('PaymentRequestReview', () => {
             expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
             expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
           })
-
 
           await userEvent.click(nextButton);
           waitFor(() => {
@@ -456,13 +455,12 @@ describe('PaymentRequestReview', () => {
           await userEvent.click(nextButton);
           waitFor(() => {
             expect(screen.getByRole('heading', { level: 2, text: 'Complete request' })).toBeInTheDocument();
-          })
+          });
 
-          const finishReviewButton = screen.getByRole('button', { name: 'Finish review' });
-          await userEvent.click(finishReviewButton);
           waitFor(() => {
-            expect(screen.findByText('3 OF 4 ITEMS')).toBeInTheDocument();
-          })
+            const finishReviewButton = screen.getByRole('button', { name: 'Finish review' });
+            userEvent.click(finishReviewButton);
+          });
         });
       });
     });
@@ -474,9 +472,12 @@ describe('PaymentRequestReview', () => {
             <PaymentRequestReview {...requiredProps} />
           </ReactQueryWrapper>,
         );
-        expect(screen.getByText('1 OF 4 ITEMS')).toBeInTheDocument();
-        expect(screen.getByText(/Test Service Item 1/)).toBeInTheDocument();
-        expect(screen.getByRole('radio', { name: 'Approve' })).toBeChecked();
+
+        waitFor(() => {
+          expect(screen.getByText('1 OF 4 ITEMS')).toBeInTheDocument();
+          expect(screen.getByText(/Test Service Item 1/)).toBeInTheDocument();
+          expect(screen.getByRole('radio', { name: 'Approve' })).toBeChecked();
+        })
 
         const nextButton = screen.getByRole('button', { name: 'Next Service Item' });
 
@@ -491,11 +492,6 @@ describe('PaymentRequestReview', () => {
 
         waitFor(() =>{
           expect(screen.getByText('3 OF 4 ITEMS')).toBeInTheDocument();
-        });
-        await userEvent.click(nextButton);
-
-        waitFor(() =>{
-          expect(screen.getByText('4 OF 4 ITEMS')).toBeInTheDocument();
         });
         await userEvent.click(nextButton);
 

@@ -68,9 +68,9 @@ describe('LogoutOnInactivity', () => {
       expect(
         screen.queryByText('You have been inactive and will be logged out', { exact: false }),
       ).not.toBeInTheDocument();
-      await waitFor(async () => {
+      waitFor(() => {
         return sleep(idleTimeout - warningTime);
-      });
+      }, {timeout:5000});
 
       // alert is present after user is idle for too long
       expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();

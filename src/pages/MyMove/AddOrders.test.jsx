@@ -1,7 +1,6 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
@@ -423,7 +422,7 @@ describe('Add Orders page', () => {
     createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
     getServiceMember.mockImplementation(() => Promise.resolve());
 
-    await waitFor(async () => {
+    await act(async () => {
       renderWithProviders(<AddOrders {...testProps} />, {
         path: customerRoutes.ORDERS_ADD_PATH,
       });

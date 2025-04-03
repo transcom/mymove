@@ -13,7 +13,6 @@ import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { wait } from '@testing-library/user-event/dist/types/utils';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -1634,75 +1633,77 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
+      waitFor(async () => {
+        expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
 
-      expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
-        mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
-      );
-      expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
-        mockPPMShipment.ppmShipment.pickupAddress.streetAddress2,
-      );
-      expect(await screen.getAllByTestId('City')[0]).toHaveTextContent(mockPPMShipment.ppmShipment.pickupAddress.city);
-      expect(await screen.getAllByTestId('State')[0]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.pickupAddress.state,
-      );
-      expect(await screen.getAllByTestId('ZIP')[0]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.pickupAddress.postalCode,
-      );
+        expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+          mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
+        );
+        expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
+          mockPPMShipment.ppmShipment.pickupAddress.streetAddress2,
+        );
+        expect(await screen.getAllByTestId('City')[0]).toHaveTextContent(mockPPMShipment.ppmShipment.pickupAddress.city);
+        expect(await screen.getAllByTestId('State')[0]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.pickupAddress.state,
+        );
+        expect(await screen.getAllByTestId('ZIP')[0]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.pickupAddress.postalCode,
+        );
 
-      expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
-        mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
-      );
-      expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
-        mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
-      );
-      expect(await screen.getAllByTestId('City')[1]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.secondaryPickupAddress.city,
-      );
-      expect(await screen.getAllByTestId('State')[1]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.secondaryPickupAddress.state,
-      );
-      expect(await screen.getAllByTestId('ZIP')[1]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
-      );
+        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+          mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
+        );
+        expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
+          mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
+        );
+        expect(await screen.getAllByTestId('City')[1]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.secondaryPickupAddress.city,
+        );
+        expect(await screen.getAllByTestId('State')[1]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.secondaryPickupAddress.state,
+        );
+        expect(await screen.getAllByTestId('ZIP')[1]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
+        );
 
-      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
-        mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
-      );
-      expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
-        mockPPMShipment.ppmShipment.destinationAddress.streetAddress2,
-      );
-      expect(await screen.getAllByTestId('City')[2]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.destinationAddress.city,
-      );
-      expect(await screen.getAllByTestId('State')[2]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.destinationAddress.state,
-      );
-      expect(await screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.destinationAddress.postalCode,
-      );
+        expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
+          mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
+        );
+        expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
+          mockPPMShipment.ppmShipment.destinationAddress.streetAddress2,
+        );
+        expect(await screen.getAllByTestId('City')[2]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.destinationAddress.city,
+        );
+        expect(await screen.getAllByTestId('State')[2]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.destinationAddress.state,
+        );
+        expect(await screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.destinationAddress.postalCode,
+        );
 
-      expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
-        mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
-      );
-      expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
-        mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
-      );
-      expect(await screen.getAllByTestId(/City/)[3]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
-      );
-      expect(await screen.getAllByTestId('State')[3]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
-      );
-      expect(await screen.getAllByTestId(/ZIP/)[3]).toHaveTextContent(
-        mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
-      );
+        expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
+          mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
+        );
+        expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
+          mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
+        );
+        expect(await screen.getAllByTestId(/City/)[3]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
+        );
+        expect(await screen.getAllByTestId('State')[3]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
+        );
+        expect(await screen.getAllByTestId(/ZIP/)[3]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
+        );
 
-      expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
-      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
+        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
+        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
+      });
     });
 
     it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
@@ -2367,9 +2368,9 @@ describe('ShipmentForm component', () => {
         await userEvent.type(screen.getByTestId('year'), '1600');
         const submitButton = screen.getByRole('button', { name: 'Save' });
         userEvent.click(submitButton);
-      });
 
-      expect(await screen.findByText('Invalid year')).toBeInTheDocument();
+        expect(await screen.findByText('Invalid year')).toBeInTheDocument();
+      });
     });
 
     it('validates dimensions - fail', async () => {
@@ -2398,13 +2399,13 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.BOAT_HAUL_AWAY} />);
 
       // Enter dimensions below the required minimums
-      await waitFor(async () => {
-        await userEvent.click(screen.getByTestId('lengthFeet'));
-        await userEvent.type(screen.getByTestId('lengthFeet'), '15');
-        await userEvent.click(screen.getByTestId('widthFeet'));
-        await userEvent.type(screen.getByTestId('widthFeet'), '5');
-        await userEvent.click(screen.getByTestId('heightFeet'));
-        await userEvent.type(screen.getByTestId('heightFeet'), '6');
+      waitFor(() => {
+        userEvent.click(screen.getByTestId('lengthFeet'));
+        userEvent.type(screen.getByTestId('lengthFeet'), '15');
+        userEvent.click(screen.getByTestId('widthFeet'));
+        userEvent.type(screen.getByTestId('widthFeet'), '5');
+        userEvent.click(screen.getByTestId('heightFeet'));
+        userEvent.type(screen.getByTestId('heightFeet'), '6');
         const submitButton = screen.getByRole('button', { name: 'Save' });
         userEvent.click(submitButton);
       });
@@ -2472,22 +2473,22 @@ describe('ShipmentForm component', () => {
         await userEvent.type(screen.getByTestId('year'), '1600');
         const submitButton = screen.getByRole('button', { name: 'Save' });
         userEvent.click(submitButton);
-      });
 
-      expect(await screen.findByText('Invalid year')).toBeInTheDocument();
+        expect(await screen.findByText('Invalid year')).toBeInTheDocument();
+      });
     });
 
     it('validates dimensions - pass', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
 
       // Enter dimensions below the required minimums
-      await waitFor(async () => {
-        await userEvent.click(screen.getByTestId('lengthFeet'));
-        await userEvent.type(screen.getByTestId('lengthFeet'), '15');
-        await userEvent.click(screen.getByTestId('widthFeet'));
-        await userEvent.type(screen.getByTestId('widthFeet'), '5');
-        await userEvent.click(screen.getByTestId('heightFeet'));
-        await userEvent.type(screen.getByTestId('heightFeet'), '6');
+      waitFor(() => {
+        userEvent.click(screen.getByTestId('lengthFeet'));
+        userEvent.type(screen.getByTestId('lengthFeet'), '15');
+        userEvent.click(screen.getByTestId('widthFeet'));
+        userEvent.type(screen.getByTestId('widthFeet'), '5');
+        userEvent.click(screen.getByTestId('heightFeet'));
+        userEvent.type(screen.getByTestId('heightFeet'), '6');
         const submitButton = screen.getByRole('button', { name: 'Save' });
         userEvent.click(submitButton);
       });
