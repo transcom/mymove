@@ -13,6 +13,9 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	key := models.ServiceItemParamNamePerUnitCents
 	var mtoServiceItem models.MTOServiceItem
+	expectedOverFiftyMilesPerUnitCentsSIT := "21796"
+	expectedLessThanFiftyMilesPerUnitCentsSIT := "16417"
+
 	setupTestData := func(serviceCode models.ReServiceCode) {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -30,7 +33,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 	}
 
-	setupTestDataPickupOCONUS := func(serviceCode models.ReServiceCode) models.Move {
+	setupTestDataPickupOCONUS := func(serviceCode models.ReServiceCode, sitDeliveryMileage *int) models.Move {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -61,26 +64,44 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
+
+		customization := make([]factory.Customization, 0)
+		customization = append(customization,
+			factory.Customization{
 				Model:    move,
 				LinkOnly: true,
 			},
-			{
+			factory.Customization{
 				Model:    shipment,
 				LinkOnly: true,
 			},
-			{
+			factory.Customization{
 				Model: models.ReService{
 					Code: serviceCode,
 				},
-			},
-		}, nil)
+			})
+
+		if serviceCode == models.ReServiceCodeIOPSIT {
+			customization = append(customization,
+				factory.Customization{
+					Model:    address,
+					Type:     &factory.Addresses.SITOriginHHGActualAddress,
+					LinkOnly: true,
+				},
+				factory.Customization{
+					Model: models.MTOServiceItem{
+						SITDeliveryMiles: models.IntPointer(*sitDeliveryMileage),
+					},
+				},
+			)
+		}
+
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), customization, nil)
 
 		return move
 	}
 
-	setupTestDataDestOCONUS := func(serviceCode models.ReServiceCode) models.Move {
+	setupTestDataDestOCONUS := func(serviceCode models.ReServiceCode, sitDeliveryMileage *int) models.Move {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -111,21 +132,38 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 				LinkOnly: true,
 			},
 		}, nil)
-		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
+		customization := make([]factory.Customization, 0)
+		customization = append(customization,
+			factory.Customization{
 				Model:    move,
 				LinkOnly: true,
 			},
-			{
+			factory.Customization{
 				Model:    shipment,
 				LinkOnly: true,
 			},
-			{
+			factory.Customization{
 				Model: models.ReService{
 					Code: serviceCode,
 				},
-			},
-		}, nil)
+			})
+
+		if serviceCode == models.ReServiceCodeIDDSIT {
+			customization = append(customization,
+				factory.Customization{
+					Model:    address,
+					Type:     &factory.Addresses.SITDestinationFinalAddress,
+					LinkOnly: true,
+				},
+				factory.Customization{
+					Model: models.MTOServiceItem{
+						SITDeliveryMiles: models.IntPointer(*sitDeliveryMileage),
+					},
+				},
+			)
+		}
+
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), customization, nil)
 		return move
 	}
 
@@ -219,7 +257,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - returns perUnitCent value for IOFSIT", func() {
-		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOFSIT)
+		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOFSIT, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
@@ -230,7 +268,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - returns perUnitCent value for IOASIT", func() {
-		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOASIT)
+		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOASIT, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
@@ -241,7 +279,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - returns perUnitCent value for IDFSIT", func() {
-		move := setupTestDataDestOCONUS(models.ReServiceCodeIDFSIT)
+		move := setupTestDataDestOCONUS(models.ReServiceCodeIDFSIT, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
@@ -252,7 +290,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - returns perUnitCent value for IDASIT", func() {
-		move := setupTestDataDestOCONUS(models.ReServiceCodeIDASIT)
+		move := setupTestDataDestOCONUS(models.ReServiceCodeIDASIT, nil)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
@@ -414,6 +452,54 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 		suite.Equal(perUnitCents, "3411")
+	})
+
+	suite.Run("success - less than 50 miles returns perUnitCent value for IOPSIT", func() {
+		setDeliveyMileage := 1
+		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOPSIT, models.IntPointer(setDeliveyMileage))
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
+		suite.FatalNoError(err)
+
+		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal(expectedLessThanFiftyMilesPerUnitCentsSIT, perUnitCents)
+	})
+
+	suite.Run("success - over 50 miles returns perUnitCent value for IOPSIT", func() {
+		setDeliveyMileage := 51
+		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOPSIT, models.IntPointer(setDeliveyMileage))
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
+		suite.FatalNoError(err)
+
+		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal(expectedOverFiftyMilesPerUnitCentsSIT, perUnitCents)
+	})
+
+	suite.Run("success - less than 50 miles returns perUnitCent value for IDDSIT", func() {
+		setDeliveyMileage := 1
+		move := setupTestDataDestOCONUS(models.ReServiceCodeIDDSIT, models.IntPointer(setDeliveyMileage))
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
+		suite.FatalNoError(err)
+
+		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal(expectedLessThanFiftyMilesPerUnitCentsSIT, perUnitCents)
+	})
+
+	suite.Run("success - over 50 miles returns perUnitCent value for IDDSIT", func() {
+		setDeliveyMileage := 51
+		move := setupTestDataDestOCONUS(models.ReServiceCodeIDDSIT, models.IntPointer(setDeliveyMileage))
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
+		suite.FatalNoError(err)
+
+		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal(expectedOverFiftyMilesPerUnitCentsSIT, perUnitCents)
 	})
 
 	suite.Run("failure - unauthorized service code", func() {
