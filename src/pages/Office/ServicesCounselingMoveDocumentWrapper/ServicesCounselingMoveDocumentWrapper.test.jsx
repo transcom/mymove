@@ -8,6 +8,7 @@ import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocum
 
 import { useOrdersDocumentQueries, useAmendedDocumentQueries } from 'hooks/queries';
 import createUpload from 'utils/test/factories/upload';
+import { MOVE_STATUSES } from 'shared/constants';
 
 const mockOriginDutyLocation = {
   address: {
@@ -103,6 +104,9 @@ const useOrdersDocumentQueriesReturnValue = {
   },
   amendedUpload: {
     amendedUpload,
+  },
+  move: {
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
   },
 };
 
