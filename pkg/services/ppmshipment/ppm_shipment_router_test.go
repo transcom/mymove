@@ -464,6 +464,44 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		}
 	})
 
+	suite.Run("Update PPMShipment ReviewedAt when there are rejected PPM Documents (weight tickets, moving expenses, pro gear weight tickets)", func() {
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
+		rejected := models.PPMDocumentStatusRejected
+		weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model: models.WeightTicket{
+					Status: &rejected,
+				},
+			},
+		}, nil)
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
+		movingExpense := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+			{
+				Model: models.MovingExpense{
+					Status: &rejected,
+				},
+			},
+		}, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model: models.ProgearWeightTicket{
+					Status: &rejected,
+				},
+			},
+		}, nil)
+
+		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
+		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
+		ppmShipment.MovingExpenses = models.MovingExpenses{movingExpense}
+		ppmShipment.ProgearWeightTickets = models.ProgearWeightTickets{progear}
+
+		suite.Nil(ppmShipment.ReviewedAt)
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
+		if suite.NoError(err) {
+			suite.NotNil(ppmShipment.ReviewedAt)
+		}
+	})
+
 	suite.Run("Update PPMShipment Status to CLOSEOUT_COMPLETE when there are no rejected PPM Documents", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
@@ -479,6 +517,25 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 
 		if suite.NoError(err) {
 			suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
+		}
+	})
+
+	suite.Run("Update PPMShipment ReviewedAt when there are no rejected PPM Documents", func() {
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
+		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
+		movingExpense := factory.BuildMovingExpense(suite.DB(), nil, nil)
+		progear := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
+		weightTicket := factory.BuildWeightTicket(suite.DB(), nil, nil)
+
+		ppmShipmentRouter := setUpPPMShipmentRouter(mtoShipmentRouterMethodToMock, nil)
+		ppmShipment.WeightTickets = models.WeightTickets{weightTicket}
+		ppmShipment.MovingExpenses = models.MovingExpenses{movingExpense}
+		ppmShipment.ProgearWeightTickets = models.ProgearWeightTickets{progear}
+
+		suite.Nil(ppmShipment.ReviewedAt)
+		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
+		if suite.NoError(err) {
+			suite.NotNil(ppmShipment.ReviewedAt)
 		}
 	})
 

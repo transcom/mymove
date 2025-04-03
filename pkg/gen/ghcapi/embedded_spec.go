@@ -5089,6 +5089,12 @@ func init() {
             "description": "user's actively logged in role.\n",
             "name": "activeRole",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -22770,6 +22776,12 @@ func init() {
             "type": "string",
             "description": "user's actively logged in role.\n",
             "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
