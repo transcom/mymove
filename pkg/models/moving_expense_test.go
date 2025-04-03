@@ -61,7 +61,7 @@ func (suite *ModelSuite) TestMovingExpenseValidation() {
 				"sitstart_date":        {"SITStartDate can not be blank."},
 				"sitend_date":          {"SITEndDate can not be blank."},
 				"tracking_number":      {"TrackingNumber can not be blank."},
-				"weight_shipped":       {"WeightShipped cannot be negative, got: -1."},
+				"weight_shipped":       {"-1 is less than zero."},
 				"pro_gear_description": {"ProGearDescription can not be blank."},
 			},
 		},
