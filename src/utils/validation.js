@@ -258,11 +258,25 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .max(10, edipiMaxErrorMsg)
     .matches(/^[0-9]*$/, numericOnlyErrorMsg)
     .test('officeAccountRequestEdipi', 'Required if not using other unique identifier', validateEdipi),
+  edipiConfirmation: Yup.string().when('officeAccountRequestEdipi', {
+    is: (val) => val && val.length > 0,
+    then: (schema) => schema.required('Required').oneOf([Yup.ref('officeAccountRequestEdipi')], 'DODID#s must match'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   officeAccountRequestOtherUniqueId: Yup.string()
     .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
     .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
+  otherUniqueIdConfirmation: Yup.string().when('officeAccountRequestOtherUniqueId', {
+    is: (val) => val && val.length > 0,
+    then: (schema) =>
+      schema.required('Required').oneOf([Yup.ref('officeAccountRequestOtherUniqueId')], 'Unique IDs must match'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
   officeAccountRequestEmail: OfficeAccountRequestEmailSchema.required('Required'),
+  emailConfirmation: Yup.string()
+    .oneOf([Yup.ref('officeAccountRequestEmail'), null], 'Emails must match')
+    .required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
   taskOrderingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
@@ -309,6 +323,7 @@ export const officeAccountRequestSchema = Yup.object().shape({
     validateRoleRequestedMethod,
   ),
 });
+
 // validates when submitting a form, checks for formik errors(name/id) and scroll to focus the first error on the top.
 export function scrollToViewFormikError(formik) {
   const { isSubmitting, errors } = formik;

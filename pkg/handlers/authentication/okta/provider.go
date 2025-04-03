@@ -289,6 +289,12 @@ func (op *Provider) GetCreateUserURL(activate string) string {
 func (op *Provider) GetCreateAccountURL(activate string) string {
 	return op.orgURL + "/api/v1/users/?activate=" + url.QueryEscape(activate)
 }
+func (op *Provider) GetUserGroupsURL(userID string) string {
+	return op.orgURL + "/api/v1/users/" + userID + "/groups"
+}
+func (op *Provider) AddUserToGroupURL(groupID string, userID string) string {
+	return op.orgURL + "/api/v1/groups/" + groupID + "/users/" + userID
+}
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil
 func (op Provider) TokenURL(r *http.Request) string {
