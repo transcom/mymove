@@ -1398,7 +1398,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
 
 		suite.Error(err)
-		suite.Equal("UB shipments are required to have at least one OCONUS address", err.Error())
+		suite.Equal("At least one address for a UB shipment must be OCONUS", err.Error())
 	})
 }
 

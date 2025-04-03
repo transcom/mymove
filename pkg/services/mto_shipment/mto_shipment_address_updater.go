@@ -220,7 +220,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 			// check that one of the addresses is OCONUS
 			isShipmentOCONUS := models.IsShipmentOCONUS(shipment)
 			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
-				return apperror.NewConflictError(shipment.ID, "UB shipments are required to have one OCONUS address")
+				return apperror.NewConflictError(shipment.ID, "At least one address for a UB shipment must be OCONUS")
 			}
 		}
 

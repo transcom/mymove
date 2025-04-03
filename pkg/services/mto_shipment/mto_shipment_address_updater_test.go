@@ -234,7 +234,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, ubShipment.ID, eTag, false)
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
-		suite.Contains(err.Error(), "UB shipments are required to have one OCONUS address")
+		suite.Contains(err.Error(), "At least one address for a UB shipment must be OCONUS")
 	})
 
 }

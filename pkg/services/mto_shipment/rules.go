@@ -19,7 +19,7 @@ func checkUBShipmentOCONUSRequirement() validator {
 		if newer.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			isShipmentOCONUS := models.IsShipmentOCONUS(*newer)
 			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
-				verrs.Add("UB shipment error", "UB shipments are required to have at least one OCONUS address")
+				verrs.Add("UB shipment error", "At least one address for a UB shipment must be OCONUS")
 			}
 		}
 		return verrs

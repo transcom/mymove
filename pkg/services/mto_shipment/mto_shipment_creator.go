@@ -347,7 +347,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 			isShipmentOCONUS := models.IsShipmentOCONUS(*shipment)
 			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
-				errorMsg := "UB shipments are required to have at least one OCONUS address"
+				errorMsg := "At least one address for a UB shipment must be OCONUS"
 				ubVerrs := validate.NewErrors()
 				ubVerrs.Add("UB shipment error", errorMsg)
 				return apperror.NewInvalidInputError(uuid.Nil, nil, ubVerrs, errorMsg)
