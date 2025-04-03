@@ -16,6 +16,7 @@ import {
   createWeightTicket,
   deleteUpload,
   getAllMoves,
+  getResponseError,
   patchWeightTicket,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -93,7 +94,7 @@ const WeightTickets = () => {
     if (error?.response?.status === 412) {
       setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
     } else {
-      setErrorMessage('Failed to save updated trip record');
+      setErrorMessage(getResponseError(error.response, 'Failed to update MTO shipment due to server error.'));
     }
   };
 
