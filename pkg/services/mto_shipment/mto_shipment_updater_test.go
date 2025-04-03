@@ -1,8 +1,10 @@
 package mtoshipment
 
 import (
+	"errors"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -138,7 +140,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddressID:            oldMTOShipment.PickupAddressID,
 			RequestedPickupDate:        &requestedPickupDate,
 			ScheduledPickupDate:        &scheduledPickupDate,
-			ShipmentType:               "UNACCOMPANIED_BAGGAGE",
+			ShipmentType:               models.MTOShipmentTypeHHG,
 			PrimeActualWeight:          &primeActualWeight,
 			PrimeEstimatedWeight:       &primeEstimatedWeight,
 			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
@@ -283,7 +285,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		oldMTOShipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoShipment2 := models.MTOShipment{
 			ID:                  oldMTOShipment2.ID,
-			ShipmentType:        "UNACCOMPANIED_BAGGAGE",
+			ShipmentType:        models.MTOShipmentTypeHHG,
 			ScheduledPickupDate: &testScheduledPickupDate,
 		}
 
@@ -294,7 +296,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment2.MoveTaskOrder.ID)
-		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeHHG)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
@@ -1009,6 +1011,73 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
 	})
 
+	suite.Run("Returns error if updated UB shipment addresses are both CONUS", func() {
+		setupTestData()
+
+		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		// UB shipment with an OCONUS pickup & a CONUS destination
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+				},
+			},
+			{
+				Model:    oconusAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    conusAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		// updating pickup to be CONUS which should return an error because
+		// UBs must have an OCONUS address
+		updatedShipment := models.MTOShipment{
+			ID:            oldShipment.ID,
+			PickupAddress: &conusAddress,
+		}
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+
+		suite.Error(err)
+		suite.Nil(newShipment)
+
+		var invalidErr apperror.InvalidInputError
+		suite.True(errors.As(err, &invalidErr), "error should be of type InvalidInputError")
+
+		if invalidErr.ValidationErrors == nil {
+			suite.Fail("ValidationErrors is nil")
+		}
+
+		ve := *invalidErr.ValidationErrors
+		fieldErrors, exists := ve.Errors["UB shipment error"]
+		suite.True(exists, "expected validation error for 'UB shipment error'")
+		joinedErrors := strings.Join(fieldErrors, " ")
+		suite.Contains(joinedErrors, "UB shipments are required to have at least one OCONUS address")
+
+	})
+
 	suite.Run("Updating a shipment does not nullify ApprovedDate", func() {
 		setupTestData()
 
@@ -1452,13 +1521,20 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.Require().Error(err)
 		suite.Nil(updatedMTOShipment)
-		suite.Equal("Could not complete query related to object of type: mtoShipment.", err.Error())
+		suite.Equal("Invalid input found while updating the shipment", err.Error())
 
-		suite.IsType(apperror.QueryError{}, err)
-		queryErr := err.(apperror.QueryError)
-		wrappedErr := queryErr.Unwrap()
-		suite.IsType(apperror.InvalidInputError{}, wrappedErr)
-		suite.Equal("field NTSRecordedWeight cannot be set for shipment type HHG", wrappedErr.Error())
+		var invalidErr apperror.InvalidInputError
+		suite.True(errors.As(err, &invalidErr), "error should be of type InvalidInputError")
+
+		if invalidErr.ValidationErrors == nil {
+			suite.Fail("ValidationErrors is nil")
+		}
+
+		ve := *invalidErr.ValidationErrors
+		fieldErrors, exists := ve.Errors["NTSRecordedWeight error"]
+		suite.True(exists, "expected validation error for 'NTSRecordedWeight error'")
+		joinedErrors := strings.Join(fieldErrors, " ")
+		suite.Contains(joinedErrors, "field NTSRecordedWeight cannot be set for shipment type HHG")
 	})
 
 	suite.Run("Successfully divert a shipment and transition statuses", func() {
