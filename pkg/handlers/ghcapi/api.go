@@ -56,6 +56,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/upload"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -68,7 +69,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	moveLocker := movelocker.NewMoveLocker()
 	addressCreator := address.NewAddressCreator()
 	portLocationFetcher := portlocation.NewPortLocationFetcher()
@@ -120,6 +121,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(pdfGenerator)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -406,6 +414,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		shipmentCreator,
 		shipmentSITStatus,
+		closeoutOfficeUpdater,
 	}
 
 	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
@@ -575,6 +584,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		move.NewMoveFetcherBulkAssignment(),
 	}
 
+	ghcAPI.QueuesSaveBulkAssignmentDataHandler = SaveBulkAssignmentDataHandler{
+		handlerConfig,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		move.NewMoveFetcher(),
+		move.NewMoveAssignerBulkAssignment(),
+	}
+
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(waf),
@@ -632,7 +648,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
 			ppmshipment.NewPPMShipmentRouter(mtoshipment.NewShipmentRouter()),
-			signedCertificationCreator, signedCertificationUpdater,
+			signedCertificationCreator, signedCertificationUpdater, SSWPPMComputer,
 		),
 	}
 
@@ -654,7 +670,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ppmshipment.NewPPMShipmentFetcher(),
 	}
 
-	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
+	ghcAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
+	ghcAPI.PpmCreateWeightTicketHandler = CreateWeightTicketHandler{handlerConfig, weightticket.NewOfficeWeightTicketCreator()}
+	ghcAPI.PpmDeleteWeightTicketHandler = DeleteWeightTicketHandler{handlerConfig, weightticket.NewWeightTicketDeleter(weightTicketFetcher, ppmEstimator)}
 
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
 		handlerConfig,

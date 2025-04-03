@@ -10,12 +10,14 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primev2api/primev2operations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
@@ -31,6 +33,7 @@ import (
 	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -38,7 +41,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV2(builder, fetcher, moveRouter, addressCreator)
@@ -52,7 +55,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	vLocationServices := address.NewVLocation()
 
@@ -276,8 +278,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		estimatedIncentive := 123456
 		sitEstimatedCost := 67500
 
+		// Need a logged in user
+		lgu := uuid.Must(uuid.NewV4()).String()
+		user := models.User{
+			OktaID:    lgu,
+			OktaEmail: "email@example.com",
+		}
+		suite.MustSave(&user)
+
+		session := &auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          user.ID,
+			IDToken:         "fake token",
+			Roles:           roles.Roles{},
+		}
+		ctx := auth.SetSessionInRequestContext(req, session)
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest: req,
+			HTTPRequest: req.WithContext(ctx),
 			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
 				ShipmentType:     primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypePPM),

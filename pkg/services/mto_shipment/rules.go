@@ -337,13 +337,13 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 
 		// If we have all the data, calculate RDD
 		if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
-			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil {
+			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil && older.ShipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
 			weight := latestEstimatedWeight
 			if older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && older.NTSRecordedWeight != nil {
 				weight = older.NTSRecordedWeight
 			}
 			requiredDeliveryDate, err := CalculateRequiredDeliveryDate(appCtx, planner, *latestPickupAddress,
-				*latestDestinationAddress, *latestSchedPickupDate, weight.Int(), older.MarketCode, older.MoveTaskOrderID)
+				*latestDestinationAddress, *latestSchedPickupDate, weight.Int(), older.MarketCode, older.MoveTaskOrderID, older.ShipmentType)
 			if err != nil {
 				verrs.Add("requiredDeliveryDate", err.Error())
 			}

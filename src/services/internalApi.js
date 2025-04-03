@@ -34,7 +34,11 @@ export async function makeInternalRequestRaw(operationPath, params = {}) {
 }
 
 export async function validateCode(body) {
-  return makeInternalRequestRaw('application_parameters.validate', { body });
+  return makeInternalRequestRaw('validation_code.validateCode', {
+    body: {
+      validationCode: body.parameterValue,
+    },
+  });
 }
 
 export async function getLoggedInUser(normalize = true) {
@@ -48,6 +52,11 @@ export async function getLoggedInUserQueries(key, normalize = false) {
 export async function getBooleanFeatureFlagForUser(key, flagContext) {
   const normalize = false;
   return makeInternalRequest('featureFlags.booleanFeatureFlagForUser', { key, flagContext }, { normalize });
+}
+
+export async function getBooleanFeatureFlagUnauthenticated(key, flagContext) {
+  const normalize = false;
+  return makeInternalRequest('featureFlags.booleanFeatureFlagUnauthenticated', { key, flagContext }, { normalize });
 }
 
 export async function getVariantFeatureFlagForUser(key, flagContext) {
@@ -66,6 +75,10 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
 /** BELOW API CALLS ARE NOT NORMALIZED BY DEFAULT */
 
 /** SERVICE MEMBERS */
+export async function registerUser(payload) {
+  return makeInternalRequest('registration.customerRegistration', { registration: payload }, { normalize: false });
+}
+
 export async function createServiceMember(serviceMember = {}) {
   return makeInternalRequest(
     'service_members.createServiceMember',

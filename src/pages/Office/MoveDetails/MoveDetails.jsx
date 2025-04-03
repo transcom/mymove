@@ -410,6 +410,7 @@ const MoveDetails = ({
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
+  const isLocalMove = order?.order_type === ORDERS_TYPE.LOCAL_MOVE;
 
   if (submittedShipments?.length > 0 && approvedOrCanceledShipments?.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
@@ -428,6 +429,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    dependents: allowances.dependentsAuthorized,
     ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
@@ -444,11 +446,11 @@ const MoveDetails = ({
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
-    dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
     weightRestriction: allowances.weightRestriction,
+    ubWeightRestriction: allowances.ubWeightRestriction,
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
@@ -485,7 +487,9 @@ const MoveDetails = ({
         <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+        {!isLocalMove && enableUB && isOconusMove && (
+          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+        )}
       </>
     );
   };

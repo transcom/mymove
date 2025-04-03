@@ -751,6 +751,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
 	}
+	var ubWeightRestriction *int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = models.Int64Pointer(int64(*entitlement.UBWeightRestriction))
+	}
 
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
@@ -769,9 +773,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe:           gunSafe,
-		WeightRestriction: weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:             gunSafe,
+		WeightRestriction:   weightRestriction,
+		UbWeightRestriction: ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 
 }
@@ -982,6 +987,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	payloadPPMShipment := &ghcmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		PpmType:                        ghcmessages.PPMType(ppmShipment.PPMType),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
@@ -2401,19 +2407,30 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 
 			// if the assigned user is not in the returned list of available users append them to the end
-			if (activeRole == string(roles.RoleTypeTOO)) && (move.TOOAssignedUser != nil) {
+			if (activeRole == string(roles.RoleTypeTOO) && move.TOOAssignedUser != nil) || (activeRole == string(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil) {
+				var assignedUser *models.OfficeUser
+				var assignedID *uuid.UUID
+
+				switch activeRole {
+				case string(roles.RoleTypeTOO):
+					assignedUser = move.TOOAssignedUser
+					assignedID = move.TOOAssignedID
+				case string(roles.RoleTypeServicesCounselor):
+					assignedUser = move.SCAssignedUser
+					assignedID = move.SCAssignedID
+				}
+
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == *move.TOOAssignedID {
+					if assignedID != nil && officeUser.ID == *assignedID {
 						userFound = true
 						break
 					}
 				}
 				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
 				}
 			}
-
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
 				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
 			}
@@ -2628,13 +2645,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		numShipments := 0
-
-		for _, shipment := range move.MTOShipments {
-			if shipment.Status != models.MTOShipmentStatusDraft {
-				numShipments++
-			}
-		}
+		numShipments := len(move.MTOShipments)
 
 		var pickupDate, deliveryDate *strfmt.Date
 

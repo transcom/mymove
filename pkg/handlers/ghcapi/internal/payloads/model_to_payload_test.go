@@ -669,6 +669,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	authorizedWeight := 8000
 	ubAllowance := 300
 	weightRestriction := 1000
+	ubWeightRestriction := 1200
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -687,6 +688,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
 		WeightRestriction:              &weightRestriction,
+		UBWeightRestriction:            &ubWeightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -709,6 +711,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
 	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
+	suite.Equal(ubWeightRestriction, int(*returnedEntitlement.UbWeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -716,19 +719,9 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	id2, _ := uuid.NewV4()
 	oktaID := "thisIsNotARealID"
 
-	oktaUser := models.CreatedOktaUser{
-		ID: oktaID,
-		Profile: struct {
-			FirstName   string `json:"firstName"`
-			LastName    string `json:"lastName"`
-			MobilePhone string `json:"mobilePhone"`
-			SecondEmail string `json:"secondEmail"`
-			Login       string `json:"login"`
-			Email       string `json:"email"`
-		}{
-			Email: "john.doe@example.com",
-		},
-	}
+	var oktaUser models.CreatedOktaUser
+	oktaUser.ID = oktaID
+	oktaUser.Profile.Email = "john.doe@example.com"
 
 	residentialAddress := models.Address{
 		StreetAddress1: "123 New St",

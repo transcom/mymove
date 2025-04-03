@@ -25,6 +25,7 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -3984,7 +3985,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
 
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	err := moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
@@ -4015,7 +4016,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner := &routemocks.Planner{}
 
 	// mock any and all planner calls
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything, false).Return(2361, nil)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -4088,7 +4089,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
 
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	err := moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
@@ -4119,7 +4120,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner := &routemocks.Planner{}
 
 	// mock any and all planner calls
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything, false).Return(2361, nil)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
@@ -4236,7 +4237,7 @@ func MakeBoatHaulAwayMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	move := scenario.CreateBoatHaulAwayMoveForSC(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -4265,7 +4266,7 @@ func MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx appcontext.AppContext) models.M
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	move := scenario.CreateBoatHaulAwayMoveForTOO(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -4775,7 +4776,7 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -11182,8 +11183,7 @@ func makeIntlHHGMoveDestAddressRequested(
 	factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
-				Status:        models.MTOServiceItemStatusApproved,
-				MTOShipmentID: &shipmentAddressUpdate.Shipment.ID,
+				Status: models.MTOServiceItemStatusApproved,
 			},
 		},
 		{
