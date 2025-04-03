@@ -41,7 +41,6 @@ type mtoShipmentUpdater struct {
 	planner        route.Planner
 	moveRouter     services.MoveRouter
 	moveWeights    services.MoveWeights
-	sender         notifications.NotificationSender
 	recalculator   services.PaymentRequestShipmentRecalculator
 	checks         []validator
 }
@@ -56,7 +55,6 @@ func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fet
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
 		[]validator{},
 	}
@@ -73,7 +71,6 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ serv
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
 		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
 	}
@@ -88,7 +85,6 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ servic
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
 		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
 	}
@@ -105,7 +101,6 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ service
 		planner,
 		moveRouter,
 		moveWeights,
-		sender,
 		recalculator,
 		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
 	}
@@ -429,7 +424,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
-	var autoReweighShipments models.MTOShipments
 	var verrs *validate.Errors
 	var move *models.Move
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -768,26 +762,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return err
 					}
 				}
-			} else if dbShipment.PrimeEstimatedWeight != nil {
-				needsReweigh, err := f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
-				if err != nil {
-					return err
-				}
-
-				if needsReweigh {
-					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
-					if err != nil {
-						return err
-					}
-				}
 			}
 		}
 
-		if ((dbShipment.PrimeEstimatedWeight == nil) || (*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight)) ||
-			((newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight == nil) ||
+		if dbShipment.Status == models.MTOShipmentStatusApproved &&
+			(dbShipment.PrimeEstimatedWeight == nil ||
+				*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight ||
+				(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight == nil) ||
 				(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight != nil && *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight)) {
-			var err error
-			autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+			err := f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
 			if err != nil {
 				return err
 			}
@@ -945,20 +928,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			return apperror.NewPreconditionFailedError(dbShipment.ID, t)
 		}
 		return apperror.NewQueryError("mtoShipment", transactionError, "")
-	}
-
-	if len(autoReweighShipments) > 0 {
-		for _, shipment := range autoReweighShipments {
-			/* Don't send emails to BLUEBARK moves */
-			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
-				err := f.sender.SendNotification(appCtx,
-					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
-				)
-				if err != nil {
-					return err
-				}
-			}
-		}
 	}
 
 	return nil
