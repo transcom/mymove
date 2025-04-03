@@ -363,7 +363,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 		suite.NotEmpty(ppmCloseoutObj)
 	})
 
-	suite.Run("Can successfully GET a PPMCloseout Object for small package PPMs", func() {
+	suite.Run("Can successfully GET a PPMCloseout Object for small package PPMs and final incentive updates", func() {
 		appCtx := suite.AppContextForTest()
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -383,6 +383,10 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 
 		ppmShipment := suite.mockPPMSPRShipmentForCloseoutTest()
 
+		// making sure final incentive is nil
+		ppmShipment.FinalIncentive = nil
+		suite.MustSave(&ppmShipment)
+
 		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
 		if err != nil {
 			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
@@ -391,6 +395,12 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 		suite.Nil(err)
 		suite.NotNil(ppmCloseoutObj)
 		suite.NotEmpty(ppmCloseoutObj)
+
+		// final incentive is updated
+		var updatedPPM models.PPMShipment
+		err = suite.DB().Find(&updatedPPM, ppmShipment.ID)
+		suite.NoError(err)
+		suite.NotNil(updatedPPM.FinalIncentive)
 	})
 
 	suite.Run("Returns a \"NotFoundError\" if the PPM Shipment was not found using the given ID", func() {

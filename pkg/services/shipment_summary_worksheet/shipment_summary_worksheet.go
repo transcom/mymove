@@ -93,7 +93,7 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 		A. the difference between the GTCC paid expenses and the GCC OR
 		B. the total member-paid expenses plus the member paid SIT
 	**/
-	if shipmentSummaryFormData.IsActualExpenseReimbursement && isPaymentPacket {
+	if (shipmentSummaryFormData.IsActualExpenseReimbursement || shipmentSummaryFormData.IsSmallPackageReimbursement) && isPaymentPacket {
 		if shipmentSummaryFormData.PPMShipment.FinalIncentive == nil {
 			return services.Page1Values{}, services.Page2Values{}, services.Page3Values{}, fmt.Errorf("missing FinalIncentive: required for actual expense reimbursement (Order ID: %s)", shipmentSummaryFormData.Order.ID)
 		}

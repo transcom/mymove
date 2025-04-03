@@ -55,6 +55,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	if err != nil {
 		return nil, err
 	}
+	previousFinalIncentive := ppmShipment.FinalIncentive
 
 	actualWeight, err := p.GetActualWeight(ppmShipment)
 	if err != nil {
@@ -78,6 +79,18 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		}
 	} else {
 		remainingIncentive = unit.Cents(0)
+	}
+
+	// in cases where the PPM is a small package, the final incentive isn't able to be calculated until after TIO reviews/approves their expenses
+	// because of this, we will update the final incentive here if the value is nil or different
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage &&
+		(ppmShipment.FinalIncentive != nil || ppmShipment.FinalIncentive != nil && (previousFinalIncentive != nil && *previousFinalIncentive != *ppmShipment.FinalIncentive)) {
+		verrs, err := appCtx.DB().ValidateAndUpdate(ppmShipment)
+		if verrs.HasAny() {
+			return nil, apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")
+		} else if err != nil {
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to update PPMShipment final incentive")
+		}
 	}
 
 	proGearCustomerMax := unit.Pound(2000)
