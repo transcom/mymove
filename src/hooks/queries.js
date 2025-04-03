@@ -40,6 +40,7 @@ import {
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
+import { getRolesPrivileges } from 'services/adminApi';
 import {
   PAYMENT_REQUESTS,
   MTO_SHIPMENTS,
@@ -71,6 +72,7 @@ import {
   SC_CUSTOMER_SEARCH,
   PPMSIT_ESTIMATED_COST,
   GBLOCS,
+  ROLE_PRIVILEGES,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -1124,6 +1126,46 @@ export const useListGBLOCsQueries = () => {
   const gblocs = data;
   return {
     result: gblocs,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useRolesPrivilegesQueries = () => {
+  const { data = [], ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES, {}], ({ queryKey }) =>
+    getRolesPrivileges(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
+  const mappings = data.body || [];
+  const uniqueRolesMap = new Map();
+  const uniquePrivilegesMap = new Map();
+
+  mappings.forEach((mapping) => {
+    if (mapping.roleType) {
+      if (!uniqueRolesMap.has(mapping.roleType)) {
+        uniqueRolesMap.set(mapping.roleType, {
+          roleType: mapping.roleType,
+          roleName: mapping.roleName || mapping.roleType,
+        });
+      }
+    }
+    if (mapping.privilegeType) {
+      if (!uniquePrivilegesMap.has(mapping.privilegeType)) {
+        uniquePrivilegesMap.set(mapping.privilegeType, {
+          privilegeType: mapping.privilegeType,
+          privilegeName: mapping.privilegeName || mapping.privilegeType,
+        });
+      }
+    }
+  });
+
+  const roles = Array.from(uniqueRolesMap.values());
+  const privileges = Array.from(uniquePrivilegesMap.values());
+
+  return {
+    roles,
+    privileges,
     isLoading,
     isError,
     isSuccess,
