@@ -574,6 +574,8 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.Entitlement",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.User",
+		"Orders.Rank",
+		"Orders.PaygradeRankId",
 		"Orders.OriginDutyLocation.Address.Country",
 		"Orders.OriginDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation.TransportationOffice.Address.Country",

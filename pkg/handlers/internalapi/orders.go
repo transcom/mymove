@@ -103,6 +103,8 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
+	var rank = order.Rank.FormatToRankPayload()
+
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                         handlers.FmtUUID(order.ID),
@@ -130,6 +132,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		AuthorizedWeight:           dBAuthorizedWeight,
 		Entitlement:                &entitlement,
 		ProvidesServicesCounseling: originDutyLocation.ProvidesServicesCounseling,
+		Rank:                       rank,
 	}
 
 	return payload, nil
@@ -320,6 +323,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				packingAndShippingInstructions,
 				newDutyLocationGBLOC,
 			)
+
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
@@ -503,12 +507,29 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.DestinationGBLOC = newDutyLocationGBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
+			// order.Rank = payload.Rank
+
+			rank := payload.Rank
 
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			// type PayGradeRankModel struct {
+			// 	Id             uuid.UUID `db:"id"`
+			// 	PaygradeRankId uuid.UUID `db:"pay_grade_id"`
+			// 	Affiliation    string    `db:"affiliation"`
+			// 	Abbreviation   string    `db:"rank_short_name"`
+			// }
+
+			paygradeRank := &models.PaygradeRank{}
+
+			err = appCtx.DB().Where("affiliation = ?", serviceMember.Affiliation).Where("rank_short_name = ?", rank).First(paygradeRank)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -631,11 +652,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				}
 
 			}
+
 			order.Grade = payload.Grade
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
+
+			order.PaygradeRankId = paygradeRank.ID
 
 			verrs, err := models.SaveOrder(appCtx.DB(), &order)
 			if err != nil || verrs.HasAny() {
@@ -649,6 +673,10 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload), nil
 		})
 }
+
+// func (h UpdateOrdersHandler) AuditableAppContextFromRequestWithErrors(request *http.Request, f func(appCtx appcontext.AppContext) (middleware.Responder, error)) middleware.Responder {
+// 	panic("unimplemented")
+// }
 
 // Helper func for the UpdateOrdersHandler to check if the entitlement has changed from the new payload
 // This handles the nil checks and value comparisons outside of the handler func for organization

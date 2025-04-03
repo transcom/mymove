@@ -4419,6 +4419,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "title": "Rank",
+          "x-nullable": true
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -6182,6 +6187,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -7152,6 +7160,49 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Affiliation",
+          "enum": [
+            "NAVY_AND_MARINES",
+            "ARMY",
+            "ARMY_CORPS_OF_ENGINEERS",
+            "AIR_AND_SPACE_FORCE",
+            "COAST_GUARD",
+            "OFFICE_OF_SECRETARY_OF_DEFENSE"
+          ],
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "SGT"
+        },
+        "rankOrder": {
+          "type": "integer"
+        },
+        "rankShortName": {
+          "type": "string",
+          "title": "Rank Abbv",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -7442,6 +7493,10 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "title": "Rank",
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -13766,6 +13821,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "title": "Rank",
+          "x-nullable": true
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -15533,6 +15593,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -16506,6 +16569,49 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Affiliation",
+          "enum": [
+            "NAVY_AND_MARINES",
+            "ARMY",
+            "ARMY_CORPS_OF_ENGINEERS",
+            "AIR_AND_SPACE_FORCE",
+            "COAST_GUARD",
+            "OFFICE_OF_SECRETARY_OF_DEFENSE"
+          ],
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "SGT"
+        },
+        "rankOrder": {
+          "type": "integer"
+        },
+        "rankShortName": {
+          "type": "string",
+          "title": "Rank Abbv",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -16796,6 +16902,10 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "title": "Rank",
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",

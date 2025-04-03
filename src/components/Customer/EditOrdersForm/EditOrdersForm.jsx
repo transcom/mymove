@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
@@ -11,7 +11,7 @@ import styles from './EditOrdersForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import {
   civilianTDYUBAllowanceWeightWarning,
   FEATURE_FLAG_KEYS,
@@ -29,13 +29,15 @@ import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
+import { formatLabelReportByDate, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
+import { usePaygradeRankDropdownOptions } from 'pages/MyMove/Orders';
 
 const EditOrdersForm = ({
   createUpload,
@@ -48,6 +50,7 @@ const EditOrdersForm = ({
   onCancel,
   setShowLoadingSpinner,
 }) => {
+  const { affiliation } = { affiliation: useSelector((state) => selectServiceMemberAffiliation(state)) ?? '' };
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
   const [newDutyLocation, setNewDutyLocation] = useState(initialValues.new_duty_location);
@@ -64,9 +67,11 @@ const EditOrdersForm = ({
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
   const [prevOrderType, setPrevOrderType] = useState(initialValues.orders_type);
   const [ordersType, setOrdersType] = useState(initialValues.orders_type);
-  const [grade, setGrade] = useState(initialValues.grade);
+  const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+
+  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -91,7 +96,8 @@ const EditOrdersForm = ({
         }),
       )
       .min(1),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    // grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    rank: Yup.mixed().oneOf(Object.keys(mappedRanks)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation?.provides_services_counseling
       ? Yup.string().required('Required')
@@ -118,8 +124,6 @@ const EditOrdersForm = ({
     return isValuePresent;
   };
 
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-
   let originMeta;
   let newDutyMeta = '';
 
@@ -128,9 +132,9 @@ const EditOrdersForm = ({
     const checkUBFeatureFlag = async () => {
       const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
       if (enabled) {
-        setEnableUB(true);
+        setEnableUB(() => true);
       }
-      setFinishedFetchingFF(true);
+      setFinishedFetchingFF(() => true);
     };
     checkUBFeatureFlag();
   }, []);
@@ -146,7 +150,7 @@ const EditOrdersForm = ({
               key: item.id,
               value: item.name,
             }));
-            setOfficeOptions(counselingOffices);
+            setOfficeOptions(() => counselingOffices);
           }
         } catch (error) {
           const { message } = error;
@@ -162,25 +166,25 @@ const EditOrdersForm = ({
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
-      setIsOconusMove(true);
+      setIsOconusMove(() => true);
     } else {
-      setIsOconusMove(false);
+      setIsOconusMove(() => false);
     }
 
     if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
       if (isOconusMove && hasDependents) {
-        setShowAccompaniedTourField(true);
-        setShowDependentAgeFields(true);
+        setShowAccompaniedTourField(() => true);
+        setShowDependentAgeFields(() => true);
       } else {
-        setShowAccompaniedTourField(false);
-        setShowDependentAgeFields(false);
+        setShowAccompaniedTourField(() => false);
+        setShowDependentAgeFields(() => false);
       }
     }
 
     if (isLoading && finishedFetchingFF) {
       // If the form is still loading and the FF has finished fetching,
       // then the form is done loading
-      setIsLoading(false);
+      setIsLoading(() => false);
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, isLoading, finishedFetchingFF]);
 
@@ -191,9 +195,9 @@ const EditOrdersForm = ({
         ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
         grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
       ) {
-        setIsCivilianTDYMove(true);
+        setIsCivilianTDYMove(() => true);
       } else {
-        setIsCivilianTDYMove(false);
+        setIsCivilianTDYMove(() => false);
       }
     }
   }, [
@@ -205,6 +209,7 @@ const EditOrdersForm = ({
     ordersType,
     grade,
     isCivilianTDYMove,
+    rank,
   ]);
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -225,6 +230,7 @@ const EditOrdersForm = ({
         report_by_date: true,
         has_dependents: true,
         grade: true,
+        rank: true,
         accompanied_tour: true,
         dependents_under_twelve: true,
         dependents_twelve_and_over: true,
@@ -236,6 +242,13 @@ const EditOrdersForm = ({
       {({ isValid, isSubmitting, handleSubmit, handleChange, setValues, values, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
+        const handleRankChange = (rankGrade = {}) => {
+          setRank({ rank: rankGrade.rank, grade: rankGrade.grade });
+          setValues({
+            ...values,
+            ...rankGrade,
+          });
+        };
         const handleCounselingOfficeChange = () => {
           setValues({
             ...values,
@@ -519,20 +532,26 @@ const EditOrdersForm = ({
                   />
                 </FormGroup>
               )}
-
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
-                required
-                options={payGradeOptions}
                 hint="Required"
+                label="Rank"
+                name="rank"
+                id="rank"
+                required
+                options={paygradeRankOptionValues}
                 onChange={(e) => {
-                  setGrade(e.target.value);
+                  if (e.target.value === '') {
+                    handleRankChange({ rank: null, grade: null });
+                    handleChange(e);
+                    return;
+                  }
+
+                  const abbvRank = e.target.value;
+                  const gradeForRank = mappedRanks[abbvRank].grade;
+                  handleRankChange({ rank: abbvRank, grade: gradeForRank });
                   handleChange(e);
                 }}
               />
-
               <p>Uploads:</p>
               <UploadsTable
                 uploads={initialValues.uploaded_orders}
