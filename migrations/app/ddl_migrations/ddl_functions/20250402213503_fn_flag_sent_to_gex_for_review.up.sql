@@ -10,9 +10,9 @@ DECLARE
 BEGIN
   UPDATE payment_requests
   SET
-    status = 'REVIEWED',
+    status = 'REVIEWED'::payment_request_status,
     sent_to_gex_at = NULL
-  WHERE status = 'SENT_TO_GEX'
+  WHERE status = 'SENT_TO_GEX'::payment_request_status
     AND sent_to_gex_at IS NOT NULL
     -- checks for older sent_to_gex_at than stale_sent_to_gex
     AND sent_to_gex_at < stale_sent_to_gex;
