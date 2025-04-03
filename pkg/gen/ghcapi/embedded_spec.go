@@ -15130,8 +15130,20 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "missingReceipt": {
+          "description": "Indicates if the customer is missing the receipt for their expense.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenseType": {
           "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
@@ -33244,8 +33256,20 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "missingReceipt": {
+          "description": "Indicates if the customer is missing the receipt for their expense.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenseType": {
           "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",

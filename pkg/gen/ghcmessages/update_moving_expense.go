@@ -25,8 +25,14 @@ type UpdateMovingExpense struct {
 	// A brief description of the expense.
 	Description *string `json:"description"`
 
+	// Indicates if the customer is missing the receipt for their expense.
+	MissingReceipt *bool `json:"missingReceipt"`
+
 	// moving expense type
 	MovingExpenseType *OmittableMovingExpenseType `json:"movingExpenseType"`
+
+	// Indicates if the service member used their government issued card to pay for the expense
+	PaidWithGTCC *bool `json:"paidWithGTCC"`
 
 	// The reason the services counselor has excluded or rejected the item.
 	Reason string `json:"reason,omitempty"`

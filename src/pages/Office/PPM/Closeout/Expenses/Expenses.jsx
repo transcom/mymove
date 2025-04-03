@@ -13,9 +13,12 @@ import { shipmentTypes } from 'constants/shipments';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { createMovingExpense } from 'services/ghcApi';
-// TBD: internal apis to be converted
-import { createUploadForPPMDocument, deleteUpload, patchMovingExpense } from 'services/internalApi';
+import {
+  createMovingExpense,
+  patchExpense,
+  createUploadForPPMDocument,
+  deleteUploadForDocument,
+} from 'services/ghcApi';
 import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -53,7 +56,7 @@ const Expenses = () => {
     },
   });
 
-  const { mutate: mutatePatchMovingExpense } = useMutation(patchMovingExpense, {
+  const { mutate: mutatePatchMovingExpense } = useMutation(patchExpense, {
     onSuccess: () => {
       queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
@@ -108,7 +111,7 @@ const Expenses = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
-    deleteUpload(uploadId, null, ppmShipment?.id)
+    deleteUploadForDocument(uploadId, null, ppmShipment?.id)
       .then(() => {
         const filteredUploads = documents?.MovingExpenses[currentIndex][fieldName]?.uploads.filter(
           (upload) => upload.id !== uploadId,
@@ -146,7 +149,7 @@ const Expenses = () => {
     };
 
     mutatePatchMovingExpense({
-      ppmShipmentId: mtoShipment?.ppmShipment?.id,
+      ppmShipmentId: currentExpense.ppmShipmentId,
       movingExpenseId: currentExpense.id,
       payload,
       eTag: currentExpense.eTag,

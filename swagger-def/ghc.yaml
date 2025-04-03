@@ -7102,6 +7102,16 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      paidWithGTCC:
+        description: Indicates if the service member used their government issued card to pay for the expense
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      missingReceipt:
+        description: Indicates if the customer is missing the receipt for their expense.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
   UpdateProGearWeightTicket:
     type: object
     properties:
