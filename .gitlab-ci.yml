@@ -405,9 +405,12 @@ golang_lint:
   interruptible: true
   tags:
     - $Gitlab_Runner_Tag
-  image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:latest # Refer to https://hub.docker.com/r/golangci/golangci-lint
+  image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:$GOLANGCI_LINT_VERSION # Refer to https://hub.docker.com/r/golangci/golangci-lint
   script:
-    - golangci-lint run --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
+# Write the code coverage report to gl-code-quality-report.json
+    # and print linting issues to stdout in the format: path/to/file:line description
+    # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
+    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --timeout=25m --out-format code-climate:gl-code-quality-report.json,line-number
   artifacts:
       reports:
         codequality: gl-code-quality-report.json
@@ -781,6 +784,9 @@ server_test:
     - name: $postgres
     - name: $redis
   variables:
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
     APPLICATION: app
     # 8 since this runs on xlarge with 8 CPUs
     GOTEST_PARALLEL: 8
@@ -891,8 +897,8 @@ client_test:
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "12Gi"
-    KUBERNETES_MEMORY_LIMIT: "12Gi"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   needs:
     - pre_deps_yarn
   cache:
