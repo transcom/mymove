@@ -10,6 +10,7 @@ import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ShipmentSITDisplay.module.scss';
 
+import { shipmentStatuses } from 'constants/shipments';
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'utils/formatters';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
@@ -172,7 +173,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
           showConvertToCustomerExpense &&
           !isConvertedToCustomerExpense &&
           openConvertModalButton}
-        {sitStatus.currentSIT && openModalButton}
+        {sitStatus.currentSIT && shipment.status !== shipmentStatuses.TERMINATED_FOR_CAUSE && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
         {/* Sit Total days table */}

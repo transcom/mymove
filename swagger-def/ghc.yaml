@@ -1369,6 +1369,49 @@ paths:
       summary: Requests a shipment cancellation
       x-permissions:
         - create.shipmentCancellation
+  '/shipments/{shipmentID}/terminate':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              terminationReason:
+                type: string
+            required:
+              - terminationReason
+      responses:
+        '200':
+          description: Successfully terminated the shipment
+          schema:
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Terminates a shipment
+      operationId: createTermination
+      summary: Terminates a shipment
+      x-permissions:
+        - create.shipmentTermination
   '/shipments/{shipmentID}/request-reweigh':
     parameters:
       - description: ID of the shipment

@@ -36,7 +36,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&newNotification, expErrors)
+		suite.verifyValidationErrors(&newNotification, expErrors, nil)
 	})
 
 	suite.Run("test simple notification", func() {
@@ -49,7 +49,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&newNotification, expErrors)
+		suite.verifyValidationErrors(&newNotification, expErrors, nil)
 	})
 
 	suite.Run("test notification with validation errors", func() {
@@ -66,6 +66,6 @@ func (suite *ModelSuite) TestWebhookNotification() {
 		expErrors["event_key"] = []string{"Eventkey should be in Subject.Action format."}
 		expErrors["payload"] = []string{"Payload can not be blank."}
 
-		suite.verifyValidationErrors(&newNotification, expErrors)
+		suite.verifyValidationErrors(&newNotification, expErrors, nil)
 	})
 }

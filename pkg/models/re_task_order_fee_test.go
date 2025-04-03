@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
 			PriceCents:     9000,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReTaskOrderFee, expErrors)
+		suite.verifyValidationErrors(&validReTaskOrderFee, expErrors, nil)
 	})
 
 	suite.Run("test invalid ReTaskOrderFee", func() {
@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
 			"service_id":       {"ServiceID can not be blank."},
 			"price_cents":      {"PriceCents can not be blank.", "0 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors)
+		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors, nil)
 	})
 
 	suite.Run("test price cents less than 1 for ReDomesticServiceArea", func() {
@@ -36,6 +36,6 @@ func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
 		expErrors := map[string][]string{
 			"price_cents": {"-3 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors)
+		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors, nil)
 	})
 }

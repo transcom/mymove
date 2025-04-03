@@ -17,6 +17,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
   const showRequestCancellation =
     shipmentStatus !== shipmentStatuses.CANCELED && shipmentStatus !== shipmentStatuses.CANCELLATION_REQUESTED;
   const isCancellationRequested = shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED;
+  const isDisabled = isMoveLocked || shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
@@ -24,6 +25,9 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
         <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
         <h2>{shipmentInfo.shipmentType}</h2>
         <div>
+          {shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE && (
+            <Tag className="usa-tag--cancellation">terminated for cause</Tag>
+          )}
           {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--cancellation">canceled</Tag>}
           {shipmentInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
           {!shipmentInfo.isDiversion && shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
@@ -43,7 +47,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
                 type="button"
                 onClick={() => handleShowCancellationModal(shipmentInfo)}
                 unstyled
-                disabled={isMoveLocked}
+                disabled={isDisabled}
               >
                 Request Cancellation
               </Button>

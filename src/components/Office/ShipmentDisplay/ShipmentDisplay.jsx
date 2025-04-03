@@ -4,9 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { Checkbox, Tag, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { connect } from 'react-redux';
+
+import TerminateShipmentModal from '../TerminateShipmentModal/TerminateShipmentModal';
 
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
-import { EditButton, ReviewButton } from 'components/form/IconButtons';
+import { EditButton, ReviewButton, TerminateButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
@@ -22,6 +26,10 @@ import { permissionTypes } from 'constants/permissions';
 import affiliation from 'content/serviceMemberAgencies';
 import { fieldValidationShape, objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { terminateShipment } from 'services/ghcApi';
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 const ShipmentDisplay = ({
   shipmentType,
@@ -40,6 +48,7 @@ const ShipmentDisplay = ({
   showWhenCollapsed,
   neverShow,
   isMoveLocked,
+  setFlashMessage,
 }) => {
   const navigate = useNavigate();
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !allowApproval });
@@ -49,6 +58,9 @@ const ShipmentDisplay = ({
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
   const [enableCompletePPMCloseoutForCustomer, setEnableCompletePPMCloseoutForCustomer] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
+  const [terminatingShipmentsFF, setTerminatingShipmentsFF] = useState(false);
+  const [isShipmentTerminationModalVisible, setIsShipmentTerminationModalVisible] = useState(false);
+  const isDisabled = isMoveLocked || displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   const disableApproval = errorIfMissing.some((requiredInfo) =>
     objectIsMissingFieldWithCondition(displayInfo, requiredInfo),
@@ -69,11 +81,51 @@ const ShipmentDisplay = ({
   const errorModalMessage =
     "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
 
+  const canTerminate =
+    !displayInfo.actualPickupDate &&
+    displayInfo.shipmentStatus === shipmentStatuses.APPROVED &&
+    terminatingShipmentsFF &&
+    !displayInfo.ppmShipment;
+
+  const queryClient = useQueryClient();
+  const { mutate: mutateShipmentTermination } = useMutation(terminateShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      setFlashMessage(
+        `TERMINATION_SUCCESS_${updatedMTOShipment.id}`,
+        'success',
+        `Successfully terminated shipment ${updatedMTOShipment.shipmentLocator}`,
+        '',
+        true,
+      );
+
+      queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
+
+  const handleShipmentTerminationSubmit = (shipmentID, values) => {
+    const body = {
+      terminationReason: values.terminationComments,
+    };
+    mutateShipmentTermination({ shipmentID, body });
+
+    setIsShipmentTerminationModalVisible(false);
+  };
+
+  const handleShipmentTerminationCancel = () => {
+    setIsShipmentTerminationModalVisible(false);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setEnableCompletePPMCloseoutForCustomer(
         await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER),
       );
+      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
+      setTerminatingShipmentsFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.TERMINATING_SHIPMENTS));
     };
     fetchData();
   }, []);
@@ -87,6 +139,13 @@ const ShipmentDisplay = ({
 
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
+      <TerminateShipmentModal
+        isOpen={isShipmentTerminationModalVisible}
+        onClose={handleShipmentTerminationCancel}
+        onSubmit={handleShipmentTerminationSubmit}
+        shipmentID={displayInfo.id}
+        shipmentLocator={displayInfo.shipmentLocator}
+      />
       <ShipmentContainer className={containerClasses} shipmentType={shipmentType}>
         <div className={styles.heading}>
           <Restricted to={permissionTypes.updateShipment}>
@@ -99,7 +158,7 @@ const ShipmentDisplay = ({
                 label="&nbsp;"
                 value={shipmentId}
                 aria-labelledby={`shipment-display-label-${shipmentId}`}
-                disabled={disableApproval || isMoveLocked}
+                disabled={disableApproval || isDisabled}
               />
             )}
           </Restricted>
@@ -116,6 +175,11 @@ const ShipmentDisplay = ({
                 </label>
               </h3>
               <div className={styles.tagWrapper}>
+                {terminatingShipmentsFF && displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE && (
+                  <Tag data-testid="terminatedTag" className="usa-tag--cancellation">
+                    terminated for cause
+                  </Tag>
+                )}
                 {ppmSprFF && displayInfo.ppmShipment?.ppmType === PPM_TYPES.SMALL_PACKAGE && (
                   <Tag data-testid="smallPackageTag">{getPPMTypeLabel(displayInfo.ppmShipment.ppmType)}</Tag>
                 )}
@@ -167,6 +231,20 @@ const ShipmentDisplay = ({
           onErrorModalToggle={toggleErrorModal}
         />
         <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
+        <Restricted to={permissionTypes.createShipmentTermination}>
+          {canTerminate && (
+            <TerminateButton
+              onClick={() => {
+                setIsShipmentTerminationModalVisible(true);
+              }}
+              className={styles.editButton}
+              data-testid="terminateShipmentBtn"
+              label="Terminate shipment"
+              secondary
+              disabled={isDisabled}
+            />
+          )}
+        </Restricted>
         <Restricted to={permissionTypes.updateShipment}>
           {editURL && (
             <EditButton
@@ -177,7 +255,7 @@ const ShipmentDisplay = ({
               data-testid={editURL}
               label="Edit shipment"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             />
           )}
           {reviewURL && (
@@ -189,7 +267,7 @@ const ShipmentDisplay = ({
               data-testid={reviewURL}
               label="Review documents"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             />
           )}
           {completePpmForCustomerURL && enableCompletePPMCloseoutForCustomer && (
@@ -200,7 +278,7 @@ const ShipmentDisplay = ({
               className={styles.editButton}
               data-testid="completePpmForCustomerBtn"
               secondary
-              disabled={isMoveLocked}
+              disabled={isDisabled}
             >
               Complete PPM on behalf of the Customer
             </Button>
@@ -215,7 +293,7 @@ const ShipmentDisplay = ({
             data-testid={viewURL}
             label="View documents"
             secondary
-            disabled={isMoveLocked}
+            disabled={isDisabled}
           />
         )}
       </ShipmentContainer>
@@ -313,4 +391,8 @@ ShipmentDisplay.defaultProps = {
   neverShow: [],
 };
 
-export default ShipmentDisplay;
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+
+export default connect(() => ({}), mapDispatchToProps)(ShipmentDisplay);

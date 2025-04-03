@@ -26,6 +26,8 @@ const ShipmentAddresses = ({
   shipmentInfo,
   isMoveLocked,
 }) => {
+  const isDisabled = isMoveLocked || shipmentInfo.status === shipmentStatuses.TERMINATED_FOR_CAUSE;
+
   let pickupHeader;
   let destinationHeader;
   switch (shipmentInfo.shipmentType) {
@@ -61,7 +63,7 @@ const ShipmentAddresses = ({
                       type="button"
                       onClick={() => handleShowDiversionModal(shipmentInfo)}
                       unstyled
-                      disabled={isMoveLocked}
+                      disabled={isDisabled}
                     >
                       Request Diversion
                     </Button>

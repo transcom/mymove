@@ -114,7 +114,7 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 			}
 
 			// requested office users will likely not have Okta accounts yet, but we still need to check the edge case
-			if existingUser.OktaID != "" {
+			if existingUser.OktaID != "" && appCtx.Session().IDToken != "devlocal" {
 				apiKey := models.GetOktaAPIKey()
 				oktaID := existingUser.OktaID
 				req := appCtx.HTTPRequest()

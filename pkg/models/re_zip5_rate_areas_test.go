@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestReZip5RateAreaValidations() {
 			Zip5:       "60610",
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReZip5RateArea, expErrors)
+		suite.verifyValidationErrors(&validReZip5RateArea, expErrors, nil)
 	})
 
 	suite.Run("test invalid ReZip5RateArea", func() {
@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestReZip5RateAreaValidations() {
 			"rate_area_id": {"RateAreaID can not be blank."},
 			"zip5":         {"Zip5 not in range(5, 5)"},
 		}
-		suite.verifyValidationErrors(&emptyReZip5RateArea, expErrors)
+		suite.verifyValidationErrors(&emptyReZip5RateArea, expErrors, nil)
 	})
 
 	suite.Run("test when zip5 is not a length of 5", func() {
@@ -36,6 +36,6 @@ func (suite *ModelSuite) TestReZip5RateAreaValidations() {
 		expErrors := map[string][]string{
 			"zip5": {"Zip5 not in range(5, 5)"},
 		}
-		suite.verifyValidationErrors(&invalidReZip5RateArea, expErrors)
+		suite.verifyValidationErrors(&invalidReZip5RateArea, expErrors, nil)
 	})
 }

@@ -141,20 +141,32 @@ describe('Shipment Heading hides cancellation button when user is missing permis
   });
 });
 
-describe('Shipment Heading shows cancellation button but disabled when move is locked', () => {
-  const isMoveLocked = true;
-  const wrapper = mount(
-    <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
-      <ShipmentHeading
-        shipmentInfo={headingInfo}
-        handleUpdateMTOShipmentStatus={jest.fn()}
-        handleShowCancellationModal={jest.fn()}
-        isMoveLocked={isMoveLocked}
-      />
-    </MockProviders>,
-  );
-
-  it('renders with disabled request shipment cancellation button', () => {
+describe('Shipment Heading shows cancellation button but disabled in certain scenarios', () => {
+  it('is disabled when the move is locked', () => {
+    const isMoveLocked = true;
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
+        <ShipmentHeading
+          shipmentInfo={headingInfo}
+          handleUpdateMTOShipmentStatus={jest.fn()}
+          handleShowCancellationModal={jest.fn()}
+          isMoveLocked={isMoveLocked}
+        />
+      </MockProviders>,
+    );
+    expect(wrapper.find('button').length).toEqual(1);
+    expect(wrapper.find('button[data-testid="requestCancellationBtn"]').prop('disabled')).toBe(true);
+  });
+  it('is disabled when the shipment is terminated', () => {
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
+        <ShipmentHeading
+          shipmentInfo={{ ...headingInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE }}
+          handleUpdateMTOShipmentStatus={jest.fn()}
+          handleShowCancellationModal={jest.fn()}
+        />
+      </MockProviders>,
+    );
     expect(wrapper.find('button').length).toEqual(1);
     expect(wrapper.find('button[data-testid="requestCancellationBtn"]').prop('disabled')).toBe(true);
   });

@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 			EDIType:                  models.EDIType997,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validPR2ICN, expErrors)
+		suite.verifyValidationErrors(&validPR2ICN, expErrors, nil)
 	})
 
 	suite.Run("test invalid PaymentRequestToInterchangeControlNumber", func() {
@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 			"interchange_control_number": {"0 is not greater than 0."},
 			"editype":                    {"EDIType is not in the list [810, 824, 858, 997, TPPSPaidInvoiceReport]."},
 		}
-		suite.verifyValidationErrors(&validPR2ICN, expErrors)
+		suite.verifyValidationErrors(&validPR2ICN, expErrors, nil)
 	})
 
 	suite.Run("test invalid InterchangeControlNumber max", func() {
@@ -40,6 +40,6 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 		expErrors := map[string][]string{
 			"interchange_control_number": {"1000000000 is not less than 1000000000."},
 		}
-		suite.verifyValidationErrors(&validPR2ICN, expErrors)
+		suite.verifyValidationErrors(&validPR2ICN, expErrors, nil)
 	})
 }

@@ -2,13 +2,13 @@
 @import '../../../shared/styles/colors';
 @import 'styles/office.scss';
 
-.QAECSRMoveSearchPage {
+.MoveSearchPage {
   @include u-padding-y(3);
   @include u-padding-x(4);
   width: 100%;
 }
 
-.QAECSRMoveSearchWrapper {
+.MoveSearchWrapper {
   @include u-display(flex);
   flex-direction: column;
   flex: auto;
