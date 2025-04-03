@@ -72,4 +72,5 @@ export default {
   updateAssignedOfficeUser: 'updateAssignedOfficeUser', // ghc.yaml
   deleteAssignedOfficeUser: 'deleteAssignedOfficeUser', // ghc.yaml
   saveBulkAssignmentData: 'saveBulkAssignmentData', // ghc.yaml
+  createTermination: 'createTermination', // ghc.yaml
 };
