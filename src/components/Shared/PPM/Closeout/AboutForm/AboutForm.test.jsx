@@ -174,27 +174,27 @@ describe('AboutForm component', () => {
 
         await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-        await waitFor(() => {
+        waitFor(() => {
           expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+
+          const requiredAlerts = screen.getAllByRole('alert');
+
+          expect(requiredAlerts[0]).toHaveTextContent('Required');
+          expect(
+            within(requiredAlerts[0].nextElementSibling).getByLabelText('When did you leave your origin?'),
+          ).toBeInTheDocument();
+
+          expect(requiredAlerts[1]).toHaveTextContent('Required');
+          expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
+          expect(requiredAlerts[2]).toHaveTextContent('Required');
+          expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.city');
+          expect(requiredAlerts[3]).toHaveTextContent('Required');
+          expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.state');
+          expect(requiredAlerts[4]).toHaveTextContent('Required');
+          expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.postalCode');
+
+          userEvent.click(screen.getByTestId('yes-has-received-advance'));
         });
-
-        const requiredAlerts = screen.getAllByRole('alert');
-
-        expect(requiredAlerts[0]).toHaveTextContent('Required');
-        expect(
-          within(requiredAlerts[0].nextElementSibling).getByLabelText('When did you leave your origin?'),
-        ).toBeInTheDocument();
-
-        expect(requiredAlerts[1]).toHaveTextContent('Required');
-        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
-        expect(requiredAlerts[2]).toHaveTextContent('Required');
-        expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.city');
-        expect(requiredAlerts[3]).toHaveTextContent('Required');
-        expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.state');
-        expect(requiredAlerts[4]).toHaveTextContent('Required');
-        expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.postalCode');
-
-        await userEvent.click(screen.getByTestId('yes-has-received-advance'));
       });
     });
 
@@ -267,8 +267,10 @@ describe('AboutForm component', () => {
         </Provider>,
       );
 
-      await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
-      await userEvent.tab();
+      waitFor(() => {
+        userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
+        userEvent.tab();
+      })
     });
 
     it('displays error when advance received is below 1 dollar minimum', async () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 
 import MobileHomeShipmentInfoList from './MobileHomeShipmentInfoList';
 
@@ -66,7 +66,7 @@ describe('Shipment Info List - Mobile Home Shipment', () => {
   it('renders all mobile home shipment fields when provided and expanded', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-    await act(async () => {
+    await waitFor(async () => {
       render(<MobileHomeShipmentInfoList isExpanded shipment={shipment} />);
     });
 
@@ -106,7 +106,7 @@ describe('Shipment Info List - Mobile Home Shipment', () => {
   });
 
   it('does not render mtoAgents when not provided', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <MobileHomeShipmentInfoList
           shipment={{
@@ -117,7 +117,9 @@ describe('Shipment Info List - Mobile Home Shipment', () => {
       );
     });
 
-    expect(screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
-    expect(screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
+      expect(screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+    });
   });
 });

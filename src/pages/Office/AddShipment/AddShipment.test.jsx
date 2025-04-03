@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddShipment from './AddShipment';
@@ -209,7 +209,7 @@ describe('AddShipment component', () => {
 
       const user = userEvent.setup();
 
-      await act(async () => {
+      await waitFor(async () => {
         await user.click(screen.getByLabelText('Use pickup address'));
       });
 

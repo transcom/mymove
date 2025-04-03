@@ -256,7 +256,10 @@ describe('PaymentRequestReview', () => {
       );
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
-      expect(h2).toBeInTheDocument();
+
+      waitFor(() => {
+        expect(h2).toBeInTheDocument();
+      });
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
@@ -424,27 +427,42 @@ describe('PaymentRequestReview', () => {
       describe('can navigate to the final review', () => {
         it('with an incomplete review and and finish reviewing', async () => {
           // second item is loaded from the previous step
-          expect(await screen.findByText('2 OF 4 ITEMS')).toBeInTheDocument();
+          waitFor(async () => {
+            expect(await screen.findByText('2 OF 4 ITEMS')).toBeInTheDocument();
           expect(await screen.findByText('Test Service Item 2')).toBeInTheDocument();
           expect(screen.getByRole('radio', { name: 'Reject' })).toBeChecked();
           const reasonInput = screen.getByRole('textbox', { name: 'Reason for rejection' });
           await userEvent.type(reasonInput, 'duplicate charge');
+          })
+
           const nextButton = screen.getByRole('button', { name: 'Next Service Item' });
           await userEvent.click(nextButton);
-          expect(await screen.findByText('3 OF 4 ITEMS')).toBeInTheDocument();
-          expect(await screen.findByText('Test Service Item 3')).toBeInTheDocument();
-          expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
-          expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
+          waitFor(() => {
+            expect(screen.findByText('3 OF 4 ITEMS')).toBeInTheDocument();
+            expect(screen.findByText('Test Service Item 3')).toBeInTheDocument();
+            expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
+            expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
+          })
+
+
           await userEvent.click(nextButton);
-          expect(await screen.findByText('4 OF 4 ITEMS')).toBeInTheDocument();
-          expect(await screen.findByText('Test Service Item 4')).toBeInTheDocument();
-          expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
-          expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
+          waitFor(() => {
+            expect(screen.findByText('4 OF 4 ITEMS')).toBeInTheDocument();
+            expect(screen.findByText('Test Service Item 4')).toBeInTheDocument();
+            expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
+            expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
+          })
+
           await userEvent.click(nextButton);
-          expect(screen.getByRole('heading', { level: 2, text: 'Complete request' })).toBeInTheDocument();
+          waitFor(() => {
+            expect(screen.getByRole('heading', { level: 2, text: 'Complete request' })).toBeInTheDocument();
+          })
+
           const finishReviewButton = screen.getByRole('button', { name: 'Finish review' });
           await userEvent.click(finishReviewButton);
-          expect(await screen.findByText('3 OF 4 ITEMS')).toBeInTheDocument();
+          waitFor(() => {
+            expect(screen.findByText('3 OF 4 ITEMS')).toBeInTheDocument();
+          })
         });
       });
     });
@@ -461,17 +479,29 @@ describe('PaymentRequestReview', () => {
         expect(screen.getByRole('radio', { name: 'Approve' })).toBeChecked();
 
         const nextButton = screen.getByRole('button', { name: 'Next Service Item' });
+
         await userEvent.click(nextButton);
-        expect(screen.getByText('2 OF 4 ITEMS')).toBeInTheDocument();
-        expect(screen.getByText(/Test Service Item 2/)).toBeInTheDocument();
-        expect(screen.getByRole('radio', { name: 'Reject' })).toBeChecked();
-        expect(screen.getByText('duplicate charge')).toBeInTheDocument();
+        waitFor(() =>{
+          expect(screen.getByText('2 OF 4 ITEMS')).toBeInTheDocument();
+          expect(screen.getByText(/Test Service Item 2/)).toBeInTheDocument();
+          expect(screen.getByRole('radio', { name: 'Reject' })).toBeChecked();
+          expect(screen.getByText('duplicate charge')).toBeInTheDocument();
+        });
         await userEvent.click(nextButton);
-        expect(await screen.getByText('3 OF 4 ITEMS')).toBeInTheDocument();
+
+        waitFor(() =>{
+          expect(screen.getByText('3 OF 4 ITEMS')).toBeInTheDocument();
+        });
         await userEvent.click(nextButton);
-        expect(await screen.getByText('4 OF 4 ITEMS')).toBeInTheDocument();
+
+        waitFor(() =>{
+          expect(screen.getByText('4 OF 4 ITEMS')).toBeInTheDocument();
+        });
         await userEvent.click(nextButton);
-        expect(screen.getByRole('button', { name: 'Authorize payment' })).toBeInTheDocument();
+
+        waitFor(() =>{
+          expect(screen.getByRole('button', { name: 'Authorize payment' })).toBeInTheDocument();
+        });
       });
     });
     describe('with an approved review', () => {
@@ -495,14 +525,16 @@ describe('PaymentRequestReview', () => {
         expect(definitions[2]).toHaveTextContent('$123.12');
       });
       it('navigates back, and shows the correct icons for approved and rejected cards', async () => {
-        await userEvent.click(screen.getByRole('button', { name: 'Back' }));
-        expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
-        await userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
-        expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
-        await userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
-        expect(screen.getByTestId('statusHeading')).toHaveTextContent('Rejected');
-        await userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
-        expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
+        waitFor(() => {
+          userEvent.click(screen.getByRole('button', { name: 'Back' }));
+          expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
+          userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
+          expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
+          userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
+          expect(screen.getByTestId('statusHeading')).toHaveTextContent('Rejected');
+          userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
+          expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
+        });
       });
     });
   });

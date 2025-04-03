@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, within, waitFor } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import CreatePaymentRequest from './CreatePaymentRequest';
@@ -208,7 +208,7 @@ describe('CreatePaymentRequest page', () => {
       await userEvent.click(serviceItemInputs[1]);
       await userEvent.click(serviceItemInputs[2]);
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
       });
 
@@ -229,7 +229,7 @@ describe('CreatePaymentRequest page', () => {
       await userEvent.click(serviceItemInputs[1]);
       await userEvent.click(serviceItemInputs[2]);
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
       });
 
@@ -262,7 +262,7 @@ describe('CreatePaymentRequest page', () => {
       await userEvent.click(serviceItemInputs[1]);
       await userEvent.click(serviceItemInputs[2]);
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Submit Payment Request' }));
       });
 

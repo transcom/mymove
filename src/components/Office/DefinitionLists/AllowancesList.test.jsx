@@ -152,7 +152,7 @@ describe('AllowancesList', () => {
 
   it('does render oconus fields when present', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Formik initialValues={initialValuesOconusAdditions}>
           <AllowancesList info={{ ...oconusInfo }} showVisualCues />

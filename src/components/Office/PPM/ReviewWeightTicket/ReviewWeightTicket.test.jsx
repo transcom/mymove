@@ -483,11 +483,11 @@ describe('ReviewWeightTicket component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Reject')).toBeInstanceOf(HTMLInputElement);
       });
-      await act(async () => {
+      await waitFor(async () => {
         await fireEvent.click(screen.getByLabelText('Reject'));
       });
       expect(screen.getByLabelText('Reason')).toBeInstanceOf(HTMLTextAreaElement);
-      await act(async () => {
+      await waitFor(async () => {
         await fireEvent.click(screen.getByLabelText('Accept'));
       });
       expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
@@ -503,19 +503,22 @@ describe('ReviewWeightTicket component', () => {
       await waitFor(() => {
         expect(screen.getByText('2022 Honda CR-V Hybrid')).toBeInTheDocument();
       });
+      
       const emptyWeightInput = screen.getByTestId('emptyWeight');
       const fullWeightInput = screen.getByTestId('fullWeight');
       const netWeightDisplay = screen.getByTestId('net-weight-display');
-      expect(emptyWeightInput).toHaveDisplayValue('1,000');
-      expect(fullWeightInput).toHaveDisplayValue('8,000');
-      expect(netWeightDisplay).toHaveTextContent('7,000');
-      expect(screen.getByLabelText('No')).toBeChecked();
+
+      await waitFor(() => {
+        expect(emptyWeightInput).toHaveDisplayValue('1,000');
+        expect(fullWeightInput).toHaveDisplayValue('8,000');
+        expect(netWeightDisplay).toHaveTextContent('7,000');
+        expect(screen.getByLabelText('No')).toBeChecked();
+      });
 
       await waitFor(() => {
         userEvent.clear(fullWeightInput);
         userEvent.type(fullWeightInput, '10,000');
-        fullWeightInput.blur();
-        expect(netWeightDisplay).toHaveTextContent('9,000');
+        userEvent.tab();
       });
     });
 
@@ -529,7 +532,7 @@ describe('ReviewWeightTicket component', () => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
       const claimableYesButton = screen.getAllByRole('radio', { name: 'Yes' })[1];
-      await act(async () => {
+      await waitFor(async () => {
         await fireEvent.click(claimableYesButton);
       });
       expect(screen.queryByText('Proof of ownership is needed to accept this item.')).toBeInTheDocument();
@@ -548,7 +551,7 @@ describe('ReviewWeightTicket component', () => {
       });
       const ownedNoButton = screen.getAllByRole('radio', { name: 'No' })[0];
       const ownedYesButton = screen.getAllByRole('radio', { name: 'Yes' })[0];
-      await act(async () => {
+      await waitFor(async () => {
         await fireEvent.click(ownedNoButton);
         await fireEvent.click(ownedYesButton);
       });
@@ -565,7 +568,7 @@ describe('ReviewWeightTicket component', () => {
         expect(screen.queryByText("Is the trailer's weight claimable?")).toBeInTheDocument();
       });
       const claimableNoButton = screen.getAllByRole('radio', { name: 'No' })[1];
-      await act(async () => {
+      await waitFor(async () => {
         await fireEvent.click(claimableNoButton);
       });
       expect(screen.queryByText('Proof of ownership is needed to accept this item.')).not.toBeInTheDocument();

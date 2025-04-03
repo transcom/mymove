@@ -8,6 +8,7 @@ import { useField } from 'formik';
 import { DutyLocationInput } from './DutyLocationInput';
 
 import { LocationSearchBoxComponent, LocationSearchBoxContainer } from 'components/LocationSearchBox/LocationSearchBox';
+import { waitFor } from '@testing-library/react';
 
 const mockSetValue = jest.fn();
 
@@ -120,7 +121,7 @@ describe('DutyLocationInput', () => {
       metaMock.touched = false;
       const mounted = mount(<DutyLocationInput {...mockProps} name="dutyLocation" label="label" />);
 
-      await act(async () => {
+      await waitFor(async () => {
         // Only the hidden input that gets the final selected duty location has a name attribute
         mounted
           .find('input#dutyLocation-input')

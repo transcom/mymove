@@ -1,5 +1,5 @@
 import React from 'react';
-import { waitFor, screen, act } from '@testing-library/react';
+import { waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
@@ -76,7 +76,7 @@ beforeEach(() => {
 });
 
 const renderMobileHomeShipmentCreate = async (props) => {
-  await act(async () => {
+  await waitFor(async () => {
     renderWithRouter(<MobileHomeShipmentCreate {...defaultProps} {...props} />, {
       path: customerRoutes.SHIPMENT_MOBILE_HOME_PATH,
       params: { moveId: 'move123' },
@@ -99,7 +99,7 @@ describe('MobileHomeShipmentCreate component', () => {
       });
 
       const backButton = await screen.getByRole('button', { name: 'Back' });
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(backButton);
       });
 
@@ -112,7 +112,7 @@ describe('MobileHomeShipmentCreate component', () => {
 
       await renderMobileHomeShipmentCreate();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(screen.getByTestId('year'), '2022');
         await userEvent.type(screen.getByTestId('make'), 'Skyline Homes');
         await userEvent.type(screen.getByTestId('model'), 'Crown');
@@ -157,7 +157,7 @@ describe('MobileHomeShipmentCreate component', () => {
       });
       await renderMobileHomeShipmentCreate();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(screen.getByTestId('year'), '2022');
         await userEvent.type(screen.getByTestId('make'), 'Skyline Homes');
         await userEvent.type(screen.getByTestId('model'), 'Crown');
@@ -209,7 +209,7 @@ describe('MobileHomeShipmentCreate component', () => {
 
       await renderMobileHomeShipmentCreate({ mtoShipment: existingShipment });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.clear(screen.getByTestId('year'));
         await userEvent.type(screen.getByTestId('year'), '2021');
         await userEvent.clear(screen.getByTestId('make'));

@@ -147,7 +147,7 @@ describe('AllowancesDetailForm', () => {
   it('does render conditional oconus fields when present in entitlement', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Formik initialValues={{ ...initialValues, ...initialValuesOconusAdditions }}>
           <AllowancesDetailForm

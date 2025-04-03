@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -289,7 +289,7 @@ describe('Shipment Container', () => {
     });
     it('renders the Complete PPM on behalf of the Customer button successfully', async () => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      await act(async () => {
+      await waitFor(async () => {
         render(
           <MockProviders permissions={[permissionTypes.updateShipment]}>
             <ShipmentDisplay
@@ -305,9 +305,11 @@ describe('Shipment Container', () => {
         );
       });
 
-      expect(screen.queryByRole('button', { name: 'Complete PPM on behalf of the Customer' })).toBeVisible();
-      expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
-      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
+      waitFor(() => {
+        expect(screen.queryByRole('button', { name: 'Complete PPM on behalf of the Customer' })).toBeVisible();
+        expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
+        expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
+      })
     });
     describe("renders the 'packet ready for download' tag when", () => {
       it('approved', () => {

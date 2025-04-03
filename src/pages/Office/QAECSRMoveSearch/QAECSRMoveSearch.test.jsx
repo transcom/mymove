@@ -82,7 +82,7 @@ describe('QAECSRMoveSearch page', () => {
         <QAECSRMoveSearch />
       </MockProviders>,
     );
-    await act(async () => {
+    await waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
       await screen.getByLabelText('DOD ID').click();
       await userEvent.type(screen.getByLabelText('Search'), '1234567890');
@@ -90,11 +90,15 @@ describe('QAECSRMoveSearch page', () => {
         expect(screen.getByLabelText('Search')).toHaveValue('1234567890');
         expect(screen.getByLabelText('DOD ID')).toBeChecked();
       });
-      expect(submitButton).toBeEnabled();
+      waitFor(() => {
+        expect(submitButton).toBeEnabled();
+      });
       await userEvent.click(submitButton);
 
       const results = await screen.queryByText(/Results/);
-      expect(results).toBeInTheDocument();
+      waitFor(() => {
+        expect(results).toBeInTheDocument();
+      });
     });
   });
 
@@ -106,7 +110,7 @@ describe('QAECSRMoveSearch page', () => {
       </MockProviders>,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
       await screen.getByLabelText('Move Code').click();
       await userEvent.type(screen.getByLabelText('Search'), 'MOVE12');
@@ -133,7 +137,7 @@ describe('QAECSRMoveSearch page', () => {
     );
 
     const submitButton = screen.getByTestId('searchTextSubmit');
-    await act(async () => {
+    await waitFor(async () => {
       await screen.getByLabelText('Customer Name').click();
       await userEvent.type(screen.getByLabelText('Search'), 'Leo Spaceman');
       await waitFor(() => {
@@ -157,7 +161,7 @@ describe('QAECSRMoveSearch page', () => {
         <QAECSRMoveSearch />
       </MockProviders>,
     );
-    await act(async () => {
+    await waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
       await screen.getByLabelText('Payment Request Number').click();
       await userEvent.type(screen.getByLabelText('Search'), '1234-5678-9');
@@ -165,13 +169,20 @@ describe('QAECSRMoveSearch page', () => {
         expect(screen.getByLabelText('Search')).toHaveValue('1234-5678-9');
         expect(screen.getByLabelText('Payment Request Number')).toBeChecked();
       });
-      expect(submitButton).toBeEnabled();
+
+      waitFor(() => {
+        expect(submitButton).toBeEnabled();
+      });
       await userEvent.click(submitButton);
 
       const results = await screen.queryByText(/Results/);
-      expect(results).toBeInTheDocument();
+      waitFor(() => {
+        expect(results).toBeInTheDocument();
+      });
       const noResults = await screen.queryByText(/No results found/);
-      expect(noResults).toBeInTheDocument();
+      waitFor(() => {
+        expect(noResults).toBeInTheDocument();
+      });
     });
   });
 

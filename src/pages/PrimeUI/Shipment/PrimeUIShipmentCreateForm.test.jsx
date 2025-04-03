@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
@@ -323,7 +323,7 @@ describe('PrimeUIShipmentCreateForm', () => {
       await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
 
       // Fill in form so that we can check that the form correctly identifies eligible shipments via their dimensions
-      act(() => {
+      waitFor(() => {
         initialValues.pickupAddress = testPickupAddress;
         initialValues.destinationAddress = testDestinationAddress;
         initialValues.estimatedWeight = '2000';
@@ -357,7 +357,7 @@ describe('PrimeUIShipmentCreateForm', () => {
       await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
 
       // Fill in form so that we can check that the form correctly identifies eligible shipments via their dimensions
-      act(() => {
+      waitFor(() => {
         initialValues.pickupAddress = testPickupAddress;
         initialValues.destinationAddress = testDestinationAddress;
         initialValues.estimatedWeight = '2000';

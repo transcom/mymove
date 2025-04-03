@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, act } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 
@@ -28,8 +28,8 @@ describe('ConvertSITToCustomerExpenseModal', () => {
     const remarksInput = screen.getByLabelText('Remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await act(() => userEvent.type(remarksInput, 'Approved!'));
-    await act(() => userEvent.click(submitBtn));
+    await waitFor(() => userEvent.type(remarksInput, 'Approved!'));
+    await waitFor(() => userEvent.click(submitBtn));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -43,7 +43,7 @@ describe('ConvertSITToCustomerExpenseModal', () => {
     const remarksInput = screen.getByLabelText('Remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await act(() => userEvent.clear(remarksInput));
+    await waitFor(() => userEvent.clear(remarksInput));
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
     });
@@ -54,7 +54,7 @@ describe('ConvertSITToCustomerExpenseModal', () => {
     await render(<ConvertSITToCustomerExpenseModal onSubmit={() => {}} onClose={mockClose} {...defaultValues} />);
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    await act(() => userEvent.click(closeBtn));
+    await waitFor(() => userEvent.click(closeBtn));
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();

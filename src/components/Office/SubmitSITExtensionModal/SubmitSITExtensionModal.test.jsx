@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, act, fireEvent, within } from '@testing-library/react';
+import { render, waitFor, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 
@@ -32,11 +32,11 @@ describe('SubmitSITExtensionModal', () => {
     const officeRemarksInput = screen.getByLabelText('Office remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await act(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
-    await act(() => userEvent.clear(daysApprovedInput));
-    await act(() => userEvent.type(daysApprovedInput, '280'));
-    await act(() => userEvent.type(officeRemarksInput, 'Approved!'));
-    await act(() => userEvent.click(submitBtn));
+    await waitFor(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
+    await waitFor(() => userEvent.clear(daysApprovedInput));
+    await waitFor(() => userEvent.type(daysApprovedInput, '280'));
+    await waitFor(() => userEvent.type(officeRemarksInput, 'Approved!'));
+    await waitFor(() => userEvent.click(submitBtn));
 
     const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days').subtract(1, 'day'));
     await waitFor(() => {
@@ -57,9 +57,9 @@ describe('SubmitSITExtensionModal', () => {
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await act(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
-    await act(() => userEvent.clear(daysApprovedInput));
-    await act(() => userEvent.type(daysApprovedInput, '0'));
+    await waitFor(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
+    await waitFor(() => userEvent.clear(daysApprovedInput));
+    await waitFor(() => userEvent.type(daysApprovedInput, '0'));
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
     });
@@ -72,9 +72,9 @@ describe('SubmitSITExtensionModal', () => {
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
 
-    await act(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
-    await act(() => userEvent.clear(daysApprovedInput));
-    await act(() => userEvent.type(daysApprovedInput, '280'));
+    await waitFor(() => userEvent.selectOptions(reasonInput, ['SERIOUS_ILLNESS_MEMBER']));
+    await waitFor(() => userEvent.clear(daysApprovedInput));
+    await waitFor(() => userEvent.type(daysApprovedInput, '280'));
 
     const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days').subtract(1, 'day'));
     expect(sitEndDateInput.value).toBe(expectedEndDate);
@@ -84,9 +84,9 @@ describe('SubmitSITExtensionModal', () => {
     const mockOnSubmit = jest.fn();
     await render(<SubmitSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
-    await act(() => userEvent.clear(sitEndDateInput));
+    await waitFor(() => userEvent.clear(sitEndDateInput));
     const newEndDate = formatDateForDatePicker(moment().add(220, 'days').subtract(1, 'day'));
-    await act(() => userEvent.type(sitEndDateInput, newEndDate));
+    await waitFor(() => userEvent.type(sitEndDateInput, newEndDate));
     await fireEvent.blur(sitEndDateInput);
     const daysApprovedInput = screen.getByTestId('daysApproved');
     expect(daysApprovedInput.value).toBe('280');
@@ -97,7 +97,7 @@ describe('SubmitSITExtensionModal', () => {
     await render(<SubmitSITExtensionModal onSubmit={() => {}} onClose={mockClose} {...defaultValues} />);
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    await act(() => userEvent.click(closeBtn));
+    await waitFor(() => userEvent.click(closeBtn));
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();

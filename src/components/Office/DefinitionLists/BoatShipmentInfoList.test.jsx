@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 
 import BoatShipmentInfoList from './BoatShipmentInfoList';
 
@@ -72,7 +72,7 @@ describe('Shipment Info List - Boat Shipment', () => {
   it('renders all boat shipment fields when provided and expanded', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-    await act(async () => {
+    await waitFor(async () => {
       render(<BoatShipmentInfoList isExpanded shipment={shipment} />);
     });
 
@@ -120,7 +120,7 @@ describe('Shipment Info List - Boat Shipment', () => {
   });
 
   it('does not render mtoAgents when not provided', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <BoatShipmentInfoList
           shipment={{

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, within, act } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -100,7 +100,7 @@ describe('DateAndLocationForm component', () => {
       );
       const postalCodes = screen.getAllByTestId(/ZIP/);
       expect(postalCodes[0]).toHaveTextContent('');
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       await waitFor(() => {
@@ -114,7 +114,7 @@ describe('DateAndLocationForm component', () => {
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       const postalCodes = screen.getAllByTestId(/ZIP/);
@@ -123,7 +123,7 @@ describe('DateAndLocationForm component', () => {
         expect(postalCodes[0]).toHaveTextContent(defaultProps.serviceMember.residential_address.postalCode);
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
@@ -133,7 +133,7 @@ describe('DateAndLocationForm component', () => {
     });
 
     it('displays secondary pickup Address input when hasSecondaryPickupAddress is true', async () => {
-      await act(async () => {
+      await waitFor(async () => {
         render(
           <Provider store={mockStore.store}>
             <DateAndLocationForm {...defaultProps} />
@@ -158,7 +158,7 @@ describe('DateAndLocationForm component', () => {
     });
 
     it('displays delivery address when "Use my current delivery address" is selected', async () => {
-      await act(async () => {
+      await waitFor(async () => {
         render(
           <Provider store={mockStore.store}>
             <DateAndLocationForm {...defaultProps} />
@@ -180,7 +180,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays secondary delivery address input when hasSecondaryDestinationAddress is true', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
@@ -222,7 +222,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays the closeout office select when the service member is in the Army', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const armyServiceMember = {
         ...defaultProps.serviceMember,
         affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
@@ -240,7 +240,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays the closeout office select when the service member is in the Air Force', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const airForceServiceMember = {
         ...defaultProps.serviceMember,
         affiliation: SERVICE_MEMBER_AGENCIES.AIR_FORCE,
@@ -257,7 +257,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays the closeout office select when the service member is in the Navy', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const navyServiceMember = {
         ...defaultProps.serviceMember,
         affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
@@ -283,7 +283,7 @@ describe('validates form fields and displays error messages', () => {
       </Provider>,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(screen.getByLabelText(/Which closeout office should review your PPM\?/));
       await userEvent.keyboard('{backspace}[Tab]');
     });
@@ -293,7 +293,7 @@ describe('validates form fields and displays error messages', () => {
     expect(screen.getByTestId('errorMessage')).toBeVisible();
   });
   it('displays type errors when input fails validation schema', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const invalidTypes = {
         ...defaultProps,
         mtoShipment: {
@@ -328,7 +328,7 @@ describe('validates form fields and displays error messages', () => {
   });
 
   it('delivery address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
@@ -362,22 +362,22 @@ describe('validates form fields and displays error messages', () => {
   });
 
   it('displays tertiary pickup Address input when hasTertiaryPickupAddress is true', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
 
-      const hasTertiaryPickupAddress = screen.getAllByLabelText('Yes')[2];
+      waitFor(() => {
+        const hasTertiaryPickupAddress = screen.getAllByLabelText('Yes')[2];
 
-      await userEvent.click(hasTertiaryPickupAddress);
-      const postalCodes = screen.getAllByTestId(/ZIP/);
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
-      const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-      const state = screen.getAllByTestId(/State/);
-      const city = screen.getAllByTestId(/City/);
-      await waitFor(() => {
+        userEvent.click(hasTertiaryPickupAddress);
+        const postalCodes = screen.getAllByTestId(/ZIP/);
+        const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+        const address2 = screen.getAllByLabelText('Address 2', { exact: false });
+        const state = screen.getAllByTestId(/State/);
+        const city = screen.getAllByTestId(/City/);
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
         expect(address2[1]).toBeInstanceOf(HTMLInputElement);
         expect(city[1]).toBeInstanceOf(HTMLLabelElement);
@@ -447,12 +447,12 @@ describe('validates form fields and displays error messages', () => {
           <DateAndLocationForm {...newPPM} serviceMember={navyServiceMember} />
         </Provider>,
       );
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));

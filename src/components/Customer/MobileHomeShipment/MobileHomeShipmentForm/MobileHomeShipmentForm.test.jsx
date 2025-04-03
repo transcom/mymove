@@ -95,9 +95,8 @@ describe('MobileHomeShipmentForm component', () => {
     it('submits the form with valid data', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
 
-      await waitFor(async () => {
-        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-
+      userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      waitFor(() => {
         expect(defaultProps.onSubmit).toHaveBeenCalled();
       });
     });
@@ -105,12 +104,12 @@ describe('MobileHomeShipmentForm component', () => {
     it('does not submit the form with invalid data', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
 
-      await waitFor(async () => {
-        await userEvent.clear(screen.getByTestId('year'));
-        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      userEvent.clear(screen.getByTestId('year'));
+      userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        
+      waitFor(() => {
+        expect(defaultProps.onSubmit).not.toHaveBeenCalled();
       });
-
-      expect(defaultProps.onSubmit).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createMocks } from 'react-idle-timer';
 import { act } from 'react-dom/test-utils';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import LogoutOnInactivity from './LogoutOnInactivity';
@@ -42,7 +42,7 @@ describe('LogoutOnInactivity', () => {
     });
 
     beforeEach(async () => {
-      await act(async () => renderComponent({ loggedIn: true }));
+      await waitFor(async () => renderComponent({ loggedIn: true }));
     });
 
     it('renders without crashing or erroring', async () => {
@@ -56,7 +56,7 @@ describe('LogoutOnInactivity', () => {
       expect(
         screen.queryByText('You have been inactive and will be logged out', { exact: false }),
       ).not.toBeInTheDocument();
-      await act(async () => {
+      await waitFor(async () => {
         return sleep(idleTimeout - warningTime);
       });
 
@@ -68,7 +68,7 @@ describe('LogoutOnInactivity', () => {
       expect(
         screen.queryByText('You have been inactive and will be logged out', { exact: false }),
       ).not.toBeInTheDocument();
-      await act(async () => {
+      await waitFor(async () => {
         return sleep(idleTimeout - warningTime);
       });
 
@@ -87,7 +87,7 @@ describe('LogoutOnInactivity', () => {
 
   describe('when user is not logged in', () => {
     it('does not render the LogoutOnInactivity component', async () => {
-      await act(async () => renderComponent({ loggedIn: false }));
+      await waitFor(async () => renderComponent({ loggedIn: false }));
       const wrapper = screen.queryByTestId('logoutOnInactivityWrapper');
       expect(wrapper).not.toBeInTheDocument();
     });
