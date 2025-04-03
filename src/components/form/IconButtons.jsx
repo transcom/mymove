@@ -49,3 +49,18 @@ ReviewButton.defaultProps = {
 ReviewButton.propTypes = {
   label: PropTypes.string,
 };
+
+export const TerminateButton = ({ label, ...props }) => (
+  /* eslint-disable-next-line react/jsx-props-no-spreading */
+  <Button {...props} data-testid="terminateBtn">
+    <span>{label}</span>
+  </Button>
+);
+
+TerminateButton.defaultProps = {
+  label: 'Terminate',
+};
+
+TerminateButton.propTypes = {
+  label: PropTypes.string,
+};
