@@ -862,7 +862,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 		}
 
 		// confirm that the rest of the details are correct
-		// move is SERVICE COUNSELING COMPLETED
+		// move is APPROVAL REQUESTED
 		suite.Equal(assignedMove.Status, models.MoveStatusAPPROVALSREQUESTED)
 		// GBLOC is the same
 		suite.Equal(*assignedMove.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
