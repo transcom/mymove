@@ -1260,6 +1260,7 @@ definitions:
         example: SGT
       rankOrder:
         type: integer
+        x-nullable: true
       rankShortName:
         type: string
         x-nullable: true

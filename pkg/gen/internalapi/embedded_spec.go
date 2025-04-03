@@ -7193,7 +7193,8 @@ func init() {
           "example": "SGT"
         },
         "rankOrder": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "rankShortName": {
           "type": "string",
@@ -16602,7 +16603,8 @@ func init() {
           "example": "SGT"
         },
         "rankOrder": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "rankShortName": {
           "type": "string",

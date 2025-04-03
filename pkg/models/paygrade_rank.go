@@ -27,7 +27,6 @@ func (o PaygradeRank) FormatToRankPayload() *internalmessages.Rank {
 	rank.PaygradeID = o.PaygradeId
 	rank.RankShortName = o.RankNameAbbv
 	rank.RankName = o.RankName
-
 	rank.RankOrder = o.RankOrder
 
 	return rank

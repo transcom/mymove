@@ -134,7 +134,7 @@ const EditOrdersForm = ({
       if (enabled) {
         setEnableUB(() => true);
       }
-      setFinishedFetchingFF(() => true);
+      setFinishedFetchingFF(() => () => true);
     };
     checkUBFeatureFlag();
   }, []);
@@ -150,7 +150,7 @@ const EditOrdersForm = ({
               key: item.id,
               value: item.name,
             }));
-            setOfficeOptions(() => counselingOffices);
+            setOfficeOptions(() => () => counselingOffices);
           }
         } catch (error) {
           const { message } = error;
@@ -533,7 +533,7 @@ const EditOrdersForm = ({
                 </FormGroup>
               )}
               <DropdownInput
-                hint="Required"
+                showRequiredAsterisk
                 label="Rank"
                 name="rank"
                 id="rank"
