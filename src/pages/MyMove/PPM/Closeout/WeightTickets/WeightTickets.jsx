@@ -3,8 +3,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import {
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
@@ -32,7 +30,6 @@ import { APP_NAME } from 'constants/apps';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -56,9 +53,6 @@ const WeightTickets = () => {
     "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
 
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
     if (!weightTicketId) {
       createWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -94,7 +88,7 @@ const WeightTickets = () => {
     if (error?.response?.status === 412) {
       setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
     } else {
-      setErrorMessage(getResponseError(error.response, 'Failed to update MTO shipment due to server error.'));
+      setErrorMessage(getResponseError(error.response, 'Failed to save updated trip record'));
     }
   };
 
@@ -155,11 +149,11 @@ const WeightTickets = () => {
   };
 
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+    navigate(path);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
