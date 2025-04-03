@@ -33,7 +33,7 @@ BEGIN
     DROP TABLE IF EXISTS audit_hist_temp;
 
     CREATE TEMP TABLE audit_hist_temp (
-        id uuid,
+        id uuid PRIMARY KEY, -- Prevent grouping duplicates
         schema_name text,
         table_name text,
         relid oid,
@@ -130,8 +130,7 @@ BEGIN
                 ))::TEXT, '[{}]'::TEXT
             ) AS context,
             NULL AS context_id,
-            mto_shipments.move_id,
-            mto_shipments.id
+            mto_shipments.move_id
         FROM
             audit_history
         JOIN mto_shipments ON mto_shipments.id = audit_history.object_id
@@ -140,7 +139,7 @@ BEGIN
             AND NOT (audit_history.event_name = 'updateMTOStatusServiceCounselingCompleted' AND audit_history.changed_data = '{"status": "APPROVED"}')
             AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
             AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE '%shipment_locator%' AND LENGTH(audit_history.changed_data::TEXT) < 35)
-        GROUP BY audit_history.id, mto_shipments.move_id, mto_shipments.id;
+        GROUP BY audit_history.id, mto_shipments.move_id;
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -214,8 +213,7 @@ BEGIN
                 'shipment_locator', mto_shipments.shipment_locator
             ))::TEXT AS context,
             NULL AS context_id,
-            moves.id AS move_id,
-            mto_shipments.id AS shipment_id
+            moves.id AS move_id
         FROM
             audit_history
         JOIN mto_service_items ON mto_service_items.id = audit_history.object_id
@@ -224,7 +222,7 @@ BEGIN
         JOIN moves ON moves.id = mto_service_items.move_id
         WHERE audit_history.table_name = 'mto_service_items'
             AND moves.id = v_move_id
-        GROUP BY audit_history.id, mto_service_items.id, moves.id, mto_shipments.id;
+        GROUP BY audit_history.id, mto_service_items.id, moves.id;
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -254,8 +252,7 @@ BEGIN
 				'shipment_locator', mto_shipments.shipment_locator
 			))::TEXT AS context,
 			NULL AS context_id,
-			moves.id AS move_id,
-			mto_shipments.id AS shipment_id
+			moves.id AS move_id
 		FROM audit_history
 		JOIN mto_service_item_customer_contacts ON mto_service_item_customer_contacts.id = audit_history.object_id
 		JOIN service_items_customer_contacts ON service_items_customer_contacts.mtoservice_item_customer_contact_id = mto_service_item_customer_contacts.id
@@ -265,7 +262,7 @@ BEGIN
 		JOIN moves ON moves.id = mto_service_items.move_id
 		WHERE audit_history.table_name = 'mto_service_item_customer_contacts'
 		  AND moves.id = p_move_id
-		GROUP BY audit_history.id, mto_service_item_customer_contacts.id, moves.id, mto_shipments.id;
+		GROUP BY audit_history.id, mto_service_item_customer_contacts.id, moves.id;
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -295,8 +292,7 @@ BEGIN
 				'shipment_locator', mto_shipments.shipment_locator
 			))::TEXT AS context,
 			NULL AS context_id,
-			moves.id AS move_id,
-			mto_shipments.id AS shipment_id
+			moves.id AS move_id
 		FROM audit_history
 		JOIN mto_service_item_dimensions ON mto_service_item_dimensions.id = audit_history.object_id
 		JOIN mto_service_items ON mto_service_items.id = mto_service_item_dimensions.mto_service_item_id
@@ -305,7 +301,7 @@ BEGIN
 		JOIN moves ON mto_shipments.move_id = moves.id
 		WHERE audit_history.table_name = 'mto_service_item_dimensions'
 		  AND moves.id = p_move_id
-		GROUP BY audit_history.id, mto_service_item_dimensions.id, moves.id, mto_shipments.id;
+		GROUP BY audit_history.id, mto_service_item_dimensions.id, moves.id;
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -368,8 +364,7 @@ BEGIN
 				'rejection_reason', payment_service_items.rejection_reason
 			))::TEXT AS context,
 			NULL AS context_id,
-			payment_requests.move_id AS move_id,
-			mto_shipments.id AS shipment_id
+			payment_requests.move_id AS move_id
 		FROM audit_history
 		JOIN payment_requests ON payment_requests.id = audit_history.object_id
 		JOIN payment_service_items ON payment_service_items.payment_request_id = payment_requests.id
@@ -378,7 +373,7 @@ BEGIN
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
 		WHERE audit_history.table_name = 'payment_requests'
 		  AND payment_requests.move_id = p_move_id
-		GROUP BY audit_history.id, payment_requests.id, payment_requests.move_id, mto_shipments.id;
+		GROUP BY audit_history.id, payment_requests.id, payment_requests.move_id;
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -411,8 +406,7 @@ BEGIN
 				'shipment_locator', mto_shipments.shipment_locator
 			))::TEXT AS context,
 			NULL AS context_id,
-			payment_requests.move_id AS move_id,
-			mto_shipments.id AS shipment_id
+			payment_requests.move_id AS move_id
 		FROM audit_history
 		JOIN payment_service_items ON payment_service_items.id = audit_history.object_id
 		JOIN payment_requests ON payment_service_items.payment_request_id = payment_requests.id
@@ -421,7 +415,7 @@ BEGIN
 		JOIN re_services ON mto_service_items.re_service_id = re_services.id
 		WHERE audit_history.table_name = 'payment_service_items'
 		  AND payment_requests.move_id = p_move_id
-		GROUP BY audit_history.id, payment_requests.id, payment_requests.move_id, mto_shipments.id;
+		GROUP BY audit_history.id, payment_requests.id, payment_requests.move_id;
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -484,8 +478,7 @@ BEGIN
         'shipment_locator', mto_shipments.shipment_locator
       ))::TEXT AS context,
       NULL AS context_id,
-      mto_shipments.move_id AS move_id,
-      mto_shipments.id AS shipment_id
+      mto_shipments.move_id AS move_id
     FROM audit_history
     JOIN mto_agents ON mto_agents.id = audit_history.object_id
     JOIN mto_shipments ON mto_agents.mto_shipment_id = mto_shipments.id
@@ -493,7 +486,7 @@ BEGIN
     WHERE audit_history.table_name = 'mto_agents'
       AND mto_shipments.move_id = p_move_id
       AND (audit_history.event_name <> 'deleteShipment' OR audit_history.event_name IS NULL)
-    GROUP BY audit_history.id, mto_agents.id, mto_shipments.move_id, mto_shipments.id;
+    GROUP BY audit_history.id, mto_agents.id, mto_shipments.move_id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -526,8 +519,7 @@ BEGIN
         'shipment_locator', mto_shipments.shipment_locator
       ))::TEXT AS context,
       NULL AS context_id,
-      mto_shipments.move_id AS move_id,
-      mto_shipments.id AS shipment_id
+      mto_shipments.move_id AS move_id
     FROM audit_history
     JOIN reweighs ON reweighs.id = audit_history.object_id
     JOIN mto_shipments ON reweighs.shipment_id = mto_shipments.id
@@ -535,7 +527,7 @@ BEGIN
     LEFT JOIN payment_requests ON mto_shipments.move_id = payment_requests.move_id
     WHERE audit_history.table_name = 'reweighs'
       AND mto_shipments.move_id = p_move_id
-    GROUP BY audit_history.id, reweighs.id, mto_shipments.move_id, mto_shipments.id;
+    GROUP BY audit_history.id, reweighs.id, mto_shipments.move_id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -622,15 +614,14 @@ BEGIN
         )
       )::TEXT AS context,
       COALESCE(ppm_shipments.shipment_id::TEXT, NULL)::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history
     JOIN ppm_shipments ON audit_history.object_id = ppm_shipments.id
     JOIN mto_shipments ON ppm_shipments.shipment_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE audit_history.table_name = 'ppm_shipments'
       AND moves.id = p_move_id
-    GROUP BY ppm_shipments.id, audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY ppm_shipments.id, audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -667,16 +658,14 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'destination_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN mto_shipments ON a2.object_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -713,16 +702,14 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'secondary_delivery_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN mto_shipments ON a2.object_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -759,16 +746,14 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'tertiary_delivery_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN mto_shipments ON a2.object_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -805,16 +790,14 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'pickup_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN mto_shipments ON a2.object_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -851,16 +834,14 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'secondary_pickup_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN mto_shipments ON a2.object_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -897,16 +878,14 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'tertiary_pickup_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN mto_shipments ON a2.object_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -944,9 +923,7 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'pickup_postal_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN ppm_shipments ON a2.object_id = ppm_shipments.id
@@ -954,7 +931,7 @@ BEGIN
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -992,9 +969,7 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'secondary_pickup_postal_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN ppm_shipments ON a2.object_id = ppm_shipments.id
@@ -1002,7 +977,7 @@ BEGIN
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1040,9 +1015,7 @@ BEGIN
           )
         )
       )::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'tertiary_pickup_postal_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN ppm_shipments ON a2.object_id = ppm_shipments.id
@@ -1050,7 +1023,7 @@ BEGIN
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE a1.table_name = 'addresses'
       AND moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1083,16 +1056,14 @@ BEGIN
         'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
         'shipment_locator', mto_shipments.shipment_locator
       )))::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'destination_postal_address_id')::uuid = a1.object_id AND a1.table_name = 'addresses'
     JOIN ppm_shipments ON a2.object_id = ppm_shipments.id
     JOIN mto_shipments ON ppm_shipments.shipment_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1126,9 +1097,7 @@ BEGIN
         'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
         'shipment_locator', mto_shipments.shipment_locator
       )))::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'secondary_destination_postal_address_id')::uuid = a1.object_id
                              AND a1.table_name = 'addresses'
@@ -1136,7 +1105,7 @@ BEGIN
     JOIN mto_shipments ON ppm_shipments.shipment_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1170,9 +1139,7 @@ BEGIN
         'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
         'shipment_locator', mto_shipments.shipment_locator
       )))::TEXT AS context,
-      mto_shipments.id::TEXT AS context_id,
-      moves.id AS move_id,
-      mto_shipments.id AS shipment_id
+      moves.id AS move_id
     FROM audit_history a1
     JOIN audit_hist_temp a2 ON (a2.changed_data->>'tertiary_destination_postal_address_id')::uuid = a1.object_id
                              AND a1.table_name = 'addresses'
@@ -1180,7 +1147,7 @@ BEGIN
     JOIN mto_shipments ON ppm_shipments.shipment_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE moves.id = p_move_id
-    GROUP BY a1.id, moves.id, mto_shipments.id;
+    GROUP BY a1.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1371,8 +1338,7 @@ BEGIN
              'shipment_locator', mto_shipments.shipment_locator
            ))::TEXT AS context,
            NULL AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN user_uploads ON user_uploads.id = audit_history.object_id
     JOIN documents ON user_uploads.document_id = documents.id
@@ -1383,7 +1349,7 @@ BEGIN
     JOIN uploads ON user_uploads.upload_id = uploads.id
     WHERE audit_history.table_name = 'user_uploads'
       AND moves.id = p_move_id
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1418,8 +1384,7 @@ BEGIN
              'shipment_locator', mto_shipments.shipment_locator
            ))::TEXT AS context,
            NULL AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN user_uploads ON user_uploads.id = audit_history.object_id
     JOIN documents ON user_uploads.document_id = documents.id
@@ -1430,7 +1395,7 @@ BEGIN
     JOIN uploads ON user_uploads.upload_id = uploads.id
     WHERE audit_history.table_name = 'user_uploads'
       AND moves.id = p_move_id
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1465,8 +1430,7 @@ BEGIN
              'shipment_locator', mto_shipments.shipment_locator
            ))::TEXT AS context,
            NULL AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN user_uploads ON user_uploads.id = audit_history.object_id
     JOIN documents ON user_uploads.document_id = documents.id
@@ -1477,7 +1441,7 @@ BEGIN
     JOIN uploads ON user_uploads.upload_id = uploads.id
     WHERE audit_history.table_name = 'user_uploads'
       AND moves.id = p_move_id
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1512,8 +1476,7 @@ BEGIN
              'shipment_locator', mto_shipments.shipment_locator
            ))::TEXT AS context,
            NULL AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN user_uploads ON user_uploads.id = audit_history.object_id
     JOIN documents ON user_uploads.document_id = documents.id
@@ -1524,7 +1487,7 @@ BEGIN
     JOIN uploads ON user_uploads.upload_id = uploads.id
     WHERE audit_history.table_name = 'user_uploads'
       AND moves.id = p_move_id
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1559,8 +1522,7 @@ BEGIN
              'shipment_locator', mto_shipments.shipment_locator
            ))::TEXT AS context,
            NULL AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN user_uploads ON user_uploads.id = audit_history.object_id
     JOIN documents ON user_uploads.document_id = documents.id
@@ -1571,7 +1533,7 @@ BEGIN
     JOIN uploads ON user_uploads.upload_id = uploads.id
     WHERE audit_history.table_name = 'user_uploads'
       AND moves.id = p_move_id
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1607,8 +1569,7 @@ BEGIN
              'shipment_locator', mto_shipments.shipment_locator
            ))::TEXT AS context,
            NULL AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN user_uploads ON user_uploads.id = audit_history.object_id
     JOIN documents ON user_uploads.document_id = documents.id
@@ -1619,7 +1580,7 @@ BEGIN
     JOIN uploads ON user_uploads.upload_id = uploads.id
     WHERE audit_history.table_name = 'user_uploads'
       AND moves.id = p_move_id
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1685,9 +1646,7 @@ BEGIN
              'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
              'shipment_locator', mto_shipments.shipment_locator
            )))::TEXT AS context,
-           mto_shipments.id::TEXT AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN weight_tickets ON weight_tickets.id = audit_history.object_id
     JOIN ppm_shipments ON ppm_shipments.id = weight_tickets.ppm_shipment_id
@@ -1695,7 +1654,7 @@ BEGIN
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE moves.id = p_move_id
       AND audit_history.table_name = 'weight_tickets'
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1726,9 +1685,7 @@ BEGIN
              'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
              'shipment_locator', mto_shipments.shipment_locator
            )))::TEXT AS context,
-           mto_shipments.id::TEXT AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN progear_weight_tickets ON progear_weight_tickets.id = audit_history.object_id
     JOIN ppm_shipments ON ppm_shipments.id = progear_weight_tickets.ppm_shipment_id
@@ -1736,7 +1693,7 @@ BEGIN
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE moves.id = p_move_id
       AND audit_history.table_name = 'progear_weight_tickets'
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1768,9 +1725,7 @@ BEGIN
              'moving_expense_type', moving_expenses.moving_expense_type,
              'shipment_locator', mto_shipments.shipment_locator
            )))::TEXT AS context,
-           mto_shipments.id::TEXT AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN moving_expenses ON moving_expenses.id = audit_history.object_id
     JOIN ppm_shipments ON ppm_shipments.id = moving_expenses.ppm_shipment_id
@@ -1778,7 +1733,7 @@ BEGIN
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE moves.id = p_move_id
       AND audit_history.table_name = 'moving_expenses'
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1847,15 +1802,14 @@ BEGIN
              'status', shipment_address_updates.status
            ))::TEXT AS context,
            NULL AS context_id,
-           moves.id AS move_id,
-           mto_shipments.id AS shipment_id
+           moves.id AS move_id
     FROM audit_history
     JOIN shipment_address_updates ON shipment_address_updates.id = audit_history.object_id
     JOIN mto_shipments ON shipment_address_updates.shipment_id = mto_shipments.id
     JOIN moves ON mto_shipments.move_id = moves.id
     WHERE audit_history.table_name = 'shipment_address_updates'
       AND moves.id = p_move_id
-    GROUP BY audit_history.id, moves.id, mto_shipments.id;
+    GROUP BY audit_history.id, moves.id;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -1956,8 +1910,6 @@ BEGIN
     PERFORM fn_populate_move_history_service_item_dimensions(v_move_id);
     PERFORM fn_populate_move_history_service_item_customer_contacts(v_move_id);
 
-    RAISE DEBUG 'Start return query %', clock_timestamp();
-
     RETURN QUERY
     SELECT
         x.id,
@@ -1993,8 +1945,5 @@ BEGIN
     LEFT JOIN (SELECT 'Prime' AS prime_user_first_name) prime_users ON roles.role_type = 'prime'
     ORDER BY x.action_tstamp_tx DESC
     LIMIT per_page OFFSET offset_value;
-
-    SELECT COUNT(*) INTO v_count FROM audit_hist_temp;
-    RAISE DEBUG 'Total recs %', v_count;
 END;
 $$ LANGUAGE plpgsql;
