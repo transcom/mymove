@@ -10,6 +10,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { phoneSchema } from 'utils/validation';
+import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const validationSchema = Yup.object().shape({
@@ -23,6 +24,7 @@ const ContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
           <Form className={formStyles.form}>
             <SectionWrapper className={formStyles.formSection}>
               <h2>Your contact info</h2>
+              {requiredAsteriskMessage}
               <Fieldset>
                 <div className="grid-row grid-gap">
                   <div className="grid-col-6">
