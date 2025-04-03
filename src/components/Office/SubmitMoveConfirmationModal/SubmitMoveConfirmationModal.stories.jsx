@@ -8,3 +8,4 @@ export default {
 };
 
 export const Basic = () => <SubmitMoveConfirmationModal onClose={() => {}} onSubmit={() => {}} />;
+export const Shipment = () => <SubmitMoveConfirmationModal onClose={() => {}} onSubmit={() => {}} isShipment />;
