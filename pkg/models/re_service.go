@@ -256,17 +256,3 @@ func FetchReServiceByCode(db *pop.Connection, code ReServiceCode) (*ReService, e
 	}
 	return nil, fmt.Errorf("error fetching from re_services - required code not provided")
 }
-
-func IsDestinationRequest(code ReServiceCode) bool {
-	for _, domesticService := range ValidDomesticDestinationSITReServiceCodes {
-		if code == domesticService {
-			return true
-		}
-	}
-	for _, internationalService := range ValidInternationalDestinationSITReServiceCodes {
-		if code == internationalService {
-			return true
-		}
-	}
-	return false
-}
