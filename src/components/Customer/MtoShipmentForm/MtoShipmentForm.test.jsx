@@ -1854,9 +1854,12 @@ describe('MtoShipmentForm component', () => {
       };
 
       const errorMessage = 'Something broke!';
-      const errorResponse = { response: { errorMessage } };
+      const errorResponse = { response: { body: { detail: errorMessage } } };
+
       patchMTOShipment.mockImplementation(() => Promise.reject(errorResponse));
-      getResponseError.mockImplementation(() => errorMessage);
+      getResponseError.mockImplementation((response, defaultMessage) => {
+        return response.body?.detail || defaultMessage;
+      });
       const expectedDateSelectionIsWeekendHolidayResponse = {
         country_code: 'US',
         country_name: 'United States',
