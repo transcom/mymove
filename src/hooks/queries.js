@@ -1133,10 +1133,10 @@ export const useListGBLOCsQueries = () => {
 };
 
 export const useRolesPrivilegesQueries = () => {
-  const { data = [], ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES, {}], ({ queryKey }) =>
+  const { data, ...rolesPrivilegesQuery } = useQuery([ROLE_PRIVILEGES], ({ queryKey }) =>
     getRolesPrivileges(...queryKey),
   );
-  const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
+
   const mappings = data.body || [];
   const uniqueRolesMap = new Map();
   const uniquePrivilegesMap = new Map();
@@ -1166,8 +1166,6 @@ export const useRolesPrivilegesQueries = () => {
   return {
     roles,
     privileges,
-    isLoading,
-    isError,
-    isSuccess,
+    ...rolesPrivilegesQuery,
   };
 };
