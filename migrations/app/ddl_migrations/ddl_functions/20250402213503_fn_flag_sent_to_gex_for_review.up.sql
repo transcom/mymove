@@ -5,8 +5,7 @@ BEGIN
   UPDATE payment_requests
   SET
     status = 'REVIEWED',
-    sent_to_gex_at = NULL,
-    updated_at = now()
+    sent_to_gex_at = NULL
   WHERE status = 'SENT_TO_GEX'
     AND sent_to_gex_at IS NOT NULL
     AND sent_to_gex_at < (now() - interval '24 hours');
