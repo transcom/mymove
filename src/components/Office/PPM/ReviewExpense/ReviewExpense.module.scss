@@ -70,11 +70,3 @@
   @include u-padding-bottom(0);
   z-index: 1;
 }
-
-.labelWithAsterisk {
-  justify-content: flex-start !important;
-}
-
-.labelWithAsterisk>*:last-child {
-  margin-left: 2px;
-}

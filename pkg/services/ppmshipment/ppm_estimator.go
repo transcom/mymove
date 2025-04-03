@@ -142,7 +142,7 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
 	// If oldPPMShipment field value is nil we know that the value has been updated and we should return false - the adjusted net weight is accounted for in the
-	// SumWeight function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
+	// SumwWeights function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
 		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
 		(oldPPMShipment.ActualDestinationPostalCode != nil && *newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode) &&
@@ -353,7 +353,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			return nil, err
 		}
 	}
-	originalTotalWeight, newTotalWeight := SumWeight(oldPPMShipment, *newPPMShipment)
+	originalTotalWeight, newTotalWeight := SumwWeights(oldPPMShipment, *newPPMShipment)
 
 	if newPPMShipment.AllowableWeight != nil && *newPPMShipment.AllowableWeight < newTotalWeight {
 		newTotalWeight = *newPPMShipment.AllowableWeight
@@ -406,8 +406,8 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	}
 }
 
-// SumWeight return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
-func SumWeight(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
+// SumwWeights return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
+func SumwWeights(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
 	// small package PPMs will not have weight tickets, so we need to instead use moving expenses
 	if newPPMShipment.PPMType != models.PPMTypeSmallPackage {
 		if len(ppmShipment.WeightTickets) >= 1 {
@@ -693,14 +693,14 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice,
 				apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, " no weight tickets")
 		}
-		_, totalWeightFromWeightTicketsOrExpenses = SumWeight(blankPPM, *ppmShipment)
+		_, totalWeightFromWeightTicketsOrExpenses = SumwWeights(blankPPM, *ppmShipment)
 	} else {
 		// for small package PPM-SPRs, moving expenses are used
 		if ppmShipment.MovingExpenses == nil {
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice,
 				apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, " no moving expenses")
 		}
-		_, totalWeightFromWeightTicketsOrExpenses = SumWeight(blankPPM, *ppmShipment)
+		_, totalWeightFromWeightTicketsOrExpenses = SumwWeights(blankPPM, *ppmShipment)
 	}
 
 	var mtoShipment models.MTOShipment

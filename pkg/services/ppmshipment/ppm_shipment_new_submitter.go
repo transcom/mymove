@@ -74,6 +74,8 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 
 	// initial allowable weight is equal to net weight of all shipments, E-05722
 	var allowableWeight = unit.Pound(0)
+	// PPM-SPRs total up moving expenses
+	// all others total up weight tickets
 	if updatedPPMShipment.PPMType != models.PPMTypeSmallPackage {
 		if len(updatedPPMShipment.WeightTickets) >= 1 {
 			for _, weightTicket := range ppmShipment.WeightTickets {

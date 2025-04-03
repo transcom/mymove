@@ -53,31 +53,35 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
     <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit }) => (
         <div className={styles.FinalCloseoutForm}>
-          <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalIncentive || 0)}</h2>
-          <div className={styles.incentiveFactors}>
-            <p className={styles.listDescription}>Your incentive is calculated using:</p>
-            <dl>
-              <div className={styles.definitionWrapper}>
-                <dt>weight</dt>
-                <dd>verified net weight of your completed PPM</dd>
+          {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+            <>
+              <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalIncentive || 0)}</h2>
+              <div className={styles.incentiveFactors}>
+                <p className={styles.listDescription}>Your incentive is calculated using:</p>
+                <dl>
+                  <div className={styles.definitionWrapper}>
+                    <dt>weight</dt>
+                    <dd>verified net weight of your completed PPM</dd>
+                  </div>
+                  <div className={styles.definitionWrapper}>
+                    <dt>distance</dt>
+                    <dd>starting and ending ZIP codes</dd>
+                  </div>
+                  <div className={styles.definitionWrapper}>
+                    <dt>date</dt>
+                    <dd>when you started moving your PPM</dd>
+                  </div>
+                  <div className={styles.definitionWrapper}>
+                    <dt>allowances</dt>
+                    <dd>
+                      your total weight allowance for your whole move, including all shipments, both PPMs and
+                      government-funded (such as HHGs)
+                    </dd>
+                  </div>
+                </dl>
               </div>
-              <div className={styles.definitionWrapper}>
-                <dt>distance</dt>
-                <dd>starting and ending ZIP codes</dd>
-              </div>
-              <div className={styles.definitionWrapper}>
-                <dt>date</dt>
-                <dd>when you started moving your PPM</dd>
-              </div>
-              <div className={styles.definitionWrapper}>
-                <dt>allowances</dt>
-                <dd>
-                  your total weight allowance for your whole move, including all shipments, both PPMs and
-                  government-funded (such as HHGs)
-                </dd>
-              </div>
-            </dl>
-          </div>
+            </>
+          )}
 
           <div className={styles.shipmentTotals}>
             <h3>This PPM includes:</h3>

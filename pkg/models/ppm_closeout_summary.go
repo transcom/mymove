@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -53,4 +54,17 @@ func (p *PPMCloseoutSummary) Validate(_ *pop.Connection) (*validate.Errors, erro
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PPMShipmentID, Name: "PPMShipmentID"},
 	), nil
+}
+
+func FetchPPMCloseoutByPPMID(db *pop.Connection, ppmID uuid.UUID) (PPMCloseoutSummary, error) {
+	var closeout PPMCloseoutSummary
+	err := db.Q().Where("ppm_shipment_id = ?", ppmID).First(&closeout)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return PPMCloseoutSummary{}, ErrFetchNotFound
+		}
+		return PPMCloseoutSummary{}, err
+	}
+
+	return closeout, nil
 }

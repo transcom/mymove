@@ -408,7 +408,7 @@ func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models
 		progearWeightTicket)
 }
 
-// AddMovingExpenseToPPMShipment adds a progear weight ticket to
+// AddMovingExpenseToPPMShipment adds a moving expense to
 // an existing PPMShipment
 func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, movingExpenseTemplate *models.MovingExpense) {
 	if ppmShipment == nil {

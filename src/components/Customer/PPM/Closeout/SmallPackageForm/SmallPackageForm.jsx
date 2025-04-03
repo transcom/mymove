@@ -7,7 +7,6 @@ import styles from './SmallPackageForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
-import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const SmallPackageForm = () => {
   const { values } = useFormikContext();
@@ -36,16 +35,13 @@ const SmallPackageForm = () => {
         thousandsSeparator=","
         lazy={false}
         prefix="$"
-        showRequiredAsterisk
       />
       <Hint>
         Note: Any carrier insurance purchased is not a reimbursable expense. Do not add carrier insurance to the total
         above.
       </Hint>
       <TextField label="Tracking number" name="trackingNumber" id="trackingNumber" />
-      <Label className={styles.labelWithAsterisk}>
-        Was this pro-gear? <RequiredAsterisk />
-      </Label>
+      <Label className={styles.labelWithAsterisk}>Was this pro-gear?</Label>
       <div>
         <Field
           as={Radio}
@@ -66,9 +62,7 @@ const SmallPackageForm = () => {
       </div>
       {showProGear ? (
         <>
-          <Label className={styles.labelWithAsterisk}>
-            Who does this pro-gear belong to? {values.isProGear && <RequiredAsterisk />}
-          </Label>
+          <Label>Who does this pro-gear belong to?</Label>
           <div>
             <Field
               as={Radio}
@@ -87,12 +81,7 @@ const SmallPackageForm = () => {
               checked={values.proGearBelongsToSelf === 'false'}
             />
           </div>
-          <TextField
-            label="Brief description of the pro-gear"
-            name="proGearDescription"
-            id="proGearDescription"
-            showRequiredAsterisk={values.isProGear}
-          />
+          <TextField label="Brief description of the pro-gear" name="proGearDescription" id="proGearDescription" />
           <MaskedTextField
             name="weightShipped"
             label="Package weight"
@@ -103,7 +92,6 @@ const SmallPackageForm = () => {
             thousandsSeparator=","
             lazy={false}
             suffix="lbs"
-            showRequiredAsterisk={values.isProGear}
           />
         </>
       ) : (
@@ -117,7 +105,6 @@ const SmallPackageForm = () => {
           thousandsSeparator=","
           lazy={false}
           suffix="lbs"
-          showRequiredAsterisk
         />
       )}
     </>

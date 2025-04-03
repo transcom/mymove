@@ -36,7 +36,6 @@ import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
 import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
 import SmallPackageForm from 'components/Customer/PPM/Closeout/SmallPackageForm/SmallPackageForm';
-import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -357,9 +356,7 @@ export default function ReviewExpense({
                 <hr />
                 <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
                 <div className="labelWrapper">
-                  <Label htmlFor="movingExpenseType" className={styles.labelWithAsterisk}>
-                    Expense Type <RequiredAsterisk />
-                  </Label>
+                  <Label htmlFor="movingExpenseType">Expense Type</Label>
                 </div>
                 <select
                   label="Expense Type"

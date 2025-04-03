@@ -339,8 +339,9 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
+	actualExpensePPM := data.PPMShipment.PPMType == models.PPMTypeActualExpense || data.PPMShipment.PPMType == models.PPMTypeSmallPackage
 	if isPaymentPacket {
-		if data.IsActualExpenseReimbursement {
+		if actualExpensePPM {
 			data.PPMRemainingEntitlement = 0.0
 		} else {
 			data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, data.PPMShipment.AdvanceAmountReceived)
@@ -364,7 +365,7 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 		page2.Disbursement = "N/A"
 
-		if data.IsActualExpenseReimbursement {
+		if actualExpensePPM {
 			page2.PPMRemainingEntitlement = "$0.00"
 		} else {
 			page2.PPMRemainingEntitlement = "N/A"
