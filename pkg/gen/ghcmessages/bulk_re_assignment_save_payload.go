@@ -7,6 +7,7 @@ package ghcmessages
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -27,7 +28,7 @@ type BulkReAssignmentSavePayload struct {
 	OfficeUserToReassign strfmt.UUID `json:"officeUserToReassign,omitempty"`
 
 	// office users taking work
-	OfficeUsersTakingWork *BulkReAssignmentTakingWork `json:"officeUsersTakingWork,omitempty"`
+	OfficeUsersTakingWork []*BulkAssignmentForUser `json:"officeUsersTakingWork"`
 
 	// A string corresponding to the queue type
 	QueueType string `json:"queueType,omitempty"`
@@ -68,15 +69,22 @@ func (m *BulkReAssignmentSavePayload) validateOfficeUsersTakingWork(formats strf
 		return nil
 	}
 
-	if m.OfficeUsersTakingWork != nil {
-		if err := m.OfficeUsersTakingWork.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("officeUsersTakingWork")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("officeUsersTakingWork")
-			}
-			return err
+	for i := 0; i < len(m.OfficeUsersTakingWork); i++ {
+		if swag.IsZero(m.OfficeUsersTakingWork[i]) { // not required
+			continue
 		}
+
+		if m.OfficeUsersTakingWork[i] != nil {
+			if err := m.OfficeUsersTakingWork[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("officeUsersTakingWork" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("officeUsersTakingWork" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -98,20 +106,24 @@ func (m *BulkReAssignmentSavePayload) ContextValidate(ctx context.Context, forma
 
 func (m *BulkReAssignmentSavePayload) contextValidateOfficeUsersTakingWork(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.OfficeUsersTakingWork != nil {
+	for i := 0; i < len(m.OfficeUsersTakingWork); i++ {
 
-		if swag.IsZero(m.OfficeUsersTakingWork) { // not required
-			return nil
-		}
+		if m.OfficeUsersTakingWork[i] != nil {
 
-		if err := m.OfficeUsersTakingWork.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("officeUsersTakingWork")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("officeUsersTakingWork")
+			if swag.IsZero(m.OfficeUsersTakingWork[i]) { // not required
+				return nil
 			}
-			return err
+
+			if err := m.OfficeUsersTakingWork[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("officeUsersTakingWork" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("officeUsersTakingWork" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
 		}
+
 	}
 
 	return nil

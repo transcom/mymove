@@ -7664,7 +7664,9 @@ definitions:
         type: string
         format: uuid
       officeUsersTakingWork:
-        $ref: '#/definitions/BulkReAssignmentTakingWork'
+        type: array
+        items:
+          $ref: '#/definitions/BulkAssignmentForUser'
       isCounselor:
         type: boolean
   BulkAssignmentForUser:

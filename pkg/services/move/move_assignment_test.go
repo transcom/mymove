@@ -437,6 +437,7 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 
 	suite.Run("properly redistributes moves", func() {
 		transportationOffice, reAmove1, reAmove2, reAmove3 := setupTestData()
+
 		reAmove4 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -592,7 +593,7 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 			},
 		}, nil)
 
-		moves := []models.Move{reAmove1, reAmove2, reAmove3, reAmove4, reAmove5, reAmove6}
+		moves := []models.Move{reAmove1, reAmove2, reAmove3, reAmove4, reAmove5, reAmove6, reAmove7, reAmove8}
 		userData := []*ghcmessages.BulkAssignmentForUser{
 			{ID: strfmt.UUID(officeUser1.ID.String()), MoveAssignments: 1},
 			{ID: strfmt.UUID(officeUser2.ID.String()), MoveAssignments: 2},
@@ -605,16 +606,14 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 
 		suite.NoError(err)
 
-		reassignTouserData := ghcmessages.BulkReAssignmentTakingWork{
-			OfficeUserToReassign: strfmt.UUID(officeUser4.ID.String()),
-			OfficeUsersTakingWork: []*ghcmessages.OfficeUserTakingWork{
-				{ID: officeUser1.ID.String(), MoveCount: 3},
-				{ID: officeUser2.ID.String(), MoveCount: 3},
-				{ID: officeUser3.ID.String(), MoveCount: 3},
-			},
+		officeUserToReassign := strfmt.UUID(officeUser4.ID.String())
+		bAReuserData := []*ghcmessages.BulkAssignmentForUser{
+			{ID: strfmt.UUID(officeUser1.ID.String()), MoveAssignments: 1},
+			{ID: strfmt.UUID(officeUser2.ID.String()), MoveAssignments: 2},
+			{ID: strfmt.UUID(officeUser3.ID.String()), MoveAssignments: 3},
 		}
 
-		_, err2 := moveAssigner.BulkMoveReAssignment(suite.AppContextForTest(), string(models.QueueTypeCounseling), &reassignTouserData, reassignTouserData.OfficeUserToReassign)
+		_, err2 := moveAssigner.BulkMoveReAssignment(suite.AppContextForTest(), string(models.QueueTypeCounseling), bAReuserData, officeUserToReassign)
 		print(err)
 		suite.NoError(err2)
 

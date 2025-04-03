@@ -2,6 +2,7 @@ package move
 
 import (
 	"container/list"
+	"fmt"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -134,64 +135,41 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 // get the moves related the the reassigned user
 // find all moves related to the user being reassigned
 // assign the moves to the other users
-func (a moveAssigner) BulkMoveReAssignment(appCtx appcontext.AppContext, queueType string, officeUserData *ghcmessages.BulkReAssignmentTakingWork, reAssignFrom strfmt.UUID) (*models.Moves, error) {
+func (a moveAssigner) BulkMoveReAssignment(appCtx appcontext.AppContext, queueType string, officeUserData []*ghcmessages.BulkAssignmentForUser, reAssignFrom strfmt.UUID) (*models.Moves, error) {
 
-	var movesToReAssignUsersFrom *models.Moves
+	var movesToReAssignUsersFrom models.Moves
+	var queryFieldTerm string
 
-	//build Bulk Re-Assignment Query
-	//queryStub := "SELECT * FROM moves WHERE"
-	//var queryFieldTerm string
+	switch queueType {
+	case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
+		queryFieldTerm = "sc_assigned_id"
+	case string(models.QueueTypeTaskOrder):
+		queryFieldTerm = "too_assigned_id"
+	case string(models.QueueTypePaymentRequest):
+		queryFieldTerm = "tio_assigned_id"
+	default:
+		return nil, apperror.NewBadDataError("Invalid queue type")
+	}
 
-	// set the field to search for ID with in the query
-	/*
-		switch queueType {
-		case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
-			queryFieldTerm = "sc_assigned_id"
-		case string(models.QueueTypeTaskOrder):
-			queryFieldTerm = "too_assigned_id"
-		case string(models.QueueTypePaymentRequest):
-			queryFieldTerm = "tio_assigned_id"
-		default:
-			return nil, apperror.NewBadDataError("Invalid queue type")
-		}
-	*/
+	whereClause := fmt.Sprintf(`%s = '%s'`, queryFieldTerm, reAssignFrom)
+	err := appCtx.DB().Q().Where(whereClause).All(&movesToReAssignUsersFrom)
 
-	// format the query
-	//fullQueryString := fmt.Sprintf(`%s %s=?`, queryStub, queryFieldTerm)
-	//fullQueryString := fmt.Sprintf(`%s %s='%s'`, queryStub, queryFieldTerm, reAssignFrom)
-	//fullQueryString := fmt.Sprintf(`%s =$1`, queryFieldTerm)
-
-	err := appCtx.DB().Q().
-		Eager("Moves").
-		Where("sc_assigned_id = ?", reAssignFrom).All(&movesToReAssignUsersFrom)
-	// direct injection to get moves to re-assign from
-	//err := appCtx.DB().RawQuery(fullQueryString).All(&movesToReAssignUsersFrom)
 	if err != nil {
 		return nil, apperror.NewBadDataError("Invalid queue type")
 	}
 
-	moveAssignments, userQueue := a.getUserAssignmentCounts(nil)
+	moveAssignments, userQueue := a.getUserAssignmentCounts(officeUserData)
 
 	// keep track of the updatedMovesForBatchSave to batch save
-	updatedMovesForBatchSave := make([]models.Move, 0, len(*movesToReAssignUsersFrom))
+	updatedMovesForBatchSave := make([]models.Move, 0, len(movesToReAssignUsersFrom))
 
-	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		// while we have a queue...
-
-		updatedMovesForBatchSave = a.bulkAssignUsers(*movesToReAssignUsersFrom, userQueue, moveAssignments, queueType)
-
-		return nil
-	})
+	updatedMovesForBatchSave = a.bulkAssignUsers(movesToReAssignUsersFrom, userQueue, moveAssignments, queueType)
 
 	if len(updatedMovesForBatchSave) > 0 {
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedMovesForBatchSave) // Bulk update
 		if err != nil || verrs.HasAny() {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Bulk assignment failed")
 		}
-	}
-
-	if transactionErr != nil {
-		return nil, transactionErr
 	}
 
 	return nil, nil
@@ -210,7 +188,7 @@ func (a moveAssigner) bulkAssignUsers(movesToReAssignUsersFrom models.Moves, use
 		ordersType := move.Orders.OrdersType
 		if ordersType != internalmessages.OrdersTypeSAFETY && ordersType != internalmessages.OrdersTypeBLUEBARK && ordersType != internalmessages.OrdersTypeWOUNDEDWARRIOR {
 			updatedMove, err := a.commitMoveAssignmentToMove(queueType, &move, userID)
-			if err != nil {
+			if err == nil {
 				updatedMoves = append(updatedMoves, *updatedMove)
 			}
 		}
