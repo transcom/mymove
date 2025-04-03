@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		emptyMTOShipment := models.MTOShipment{}
 		expErrors := map[string][]string{
 			"move_task_order_id": {"MoveTaskOrderID can not be blank."},
-			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED]."},
+			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED, TERMINATED_FOR_CAUSE]."},
 		}
 		suite.verifyValidationErrors(&emptyMTOShipment, expErrors)
 	})
