@@ -20,6 +20,7 @@ export const TIOOfficeUserType = 'TIO office';
 export const QAEOfficeUserType = 'QAE office';
 export const CustomerServiceRepresentativeOfficeUserType = 'CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
+export const ContractingOfficerRepresentativeUserType = 'COR office';
 export const GSROfficeUserType = 'GSR office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
 export const MultiRoleOfficeUserType = 'Multi role office';
@@ -75,6 +76,13 @@ export class OfficePage extends BaseTestPage {
   async signInAsNewServicesCounselorUser() {
     await this.signInAsNewUser(ServicesCounselorOfficeUserType);
     await this.page.getByRole('heading', { name: 'Moves' }).waitFor();
+  }
+
+  /**
+   * Use devlocal auth to sign in as new Contracting Officer
+   */
+  async signInAsNewCORUser() {
+    await this.signInAsNewUser(ContractingOfficerRepresentativeUserType);
   }
 
   /**
@@ -174,6 +182,27 @@ export class OfficePage extends BaseTestPage {
     await this.waitForLoading();
 
     base.expect(this.page.url()).toContain(`/moves/${moveLocator}/details`);
+  }
+
+  /**
+   * search for and navigate to move for COR
+   * @param {string} moveLocator
+   */
+  async corSearchForAndNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="searchText"]').fill(moveLocator);
+    await this.page.locator('input[name="searchText"]').blur();
+
+    await this.page.getByRole('button', { name: 'Search' }).click();
+    await this.page.getByRole('heading', { name: 'Results' }).waitFor();
+
+    await base.expect(this.page.locator('tbody >> tr')).toHaveCount(1);
+    await base.expect(this.page.locator('tbody >> tr').first()).toContainText(moveLocator);
+
+    // click result to navigate to move details page
+    await this.page.locator('tbody > tr').first().click();
+    await this.waitForLoading();
+
+    base.expect(this.page.url()).toContain(`/moves/${moveLocator}/mto`);
   }
 
   /**
