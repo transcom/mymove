@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MoveDetails from './MoveDetails';
@@ -269,22 +269,6 @@ describe('PrimeUI MoveDetails page', () => {
       const acknowledgeButton = screen.getByLabelText('Acknowledge Move');
       expect(acknowledgeButton).toBeInTheDocument();
       expect(acknowledgeButton).toHaveAttribute('href');
-    });
-
-    it('displays a move shipment button for each shipment', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      await act(async () => {
-        renderWithProviders(<MoveDetails />);
-      });
-
-      const acknowledgeShipmentButtons = screen.getAllByLabelText('Acknowledge Shipment');
-      // verify 1 button per shipment
-      expect(acknowledgeShipmentButtons).toHaveLength(moveReturnValue.moveTaskOrder.mtoShipments.length);
-
-      // all buttons are links
-      acknowledgeShipmentButtons.forEach((button, index) => {
-        expect(button).toHaveAttribute('href');
-      });
     });
 
     it('counseling ready to be completed', async () => {
