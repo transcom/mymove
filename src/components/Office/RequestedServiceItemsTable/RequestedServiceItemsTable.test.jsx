@@ -36,8 +36,6 @@ const serviceItemWithContact = {
   serviceItem: 'Domestic destination 1st day SIT',
   code: 'DDFSIT',
   details: {
-    status: 'APPROVED',
-    estimatedPrice: 123456,
     sitEntryDate: '',
     customerContacts: [
       {
