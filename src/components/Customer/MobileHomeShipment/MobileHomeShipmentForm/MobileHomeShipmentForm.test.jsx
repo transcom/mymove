@@ -97,7 +97,7 @@ describe('MobileHomeShipmentForm component', () => {
     it('submits the form with valid data', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
 
-      await act( async () => {
+      await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
       expect(defaultProps.onSubmit).toHaveBeenCalled();

@@ -732,7 +732,10 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Personal email'), bluebarkPayload.personal_email);
     await userEvent.type(getByTestId('edipiInput'), bluebarkPayload.edipi);
 
-    await user.type(getByTestId('residential_address.streetAddress1'), bluebarkPayload.residential_address.streetAddress1);
+    await user.type(
+      getByTestId('residential_address.streetAddress1'),
+      bluebarkPayload.residential_address.streetAddress1,
+    );
 
     const locationBox = screen.getAllByRole('combobox');
     await act(async () => {

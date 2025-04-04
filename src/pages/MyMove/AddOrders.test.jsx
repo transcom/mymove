@@ -554,7 +554,8 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     });
     const selectedOptionNew = await screen.findByText(/Elmendorf/);
-    await userEvent.click(selectedOptionNew);userEvent.click(selectedOptionNew);
+    await userEvent.click(selectedOptionNew);
+    userEvent.click(selectedOptionNew);
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -633,7 +634,7 @@ describe('Add Orders page', () => {
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
 
     // Set standard form fields
-    await act( async() => {
+    await act(async () => {
       expect(nextBtn).toBeInTheDocument();
 
       await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
@@ -643,23 +644,23 @@ describe('Add Orders page', () => {
       await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
     });
 
-    await act( async() => {
+    await act(async () => {
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     });
-    waitFor( async () => {
+    waitFor(async () => {
       const selectedOptionCurrent = await screen.findByText(/Altus/);
       await userEvent.click(selectedOptionCurrent);
     });
 
-    await act( async() => {
+    await act(async () => {
       // Select an CONUS new duty location
       await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     });
-    waitFor( async () => {
+    waitFor(async () => {
       const selectedOptionNew = await screen.findByText(/Luke/);
       await userEvent.click(selectedOptionNew);
-    })
+    });
 
     waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
