@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestReContractValidations() {
 			Name: "ABC, Inc.",
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReContract, expErrors)
+		suite.verifyValidationErrors(&validReContract, expErrors, nil)
 	})
 
 	suite.Run("test empty ReContract", func() {
@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestReContractValidations() {
 			"code": {"Code can not be blank."},
 			"name": {"Name can not be blank."},
 		}
-		suite.verifyValidationErrors(&emptyReContract, expErrors)
+		suite.verifyValidationErrors(&emptyReContract, expErrors, nil)
 	})
 }
 

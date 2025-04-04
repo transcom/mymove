@@ -17,7 +17,7 @@ func (suite *ModelSuite) TestCountryValidation() {
 		}
 
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&newCountry, expErrors)
+		suite.verifyValidationErrors(&newCountry, expErrors, nil)
 	})
 
 	suite.Run("test empty Country", func() {
@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestCountryValidation() {
 			"country":      {"Country can not be blank."},
 			"country_name": {"CountryName can not be blank."},
 		}
-		suite.verifyValidationErrors(&emptyCountry, expErrors)
+		suite.verifyValidationErrors(&emptyCountry, expErrors, nil)
 	})
 }
 

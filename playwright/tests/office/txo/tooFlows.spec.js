@@ -18,6 +18,8 @@ const SearchTerms = ['SITEXT', '8796353598', 'Spacemen'];
 
 const StatusFilterOptions = ['Draft', 'New Move', 'Needs Counseling', 'Service counseling completed', 'Move approved'];
 
+const terminatingShipmentsEnabled = process.env.FEATURE_FLAG_TERMINATING_SHIPMENTS;
+
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
@@ -171,6 +173,55 @@ test.describe('TOO user', () => {
 
       await expect(page.getByText('Customer search must contain a value')).toBeVisible();
       await expect(page.getByRole('table')).not.toBeVisible();
+    });
+  });
+
+  test.describe('with terminated moves', () => {
+    test.beforeEach(() => {
+      test.skip(!terminatingShipmentsEnabled, 'Skip if terminating shipments FF is false');
+    });
+    test('cannot interact with a terminated shipment on an HHG move', async ({ officePage, page }) => {
+      // This test is specifically for shipment-specific actions. Not its associated items
+      // Setup
+      const move = await officePage.testHarness.buildHHGMoveInTerminatedStatus();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
+
+      // We're here, begin the checks
+      await expect(page.getByText('TERMINATED FOR CAUSE')).toBeVisible();
+      // First make sure we can't edit the terminated shipment
+      await expect(page.getByRole('button', { name: 'Edit shipment' })).toBeDisabled();
+      // Now let's go to the move task order tab where the rest of the checks are
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      expect(page.url()).toContain('/mto');
+      // We shouldn't be able to see or click "Request Cancellation"
+      await expect(page.getByRole('button', { name: 'Request Cancellation' })).toBeDisabled();
+      // Shouldn't see request diversion either
+      await expect(page.getByRole('button', { name: 'Request Diversion' })).toBeDisabled();
+      // Or reweigh
+      await expect(page.getByRole('button', { name: 'Request Reweigh' })).toBeDisabled();
+      // Typically, 2 edit buttons will be visible on a shipment with
+      // current SIT with DOFSIT/DDFSIT
+      // This is because "Edit" is for the primary modal and then
+      // "Edit" is also for the service item
+      // Assert "Edit" is present
+      const editButtons = page.getByRole('button', { name: 'Edit' });
+      await expect(editButtons).toHaveCount(1);
+      // But assert it's not in our SIT dashboard
+      const sitExtensions = page.getByTestId('sitExtensions');
+      await expect(sitExtensions.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+
+      // Make sure we can successfully convert SIT to customer expense
+      // It isn't explicitly covered by the AC, but I figured since we're
+      // already messing with the SIT modal pop up I may as well throw this in
+      await expect(page.getByRole('button', { name: 'Convert to customer expense' })).toBeVisible();
+      await page.getByRole('button', { name: 'Convert to customer expense' }).click();
+      await expect(page.getByTestId('remarks')).toBeVisible();
+      await page.getByTestId('remarks').fill('dummy');
+      await page.getByRole('button', { name: 'Save' }).click();
+      await expect(page.getByText('SIT successfully converted to customer expense')).toBeVisible();
     });
   });
 

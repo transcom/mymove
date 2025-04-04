@@ -16,7 +16,7 @@ func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
 			PerUnitCents:     unit.Cents(99),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReDomesticAccessorialPrice, expErrors)
+		suite.verifyValidationErrors(&validReDomesticAccessorialPrice, expErrors, nil)
 	})
 
 	suite.Run("test invalid ReDomesticAccessorialPrice", func() {
@@ -27,7 +27,7 @@ func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
 			"services_schedule": {"0 is not greater than 0."},
 			"per_unit_cents":    {"PerUnitCents can not be blank.", "0 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors)
+		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors, nil)
 	})
 
 	suite.Run("test service schedule over 3 for ReDomesticAccessorialPrice", func() {
@@ -40,7 +40,7 @@ func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
 		expErrors := map[string][]string{
 			"services_schedule": {"4 is not less than 4."},
 		}
-		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors)
+		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors, nil)
 	})
 
 	suite.Run("test per unit cents is not negative ReDomesticAccessorialPrice", func() {
@@ -53,6 +53,6 @@ func (suite *ModelSuite) TestReDomesticAccessorialPriceValidation() {
 		expErrors := map[string][]string{
 			"per_unit_cents": {"-10 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors)
+		suite.verifyValidationErrors(&invalidReDomesticAccessorialPrice, expErrors, nil)
 	})
 }

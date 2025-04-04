@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			SITPDSchedule:    2,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReDomesticServiceArea, expErrors)
+		suite.verifyValidationErrors(&validReDomesticServiceArea, expErrors, nil)
 	})
 
 	suite.Run("test invalid ReDomesticServiceArea", func() {
@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			"services_schedule": {"0 is not greater than 0."},
 			"sitpdschedule":     {"0 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&emptyReDomesticServiceArea, expErrors)
+		suite.verifyValidationErrors(&emptyReDomesticServiceArea, expErrors, nil)
 	})
 
 	suite.Run("test schedules over 3 for ReDomesticServiceArea", func() {
@@ -40,7 +40,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			"services_schedule": {"4 is not less than 4."},
 			"sitpdschedule":     {"5 is not less than 4."},
 		}
-		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
+		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors, nil)
 	})
 
 	suite.Run("test schedules less than 1 for ReDomesticServiceArea", func() {
@@ -54,6 +54,6 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			"services_schedule": {"-3 is not greater than 0."},
 			"sitpdschedule":     {"-1 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
+		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors, nil)
 	})
 }

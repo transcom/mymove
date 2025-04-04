@@ -8,7 +8,7 @@ func (suite *ModelSuite) Test_OfficeEmailInstantiation() {
 		"email":                    {"Email can not be blank."},
 		"transportation_office_id": {"TransportationOfficeID can not be blank."},
 	}
-	suite.verifyValidationErrors(office, expErrors)
+	suite.verifyValidationErrors(office, expErrors, nil)
 }
 func (suite *ModelSuite) Test_BasicOfficeEmail() {
 	office := CreateTestShippingOffice(suite)

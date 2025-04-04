@@ -56,7 +56,7 @@ func (suite *ModelSuite) TestBoatShipmentValidation() {
 		name, testCase := name, testCase
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(testCase.boatShipment, testCase.expectedErrs)
+			suite.verifyValidationErrors(testCase.boatShipment, testCase.expectedErrs, nil)
 		})
 	}
 }

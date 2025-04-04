@@ -101,6 +101,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
 	},
+	"HHGMoveInTerminatedStatus": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInTerminatedStatus(appCtx)
+	},
 	"HHGMoveWithIntlCratingServiceItemsTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx)
 	},

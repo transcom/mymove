@@ -105,7 +105,7 @@ func (suite *ModelSuite) TestBasicTPPSPaidInvoiceReportInstantiation() {
 
 	for name, test := range testCases {
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&test.tppsPaidInvoiceReport, test.expectedErrs) //#nosec G601
+			suite.verifyValidationErrors(&test.tppsPaidInvoiceReport, test.expectedErrs, nil) //#nosec G601
 		})
 	}
 

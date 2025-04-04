@@ -18,7 +18,7 @@ func (suite *ModelSuite) Test_ValidateUpload() {
 	}
 
 	var expErrors = map[string][]string{}
-	suite.verifyValidationErrors(&upload, expErrors)
+	suite.verifyValidationErrors(&upload, expErrors, nil)
 }
 
 func (suite *ModelSuite) Test_UploadValidationErrors() {
@@ -32,5 +32,5 @@ func (suite *ModelSuite) Test_UploadValidationErrors() {
 		"upload_type":  {"UploadType is not in the list [USER, PRIME, OFFICE]."},
 	}
 
-	suite.verifyValidationErrors(upload, expErrors)
+	suite.verifyValidationErrors(upload, expErrors, nil)
 }

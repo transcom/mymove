@@ -21,7 +21,7 @@ func (suite *ModelSuite) Test_TransportationOfficeInstantiation() {
 		"name":       {"Name can not be blank."},
 		"address_id": {"AddressID can not be blank."},
 	}
-	suite.verifyValidationErrors(office, expErrors)
+	suite.verifyValidationErrors(office, expErrors, nil)
 }
 
 func CreateTestShippingOffice(suite *ModelSuite) m.TransportationOffice {

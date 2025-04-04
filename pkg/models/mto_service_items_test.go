@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestMTOServiceItemValidation() {
 			PODLocationID:   &podLocationID,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMTOServiceItem, expErrors)
+		suite.verifyValidationErrors(&validMTOServiceItem, expErrors, nil)
 	})
 }
 
