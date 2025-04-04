@@ -139,6 +139,7 @@ const AddOrders = ({
     has_dependents: '',
     new_duty_location: '',
     grade: '',
+    rank: '',
     origin_duty_location: '',
     accompanied_tour: '',
     dependents_under_twelve: '',

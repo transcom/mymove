@@ -7,6 +7,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -104,6 +105,8 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	PaygradeRankId                 strfmt.UUID                        `db:"pay_grade_rank_id"`
+	Rank                           PaygradeRank                       `json:"rank" belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id" references:"id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -202,7 +205,9 @@ func strictUnmarshal(data []byte, v interface{}) error {
 
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
-	var order Order
+	var order = Order{
+		Rank: PaygradeRank{},
+	}
 	err := db.Q().EagerPreload("ServiceMember.User",
 		"OriginDutyLocation.Address",
 		"OriginDutyLocation.TransportationOffice",
@@ -214,14 +219,21 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.CloseoutOffice.Address",
 		"Entitlement",
 		"OriginDutyLocation",
-		"OriginDutyLocation.ProvidesServicesCounseling").
-		Find(&order, id)
+		"OriginDutyLocation.ProvidesServicesCounseling",
+		"PaygradeRankId",
+		"Rank",
+	).Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
+	}
+
+	err = db.Find(&order.Rank, order.PaygradeRankId)
+	if err != nil {
+		return Order{}, ErrFetchNotFound
 	}
 
 	// Conduct allotment lookup
