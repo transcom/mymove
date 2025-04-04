@@ -7,13 +7,14 @@ import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-us
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarningOfficeUser, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './AddOrdersForm.module.scss';
 
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
@@ -50,6 +51,7 @@ const AddOrdersForm = ({
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
   const [ordersType, setOrdersType] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
+  const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
   const { customerId: serviceMemberId } = useParams();
   const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
 
@@ -235,14 +237,20 @@ const AddOrdersForm = ({
 
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {
-          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarningOfficeUser;
         }
+
+        const toggleCivilianTDYUBTooltip = () => {
+          setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
+
         return (
           <Form className={`${formStyles.form}`}>
             <ConnectedFlashMessage />
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
                 label="Orders type"
                 name="ordersType"
@@ -253,10 +261,10 @@ const AddOrdersForm = ({
                   handleOrderTypeChange(e);
                 }}
                 isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
-                hint="Required"
+                showRequiredAsterisk
               />
-              <DatePickerInput name="issueDate" label="Orders date" required hint="Required" />
-              <DatePickerInput name="reportByDate" label="Report by date" required hint="Required" />
+              <DatePickerInput name="issueDate" label="Orders date" required showRequiredAsterisk />
+              <DatePickerInput name="reportByDate" label="Report by date" required showRequiredAsterisk />
 
               <DutyLocationInput
                 label="Current duty location"
@@ -268,7 +276,7 @@ const AddOrdersForm = ({
                 }}
                 metaOverride={originMeta}
                 required
-                hint="Required"
+                showRequiredAsterisk
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
@@ -277,7 +285,7 @@ const AddOrdersForm = ({
                     name="counselingOfficeId"
                     id="counselingOfficeId"
                     data-testid="counselingOfficeSelect"
-                    hint="Required"
+                    showRequiredAsterisk
                     required
                     options={counselingOfficeOptions}
                   />
@@ -318,7 +326,7 @@ const AddOrdersForm = ({
                     displayAddress={false}
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
-                    hint="Required"
+                    showRequiredAsterisk
                     onDutyLocationChange={(e) => {
                       setNewDutyLocation(e);
                     }}
@@ -329,7 +337,7 @@ const AddOrdersForm = ({
                   name="newDutyLocation"
                   label="New duty location"
                   required
-                  hint="Required"
+                  showRequiredAsterisk
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -338,7 +346,11 @@ const AddOrdersForm = ({
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in the orders?</Label>
+                <Label>
+                  <span>
+                    Are dependents included in the orders? <RequiredAsterisk />{' '}
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -373,7 +385,11 @@ const AddOrdersForm = ({
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -430,6 +446,7 @@ const AddOrdersForm = ({
                     signed={false}
                     thousandsSeparator=","
                     lazy={false}
+                    showRequiredAsterisk
                   />
 
                   <MaskedTextField
@@ -443,6 +460,7 @@ const AddOrdersForm = ({
                     signed={false}
                     thousandsSeparator=","
                     lazy={false}
+                    showRequiredAsterisk
                   />
                 </FormGroup>
               )}
@@ -466,14 +484,46 @@ const AddOrdersForm = ({
                   handleChange(e);
                 }}
               />
-              {isCivilianTDYMove && (
-                <FormGroup>
-                  <div>
+
+              {isCivilianTDYMove && showcivilianTDYUBAllowanceWarning ? (
+                <FormGroup className={styles.civilianUBAllowanceWarning}>
+                  <MaskedTextField
+                    data-testid="civilianTdyUbAllowance"
+                    warning={civilianTDYUBAllowanceWarning}
+                    defaultValue="0"
+                    name="civilianTdyUbAllowance"
+                    id="civilianTdyUbAllowance"
+                    mask={Number}
+                    scale={0}
+                    signed={false}
+                    thousandsSeparator=","
+                    lazy={false}
+                    labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
+                    label={
+                      <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
+                        If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                        <ToolTip
+                          text={
+                            <span className={styles.toolTipText}>
+                              If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                            </span>
+                          }
+                          position="left"
+                          icon="info-circle"
+                          color="blue"
+                          data-testid="civilianTDYUBAllowanceToolTip"
+                          isVisible={showCivilianTDYUBTooltip}
+                          closeOnLeave
+                        />
+                      </Label>
+                    }
+                  />
+                </FormGroup>
+              ) : (
+                isCivilianTDYMove && (
+                  <FormGroup>
                     <MaskedTextField
                       data-testid="civilianTdyUbAllowance"
-                      warning={
-                        <span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>
-                      }
                       defaultValue="0"
                       name="civilianTdyUbAllowance"
                       id="civilianTdyUbAllowance"
@@ -482,23 +532,28 @@ const AddOrdersForm = ({
                       signed={false}
                       thousandsSeparator=","
                       lazy={false}
-                      labelHint="Optional"
+                      labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                       label={
-                        <span className={styles.labelwithToolTip}>
+                        <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
                           <ToolTip
-                            text="If you do not specify a UB weight allowance, the default of  0 lbs will be used."
-                            position="right"
+                            text={
+                              <span className={styles.toolTipText}>
+                                If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                              </span>
+                            }
+                            position="left"
                             icon="info-circle"
                             color="blue"
                             data-testid="civilianTDYUBAllowanceToolTip"
+                            isVisible={showCivilianTDYUBTooltip}
                             closeOnLeave
                           />
-                        </span>
+                        </Label>
                       }
                     />
-                  </div>
-                </FormGroup>
+                  </FormGroup>
+                )
               )}
             </SectionWrapper>
 

@@ -10,6 +10,7 @@ import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../..
 
 import styles from './OrdersInfoForm.module.scss';
 
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
@@ -268,12 +269,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
                 options={filteredOrderTypeOptions}
                 required
-                hint="Required"
+                showRequiredAsterisk
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
@@ -283,7 +285,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 name="issue_date"
                 label="Orders date"
                 required
-                hint="Required"
+                showRequiredAsterisk
                 renderInput={(input) => (
                   <>
                     {input}
@@ -294,14 +296,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 )}
               />
               <DatePickerInput
-                hint="Required"
                 name="report_by_date"
                 label={formatLabelReportByDate(values.orders_type)}
                 required
+                showRequiredAsterisk
               />
               <DutyLocationInput
                 label="Current duty location"
-                hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
@@ -309,6 +310,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   handleCounselingOfficeChange();
                 }}
                 required
+                showRequiredAsterisk
                 metaOverride={originMeta}
               />
               {currentDutyLocation.provides_services_counseling && (
@@ -317,8 +319,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
-                    hint="Required"
                     required
+                    showRequiredAsterisk
                     options={counselingOfficeOptions}
                   />
                   <Hint>
@@ -354,8 +356,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   <DutyLocationInput
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
+                    showRequiredAsterisk
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
                     onDutyLocationChange={(e) => {
@@ -367,8 +370,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 <DutyLocationInput
                   name="new_duty_location"
                   label="New duty location"
+                  showRequiredAsterisk
                   displayAddress={false}
-                  hint="Required"
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -377,7 +380,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
+                <Label>
+                  <span>
+                    Are dependents included in your orders? <RequiredAsterisk />
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -412,7 +419,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -464,6 +475,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     name="dependents_under_twelve"
                     label="Number of dependents under the age of 12"
                     id="dependentsUnderTwelve"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -477,6 +489,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     name="dependents_twelve_and_over"
                     label="Number of dependents of the age 12 or over"
                     id="dependentsTwelveAndOver"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -490,6 +503,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 name="rank"
                 id="rank"
                 required
+                showRequiredAsterisk
                 options={paygradeRankOptionValues}
                 onChange={(e) => {
                   if (e.target.value === '') {
@@ -510,9 +524,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   <div>
                     <MaskedTextField
                       data-testid="civilianTDYUBAllowance"
-                      warning={
-                        <span className={styles.civilianUBAllowanceWarning}>{civilianTDYUBAllowanceWarning}</span>
-                      }
+                      warning={civilianTDYUBAllowanceWarning}
                       defaultValue="0"
                       name="civilian_tdy_ub_allowance"
                       id="civilianTDYUBAllowance"
@@ -521,12 +533,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                       signed={false}
                       thousandsSeparator=","
                       lazy={false}
-                      labelHint="Optional"
+                      labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
                           If your orders specify a specific UB weight allowance, enter it here.
                           <ToolTip
-                            text="If you do not specify a UB weight allowance, the default of 0 lbs will be used."
+                            text={
+                              <span className={styles.toolTipText}>
+                                If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                              </span>
+                            }
                             position="left"
                             icon="info-circle"
                             color="blue"
