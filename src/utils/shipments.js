@@ -15,12 +15,9 @@ export function isPPMShipmentComplete(mtoShipment) {
 
 // isPPMAboutInfoComplete - checks if all the "About your ppm" fields have data in them.
 export function isPPMAboutInfoComplete(ppmShipment) {
-  const hasBaseRequiredFields = [
-    'actualMoveDate',
-    'actualPickupPostalCode',
-    'actualDestinationPostalCode',
-    'hasReceivedAdvance',
-  ].every((fieldName) => ppmShipment[fieldName] !== null);
+  const hasBaseRequiredFields = ['actualMoveDate', 'hasReceivedAdvance'].every(
+    (fieldName) => ppmShipment[fieldName] !== null,
+  );
 
   if (hasBaseRequiredFields) {
     if (
