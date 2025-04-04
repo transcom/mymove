@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -89,6 +90,15 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.NTSRecordedWeight != nil {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
 				fmt.Sprintf("NTSRecordedWeight should not be set when creating a %s shipment", shipment.ShipmentType))
+		}
+	}
+
+	// validate shipment to have a RequestedPickupDate in the future
+	if shipment.RequestedPickupDate != nil && !shipment.RequestedPickupDate.IsZero() {
+		today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
+		requestedDate := shipment.RequestedPickupDate.Truncate(24 * time.Hour)
+		if requestedDate.Before(today) || requestedDate.Equal(today) {
+			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
 		}
 	}
 
