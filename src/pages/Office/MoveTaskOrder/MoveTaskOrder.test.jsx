@@ -1079,7 +1079,9 @@ describe('MoveTaskOrder', () => {
         const ubEstimatedWeightValue = screen.getByTestId('breakdownUBEstimatedWeight');
 
         expect(ubEstimatedWeightValue).toBeInTheDocument();
-        expect(ubEstimatedWeightValue).toHaveTextContent(`${formatWeight(testShipments[0].primeEstimatedWeight * 1.1)}`);
+        expect(ubEstimatedWeightValue).toHaveTextContent(
+          `${formatWeight(testShipments[0].primeEstimatedWeight * 1.1)}`,
+        );
       });
     });
   });

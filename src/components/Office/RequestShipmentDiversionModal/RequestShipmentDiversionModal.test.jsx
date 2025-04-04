@@ -125,7 +125,6 @@ describe('RequestShipmentDiversionModal', () => {
 
     wrapper.update();
 
-    
     expect(wrapper.find('[data-testid="errorMessage"]').exists()).toBe(false);
     expect(wrapper.find('button[data-testid="modalSubmitButton"]').prop('disabled')).toBe(false);
     await waitFor(async () => {

@@ -224,7 +224,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      waitFor( async () => {
+      waitFor(async () => {
         expect(await screen.findByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
       });
     });
@@ -266,10 +266,9 @@ describe('Orders page', () => {
     });
 
     it('validates on load', async () => {
-      waitFor( async () => {
+      waitFor(async () => {
         expect(await screen.findByText(/Unable to find a LOA based on the provided details/)).toBeInTheDocument();
-      })
-
+      });
     });
 
     describe('validates on user input', () => {
@@ -296,12 +295,12 @@ describe('Orders page', () => {
         await userEvent.clear(ntsTacInput);
         await userEvent.type(ntsTacInput, '2222');
 
-        const loaMissingWarnings =  await screen.findAllByText(/Unable to find a LOA based on the provided details/);
+        const loaMissingWarnings = await screen.findAllByText(/Unable to find a LOA based on the provided details/);
 
         // TAC is found and valids
         // LOA is NOT found
         waitFor(() => {
-          const loaMissingWarnings =  screen.findAllByText(/Unable to find a LOA based on the provided details/);
+          const loaMissingWarnings = screen.findAllByText(/Unable to find a LOA based on the provided details/);
           expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
           expect(loaMissingWarnings.length).toBe(2); // Both HHG and NTS LOAs are missing now
           expect(
@@ -369,7 +368,7 @@ describe('Orders page', () => {
         );
       });
 
-     waitFor( async () => {
+      waitFor(async () => {
         const hhgTacInput = await screen.findByTestId('hhgTacInput');
         await userEvent.clear(hhgTacInput);
         await userEvent.type(hhgTacInput, '1111');
@@ -378,7 +377,7 @@ describe('Orders page', () => {
           '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345**B1*';
 
         const loaTextField = screen.getByTestId('hhgLoaTextField');
-        
+
         expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
       });
     });

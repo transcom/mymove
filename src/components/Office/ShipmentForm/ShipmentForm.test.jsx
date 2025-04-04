@@ -1423,12 +1423,12 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      waitFor( async () => {
+      waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use pickup address'));
         await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
         await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
-        await userEvent.click(screen.getByTitle('Yes, I have a second destination location'))
-      })
+        await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      });
 
       const streetAddress1 = screen.getAllByLabelText(/Address 1/);
       const city = screen.getAllByTestId('City');
@@ -1451,7 +1451,7 @@ describe('ShipmentForm component', () => {
         expect(state[1]).toHaveTextContent('TX');
         expect(zip[1]).toHaveTextContent('78234');
         expect(county[1]).toHaveTextContent('BEXAR');
-      })
+      });
 
       // Clear the second pickup address1 field so that it triggers required validation
       await userEvent.clear(document.querySelector('input[name="secondaryPickup.address.streetAddress1"]'));
@@ -1646,7 +1646,9 @@ describe('ShipmentForm component', () => {
         expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress2,
         );
-        expect(await screen.getAllByTestId('City')[0]).toHaveTextContent(mockPPMShipment.ppmShipment.pickupAddress.city);
+        expect(await screen.getAllByTestId('City')[0]).toHaveTextContent(
+          mockPPMShipment.ppmShipment.pickupAddress.city,
+        );
         expect(await screen.getAllByTestId('State')[0]).toHaveTextContent(
           mockPPMShipment.ppmShipment.pickupAddress.state,
         );

@@ -24,7 +24,7 @@ describe('ValidCACModal', () => {
     waitFor(() => {
       const heading = screen.getByRole('heading', { name: /do you have a valid cac\?/i });
       expect(heading).toBeInTheDocument();
-      
+
       const image = screen.getByRole('img');
       expect(image).toBeInTheDocument();
 

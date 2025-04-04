@@ -53,7 +53,7 @@ describe('useModal', () => {
       result.current.openModal();
       expect(result.current.isOpen).toEqual(true);
     });
-    
+
     waitFor(() => {
       result.current.closeModal();
     });

@@ -726,7 +726,7 @@ describe('useMoveTaskOrderQueries', () => {
 describe('useEditShipmentQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const result= renderHook(() => useEditShipmentQueries(moveCode), { wrapper });
+    const result = renderHook(() => useEditShipmentQueries(moveCode), { wrapper });
 
     waitFor(() => {
       expect(result.current).toEqual({
@@ -933,7 +933,7 @@ describe('usePaymentRequestsQueueQueries', () => {
 
 describe('useUserQueries', () => {
   it('loads data', async () => {
-    const result= renderHook(() => useUserQueries(), { wrapper });
+    const result = renderHook(() => useUserQueries(), { wrapper });
 
     waitFor(() => {
       expect(result.current).toEqual({
@@ -944,7 +944,7 @@ describe('useUserQueries', () => {
         isError: false,
         isSuccess: true,
       });
-    })
+    });
   });
 });
 
@@ -1029,7 +1029,7 @@ describe('usePPMShipmentAndDocsOnlyQueries', () => {
         isSuccess: true,
         refetchMTOShipment: result.current.refetchMTOShipment,
       });
-    })
+    });
   });
 });
 
@@ -1069,7 +1069,7 @@ describe('useBulkAssignmentQueries', () => {
         isError: false,
         isSuccess: true,
       });
-    })
+    });
   });
 });
 

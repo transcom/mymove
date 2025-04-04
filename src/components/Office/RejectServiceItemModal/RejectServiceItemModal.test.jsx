@@ -111,8 +111,7 @@ describe('RejectServiceItemModal', () => {
       wrapper.update();
       expect(wrapper.find('[data-testid="errorMessage"]').exists()).toBe(false);
       expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(false);
-    })
-
+    });
   });
 
   // onSubmit is not getting called
@@ -134,7 +133,7 @@ describe('RejectServiceItemModal', () => {
       // the submit button doesn't have an onClick listener explicitly attached but the form does
       wrapper.find('form').simulate('submit');
     });
-    
+
     waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith('abc123', 'xyz789', SERVICE_ITEM_STATUS.REJECTED, 'good reason');
     });
