@@ -11,6 +11,8 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { roleTypes } from 'constants/userRoles';
+import { createRoot } from 'react-dom/client';
+import { act } from 'react-test-renderer';
 
 const mockPickupLocation = [
   {
@@ -236,11 +238,15 @@ const ordersPath = generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_A
 
 describe('CreateCustomerForm', () => {
   it('renders without crashing', async () => {
-    render(
-      <MockProviders initialState={serviceCounselorState}>
-        <CreateCustomerForm {...testProps} />
-      </MockProviders>,
-    );
+    const container = document.createElement('div');
+    const root = createRoot(container); // Create a root
+    act(() => {
+      root.render(
+        <MockProviders initialState={serviceCounselorState}>
+          <CreateCustomerForm {...testProps} />
+        </MockProviders>,
+      );
+    });
 
     // checking that all headers exist
     waitFor(() => {
@@ -677,7 +683,7 @@ describe('CreateCustomerForm', () => {
 
     const user = userEvent.setup();
 
-    const saveBtn = await screen.findByRole('button', { name: 'Save' });
+      const saveBtn = await screen.findByRole('button', { name: 'Save' });
 
     waitFor(() => {
       expect(saveBtn).toBeInTheDocument();
@@ -698,11 +704,10 @@ describe('CreateCustomerForm', () => {
         getByTestId('residential_address.streetAddress1'),
         safetyPayload.residential_address.streetAddress1,
       );
-
-      const locationBox = screen.getAllByRole('combobox');
     });
-    
+
     await waitFor(async () => {
+      const locationBox = screen.getAllByRole('combobox');
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
       const selectedResidentialLocation = await screen.findByText(/90210/);
       await userEvent.click(selectedResidentialLocation);
@@ -714,6 +719,7 @@ describe('CreateCustomerForm', () => {
     );
 
     await waitFor(async () => {
+      const locationBox = screen.getAllByRole('combobox');
       await userEvent.type(locationBox[2], 'DRYDEN');
       const selectedBackupLocation = await screen.findByText(/04225/);
       await userEvent.click(selectedBackupLocation);
@@ -723,12 +729,18 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
+    waitFor( async () => {
+      const saveBtn = await screen.findByRole('button', { name: 'Save' });
+    expect(saveBtn).toBeInTheDocument();
     expect(saveBtn).toBeInTheDocument();
 
     await waitFor(() => {
+      expect(saveBtn).toBeInTheDocument();
+
+    await waitFor(() => {
       expect(saveBtn).toBeEnabled();
+      await userEvent.click(saveBtn);
     });
-    await userEvent.click(saveBtn);
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();

@@ -446,8 +446,8 @@ describe('PaymentRequestReview', () => {
 
           await userEvent.click(nextButton);
           waitFor(() => {
-            expect(screen.findByText('4 OF 4 ITEMS')).toBeInTheDocument();
-            expect(screen.findByText('Test Service Item 4')).toBeInTheDocument();
+            expect(screen.getByText('4 OF 4 ITEMS')).toBeInTheDocument();
+            expect(screen.getByText('Test Service Item 4')).toBeInTheDocument();
             expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
             expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
           })
@@ -481,16 +481,16 @@ describe('PaymentRequestReview', () => {
 
         const nextButton = screen.getByRole('button', { name: 'Next Service Item' });
 
-        await userEvent.click(nextButton);
-        waitFor(() =>{
+        waitFor( async () =>{
+          await userEvent.click(nextButton);
           expect(screen.getByText('2 OF 4 ITEMS')).toBeInTheDocument();
           expect(screen.getByText(/Test Service Item 2/)).toBeInTheDocument();
           expect(screen.getByRole('radio', { name: 'Reject' })).toBeChecked();
           expect(screen.getByText('duplicate charge')).toBeInTheDocument();
         });
-        await userEvent.click(nextButton);
 
-        waitFor(() =>{
+        waitFor( async () =>{
+          await userEvent.click(nextButton);
           expect(screen.getByText('3 OF 4 ITEMS')).toBeInTheDocument();
         });
         await userEvent.click(nextButton);

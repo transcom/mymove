@@ -462,7 +462,7 @@ describe('validates form fields and displays error messages', () => {
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
     });
 
-    waitFor(() => {
+    waitFor( async () => {
       const address1 = await screen.getAllByLabelText(/Address 1/, { exact: false });
       const state = await screen.getAllByTestId(/State/);
       const city = await screen.getAllByTestId(/City/);
