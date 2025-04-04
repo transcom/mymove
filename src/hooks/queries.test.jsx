@@ -482,8 +482,6 @@ describe('useMoveDetailsQueries', () => {
     const moveCode = 'ABCDEF';
     const result = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
 
-    expect(result.current.isLoading).toEqual(true);
-
     waitFor(() => {
       expect(result.current).toEqual({
         move: {

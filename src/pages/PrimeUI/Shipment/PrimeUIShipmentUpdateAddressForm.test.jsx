@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import * as Yup from 'yup';
 import userEvent from '@testing-library/user-event';
 
@@ -135,7 +135,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
 
     await userEvent.clear(screen.getByLabelText(/Address 2/));
     (await screen.getByLabelText(/Address 2/)).blur();
-    await waitFor(() => {
+    await act(() => {
       expect(screen.getByRole('button', { name: 'Save' }).getAttribute('disabled')).toBeFalsy();
     });
   });
@@ -151,7 +151,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
       />,
     );
     await userEvent.clear(screen.getByLabelText(/Address 1/));
-    (await screen.getByLabelText(/Address 1/)).blur();
+    await userEvent.tab();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       expect(screen.getByText('Required')).toBeInTheDocument();
