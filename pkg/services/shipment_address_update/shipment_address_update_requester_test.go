@@ -674,6 +674,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			{
 				Model: models.Address{
 					PostalCode: "87108",
+					City:       "ALBUQUERQUE",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -1261,7 +1262,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					StreetAddress1:     "Cold Ave.",
-					City:               "Fairbanks",
+					City:               "FORT WAINWRIGHT",
 					State:              "AK",
 					PostalCode:         "99703",
 					IsOconus:           models.BoolPointer(true),
@@ -1471,7 +1472,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					StreetAddress1:     "Cold Ave.",
-					City:               "Fairbanks",
+					City:               "FORT WAINWRIGHT",
 					State:              "AK",
 					PostalCode:         "99703",
 					IsOconus:           models.BoolPointer(true),

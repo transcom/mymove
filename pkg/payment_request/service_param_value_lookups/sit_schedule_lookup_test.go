@@ -34,14 +34,16 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				Model: models.Address{
 					PostalCode:         "35007",
 					UsPostRegionCityID: &usprc.ID,
+					City:               "ALABASTER",
 				},
 			},
 		}, nil)
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode:         "45007",
+					PostalCode:         usprc.UsprZipID,
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -138,7 +140,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: "00000", UsPostRegionCityID: &usprc.ID},
+				Model: models.Address{PostalCode: "00000", UsPostRegionCityID: &usprc.ID, City: usprc.UsprZipID},
 			},
 		}, nil)
 

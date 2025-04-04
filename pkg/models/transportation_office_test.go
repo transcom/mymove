@@ -167,6 +167,7 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 		{
 			Model: m.Address{
 				PostalCode: "20906",
+				City:       "ASPEN HILL",
 			},
 		},
 	}, nil)

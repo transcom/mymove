@@ -360,6 +360,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		{
 			Model: models.Address{
 				PostalCode: "06001",
+				City:       "AVON",
 			},
 			Type: &factory.Addresses.PickupAddress,
 		},
@@ -1466,6 +1467,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		{
 			Model: models.Address{
 				PostalCode: "06001",
+				City:       "AVON",
 			},
 		},
 	}, nil)
@@ -1491,6 +1493,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		{
 			Model: models.Address{
 				PostalCode: "06001",
+				City:       "AVON",
 			},
 			Type: &factory.Addresses.PickupAddress,
 		},
@@ -2411,7 +2414,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
 
 	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: postalCode},
+			Model: models.Address{PostalCode: postalCode, City: "BEVERLY HILLS"},
 		},
 	}, nil)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -2462,7 +2465,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
 
 	destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: postalCode2},
+			Model: models.Address{PostalCode: postalCode2, City: "MUSTANG"},
 		},
 	}, nil)
 	shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -2597,7 +2600,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 		}, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: postalCode},
+				Model: models.Address{PostalCode: postalCode, City: "BEVERLY HILLS"},
 			},
 		}, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -2729,7 +2732,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 		}, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: postalCode},
+				Model: models.Address{PostalCode: postalCode, City: "BEVERLY HILLS"},
 			},
 		}, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{

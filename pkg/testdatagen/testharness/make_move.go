@@ -7241,7 +7241,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 			},
@@ -7427,7 +7427,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 			},
@@ -7521,7 +7521,7 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 			},

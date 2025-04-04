@@ -35,6 +35,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 				Model: models.Address{
 					PostalCode:         "35007",
 					UsPostRegionCityID: &usprc.ID,
+					City:               "ALABASTER",
 				},
 			},
 		}, nil)

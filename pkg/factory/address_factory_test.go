@@ -16,7 +16,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 	customAddress1 := "101 This is Awesome Street"
 	customAddress2 := models.StringPointer("Unit 2525")
 	customAddress3 := models.StringPointer("c/o Another Person")
-	customCity := "Modesto"
+	customCity := "BOISE"
 	customState := "ID"
 	customPostalCode := "83725"
 	customCounty := models.StringPointer("ADA")

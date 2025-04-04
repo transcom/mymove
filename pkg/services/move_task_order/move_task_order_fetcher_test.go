@@ -362,6 +362,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               "ANCHORAGE",
 				},
 			},
 		}, nil)

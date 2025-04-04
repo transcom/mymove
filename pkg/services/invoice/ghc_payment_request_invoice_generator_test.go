@@ -754,6 +754,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		customAddress := models.Address{
 			ID:         uuid.Must(uuid.NewV4()),
 			PostalCode: "73403",
+			City:       "ARDMORE",
 		}
 		destDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
