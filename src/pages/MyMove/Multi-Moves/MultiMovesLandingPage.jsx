@@ -104,7 +104,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
             <p data-testid="welcomeHeader">
               Select &quot;Create a Move&quot; to get started. If you already have a move, locate the applicable move
               code below and select
-              <br /> &quot;Go to Move&quot;
+              <br /> &quot;Go to Move&quot;.
               <br /> <br />
               If you encounter any issues, please contact your local Transportation Office or the
               <a href={milmoveHelpDesk}> Help Desk </a>
