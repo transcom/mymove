@@ -114,7 +114,7 @@ const testDetails = (wrapper) => {
   expect(getValue('First available delivery date 2:')).toContain('21 Sep 2020');
   expect(getValue('Customer contact attempt 2:')).toContain('21 Sep 2020, 2300Z');
 
-  expect(getValue('Estimated Price:')).toContain('');
+  expect(getValue('Estimated Price:')).toContain('$2,435.50');
 
   expect(getAllValues('Reason:')).toContain('Took a detour');
 };
