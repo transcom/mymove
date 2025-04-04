@@ -17,7 +17,7 @@ import {
   patchMTOShipment,
   dateSelectionIsWeekendHoliday,
 } from 'services/internalApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
@@ -509,7 +509,15 @@ describe('MtoShipmentForm component', () => {
       expect(zip[3]).toHaveAttribute('aria-label', 'tertiaryDelivery.address.postalCode');
     });
 
-    it('preferredPickupDate (create) - validation errors show', async () => {
+    it.each([
+      [SHIPMENT_TYPES.HHG],
+      [SHIPMENT_TYPES.NTS],
+      [SHIPMENT_TYPES.NTSR],
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY],
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY],
+      [SHIPMENT_TYPES.MOBILE_HOME],
+      [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE],
+    ])('preferredPickupDate (%s | create) - validation errors show', async (shipmentType) => {
       const expectedDateSelectionIsWeekendHolidayResponse = {
         country_code: 'US',
         country_name: 'United States',
@@ -519,7 +527,8 @@ describe('MtoShipmentForm component', () => {
       dateSelectionIsWeekendHoliday.mockImplementation(() =>
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
-      renderMtoShipmentForm();
+
+      renderMtoShipmentForm(shipmentType);
 
       // Error doesn't show unless touched
       expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('');
@@ -572,7 +581,15 @@ describe('MtoShipmentForm component', () => {
       ).toHaveTextContent('Required');
     });
 
-    it('preferredPickupDate (create) - validation errors hide when valid', async () => {
+    it.each([
+      [SHIPMENT_TYPES.HHG],
+      [SHIPMENT_TYPES.NTS],
+      [SHIPMENT_TYPES.NTSR],
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY],
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY],
+      [SHIPMENT_TYPES.MOBILE_HOME],
+      [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE],
+    ])('preferredPickupDate (%s | create) - validation errors hide when valid', async (shipmentType) => {
       const expectedDateSelectionIsWeekendHolidayResponse = {
         country_code: 'US',
         country_name: 'United States',
@@ -582,7 +599,7 @@ describe('MtoShipmentForm component', () => {
       dateSelectionIsWeekendHoliday.mockImplementation(() =>
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
-      renderMtoShipmentForm();
+      renderMtoShipmentForm(shipmentType);
 
       // Trigger invalid date error - must be in the future
       await act(async () => {
@@ -868,7 +885,15 @@ describe('MtoShipmentForm component', () => {
       ).toHaveLength(1);
     });
 
-    it('when touched - preferredPickupDate must be in the future', async () => {
+    it.each([
+      [SHIPMENT_TYPES.HHG],
+      [SHIPMENT_TYPES.NTS],
+      [SHIPMENT_TYPES.NTSR],
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY],
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY],
+      [SHIPMENT_TYPES.MOBILE_HOME],
+      [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE],
+    ])(`when touched (%s) - preferredPickupDate must be in the future`, async (shipmentType) => {
       const expectedDateSelectionIsWeekendHolidayResponse = {
         country_code: 'US',
         country_name: 'United States',
@@ -878,7 +903,7 @@ describe('MtoShipmentForm component', () => {
       dateSelectionIsWeekendHoliday.mockImplementation(() =>
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
-      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: { ...mockMtoShipment, shipmentType } });
 
       expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
       expect(screen.queryByTestId('preferredPickupDateAlert')).not.toBeInTheDocument();
@@ -915,7 +940,15 @@ describe('MtoShipmentForm component', () => {
       ).toHaveTextContent('Required');
     });
 
-    it('when touched - valid preferredPickupDate hides errors', async () => {
+    it.each([
+      [SHIPMENT_TYPES.HHG],
+      [SHIPMENT_TYPES.NTS],
+      [SHIPMENT_TYPES.NTSR],
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY],
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY],
+      [SHIPMENT_TYPES.MOBILE_HOME],
+      [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE],
+    ])('when touched (%s) - valid preferredPickupDate hides errors', async (shipmentType) => {
       const expectedDateSelectionIsWeekendHolidayResponse = {
         country_code: 'US',
         country_name: 'United States',
@@ -925,7 +958,7 @@ describe('MtoShipmentForm component', () => {
       dateSelectionIsWeekendHoliday.mockImplementation(() =>
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
-      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: { ...mockMtoShipment, shipmentType } });
 
       expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
       expect(screen.queryByTestId('preferredPickupDateAlert')).not.toBeInTheDocument();
