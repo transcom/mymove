@@ -7,6 +7,7 @@ import ReviewServiceItems from './ReviewServiceItems';
 
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
+import { waitFor } from '@testing-library/react';
 
 const pendingPaymentRequest = {
   status: PAYMENT_REQUEST_STATUS.PENDING,
@@ -250,7 +251,7 @@ describe('ReviewServiceItems component', () => {
       const approveInput = mountedComponent.find(`input[name="status"][value="APPROVED"]`);
       expect(approveInput.length).toBe(1);
 
-      await act(async () => {
+      await waitFor(async () => {
         approveInput.simulate('change');
       });
       mountedComponent.update();
@@ -266,12 +267,12 @@ describe('ReviewServiceItems component', () => {
       const rejectInput = mountedComponent.find(`input[name="status"][value="DENIED"]`);
       expect(rejectInput.length).toBe(1);
 
-      await act(async () => {
+      await waitFor(async () => {
         rejectInput.simulate('change');
       });
       mountedComponent.update();
 
-      await act(async () => {
+      await waitFor(async () => {
         nextButton.simulate('click');
       });
       mountedComponent.update();
@@ -282,7 +283,7 @@ describe('ReviewServiceItems component', () => {
       const rejectReasonInput = mountedComponent.find(`textarea[name="rejectionReason"]`);
       expect(rejectReasonInput.length).toBe(1);
 
-      await act(async () => {
+      await waitFor(async () => {
         rejectReasonInput.simulate('change', {
           target: {
             name: 'rejectionReason',
@@ -300,7 +301,7 @@ describe('ReviewServiceItems component', () => {
       const rejectReasonInput = mountedComponent.find(`textarea[name="rejectionReason"]`);
       expect(rejectReasonInput.length).toBe(1);
 
-      await act(async () => {
+      await waitFor(async () => {
         rejectReasonInput.simulate('change', {
           target: {
             name: 'rejectionReason',
@@ -310,7 +311,7 @@ describe('ReviewServiceItems component', () => {
       });
       mountedComponent.update();
 
-      await act(async () => {
+      await waitFor(async () => {
         clearSelectionButton.simulate('click');
       });
       mountedComponent.update();
@@ -385,7 +386,7 @@ describe('ReviewServiceItems component', () => {
       const approveInput = mountedComponent.find(`input[name="status"][value="APPROVED"]`);
       expect(approveInput.length).toBe(1);
 
-      await act(async () => {
+      await waitFor(async () => {
         approveInput.simulate('change');
       });
       mountedComponent.update();
@@ -393,7 +394,7 @@ describe('ReviewServiceItems component', () => {
       const clearSelectionButton = mountedComponent.find('button[data-testid="clearStatusButton"]');
       expect(clearSelectionButton.length).toBe(1);
 
-      await act(async () => {
+      await waitFor(async () => {
         clearSelectionButton.simulate('click');
       });
       mountedComponent.update();
@@ -450,7 +451,7 @@ describe('ReviewServiceItems component', () => {
         const authorizeBtn = componentWithInitialValues.find('button[data-testid="authorizePaymentBtn"]');
         expect(authorizeBtn.exists()).toBe(true);
 
-        await act(async () => {
+        await waitFor(async () => {
           authorizeBtn.simulate('click');
         });
 
@@ -617,7 +618,7 @@ describe('ReviewServiceItems component', () => {
         const rejectRequestBtn = componentWithInitialValues.find('button[data-testid="rejectRequestBtn"]');
         expect(rejectRequestBtn.exists()).toBe(true);
 
-        await act(async () => {
+        await waitFor(async () => {
           rejectRequestBtn.simulate('click');
         });
 

@@ -457,7 +457,7 @@ describe('UploadOrders component', () => {
 
     const deleteBtn = await screen.findByRole('button', { name: 'Delete' });
     expect(deleteBtn).toBeInTheDocument();
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(deleteBtn);
     });
 

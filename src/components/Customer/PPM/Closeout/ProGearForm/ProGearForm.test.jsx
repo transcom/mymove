@@ -150,7 +150,7 @@ describe('ProGearForm component', () => {
     });
     it('invalidates if weight exceeds the maximum.', async () => {
       render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '2000');
       });
       await waitFor(() => {
@@ -160,14 +160,14 @@ describe('ProGearForm component', () => {
     });
     it('invalidates if a valid weight is entered but a lower maximum is subsequently selected', async () => {
       render(<ProGearForm {...defaultProps} {...proGearProps} />, { wrapper: MockProviders });
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.clear(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }));
         await userEvent.type(screen.getByRole('textbox', { name: /^Shipment's pro-gear weight/ }), '1000');
       });
       await waitFor(() => {
         expect(screen.queryByText(/Pro gear weight must be less than or equal to 1,234 lbs./)).not.toBeInTheDocument();
       });
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('My spouse'));
       });
       await waitFor(() => {

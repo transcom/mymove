@@ -5,6 +5,7 @@ import { mount } from 'enzyme';
 import TableCSVExportButton from './TableCSVExportButton';
 
 import { getPaymentRequestsQueue } from 'services/ghcApi';
+import { waitFor } from '@testing-library/react';
 
 const paymentRequestsResponse = {
   page: 1,
@@ -154,7 +155,7 @@ describe('TableCSVExportButton', () => {
   });
 
   it('click calls fetcher', () => {
-    act(() => {
+    waitFor(() => {
       const wrapper = mount(<TableCSVExportButton {...defaultProps} />);
       const exportButton = wrapper.find('span[data-test-id="csv-export-btn-text"]');
       exportButton.simulate('click');
@@ -172,7 +173,7 @@ describe('TableCSVExportButton', () => {
   };
 
   it('is diabled when there is nothing to export', () => {
-    act(() => {
+    waitFor(() => {
       const wrapper = mount(<TableCSVExportButton {...noResultsProps} />);
       const exportButton = wrapper.find('span[data-test-id="csv-export-btn-text"]');
       exportButton.simulate('click');

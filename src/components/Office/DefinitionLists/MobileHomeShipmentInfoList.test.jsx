@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, waitFor, within, act } from '@testing-library/react';
 
 import MobileHomeShipmentInfoList from './MobileHomeShipmentInfoList';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { createRoot } from 'react-dom/client';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -66,47 +67,53 @@ describe('Shipment Info List - Mobile Home Shipment', () => {
   it('renders all mobile home shipment fields when provided and expanded', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-    await act(async () => {
-      render(<MobileHomeShipmentInfoList isExpanded shipment={shipment} />);
+    await waitFor(async () => {
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(<MobileHomeShipmentInfoList isExpanded shipment={shipment} />);
+      });
     });
 
-    const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
-    expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
+    waitFor(() => {
+      const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
+      expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
+      
+      const pickupAddress = screen.getByText(labels.pickupAddress);
+      expect(
+        within(pickupAddress.parentElement).getByText(shipment.pickupAddress.streetAddress1, { exact: false }),
+      ).toBeInTheDocument();
 
-    const pickupAddress = screen.getByText(labels.pickupAddress);
-    expect(
-      within(pickupAddress.parentElement).getByText(shipment.pickupAddress.streetAddress1, { exact: false }),
-    ).toBeInTheDocument();
+      const destinationAddress = screen.getByText(labels.destinationAddress);
+      expect(
+        within(destinationAddress.parentElement).getByText(shipment.destinationAddress.streetAddress1, {
+          exact: false,
+        }),
+      ).toBeInTheDocument();
 
-    const destinationAddress = screen.getByText(labels.destinationAddress);
-    expect(
-      within(destinationAddress.parentElement).getByText(shipment.destinationAddress.streetAddress1, {
-        exact: false,
-      }),
-    ).toBeInTheDocument();
+      const releasingAgent = screen.getByText(labels.mtoAgents[0]);
+      expect(
+        within(releasingAgent.parentElement).getByText(shipment.mtoAgents[0].email, { exact: false }),
+      ).toBeInTheDocument();
 
-    const releasingAgent = screen.getByText(labels.mtoAgents[0]);
-    expect(
-      within(releasingAgent.parentElement).getByText(shipment.mtoAgents[0].email, { exact: false }),
-    ).toBeInTheDocument();
+      const receivingAgent = screen.getByText(labels.mtoAgents[1]);
+      expect(
+        within(receivingAgent.parentElement).getByText(shipment.mtoAgents[1].email, { exact: false }),
+      ).toBeInTheDocument();
 
-    const receivingAgent = screen.getByText(labels.mtoAgents[1]);
-    expect(
-      within(receivingAgent.parentElement).getByText(shipment.mtoAgents[1].email, { exact: false }),
-    ).toBeInTheDocument();
+      const counselorRemarks = screen.getByText(labels.counselorRemarks);
+      expect(within(counselorRemarks.parentElement).getByText(shipment.counselorRemarks)).toBeInTheDocument();
 
-    const counselorRemarks = screen.getByText(labels.counselorRemarks);
-    expect(within(counselorRemarks.parentElement).getByText(shipment.counselorRemarks)).toBeInTheDocument();
+      const customerRemarks = screen.getByText(labels.customerRemarks);
+      expect(within(customerRemarks.parentElement).getByText(shipment.customerRemarks)).toBeInTheDocument();
 
-    const customerRemarks = screen.getByText(labels.customerRemarks);
-    expect(within(customerRemarks.parentElement).getByText(shipment.customerRemarks)).toBeInTheDocument();
-
-    const dimensions = screen.getByText(labels.dimensions);
-    expect(within(dimensions.parentElement).getByText("300' L x 85' W x 120' H", { exact: false })).toBeInTheDocument();
+      const dimensions = screen.getByText(labels.dimensions);
+      expect(within(dimensions.parentElement).getByText("300' L x 85' W x 120' H", { exact: false })).toBeInTheDocument();
+    });
   });
 
   it('does not render mtoAgents when not provided', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <MobileHomeShipmentInfoList
           shipment={{
@@ -117,7 +124,9 @@ describe('Shipment Info List - Mobile Home Shipment', () => {
       );
     });
 
-    expect(screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
-    expect(screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
+      expect(screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+    });
   });
 });

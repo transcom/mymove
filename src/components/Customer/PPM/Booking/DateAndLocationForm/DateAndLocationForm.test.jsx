@@ -1,11 +1,13 @@
 import React from 'react';
-import { render, waitFor, screen, within, act } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { configureStore } from 'shared/store';
+import { createRoot } from 'react-dom/client';
+import { act } from 'react-test-renderer';
 
 const serviceMember = {
   serviceMember: {
@@ -92,7 +94,9 @@ describe('DateAndLocationForm component', () => {
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
-      await act(async () => {
+      const postalCodes = screen.getAllByTestId(/ZIP/);
+      expect(postalCodes[0]).toHaveTextContent('');
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       await waitFor(() => {
@@ -110,7 +114,7 @@ describe('DateAndLocationForm component', () => {
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
@@ -126,7 +130,7 @@ describe('DateAndLocationForm component', () => {
         );
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
@@ -136,7 +140,7 @@ describe('DateAndLocationForm component', () => {
     });
 
     it('displays secondary pickup Address input when hasSecondaryPickupAddress is true', async () => {
-      await act(async () => {
+      await waitFor(async () => {
         render(
           <Provider store={mockStore.store}>
             <DateAndLocationForm {...defaultProps} />
@@ -157,7 +161,7 @@ describe('DateAndLocationForm component', () => {
     });
 
     it('displays delivery address when "Use my current delivery address" is selected', async () => {
-      await act(async () => {
+      await waitFor(async () => {
         render(
           <Provider store={mockStore.store}>
             <DateAndLocationForm {...defaultProps} />
@@ -178,7 +182,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays secondary delivery address input when hasSecondaryDestinationAddress is true', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
@@ -213,7 +217,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays the closeout office select when the service member is in the Army', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const armyServiceMember = {
         ...defaultProps.serviceMember,
         affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
@@ -231,7 +235,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays the closeout office select when the service member is in the Air Force', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const airForceServiceMember = {
         ...defaultProps.serviceMember,
         affiliation: SERVICE_MEMBER_AGENCIES.AIR_FORCE,
@@ -248,7 +252,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   it('displays the closeout office select when the service member is in the Navy', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const navyServiceMember = {
         ...defaultProps.serviceMember,
         affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
@@ -274,7 +278,7 @@ describe('validates form fields and displays error messages', () => {
       </Provider>,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(screen.getByLabelText(/Which closeout office should review your PPM\?/));
       await userEvent.keyboard('{backspace}[Tab]');
     });
@@ -284,88 +288,87 @@ describe('validates form fields and displays error messages', () => {
     expect(screen.getByTestId('errorMessage')).toBeVisible();
   });
   it('displays type errors when input fails validation schema', async () => {
-    await act(async () => {
-      const invalidTypes = {
-        ...defaultProps,
-        mtoShipment: {
-          ppmShipment: {},
-        },
-      };
+    const invalidTypes = {
+      ...defaultProps,
+      mtoShipment: {
+        ppmShipment: {},
+      },
+    };
+    const container = document.createElement('div');
+    const root = createRoot(container); // Create a root
+    root.render(
+      <Provider store={mockStore.store}>
+        <DateAndLocationForm {...invalidTypes} />
+      </Provider>,
+    );
+    waitFor(() => {
+      userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
+      userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-      render(
-        <Provider store={mockStore.store}>
-          <DateAndLocationForm {...invalidTypes} />
-        </Provider>,
-      );
-
-      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-
-        const requiredAlerts = screen.getAllByRole('alert');
-        expect(requiredAlerts.length).toBe(1);
-
-        // Departure date
-        expect(requiredAlerts[0]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
-        expect(
-          within(requiredAlerts[0].nextElementSibling).getByLabelText(/When do you plan to start moving your PPM?/),
-        ).toBeInTheDocument();
-      });
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      const requiredAlerts = screen.getAllByRole('alert');
+      expect(requiredAlerts.length).toBe(1);
+      // Departure date
+      expect(requiredAlerts[0]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
+      expect(
+        within(requiredAlerts[0].nextElementSibling).getByLabelText(/When do you plan to start moving your PPM?/),
+      ).toBeInTheDocument();
     });
   });
 
   it('delivery address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
-    await act(async () => {
-      render(
+    const container = document.createElement('div');
+    const root = createRoot(container); // Create a root
+    act(() => {
+      root.render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
+    });
 
-      // type something in for delivery address 1
-      await userEvent.type(
-        document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
-        '1234 Street',
-      );
-      // now clear out text, should not raise required alert because street is OPTIONAL in DateAndLocationForm context.
-      await userEvent.clear(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'));
+    // type something in for delivery address 1
+    await userEvent.type(
+      document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+      '1234 Street',
+    );
+    // now clear out text, should not raise required alert because street is OPTIONAL in DateAndLocationForm context.
+    await userEvent.clear(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'));
 
-      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
-        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 delivery address with 2 misc).
-        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
-        // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
-        const hints = document.getElementsByClassName('usa-hint');
-        expect(hints.length).toBe(5);
-        // verify labelHints are actually 'Optional'
-        for (let i = 0; i < hints.length; i += 1) {
-          expect(hints[i]).toHaveTextContent('Required');
-        }
-      });
+      // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 delivery address with 2 misc).
+      // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
+      // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
+      const hints = document.getElementsByClassName('usa-hint');
+      expect(hints.length).toBe(11);
+      // verify labelHints are actually 'Optional'
+      for (let i = 0; i < hints.length; i += 1) {
+        expect(hints[i]).toHaveTextContent('Required');
+      }
     });
   });
 
   it('displays tertiary pickup Address input when hasTertiaryPickupAddress is true', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
 
-      const hasTertiaryPickupAddress = screen.getAllByLabelText('Yes')[2];
+      waitFor(() => {
+        const hasTertiaryPickupAddress = screen.getAllByLabelText('Yes')[2];
 
-      await userEvent.click(hasTertiaryPickupAddress);
-      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
-      const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-
-      await waitFor(() => {
+        userEvent.click(hasTertiaryPickupAddress);
+        const postalCodes = screen.getAllByTestId(/ZIP/);
+        const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+        const address2 = screen.getAllByLabelText('Address 2', { exact: false });
+        const state = screen.getAllByTestId(/State/);
+        const city = screen.getAllByTestId(/City/);
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
         expect(address2[1]).toBeInstanceOf(HTMLInputElement);
         expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
@@ -373,7 +376,7 @@ describe('validates form fields and displays error messages', () => {
     });
   });
   it('displays tertiary delivery address input when hasTertiaryDestinationAddress is true', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
@@ -397,115 +400,135 @@ describe('validates form fields and displays error messages', () => {
   });
 
   it('remove Required alert when secondary pickup/delivery streetAddress1 is cleared but the toggle is switched to No', async () => {
-    await act(async () => {
-      const newPPM = {
-        ...defaultProps,
-        mtoShipment: {
-          ppmShipment: {
-            secondaryPickupAddress: {
-              streetAddress1: '777 Test Street',
-              city: 'ELIZABETHTOWN',
-              state: 'KY',
-              postalCode: '42702',
-              county: 'Hardin',
-            },
-            secondaryDestinationAddress: {
-              streetAddress1: '68 West Elm',
-              city: 'Fort Benning',
-              state: 'GA',
-              postalCode: '94611',
-              county: 'Muscogee',
-            },
-            expectedDepartureDate: '2025-03-08',
+    const newPPM = {
+      ...defaultProps,
+      mtoShipment: {
+        ppmShipment: {
+          secondaryPickupAddress: {
+            streetAddress1: '777 Test Street',
+            city: 'ELIZABETHTOWN',
+            state: 'KY',
+            postalCode: '42702',
+            county: 'Hardin',
           },
+          secondaryDestinationAddress: {
+            streetAddress1: '68 West Elm',
+            city: 'Fort Benning',
+            state: 'GA',
+            postalCode: '94611',
+            county: 'Muscogee',
+          },
+          expectedDepartureDate: '2025-03-08',
         },
-      };
-      const navyServiceMember = {
-        ...defaultProps.serviceMember,
-        affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
-      };
-      render(
-        <Provider store={mockStore.store}>
-          <DateAndLocationForm {...newPPM} serviceMember={navyServiceMember} />
-        </Provider>,
-      );
-      await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
+      },
+    };
+    const navyServiceMember = {
+      ...defaultProps.serviceMember,
+      affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
+    };
+
+    await waitFor( async () => {
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <Provider store={mockStore.store}>
+            <DateAndLocationForm {...newPPM} serviceMember={navyServiceMember} />
+          </Provider>,
+        );
       });
+    });
+
+    waitFor( async () => {
+      await userEvent.click(screen.getByText('Use my current pickup address'));
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
+    });
 
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
-      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
+    waitFor( async () => {
+      const address1 = await screen.getAllByLabelText(/Address 1/, { exact: false });
+      const state = await screen.getAllByTestId(/State/);
+      const city = await screen.getAllByTestId(/City/);
+      const postalCodes = await screen.getAllByTestId(/ZIP/);
+      const county = await screen.getAllByTestId(/County/);
 
       // verify pickup address is populated
       expect(address1[0]).toHaveValue('123 Main');
       expect(screen.getByText('Fort Benning, GA 90210 (Muscogee)'));
 
-      await waitFor(() => {
-        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
-        expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
-      });
+      expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+      expect(city[1]).toBeInstanceOf(HTMLLabelElement);
+      expect(state[1]).toBeInstanceOf(HTMLLabelElement);
+      expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+      expect(county[1]).toBeInstanceOf(HTMLLabelElement);
 
       // verify 2nd pickup is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
       expect(address1[1]).toHaveValue('777 Test Street');
-      expect(screen.getByText('ELIZABETHTOWN, KY 42702 (Hardin)'));
+      expect(city[1]).toHaveTextContent('ELIZABETHTOWN');
+      expect(state[1]).toHaveTextContent('KY');
+      expect(postalCodes[1]).toHaveTextContent('42702');
+      expect(county[1]).toHaveTextContent('Hardin');
+    });
 
+    waitFor(() => {
       // verify delivery address is populated
       expect(address1[2]).toHaveValue('658 West Ave');
       expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[0]);
 
-      await waitFor(() => {
-        expect(address1[3]).toBeInstanceOf(HTMLInputElement);
-        expect(locationLookups[3]).toBeInstanceOf(HTMLInputElement);
-      });
-
+      expect(address1[3]).toBeInstanceOf(HTMLInputElement);
+      expect(city[3]).toBeInstanceOf(HTMLLabelElement);
+      expect(state[3]).toBeInstanceOf(HTMLLabelElement);
+      expect(postalCodes[3]).toBeInstanceOf(HTMLLabelElement);
+      expect(county[3]).toBeInstanceOf(HTMLLabelElement);
+      
       // verify 2nd delivery address is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
 
       expect(address1[3]).toHaveValue('68 West Elm');
-      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[1]);
-
-      // now clear out 2nd pickup address1 text, should raise required alert
-      await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
-      await userEvent.keyboard('[Tab]');
-
-      await waitFor(() => {
-        const requiredAlerts = screen.queryAllByRole('alert');
-        expect(requiredAlerts.length).toBe(1);
-        requiredAlerts.forEach((alert) => {
-          expect(alert).toHaveTextContent('Required');
-        });
-      });
-
-      // toggle second pickup address to No, should get rid of Required error
-      await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
-
-      const alerts = screen.queryAllByRole('alert');
-      expect(alerts.length).toBe(0);
-
-      // now clear out 2nd delivery address1 text, should raise required alert
-      await userEvent.clear(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'));
-      await userEvent.keyboard('[Tab]');
-
-      await waitFor(() => {
-        const requiredAlerts = screen.queryAllByRole('alert');
-        expect(requiredAlerts.length).toBe(1);
-        requiredAlerts.forEach((alert) => {
-          expect(alert).toHaveTextContent('Required');
-        });
-      });
-
-      // toggle second delivery address to No, should get rid of Required error
-      await userEvent.click(screen.getByTitle('No, I do not have a second delivery address'));
-
-      const newAlerts = screen.queryAllByRole('alert');
-      expect(newAlerts.length).toBe(0);
+      expect(city[3]).toHaveTextContent('Fort Benning');
+      expect(state[3]).toHaveTextContent('GA');
+      expect(postalCodes[3]).toHaveTextContent('94611');
     });
+
+    // now clear out 2nd pickup address1 text, should raise required alert
+    await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
+    await userEvent.keyboard('[Tab]');
+
+    await waitFor(() => {
+      const requiredAlerts = screen.queryAllByRole('alert');
+      expect(requiredAlerts.length).toBe(1);
+      requiredAlerts.forEach((alert) => {
+        expect(alert).toHaveTextContent('Required');
+      });
+    });
+
+    // toggle second pickup address to No, should get rid of Required error
+    await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
+
+    const alerts = screen.queryAllByRole('alert');
+    expect(alerts.length).toBe(0);
+
+    // now clear out 2nd delivery address1 text, should raise required alert
+    await userEvent.clear(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'));
+    await userEvent.keyboard('[Tab]');
+
+    await waitFor(() => {
+      const requiredAlerts = screen.queryAllByRole('alert');
+      expect(requiredAlerts.length).toBe(1);
+      requiredAlerts.forEach((alert) => {
+        expect(alert).toHaveTextContent('Required');
+      });
+    });
+
+    // toggle second delivery address to No, should get rid of Required error
+    await userEvent.click(screen.getByTitle('No, I do not have a second delivery address'));
+
+    const newAlerts = screen.queryAllByRole('alert');
+    expect(newAlerts.length).toBe(0);
   });
 });

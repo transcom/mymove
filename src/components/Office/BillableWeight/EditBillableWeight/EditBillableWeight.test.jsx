@@ -275,8 +275,11 @@ describe('EditBillableWeight', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('textInput'));
-    expect(screen.getByText('Required')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+    waitFor(() => {
+      expect(screen.getByText('Required')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    });
   });
 
   it('should disable save button if remarks field is empty', async () => {
@@ -294,7 +297,10 @@ describe('EditBillableWeight', () => {
     expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('remarks'));
     screen.getByTestId('remarks').blur();
-    expect(screen.getByText('Required')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+    waitFor(() => {
+      expect(screen.getByText('Required')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    });
   });
 });

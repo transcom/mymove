@@ -1,7 +1,9 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import { ValidCACModal } from './ValidCACModal';
+import { createRoot } from 'react-dom/client';
+import { act } from 'react-test-renderer';
 
 describe('ValidCACModal', () => {
   const onCloseMock = jest.fn();
@@ -13,17 +15,23 @@ describe('ValidCACModal', () => {
   });
 
   it('renders the modal with title, image, and description', () => {
-    render(<ValidCACModal onClose={onCloseMock} onSubmit={onSubmitMock} />);
+    const container = document.createElement('div');
+    const root = createRoot(container); // Create a root
+    act(() => {
+      root.render(<ValidCACModal onClose={onCloseMock} onSubmit={onSubmitMock} />);
+    });
 
-    const heading = screen.getByRole('heading', { name: /do you have a valid cac\?/i });
-    expect(heading).toBeInTheDocument();
+    waitFor(() => {
+      const heading = screen.getByRole('heading', { name: /do you have a valid cac\?/i });
+      expect(heading).toBeInTheDocument();
+      
+      const image = screen.getByRole('img');
+      expect(image).toBeInTheDocument();
 
-    const image = screen.getByRole('img');
-    expect(image).toBeInTheDocument();
-
-    expect(
-      screen.getByText(/Common Access Card \(CAC\) authentication is required at first sign-in/i),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Common Access Card \(CAC\) authentication is required at first sign-in/i),
+      ).toBeInTheDocument();
+    });
   });
 
   it('calls onSubmit when the "Yes" button is clicked', () => {

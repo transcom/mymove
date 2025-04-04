@@ -1,5 +1,5 @@
 import React from 'react';
-import { waitFor, screen, fireEvent, act, within } from '@testing-library/react';
+import { waitFor, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import HeaderSection from './HeaderSection';
@@ -262,7 +262,7 @@ const invalidSectionTypeProps = {
 };
 
 const clickDetailsButton = async (buttonType) => {
-  await act(async () => {
+  await waitFor(async () => {
     await fireEvent.click(screen.getByTestId(`${buttonType}-showRequestDetailsButton`));
   });
   await waitFor(() => {
@@ -275,14 +275,14 @@ describe('PPMHeaderSummary component', () => {
     it('renders Shipment Info section on load with defaults', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
       });
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 4, name: 'Shipment Info' })).toBeInTheDocument();
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('shipmentInfo');
       });
 
@@ -310,10 +310,10 @@ describe('PPMHeaderSummary component', () => {
     it('renders "Incentives/Costs" section on load with correct prop values', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...incentivesProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('incentives');
       });
 
@@ -334,23 +334,23 @@ describe('PPMHeaderSummary component', () => {
     it('edits actual expense reimbursement correctly', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('shipmentInfo');
       });
 
       const modalButton = within(screen.getByTestId('isActualExpenseReimbursement')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByText('Yes')));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+      await waitFor(() => userEvent.click(modalButton));
+      await waitFor(() => userEvent.click(screen.getByText('Yes')));
+      await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
           moveTaskOrderID: 'move123',
           shipmentID: 'shipment123',
@@ -367,22 +367,22 @@ describe('PPMHeaderSummary component', () => {
     it('edits actual move date correctly', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('shipmentInfo');
       });
 
       const modalButton = within(screen.getByTestId('actualMoveDate')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+      await waitFor(() => userEvent.click(modalButton));
+      await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
           moveTaskOrderID: 'move123',
           shipmentID: 'shipment123',
@@ -399,22 +399,22 @@ describe('PPMHeaderSummary component', () => {
     it('edits advance amount received correctly', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...incentivesProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('incentives');
       });
 
       const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+      await waitFor(() => userEvent.click(modalButton));
+      await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
           moveTaskOrderID: 'move123',
           shipmentID: 'shipment123',
@@ -432,22 +432,22 @@ describe('PPMHeaderSummary component', () => {
     it('if advance amount received is 0', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...incentivesAdvanceReceivedZeroProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('incentives');
       });
 
       const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+      await waitFor(() => userEvent.click(modalButton));
+      await waitFor(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
           moveTaskOrderID: 'move123',
           shipmentID: 'shipment123',
@@ -467,10 +467,10 @@ describe('PPMHeaderSummary component', () => {
     it('renders "Incentive Factors" on load with correct prop values', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...incentiveFactorsProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('incentiveFactors');
       });
 
@@ -498,10 +498,10 @@ describe('PPMHeaderSummary component', () => {
     it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...incentiveFactorsShorthaulProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton('incentiveFactors');
       });
 
@@ -525,7 +525,7 @@ describe('PPMHeaderSummary component', () => {
     it('renders an alert if an unknown section type was passed in', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
       });
 
@@ -537,10 +537,10 @@ describe('PPMHeaderSummary component', () => {
     it('renders an alert if an unknown section type was passed in and details are expanded', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
+      await waitFor(async () => {
         renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
       });
-      await act(async () => {
+      await waitFor(async () => {
         clickDetailsButton(invalidSectionTypeProps.sectionInfo.type);
       });
       expect(screen.getByText('An error occured while getting section markup!')).toBeInTheDocument();

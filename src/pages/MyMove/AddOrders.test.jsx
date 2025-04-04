@@ -1,7 +1,6 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
@@ -261,22 +260,24 @@ describe('Add Orders page', () => {
       path: customerRoutes.ORDERS_ADD_PATH,
     });
 
-    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
-    expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
-    expect(screen.getByText('Are dependents included in your orders?')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+    waitFor(() => {
+      screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
+      expect(screen.getByText('Are dependents included in your orders?')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
 
-    const backBtn = await screen.findByRole('button', { name: 'Back' });
-    expect(backBtn).toBeInTheDocument();
-    expect(backBtn).toBeEnabled();
+      const backBtn = screen.findByRole('button', { name: 'Back' });
+      expect(backBtn).toBeInTheDocument();
+      expect(backBtn).toBeEnabled();
 
-    const nextBtn = await screen.findByRole('button', { name: 'Next' });
-    expect(nextBtn).toBeInTheDocument();
-    expect(nextBtn).toBeDisabled();
+      const nextBtn = screen.findByRole('button', { name: 'Next' });
+      expect(nextBtn).toBeInTheDocument();
+      expect(nextBtn).toBeDisabled();
+    })
   });
 
   it('does not render conditional dependent fields on load', async () => {
@@ -428,9 +429,10 @@ describe('Add Orders page', () => {
     });
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
-    expect(nextBtn).toBeInTheDocument();
 
-    await act(async () => {
+    await waitFor(async () => {
+      expect(nextBtn).toBeInTheDocument();
+
       await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
@@ -457,7 +459,7 @@ describe('Add Orders page', () => {
 
     await waitFor(() => expect(nextBtn).toBeEnabled());
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(nextBtn);
     });
 
@@ -526,24 +528,25 @@ describe('Add Orders page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
-    expect(nextBtn).toBeInTheDocument();
 
     // Set standard form fields
-    await act(async () => {
-      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
-      await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
-      await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
-      await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await waitFor(() => {
+      expect(nextBtn).toBeInTheDocument();
+
+      userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+      userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+      userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+      userEvent.click(screen.getByLabelText('No'));
+      userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
       // Select a CONUS current duty location
-      await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-      const selectedOptionCurrent = await screen.findByText('Altus');
-      await userEvent.click(selectedOptionCurrent);
+      userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+      const selectedOptionCurrent = screen.findByText(/Altus/);
+      userEvent.click(selectedOptionCurrent);
       // Select an OCONUS new duty location
-      await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-      const selectedOptionNew = await screen.findByText(/Elmendorf/);
-      await userEvent.click(selectedOptionNew);
+      userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+      const selectedOptionNew = screen.findByText(/Elmendorf/);
+      userEvent.click(selectedOptionNew);
     });
 
     await waitFor(() => {
@@ -551,21 +554,17 @@ describe('Add Orders page', () => {
         new_duty_location: 'Elmendorf AFB',
         origin_duty_location: 'Altus AFB',
       });
-    });
 
-    // Set dependents and accompanied tour
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+      // Set dependents and accompanied tour
+      userEvent.click(screen.getByTestId('hasDependentsYes'));
+      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
 
-    await waitFor(() => expect(nextBtn).toBeEnabled());
+      expect(nextBtn).toBeEnabled();
 
-    await act(async () => {
-      await userEvent.click(nextBtn);
-    });
+      userEvent.click(nextBtn);
 
-    await waitFor(() => {
       expect(createOrders).toHaveBeenCalledWith(testOrdersValues);
     });
   });
@@ -626,43 +625,38 @@ describe('Add Orders page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
-    expect(nextBtn).toBeInTheDocument();
 
     // Set standard form fields
-    await act(async () => {
-      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
-      await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
-      await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
-      await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await waitFor(() => {
+      expect(nextBtn).toBeInTheDocument();
+
+      userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+      userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+      userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+      userEvent.click(screen.getByLabelText('No'));
+      userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
       // Select a CONUS current duty location
-      await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-
-      const selectedOptionCurrent = await screen.findByText('Altus');
-      await userEvent.click(selectedOptionCurrent);
+      userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+      const selectedOptionCurrent = screen.findByText(/Altus/);
+      userEvent.click(selectedOptionCurrent);
       // Select an CONUS new duty location
-      await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-      const selectedOptionNew = await screen.findByText(/Luke/);
-      await userEvent.click(selectedOptionNew);
+      userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+      const selectedOptionNew = screen.findByText(/Luke/);
+      userEvent.click(selectedOptionNew);
     });
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
         origin_duty_location: 'Altus AFB',
       });
-    });
 
-    await waitFor(() => expect(nextBtn).toBeEnabled());
+      expect(nextBtn).toBeEnabled()
+      userEvent.click(nextBtn);
 
-    await act(async () => {
-      await userEvent.click(nextBtn);
-    });
-
-    await waitFor(() => {
       expect(createOrders).toHaveBeenCalledWith(testOrdersValues);
-    });
+    })
   });
 
   it('redirects the user if canAddOrders is false', async () => {

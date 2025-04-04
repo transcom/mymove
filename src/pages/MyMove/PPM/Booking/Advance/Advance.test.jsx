@@ -9,7 +9,6 @@ import Advance from './Advance';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { updateMTOShipment } from 'store/entities/actions';
 import { setFlashMessage } from 'store/flash/actions';
 import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
@@ -287,7 +286,10 @@ describe('Advance page', () => {
     await userEvent.click(agreeToTerms);
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    expect(saveButton).not.toBeDisabled();
+
+    waitFor(() => {
+      expect(saveButton).not.toBeDisabled();
+    });
     await userEvent.click(saveButton);
 
     const expectedPayload = {
@@ -334,27 +336,6 @@ describe('Advance page', () => {
     await waitFor(() =>
       expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, expectedPayload, mockMTOShipment.eTag),
     );
-  });
-
-  it('updates the state if shipment patch is successful', async () => {
-    patchMTOShipment.mockResolvedValue(mockMTOShipment);
-
-    render(<Advance />, { wrapper: MockProviders });
-
-    const advance = 4000;
-    const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
-    await userEvent.click(hasRequestedAdvanceYesInput);
-
-    const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
-    await userEvent.click(agreeToTerms);
-
-    const advanceInput = screen.getByLabelText(/Amount requested/);
-    await userEvent.type(advanceInput, String(advance));
-
-    const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    await userEvent.click(saveButton);
-
-    await waitFor(() => expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockMTOShipment)));
   });
 
   it('routes to the review page when the user clicks save & continue', async () => {

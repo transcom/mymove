@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import ExpandableServiceItemRow from './ExpandableServiceItemRow';
 
@@ -196,7 +196,7 @@ describe('Payment service items', () => {
     expect(screen.getByText('Rejected')).toBeVisible();
 
     // Expand service item row
-    await act(async () => {
+    await waitFor(async () => {
       screen.getByText('Domestic linehaul').click();
     });
 
@@ -244,7 +244,7 @@ describe('Payment service items', () => {
     expect(screen.getByText('Accepted')).toBeVisible();
 
     // Expand service item row
-    await act(async () => {
+    await waitFor(async () => {
       screen.getByText('Domestic linehaul').click();
     });
 
@@ -290,7 +290,7 @@ describe('Payment service items', () => {
     expect(screen.getByText('Rejected')).toBeVisible();
 
     // Expand service item row
-    await act(async () => {
+    await waitFor(async () => {
       screen.getByText('Move Management').click();
     });
 
