@@ -246,6 +246,11 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
+        {details?.status === 'APPROVED' &&
+          generateDetailText({
+            'Estimated Price':
+              details.estimatedPrice !== undefined || null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+          })}
       </dl>
     </div>
   );
@@ -271,6 +276,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {details?.status === 'APPROVED' &&
+              generateDetailText({
+                'Estimated Price':
+                  details.estimatedPrice !== undefined || null
+                    ? toDollarString(formatCents(details.estimatedPrice))
+                    : '-',
+              })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
@@ -323,6 +335,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {details?.status === 'APPROVED' &&
+              generateDetailText({
+                'Estimated Price':
+                  details.estimatedPrice !== undefined || null
+                    ? toDollarString(formatCents(details.estimatedPrice))
+                    : '-',
+              })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
@@ -361,6 +380,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {details?.status === 'APPROVED' &&
+              generateDetailText({
+                'Estimated Price':
+                  details.estimatedPrice !== undefined || null
+                    ? toDollarString(formatCents(details.estimatedPrice))
+                    : '-',
+              })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
