@@ -193,7 +193,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                       aria-label="Acknowledge Move"
                       className="usa-button usa-button-secondary"
                     >
-                      Acknowledge
+                      Acknowledge Move
                     </Link>
                   </div>
                   {errorMessage?.detail && (
