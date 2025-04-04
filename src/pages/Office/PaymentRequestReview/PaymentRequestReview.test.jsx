@@ -433,7 +433,7 @@ describe('PaymentRequestReview', () => {
             expect(screen.getByRole('radio', { name: 'Reject' })).toBeChecked();
             const reasonInput = screen.getByRole('textbox', { name: 'Reason for rejection' });
             await userEvent.type(reasonInput, 'duplicate charge');
-          })
+          });
 
           const nextButton = screen.getByRole('button', { name: 'Next Service Item' });
           await userEvent.click(nextButton);
@@ -442,7 +442,7 @@ describe('PaymentRequestReview', () => {
             expect(screen.findByText('Test Service Item 3')).toBeInTheDocument();
             expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
             expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
-          })
+          });
 
           await userEvent.click(nextButton);
           waitFor(() => {
@@ -450,7 +450,7 @@ describe('PaymentRequestReview', () => {
             expect(screen.getByText('Test Service Item 4')).toBeInTheDocument();
             expect(screen.getByRole('radio', { name: 'Reject' })).not.toBeChecked();
             expect(screen.getByRole('radio', { name: 'Approve' })).not.toBeChecked();
-          })
+          });
 
           await userEvent.click(nextButton);
           waitFor(() => {
@@ -477,11 +477,11 @@ describe('PaymentRequestReview', () => {
           expect(screen.getByText('1 OF 4 ITEMS')).toBeInTheDocument();
           expect(screen.getByText(/Test Service Item 1/)).toBeInTheDocument();
           expect(screen.getByRole('radio', { name: 'Approve' })).toBeChecked();
-        })
+        });
 
         const nextButton = screen.getByRole('button', { name: 'Next Service Item' });
 
-        waitFor( async () =>{
+        waitFor(async () => {
           await userEvent.click(nextButton);
           expect(screen.getByText('2 OF 4 ITEMS')).toBeInTheDocument();
           expect(screen.getByText(/Test Service Item 2/)).toBeInTheDocument();
@@ -489,13 +489,13 @@ describe('PaymentRequestReview', () => {
           expect(screen.getByText('duplicate charge')).toBeInTheDocument();
         });
 
-        waitFor( async () =>{
+        waitFor(async () => {
           await userEvent.click(nextButton);
           expect(screen.getByText('3 OF 4 ITEMS')).toBeInTheDocument();
         });
         await userEvent.click(nextButton);
 
-        waitFor(() =>{
+        waitFor(() => {
           expect(screen.getByRole('button', { name: 'Authorize payment' })).toBeInTheDocument();
         });
       });

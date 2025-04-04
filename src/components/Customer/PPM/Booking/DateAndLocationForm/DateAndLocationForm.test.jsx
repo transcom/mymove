@@ -427,7 +427,7 @@ describe('validates form fields and displays error messages', () => {
       affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
     };
 
-    await waitFor( async () => {
+    await waitFor(async () => {
       const container = document.createElement('div');
       const root = createRoot(container); // Create a root
       act(() => {
@@ -439,7 +439,7 @@ describe('validates form fields and displays error messages', () => {
       });
     });
 
-    waitFor( async () => {
+    waitFor(async () => {
       await userEvent.click(screen.getByText('Use my current pickup address'));
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
@@ -449,7 +449,7 @@ describe('validates form fields and displays error messages', () => {
       await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
     });
 
-    waitFor( async () => {
+    waitFor(async () => {
       const address1 = await screen.getAllByLabelText(/Address 1/, { exact: false });
       const state = await screen.getAllByTestId(/State/);
       const city = await screen.getAllByTestId(/City/);
@@ -485,7 +485,7 @@ describe('validates form fields and displays error messages', () => {
       expect(state[3]).toBeInstanceOf(HTMLLabelElement);
       expect(postalCodes[3]).toBeInstanceOf(HTMLLabelElement);
       expect(county[3]).toBeInstanceOf(HTMLLabelElement);
-      
+
       // verify 2nd delivery address is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
 

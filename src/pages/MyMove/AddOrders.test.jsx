@@ -277,7 +277,7 @@ describe('Add Orders page', () => {
       const nextBtn = screen.findByRole('button', { name: 'Next' });
       expect(nextBtn).toBeInTheDocument();
       expect(nextBtn).toBeDisabled();
-    })
+    });
   });
 
   it('does not render conditional dependent fields on load', async () => {
@@ -652,11 +652,11 @@ describe('Add Orders page', () => {
         origin_duty_location: 'Altus AFB',
       });
 
-      expect(nextBtn).toBeEnabled()
+      expect(nextBtn).toBeEnabled();
       userEvent.click(nextBtn);
 
       expect(createOrders).toHaveBeenCalledWith(testOrdersValues);
-    })
+    });
   });
 
   it('redirects the user if canAddOrders is false', async () => {

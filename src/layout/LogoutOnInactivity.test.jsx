@@ -56,22 +56,28 @@ describe('LogoutOnInactivity', () => {
       expect(
         screen.queryByText('You have been inactive and will be logged out', { exact: false }),
       ).not.toBeInTheDocument();
-      await waitFor(async () => {
-        return sleep(idleTimeout - warningTime);
-      }, {timeout:5000});
+      await waitFor(
+        async () => {
+          return sleep(idleTimeout - warningTime);
+        },
+        { timeout: 5000 },
+      );
 
       expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
     });
 
     it('removes the idle alert if a user performs a click', async () => {
       // alert is missing before the user is idle for too long
-      waitFor(() => {
-        expect(
-          screen.queryByText('You have been inactive and will be logged out', { exact: false }),
-        ).not.toBeInTheDocument();
+      waitFor(
+        () => {
+          expect(
+            screen.queryByText('You have been inactive and will be logged out', { exact: false }),
+          ).not.toBeInTheDocument();
 
-        return sleep(idleTimeout - warningTime);
-      }, {timeout:10000});
+          return sleep(idleTimeout - warningTime);
+        },
+        { timeout: 10000 },
+      );
 
       // alert is present after user is idle for too long
       expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
@@ -80,7 +86,7 @@ describe('LogoutOnInactivity', () => {
       await userEvent.click(wrapper);
 
       // alert is not present after the click
-      waitFor(() =>{
+      waitFor(() => {
         expect(
           screen.queryByText('You have been inactive and will be logged out', { exact: false }),
         ).not.toBeInTheDocument();
@@ -93,7 +99,7 @@ describe('LogoutOnInactivity', () => {
       await waitFor(async () => renderComponent({ loggedIn: false }));
       const wrapper = screen.queryByTestId('logoutOnInactivityWrapper');
 
-      waitFor( async () => {
+      waitFor(async () => {
         const wrapper = await screen.queryByTestId('logoutOnInactivityWrapper');
         expect(wrapper).not.toBeInTheDocument();
       });

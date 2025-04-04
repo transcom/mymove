@@ -78,7 +78,7 @@ describe('Shipment Info List - Mobile Home Shipment', () => {
     waitFor(() => {
       const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
       expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
-      
+
       const pickupAddress = screen.getByText(labels.pickupAddress);
       expect(
         within(pickupAddress.parentElement).getByText(shipment.pickupAddress.streetAddress1, { exact: false }),
@@ -108,7 +108,9 @@ describe('Shipment Info List - Mobile Home Shipment', () => {
       expect(within(customerRemarks.parentElement).getByText(shipment.customerRemarks)).toBeInTheDocument();
 
       const dimensions = screen.getByText(labels.dimensions);
-      expect(within(dimensions.parentElement).getByText("300' L x 85' W x 120' H", { exact: false })).toBeInTheDocument();
+      expect(
+        within(dimensions.parentElement).getByText("300' L x 85' W x 120' H", { exact: false }),
+      ).toBeInTheDocument();
     });
   });
 

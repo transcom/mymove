@@ -412,7 +412,7 @@ describe('Shipment Container', () => {
         expect(screen.queryByRole('button', { name: 'Complete PPM on behalf of the Customer' })).toBeVisible();
         expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
         expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
-      })
+      });
     });
     describe("renders the 'packet ready for download' tag when", () => {
       it('approved', () => {

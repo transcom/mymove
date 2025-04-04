@@ -258,7 +258,7 @@ describe('AboutForm component', () => {
       waitFor(() => {
         userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
         userEvent.tab();
-      })
+      });
     });
 
     it('displays error when advance received is below 1 dollar minimum', async () => {
@@ -272,7 +272,7 @@ describe('AboutForm component', () => {
 
       await userEvent.type(screen.getByLabelText('How much did you receive?'), '0');
 
-      waitFor( async () => {
+      waitFor(async () => {
         expect(await screen.getByRole('alert')).toHaveTextContent(
           "The minimum advance request is $1. If you don't want an advance, select No.",
         );

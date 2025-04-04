@@ -503,7 +503,7 @@ describe('ReviewWeightTicket component', () => {
       await waitFor(() => {
         expect(screen.getByText('2022 Honda CR-V Hybrid')).toBeInTheDocument();
       });
-      
+
       const emptyWeightInput = screen.getByTestId('emptyWeight');
       const fullWeightInput = screen.getByTestId('fullWeight');
       const netWeightDisplay = screen.getByTestId('net-weight-display');

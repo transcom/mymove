@@ -259,7 +259,7 @@ describe('CreateCustomerForm', () => {
       expect(screen.getByText('Backup Contact')).toBeInTheDocument();
       expect(screen.getByText('Okta Account')).toBeInTheDocument();
       expect(screen.getByText('Non-CAC Users')).toBeInTheDocument();
-  
+
       const saveBtn = screen.findByRole('button', { name: 'Save' });
       expect(saveBtn).toBeInTheDocument();
       expect(saveBtn).toBeDisabled();

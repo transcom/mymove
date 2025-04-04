@@ -26,7 +26,7 @@ describe('SmartCardRedirect tests', () => {
       const image = screen.getByRole('img');
       expect(image).toBeInTheDocument();
       expect(image).toHaveAttribute('src', 'smart-card.png');
-    })
+    });
   });
 
   it('should render the text on the page', () => {

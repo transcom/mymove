@@ -66,7 +66,7 @@ describe('MobileHomeShipmentForm component', () => {
             'Are there things about this mobile home shipment that your counselor or movers should know or discuss with you?',
           ),
         ).toBeVisible();
-      })
+      });
     });
   });
 
@@ -126,7 +126,7 @@ describe('MobileHomeShipmentForm component', () => {
 
       await userEvent.clear(screen.getByTestId('year'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      
+
       waitFor(() => {
         expect(defaultProps.onSubmit).not.toHaveBeenCalled();
       });

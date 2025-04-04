@@ -404,7 +404,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      waitFor( async () => {
+      waitFor(async () => {
         expect(await screen.findByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
       });
     });
@@ -449,7 +449,7 @@ describe('Orders page', () => {
     it('validates on load', async () => {
       // Both TAC and LOA are missing on load (On this test per useOrdersDocumentQueriesReturnValue and the
       // mocked responses)
-      waitFor( async () => {
+      waitFor(async () => {
         expect(await screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
         expect(await screen.getByText(/Unable to find a LOA based on the provided details/)).toBeInTheDocument();
       });
@@ -552,7 +552,7 @@ describe('Orders page', () => {
         );
       });
 
-     waitFor( async () => {
+      waitFor(async () => {
         const hhgTacInput = await screen.findByTestId('hhgTacInput');
         await userEvent.clear(hhgTacInput);
         await userEvent.type(hhgTacInput, '1111');
@@ -561,7 +561,7 @@ describe('Orders page', () => {
           '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345**B1*';
 
         const loaTextField = screen.getByTestId('hhgLoaTextField');
-        
+
         expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
       });
     });
@@ -611,12 +611,12 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
-      waitFor( async () => {
+      waitFor(async () => {
         // Select STUDENT_TRAVEL from the dropdown
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
@@ -658,13 +658,13 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
       // De-select STUDENT_TRAVEL from the dropdown
-      waitFor( async () => {
+      waitFor(async () => {
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
@@ -705,12 +705,12 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
-      waitFor( async () => {
+      waitFor(async () => {
         // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
@@ -753,12 +753,12 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
-      waitFor( async () =>{
+      waitFor(async () => {
         // Select STUDENT_TRAVEL and then select EARLY_RETURN_OF_DEPENDENTS from the dropdown
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
@@ -807,12 +807,12 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
-      waitFor( async () => {
+      waitFor(async () => {
         // Select EARLY_RETURN_OF_DEPENDENTS from the dropdown
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
@@ -854,12 +854,12 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
-      waitFor( async () => {
+      waitFor(async () => {
         // De-select EARLY_RETURN_OF_DEPENDENTS from the dropdown
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
@@ -901,12 +901,12 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
-      waitFor( async () => {
+      waitFor(async () => {
         // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
@@ -949,12 +949,12 @@ describe('Orders page', () => {
       act(() => {
         root.render(
           <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
+            <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,
         );
       });
 
-      waitFor( async () => {
+      waitFor(async () => {
         // Select EARLY_RETURN_OF_DEPENDENTS and then select STUDENT_TRAVEL from the dropdown
         const ordersTypeDropdown = await screen.findByLabelText('Orders type');
         await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
