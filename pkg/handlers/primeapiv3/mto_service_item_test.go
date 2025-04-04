@@ -1337,10 +1337,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 			},
-			CreatedAt:        time.Now(),
-			UpdatedAt:        time.Now(),
-			SITEntryDate:     &sitEntryDate,
-			SITDepartureDate: &sitDepartureDate,
+			CreatedAt:                  time.Now(),
+			UpdatedAt:                  time.Now(),
+			SITEntryDate:               &sitEntryDate,
+			SITDepartureDate:           &sitDepartureDate,
+			SITDestinationFinalAddress: subtestData.mtoShipment.DestinationAddress,
 		}
 		subtestData.params = mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,

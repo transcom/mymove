@@ -252,7 +252,7 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 
 	switch serviceItem.ReService.Code {
 	case models.ReServiceCodeDDFSIT:
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
@@ -268,13 +268,13 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDDDSIT:
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
 
 		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 			if err != nil {
 				return 0, err
 			}
@@ -287,14 +287,14 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			*adjustedWeight,
 			domesticServiceArea.ServiceArea,
 			domesticServiceArea.SITPDSchedule,
-			mtoShipment.PickupAddress.PostalCode,
 			mtoShipment.DestinationAddress.PostalCode,
+			serviceItem.SITDestinationFinalAddress.PostalCode,
 			unit.Miles(distance))
 		if err != nil {
 			return 0, err
 		}
 	case models.ReServiceCodeDDASIT:
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
@@ -322,7 +322,7 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		}
 
 		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 			if err != nil {
 				return 0, err
 			}
@@ -348,7 +348,7 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		}
 
 		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+			distance, err = o.planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGOriginalAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
 			if err != nil {
 				return 0, err
 			}
@@ -980,7 +980,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					return fmt.Errorf("%e", err)
 				}
 			}
-
 		}
 
 		// If updates were made to shipment, save update in the database

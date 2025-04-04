@@ -63,6 +63,7 @@ const details = {
     streetAddress1: 'MacDill',
   },
   estimatedPrice: 2800,
+  status: 'APPROVED',
 };
 
 const submittedServiceItemDetails = {
@@ -812,6 +813,23 @@ describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC,
 
       expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
       expect(screen.getByText('$28.00')).toBeInTheDocument();
+    },
+  );
+
+  it.each([['DDFSIT'], ['DDDSIT'], ['DDASIT'], ['DDSFSC'], ['DOPSIT'], ['DOFSIT'], ['DOASIT'], ['DOSFSC']])(
+    'renders the formatted estimated price field for the service item: %s',
+    (code) => {
+      render(
+        <ServiceItemDetails
+          id="1"
+          code={code}
+          details={submittedServiceItemDetails}
+          shipment={shipment}
+          serviceRequestDocs={serviceRequestDocs}
+        />,
+      );
+
+      expect(screen.queryByText('Estimated Price:')).not.toBeInTheDocument();
     },
   );
 });
