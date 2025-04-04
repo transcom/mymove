@@ -29,6 +29,32 @@ func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) err
 		return err
 	}
 
+	// find any associated ServiceMember, OfficeUser, or AdminUser
+
+	var serviceMember models.ServiceMember
+	serviceMemberCount, err := appCtx.DB().Where("user_id = ?", id).Count(&serviceMember)
+	if err == sql.ErrNoRows {
+		appCtx.Logger().Debug("Not a ServiceMember")
+	} else if err != nil {
+		return err
+	}
+
+	var officeUser models.OfficeUser
+	officeUserCount, err := appCtx.DB().Where("user_id = ?", id).Count(&officeUser)
+	if err == sql.ErrNoRows {
+		appCtx.Logger().Debug("Not an OfficeUser")
+	} else if err != nil {
+		return err
+	}
+
+	var adminUser models.AdminUser
+	adminUserCount, err := appCtx.DB().Where("user_id = ?", id).Count(&adminUser)
+	if err == sql.ErrNoRows {
+		appCtx.Logger().Debug("Not an AdminUser")
+	} else if err != nil {
+		return err
+	}
+
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		userIdFilter := []services.QueryFilter{query.NewQueryFilter("user_id", "=", user.ID.String())}
 		if len(user.Roles) > 0 {
@@ -42,6 +68,27 @@ func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) err
 		if len(user.Privileges) > 0 {
 			// Delete associated privileges (users_privileges)
 			err = o.builder.DeleteMany(appCtx, &[]models.UsersPrivileges{}, userIdFilter)
+			if err != nil {
+				return err
+			}
+		}
+
+		if serviceMemberCount > 0 {
+			err = o.builder.DeleteMany(appCtx, &[]models.ServiceMember{}, userIdFilter)
+			if err != nil {
+				return err
+			}
+		}
+
+		if officeUserCount > 0 {
+			err = o.builder.DeleteMany(appCtx, &[]models.OfficeUser{}, userIdFilter)
+			if err != nil {
+				return err
+			}
+		}
+
+		if adminUserCount > 0 {
+			err = o.builder.DeleteMany(appCtx, &[]models.AdminUser{}, userIdFilter)
 			if err != nil {
 				return err
 			}
