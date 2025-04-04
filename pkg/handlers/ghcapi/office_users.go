@@ -239,14 +239,15 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 			}
 
 			if officeUserID != appCtx.Session().OfficeUserID {
-				appCtx.Logger().Error("Office User ID does not match session office user ID", zap.Error(err), zap.Error(err))
+				err := apperror.NewForbiddenError("Office User ID does not match session office user ID")
+				appCtx.Logger().Error(err.Error(), zap.Error(err))
 				return officeuserop.NewUpdateOfficeUserUnauthorized(), err
 			}
 
 			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
 
-			if officeUserDB.ID == uuid.Nil || err != nil {
-				appCtx.Logger().Error("Error fetching office user", zap.Error(err))
+			if err != nil {
+				appCtx.Logger().Error(err.Error(), zap.Error(err))
 				return officeuserop.NewUpdateOfficeUserNotFound(), err
 			}
 
