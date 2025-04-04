@@ -1,19 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router';
 
+import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import { patchOrders, getResponseError, getOrders } from 'services/internalApi';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { withContext } from 'shared/AppContext';
 import { formatDateForSwagger } from 'shared/dates';
 import { formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS, rankOptionValuesByAffiliation } from 'constants/orders';
 import { selectServiceMemberFromLoggedInUser, selectOrdersForLoggedInUser } from 'store/entities/selectors';
 import { generalRoutes } from 'constants/routes';
+import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import withRouter from 'utils/routing';
 
 const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
@@ -126,38 +126,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   updateOrders: updateOrdersAction,
-};
-
-export const usePaygradeRankDropdownOptions = (affiliation) => {
-  const paygradeRankOptionValues = useMemo(() => {
-    const affiliatedValues = rankOptionValuesByAffiliation(affiliation);
-    const paygradeRankOptions = Object.fromEntries(
-      Object.values(affiliatedValues).map((pgr) => {
-        return [pgr.abbv_rank, pgr.value];
-      }),
-    );
-
-    const paygradeRankDropdownOptions = dropdownInputOptions(paygradeRankOptions);
-    const sortedResult = paygradeRankDropdownOptions.sort((a, b) => {
-      const theGradeA = affiliatedValues[a.key].grade;
-      const [typeA] = theGradeA.split('_');
-      const theGradeB = affiliatedValues[b.key].grade;
-      const [typeB] = theGradeB.split('_');
-      const typeCompare = typeB.localeCompare(typeA);
-      return typeCompare;
-    });
-    sortedResult.reverse();
-    return [affiliatedValues, sortedResult];
-  }, [affiliation]);
-
-  switch (affiliation) {
-    case '':
-    case undefined:
-    case null:
-      return [{}, []];
-    default:
-      return paygradeRankOptionValues;
-  }
 };
 
 export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Orders)));

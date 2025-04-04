@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
@@ -10,12 +11,13 @@ import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../..
 
 import styles from './AddOrdersForm.module.scss';
 
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
-import { dropdownInputOptions } from 'utils/formatters';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { usePaygradeRankDropdownOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
@@ -34,7 +36,7 @@ const AddOrdersForm = ({
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
 }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+  const { affiliation } = { affiliation: useSelector((state) => selectServiceMemberAffiliation(state)) ?? '' };
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -47,9 +49,11 @@ const AddOrdersForm = ({
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
   const [ordersType, setOrdersType] = useState('');
-  const [grade, setGrade] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const { customerId: serviceMemberId } = useParams();
+  const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
+
+  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     ordersType: Yup.mixed()
@@ -67,7 +71,7 @@ const AddOrdersForm = ({
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    rank: Yup.mixed().oneOf(Object.keys(mappedRanks)).required('Required'),
     accompaniedTour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
@@ -146,6 +150,7 @@ const AddOrdersForm = ({
     enableUB,
     ordersType,
     grade,
+    rank,
     isCivilianTDYMove,
   ]);
 
@@ -171,6 +176,13 @@ const AddOrdersForm = ({
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
 
+        const handleRankChange = (rankGrade = {}) => {
+          setRank({ rank: rankGrade.rank, grade: rankGrade.grade });
+          setValues({
+            ...values,
+            ...rankGrade,
+          });
+        };
         const handleCounselingOfficeChange = () => {
           setValues({
             ...values,
@@ -434,20 +446,26 @@ const AddOrdersForm = ({
                   />
                 </FormGroup>
               )}
-
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
+                showRequiredAsterisk
+                label="Rank"
+                name="rank"
+                id="rank"
                 required
-                options={payGradeOptions}
-                hint="Required"
+                options={paygradeRankOptionValues}
                 onChange={(e) => {
-                  setGrade(e.target.value);
+                  if (e.target.value === '') {
+                    handleRankChange({ rank: null, grade: null });
+                    handleChange(e);
+                    return;
+                  }
+
+                  const abbvRank = e.target.value;
+                  const gradeForRank = mappedRanks[abbvRank].grade;
+                  handleRankChange({ rank: abbvRank, grade: gradeForRank });
                   handleChange(e);
                 }}
               />
-
               {isCivilianTDYMove && (
                 <FormGroup>
                   <div>

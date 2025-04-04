@@ -318,6 +318,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				deptIndicator,
 				&originDutyLocation,
 				grade,
+				payload.Rank,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
@@ -507,7 +508,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.DestinationGBLOC = newDutyLocationGBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
-			// order.Rank = payload.Rank
 
 			rank := payload.Rank
 
@@ -519,13 +519,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-
-			// type PayGradeRankModel struct {
-			// 	Id             uuid.UUID `db:"id"`
-			// 	PaygradeRankId uuid.UUID `db:"pay_grade_id"`
-			// 	Affiliation    string    `db:"affiliation"`
-			// 	Abbreviation   string    `db:"rank_short_name"`
-			// }
 
 			paygradeRank := &models.PaygradeRank{}
 
@@ -653,14 +646,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			}
 
-			order.Grade = payload.Grade
-
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
 
 			order.PaygradeRankId = paygradeRank.ID
-
+			order.Grade = payload.Grade
+			order.Rank = *paygradeRank
 			verrs, err := models.SaveOrder(appCtx.DB(), &order)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

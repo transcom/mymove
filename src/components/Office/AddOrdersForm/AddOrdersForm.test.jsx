@@ -13,6 +13,10 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
 
 jest.setTimeout(60000);
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectServiceMemberAffiliation: jest.fn().mockImplementation(() => 'ARMY'),
+}));
 
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
@@ -128,6 +132,7 @@ const initialValues = {
   hasDependents: '',
   newDutyLocation: '',
   grade: '',
+  rank: '',
   originDutyLocation: '',
   accompaniedTour: '',
   dependentsUnderTwelve: '',
@@ -161,7 +166,7 @@ describe('CreateMoveCustomerInfo Component', () => {
       expect(screen.getByTestId('hasDependentsNo')).toBeInTheDocument();
       expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
       expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Rank/)).toBeInTheDocument();
     });
   });
 
@@ -214,7 +219,7 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.click(getByLabelText(/Report by date/));
     await userEvent.click(getByLabelText(/Current duty location/));
     await userEvent.click(getByLabelText(/New duty location/));
-    await userEvent.click(getByLabelText(/Pay grade/));
+    await userEvent.click(getByLabelText(/Rank/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
@@ -244,7 +249,7 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SGT']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB');
     await userEvent.click(await screen.findByText(/Elmendorf/));
@@ -440,7 +445,7 @@ describe('AddOrdersForm - With Counseling Office', () => {
     await userEvent.paste(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.paste(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), 'SGT');
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -486,7 +491,7 @@ describe('AddOrdersForm - With Counseling Office', () => {
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeTruthy(); // If the field is visible then it it required
 
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), 'SGT');
     await userEvent.click(screen.getByLabelText('No'));
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });

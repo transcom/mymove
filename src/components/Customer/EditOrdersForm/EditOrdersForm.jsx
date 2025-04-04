@@ -29,7 +29,7 @@ import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, formatYesNoAPIValue } from 'utils/formatters';
+import { formatLabelReportByDate, formatYesNoAPIValue, usePaygradeRankDropdownOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
@@ -37,7 +37,6 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
-import { usePaygradeRankDropdownOptions } from 'pages/MyMove/Orders';
 
 const EditOrdersForm = ({
   createUpload,
@@ -96,7 +95,6 @@ const EditOrdersForm = ({
         }),
       )
       .min(1),
-    // grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     rank: Yup.mixed().oneOf(Object.keys(mappedRanks)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation?.provides_services_counseling
@@ -150,7 +148,7 @@ const EditOrdersForm = ({
               key: item.id,
               value: item.name,
             }));
-            setOfficeOptions(() => () => counselingOffices);
+            setOfficeOptions(() => counselingOffices);
           }
         } catch (error) {
           const { message } = error;
