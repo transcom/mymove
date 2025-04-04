@@ -1414,7 +1414,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
 
 			if item.ReService.Code == models.ReServiceCodeIOPSIT || item.ReService.Code == models.ReServiceCodeIOSFSC {
-				suite.Equal(*item.SITDeliveryMiles, 50)
+				suite.Equal(*item.SITDeliveryMiles, 400)
 			}
 
 			switch item.ReService.Code {
