@@ -581,4 +581,85 @@ func (suite *MovingExpenseSuite) TestValidationRules() {
 			}
 		})
 	})
+
+	suite.Run("small package missing required fields", func() {
+		existingMovingExpense := &models.MovingExpense{
+			ID:            uuid.Must(uuid.NewV4()),
+			PPMShipmentID: uuid.Must(uuid.NewV4()),
+			DocumentID:    uuid.Must(uuid.NewV4()),
+			Document: models.Document{
+				ID:              uuid.Must(uuid.NewV4()),
+				ServiceMemberID: uuid.Must(uuid.NewV4()),
+				UserUploads: models.UserUploads{
+					{ID: uuid.Must(uuid.NewV4())},
+				},
+			},
+		}
+
+		smallPackageType := models.MovingExpenseReceiptTypeSmallPackage
+		updatedExpense := &models.MovingExpense{
+			ID:                existingMovingExpense.ID,
+			PPMShipmentID:     existingMovingExpense.PPMShipmentID,
+			DocumentID:        existingMovingExpense.DocumentID,
+			Document:          existingMovingExpense.Document,
+			Amount:            models.CentPointer(unit.Cents(7500)),
+			MissingReceipt:    models.BoolPointer(false),
+			PaidWithGTCC:      models.BoolPointer(false),
+			MovingExpenseType: &smallPackageType,
+			// WeightShipped and IsProGear are nil
+		}
+
+		err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(), updatedExpense, existingMovingExpense)
+		switch verr := err.(type) {
+		case *validate.Errors:
+			suite.True(verr.HasAny())
+			suite.Contains(verr.Keys(), "WeightShipped")
+			suite.Contains(verr.Keys(), "IsProGear")
+		default:
+			suite.Failf("expected *validate.Errors", "%T - %v", err, err)
+		}
+	})
+
+	suite.Run("Update MovingExpense - small package pro gear missing additional fields", func() {
+		existingMovingExpense := &models.MovingExpense{
+			ID:            uuid.Must(uuid.NewV4()),
+			PPMShipmentID: uuid.Must(uuid.NewV4()),
+			DocumentID:    uuid.Must(uuid.NewV4()),
+			Document: models.Document{
+				ID:              uuid.Must(uuid.NewV4()),
+				ServiceMemberID: uuid.Must(uuid.NewV4()),
+				UserUploads: models.UserUploads{
+					{ID: uuid.Must(uuid.NewV4())},
+				},
+			},
+		}
+		// for a small package expense, if IsProGear is true then ProGearBelongsToSelf
+		// and ProGearDescription must be provided.
+		smallPackageType := models.MovingExpenseReceiptTypeSmallPackage
+		weightShipped := 1500 // Valid weight shipped value.
+		updatedExpense := &models.MovingExpense{
+			ID:                existingMovingExpense.ID,
+			PPMShipmentID:     existingMovingExpense.PPMShipmentID,
+			DocumentID:        existingMovingExpense.DocumentID,
+			Document:          existingMovingExpense.Document,
+			MovingExpenseType: &smallPackageType,
+			Amount:            models.CentPointer(unit.Cents(7500)),
+			MissingReceipt:    models.BoolPointer(false),
+			PaidWithGTCC:      models.BoolPointer(false),
+			WeightShipped:     (*unit.Pound)(&weightShipped),
+			IsProGear:         models.BoolPointer(true),
+			// Intentionally leaving ProGearBelongsToSelf and ProGearDescription nil.
+		}
+
+		err := checkAdditionalRequiredFields().Validate(suite.AppContextForTest(), updatedExpense, existingMovingExpense)
+		switch verr := err.(type) {
+		case *validate.Errors:
+			suite.True(verr.HasAny())
+			suite.Contains(verr.Keys(), "ProGearBelongsToSelf")
+			suite.Contains(verr.Keys(), "ProGearDescription")
+		default:
+			suite.Failf("expected *validate.Errors", "%T - %v", err, err)
+		}
+	})
+
 }

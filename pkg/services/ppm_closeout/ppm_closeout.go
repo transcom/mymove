@@ -55,6 +55,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	if err != nil {
 		return nil, err
 	}
+	previousFinalIncentive := ppmShipment.FinalIncentive
 
 	actualWeight, err := p.GetActualWeight(ppmShipment)
 	if err != nil {
@@ -78,6 +79,18 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		}
 	} else {
 		remainingIncentive = unit.Cents(0)
+	}
+
+	// in cases where the PPM is a small package, the final incentive isn't able to be calculated until after TIO reviews/approves their expenses
+	// because of this, we will update the final incentive here if the value is nil or different
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage &&
+		(ppmShipment.FinalIncentive != nil || ppmShipment.FinalIncentive != nil && (previousFinalIncentive != nil && *previousFinalIncentive != *ppmShipment.FinalIncentive)) {
+		verrs, err := appCtx.DB().ValidateAndUpdate(ppmShipment)
+		if verrs.HasAny() {
+			return nil, apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")
+		} else if err != nil {
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to update PPMShipment final incentive")
+		}
 	}
 
 	proGearCustomerMax := unit.Pound(2000)
@@ -153,8 +166,14 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 
 	// Create a single weight ticket with the max weight, and use that to price the GCC
 	// GCC is priced as if all was moved in one lot and must be to/from the authorized ZIPs/addresses
-	fullEntitlementPPM.WeightTickets = models.WeightTickets{ppmShipment.WeightTickets[0]}
-	fullEntitlementPPM.WeightTickets[0].AdjustedNetWeight = &fullEntitlementWeight
+	var weightTicket models.WeightTicket
+	if (ppmShipment.WeightTickets != nil) && len(ppmShipment.WeightTickets) > 0 {
+		weightTicket = ppmShipment.WeightTickets[0]
+	} else {
+		weightTicket = models.WeightTicket{}
+	}
+	weightTicket.AdjustedNetWeight = &fullEntitlementWeight
+	fullEntitlementPPM.WeightTickets = models.WeightTickets{weightTicket}
 
 	finalIncentive, err := p.estimator.FinalIncentiveWithDefaultChecks(appCtx, ppmShipment, &fullEntitlementPPM)
 	if err != nil {
@@ -195,6 +214,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"ActualMoveDate",
 			"EstimatedWeight",
 			"WeightTickets",
+			"MovingExpenses",
 			"ProgearWeightTickets",
 			"FinalIncentive",
 			"AdvanceAmountReceived",
@@ -245,7 +265,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 
 	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status or if weight ticket was reviewed already, if not, it's not ready for closeout
 	if weightTicket.Status == nil && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
-		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
+		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "PPM is not ready for closeout - must be in NEEDS_CLOSEOUT or CLOSEOUT_COMPLETE status")
 	}
 
 	return &ppmShipment, err
@@ -253,6 +273,20 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 
 func (p *ppmCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error) {
 	var totalWeight unit.Pound
+	// small package PPMs do not have weight tickets so we will add up moving expenses
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage {
+		if len(ppmShipment.MovingExpenses) >= 1 {
+			for _, movingExpense := range ppmShipment.MovingExpenses {
+				if movingExpense.WeightShipped != nil && *movingExpense.Status != models.PPMDocumentStatusRejected {
+					totalWeight += *movingExpense.WeightShipped
+				}
+			}
+			return totalWeight, nil
+		} else {
+			return unit.Pound(0), nil
+		}
+	}
+
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
 			if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil && (weightTicket.Status == nil || *weightTicket.Status != models.PPMDocumentStatusRejected) {

@@ -23,6 +23,22 @@ const mockMoveId = v4();
 const mockMTOShipmentId = v4();
 const mockPPMShipmentId = v4();
 
+const pickupAddress = {
+  id: 'test1',
+  streetAddress1: 'Pickup Road',
+  city: 'PPM City',
+  state: 'CA',
+  postalCode: '90210',
+};
+
+const destinationAddress = {
+  id: 'test1',
+  streetAddress1: 'Destination Road',
+  city: 'PPM City',
+  state: 'CA',
+  postalCode: '90210',
+};
+
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -43,6 +59,8 @@ const mockMTOShipment = {
     proGearWeight: null,
     spouseProGearWeight: null,
     weightTickets: [],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -69,6 +87,8 @@ const mockMTOShipmentWithWeightTicket = {
     proGearWeight: null,
     spouseProGearWeight: null,
     weightTickets: [weightTicketOne, weightTicketTwo],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -95,6 +115,8 @@ const mockMTOShipmentWithWeightTicketDeleted = {
         proGearWeight: null,
         spouseProGearWeight: null,
         weightTickets: [weightTicketTwo],
+        pickupAddress,
+        destinationAddress,
       },
       eTag: 'dGVzdGluZzIzNDQzMjQ',
     },
@@ -121,6 +143,8 @@ const mockMTOShipmentWithIncompleteWeightTicket = {
     proGearWeight: null,
     spouseProGearWeight: null,
     weightTickets: [createBaseWeightTicket()],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -146,6 +170,8 @@ const mockMTOShipmentWithProGear = {
     proGearWeight: 100,
     spouseProGearWeight: null,
     proGearWeightTickets: [proGearWeightOne],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -172,6 +198,8 @@ const mockMTOShipmentWithProGearDeleted = {
         proGearWeight: 100,
         spouseProGearWeight: null,
         proGearWeightTickets: [],
+        pickupAddress,
+        destinationAddress,
       },
       eTag: 'dGVzdGluZzIzNDQzMjQ',
     },
@@ -200,6 +228,8 @@ const mockMTOShipmentWithExpenses = {
     proGearWeight: 100,
     spouseProGearWeight: null,
     movingExpenses: [expenseOne, expenseTwo],
+    pickupAddress,
+    destinationAddress,
   },
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
@@ -226,6 +256,8 @@ const mockMTOShipmentWithExpensesDeleted = {
         proGearWeight: 100,
         spouseProGearWeight: null,
         movingExpenses: [expenseOne],
+        pickupAddress,
+        destinationAddress,
       },
       eTag: 'dGVzdGluZzIzNDQzMjQ',
     },

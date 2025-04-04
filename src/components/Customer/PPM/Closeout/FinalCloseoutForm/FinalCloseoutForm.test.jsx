@@ -8,6 +8,14 @@ import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShi
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
+import { PPM_TYPES } from 'shared/constants';
+import {
+  calculateTotalMovingExpensesAmount,
+  getNonProGearWeightSPR,
+  getProGearWeightSPR,
+  getTotalPackageWeightSPR,
+} from 'utils/ppmCloseout';
+import { formatCents, formatWeight } from 'utils/formatters';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -66,6 +74,56 @@ describe('FinalCloseoutForm component', () => {
     expect(findListItemWithText('minus any advances you were given (you received $900,000.00)')).toBeInTheDocument();
 
     expect(screen.getByText('Altus AFB', { exact: false })).toBeInTheDocument();
+  });
+
+  it('does not display final incentive info for small package PPMs', () => {
+    const serviceMemberId = v4();
+    const movingExpense = createCompleteMovingExpense({ serviceMemberId }, { amount: 30000 });
+
+    const mtoShipment = createPPMShipmentWithFinalIncentive({
+      ppmShipment: {
+        ppmType: PPM_TYPES.SMALL_PACKAGE,
+        advanceAmountReceived: 90000000,
+        finalIncentive: 200000000,
+        movingExpenses: [movingExpense],
+      },
+    });
+
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+
+    const finalIncentiveHeader = screen.queryByText(/Your final estimated incentive:/i);
+    expect(finalIncentiveHeader).not.toBeInTheDocument();
+  });
+
+  test('renders small package details correctly', () => {
+    const movingExpenses = [
+      { isProGear: false, weightShipped: 1000, amount: 30000 },
+      { isProGear: true, weightShipped: 500, amount: 20000 },
+    ];
+
+    // get totals using the utility functions
+    const totalExpensesClaimed = calculateTotalMovingExpensesAmount(movingExpenses);
+    const totalNonProGearWeightSPR = getNonProGearWeightSPR(movingExpenses);
+    const totalProGearWeightSPR = getProGearWeightSPR(movingExpenses);
+    const totalWeightSPR = getTotalPackageWeightSPR(movingExpenses);
+
+    const ppmShipment = {
+      ppmType: PPM_TYPES.SMALL_PACKAGE,
+      movingExpenses,
+    };
+
+    const mtoShipment = { ppmShipment };
+
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+
+    // checking to confirm details match what was previously calculated in the utility funcs
+    expect(screen.getByText(`$${formatCents(totalExpensesClaimed)} in expenses claimed`)).toBeInTheDocument();
+    expect(screen.getByText(`${formatWeight(totalNonProGearWeightSPR)} total expense weight`)).toBeInTheDocument();
+    expect(screen.getByText(`${formatWeight(totalProGearWeightSPR)} total pro-gear weight`)).toBeInTheDocument();
+    expect(screen.getByText(`${formatWeight(totalWeightSPR)} in total weight`)).toBeInTheDocument();
+
+    // this doesn't render for SPRs
+    expect(screen.queryByText(/total net weight/i)).not.toBeInTheDocument();
   });
 
   it('properly handles multiple weight tickets, pro gear weight tickets, and moving expenses', () => {

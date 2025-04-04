@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/storage/mocks"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -84,6 +85,104 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 	}
 	movingExpenseValues := MovingExpense(nil, &movingExpense)
 	suite.NotNil(movingExpenseValues)
+}
+
+func (suite *PayloadsSuite) TestMovingExpensePayload() {
+	mockStorer := &mocks.FileStorer{}
+
+	suite.Run("successfully converts a fully populated MovingExpense", func() {
+		document := factory.BuildDocument(suite.DB(), nil, nil)
+		id := uuid.Must(uuid.NewV4())
+		ppmShipmentID := uuid.Must(uuid.NewV4())
+		documentID := document.ID
+		now := time.Now()
+		description := "Test description"
+		paidWithGTCC := true
+		amount := unit.Cents(1000)
+		missingReceipt := false
+		movingExpenseType := models.MovingExpenseReceiptTypeSmallPackage
+		status := models.PPMDocumentStatusApproved
+		reason := "Some reason"
+		sitStartDate := now.AddDate(0, -1, 0)
+		sitEndDate := now.AddDate(0, 0, -10)
+		submittedSitEndDate := now.AddDate(0, 0, -9)
+		weightStored := unit.Pound(150)
+		sitLocation := models.SITLocationTypeOrigin
+		sitReimburseableAmount := unit.Cents(2000)
+		trackingNumber := "tracking123"
+		weightShipped := unit.Pound(100)
+		isProGear := true
+		proGearBelongsToSelf := false
+		proGearDescription := "Pro gear desc"
+
+		expense := &models.MovingExpense{
+			ID:                     id,
+			PPMShipmentID:          ppmShipmentID,
+			Document:               document,
+			DocumentID:             documentID,
+			CreatedAt:              now,
+			UpdatedAt:              now,
+			Description:            &description,
+			PaidWithGTCC:           &paidWithGTCC,
+			Amount:                 &amount,
+			MissingReceipt:         &missingReceipt,
+			MovingExpenseType:      &movingExpenseType,
+			Status:                 &status,
+			Reason:                 &reason,
+			SITStartDate:           &sitStartDate,
+			SITEndDate:             &sitEndDate,
+			SubmittedSITEndDate:    &submittedSitEndDate,
+			WeightStored:           &weightStored,
+			SITLocation:            &sitLocation,
+			SITReimburseableAmount: &sitReimburseableAmount,
+			TrackingNumber:         &trackingNumber,
+			WeightShipped:          &weightShipped,
+			IsProGear:              &isProGear,
+			ProGearBelongsToSelf:   &proGearBelongsToSelf,
+			ProGearDescription:     &proGearDescription,
+		}
+
+		result := MovingExpense(mockStorer, expense)
+		suite.NotNil(result, "Expected non-nil payload for valid input")
+
+		suite.Equal(*handlers.FmtUUID(id), result.ID, "ID should match")
+		suite.Equal(*handlers.FmtUUID(ppmShipmentID), result.PpmShipmentID, "PPMShipmentID should match")
+		suite.Equal(*handlers.FmtUUID(documentID), result.DocumentID, "DocumentID should match")
+		suite.NotNil(result.Document)
+		suite.Equal(strfmt.DateTime(now), result.CreatedAt, "CreatedAt should match")
+		suite.Equal(strfmt.DateTime(now), result.UpdatedAt, "UpdatedAt should match")
+		suite.Equal(description, *result.Description, "Description should match")
+		suite.Equal(paidWithGTCC, *result.PaidWithGtcc, "PaidWithGTCC should match")
+		suite.Equal(handlers.FmtCost(&amount), result.Amount, "Amount should match")
+		suite.Equal(missingReceipt, *result.MissingReceipt, "MissingReceipt should match")
+		suite.Equal(etag.GenerateEtag(now), result.ETag, "ETag should be generated from UpdatedAt")
+
+		if expense.MovingExpenseType != nil {
+			expectedType := ghcmessages.OmittableMovingExpenseType(*expense.MovingExpenseType)
+			suite.Equal(&expectedType, result.MovingExpenseType, "MovingExpenseType should match")
+		}
+		if expense.Status != nil {
+			expectedStatus := ghcmessages.OmittablePPMDocumentStatus(*expense.Status)
+			suite.Equal(&expectedStatus, result.Status, "Status should match")
+		}
+		if expense.Reason != nil {
+			expectedReason := ghcmessages.PPMDocumentStatusReason(*expense.Reason)
+			suite.Equal(&expectedReason, result.Reason, "Reason should match")
+		}
+		suite.Equal(handlers.FmtDatePtr(&sitStartDate), result.SitStartDate, "SITStartDate should match")
+		suite.Equal(handlers.FmtDatePtr(&sitEndDate), result.SitEndDate, "SITEndDate should match")
+		suite.Equal(handlers.FmtPoundPtr(&weightStored), result.WeightStored, "WeightStored should match")
+		if expense.SITLocation != nil {
+			expectedSitLocation := ghcmessages.SITLocationType(*expense.SITLocation)
+			suite.Equal(&expectedSitLocation, result.SitLocation, "SITLocation should match")
+		}
+		suite.Equal(handlers.FmtCost(&sitReimburseableAmount), result.SitReimburseableAmount, "SITReimburseableAmount should match")
+		suite.Equal(&trackingNumber, result.TrackingNumber, "TrackingNumber should match")
+		suite.Equal(handlers.FmtPoundPtr(&weightShipped), result.WeightShipped, "WeightShipped should match")
+		suite.Equal(expense.IsProGear, result.IsProGear, "IsProGear should match")
+		suite.Equal(expense.ProGearBelongsToSelf, result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
+		suite.Equal(proGearDescription, result.ProGearDescription, "ProGearDescription should match")
+	})
 }
 
 func (suite *PayloadsSuite) TestMovingExpenses() {

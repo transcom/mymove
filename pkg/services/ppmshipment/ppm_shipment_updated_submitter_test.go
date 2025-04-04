@@ -16,8 +16,10 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
@@ -153,7 +155,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 		}
 	})
 
-	suite.Run("Can update a signed certification and route the PPMShipment properly", func() {
+	suite.Run("Incentive-based PPM - Can update a signed certification and route the PPMShipment properly", func() {
 		existingPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 
 		userID := existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID
@@ -236,6 +238,112 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 				if len(existingPPMShipment.WeightTickets) >= 1 {
 					for _, weightTicket := range existingPPMShipment.WeightTickets {
 						expectedAllowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+					}
+				}
+				if suite.NotNil(updatedPPMShipment.AllowableWeight) {
+					suite.Equal(*updatedPPMShipment.AllowableWeight, expectedAllowableWeight)
+				}
+
+				return nil
+			}
+
+			// just fulfilling the return type at this point since we already checked for an error
+			return err
+		})
+
+		suite.NoError(txErr)
+	})
+
+	suite.Run("Small package PPM - Can update a signed certification and route the PPMShipment properly", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
+		suite.FatalNoError(uploaderErr)
+
+		// this factory has two moving expenses that total 4000 pounds
+		existingPPMShipment := factory.BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(suite.DB(), userUploader)
+		// updating the status so the router won't fail
+		existingPPMShipment.Status = models.PPMShipmentStatusNeedsCloseout
+
+		userID := existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: userID,
+		})
+
+		realRouter := NewPPMShipmentRouter(mtoshipment.NewShipmentRouter())
+		err := realRouter.SendToCustomer(appCtx, &existingPPMShipment)
+		suite.FatalNoError(err)
+
+		verrs, err := appCtx.DB().ValidateAndUpdate(&existingPPMShipment)
+
+		suite.FatalNoVerrs(verrs)
+		suite.FatalNoError(err)
+
+		serviceMember := existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		inputSignedCertification := models.SignedCertification{
+			ID:                existingPPMShipment.SignedCertification.ID,
+			CertificationText: "I again certify that...",
+			Signature:         fmt.Sprintf("%s %s", *serviceMember.FirstName, *serviceMember.LastName),
+			Date:              testdatagen.NextValidMoveDate.AddDate(0, 0, 1),
+		}
+
+		existingSignedCertification := existingPPMShipment.SignedCertification
+
+		updatedSignedCertification := existingSignedCertification
+		updatedSignedCertification.SubmittingUserID = existingSignedCertification.SubmittingUserID
+		updatedSignedCertification.MoveID = existingSignedCertification.MoveID
+		updatedSignedCertification.PpmID = existingSignedCertification.PpmID
+		updatedSignedCertification.CertificationType = existingSignedCertification.CertificationType
+		updatedSignedCertification.CreatedAt = existingSignedCertification.CreatedAt
+		updatedSignedCertification.UpdatedAt = time.Now()
+
+		updater := setUpSignedCertificationUpdaterMock(updatedSignedCertification, nil)
+
+		mockRouter := setUpPPMShipperRouterMock(
+			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
+				ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
+
+				return nil
+			})
+
+		submitter := NewPPMShipmentUpdatedSubmitter(
+			updater,
+			mockRouter,
+		)
+
+		eTag := etag.GenerateEtag(existingPPMShipment.SignedCertification.UpdatedAt)
+
+		txErr := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
+			updatedPPMShipment, err := submitter.SubmitUpdatedCustomerCloseOut(
+				txAppCtx,
+				existingPPMShipment.ID,
+				inputSignedCertification,
+				eTag,
+			)
+
+			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
+				suite.Equal(models.PPMShipmentStatusNeedsCloseout, updatedPPMShipment.Status)
+
+				if suite.NotNil(updatedPPMShipment.SignedCertification) {
+					suite.Equal(updatedSignedCertification.ID, updatedPPMShipment.SignedCertification.ID)
+					suite.Equal(updatedSignedCertification.CertificationText, updatedPPMShipment.SignedCertification.CertificationText)
+					suite.Equal(updatedSignedCertification.Signature, updatedPPMShipment.SignedCertification.Signature)
+					suite.True(updatedSignedCertification.Date.Equal(updatedPPMShipment.SignedCertification.Date), "SignedCertification dates should be equal")
+					suite.True(updatedSignedCertification.UpdatedAt.Equal(updatedPPMShipment.SignedCertification.UpdatedAt), "SignedCertification UpdatedAt times should be equal")
+				}
+
+				updater.(*mocks.SignedCertificationUpdater).AssertCalled(
+					suite.T(),
+					"UpdateSignedCertification",
+					txAppCtx,
+					inputSignedCertification,
+					eTag,
+				)
+
+				// PPM-SPRs use moving expenses and the allowable weight should be those totaled up
+				var expectedAllowableWeight = unit.Pound(0)
+				if len(existingPPMShipment.MovingExpenses) >= 1 {
+					for _, movingExpense := range existingPPMShipment.MovingExpenses {
+						expectedAllowableWeight += *movingExpense.WeightShipped
 					}
 				}
 				if suite.NotNil(updatedPPMShipment.AllowableWeight) {

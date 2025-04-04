@@ -10,6 +10,7 @@ import styles from './LocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
 import { DutyLocationShape } from 'types';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const getOptionName = (option) => option.name;
 
@@ -112,6 +113,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
   handleLocationOnChange,
+  showRequiredAsterisk,
 }) => {
   const { value, onChange, locationState, name: inputName } = input;
 
@@ -216,7 +218,9 @@ export const LocationSearchBoxComponent = ({
     <FormGroup>
       <div className="labelWrapper">
         <Label hint={hint} htmlFor={inputId} className={labelClasses}>
-          {title}
+          <span>
+            {title} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
       </div>
       <div className={inputContainerClasses}>
