@@ -455,13 +455,16 @@ describe('RequestedShipments', () => {
     });
     it('displays approved basic service items for approved shipments', () => {
       render(
-        <ApprovedRequestedShipments
-          ordersInfo={ordersInfo}
-          mtoShipments={shipments}
-          closeoutOffice={closeoutOffice}
-          mtoServiceItems={serviceItemsMSandCS}
-          moveCode="TE5TC0DE"
-        />,
+        <MockProviders>
+          <ApprovedRequestedShipments
+            ordersInfo={ordersInfo}
+            mtoShipments={shipments}
+            closeoutOffice={closeoutOffice}
+            mtoServiceItems={serviceItemsMSandCS}
+            moveCode="TE5TC0DE"
+          />
+          ,
+        </MockProviders>,
       );
       const approvedServiceItemNames = screen.getAllByTestId('basicServiceItemName');
       const approvedServiceItemDates = screen.getAllByTestId('basicServiceItemDate');

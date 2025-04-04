@@ -8,7 +8,7 @@ test.describe('NTSR', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -27,7 +27,7 @@ test.describe('NTSR', () => {
     await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.locator('input[id="delivery.address-location-input"]').fill('08004');
+    await page.locator('input[id="delivery.address-input"]').fill('08004');
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await page.getByTestId('remarks').fill('Grandfather antique clock');
@@ -68,7 +68,7 @@ test.describe('(MultiMove) NTSR', () => {
 
   test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -90,7 +90,7 @@ test.describe('(MultiMove) NTSR', () => {
     await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.locator('input[id="delivery.address-location-input"]').fill('08004');
+    await page.locator('input[id="delivery.address-input"]').fill('08004');
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await page.getByTestId('remarks').fill('Grandfather antique clock');

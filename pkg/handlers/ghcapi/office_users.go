@@ -13,6 +13,7 @@ import (
 	officeuserop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -218,5 +219,53 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 
 			returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
 			return officeuserop.NewCreateRequestedOfficeUserCreated().WithPayload(returnPayload), nil
+		})
+}
+
+// UpdateOfficeUserHandler updates an office user
+type UpdateOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserUpdater
+}
+
+// Handle updates an office user
+func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
+	payload := params.OfficeUser
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			officeUserID, err := uuid.FromString(params.OfficeUserID.String())
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+			}
+
+			if officeUserID != appCtx.Session().OfficeUserID {
+				appCtx.Logger().Error("Office User ID does not match session office user ID", zap.Error(err), zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserUnauthorized(), err
+			}
+
+			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
+
+			if officeUserDB.ID == uuid.Nil || err != nil {
+				appCtx.Logger().Error("Error fetching office user", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserNotFound(), err
+			}
+
+			newOfficeUser := payloads.OfficeUserModelFromUpdate(payload, officeUserDB)
+
+			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, newOfficeUser, uuid.Nil)
+
+			if err != nil || verrs != nil {
+				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+
+			_, err = audit.Capture(appCtx, updatedOfficeUser, payload, params.HTTPRequest)
+			if err != nil {
+				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
+			}
+
+			returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
+
+			return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload), nil
 		})
 }

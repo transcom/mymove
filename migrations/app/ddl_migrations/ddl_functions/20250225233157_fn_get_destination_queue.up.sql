@@ -1,6 +1,9 @@
 -- B-22294 - Alex Lusk - Migrating get_destination_queue function to ddl_migrations
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
+-- B-21824 - Samay Sofo replaced too_assigned_id with too_destination_assigned_id for destination assigned queue
+-- B-21902 - Samay Sofo added has_safety_privilege parameter to filter out safety orders and also retrieved orders_type
+DROP FUNCTION IF EXISTS get_destination_queue;
 CREATE OR REPLACE FUNCTION get_destination_queue(
     user_gbloc TEXT DEFAULT NULL,
     customer_name TEXT DEFAULT NULL,
@@ -14,6 +17,7 @@ CREATE OR REPLACE FUNCTION get_destination_queue(
     origin_duty_location TEXT DEFAULT NULL,
     counseling_office TEXT DEFAULT NULL,
     too_assigned_user TEXT DEFAULT NULL,
+	has_safety_privilege BOOLEAN DEFAULT FALSE,
     page INTEGER DEFAULT 1,
     per_page INTEGER DEFAULT 20,
     sort TEXT DEFAULT NULL,
@@ -27,12 +31,12 @@ RETURNS TABLE (
     orders_id UUID,
     status TEXT,
     locked_by UUID,
-    too_assigned_id UUID,
+    too_destination_assigned_id UUID,
     counseling_transportation_office_id UUID,
     orders JSONB,
     mto_shipments JSONB,
     counseling_transportation_office JSONB,
-    too_assigned JSONB,
+    too_destination_assigned JSONB,
     total_count BIGINT
 ) AS $$
 DECLARE
@@ -60,10 +64,11 @@ BEGIN
             moves.orders_id AS orders_id,
             moves.status::TEXT AS status,
             moves.locked_by AS locked_by,
-            moves.too_assigned_id AS too_assigned_id,
+            moves.too_destination_assigned_id AS too_destination_assigned_id,
             moves.counseling_transportation_office_id AS counseling_transportation_office_id,
             json_build_object(
                 ''id'', orders.id,
+                ''orders_type'', orders.orders_type,
                 ''origin_duty_location_gbloc'', orders.gbloc,
                 ''service_member'', json_build_object(
                     ''id'', service_members.id,
@@ -103,8 +108,9 @@ BEGIN
             )::JSONB AS counseling_transportation_office,
             json_build_object(
                 ''first_name'', too_user.first_name,
-                ''last_name'', too_user.last_name
-            )::JSONB AS too_assigned,
+                ''last_name'', too_user.last_name,
+                ''id'', too_user.id
+            )::JSONB AS too_destination_assigned,
             COUNT(*) OVER() AS total_count
         FROM moves
         JOIN orders ON moves.orders_id = orders.id
@@ -115,7 +121,7 @@ BEGIN
         JOIN service_members ON orders.service_member_id = service_members.id
         JOIN duty_locations AS new_duty_locations ON orders.new_duty_location_id = new_duty_locations.id
         JOIN duty_locations AS origin_duty_locations ON orders.origin_duty_location_id = origin_duty_locations.id
-        LEFT JOIN office_users AS too_user ON moves.too_assigned_id = too_user.id
+        LEFT JOIN office_users AS too_user ON moves.too_destination_assigned_id = too_user.id
         LEFT JOIN office_users AS locked_user ON moves.locked_by = locked_user.id
         LEFT JOIN transportation_offices AS counseling_offices
             ON moves.counseling_transportation_office_id = counseling_offices.id
@@ -180,6 +186,11 @@ BEGIN
         sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
     END IF;
 
+   -- filter out safety orders for users without safety privilege
+   IF NOT has_safety_privilege THEN
+    sql_query := sql_query || ' AND orders.orders_type != ''SAFETY'' ';
+   END IF;
+
     -- add destination queue-specific filters (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
         AND (
@@ -234,7 +245,7 @@ BEGIN
             moves.orders_id,
             moves.status,
             moves.locked_by,
-            moves.too_assigned_id,
+            moves.too_destination_assigned_id,
             moves.counseling_transportation_office_id,
             mto_shipments.requested_pickup_date,
             mto_shipments.requested_delivery_date,
@@ -249,16 +260,17 @@ BEGIN
             origin_duty_locations.name,
             counseling_offices.name,
             too_user.first_name,
-            too_user.last_name';
+            too_user.last_name,
+            too_user.id';
     sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
 	IF sort_column <> 'moves.locator' THEN
         sql_query := sql_query || ', moves.locator ASC ';
     END IF;
-    sql_query := sql_query || ' LIMIT $13 OFFSET $14 ';
+    sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';
 
     RETURN QUERY EXECUTE sql_query
     USING user_gbloc, customer_name, edipi, emplid, m_status, move_code, requested_move_date, date_submitted,
-          branch, origin_duty_location, counseling_office, too_assigned_user, per_page, offset_value;
+          branch, origin_duty_location, counseling_office, too_assigned_user, has_safety_privilege, per_page, offset_value;
 
 END;
 $$ LANGUAGE plpgsql;

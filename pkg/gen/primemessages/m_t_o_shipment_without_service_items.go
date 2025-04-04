@@ -217,11 +217,19 @@ type MTOShipmentWithoutServiceItems struct {
 	// The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.
 	//
 	// Read Only: true
-	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED]
+	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED TERMINATION_FOR_CAUSE]
 	Status string `json:"status,omitempty"`
 
 	// storage facility
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
+
+	// terminated at
+	// Format: date-time
+	TerminatedAt *strfmt.DateTime `json:"terminatedAt,omitempty"`
+
+	// termination comments
+	// Read Only: true
+	TerminationComments *string `json:"terminationComments,omitempty"`
 
 	// updated at
 	// Read Only: true
@@ -358,6 +366,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validateStorageFacility(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTerminatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -792,7 +804,7 @@ var mTOShipmentWithoutServiceItemsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED","TERMINATION_FOR_CAUSE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -819,6 +831,9 @@ const (
 
 	// MTOShipmentWithoutServiceItemsStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
 	MTOShipmentWithoutServiceItemsStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
+
+	// MTOShipmentWithoutServiceItemsStatusTERMINATIONFORCAUSE captures enum value "TERMINATION_FOR_CAUSE"
+	MTOShipmentWithoutServiceItemsStatusTERMINATIONFORCAUSE string = "TERMINATION_FOR_CAUSE"
 )
 
 // prop value enum
@@ -856,6 +871,18 @@ func (m *MTOShipmentWithoutServiceItems) validateStorageFacility(formats strfmt.
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateTerminatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.TerminatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("terminatedAt", "body", "date-time", m.TerminatedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -978,6 +1005,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 	}
 
 	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTerminationComments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1283,6 +1314,15 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateStorageFacility(ctx cont
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateTerminationComments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "terminationComments", "body", m.TerminationComments); err != nil {
+		return err
 	}
 
 	return nil

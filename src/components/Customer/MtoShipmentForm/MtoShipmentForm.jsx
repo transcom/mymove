@@ -53,6 +53,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { isPreceedingAddressComplete } from 'shared/utils';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -287,6 +288,7 @@ class MtoShipmentForm extends Component {
 
           return (
             <GridContainer>
+              <NotificationScrollToTop dependency={errorMessage} />
               <Grid row>
                 <Grid col desktop={{ col: 8, offset: 2 }}>
                   {errorMessage && (
@@ -338,7 +340,6 @@ class MtoShipmentForm extends Component {
                             name="pickup.address"
                             legend="Pickup Address"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                             render={(fields) => (
                               <>
@@ -389,7 +390,6 @@ class MtoShipmentForm extends Component {
                                     <AddressFields
                                       name="secondaryPickup.address"
                                       labelHint="Required"
-                                      locationLookup
                                       formikProps={formikProps}
                                     />
                                   </>
@@ -449,7 +449,6 @@ class MtoShipmentForm extends Component {
                                       <AddressFields
                                         name="tertiaryPickup.address"
                                         labelHint="Required"
-                                        locationLookup
                                         formikProps={formikProps}
                                       />
                                     </>
@@ -529,7 +528,6 @@ class MtoShipmentForm extends Component {
                               <AddressFields
                                 name="delivery.address"
                                 labelHint="Required"
-                                locationLookup
                                 formikProps={formikProps}
                                 render={(fields) => (
                                   <>
@@ -576,7 +574,6 @@ class MtoShipmentForm extends Component {
                                         <AddressFields
                                           name="secondaryDelivery.address"
                                           labelHint="Required"
-                                          locationLookup
                                           formikProps={formikProps}
                                         />
                                       </>
@@ -636,7 +633,6 @@ class MtoShipmentForm extends Component {
                                           <AddressFields
                                             name="tertiaryDelivery.address"
                                             labelHint="Required"
-                                            locationLookup
                                             formikProps={formikProps}
                                           />
                                         </>

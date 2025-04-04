@@ -162,7 +162,40 @@ describe('AllowancesDetailForm', () => {
     expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).toBeInTheDocument();
   });
+
+  it('does not render conditional civilian TDY UB allowance field on load', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={entitlements}
+          branchOptions={branchOptions}
+          civilianTDYUBMove={false}
+          header="Test Header"
+        />
+      </Formik>,
+    );
+
+    expect(screen.queryByTestId('civilianTdyUbAllowance')).not.toBeInTheDocument();
+  });
+
+  it('renders conditional civilian TDY UB allowance field on load', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={entitlements}
+          branchOptions={branchOptions}
+          civilianTDYUBMove
+          header="Test Header"
+        />
+      </Formik>,
+    );
+
+    const civilianTdyUbAllowance = await screen.findByTestId('civilianTdyUbAllowance');
+    expect(civilianTdyUbAllowance).toBeInTheDocument();
+  });
 });
+
 describe('AllowancesDetailForm additional tests', () => {
   it('renders gun safe checkbox field', async () => {
     render(
@@ -244,5 +277,36 @@ describe('AllowancesDetailForm additional tests', () => {
     );
 
     expect(await screen.findByTestId('weightAllowance')).toHaveTextContent('11,000');
+  });
+
+  it('renders the form disabled with all information if flag is passed', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm entitlements={entitlements} branchOptions={branchOptions} formIsDisabled />
+      </Formik>,
+    );
+
+    expect(await screen.findByTestId('proGearWeightInput')).toHaveDisplayValue('2,000');
+    expect(await screen.findByTestId('proGearWeightInput')).toBeDisabled();
+    expect(screen.getByTestId('proGearWeightHint')).toHaveTextContent('Max. 2,000 lbs');
+    expect(await screen.findByTestId('proGearWeightSpouseInput')).toHaveDisplayValue('500');
+    expect(await screen.findByTestId('proGearWeightSpouseInput')).toBeDisabled();
+    expect(screen.getByTestId('proGearWeightSpouseHint')).toHaveTextContent('Max. 500 lbs');
+    expect(await screen.findByTestId('rmeInput')).toHaveDisplayValue('1,000');
+    expect(await screen.findByTestId('rmeInput')).toBeDisabled();
+    expect(await screen.findByTestId('branchInput')).toHaveDisplayValue('Army');
+    expect(await screen.findByTestId('branchInput')).toBeDisabled();
+    expect(await screen.findByTestId('sitInput')).toHaveDisplayValue('0');
+    expect(await screen.findByTestId('sitInput')).toBeDisabled();
+    expect(await screen.findByTestId('ocieInput')).toBeInTheDocument();
+    expect(await screen.findByTestId('ocieInput')).toBeDisabled();
+    expect(await screen.findByTestId('gunSafeInput')).toBeInTheDocument();
+    expect(await screen.findByTestId('gunSafeInput')).toBeDisabled();
+    expect(await screen.findByTestId('adminWeightLocation')).toBeInTheDocument();
+    expect(await screen.findByTestId('adminWeightLocation')).toBeDisabled();
+    expect(await screen.findByTestId('adminUBWeightLocation')).toBeInTheDocument();
+    expect(await screen.findByTestId('adminUBWeightLocation')).toBeDisabled();
+    expect(await screen.findByTestId('dependentsAuthorizedInput')).toBeInTheDocument();
+    expect(await screen.findByTestId('dependentsAuthorizedInput')).toBeDisabled();
   });
 });

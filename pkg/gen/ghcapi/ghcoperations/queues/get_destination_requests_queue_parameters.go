@@ -34,6 +34,11 @@ type GetDestinationRequestsQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*user's actively logged in role.
+
+	  In: query
+	*/
+	ActiveRole *string
 	/*
 	  In: query
 	*/
@@ -75,6 +80,10 @@ type GetDestinationRequestsQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*order type
+	  In: query
+	*/
+	OrderType *string
 	/*
 	  Unique: true
 	  In: query
@@ -119,6 +128,11 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
+
+	qActiveRole, qhkActiveRole, _ := qs.GetOK("activeRole")
+	if err := o.bindActiveRole(qActiveRole, qhkActiveRole, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	qAppearedInTooAt, qhkAppearedInTooAt, _ := qs.GetOK("appearedInTooAt")
 	if err := o.bindAppearedInTooAt(qAppearedInTooAt, qhkAppearedInTooAt, route.Formats); err != nil {
@@ -170,6 +184,11 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 		res = append(res, err)
 	}
 
+	qOrderType, qhkOrderType, _ := qs.GetOK("orderType")
+	if err := o.bindOrderType(qOrderType, qhkOrderType, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qOriginDutyLocation, qhkOriginDutyLocation, _ := qs.GetOK("originDutyLocation")
 	if err := o.bindOriginDutyLocation(qOriginDutyLocation, qhkOriginDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
@@ -207,6 +226,24 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindActiveRole binds and validates parameter ActiveRole from query.
+func (o *GetDestinationRequestsQueueParams) bindActiveRole(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ActiveRole = &raw
+
 	return nil
 }
 
@@ -419,6 +456,24 @@ func (o *GetDestinationRequestsQueueParams) validateOrder(formats strfmt.Registr
 	if err := validate.EnumCase("order", "query", *o.Order, []interface{}{"asc", "desc"}, true); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindOrderType binds and validates parameter OrderType from query.
+func (o *GetDestinationRequestsQueueParams) bindOrderType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OrderType = &raw
 
 	return nil
 }

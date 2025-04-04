@@ -57,7 +57,8 @@ describe('DropdownInput', () => {
     );
 
     it('renders a required asterisk', () => {
-      const asterisk = wrapper.find('[data-testid="requiredAsterisk"]');
+      const requiredAsterisk = wrapper.find('RequiredAsterisk').dive();
+      const asterisk = requiredAsterisk.find('[data-testid="requiredAsterisk"]');
       expect(asterisk.exists()).toBe(true);
     });
   });

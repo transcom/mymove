@@ -17,6 +17,7 @@ export const DutyLocationInput = (props) => {
     searchLocations,
     metaOverride,
     onDutyLocationChange,
+    showRequiredAsterisk,
   } = props;
   const [field, meta, helpers] = useField(props);
 
@@ -55,6 +56,7 @@ export const DutyLocationInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={searchLocations}
+      showRequiredAsterisk={showRequiredAsterisk}
     />
   );
 };
@@ -71,6 +73,7 @@ DutyLocationInput.propTypes = {
   searchLocations: PropTypes.func,
   metaOverride: PropTypes.string,
   onDutyLocationChange: PropTypes.func,
+  showRequiredAsterisk: PropTypes.bool,
 };
 
 DutyLocationInput.defaultProps = {
@@ -81,6 +84,7 @@ DutyLocationInput.defaultProps = {
   searchLocations: undefined,
   metaOverride: '',
   onDutyLocationChange: undefined,
+  showRequiredAsterisk: false,
 };
 
 export default DutyLocationInput;

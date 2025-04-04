@@ -131,5 +131,9 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 	// reviewer CONFIRMS regardless if any are REJECTED/EXCLUDED -- B-20824
 	ppmShipment.Status = models.PPMShipmentStatusCloseoutComplete
 
+	if ppmShipment.ReviewedAt == nil {
+		ppmShipment.ReviewedAt = models.TimePointer(time.Now())
+	}
+
 	return nil
 }

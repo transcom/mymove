@@ -5,6 +5,7 @@ import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
 import { MOVE_STATUSES } from 'shared/constants';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 describe('formatters', () => {
   describe('format date for customer app', () => {
@@ -507,6 +508,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: null,
       dependentsUnderTwelve: null,
       dependentsTwelveAndOver: null,
+      civilianTdyUbAllowance: null,
     });
   });
 
@@ -523,6 +525,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: null,
       dependentsUnderTwelve: null,
       dependentsTwelveAndOver: null,
+      civilianTdyUbAllowance: null,
     });
   });
 
@@ -542,6 +545,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: true,
       dependentsUnderTwelve: 3,
       dependentsTwelveAndOver: 2,
+      civilianTdyUbAllowance: null,
     });
   });
 
@@ -550,9 +554,12 @@ describe('constructSCOrderOconusFields', () => {
       originDutyLocation: { address: { isOconus: false } },
       newDutyLocation: { address: { isOconus: true } },
       hasDependents: true,
+      ordersType: ORDERS_TYPE.TEMPORARY_DUTY,
+      grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
       accompaniedTour: 'yes',
       dependentsUnderTwelve: '5',
       dependentsTwelveAndOver: '1',
+      civilianTdyUbAllowance: '251',
     };
 
     const result = formatters.constructSCOrderOconusFields(values);
@@ -561,6 +568,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: true,
       dependentsUnderTwelve: 5,
       dependentsTwelveAndOver: 1,
+      civilianTdyUbAllowance: 251,
     });
   });
 
@@ -570,6 +578,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: 'yes',
       dependentsUnderTwelve: '3',
       dependentsTwelveAndOver: '2',
+      civilianTdyUbAllowance: 251,
     };
 
     const result = formatters.constructSCOrderOconusFields(values);
@@ -578,6 +587,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: null,
       dependentsUnderTwelve: null,
       dependentsTwelveAndOver: null,
+      civilianTdyUbAllowance: null,
     });
   });
 });

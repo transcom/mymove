@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewListMovesParams creates a new ListMovesParams object,
@@ -60,6 +61,28 @@ ListMovesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListMovesParams struct {
+
+	/* Acknowledged.
+
+	   When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.
+	*/
+	Acknowledged *bool
+
+	/* AcknowledgedAfter.
+
+	   Only return moves where the move or any one (or more) of its shipments was acknowledged after this time. Formatted like "2021-07-23T18:30:47.116Z"
+
+	   Format: date-time
+	*/
+	AcknowledgedAfter *strfmt.DateTime
+
+	/* AcknowledgedBefore.
+
+	   Only return moves where the move or any one (or more) of its shipments was acknowledged before this time. Formatted like "2021-07-23T18:30:47.116Z"
+
+	   Format: date-time
+	*/
+	AcknowledgedBefore *strfmt.DateTime
 
 	/* Since.
 
@@ -122,6 +145,39 @@ func (o *ListMovesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithAcknowledged adds the acknowledged to the list moves params
+func (o *ListMovesParams) WithAcknowledged(acknowledged *bool) *ListMovesParams {
+	o.SetAcknowledged(acknowledged)
+	return o
+}
+
+// SetAcknowledged adds the acknowledged to the list moves params
+func (o *ListMovesParams) SetAcknowledged(acknowledged *bool) {
+	o.Acknowledged = acknowledged
+}
+
+// WithAcknowledgedAfter adds the acknowledgedAfter to the list moves params
+func (o *ListMovesParams) WithAcknowledgedAfter(acknowledgedAfter *strfmt.DateTime) *ListMovesParams {
+	o.SetAcknowledgedAfter(acknowledgedAfter)
+	return o
+}
+
+// SetAcknowledgedAfter adds the acknowledgedAfter to the list moves params
+func (o *ListMovesParams) SetAcknowledgedAfter(acknowledgedAfter *strfmt.DateTime) {
+	o.AcknowledgedAfter = acknowledgedAfter
+}
+
+// WithAcknowledgedBefore adds the acknowledgedBefore to the list moves params
+func (o *ListMovesParams) WithAcknowledgedBefore(acknowledgedBefore *strfmt.DateTime) *ListMovesParams {
+	o.SetAcknowledgedBefore(acknowledgedBefore)
+	return o
+}
+
+// SetAcknowledgedBefore adds the acknowledgedBefore to the list moves params
+func (o *ListMovesParams) SetAcknowledgedBefore(acknowledgedBefore *strfmt.DateTime) {
+	o.AcknowledgedBefore = acknowledgedBefore
+}
+
 // WithSince adds the since to the list moves params
 func (o *ListMovesParams) WithSince(since *strfmt.DateTime) *ListMovesParams {
 	o.SetSince(since)
@@ -140,6 +196,57 @@ func (o *ListMovesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		return err
 	}
 	var res []error
+
+	if o.Acknowledged != nil {
+
+		// query param acknowledged
+		var qrAcknowledged bool
+
+		if o.Acknowledged != nil {
+			qrAcknowledged = *o.Acknowledged
+		}
+		qAcknowledged := swag.FormatBool(qrAcknowledged)
+		if qAcknowledged != "" {
+
+			if err := r.SetQueryParam("acknowledged", qAcknowledged); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.AcknowledgedAfter != nil {
+
+		// query param acknowledgedAfter
+		var qrAcknowledgedAfter strfmt.DateTime
+
+		if o.AcknowledgedAfter != nil {
+			qrAcknowledgedAfter = *o.AcknowledgedAfter
+		}
+		qAcknowledgedAfter := qrAcknowledgedAfter.String()
+		if qAcknowledgedAfter != "" {
+
+			if err := r.SetQueryParam("acknowledgedAfter", qAcknowledgedAfter); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.AcknowledgedBefore != nil {
+
+		// query param acknowledgedBefore
+		var qrAcknowledgedBefore strfmt.DateTime
+
+		if o.AcknowledgedBefore != nil {
+			qrAcknowledgedBefore = *o.AcknowledgedBefore
+		}
+		qAcknowledgedBefore := qrAcknowledgedBefore.String()
+		if qAcknowledgedBefore != "" {
+
+			if err := r.SetQueryParam("acknowledgedBefore", qAcknowledgedBefore); err != nil {
+				return err
+			}
+		}
+	}
 
 	if o.Since != nil {
 

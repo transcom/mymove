@@ -186,7 +186,7 @@ test.describe('TOO user', () => {
     await pickupAddressGroup.getByLabel('Address 1').nth(0).fill(pickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(0).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(0).clear();
-    await page.locator('input[id="pickup.address-location-input"]').fill(pickupAddress.ZIP);
+    await page.locator('input[id="pickup.address-input"]').fill(pickupAddress.ZIP);
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -195,7 +195,7 @@ test.describe('TOO user', () => {
     await pickupAddressGroup.getByLabel('Address 1').nth(1).fill(secondaryPickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(1).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(1).clear();
-    await page.locator('input[id="secondaryPickup.address-location-input"]').fill(secondaryPickupAddress.ZIP);
+    await page.locator('input[id="secondaryPickup.address-input"]').fill(secondaryPickupAddress.ZIP);
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -211,7 +211,7 @@ test.describe('TOO user', () => {
     await deliveryAddressGroup.getByLabel('Address 1').nth(0).fill(deliveryAddress.Address1);
     await deliveryAddressGroup.getByLabel('Address 2').nth(0).fill(deliveryAddress.Address2);
     await deliveryAddressGroup.getByLabel('Address 3').nth(0).clear();
-    await page.locator('input[id="delivery.address-location-input"]').fill(deliveryAddress.ZIP);
+    await page.locator('input[id="delivery.address-input"]').fill(deliveryAddress.ZIP);
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
@@ -220,7 +220,7 @@ test.describe('TOO user', () => {
     await deliveryAddressGroup.getByLabel('Address 1').nth(1).fill(secondaryDeliveryAddress.Address1);
     await deliveryAddressGroup.getByLabel('Address 2').nth(1).clear();
     await deliveryAddressGroup.getByLabel('Address 3').nth(1).clear();
-    await page.locator('input[id="secondaryDelivery.address-location-input"]').fill(secondaryDeliveryAddress.ZIP);
+    await page.locator('input[id="secondaryDelivery.address-input"]').fill(secondaryDeliveryAddress.ZIP);
     await expect(page.getByText(location, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 

@@ -18,6 +18,7 @@ const TableCSVExportButton = ({
   paramSort,
   paramFilters,
   className,
+  activeRole,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [csvRows, setCsvRows] = useState([]);
@@ -56,6 +57,7 @@ const TableCSVExportButton = ({
       filters: paramFilters,
       currentPageSize: totalCount,
       viewAsGBLOC: selectedGbloc,
+      activeRole,
     });
 
     const formattedData = formatDataForExport(response[queueFetcherKey]);

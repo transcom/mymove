@@ -383,6 +383,43 @@ Just like domestic shipments & service items, if `WeightBilled` is not provided 
 	]
 
 ```
+
+**IUBPK - International UB Pack**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**IUBUPK - International UB Unpack**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
+**UBP - International UB**
+```json
+
+	"params": [
+	  {
+	    "key": "WeightBilled",
+	    "value": "integer"
+	  }
+	]
+
+```
+
 ---
 
 International Basic Service Items & Accepted Payment Request Parameters:

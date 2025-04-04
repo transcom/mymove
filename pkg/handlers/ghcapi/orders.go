@@ -285,7 +285,11 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
 			}
 			// Calculate UB allowance for the order entitlement
-			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, &grade, (*internalmessages.OrdersType)(payload.OrdersType), payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+			civilianTDYUBAllowance := 0
+			if payload.CivilianTdyUbAllowance != nil {
+				civilianTDYUBAllowance = int(*payload.CivilianTdyUbAllowance)
+			}
+			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, &grade, (*internalmessages.OrdersType)(payload.OrdersType), payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver, &civilianTDYUBAllowance)
 			if err == nil {
 				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}

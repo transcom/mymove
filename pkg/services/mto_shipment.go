@@ -171,3 +171,10 @@ type ShipmentPostalCodeRateArea struct {
 type ShipmentRateAreaFinder interface {
 	GetPrimeMoveShipmentRateAreas(appCtx appcontext.AppContext, move models.Move) (*[]ShipmentPostalCodeRateArea, error)
 }
+
+// ShipmentTermination is the service object interface for terminating a shipment
+//
+//go:generate mockery --name ShipmentTermination
+type ShipmentTermination interface {
+	TerminateShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, terminationComments string) (*models.MTOShipment, error)
+}

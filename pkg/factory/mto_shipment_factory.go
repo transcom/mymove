@@ -23,6 +23,7 @@ const (
 	mtoShipmentNTS
 	mtoShipmentPPM
 	mtoShipmentNTSR
+	mtoShipmentUB
 )
 
 func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, traits []Trait, buildType mtoShipmentBuildType) models.MTOShipment {
@@ -70,6 +71,8 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	case mtoShipmentPPM:
 		defaultShipmentType = models.MTOShipmentTypePPM
 		setupPickupAndDelivery = false
+	case mtoShipmentUB:
+		defaultShipmentType = models.MTOShipmentTypeUnaccompaniedBaggage
 	default:
 		defaultShipmentType = models.MTOShipmentTypeHHG
 		setupPickupAndDelivery = true
@@ -242,7 +245,7 @@ func BuildBaseMTOShipment(db *pop.Connection, customs []Customization, traits []
 // BuildMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
 // It will make pickup addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
-// It will make delivery addresses if the shipment type is not one of (HHGIntoNTSDom, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGIntoNTS, PPM)
 // It will make a storage facility if the shipment type is HHGOutOfNTS
 func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuild)
@@ -489,6 +492,40 @@ func AddPPMShipmentToMTOShipment(db *pop.Connection, mtoShipment *models.MTOShip
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 	}
 	mtoShipment.PPMShipment = &ppmShipment
+}
+
+func BuildUBShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
+	pickupAddressResult := findValidCustomization(customs, Addresses.PickupAddress)
+	if pickupAddressResult == nil {
+		pickupAddress := BuildAddress(db, nil, traits)
+		customs = append(customs, Customization{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &Addresses.PickupAddress,
+		})
+	}
+	destinationAddress := findValidCustomization(customs, Addresses.DeliveryAddress)
+	if destinationAddress == nil {
+		destinationAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "International St.",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, traits)
+		customs = append(customs, Customization{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &Addresses.DeliveryAddress,
+		})
+	}
+
+	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentUB)
 }
 
 // ------------------------
