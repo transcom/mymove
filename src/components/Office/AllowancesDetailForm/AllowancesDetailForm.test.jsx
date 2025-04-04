@@ -162,7 +162,40 @@ describe('AllowancesDetailForm', () => {
     expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).toBeInTheDocument();
   });
+
+  it('does not render conditional civilian TDY UB allowance field on load', async () => {
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={entitlements}
+          branchOptions={branchOptions}
+          civilianTDYUBMove={false}
+          header="Test Header"
+        />
+      </Formik>,
+    );
+
+    expect(screen.queryByTestId('civilianTdyUbAllowance')).not.toBeInTheDocument();
+  });
+
+  it('renders conditional civilian TDY UB allowance field on load', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+    render(
+      <Formik initialValues={initialValues}>
+        <AllowancesDetailForm
+          entitlements={entitlements}
+          branchOptions={branchOptions}
+          civilianTDYUBMove
+          header="Test Header"
+        />
+      </Formik>,
+    );
+
+    const civilianTdyUbAllowance = await screen.findByTestId('civilianTdyUbAllowance');
+    expect(civilianTdyUbAllowance).toBeInTheDocument();
+  });
 });
+
 describe('AllowancesDetailForm additional tests', () => {
   it('renders gun safe checkbox field', async () => {
     render(

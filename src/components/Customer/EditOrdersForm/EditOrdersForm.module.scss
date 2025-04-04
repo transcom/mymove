@@ -14,4 +14,26 @@
     align-items: center;
     gap: 8px;
   }
+  .labelwithToolTip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 5px;
+    font-weight: bold;
+  }
+  .toolTipText {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 5px;
+    font-weight: normal !important;
+  }
+  .civilianUBAllowanceWarning {
+    display: flex;
+    align-items: center;
+    color: #6e7377;
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-size: 13px !important;
+  }
 }
