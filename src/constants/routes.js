@@ -12,7 +12,6 @@ export const generalRoutes = {
 export const customerRoutes = {
   MOVE_HOME_PAGE: '/move',
   MOVE_HOME_PATH: '/move/:moveId',
-  VALIDATION_CODE_PATH: '/service-member/validation-code',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
   CONTACT_INFO_PATH: '/service-member/contact-info',
@@ -164,6 +163,10 @@ export const qaeCSRRoutes = {
   EVALUATION_VIOLATIONS_PATH: '/evaluation-reports/:reportId/violations',
   BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_MOVES_PATH}/customer-support-remarks`,
   CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
+};
+
+export const contractingOfficerRoutes = {
+  MOVE_SEARCH_PATH: '/cor/search',
 };
 
 export const hqRoutes = {
