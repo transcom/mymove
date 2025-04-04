@@ -698,6 +698,121 @@ describe('ShipmentForm component', () => {
       expect(screen.queryByRole('heading', { name: 'Storage facility info' })).not.toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: 'Storage facility address' })).not.toBeInTheDocument();
     });
+
+    it('requestedPickupDate (create) - validation errors show', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      // Error doesn't show unless touched
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('');
+      expect(
+        await within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
+      ).not.toBeInTheDocument();
+
+      // Trigger error with empty date, field touched
+      await act(async () => {
+        const node = screen.getByLabelText('Requested pickup date');
+        await userEvent.clear(node);
+        node.blur();
+      });
+      expect(
+        await within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
+      ).toHaveTextContent('Required');
+
+      // Trigger invalid date error - must be in the future
+      await act(async () => {
+        const node = screen.getByLabelText('Requested pickup date');
+        await userEvent.clear(node);
+        await userEvent.paste('26 Mar 2022');
+        node.blur();
+      });
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
+      expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+        'Requested pickup date must be in the future.',
+      );
+      expect(
+        await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
+      ).toHaveTextContent('Required');
+
+      // Trigger invalid date error - cannot be today
+      const now = formatDateForDatePicker(formatDateWithUTC(new Date()));
+      await act(async () => {
+        const node = screen.getByLabelText('Requested pickup date');
+        await userEvent.clear(node);
+        await userEvent.paste(now);
+        node.blur();
+      });
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(now);
+      expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+        'Requested pickup date must be in the future.',
+      );
+      expect(
+        await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
+      ).toHaveTextContent('Required');
+    });
+
+    it('requestedPickupDate (create) - validation errors hide when valid', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+
+      // Trigger invalid date error - must be in the future
+      await act(async () => {
+        const node = screen.getByLabelText('Requested pickup date');
+        await userEvent.clear(node);
+        await userEvent.paste('26 Mar 2022');
+        node.blur();
+      });
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
+      expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+        'Requested pickup date must be in the future.',
+      );
+      expect(
+        await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
+      ).toHaveTextContent('Required');
+
+      // Valid date, hides errors
+      const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+      await act(async () => {
+        const node = screen.getByLabelText('Requested pickup date');
+        await userEvent.clear(node);
+        await userEvent.paste(tomorrow);
+        node.blur();
+      });
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrow);
+      await waitFor(() => {
+        expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+        expect(
+          within(screen.getByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('requestedPickupDate (create) - submit disabled when date not in future', async () => {
+      renderWithRouter(
+        <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} mtoShipment={mockMtoShipment} />,
+      );
+
+      // Trigger invalid date error - must be in the future
+      await act(async () => {
+        const node = screen.getByLabelText('Requested pickup date');
+        await userEvent.clear(node);
+        await userEvent.paste('26 Mar 2022');
+        node.blur();
+      });
+
+      expect(await screen.findByRole('button', { name: 'Save' })).toBeDisabled();
+
+      // Valid date, hides errors
+      const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+      await act(async () => {
+        const node = screen.getByLabelText('Requested pickup date');
+        await userEvent.clear(node);
+        await userEvent.paste(tomorrow);
+        node.blur();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: 'Save' })).not.toBeDisabled();
+      });
+    });
   });
 
   describe('editing an already existing HHG shipment', () => {

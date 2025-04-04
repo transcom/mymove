@@ -509,6 +509,160 @@ describe('MtoShipmentForm component', () => {
       expect(zip[3]).toHaveAttribute('aria-label', 'tertiaryDelivery.address.postalCode');
     });
 
+    it('preferredPickupDate (create) - validation errors show', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm();
+
+      // Error doesn't show unless touched
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('');
+      expect(
+        await within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId('errorMessage'),
+      ).not.toBeInTheDocument();
+
+      // Trigger error with empty date, field touched
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        node.blur();
+      });
+      await waitFor(async () => {
+        expect(
+          within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId('errorMessage'),
+        ).toHaveTextContent('Required');
+        expect(screen.queryByTestId('preferredPickupDateAlert')).not.toBeInTheDocument();
+      });
+
+      // Trigger invalid date error - must be in the future
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste('26 Mar 2022');
+        node.blur();
+      });
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('26 Mar 2022');
+      expect(await screen.findByTestId('preferredPickupDateAlert')).toHaveTextContent(
+        'Preferred pickup date must be in the future.',
+      );
+      expect(
+        await within(await screen.findByTestId('preferredPickupDateFieldSet')).findByTestId('errorMessage'),
+      ).toHaveTextContent('Required');
+
+      // Trigger invalid date error - cannot be today
+      const now = formatDateForDatePicker(formatDateWithUTC(new Date()));
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste(now);
+        node.blur();
+      });
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(now);
+      expect(await screen.findByTestId('preferredPickupDateAlert')).toHaveTextContent(
+        'Preferred pickup date must be in the future.',
+      );
+      expect(
+        await within(await screen.findByTestId('preferredPickupDateFieldSet')).findByTestId('errorMessage'),
+      ).toHaveTextContent('Required');
+    });
+
+    it('preferredPickupDate (create) - validation errors hide when valid', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm();
+
+      // Trigger invalid date error - must be in the future
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste('26 Mar 2022');
+        node.blur();
+      });
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('26 Mar 2022');
+      expect(await screen.findByTestId('preferredPickupDateAlert')).toHaveTextContent(
+        'Preferred pickup date must be in the future.',
+      );
+      expect(
+        await within(await screen.findByTestId('preferredPickupDateFieldSet')).findByTestId('errorMessage'),
+      ).toHaveTextContent('Required');
+
+      // Valid date, hides errors
+      const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste(tomorrow);
+        node.blur();
+      });
+
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrow);
+      await waitFor(() => {
+        expect(screen.queryByTestId('preferredPickupDateAlert')).not.toBeInTheDocument();
+        expect(
+          within(screen.getByTestId('preferredPickupDateFieldSet')).queryByTestId('errorMessage'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('preferredPickupDate (create) - submit disabled when date not in future', async () => {
+      const mockMtoShipmentHHG = {
+        id: uuidv4(),
+        eTag: window.btoa(updatedAt),
+        createdAt: '2021-06-11T18:12:11.918Z',
+        updatedAt,
+        moveTaskOrderId: moveId,
+        requestedPickupDate: '2021-06-07',
+        requestedDeliveryDate: '2021-06-14',
+        pickupAddress: {
+          streetAddress1: '812 S 129th St',
+          streetAddress2: '#123',
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+        },
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDeliveryAddress: false,
+        hasTertiaryPickupAddress: false,
+        hasTertiaryDeliveryAddress: false,
+      };
+      renderMtoShipmentForm({ mtoShipment: mockMtoShipmentHHG });
+
+      // Trigger invalid date error - must be in the future
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste('26 Mar 2022');
+        node.blur();
+      });
+
+      expect(await screen.findByRole('button', { name: 'Next' })).toBeDisabled();
+
+      // Valid date, enables button
+      const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste(tomorrow);
+        node.blur();
+      });
+
+      expect(await screen.findByRole('button', { name: 'Next' })).not.toBeDisabled();
+    });
+
     it('goes back when the back button is clicked', async () => {
       renderMtoShipmentForm();
 
@@ -806,6 +960,52 @@ describe('MtoShipmentForm component', () => {
           within(screen.getByTestId('preferredPickupDateFieldSet')).queryByTestId('errorMessage'),
         ).not.toBeInTheDocument();
       });
+    });
+
+    it('preferredPickupDate (edit) - submit disabled when date not in future', async () => {
+      const mockMtoShipmentHHG = {
+        id: uuidv4(),
+        eTag: window.btoa(updatedAt),
+        createdAt: '2021-06-11T18:12:11.918Z',
+        updatedAt,
+        moveTaskOrderId: moveId,
+        requestedPickupDate: '2021-06-07',
+        requestedDeliveryDate: '2021-06-14',
+        pickupAddress: {
+          streetAddress1: '812 S 129th St',
+          streetAddress2: '#123',
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+        },
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDeliveryAddress: false,
+        hasTertiaryPickupAddress: false,
+        hasTertiaryDeliveryAddress: false,
+      };
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentHHG });
+
+      // Trigger invalid date error - must be in the future
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste('26 Mar 2022');
+        node.blur();
+      });
+
+      expect(await screen.findByRole('button', { name: 'Save' })).toBeDisabled();
+
+      // Valid date, enables button
+      const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+      await act(async () => {
+        const node = screen.getByLabelText(/Preferred pickup date/);
+        await userEvent.clear(node);
+        await userEvent.paste(tomorrow);
+        node.blur();
+      });
+
+      expect(await screen.findByRole('button', { name: 'Save' })).not.toBeDisabled();
     });
 
     it('renders the HHG shipment form with pre-filled secondary addresses', async () => {
