@@ -161,3 +161,11 @@
 .PaymentRequestDetails_PaymentRequestDetails .table--stacked {
   table-layout: fixed;
 }
+
+.flashMessage {
+  max-width: 1200px;
+  margin: -10px auto 1rem auto;
+  width: 100%;
+  padding-left: 238px;
+  box-sizing: border-box;
+}
