@@ -37,6 +37,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 				Model: models.Address{
 					PostalCode:         usprc.UsprZipID,
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -45,6 +46,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 				Model: models.Address{
 					PostalCode:         destUSPRC.UsprZipID,
 					UsPostRegionCityID: &destUSPRC.ID,
+					City:               destUSPRC.USPostRegionCityNm,
 				},
 			},
 		}, nil)

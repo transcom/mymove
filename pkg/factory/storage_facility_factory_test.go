@@ -78,7 +78,14 @@ func (suite *FactorySuite) TestBuildStorageFacility() {
 		//                  the address zip to somewhere in the KKFA GBLOC
 		// Expected outcome:StorageFacility should have the a zip in KKFA
 
-		storageFacility := BuildStorageFacility(suite.DB(), nil, []Trait{
+		storageFacility := BuildStorageFacility(suite.DB(), []Customization{
+			{
+				Model: models.Address{
+					City:  "PHOENIX",
+					State: "AZ",
+				},
+			},
+		}, []Trait{
 			GetTraitStorageFacilityKKFA,
 		})
 		suite.Equal(storageFacility.Address.PostalCode, "85004")

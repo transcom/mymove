@@ -42,6 +42,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 				{
 					Model: models.Address{
 						PostalCode: originZip,
+						City:       "AUGUSTA",
+						State:      "GA",
 					},
 				},
 			}, nil)
@@ -51,6 +53,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 				{
 					Model: models.Address{
 						PostalCode: actualOriginZipSameZip3,
+						City:       "AUGUSTA",
+						State:      "GA",
 					},
 				},
 			}, nil)
@@ -60,6 +64,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 				{
 					Model: models.Address{
 						PostalCode: actualOriginZipDiffZip3,
+						City:       "MONTGOMERY",
+						State:      "AL",
 					},
 				},
 			}, nil)

@@ -32,6 +32,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 				{
 					Model: models.Address{
 						PostalCode: originZip,
+						City:       "AUGUSTA",
 					},
 				},
 			}, nil)
@@ -41,6 +42,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 				{
 					Model: models.Address{
 						PostalCode: actualOriginZipSameZip3,
+						City:       "AUGUSTA",
 					},
 				},
 			}, nil)

@@ -109,6 +109,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 				Model: models.Address{
 					PostalCode:         usprc.UsprZipID,
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)

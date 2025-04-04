@@ -27,7 +27,7 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		UsPostRegionCity:   usprc,
 	}
 
-	verrs, err := newAddress.Validate(nil)
+	verrs, err := newAddress.Validate(suite.DB())
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
@@ -167,7 +167,7 @@ func (suite *ModelSuite) TestAddressFormat() {
 		UsPostRegionCity:   usprc,
 	}
 
-	verrs, err := newAddress.Validate(nil)
+	verrs, err := newAddress.Validate(suite.DB())
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
@@ -204,7 +204,7 @@ func (suite *ModelSuite) TestPartialAddressFormat() {
 		UsPostRegionCity:   usprc,
 	}
 
-	verrs, err := newAddress.Validate(nil)
+	verrs, err := newAddress.Validate(suite.DB())
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
@@ -489,14 +489,16 @@ func (suite *ModelSuite) TestValidateUSPRCAssignment() {
 
 	suite.Run("returns error when fails to lookup USPRC", func() {
 
+		uuid := uuid.Must(uuid.NewV4())
 		newAddress := &m.Address{
-			StreetAddress1: "street 1",
-			StreetAddress2: m.StringPointer("street 2"),
-			StreetAddress3: m.StringPointer("street 3"),
-			City:           "BEVERLY HILLS",
-			State:          "CA",
-			PostalCode:     "29229",
-			County:         m.StringPointer("County"),
+			StreetAddress1:     "street 1",
+			StreetAddress2:     m.StringPointer("street 2"),
+			StreetAddress3:     m.StringPointer("street 3"),
+			City:               "BEVERLY HILLS",
+			State:              "CA",
+			PostalCode:         "29229",
+			County:             m.StringPointer("County"),
+			UsPostRegionCityID: &uuid,
 		}
 
 		valid, err := m.ValidateUSPRCAssignment(suite.DB(), *newAddress)

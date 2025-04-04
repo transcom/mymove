@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -63,14 +64,27 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
-		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
-		&validators.StringIsPresent{Field: a.City, Name: "City"},
-		&validators.StringIsPresent{Field: a.State, Name: "State"},
-		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
-		&validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"},
-	), nil
+func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, error) {
+
+	var vs []validate.Validator
+	vs = append(vs, &validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.City, Name: "City"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.State, Name: "State"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"})
+
+	if a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil {
+		validUSPRC, err := ValidateUSPRCAssignment(dbConnection, *a)
+		if err != nil {
+			return nil, err
+		}
+
+		if !validUSPRC {
+			vs = append(vs, &validators.StringIsPresent{Field: strconv.FormatBool(validUSPRC), Name: "True", Message: "UsPostRegionCity assignment is invalid"})
+		}
+	}
+
+	return validate.Validate(vs...), nil
 }
 
 // MarshalLogObject is required to be able to zap.Object log TDLs
@@ -238,13 +252,21 @@ func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember Servic
 // Validate an addresses USPRC assignment
 func ValidateUSPRCAssignment(db *pop.Connection, address Address) (bool, error) {
 
-	expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
+	// If zip does not exist skip this validation
+	zipCount, err := db.Where("uspr_zip_id = $1", address.PostalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
 	if err != nil {
 		return false, err
 	}
 
-	if expectedUSPRC.ID == *address.UsPostRegionCityID {
-		return true, nil
+	if address.UsPostRegionCityID != nil && strings.TrimSpace(address.City) != "" && strings.TrimSpace(address.PostalCode) != "" && len(strings.TrimSpace(address.PostalCode)) == 5 && zipCount > 0 {
+		expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			return false, err
+		}
+
+		if expectedUSPRC.ID == *address.UsPostRegionCityID {
+			return true, nil
+		}
 	}
 
 	return false, nil

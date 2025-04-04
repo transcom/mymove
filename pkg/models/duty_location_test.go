@@ -241,7 +241,7 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		return &contract, nil
 	}
 
-	setupDataForOconusSearchCounselingOffice := func(contract models.ReContract, postalCode string, gbloc string, dutyLocationName string, transportationName string, isOconusRateAreaActive bool) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
+	setupDataForOconusSearchCounselingOffice := func(contract models.ReContract, postalCode string, city string, gbloc string, dutyLocationName string, transportationName string, isOconusRateAreaActive bool) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
 		rateArea := models.ReRateArea{
 			ID:         uuid.Must(uuid.NewV4()),
@@ -284,8 +284,8 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 
 		address := models.Address{
 			StreetAddress1:     "n/a",
-			City:               "SomeCity",
-			State:              "AK",
+			City:               city,
+			State:              usprc.State,
 			PostalCode:         postalCode,
 			County:             models.StringPointer("SomeCounty"),
 			IsOconus:           models.BoolPointer(true),
@@ -333,10 +333,10 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		suite.FatalNoError(err)
 
 		// active duty location
-		_, oconusRateArea, _, dutyLocation := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, true)
+		_, oconusRateArea, _, dutyLocation := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, "FAIRBANKS", testGbloc, testDutyLocationName, testTransportationName, true)
 
 		// not active duty location
-		_, oconusRateArea2, _, _ := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, testGbloc, testDutyLocationName2, testTransportationName2, false)
+		_, oconusRateArea2, _, _ := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, "ANCHORAGE", testGbloc, testDutyLocationName2, testTransportationName2, false)
 
 		suite.True(oconusRateArea.Active)
 		suite.False(oconusRateArea2.Active)
@@ -366,10 +366,10 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		suite.FatalNoError(err)
 
 		// active duty location
-		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, true)
+		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, "FAIRBANKS", testGbloc, testDutyLocationName, testTransportationName, true)
 
 		// active duty location
-		_, oconusRateArea2, _, dutyLocation2 := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, testGbloc, testDutyLocationName2, testTransportationName2, true)
+		_, oconusRateArea2, _, dutyLocation2 := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, "ANCHORAGE", testGbloc, testDutyLocationName2, testTransportationName2, true)
 
 		suite.True(oconusRateArea.Active)
 		suite.True(oconusRateArea2.Active)
@@ -399,10 +399,10 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		suite.FatalNoError(err)
 
 		// active duty location
-		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, false)
+		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, "FAIRBANKS", testGbloc, testDutyLocationName, testTransportationName, false)
 
 		// active duty location
-		_, oconusRateArea2, _, dutyLocation2 := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, testGbloc, testDutyLocationName2, testTransportationName2, false)
+		_, oconusRateArea2, _, dutyLocation2 := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, "ANCHORAGE", testGbloc, testDutyLocationName2, testTransportationName2, false)
 
 		suite.False(oconusRateArea.Active)
 		suite.False(oconusRateArea2.Active)
@@ -515,10 +515,10 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		suite.FatalNoError(err)
 
 		// active duty location
-		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, true)
+		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, "FAIRBANKS", testGbloc, testDutyLocationName, testTransportationName, true)
 
 		// not active duty location
-		_, oconusRateArea2, _, _ := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, testGbloc, testDutyLocationName2, testTransportationName2, false)
+		_, oconusRateArea2, _, _ := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, "ANCHORAGE", testGbloc, testDutyLocationName2, testTransportationName2, false)
 
 		suite.True(oconusRateArea.Active)
 		suite.False(oconusRateArea2.Active)
@@ -553,10 +553,10 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		suite.FatalNoError(err)
 
 		// not active duty location
-		_, oconusRateArea, _, _ := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, false)
+		_, oconusRateArea, _, _ := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, "FAIRBANKS", testGbloc, testDutyLocationName, testTransportationName, false)
 
 		// not active duty location
-		_, oconusRateArea2, _, _ := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, testGbloc, testDutyLocationName2, testTransportationName2, false)
+		_, oconusRateArea2, _, _ := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, "ANCHORAGE", testGbloc, testDutyLocationName2, testTransportationName2, false)
 
 		suite.False(oconusRateArea.Active)
 		suite.False(oconusRateArea2.Active)
@@ -578,7 +578,7 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 }
 
 func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
-	setupDataForDutyLocationSearch := func(postalCode string, dutyLocationName string) models.DutyLocation {
+	setupDataForDutyLocationSearch := func(postalCode string, city string, dutyLocationName string) models.DutyLocation {
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
 		suite.Nil(err)
@@ -589,8 +589,8 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
 
 		address := models.Address{
 			StreetAddress1:     "n/a",
-			City:               "SomeCity",
-			State:              "VA",
+			City:               city,
+			State:              usprc.State,
 			PostalCode:         postalCode,
 			County:             models.StringPointer("SomeCounty"),
 			IsOconus:           models.BoolPointer(true),
@@ -626,11 +626,11 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
 	suite.Run("test search by duty location name - 1 with po box and 2 without po box", func() {
 
 		// duty location with a po box
-		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, "SAN DIEGO", testDutyLocationName)
 
 		// duty location without a po box
-		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
-		nonPoBoxDutyLocation2 := setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, "YORKTOWN", testDutyLocationName2)
+		nonPoBoxDutyLocation2 := setupDataForDutyLocationSearch(nonPoBoxPostalCode2, "CANNON AFB", testDutyLocationName3)
 
 		tests := []struct {
 			query         string
@@ -654,7 +654,7 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
 	suite.Run("test search by duty location name - only po box", func() {
 
 		// duty location with a po box
-		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, "SAN DIEGO", testDutyLocationName)
 
 		tests := []struct {
 			query         string
@@ -673,11 +673,11 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
 	suite.Run("test search by zip - a po box zip", func() {
 
 		// duty location with a po box
-		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, "SAN DIEGO", testDutyLocationName)
 
 		// duty location without a po box
-		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
-		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode, "YORKTOWN", testDutyLocationName2)
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, "CANNON AFB", testDutyLocationName3)
 
 		tests := []struct {
 			query         string
@@ -696,11 +696,11 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
 	suite.Run("test search by zip - not a po box zip", func() {
 
 		// duty location with a po box
-		_ = setupDataForDutyLocationSearch(poBoxPostalCode, testDutyLocationName)
+		_ = setupDataForDutyLocationSearch(poBoxPostalCode, "SAN DIEGO", testDutyLocationName)
 
 		// duty location without a po box
-		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, testDutyLocationName2)
-		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, testDutyLocationName3)
+		nonPoBoxDutyLocation := setupDataForDutyLocationSearch(nonPoBoxPostalCode, "YORKTOWN", testDutyLocationName2)
+		_ = setupDataForDutyLocationSearch(nonPoBoxPostalCode2, "CANNON AFB", testDutyLocationName3)
 
 		tests := []struct {
 			query         string

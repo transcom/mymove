@@ -77,7 +77,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Some Street",
-					City:           "Some City",
+					City:           "COLUMBIA",
 					State:          "SC",
 					PostalCode:     "29229",
 					IsOconus:       models.BoolPointer(false),
@@ -145,7 +145,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Some Street",
-					City:           "Some City",
+					City:           "COLUMBIA",
 					State:          "SC",
 					PostalCode:     "29229",
 					IsOconus:       models.BoolPointer(false),
@@ -334,7 +334,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: "177 Q st",
-					City:           "AK",
+					City:           "FAIRBANKS",
 					State:          "AK",
 					PostalCode:     "99708",
 					IsOconus:       models.BoolPointer(true), //OCONUS - prevent pricing
