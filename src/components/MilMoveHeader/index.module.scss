@@ -154,6 +154,10 @@
       @include u-margin-x(0);
     }
 
+    :global(.usa-nav__primary .userLink a:not(.usa-button)) {
+        @include u-font-size('body', 'xs');
+    }
+
     :global(.usa-nav__primary-item) {
       @include u-margin-left(2);
     }
