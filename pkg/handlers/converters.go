@@ -116,6 +116,15 @@ func FmtBool(b bool) *bool {
 	return &b
 }
 
+// FmtBoolPtr converts a *bool to a *bool, returning nil if the input is nil
+func FmtBoolPtr(b *bool) *bool {
+	if b == nil {
+		return nil
+	}
+	value := *b
+	return &value
+}
+
 // FmtEmail converts pop type to go-swagger type
 func FmtEmail(email string) *strfmt.Email {
 	fmtEmail := strfmt.Email(email)

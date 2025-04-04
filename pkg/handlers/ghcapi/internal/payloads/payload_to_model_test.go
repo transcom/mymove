@@ -452,6 +452,67 @@ func (suite *PayloadsSuite) TestWeightTicketModelFromUpdate() {
 	})
 }
 
+func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		description := "Test moving expense"
+		reason := "Just testing"
+		trackingNumber := "TRACK123"
+		movingExpenseStatus := ghcmessages.PPMDocumentStatusAPPROVED
+		amount := int64(1000)
+		weightStored := int64(1500)
+		weightShipped := int64(1200)
+		sitEstimatedCost := int64(2000)
+		sitReimburseableAmount := int64(2500)
+		sitStartDate := strfmt.Date(time.Now())
+		sitEndDate := strfmt.Date(time.Now().Add(24 * time.Hour))
+		isProGear := true
+		proGearBelongsToSelf := false
+		proGearDescription := "Pro gear details"
+
+		expenseType := ghcmessages.OmittableMovingExpenseTypeSMALLPACKAGE
+		sitLocation := ghcmessages.SITLocationTypeORIGIN
+
+		updateMovingExpense := &ghcmessages.UpdateMovingExpense{
+			MovingExpenseType:      &expenseType,
+			Description:            &description,
+			SitLocation:            &sitLocation,
+			Amount:                 amount,
+			SitStartDate:           sitStartDate,
+			SitEndDate:             sitEndDate,
+			Status:                 movingExpenseStatus,
+			Reason:                 reason,
+			WeightStored:           weightStored,
+			SitEstimatedCost:       &sitEstimatedCost,
+			SitReimburseableAmount: &sitReimburseableAmount,
+			TrackingNumber:         &trackingNumber,
+			WeightShipped:          &weightShipped,
+			IsProGear:              &isProGear,
+			ProGearBelongsToSelf:   &proGearBelongsToSelf,
+			ProGearDescription:     &proGearDescription,
+		}
+
+		result := MovingExpenseModelFromUpdate(updateMovingExpense)
+		suite.IsType(&models.MovingExpense{}, result)
+
+		suite.Equal(models.MovingExpenseReceiptTypeSmallPackage, *result.MovingExpenseType, "MovingExpenseType should match")
+		suite.Equal(&description, result.Description, "Description should match")
+		suite.Equal(models.SITLocationTypeOrigin, *result.SITLocation, "SITLocation should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&amount), result.Amount, "Amount should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitStartDate), result.SITStartDate, "SITStartDate should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitEndDate), result.SITEndDate, "SITEndDate should match")
+		suite.Equal(models.PPMDocumentStatusApproved, *result.Status, "Status should match")
+		suite.Equal(handlers.FmtString(reason), result.Reason, "Reason should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightStored), result.WeightStored, "WeightStored should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&sitEstimatedCost), result.SITEstimatedCost, "SITEstimatedCost should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&sitReimburseableAmount), result.SITReimburseableAmount, "SITReimburseableAmount should match")
+		suite.Equal(handlers.FmtStringPtr(&trackingNumber), result.TrackingNumber, "TrackingNumber should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightShipped), result.WeightShipped, "WeightShipped should match")
+		suite.Equal(handlers.FmtBoolPtr(&isProGear), result.IsProGear, "IsProGear should match")
+		suite.Equal(handlers.FmtBoolPtr(&proGearBelongsToSelf), result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
+		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
+	})
+}
+
 func (suite *PayloadsSuite) TestOfficeUserModelFromUpdate() {
 	suite.Run("success - complete input", func() {
 		telephone := "111-111-1111"

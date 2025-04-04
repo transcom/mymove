@@ -469,4 +469,42 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.IsType(apperror.InvalidInputError{}, updateErr)
 		suite.ErrorContains(updateErr, "reason is mandatory if the status is Excluded or Rejected")
 	})
+
+	suite.Run("Successfully updates small package expense fields", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		originalMovingExpense := setupForTest(appCtx, nil, true)
+
+		// defining small package related values
+		trackingNumber := "TRK1234"
+		isProGear := true
+		proGearBelongsToSelf := true
+		proGearDescription := "Pro gear updated description"
+		weightShipped := 150
+		smallPackageType := models.MovingExpenseReceiptTypeSmallPackage
+
+		expectedMovingExpense := &models.MovingExpense{
+			ID:                   originalMovingExpense.ID,
+			MovingExpenseType:    &smallPackageType,
+			PaidWithGTCC:         models.BoolPointer(false),
+			MissingReceipt:       models.BoolPointer(false),
+			Amount:               models.CentPointer(unit.Cents(8675309)),
+			TrackingNumber:       &trackingNumber,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		}
+
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
+		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.NotNil(updatedMovingExpense)
+		suite.Equal(trackingNumber, *updatedMovingExpense.TrackingNumber, "TrackingNumber should be updated")
+		suite.Equal(isProGear, *updatedMovingExpense.IsProGear, "IsProGear should be updated")
+		suite.Equal(proGearBelongsToSelf, *updatedMovingExpense.ProGearBelongsToSelf, "ProGearBelongsToSelf should be updated")
+		suite.Equal(proGearDescription, *updatedMovingExpense.ProGearDescription, "ProGearDescription should be updated")
+		suite.Equal((unit.Pound)(weightShipped), *updatedMovingExpense.WeightShipped, "WeightShipped should be updated")
+	})
+
 }
