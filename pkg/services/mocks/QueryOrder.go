@@ -9,7 +9,7 @@ type QueryOrder struct {
 	mock.Mock
 }
 
-// Column provides a mock function with no fields
+// Column provides a mock function with given fields:
 func (_m *QueryOrder) Column() *string {
 	ret := _m.Called()
 
@@ -29,7 +29,7 @@ func (_m *QueryOrder) Column() *string {
 	return r0
 }
 
-// SortOrder provides a mock function with no fields
+// SortOrder provides a mock function with given fields:
 func (_m *QueryOrder) SortOrder() *bool {
 	ret := _m.Called()
 
