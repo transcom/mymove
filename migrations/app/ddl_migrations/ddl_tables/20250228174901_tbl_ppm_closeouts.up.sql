@@ -1,5 +1,6 @@
 --B-22540  Alex Lusk  Create ppm_closeouts table to store dollar values for Advana
 --B-22545  Alex Lusk  Remove unused storage expense columns
+--B-22656  Daniel Jordan  Add small package columns
 
 CREATE TABLE IF NOT EXISTS ppm_closeouts (
     id UUID PRIMARY KEY NOT NULL,
@@ -24,6 +25,8 @@ CREATE TABLE IF NOT EXISTS ppm_closeouts (
 	remaining_incentive integer,
 	gtcc_paid_sit integer,
 	member_paid_sit integer,
+	gtcc_paid_small_package integer,
+	member_paid_small_package integer,
 	gtcc_disbursement integer,
 	member_disbursement integer,
     created_at TIMESTAMP NOT NULL,
@@ -53,6 +56,8 @@ COMMENT on COLUMN ppm_closeouts.total_member_paid_expenses IS 'Total amount paid
 COMMENT on COLUMN ppm_closeouts.remaining_incentive IS 'Final PPM incentive less the advance recieved. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.gtcc_paid_sit IS 'Amount paid for SIT using the service member''s GTCC. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.member_paid_sit IS 'Amount paid for SIT by the service member. Stored in cents.';
+COMMENT on COLUMN ppm_closeouts.gtcc_paid_small_package IS 'Amount paid for small package expenses using the service member''s GTCC. Stored in cents.';
+COMMENT on COLUMN ppm_closeouts.member_paid_small_package IS 'Amount paid for small package expenses by the service member. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.gtcc_disbursement IS 'Amount disbursed for GTCC expenses. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.member_disbursement IS 'Amount disbursed for service member paid expenses. Stored in cents.';
 COMMENT on COLUMN ppm_closeouts.created_at IS 'Date that this closeout was created.';

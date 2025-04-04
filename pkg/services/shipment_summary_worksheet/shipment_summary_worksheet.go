@@ -93,7 +93,7 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 		A. the difference between the GTCC paid expenses and the GCC OR
 		B. the total member-paid expenses plus the member paid SIT
 	**/
-	if shipmentSummaryFormData.IsActualExpenseReimbursement && isPaymentPacket {
+	if (shipmentSummaryFormData.IsActualExpenseReimbursement || shipmentSummaryFormData.IsSmallPackageReimbursement) && isPaymentPacket {
 		if shipmentSummaryFormData.PPMShipment.FinalIncentive == nil {
 			return services.Page1Values{}, services.Page2Values{}, services.Page3Values{}, fmt.Errorf("missing FinalIncentive: required for actual expense reimbursement (Order ID: %s)", shipmentSummaryFormData.Order.ID)
 		}
@@ -339,8 +339,9 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
+	actualExpensePPM := data.PPMShipment.PPMType == models.PPMTypeActualExpense || data.PPMShipment.PPMType == models.PPMTypeSmallPackage
 	if isPaymentPacket {
-		if data.IsActualExpenseReimbursement {
+		if actualExpensePPM {
 			data.PPMRemainingEntitlement = 0.0
 		} else {
 			data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, data.PPMShipment.AdvanceAmountReceived)
@@ -364,7 +365,7 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 		page2.Disbursement = "N/A"
 
-		if data.IsActualExpenseReimbursement {
+		if actualExpensePPM {
 			page2.PPMRemainingEntitlement = "$0.00"
 		} else {
 			page2.PPMRemainingEntitlement = "N/A"
@@ -378,8 +379,8 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.WeighingFeesGTCCPaid = FormatDollars(expensesMap["WeighingFeeGTCCPaid"])
 	page2.RentalEquipmentMemberPaid = FormatDollars(expensesMap["RentalEquipmentMemberPaid"])
 	page2.RentalEquipmentGTCCPaid = FormatDollars(expensesMap["RentalEquipmentGTCCPaid"])
-	page2.SmallPackageExpenseMemberPaid = FormatDollars(expensesMap["SmallPackageExpenseMemberPaid"])
-	page2.SmallPackageExpenseGTCCPaid = FormatDollars(expensesMap["SmallPackageExpenseGTCCPaid"])
+	page2.SmallPackageExpenseMemberPaid = FormatDollars(expensesMap["SmallPackageMemberPaid"])
+	page2.SmallPackageExpenseGTCCPaid = FormatDollars(expensesMap["SmallPackageGTCCPaid"])
 	page2.TollsMemberPaid = FormatDollars(expensesMap["TollsMemberPaid"])
 	page2.TollsGTCCPaid = FormatDollars(expensesMap["TollsGTCCPaid"])
 	page2.OilMemberPaid = FormatDollars(expensesMap["OilMemberPaid"])
