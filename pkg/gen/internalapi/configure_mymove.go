@@ -29,10 +29,12 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/registration"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/validation_code"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/internal.yaml --api-package internaloperations --model-package internalmessages --server-package internalapi --principal interface{} --exclude-main
@@ -83,6 +85,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
 		api.FeatureFlagsBooleanFeatureFlagForUserHandler = feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
+		api.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler = feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
 		})
 	}
 	if api.OfficeCancelMoveHandler == nil {
@@ -153,6 +160,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		api.MoveDocsCreateWeightTicketDocumentHandler = move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
+		})
+	}
+	if api.RegistrationCustomerRegistrationHandler == nil {
+		api.RegistrationCustomerRegistrationHandler = registration.CustomerRegistrationHandlerFunc(func(params registration.CustomerRegistrationParams) middleware.Responder {
+			return middleware.NotImplemented("operation registration.CustomerRegistration has not yet been implemented")
 		})
 	}
 	if api.MoveDocsDeleteMoveDocumentHandler == nil {
@@ -408,6 +420,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.ApplicationParametersValidateHandler == nil {
 		api.ApplicationParametersValidateHandler = application_parameters.ValidateHandlerFunc(func(params application_parameters.ValidateParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.Validate has not yet been implemented")
+		})
+	}
+	if api.ValidationCodeValidateCodeHandler == nil {
+		api.ValidationCodeValidateCodeHandler = validation_code.ValidateCodeHandlerFunc(func(params validation_code.ValidateCodeParams) middleware.Responder {
+			return middleware.NotImplemented("operation validation_code.ValidateCode has not yet been implemented")
 		})
 	}
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {

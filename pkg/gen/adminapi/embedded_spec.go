@@ -2422,6 +2422,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -3111,6 +3117,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -3299,7 +3311,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -3646,6 +3660,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "revokeAdminSession": {
@@ -6260,6 +6280,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -6950,6 +6976,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "title": "First Name",
@@ -7138,7 +7170,9 @@ func init() {
         },
         "email": {
           "type": "string",
-          "example": "user@userdomain.com"
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -7485,6 +7519,12 @@ func init() {
       "properties": {
         "active": {
           "type": "boolean",
+          "x-nullable": true
+        },
+        "oktaEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
         "revokeAdminSession": {

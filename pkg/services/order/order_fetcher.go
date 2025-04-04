@@ -124,10 +124,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
+	secondarySortOrderQuery := secondarySortOrder(params.Sort)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
+	options := [22]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -314,15 +315,15 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 // this is a custom/temporary struct used in the below service object to get destination queue moves
 type MoveWithCount struct {
 	models.Move
-	OrdersRaw           json.RawMessage              `json:"orders" db:"orders"`
-	Orders              *models.Order                `json:"-"`
-	MTOShipmentsRaw     json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
-	MTOShipments        *models.MTOShipments         `json:"-"`
-	CounselingOfficeRaw json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
-	CounselingOffice    *models.TransportationOffice `json:"-"`
-	TOOAssignedRaw      json.RawMessage              `json:"too_assigned" db:"too_assigned"`
-	TOOAssignedUser     *models.OfficeUser           `json:"-"`
-	TotalCount          int64                        `json:"total_count" db:"total_count"`
+	OrdersRaw                     json.RawMessage              `json:"orders" db:"orders"`
+	Orders                        *models.Order                `json:"-"`
+	MTOShipmentsRaw               json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments                  *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice              *models.TransportationOffice `json:"-"`
+	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
+	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
+	TotalCount                    int64                        `json:"total_count" db:"total_count"`
 }
 
 type JSONB []byte
@@ -337,10 +338,16 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 	var movesWithCount []MoveWithCount
 
 	// getting the office user's GBLOC
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-	officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-	if gblocErr != nil {
-		return []models.Move{}, 0, gblocErr
+	var officeUserGbloc string
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return []models.Move{}, 0, gblocErr
+		}
 	}
 
 	// calling the database function with all passed in parameters
@@ -356,7 +363,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		params.Branch,
 		strings.Join(params.OriginDutyLocation, " "),
 		params.CounselingOffice,
-		params.TOOAssignedUser,
+		params.TOODestinationAssignedUser,
 		params.Page,
 		params.PerPage,
 		params.Sort,
@@ -403,11 +410,11 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 
 		// populating Moves.TOOAssigned struct
 		var tooAssigned models.OfficeUser
-		if err := json.Unmarshal(movesWithCount[i].TOOAssignedRaw, &tooAssigned); err != nil {
+		if err := json.Unmarshal(movesWithCount[i].TOODestinationAssignedUserRaw, &tooAssigned); err != nil {
 			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
 		}
-		movesWithCount[i].TOOAssignedRaw = nil
-		movesWithCount[i].TOOAssignedUser = &tooAssigned
+		movesWithCount[i].TOODestinationAssignedUserRaw = nil
+		movesWithCount[i].TOODestinationAssignedUser = &tooAssigned
 	}
 
 	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func
@@ -893,6 +900,16 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 			}
 		} else {
 			query.Order("moves.status desc")
+		}
+	}
+}
+
+// When a queue is sorted by a non-unique value (ex: status, branch) the order within each value is inconsistent at different page sizes
+// Adding a secondary sort ensures a consistent order within the primary sort column
+func secondarySortOrder(sort *string) QueryOption {
+	return func(query *pop.Query) {
+		if sort == nil || *sort != "locator" {
+			query.Order("moves.locator asc")
 		}
 	}
 }

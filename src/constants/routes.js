@@ -1,6 +1,7 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
+  CREATE_ACCOUNT_PATH: '/create-account',
   REQUEST_ACCOUNT: '/request-account',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
@@ -11,7 +12,6 @@ export const generalRoutes = {
 export const customerRoutes = {
   MOVE_HOME_PAGE: '/move',
   MOVE_HOME_PATH: '/move/:moveId',
-  VALIDATION_CODE_PATH: '/service-member/validation-code',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
   CONTACT_INFO_PATH: '/service-member/contact-info',
@@ -199,4 +199,5 @@ export const primeSimulatorRoutes = {
 
 export const adminRoutes = {
   HOME_PATH: '/',
+  REJECTED_OFFICE_USERS: '/system/rejected-office-users',
 };

@@ -37,10 +37,12 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/registration"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/validation_code"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -75,6 +77,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		FeatureFlagsBooleanFeatureFlagForUserHandler: feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
+		}),
+		FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler: feature_flags.BooleanFeatureFlagUnauthenticatedHandlerFunc(func(params feature_flags.BooleanFeatureFlagUnauthenticatedParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagUnauthenticated has not yet been implemented")
 		}),
 		OfficeCancelMoveHandler: office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
@@ -117,6 +122,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveDocsCreateWeightTicketDocumentHandler: move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
+		}),
+		RegistrationCustomerRegistrationHandler: registration.CustomerRegistrationHandlerFunc(func(params registration.CustomerRegistrationParams) middleware.Responder {
+			return middleware.NotImplemented("operation registration.CustomerRegistration has not yet been implemented")
 		}),
 		MoveDocsDeleteMoveDocumentHandler: move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
@@ -271,6 +279,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ApplicationParametersValidateHandler: application_parameters.ValidateHandlerFunc(func(params application_parameters.ValidateParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.Validate has not yet been implemented")
 		}),
+		ValidationCodeValidateCodeHandler: validation_code.ValidateCodeHandlerFunc(func(params validation_code.ValidateCodeParams) middleware.Responder {
+			return middleware.NotImplemented("operation validation_code.ValidateCode has not yet been implemented")
+		}),
 		PostalCodesValidatePostalCodeWithRateDataHandler: postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
 		}),
@@ -330,6 +341,8 @@ type MymoveAPI struct {
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
 	// FeatureFlagsBooleanFeatureFlagForUserHandler sets the operation handler for the boolean feature flag for user operation
 	FeatureFlagsBooleanFeatureFlagForUserHandler feature_flags.BooleanFeatureFlagForUserHandler
+	// FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler sets the operation handler for the boolean feature flag unauthenticated operation
+	FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler feature_flags.BooleanFeatureFlagUnauthenticatedHandler
 	// OfficeCancelMoveHandler sets the operation handler for the cancel move operation
 	OfficeCancelMoveHandler office.CancelMoveHandler
 	// DocumentsCreateDocumentHandler sets the operation handler for the create document operation
@@ -358,6 +371,8 @@ type MymoveAPI struct {
 	PpmCreateWeightTicketHandler ppm.CreateWeightTicketHandler
 	// MoveDocsCreateWeightTicketDocumentHandler sets the operation handler for the create weight ticket document operation
 	MoveDocsCreateWeightTicketDocumentHandler move_docs.CreateWeightTicketDocumentHandler
+	// RegistrationCustomerRegistrationHandler sets the operation handler for the customer registration operation
+	RegistrationCustomerRegistrationHandler registration.CustomerRegistrationHandler
 	// MoveDocsDeleteMoveDocumentHandler sets the operation handler for the delete move document operation
 	MoveDocsDeleteMoveDocumentHandler move_docs.DeleteMoveDocumentHandler
 	// PpmDeleteMovingExpenseHandler sets the operation handler for the delete moving expense operation
@@ -460,6 +475,8 @@ type MymoveAPI struct {
 	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// ApplicationParametersValidateHandler sets the operation handler for the validate operation
 	ApplicationParametersValidateHandler application_parameters.ValidateHandler
+	// ValidationCodeValidateCodeHandler sets the operation handler for the validate code operation
+	ValidationCodeValidateCodeHandler validation_code.ValidateCodeHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
 	// FeatureFlagsVariantFeatureFlagForUserHandler sets the operation handler for the variant feature flag for user operation
@@ -556,6 +573,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
 		unregistered = append(unregistered, "feature_flags.BooleanFeatureFlagForUserHandler")
 	}
+	if o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler == nil {
+		unregistered = append(unregistered, "feature_flags.BooleanFeatureFlagUnauthenticatedHandler")
+	}
 	if o.OfficeCancelMoveHandler == nil {
 		unregistered = append(unregistered, "office.CancelMoveHandler")
 	}
@@ -597,6 +617,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateWeightTicketDocumentHandler")
+	}
+	if o.RegistrationCustomerRegistrationHandler == nil {
+		unregistered = append(unregistered, "registration.CustomerRegistrationHandler")
 	}
 	if o.MoveDocsDeleteMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.DeleteMoveDocumentHandler")
@@ -751,6 +774,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ApplicationParametersValidateHandler == nil {
 		unregistered = append(unregistered, "application_parameters.ValidateHandler")
 	}
+	if o.ValidationCodeValidateCodeHandler == nil {
+		unregistered = append(unregistered, "validation_code.ValidateCodeHandler")
+	}
 	if o.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		unregistered = append(unregistered, "postal_codes.ValidatePostalCodeWithRateDataHandler")
 	}
@@ -864,6 +890,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/open/feature-flags/boolean/{key}"] = feature_flags.NewBooleanFeatureFlagUnauthenticated(o.context, o.FeatureFlagsBooleanFeatureFlagUnauthenticatedHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{moveId}/cancel"] = office.NewCancelMove(o.context, o.OfficeCancelMoveHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -917,6 +947,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/weight_ticket"] = move_docs.NewCreateWeightTicketDocument(o.context, o.MoveDocsCreateWeightTicketDocumentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/register"] = registration.NewCustomerRegistration(o.context, o.RegistrationCustomerRegistrationHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -1121,6 +1155,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/application_parameters"] = application_parameters.NewValidate(o.context, o.ApplicationParametersValidateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/validation_code"] = validation_code.NewValidateCode(o.context, o.ValidationCodeValidateCodeHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
