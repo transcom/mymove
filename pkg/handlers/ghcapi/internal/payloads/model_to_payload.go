@@ -2308,6 +2308,17 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	return officeUsers
 }
 
+func attachApprovalRequestTypes(move models.Move) []string {
+	var requestTypes []string
+	for _, item := range move.MTOServiceItems {
+		if item.Status == models.MTOServiceItemStatusSubmitted {
+			requestTypes = append(requestTypes, string(item.ReService.Code))
+		}
+	}
+
+	return requestTypes
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -2376,6 +2387,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				}
 			}
 		}
+
+		approvalRequestTypes := attachApprovalRequestTypes(move)
 
 		// queue assignment logic below
 
@@ -2464,6 +2477,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			AssignedTo:              assignedToUser,
 			Assignable:              assignable,
 			AvailableOfficeUsers:    apiAvailableOfficeUsers,
+			ApprovalRequestTypes:    approvalRequestTypes,
 		}
 	}
 	return &queueMoves
