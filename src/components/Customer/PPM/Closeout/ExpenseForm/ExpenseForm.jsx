@@ -233,6 +233,7 @@ const ExpenseForm = ({
                     <FormGroup>
                       {values.expenseType !== expenseTypes.SMALL_PACKAGE ? (
                         <>
+                          <h3>Amount</h3>
                           <MaskedTextField
                             name="amount"
                             label="Amount"

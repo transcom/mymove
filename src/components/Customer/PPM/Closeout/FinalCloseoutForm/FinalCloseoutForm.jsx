@@ -52,7 +52,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
   return (
     <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit }) => (
-        <div className={styles.FinalCloseoutForm}>
+        <div className={styles.FinalCloseoutForm} data-testid="finalCloseoutDetails">
           {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
             <>
               <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalIncentive || 0)}</h2>

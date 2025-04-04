@@ -348,6 +348,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
     if (aboutInfoComplete) {
       if (ppmType === PPM_TYPES.SMALL_PACKAGE) {
+        // PPM-SPRs skip the weight ticket part of closeout
         path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
           moveId: move.id,
           mtoShipmentId: shipmentId,

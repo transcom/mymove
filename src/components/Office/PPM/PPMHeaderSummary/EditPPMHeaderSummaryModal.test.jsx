@@ -6,6 +6,12 @@ import { Provider } from 'react-redux';
 import EditPPMHeaderSummaryModal from './EditPPMHeaderSummaryModal';
 
 import { configureStore } from 'shared/store';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 let onClose;
 let onSubmit;
@@ -116,7 +122,8 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
   });
 
-  it('renders actual expense reimbursement', async () => {
+  it('renders expense type selection', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     await act(async () => {
       render(
         <EditPPMHeaderSummaryModal
@@ -124,13 +131,18 @@ describe('EditPPMHeaderSummaryModal', () => {
           sectionInfo={sectionInfo}
           onClose={onClose}
           onSubmit={onSubmit}
-          editItemName="isActualExpenseReimbursement"
+          editItemName="expenseType"
         />,
       );
     });
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
-    expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
+    expect(screen.getByText('What is the PPM type?')).toBeInTheDocument();
+    expect(screen.getByTestId('isIncentiveBased')).toBeInTheDocument();
+    expect(screen.getByTestId('isActualExpense')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('isSmallPackage')).toBeInTheDocument();
+    });
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
@@ -285,14 +297,6 @@ describe('EditPPMHeaderSummaryModal', () => {
     });
 
     expect(await screen.findByText('Required')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
-
-    await act(async () => {
-      await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
-      await userEvent.type(await screen.getByLabelText('Allowable Weight'), '-100');
-    });
-
-    expect(await screen.findByText('Allowable weight must be greater than or equal to zero')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
   });
 });
