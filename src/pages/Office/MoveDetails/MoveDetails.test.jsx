@@ -12,6 +12,7 @@ import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { SHIPMENT_TYPES } from 'shared/constants';
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
@@ -1572,10 +1573,18 @@ describe('MoveDetails page', () => {
   });
 
   describe('when a shipment has an invalid requestedPickupDate', () => {
-    it('error indicators shown and shipment cannot be selected for approvals', async () => {
+    it.each([
+      [SHIPMENT_TYPES.HHG],
+      [SHIPMENT_TYPES.NTS],
+      [SHIPMENT_TYPES.NTSR],
+      [SHIPMENT_TYPES.MOBILE_HOME],
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY],
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY],
+      [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE],
+    ])('%s - error indicators shown and shipment cannot be selected for approvals', async (shipmentType) => {
       useMoveDetailsQueries.mockReturnValue({
         ...undefinedMTOShipmentsMoveDetailsQuery,
-        mtoShipments: [shipmentInvalidRequestedPickupDate],
+        mtoShipments: [{ ...shipmentInvalidRequestedPickupDate, shipmentType }],
       });
 
       render(

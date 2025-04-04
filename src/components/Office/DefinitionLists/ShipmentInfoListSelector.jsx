@@ -110,6 +110,20 @@ const ShipmentInfoListSelector = ({
           destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       );
+    case SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE:
+      return (
+        <ShipmentInfoList
+          className={className}
+          shipment={shipment}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          shipmentType={shipmentType}
+          showWhenCollapsed={showWhenCollapsed}
+          isForEvaluationReport={isForEvaluationReport}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
+        />
+      );
     default:
       return (
         <ShipmentInfoList
