@@ -138,10 +138,21 @@ func (a moveAssigner) BulkMoveReAssignment(appCtx appcontext.AppContext, queueTy
 
 // Assign/ReAssign users
 func (a moveAssigner) bulkAssignUsers(movesToReAssignUsersFrom models.Moves, userQueue *list.List, moveAssignments map[uuid.UUID]int, queueType string) models.Moves {
-	moveIndex := 0
 	updatedMoves := make([]models.Move, 0, len(movesToReAssignUsersFrom))
 	// Re-Assign Users
-	for i, move := range movesToReAssignUsersFrom {
+	for i := range movesToReAssignUsersFrom {
+		ordersType := movesToReAssignUsersFrom[i].Orders.OrdersType
+		if ordersType == internalmessages.OrdersTypeSAFETY ||
+			ordersType == internalmessages.OrdersTypeBLUEBARK ||
+			ordersType == internalmessages.OrdersTypeWOUNDEDWARRIOR {
+			// Skip moves that shouldn't be reassigned.
+			continue
+		}
+
+		// Check if there are any users left in the queue.
+		if userQueue.Len() == 0 {
+			break
+		}
 		fmt.Printf("Iteration %d, queue length: %d\n", i, userQueue.Len())
 
 		user := userQueue.Front()
@@ -149,19 +160,16 @@ func (a moveAssigner) bulkAssignUsers(movesToReAssignUsersFrom models.Moves, use
 		fmt.Printf("Processing user: %s with current assignment count: %d\n", userID, moveAssignments[userID])
 		userQueue.Remove(user)
 
-		ordersType := move.Orders.OrdersType
 		if ordersType != internalmessages.OrdersTypeSAFETY && ordersType != internalmessages.OrdersTypeBLUEBARK && ordersType != internalmessages.OrdersTypeWOUNDEDWARRIOR {
-			updatedMove, err := a.commitMoveAssignmentToMove(queueType, &move, userID)
+			updatedMove, err := a.commitMoveAssignmentToMove(queueType, &movesToReAssignUsersFrom[i], userID)
 			if err == nil {
 				updatedMoves = append(updatedMoves, *updatedMove)
+				// decrement the user's assignment count
+				moveAssignments[userID]--
+				fmt.Printf("User %s assignment count after decrement: %d\n", userID, moveAssignments[userID])
+
 			}
 		}
-
-		// decrement the user's assignment count
-		moveAssignments[userID]--
-		fmt.Printf("User %s assignment count after decrement: %d\n", userID, moveAssignments[userID])
-		moveIndex++
-
 		// If user still has remaining assignments, re-queue them
 		if moveAssignments[userID] > 0 {
 			userQueue.PushBack(userID)

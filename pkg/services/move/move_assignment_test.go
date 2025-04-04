@@ -615,14 +615,23 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 		suite.NoError(suite.DB().Reload(&reAmove7))
 		suite.NoError(suite.DB().Reload(&reAmove8))
 
-		suite.Equal(officeUser1.ID, *reAmove1.SCAssignedID)
-		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
-		suite.Equal(officeUser4.ID, *reAmove4.SCAssignedID)
-		suite.Equal(officeUser2.ID, *reAmove5.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove6.SCAssignedID)
-		suite.Equal(officeUser4.ID, *reAmove7.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove8.SCAssignedID)
+		originalMoveId1 := *reAmove1.SCAssignedID
+		originalMoveId2 := *reAmove2.SCAssignedID
+		originalMoveId3 := *reAmove3.SCAssignedID
+		originalMoveId4 := *reAmove4.SCAssignedID
+		originalMoveId5 := *reAmove5.SCAssignedID
+		originalMoveId6 := *reAmove6.SCAssignedID
+		originalMoveId7 := *reAmove7.SCAssignedID
+		originalMoveId8 := *reAmove8.SCAssignedID
+
+		suite.Equal(officeUser1.ID, originalMoveId1)
+		suite.Equal(officeUser2.ID, originalMoveId2)
+		suite.Equal(officeUser3.ID, originalMoveId3)
+		suite.Equal(officeUser4.ID, originalMoveId4)
+		suite.Equal(officeUser2.ID, originalMoveId5)
+		suite.Equal(officeUser3.ID, originalMoveId6)
+		suite.Equal(officeUser4.ID, originalMoveId7)
+		suite.Equal(officeUser3.ID, originalMoveId8)
 
 		officeUserToReassign := strfmt.UUID(officeUser4.ID.String())
 		bAReuserData := []*ghcmessages.BulkAssignmentForUser{
@@ -644,13 +653,22 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 		suite.NoError(suite.DB().Reload(&reAmove7))
 		suite.NoError(suite.DB().Reload(&reAmove8))
 
-		suite.Equal(officeUser1.ID, *reAmove1.SCAssignedID)
-		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
-		suite.Equal(officeUser2.ID, *reAmove4.SCAssignedID)
-		suite.Equal(officeUser2.ID, *reAmove5.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove6.SCAssignedID)
-		suite.Equal(officeUser1.ID, *reAmove7.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove8.SCAssignedID)
+		newMoveId1 := *reAmove1.SCAssignedID
+		newMoveId2 := *reAmove2.SCAssignedID
+		newMoveId3 := *reAmove3.SCAssignedID
+		newMoveId4 := *reAmove4.SCAssignedID
+		newMoveId5 := *reAmove5.SCAssignedID
+		newMoveId6 := *reAmove6.SCAssignedID
+		newMoveId7 := *reAmove7.SCAssignedID
+		newMoveId8 := *reAmove8.SCAssignedID
+
+		suite.Equal(officeUser1.ID, newMoveId1)
+		suite.Equal(officeUser2.ID, newMoveId2)
+		suite.Equal(officeUser3.ID, newMoveId3)
+		suite.Equal(officeUser2.ID, newMoveId4)
+		suite.Equal(officeUser2.ID, newMoveId5)
+		suite.Equal(officeUser3.ID, newMoveId6)
+		suite.Equal(officeUser1.ID, newMoveId7)
+		suite.Equal(officeUser3.ID, newMoveId8)
 	})
 }
