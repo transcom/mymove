@@ -3469,13 +3469,15 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	suite.Run("Updating the shipment actual weight within weight allowance creates reweigh requests for", func() {
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-
+		weight := unit.Pound(7200)
 		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					PrimeActualWeight:    &weight,
+					PrimeEstimatedWeight: &weight,
 				},
 			},
 			{
@@ -3486,10 +3488,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 				},
 			},
 		}, nil)
-		actualWeight := unit.Pound(7200)
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
-		primeShipment.PrimeActualWeight = &actualWeight
+		primeShipment.PrimeActualWeight = &weight
+		primeShipment.PrimeEstimatedWeight = &weight
 
 		session := auth.Session{}
 		_, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
@@ -3536,10 +3538,15 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 				},
 			},
 		}, nil)
+
+		moveWeights.On("CheckExcessWeight",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.MTOShipment"),
+		).Return(&primeShipment.MoveTaskOrder, nil, nil)
+
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
-
-		moveWeights.On("CheckExcessWeight", mock.AnythingOfType("*appcontext.appContext"), primeShipment.MoveTaskOrderID, mock.AnythingOfType("models.MTOShipment")).Return(&primeShipment.MoveTaskOrder, nil, nil)
 
 		session := auth.Session{}
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
