@@ -110,13 +110,13 @@ const Feedback = () => {
   const expensesTotal = calculateTotalMovingExpensesAmount(movingExpenses);
 
   if (!mtoShipment) return <LoadingPlaceholder />;
-
+  // check this
   const ppmDetails = (
     <>
       <h2>About Your PPM</h2>
       <div>Departure Date: {formatCustomerDate(ppmShipment?.actualMoveDate)}</div>
-      <div>Starting ZIP: {ppmShipment?.actualPickupPostalCode}</div>
-      <div>Ending ZIP: {ppmShipment?.actualDestinationPostalCode}</div>
+      <div>Starting ZIP: {ppmShipment?.pickupAddress.postalCode}</div>
+      <div>Ending ZIP: {ppmShipment?.destinationAddress.postalCode}</div>
       <div>
         Advance:
         {ppmShipment?.hasReceivedAdvance

@@ -352,9 +352,7 @@ const zeroIncentiveMoveDetailsQuery = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: null,
         approvedAt: null,
@@ -446,9 +444,7 @@ const ppmShipmentQuery = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -525,9 +521,7 @@ const ppmShipmentQuery = {
       id: 'e33a1a7b-530f-4df4-b947-d3d719786385',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -647,9 +641,7 @@ const ppmShipmentQueryNeedsCloseout = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -732,9 +724,7 @@ const ppmShipmentQueryWaitingOnCustomer = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -817,9 +807,7 @@ const ppmShipmentQuerySubmitted = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -902,9 +890,7 @@ const ppmShipmentQueryCloseoutComplete = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -987,9 +973,7 @@ const ppmShipmentQueryCancelled = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -1072,9 +1056,7 @@ const ppmShipmentQueryDraft = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,
@@ -1157,9 +1139,7 @@ const ppmShipmentQueryNeedsAdvanceApproval = {
       id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
       moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
       ppmShipment: {
-        actualDestinationPostalCode: null,
         actualMoveDate: null,
-        actualPickupPostalCode: null,
         advanceAmountReceived: null,
         advanceAmountRequested: 598700,
         approvedAt: null,

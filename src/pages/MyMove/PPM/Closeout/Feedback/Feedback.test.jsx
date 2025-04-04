@@ -26,12 +26,30 @@ const mockRoutingConfig = {
   },
 };
 
+const destinationAddress = {
+  city: 'Silver Spring',
+  county: 'MONTGOMERY',
+  id: '44fdfd2c-215c-48a0-8d41-065dbe38885a',
+  postalCode: '20889',
+  state: 'MT',
+  streetAddress1: '5 Jayden Ave',
+};
+
+const pickupAddress = {
+  city: 'Missoula',
+  county: 'MISSOULA',
+  id: '44fdfd2c-215c-48a0-8d41-065dbe38885c',
+  postalCode: '59402',
+  state: 'MT',
+  streetAddress1: '422 Dearborn Ave',
+};
+
 const mockMTOShipment = {
   ppmShipment: {
-    actualDestinationPostalCode: '20889',
     actualMoveDate: '2024-05-08',
-    actualPickupPostalCode: '59402',
+    destinationAddress,
     movingExpenses: [],
+    pickupAddress,
     proGearWeightTickets: [],
     w2Address: {
       city: 'Missoula',
@@ -52,9 +70,9 @@ const mockMTOShipment = {
 
 const mockMTOShipmentWithAdvance = {
   ppmShipment: {
-    actualDestinationPostalCode: '20889',
     actualMoveDate: '2024-05-08',
-    actualPickupPostalCode: '59402',
+    destinationAddress,
+    pickupAddress,
     hasReceivedAdvance: true,
     advanceAmountReceived: 100000,
     movingExpenses: [{ id: 'exp1', amount: 5000 }],
@@ -202,6 +220,8 @@ describe('Additional code coverage tests', () => {
 
   it('calculates trip weight correctly (lines 64-65)', () => {
     const ppmShipment = {
+      destinationAddress,
+      pickupAddress,
       weightTickets: [{ weight: 2000 }],
       proGearWeightTickets: [], // Initialize as empty array
       movingExpenses: [], // Initialize as empty array
@@ -221,6 +241,8 @@ describe('Additional code coverage tests', () => {
 
   it('formats single document for feedback item (line 92)', () => {
     const ppmShipment = {
+      destinationAddress,
+      pickupAddress,
       weightTickets: [{ weight: 1000, status: 'REJECTED', reason: 'Incorrect weight' }],
       proGearWeightTickets: [], // Initialize as empty array
       movingExpenses: [], // Initialize as empty array
@@ -240,6 +262,8 @@ describe('Additional code coverage tests', () => {
 
   it('displays pro-gear items when available (line 108)', () => {
     const ppmShipment = {
+      destinationAddress,
+      pickupAddress,
       weightTickets: [{ weight: 2000 }],
       proGearWeightTickets: [{ weight: 500 }],
       movingExpenses: [], // Initialize as empty array
