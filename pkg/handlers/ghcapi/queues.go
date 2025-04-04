@@ -219,6 +219,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				PerPage:                    params.PerPage,
 				Sort:                       params.Sort,
 				Order:                      params.Order,
+				OrderType:                  params.OrderType,
 				TOODestinationAssignedUser: params.AssignedTo,
 				CounselingOffice:           params.CounselingOffice,
 			}
@@ -276,7 +277,20 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			officeUser.User.Privileges = privileges
 			officeUser.User.Roles = appCtx.Session().Roles
 			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
 			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeTOO,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
@@ -311,7 +325,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, nil, activeRole, string(models.QueueTypeDestinationRequest))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest))
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
