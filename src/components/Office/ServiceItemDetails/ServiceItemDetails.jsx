@@ -244,6 +244,11 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
+        {details?.status === 'APPROVED' &&
+          generateDetailText({
+            'Estimated Price':
+              details.estimatedPrice !== undefined || null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+          })}
       </dl>
     </div>
   );
@@ -271,6 +276,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {details?.status === 'APPROVED' &&
+              generateDetailText({
+                'Estimated Price':
+                  details.estimatedPrice !== undefined || null
+                    ? toDollarString(formatCents(details.estimatedPrice))
+                    : '-',
+              })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -321,6 +333,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {details?.status === 'APPROVED' &&
+              generateDetailText({
+                'Estimated Price':
+                  details.estimatedPrice !== undefined || null
+                    ? toDollarString(formatCents(details.estimatedPrice))
+                    : '-',
+              })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -357,6 +376,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {details?.status === 'APPROVED' &&
+              generateDetailText({
+                'Estimated Price':
+                  details.estimatedPrice !== undefined || null
+                    ? toDollarString(formatCents(details.estimatedPrice))
+                    : '-',
+              })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
