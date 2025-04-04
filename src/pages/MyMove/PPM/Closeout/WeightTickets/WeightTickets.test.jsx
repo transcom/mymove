@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
-import { createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
+import { createWeightTicket, deleteUpload, patchWeightTicket, getResponseError } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import WeightTickets from 'pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets';
@@ -129,7 +129,6 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
 const weightTicketsEditPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -226,17 +225,17 @@ describe('Weight Tickets page', () => {
     });
   });
 
-  it('routes back to home when return to homepage is clicked', async () => {
+  it('routes back to home when cancel is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     renderEditWeightTicketsPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockNavigate).toHaveBeenCalledWith(movePath);
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls patch weight ticket with the appropriate payload', async () => {
@@ -282,7 +281,7 @@ describe('Weight Tickets page', () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
-
+    getResponseError.mockReturnValue('Failed to save updated trip record');
     renderWeightTicketsPage();
 
     await waitFor(() => {
