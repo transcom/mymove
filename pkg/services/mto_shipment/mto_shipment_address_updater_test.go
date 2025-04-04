@@ -215,6 +215,32 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		}
 	})
 
+	suite.Run("UB shipment without any OCONUS address should error", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		// default factory is OCONUS dest and CONUS pickup
+		ubShipment := factory.BuildUBShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.True(*ubShipment.DestinationAddress.IsOconus)
+		suite.False(*ubShipment.PickupAddress.IsOconus)
+
+		updatedAddress := conusAddress
+		updatedAddress.ID = *ubShipment.DestinationAddressID
+		eTag := etag.GenerateEtag(ubShipment.DestinationAddress.UpdatedAt)
+
+		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, ubShipment.ID, eTag, false)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "At least one address for a UB shipment must be OCONUS")
+	})
+
 	suite.Run("Successful - UpdateMTOShipmentAddress - Test updating international origin SITDeliveryMiles on shipment pickup address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), nil, nil)

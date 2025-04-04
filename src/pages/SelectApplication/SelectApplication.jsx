@@ -34,6 +34,7 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
           roleTypes.QAE,
           roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
           roleTypes.GSR,
+          roleTypes.CONTRACTING_OFFICER,
         ]
           .filter((r) => userRoleTypes.find((role) => r === role))
           .map((r) => (
