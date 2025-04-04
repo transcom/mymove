@@ -3952,6 +3952,50 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
+      "post": {
+        "description": "Creates a moving expense document for the PPM shipment",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates moving expense document",
+        "operationId": "createMovingExpense",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "returns new moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
         "description": "Updates a PPM shipment's moving expense with new information. Only some of the moving expense's fields are\neditable because some have to be set by the customer, e.g. the description and the moving expense type.\n",
@@ -15097,8 +15141,20 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "missingReceipt": {
+          "description": "Indicates if the customer is missing the receipt for their expense.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenseType": {
           "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
@@ -21200,6 +21256,76 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
+      "post": {
+        "description": "Creates a moving expense document for the PPM shipment",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates moving expense document",
+        "operationId": "createMovingExpense",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "returns new moving expense object",
+            "schema": {
+              "$ref": "#/definitions/MovingExpense"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}": {
       "patch": {
@@ -33152,8 +33278,20 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "missingReceipt": {
+          "description": "Indicates if the customer is missing the receipt for their expense.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenseType": {
           "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
+        "paidWithGTCC": {
+          "description": "Indicates if the service member used their government issued card to pay for the expense",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
