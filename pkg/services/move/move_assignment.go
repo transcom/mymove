@@ -22,37 +22,6 @@ func NewMoveAssignerBulkAssignment() services.MoveAssigner {
 	return &moveAssigner{}
 }
 
-func (a moveAssigner) commitMoveAssignmentToMove(queueType string, input_Move *models.Move, uuid uuid.UUID) (*models.Move, error) {
-
-	switch queueType {
-	case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
-		input_Move.SCAssignedID = &uuid
-	case string(models.QueueTypeTaskOrder):
-		input_Move.TOOAssignedID = &uuid
-	case string(models.QueueTypePaymentRequest):
-		input_Move.TIOAssignedID = &uuid
-	default:
-		return nil, apperror.NewBadDataError("Invalid queue type")
-	}
-	return input_Move, nil
-}
-
-func (a moveAssigner) getUserAssignmentCounts(officeUserData []*ghcmessages.BulkAssignmentForUser) (map[uuid.UUID]int, list.List) {
-
-	// make a map to track users and their assignment counts
-	// and a queue of userIDs
-	moveAssignments := make(map[uuid.UUID]int)
-	queue := list.New()
-	for _, user := range officeUserData {
-		if user != nil && user.MoveAssignments > 0 {
-			userID := uuid.FromStringOrNil(user.ID.String())
-			moveAssignments[userID] = int(user.MoveAssignments)
-			queue.PushBack(userID)
-		}
-	}
-	return moveAssignments, *queue
-}
-
 func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType string, officeUserData []*ghcmessages.BulkAssignmentForUser, movesToAssign models.Moves) (*models.Moves, error) {
 	if len(movesToAssign) == 0 {
 		return nil, apperror.NewBadDataError("No moves to assign")
@@ -94,6 +63,7 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 			// grab that ID off the front
 			user := queue.Front()
 			userID := user.Value.(uuid.UUID)
+			fmt.Printf("Processing user: %s with current assignment count: %d\n", userID, moveAssignments[userID])
 			queue.Remove(user)
 
 			// do our assignment logic
@@ -106,11 +76,13 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 
 			// decrement the user's assignment count
 			moveAssignments[userID]--
+			fmt.Printf("User %s assignment count after decrement: %d\n", userID, moveAssignments[userID])
 			moveIndex++
 
 			// If user still has remaining assignments, re-queue them
 			if moveAssignments[userID] > 0 {
 				queue.PushBack(userID)
+				fmt.Printf("User %s requeued with remaining assignments: %d\n", userID, moveAssignments[userID])
 			}
 		}
 
@@ -138,32 +110,21 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 func (a moveAssigner) BulkMoveReAssignment(appCtx appcontext.AppContext, queueType string, officeUserData []*ghcmessages.BulkAssignmentForUser, reAssignFrom strfmt.UUID) (*models.Moves, error) {
 
 	var movesToReAssignUsersFrom models.Moves
-	var queryFieldTerm string
 
-	switch queueType {
-	case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
-		queryFieldTerm = "sc_assigned_id"
-	case string(models.QueueTypeTaskOrder):
-		queryFieldTerm = "too_assigned_id"
-	case string(models.QueueTypePaymentRequest):
-		queryFieldTerm = "tio_assigned_id"
-	default:
-		return nil, apperror.NewBadDataError("Invalid queue type")
+	whereClause, err := a.getBulkReAssigeeMoveQuery(queueType, reAssignFrom)
+	if err != nil {
+		return nil, apperror.NewBadDataError("Unable to generate move retrieval query")
 	}
 
-	whereClause := fmt.Sprintf(`%s = '%s'`, queryFieldTerm, reAssignFrom)
-	err := appCtx.DB().Q().Where(whereClause).All(&movesToReAssignUsersFrom)
-
-	if err != nil {
-		return nil, apperror.NewBadDataError("Invalid queue type")
+	queryError := appCtx.DB().Q().Where(whereClause).All(&movesToReAssignUsersFrom)
+	if queryError != nil {
+		return nil, apperror.NewBadDataError("unable to fetch re-assignment moves!")
 	}
 
 	moveAssignments, userQueue := a.getUserAssignmentCounts(officeUserData)
 
 	// keep track of the updatedMovesForBatchSave to batch save
-	updatedMovesForBatchSave := make([]models.Move, 0, len(movesToReAssignUsersFrom))
-
-	updatedMovesForBatchSave = a.bulkAssignUsers(movesToReAssignUsersFrom, userQueue, moveAssignments, queueType)
+	updatedMovesForBatchSave := a.bulkAssignUsers(movesToReAssignUsersFrom, userQueue, moveAssignments, queueType)
 
 	if len(updatedMovesForBatchSave) > 0 {
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedMovesForBatchSave) // Bulk update
@@ -176,13 +137,16 @@ func (a moveAssigner) BulkMoveReAssignment(appCtx appcontext.AppContext, queueTy
 }
 
 // Assign/ReAssign users
-func (a moveAssigner) bulkAssignUsers(movesToReAssignUsersFrom models.Moves, userQueue list.List, moveAssignments map[uuid.UUID]int, queueType string) models.Moves {
+func (a moveAssigner) bulkAssignUsers(movesToReAssignUsersFrom models.Moves, userQueue *list.List, moveAssignments map[uuid.UUID]int, queueType string) models.Moves {
 	moveIndex := 0
 	updatedMoves := make([]models.Move, 0, len(movesToReAssignUsersFrom))
 	// Re-Assign Users
-	for _, move := range movesToReAssignUsersFrom {
+	for i, move := range movesToReAssignUsersFrom {
+		fmt.Printf("Iteration %d, queue length: %d\n", i, userQueue.Len())
+
 		user := userQueue.Front()
 		userID := user.Value.(uuid.UUID)
+		fmt.Printf("Processing user: %s with current assignment count: %d\n", userID, moveAssignments[userID])
 		userQueue.Remove(user)
 
 		ordersType := move.Orders.OrdersType
@@ -195,13 +159,65 @@ func (a moveAssigner) bulkAssignUsers(movesToReAssignUsersFrom models.Moves, use
 
 		// decrement the user's assignment count
 		moveAssignments[userID]--
+		fmt.Printf("User %s assignment count after decrement: %d\n", userID, moveAssignments[userID])
 		moveIndex++
 
 		// If user still has remaining assignments, re-queue them
 		if moveAssignments[userID] > 0 {
 			userQueue.PushBack(userID)
+			fmt.Printf("User %s requeued with remaining assignments: %d\n", userID, moveAssignments[userID])
 		}
+
 	}
 
 	return updatedMoves
+}
+
+func (a moveAssigner) getBulkReAssigeeMoveQuery(queueType string, reAssignFrom strfmt.UUID) (string, error) {
+	var queryFieldTerm string
+	switch queueType {
+	case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
+		queryFieldTerm = "sc_assigned_id"
+	case string(models.QueueTypeTaskOrder):
+		queryFieldTerm = "too_assigned_id"
+	case string(models.QueueTypePaymentRequest):
+		queryFieldTerm = "tio_assigned_id"
+	default:
+		return "", apperror.NewBadDataError("Invalid queue type")
+	}
+
+	whereClause := fmt.Sprintf(`%s = '%s'`, queryFieldTerm, reAssignFrom)
+
+	return whereClause, nil
+}
+
+func (a moveAssigner) commitMoveAssignmentToMove(queueType string, input_Move *models.Move, uuid uuid.UUID) (*models.Move, error) {
+
+	switch queueType {
+	case string(models.QueueTypeCounseling), string(models.QueueTypeCloseout):
+		input_Move.SCAssignedID = &uuid
+	case string(models.QueueTypeTaskOrder):
+		input_Move.TOOAssignedID = &uuid
+	case string(models.QueueTypePaymentRequest):
+		input_Move.TIOAssignedID = &uuid
+	default:
+		return nil, apperror.NewBadDataError("Invalid queue type")
+	}
+	return input_Move, nil
+}
+
+func (a moveAssigner) getUserAssignmentCounts(officeUserData []*ghcmessages.BulkAssignmentForUser) (map[uuid.UUID]int, *list.List) {
+
+	// make a map to track users and their assignment counts
+	// and a queue of userIDs
+	moveAssignments := make(map[uuid.UUID]int)
+	queue := list.New()
+	for _, user := range officeUserData {
+		if user != nil && user.MoveAssignments > 0 {
+			userID := uuid.FromStringOrNil(user.ID.String())
+			moveAssignments[userID] = int(user.MoveAssignments)
+			queue.PushBack(userID)
+		}
+	}
+	return moveAssignments, queue
 }

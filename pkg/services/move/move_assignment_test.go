@@ -2,7 +2,6 @@ package move
 
 import (
 	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -606,11 +605,29 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 
 		suite.NoError(err)
 
+		// reload move data to check assigned
+		suite.NoError(suite.DB().Reload(&reAmove1))
+		suite.NoError(suite.DB().Reload(&reAmove2))
+		suite.NoError(suite.DB().Reload(&reAmove3))
+		suite.NoError(suite.DB().Reload(&reAmove4))
+		suite.NoError(suite.DB().Reload(&reAmove5))
+		suite.NoError(suite.DB().Reload(&reAmove6))
+		suite.NoError(suite.DB().Reload(&reAmove7))
+		suite.NoError(suite.DB().Reload(&reAmove8))
+
+		suite.Equal(officeUser1.ID, *reAmove1.SCAssignedID)
+		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
+		suite.Equal(officeUser4.ID, *reAmove4.SCAssignedID)
+		suite.Equal(officeUser2.ID, *reAmove5.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove6.SCAssignedID)
+		suite.Equal(officeUser4.ID, *reAmove7.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove8.SCAssignedID)
+
 		officeUserToReassign := strfmt.UUID(officeUser4.ID.String())
 		bAReuserData := []*ghcmessages.BulkAssignmentForUser{
 			{ID: strfmt.UUID(officeUser1.ID.String()), MoveAssignments: 1},
-			{ID: strfmt.UUID(officeUser2.ID.String()), MoveAssignments: 2},
-			{ID: strfmt.UUID(officeUser3.ID.String()), MoveAssignments: 3},
+			{ID: strfmt.UUID(officeUser2.ID.String()), MoveAssignments: 1},
 		}
 
 		_, err2 := moveAssigner.BulkMoveReAssignment(suite.AppContextForTest(), string(models.QueueTypeCounseling), bAReuserData, officeUserToReassign)
@@ -630,10 +647,10 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 		suite.Equal(officeUser1.ID, *reAmove1.SCAssignedID)
 		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
 		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
-		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
-		suite.Equal(officeUser3.ID, *reAmove3.SCAssignedID)
-		suite.Equal(officeUser1.ID, *reAmove1.SCAssignedID)
-		suite.Equal(officeUser2.ID, *reAmove2.SCAssignedID)
+		suite.Equal(officeUser2.ID, *reAmove4.SCAssignedID)
+		suite.Equal(officeUser2.ID, *reAmove5.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove6.SCAssignedID)
+		suite.Equal(officeUser1.ID, *reAmove7.SCAssignedID)
+		suite.Equal(officeUser3.ID, *reAmove8.SCAssignedID)
 	})
 }
