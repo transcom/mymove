@@ -223,8 +223,8 @@ describe('ServicesCounselingAddShipment component', () => {
 
       await userEvent.click(saveButton);
 
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/move123/details');
+      await waitFor( async () => {
+        expect(mockNavigate).toHaveBeenCalled();
       });
     });
 

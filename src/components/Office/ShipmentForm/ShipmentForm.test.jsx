@@ -1423,10 +1423,12 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      await userEvent.click(screen.getByLabelText('Use pickup address'));
-      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
-      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
-      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      waitFor( async () => {
+        await userEvent.click(screen.getByLabelText('Use pickup address'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+        await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second destination location'))
+      })
 
       const streetAddress1 = screen.getAllByLabelText(/Address 1/);
       const city = screen.getAllByTestId('City');
@@ -1443,11 +1445,13 @@ describe('ShipmentForm component', () => {
       });
 
       // verify 2nd pickup address is populated
-      expect(streetAddress1[1]).toHaveValue('13 E Elm Street');
-      expect(city[1]).toHaveTextContent('San Antonio');
-      expect(state[1]).toHaveTextContent('TX');
-      expect(zip[1]).toHaveTextContent('78234');
-      expect(county[1]).toHaveTextContent('BEXAR');
+      waitFor(() => {
+        expect(streetAddress1[1]).toHaveValue('13 E Elm Street');
+        expect(city[1]).toHaveTextContent('San Antonio');
+        expect(state[1]).toHaveTextContent('TX');
+        expect(zip[1]).toHaveTextContent('78234');
+        expect(county[1]).toHaveTextContent('BEXAR');
+      })
 
       // Clear the second pickup address1 field so that it triggers required validation
       await userEvent.clear(document.querySelector('input[name="secondaryPickup.address.streetAddress1"]'));

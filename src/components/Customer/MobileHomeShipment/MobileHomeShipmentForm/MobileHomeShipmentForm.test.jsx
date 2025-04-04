@@ -105,7 +105,7 @@ describe('MobileHomeShipmentForm component', () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
 
       userEvent.clear(screen.getByTestId('year'));
-      userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
         
       waitFor(() => {
         expect(defaultProps.onSubmit).not.toHaveBeenCalled();

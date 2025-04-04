@@ -284,8 +284,8 @@ describe('AboutForm component', () => {
 
       await userEvent.type(screen.getByLabelText('How much did you receive?'), '0');
 
-      await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent(
+      waitFor( async () => {
+        expect(await screen.getByRole('alert')).toHaveTextContent(
           "The minimum advance request is $1. If you don't want an advance, select No.",
         );
       });

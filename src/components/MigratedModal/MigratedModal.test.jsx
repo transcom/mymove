@@ -51,10 +51,9 @@ describe('useModal', () => {
 
     waitFor(() => {
       result.current.openModal();
+      expect(result.current.isOpen).toEqual(true);
     });
-
-    expect(result.current.isOpen).toEqual(true);
-
+    
     waitFor(() => {
       result.current.closeModal();
     });

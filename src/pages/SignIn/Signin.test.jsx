@@ -175,11 +175,11 @@ describe('SignIn tests', () => {
     });
 
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
-    await waitFor(() => {
+    await waitFor( async () => {
       screen.getByTestId('createAccount').click();
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
+      await screen.getByLabelText('Cancel').click();
     });
-    expect(screen.getByTestId('modal')).toBeInTheDocument();
-    screen.getByLabelText('Cancel').click();
 
     await waitFor(() => {
       expect(screen.queryByTestId('modal')).not.toBeInTheDocument();

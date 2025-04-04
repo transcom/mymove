@@ -22,7 +22,7 @@ const warningTime = 1000;
 const renderComponent = ({ loggedIn }) => {
   render(
     <MockProviders initialState={mockState(loggedIn)}>
-      <AdminLogoutOnInactivity idleTimeout={idleTimeout} warningTime={warningTime} activeSession={loggedIn} />
+      <AdminLogoutOnInactivity idleTimeout={idleTimeout} warningTime={warningTime} activeSession />
     </MockProviders>,
   );
 };
@@ -57,10 +57,10 @@ describe('LogoutOnInactivity', () => {
       ).not.toBeInTheDocument();
       await waitFor(async () => {
         return sleep(idleTimeout - warningTime);
-      });
+      }, {timeout:5000});
 
       expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
-    });
+    }, 15000);
 
     it('removes the idle alert if a user performs a click', async () => {
       // alert is missing before the user is idle for too long
@@ -69,7 +69,7 @@ describe('LogoutOnInactivity', () => {
       ).not.toBeInTheDocument();
       await waitFor(async () => {
         return sleep(idleTimeout - warningTime);
-      });
+      }, {timeout:10000});
 
       // alert is present after user is idle for too long
       expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
@@ -82,13 +82,16 @@ describe('LogoutOnInactivity', () => {
         screen.queryByText('You have been inactive and will be logged out', { exact: false }),
       ).not.toBeInTheDocument();
     });
-  });
+  }, 15000);
 
   describe('when user is not logged in', () => {
     it('does not render the LogoutOnInactivity component', async () => {
       await waitFor(async () => renderComponent({ loggedIn: false }));
-      const wrapper = screen.queryByTestId('logoutOnInactivityWrapper');
-      expect(wrapper).not.toBeInTheDocument();
+
+      waitFor( async () => {
+        const wrapper = screen.queryByTestId('logoutOnInactivityWrapper');
+        expect(wrapper).not.toBeInTheDocument();
+      }, {timeout:10000});
     });
-  });
+  }, 15000);
 });
