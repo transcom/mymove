@@ -799,7 +799,7 @@ describe('ServiceItemDetails Price for MS, CS', () => {
 
 describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC, DOPSIT, DOFSIT, DOASIT, DOSFSC', () => {
   it.each([['DDFSIT'], ['DDDSIT'], ['DDASIT'], ['DDSFSC'], ['DOPSIT'], ['DOFSIT'], ['DOASIT'], ['DOSFSC']])(
-    'renders the formatted estimated price field for the service item: %s',
+    'renders the formatted estimated price field for the approved service item: %s',
     (code) => {
       render(
         <ServiceItemDetails
@@ -817,7 +817,7 @@ describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC,
   );
 
   it.each([['DDFSIT'], ['DDDSIT'], ['DDASIT'], ['DDSFSC'], ['DOPSIT'], ['DOFSIT'], ['DOASIT'], ['DOSFSC']])(
-    'renders the formatted estimated price field for the service item: %s',
+    'Does not render the formatted estimated price field for the submitted service item: %s',
     (code) => {
       render(
         <ServiceItemDetails
