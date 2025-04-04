@@ -99,13 +99,14 @@ func (suite *MTOShipmentServiceSuite) TestTerminateShipment() {
 	})
 
 	suite.Run("Returns invalid input error if shipment is already in TERMINATED_FOR_CAUSE status and a termination is attempted", func() {
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusTerminatedForCause,
-				},
-			},
-		}, nil)
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		// Append terminated after the factory is done because the factory does lots of saves, triggering
+		// the db trigger protection early
+		shipment.Status = models.MTOShipmentStatusTerminatedForCause
+		err := suite.DB().Save(&shipment)
+		suite.FatalNoError(err)
+
+		// Now try to terminate while already terminated
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
@@ -126,6 +127,11 @@ func (suite *MTOShipmentServiceSuite) TestTerminateShipment() {
 		err := suite.DB().Where("id = ?", ppmShipment.ShipmentID).First(&mtoShipment)
 		suite.NoError(err)
 		suite.NotEmpty(mtoShipment)
+
+		// Make sure it's approved
+		mtoShipment.Status = models.MTOShipmentStatusApproved
+		err = suite.DB().Save(&mtoShipment)
+		suite.FatalNoError(err)
 
 		// Attempt to terminate the parent mto_shipment
 		session := suite.AppContextWithSessionForTest(&auth.Session{
