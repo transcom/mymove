@@ -4552,12 +4552,20 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 
 	sitLocationType := models.SITLocationTypeOrigin
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "42444",
+				City:       "POOLE",
+			},
+		},
+	}, nil)
 	sitDaysAllowance := 90
 	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				PostalCode: "42444",
+				City:       "POOLE",
 			},
 		},
 	}, nil)
@@ -4565,6 +4573,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 		{
 			Model: models.Address{
 				PostalCode: "30813",
+				City:       "GROVETOWN",
 			},
 		},
 	}, nil)
