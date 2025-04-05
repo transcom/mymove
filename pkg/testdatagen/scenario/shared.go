@@ -5390,6 +5390,7 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10308,6 +10309,7 @@ func CreateMoveWithMTOShipment(appCtx appcontext.AppContext, ordersType internal
 	tac := "E19A"
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10465,6 +10467,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	tac := "E19A"
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10594,6 +10597,7 @@ func CreateNeedsServicesCounselingInOtherGBLOC(appCtx appcontext.AppContext, ord
 		{
 			Model: models.Address{
 				PostalCode: "35023",
+				City:       "BESSEMER",
 			},
 		},
 	}, nil)
@@ -10648,6 +10652,7 @@ func CreateNeedsServicesCounselingWithAmendedOrders(appCtx appcontext.AppContext
 	tac := "E19A"
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10718,6 +10723,7 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10801,6 +10807,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10865,6 +10872,7 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10927,6 +10935,7 @@ func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10990,6 +10999,7 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -11069,6 +11079,7 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -11138,6 +11149,7 @@ func CreateHHGNeedsServicesCounselingUSMC3(appCtx appcontext.AppContext, userUpl
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -11215,6 +11227,7 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -11255,6 +11268,7 @@ func createHHGNoShipments(appCtx appcontext.AppContext) {
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -11775,12 +11789,14 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			},
 		},
 		{
-			Model: models.Address{},
-			Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			Model: models.Address{PostalCode: "35023",
+				City: "BESSEMER"},
+			Type: &factory.Addresses.SITDestinationOriginalAddress,
 		},
 		{
-			Model: models.Address{},
-			Type:  &factory.Addresses.SITDestinationFinalAddress,
+			Model: models.Address{PostalCode: "35023",
+				City: "BESSEMER"},
+			Type: &factory.Addresses.SITDestinationFinalAddress,
 		},
 		{
 			Model: models.ReService{
@@ -12320,6 +12336,7 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12397,6 +12414,7 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12473,6 +12491,7 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12525,6 +12544,7 @@ func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, us
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12615,6 +12635,7 @@ func createRandomMove(
 	dutyLocationCount := len(allDutyLocations)
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	if orderTemplate.OriginDutyLocationID == nil {
 		// We can pick any origin duty location not only one in the office user's GBLOC
 		if *serviceMemberTemplate.Affiliation == models.AffiliationMARINES {
@@ -12754,6 +12775,7 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 	}, nil)
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
@@ -13031,6 +13053,7 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
@@ -13294,6 +13317,7 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
@@ -13618,6 +13642,7 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
