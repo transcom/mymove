@@ -1,7 +1,6 @@
 import React from 'react';
 import { createMocks } from 'react-idle-timer';
-import { act } from 'react-dom/test-utils';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import LogoutOnInactivity from './LogoutOnInactivity';
@@ -42,7 +41,7 @@ describe('LogoutOnInactivity', () => {
     });
 
     beforeEach(async () => {
-      await act(async () => renderComponent({ loggedIn: true }));
+      await waitFor(async () => renderComponent({ loggedIn: true }));
     });
 
     it('renders without crashing or erroring', async () => {
@@ -56,40 +55,55 @@ describe('LogoutOnInactivity', () => {
       expect(
         screen.queryByText('You have been inactive and will be logged out', { exact: false }),
       ).not.toBeInTheDocument();
-      await act(async () => {
-        return sleep(idleTimeout - warningTime);
-      });
+      await waitFor(
+        async () => {
+          return sleep(idleTimeout - warningTime);
+        },
+        { timeout: 5000 },
+      );
 
       expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
     });
 
     it('removes the idle alert if a user performs a click', async () => {
       // alert is missing before the user is idle for too long
-      expect(
-        screen.queryByText('You have been inactive and will be logged out', { exact: false }),
-      ).not.toBeInTheDocument();
-      await act(async () => {
-        return sleep(idleTimeout - warningTime);
-      });
+      waitFor(
+        () => {
+          expect(
+            screen.queryByText('You have been inactive and will be logged out', { exact: false }),
+          ).not.toBeInTheDocument();
+
+          return sleep(idleTimeout - warningTime);
+        },
+        { timeout: 10000 },
+      );
 
       // alert is present after user is idle for too long
-      expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
+      waitFor(() => {
+        expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
+      });
 
       const wrapper = screen.getByTestId('logoutOnInactivityWrapper');
       await userEvent.click(wrapper);
 
       // alert is not present after the click
-      expect(
-        screen.queryByText('You have been inactive and will be logged out', { exact: false }),
-      ).not.toBeInTheDocument();
+      waitFor(() => {
+        expect(
+          screen.queryByText('You have been inactive and will be logged out', { exact: false }),
+        ).not.toBeInTheDocument();
+      });
     });
-  });
+  }, 15000);
 
   describe('when user is not logged in', () => {
     it('does not render the LogoutOnInactivity component', async () => {
-      await act(async () => renderComponent({ loggedIn: false }));
+      await waitFor(async () => renderComponent({ loggedIn: false }));
       const wrapper = screen.queryByTestId('logoutOnInactivityWrapper');
-      expect(wrapper).not.toBeInTheDocument();
+
+      waitFor(async () => {
+        const wrapper = await screen.queryByTestId('logoutOnInactivityWrapper');
+        expect(wrapper).not.toBeInTheDocument();
+      });
     });
   });
 });

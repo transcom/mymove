@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, within, act } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 import { v4 } from 'uuid';
@@ -150,12 +150,12 @@ const weightTicketsPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PP
 });
 
 const fillOutAdvanceSections = async (form) => {
-  await act(async () => {
+  await waitFor(async () => {
     await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
   });
 
   within(form).getByLabelText('How much did you receive?').focus();
-  await act(async () => {
+  await waitFor(async () => {
     await userEvent.paste('7500');
   });
 };
@@ -192,7 +192,7 @@ describe('About page', () => {
     });
     renderAboutPage();
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     });
 
@@ -216,7 +216,7 @@ describe('About page', () => {
 
     await fillOutAdvanceSections(form);
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     });
 
@@ -249,7 +249,7 @@ describe('About page', () => {
     });
 
     expect(within(form).getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
     });
 

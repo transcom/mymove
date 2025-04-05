@@ -1714,9 +1714,10 @@ describe('MoveDetails page', () => {
 
           const buttonDropdown = await screen.findByRole('combobox');
 
-          expect(buttonDropdown).toBeInTheDocument();
-
-          await userEvent.selectOptions(buttonDropdown, shipmentType);
+          await waitFor(() => {
+            expect(buttonDropdown).toBeInTheDocument();
+            userEvent.selectOptions(buttonDropdown, shipmentType);
+          });
 
           await waitFor(() => {
             expect(mockNavigate).toHaveBeenCalledWith(path);

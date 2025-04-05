@@ -1,11 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 import { Alert } from '@trussworks/react-uswds';
 
 import ConnectedFlashMessage, { FlashMessage } from './FlashMessage';
 
 import { MockProviders } from 'testUtils';
+import { waitFor } from '@testing-library/react';
 
 describe('FlashMessage component', () => {
   it('renders an Alert', () => {
@@ -44,7 +44,7 @@ describe('FlashMessage component', () => {
     );
 
     expect(mockClearFlash).toHaveBeenCalledTimes(0);
-    act(() => {
+    waitFor(() => {
       wrapper.unmount();
     });
     expect(mockClearFlash).toHaveBeenCalledTimes(1);

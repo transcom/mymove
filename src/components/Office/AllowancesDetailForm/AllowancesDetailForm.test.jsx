@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
 
 import AllowancesDetailForm from './AllowancesDetailForm';
 
@@ -147,7 +146,7 @@ describe('AllowancesDetailForm', () => {
   it('does render conditional oconus fields when present in entitlement', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Formik initialValues={{ ...initialValues, ...initialValuesOconusAdditions }}>
           <AllowancesDetailForm

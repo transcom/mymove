@@ -121,7 +121,7 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
               ref={filePondEl}
               createUpload={handleUploadFile}
               onChange={onChange}
-              labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+              labelIdle='Drag & drop or <span class="filepond--label-action">click to upload orders</span>'
             />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>

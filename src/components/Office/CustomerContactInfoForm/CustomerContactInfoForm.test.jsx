@@ -154,6 +154,9 @@ describe('CustomerContactInfoForm Component', () => {
       expect(screen.getByTestId('cac-user-no')).toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
   });
 });

@@ -1,7 +1,6 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import UploadOrders from './UploadOrders';
 
@@ -457,7 +456,7 @@ describe('UploadOrders component', () => {
 
     const deleteBtn = await screen.findByRole('button', { name: 'Delete' });
     expect(deleteBtn).toBeInTheDocument();
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(deleteBtn);
     });
 

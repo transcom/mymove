@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { screen, waitFor, act } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import DocumentViewer from './DocumentViewer';
@@ -283,7 +283,7 @@ describe('Test DocumentViewer File Upload Statuses', () => {
 
   it('displays Scanning status', async () => {
     renderDocumentViewer({ files: mockFiles });
-    await act(async () => {
+    await waitFor(async () => {
       eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.PROCESSING });
     });
     await waitFor(() => {
@@ -293,7 +293,7 @@ describe('Test DocumentViewer File Upload Statuses', () => {
 
   it('displays Establishing document for viewing  status', async () => {
     renderDocumentViewer({ files: mockFiles });
-    await act(async () => {
+    await waitFor(async () => {
       eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.CLEAN });
     });
     await waitFor(() => {
@@ -305,7 +305,7 @@ describe('Test DocumentViewer File Upload Statuses', () => {
 
   it('displays infected file message', async () => {
     renderDocumentViewer({ files: mockFiles });
-    await act(async () => {
+    await waitFor(async () => {
       eventSource.onmessage({ data: UPLOAD_SCAN_STATUS.INFECTED });
     });
     await waitFor(() => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import PaymentDetails from './PaymentDetails';
 
@@ -63,7 +63,7 @@ describe('PaymentDetails', () => {
       expect(screen.getByText('Domestic uncrating')).toBeInTheDocument();
 
       expect(screen.getByText('Rejection Reason:')).toBeInTheDocument();
-      await act(() => {
+      await waitFor(() => {
         screen.getByText('Rejection Reason:').click();
       });
       expect(screen.getByText('some reason')).toBeVisible();

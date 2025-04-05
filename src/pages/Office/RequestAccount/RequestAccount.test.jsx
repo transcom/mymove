@@ -1,8 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 import selectEvent from 'react-select-event';
 
 import { RequestAccount } from './RequestAccount';
@@ -86,7 +85,7 @@ describe('RequestAccount page', () => {
 
     const transportationOfficeInput = screen.getByLabelText('Transportation Office');
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
-    await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
+    await waitFor(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
     const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
     await userEvent.click(tooCheckbox);
@@ -128,7 +127,7 @@ describe('RequestAccount page', () => {
 
     const transportationOfficeInput = screen.getByLabelText('Transportation Office');
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
-    await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
+    await waitFor(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
     const tcoCheckbox = screen.getByTestId('transportationContractingOfficerCheckBox');
     await userEvent.click(tcoCheckbox);

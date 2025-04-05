@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { roleTypes } from 'constants/userRoles';
+import { createRoot } from 'react-dom/client';
 
 const mockPickupLocation = [
   {
@@ -212,6 +213,40 @@ const safetyPayload = {
 };
 
 const bluebarkPayload = {
+  affiliation: 'ARMY',
+  edipi: '1234567890',
+  first_name: 'Shish',
+  middle_name: 'Ka',
+  last_name: 'Bob',
+  suffix: 'Mr.',
+  telephone: '555-555-5555',
+  secondary_telephone: '999-867-5309',
+  personal_email: 'tastyAndDelicious@mail.mil',
+  phone_is_preferred: true,
+  email_is_preferred: '',
+  residential_address: {
+    streetAddress1: '8711 S Hungry Ave.',
+    streetAddress2: '',
+    streetAddress3: '',
+    city: 'Starving',
+    state: 'OK',
+    postalCode: '74133',
+  },
+  backup_mailing_address: {
+    streetAddress1: '420 S. Munchies Lane',
+    streetAddress2: '',
+    streetAddress3: '',
+    city: 'Mustang',
+    state: 'KS',
+    postalCode: '73064',
+  },
+  backup_contact: {
+    name: 'Silly String',
+    telephone: '666-666-6666',
+    email: 'allOverDaPlace@mail.com',
+  },
+  create_okta_account: 'true',
+  cac_user: 'false',
   is_safety_move: 'false',
   is_bluebark: 'true',
 };
@@ -236,28 +271,39 @@ const ordersPath = generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_A
 
 describe('CreateCustomerForm', () => {
   it('renders without crashing', async () => {
-    render(
-      <MockProviders initialState={serviceCounselorState}>
-        <CreateCustomerForm {...testProps} />
-      </MockProviders>,
-    );
+    const container = document.createElement('div');
+    const root = createRoot(container); // Create a root
+    act(() => {
+      root.render(
+        <MockProviders initialState={serviceCounselorState}>
+          <CreateCustomerForm {...testProps} />
+        </MockProviders>,
+      );
+    });
 
     // checking that all headers exist
-    expect(screen.getByText('Create Customer Profile')).toBeInTheDocument();
-    expect(screen.getByText('Customer Affiliation')).toBeInTheDocument();
-    expect(screen.getByText('Customer Name')).toBeInTheDocument();
-    expect(screen.getByText('Contact Info')).toBeInTheDocument();
-    expect(screen.getByText('Pickup Address')).toBeInTheDocument();
-    expect(screen.getByText('Backup Address')).toBeInTheDocument();
-    expect(screen.getByText('Backup Contact')).toBeInTheDocument();
-    expect(screen.getByText('Okta Account')).toBeInTheDocument();
-    expect(screen.getByText('Non-CAC Users')).toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.getByText('Create Customer Profile')).toBeInTheDocument();
+      expect(screen.getByText('Customer Affiliation')).toBeInTheDocument();
+      expect(screen.getByText('Customer Name')).toBeInTheDocument();
+      expect(screen.getByText('Contact Info')).toBeInTheDocument();
+      expect(screen.getByText('Pickup Address')).toBeInTheDocument();
+      expect(screen.getByText('Backup Address')).toBeInTheDocument();
+      expect(screen.getByText('Backup Contact')).toBeInTheDocument();
+      expect(screen.getByText('Okta Account')).toBeInTheDocument();
+      expect(screen.getByText('Non-CAC Users')).toBeInTheDocument();
+    });
 
-    const saveBtn = await screen.findByRole('button', { name: 'Save' });
-    expect(saveBtn).toBeInTheDocument();
-    expect(saveBtn).toBeDisabled();
-    const cancelBtn = await screen.findByRole('button', { name: 'Cancel' });
-    expect(cancelBtn).toBeInTheDocument();
+    waitFor(() => {
+      const saveBtn = screen.getByRole('button', { name: 'Save' });
+      expect(saveBtn).toBeInTheDocument();
+      expect(saveBtn).toBeDisabled();
+    });
+
+    waitFor(() => {
+      const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
+      expect(cancelBtn).toBeInTheDocument();
+    });
   });
 
   it('renders emplid input if branch is coast guard', async () => {
@@ -295,16 +341,21 @@ describe('CreateCustomerForm', () => {
 
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
-    await user.type(getByTestId('residential_address.streetAddress1'), fakePayload.residential_address.streetAddress1);
+    await userEvent.type(
+      getByTestId('residential_address.streetAddress1'),
+      fakePayload.residential_address.streetAddress1,
+    );
 
     const locationBox = screen.getAllByRole('combobox');
+
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
-      const selectedResidentialLocation = await screen.findByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
     });
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
 
     await userEvent.type(
       getByTestId('backup_mailing_address.streetAddress1'),
@@ -313,13 +364,13 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[2], 'DRYDEN');
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
     });
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
 
-    await user.type(getByLabelText('Name'), fakePayload.backup_contact.name);
-    await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
-    await user.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
+    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
+    await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
     await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
 
@@ -328,9 +379,15 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
     });
+    await userEvent.click(saveBtn);
 
-    const waiter = waitFor(() => {
-      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: null }),
+        }),
+      );
+      expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
@@ -338,10 +395,6 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-
-    await user.click(saveBtn);
-    await waiter;
-    expect(mockNavigate).toHaveBeenCalled();
 
     expect(createCustomerWithOktaOption.mock.calls[0][0]).not.toHaveProperty('secondary_number');
   }, 20000);
@@ -392,9 +445,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
-      const selectedResidentialLocation = await screen.findByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
     });
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
 
     await userEvent.type(
       getByTestId('backup_mailing_address.streetAddress1'),
@@ -403,9 +456,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[2], 'DRYDEN');
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
     });
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
 
     await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
@@ -470,9 +523,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
-      const selectedResidentialLocation = await screen.findByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
     });
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
 
     await userEvent.type(
       getByTestId('backup_mailing_address.streetAddress1'),
@@ -481,9 +534,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[2], 'DRYDEN');
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
     });
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
 
     await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
@@ -546,9 +599,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
-      const selectedResidentialLocation = await screen.findByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
     });
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
 
     await userEvent.type(
       getByTestId('backup_mailing_address.streetAddress1'),
@@ -557,9 +610,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[2], 'DRYDEN');
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
     });
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
 
     await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
@@ -624,9 +677,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
-      const selectedResidentialLocation = await screen.findByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
     });
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
 
     await userEvent.type(
       getByTestId('backup_mailing_address.streetAddress1'),
@@ -635,9 +688,9 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[2], 'DRYDEN');
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
     });
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
 
     await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
@@ -675,34 +728,36 @@ describe('CreateCustomerForm', () => {
 
     const user = userEvent.setup();
 
+    const blueBark = await screen.findByTestId('is-bluebark-no');
+    expect(blueBark).toBeChecked();
+
+    // check the safety move box
+    await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
+    await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
+
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
-    // check the safety move box
-    await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
-    await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
+    await user.selectOptions(getByLabelText('Branch of service'), [bluebarkPayload.affiliation]);
 
-    await userEvent.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
-    await user.type(getByTestId('edipiInput'), safetyPayload.edipi);
+    await user.type(getByLabelText('First name'), bluebarkPayload.first_name);
+    await user.type(getByLabelText('Last name'), bluebarkPayload.last_name);
 
-    await user.type(getByLabelText('First name'), safetyPayload.first_name);
-    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
+    await user.type(getByLabelText('Best contact phone'), bluebarkPayload.telephone);
+    await user.type(getByLabelText('Personal email'), bluebarkPayload.personal_email);
+    await userEvent.type(getByTestId('edipiInput'), bluebarkPayload.edipi);
 
-    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
-    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
-
-    await userEvent.type(
+    await user.type(
       getByTestId('residential_address.streetAddress1'),
-      safetyPayload.residential_address.streetAddress1,
+      bluebarkPayload.residential_address.streetAddress1,
     );
 
     const locationBox = screen.getAllByRole('combobox');
-
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
-      const selectedResidentialLocation = await screen.findByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
     });
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
 
     await userEvent.type(
       getByTestId('backup_mailing_address.streetAddress1'),
@@ -711,15 +766,15 @@ describe('CreateCustomerForm', () => {
 
     await act(async () => {
       await userEvent.type(locationBox[2], 'DRYDEN');
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
     });
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
 
-    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
-    await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
-    await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
-
-    expect(saveBtn).toBeInTheDocument();
+    await act(async () => {
+      await user.type(getByLabelText('Name'), bluebarkPayload.backup_contact.name);
+      await user.type(getByRole('textbox', { name: 'Email' }), bluebarkPayload.backup_contact.email);
+      await user.type(getByRole('textbox', { name: 'Phone' }), bluebarkPayload.backup_contact.telephone);
+    });
 
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
