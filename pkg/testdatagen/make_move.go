@@ -10,13 +10,17 @@ import (
 // makeMove creates a single Move and associated set of Orders
 //
 // Deprecated: use factory.BuildMove for all new code
-func makeMove(db *pop.Connection, assertions Assertions) models.Move {
+func makeMove(db *pop.Connection, assertions Assertions) (models.Move, error) {
 
 	// Create new Orders if not provided
 	orders := assertions.Order
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Order.ID) {
-		orders = makeOrder(db, assertions)
+		var err error
+		orders, err = makeOrder(db, assertions)
+		if err != nil {
+			return models.Move{}, err
+		}
 	}
 
 	assertedReferenceID := assertions.Move.ReferenceID
@@ -54,7 +58,7 @@ func makeMove(db *pop.Connection, assertions Assertions) models.Move {
 
 	mustCreate(db, &move, assertions.Stub)
 
-	return move
+	return move, nil
 }
 
 func setShow(assertionShow *bool) *bool {

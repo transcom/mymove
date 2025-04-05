@@ -34,17 +34,17 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 
 	newAKAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "Fort Richardson",
 		State:          "AK",
-		PostalCode:     "12345",
+		PostalCode:     "99505",
 		County:         models.StringPointer("County"),
 	}
 
 	newHIAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "city",
+		City:           "PEARL HARBOR",
 		State:          "HI",
-		PostalCode:     "12345",
+		PostalCode:     "96860",
 		County:         models.StringPointer("County"),
 	}
 	factory.FetchOrBuildCountry(suite.AppContextForTest().DB(), nil, nil)

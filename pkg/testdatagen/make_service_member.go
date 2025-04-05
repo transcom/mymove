@@ -27,7 +27,7 @@ func RandomEdipi() string {
 // - ResidentialAddress
 //
 // Deprecated: use factory.BuildServiceMember
-func makeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
+func makeServiceMember(db *pop.Connection, assertions Assertions) (models.ServiceMember, error) {
 	aServiceMember := assertions.ServiceMember
 	user := aServiceMember.User
 	agency := aServiceMember.Affiliation
@@ -52,7 +52,11 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	}
 
 	if currentAddressID == nil || isZeroUUID(*currentAddressID) {
-		newAddress := MakeDefaultAddress(db)
+		var err error
+		newAddress, err := MakeDefaultAddress(db)
+		if err != nil {
+			return models.ServiceMember{}, err
+		}
 		currentAddressID = &newAddress.ID
 		currentAddress = &newAddress
 	}
@@ -77,7 +81,7 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 
 	mustCreate(db, &serviceMember, assertions.Stub)
 
-	return serviceMember
+	return serviceMember, nil
 }
 
 // makeExtendedServiceMember creates a single ServiceMember
@@ -89,18 +93,29 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 //   - BackupContact
 //
 // Deprecated: use factory.BuildExtendedServiceMember
-func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
+func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) (models.ServiceMember, error) {
 	affiliation := assertions.ServiceMember.Affiliation
 	if affiliation == nil {
 		army := models.AffiliationARMY
 		affiliation = &army
 	}
-	residentialAddress := MakeDefaultAddress(db)
-	backupMailingAddress := MakeAddress2(db, assertions)
+	var err error
+	residentialAddress, err := MakeDefaultAddress(db)
+	if err != nil {
+		return models.ServiceMember{}, err
+	}
+	backupMailingAddress, err := MakeAddress2(db, assertions)
+	if err != nil {
+		return models.ServiceMember{}, err
+	}
 
 	dutyLocation := assertions.OriginDutyLocation
 	if isZeroUUID(dutyLocation.ID) {
-		dutyLocation = fetchOrMakeDefaultCurrentDutyLocation(db)
+		var err error
+		dutyLocation, err = fetchOrMakeDefaultCurrentDutyLocation(db)
+		if err != nil {
+			return models.ServiceMember{}, err
+		}
 	}
 
 	gbloc, err := models.FetchGBLOCForPostalCode(db, dutyLocation.Address.PostalCode)
@@ -125,7 +140,10 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 
 	assertions.ServiceMember = smDefaults
 
-	serviceMember := makeServiceMember(db, assertions)
+	serviceMember, err := makeServiceMember(db, assertions)
+	if err != nil {
+		return models.ServiceMember{}, nil
+	}
 
 	contactAssertions := Assertions{
 		BackupContact: models.BackupContact{
@@ -133,11 +151,17 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 			ServiceMemberID: serviceMember.ID,
 		},
 	}
-	backupContact := makeBackupContact(db, contactAssertions)
+
+	mergeModels(&contactAssertions.Address, assertions.Address)
+
+	backupContact, err := makeBackupContact(db, contactAssertions)
+	if err != nil {
+		return models.ServiceMember{}, nil
+	}
 	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
 	if !assertions.Stub {
 		MustSave(db, &serviceMember)
 	}
 
-	return serviceMember
+	return serviceMember, nil
 }

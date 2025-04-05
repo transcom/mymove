@@ -285,15 +285,24 @@ func (suite *ModelSuite) TestDetermineMarketCode() {
 func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 	suite.Run("test creating approved service items for shipment", func() {
 
+		usprc1, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc1)
+		suite.FatalNoError(err)
+
+		usprc2, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99695", "ANCHORAGE")
+		suite.NotNil(usprc2)
+		suite.FatalNoError(err)
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
+					StreetAddress1:     "some address",
+					City:               "BEVERLY HILLS",
+					State:              "CA",
+					PostalCode:         "90210",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &usprc1.ID,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -304,16 +313,18 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					StreetAddress1:     "some address",
+					City:               "ANCHORAGE",
+					State:              "AK",
+					PostalCode:         "99695",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc2.ID,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
-		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
+
+		err = models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
 		suite.NoError(err)
 	})
 
@@ -404,12 +415,14 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.FatalNoError(err)
 		airForce := models.AffiliationAIRFORCE
 		postalCode := "99501"
+		city := "ANCHORAGE"
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               city,
 				},
 			},
 		}, nil)
@@ -449,6 +462,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.FatalNoError(err)
 		army := models.AffiliationARMY
 		postalCode := "99501"
+		city := "ANCHORAGE"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
 
@@ -457,6 +471,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               city,
 				},
 			},
 		}, nil)
@@ -497,6 +512,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.FatalNoError(err)
 		usmc := models.AffiliationMARINES
 		postalCode := "99501"
+		city := "ANCHORAGE"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		// this doesn't matter to the db function because it will check for USMC but we are just verifying it won't be JEAT despite the zip matching
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
@@ -506,6 +522,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               city,
 				},
 			},
 		}, nil)
@@ -560,5 +577,163 @@ func (suite *ModelSuite) TestIsPPMShipment() {
 		isPPM := nonPPMshipment.IsPPMShipment()
 		suite.NotNil(isPPM)
 		suite.Equal(isPPM, false)
+	})
+}
+
+func (suite *ModelSuite) TestIsShipmentOCONUS() {
+	suite.Run("dest OCONUS but pickup CONUS", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "BEVERLY HILLS",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.NotNil(isOCONUS)
+		suite.True(*isOCONUS)
+	})
+
+	suite.Run("pickup OCONUS but dest CONUS", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.NotNil(isOCONUS)
+		suite.True(*isOCONUS)
+	})
+
+	suite.Run("pickup CONUS, dest CONUS", func() {
+		// default factory produces two CONUS addresses
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.NotNil(isOCONUS)
+		suite.False(*isOCONUS)
+	})
+
+	suite.Run("both OCONUS addresses", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.NotNil(isOCONUS)
+		suite.True(*isOCONUS)
+	})
+
+	suite.Run("nil PickupAddress.IsOconus", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "BEVERLY HILLS",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       nil,
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		shipment.PickupAddress.IsOconus = nil
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.Nil(isOCONUS)
+	})
+
+	suite.Run("nil DestinationAddress.IsOconus", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "BEVERLY HILLS",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
+					IsOconus:       nil,
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		shipment.DestinationAddress.IsOconus = nil
+
+		isOCONUS := models.IsShipmentOCONUS(shipment)
+		suite.Nil(isOCONUS)
 	})
 }
