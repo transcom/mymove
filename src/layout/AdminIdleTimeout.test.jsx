@@ -1,6 +1,5 @@
 import React from 'react';
 import { createMocks } from 'react-idle-timer';
-import { act } from 'react-dom/test-utils';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 

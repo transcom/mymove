@@ -2,7 +2,6 @@ import React from 'react';
 import { MemoryRouter } from 'react-router';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 import selectEvent from 'react-select-event';
 
 import { RequestAccount } from './RequestAccount';

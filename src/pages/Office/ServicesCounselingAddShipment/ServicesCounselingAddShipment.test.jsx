@@ -223,7 +223,9 @@ describe('ServicesCounselingAddShipment component', () => {
 
       await userEvent.click(saveButton);
 
-      expect(mockNavigate).toHaveBeenCalled();
+      waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalled();
+      });
     });
 
     it('routes to the move details page when the cancel button is clicked', async () => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import { MockProviders } from 'testUtils';
 import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';

@@ -1,7 +1,6 @@
 import React from 'react';
 import * as Formik from 'formik';
 import { mount, shallow } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 import AsyncSelect from 'react-select/async';
 import { useField } from 'formik';
 import { render } from '@testing-library/react';

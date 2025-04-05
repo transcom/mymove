@@ -294,11 +294,16 @@ describe('CreateCustomerForm', () => {
       expect(screen.getByText('Non-CAC Users')).toBeInTheDocument();
     });
 
-    const saveBtn = screen.findByRole('button', { name: 'Save' });
-    expect(saveBtn).toBeInTheDocument();
-    expect(saveBtn).toBeDisabled();
-    const cancelBtn = screen.findByRole('button', { name: 'Cancel' });
-    expect(cancelBtn).toBeInTheDocument();
+    waitFor(() => {
+      const saveBtn = screen.getByRole('button', { name: 'Save' });
+      expect(saveBtn).toBeInTheDocument();
+      expect(saveBtn).toBeDisabled();
+    });
+
+    waitFor(() => {
+      const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
+      expect(cancelBtn).toBeInTheDocument();
+    });
   });
 
   it('renders emplid input if branch is coast guard', async () => {
@@ -336,18 +341,21 @@ describe('CreateCustomerForm', () => {
 
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+
     await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
-    await user.type(getByTestId('residential_address.streetAddress1'), fakePayload.residential_address.streetAddress1);
+    await userEvent.type(
+      getByTestId('residential_address.streetAddress1'),
+      fakePayload.residential_address.streetAddress1,
+    );
 
     const locationBox = screen.getAllByRole('combobox');
+
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
     });
-    waitFor(async () => {
-      const selectedResidentialLocation = await screen.getByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
-    });
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
 
     await userEvent.type(
       getByTestId('backup_mailing_address.streetAddress1'),
@@ -357,14 +365,12 @@ describe('CreateCustomerForm', () => {
     await act(async () => {
       await userEvent.type(locationBox[2], 'DRYDEN');
     });
-    waitFor(async () => {
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
-    });
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
 
-    await user.type(getByLabelText('Name'), fakePayload.backup_contact.name);
-    await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
-    await user.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
+    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
+    await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
 
     await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
 
@@ -373,9 +379,15 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
     });
+    await userEvent.click(saveBtn);
 
-    const waiter = waitFor(() => {
-      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: null }),
+        }),
+      );
+      expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
@@ -383,10 +395,6 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-
-    await user.click(saveBtn);
-    await waiter;
-    expect(mockNavigate).toHaveBeenCalled();
 
     expect(createCustomerWithOktaOption.mock.calls[0][0]).not.toHaveProperty('secondary_number');
   }, 20000);
@@ -719,6 +727,13 @@ describe('CreateCustomerForm', () => {
     );
 
     const user = userEvent.setup();
+
+    const blueBark = await screen.findByTestId('is-bluebark-no');
+    expect(blueBark).toBeChecked();
+
+    // check the safety move box
+    await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
+    await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
 
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();

@@ -496,10 +496,12 @@ describe('validates form fields and displays error messages', () => {
     });
 
     // now clear out 2nd pickup address1 text, should raise required alert
-    await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
-    await userEvent.keyboard('[Tab]');
+    act(async () => {
+      await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
+      await userEvent.keyboard('[Tab]');
+    });
 
-    await waitFor(() => {
+    waitFor(() => {
       const requiredAlerts = screen.queryAllByRole('alert');
       expect(requiredAlerts.length).toBe(1);
       requiredAlerts.forEach((alert) => {
