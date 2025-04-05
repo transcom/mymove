@@ -289,7 +289,7 @@ describe('Orders page', () => {
       });
       it('validates NTS with a valid TAC and no LOA', async () => {
         // Empty HHG from having a good useEffect TAC
-        act( async () => {
+        act(async () => {
           const hhgTacInput = screen.getByTestId('hhgTacInput');
           await userEvent.clear(hhgTacInput);
           const ntsTacInput = screen.getByTestId('ntsTacInput');
@@ -309,7 +309,7 @@ describe('Orders page', () => {
         });
 
         // Make HHG good and re-verify that the NTS errors remained
-        act( async () => {
+        act(async () => {
           await userEvent.type(hhgTacInput, '1111');
         });
         waitFor(() => {
@@ -322,7 +322,7 @@ describe('Orders page', () => {
         });
       });
       it('validates an invalid HHG LOA', async () => {
-        waitFor( async () => {
+        waitFor(async () => {
           const hhgTacInput = screen.getByTestId('hhgTacInput');
           await userEvent.clear(hhgTacInput);
           await userEvent.type(hhgTacInput, '3333');
@@ -341,7 +341,7 @@ describe('Orders page', () => {
         });
       });
       it('validates an invalid NTS LOA', async () => {
-        waitFor( async () => {
+        waitFor(async () => {
           const ntsTacInput = screen.getByTestId('ntsTacInput');
           await userEvent.clear(ntsTacInput);
           await userEvent.type(ntsTacInput, '3333');

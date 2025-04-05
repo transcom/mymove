@@ -303,7 +303,7 @@ describe('CreateCustomerForm', () => {
     waitFor(() => {
       const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
       expect(cancelBtn).toBeInTheDocument();
-    })
+    });
   });
 
   it('renders emplid input if branch is coast guard', async () => {

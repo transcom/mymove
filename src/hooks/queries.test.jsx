@@ -481,7 +481,7 @@ describe('useMoveDetailsQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
     let result;
-    act( async () => {
+    act(async () => {
       result = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
     });
 

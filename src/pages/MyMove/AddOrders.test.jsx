@@ -557,7 +557,7 @@ describe('Add Orders page', () => {
     await userEvent.click(selectedOptionNew);
     userEvent.click(selectedOptionNew);
 
-    await act( async () => {
+    await act(async () => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Elmendorf AFB',
         origin_duty_location: 'Altus AFB',
@@ -574,7 +574,7 @@ describe('Add Orders page', () => {
       expect(nextBtn).toBeEnabled();
     });
 
-    await act( async () => {
+    await act(async () => {
       await userEvent.click(nextBtn);
     });
 

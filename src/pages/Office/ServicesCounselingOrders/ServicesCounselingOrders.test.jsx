@@ -375,7 +375,7 @@ describe('Orders page', () => {
         const ntsTacInput = screen.getByTestId('ntsTacInput');
         await userEvent.clear(ntsTacInput);
 
-        act( async () => {
+        act(async () => {
           await userEvent.type(ntsTacInput, '2222');
         });
 
@@ -391,7 +391,7 @@ describe('Orders page', () => {
         });
 
         // Make HHG good and re-verify that the NTS errors remained
-        act( async () => {
+        act(async () => {
           await userEvent.type(hhgTacInput, '1111');
         });
         const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
@@ -402,7 +402,7 @@ describe('Orders page', () => {
         ).not.toBeInTheDocument();
       });
       it('validates an invalid HHG LOA', async () => {
-        waitFor( async () => {
+        waitFor(async () => {
           const hhgTacInput = screen.getByTestId('hhgTacInput');
           await userEvent.clear(hhgTacInput);
           await userEvent.type(hhgTacInput, '3333');
