@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 import { Alert } from '@trussworks/react-uswds';
 
 import ConnectedFlashMessage, { FlashMessage } from './FlashMessage';

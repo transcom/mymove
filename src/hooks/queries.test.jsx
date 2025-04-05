@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -480,7 +480,10 @@ describe('usePaymentRequestQueries', () => {
 describe('useMoveDetailsQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const result = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
+    let result;
+    act( async () => {
+      result = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
+    });
 
     waitFor(() => {
       expect(result.current).toEqual({

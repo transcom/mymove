@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 

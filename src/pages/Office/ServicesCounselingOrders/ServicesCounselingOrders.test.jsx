@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
@@ -11,7 +11,6 @@ import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE } from 'constants/orders';
 import { createRoot } from 'react-dom/client';
-import { act } from 'react-test-renderer';
 
 const mockOriginDutyLocation = {
   address: {
@@ -375,11 +374,14 @@ describe('Orders page', () => {
         await userEvent.clear(hhgTacInput);
         const ntsTacInput = screen.getByTestId('ntsTacInput');
         await userEvent.clear(ntsTacInput);
-        await userEvent.type(ntsTacInput, '2222');
+
+        act( async () => {
+          await userEvent.type(ntsTacInput, '2222');
+        });
 
         // TAC is found and valid
         // LOA is NOT found
-        await waitFor(() => {
+        waitFor(() => {
           const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
           expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
           expect(loaMissingWarnings.length).toBe(2); // Both HHG and NTS LOAs are missing now
@@ -389,25 +391,27 @@ describe('Orders page', () => {
         });
 
         // Make HHG good and re-verify that the NTS errors remained
-        await userEvent.type(hhgTacInput, '1111');
-        await waitFor(() => {
-          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
-          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
-          expect(loaMissingWarnings.length).toBe(1); // Only NTS is missing
-          expect(
-            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
-          ).not.toBeInTheDocument();
+        act( async () => {
+          await userEvent.type(hhgTacInput, '1111');
         });
+        const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+        expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
+        expect(loaMissingWarnings.length).toBe(1); // Only NTS is missing
+        expect(
+          screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+        ).not.toBeInTheDocument();
       });
       it('validates an invalid HHG LOA', async () => {
-        const hhgTacInput = screen.getByTestId('hhgTacInput');
-        await userEvent.clear(hhgTacInput);
-        await userEvent.type(hhgTacInput, '3333');
-        await userEvent.tab();
+        waitFor( async () => {
+          const hhgTacInput = screen.getByTestId('hhgTacInput');
+          await userEvent.clear(hhgTacInput);
+          await userEvent.type(hhgTacInput, '3333');
+          await userEvent.tab();
+        });
 
         // TAC is found and valid
         // LOA is found and NOT valid
-        await waitFor(() => {
+        waitFor(() => {
           const loaInvalidWarnings = screen.queryAllByText(
             /The LOA identified based on the provided details appears to be invalid/,
           );
@@ -417,18 +421,18 @@ describe('Orders page', () => {
         });
       });
       it('validates an invalid NTS LOA', async () => {
-        const ntsTacInput = screen.getByTestId('ntsTacInput');
-        await userEvent.clear(ntsTacInput);
-        await userEvent.type(ntsTacInput, '3333');
-        await userEvent.tab();
+        waitFor(async () => {
+          const ntsTacInput = screen.findByTestId('ntsTacInput');
+          await userEvent.clear(ntsTacInput);
+          await userEvent.type(ntsTacInput, '3333');
+          await userEvent.tab();
+        });
 
-        // TAC is found and valid
-        // LOA is found and NOT valid
-        await waitFor(() => {
-          const loaInvalidWarnings = screen.queryAllByText(
+        waitFor(() => {
+          const loaInvalidWarnings = screen.findByText(
             /The LOA identified based on the provided details appears to be invalid/,
           );
-          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          const loaMissingWarnings = screen.findByText(/Unable to find a LOA based on the provided details/);
           expect(loaInvalidWarnings.length).toBe(1); // NTS is invalid
           expect(loaMissingWarnings.length).toBe(1); // HHG is valid based on useEffect hook and default passed in TAC
         });

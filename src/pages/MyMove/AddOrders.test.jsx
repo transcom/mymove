@@ -270,11 +270,11 @@ describe('Add Orders page', () => {
       expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
 
-      const backBtn = screen.findByRole('button', { name: 'Back' });
+      const backBtn = screen.getByRole('button', { name: 'Back' });
       expect(backBtn).toBeInTheDocument();
       expect(backBtn).toBeEnabled();
 
-      const nextBtn = screen.findByRole('button', { name: 'Next' });
+      const nextBtn = screen.getByRole('button', { name: 'Next' });
       expect(nextBtn).toBeInTheDocument();
       expect(nextBtn).toBeDisabled();
     });
@@ -557,22 +557,28 @@ describe('Add Orders page', () => {
     await userEvent.click(selectedOptionNew);
     userEvent.click(selectedOptionNew);
 
-    await waitFor(() => {
+    await act( async () => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Elmendorf AFB',
         origin_duty_location: 'Altus AFB',
       });
 
       // Set dependents and accompanied tour
-      userEvent.click(screen.getByTestId('hasDependentsYes'));
-      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+      await userEvent.click(screen.getByTestId('hasDependentsYes'));
+      await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+    });
 
+    waitFor(() => {
       expect(nextBtn).toBeEnabled();
+    });
 
-      userEvent.click(nextBtn);
+    await act( async () => {
+      await userEvent.click(nextBtn);
+    });
 
+    waitFor(() => {
       expect(createOrders).toHaveBeenCalledWith(testOrdersValues);
     });
   });

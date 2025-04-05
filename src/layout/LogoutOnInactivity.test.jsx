@@ -1,6 +1,5 @@
 import React from 'react';
 import { createMocks } from 'react-idle-timer';
-import { act } from 'react-dom/test-utils';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -80,7 +79,9 @@ describe('LogoutOnInactivity', () => {
       );
 
       // alert is present after user is idle for too long
-      expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
+      waitFor(() => {
+        expect(screen.getByText('You have been inactive and will be logged out', { exact: false })).toBeInTheDocument();
+      });
 
       const wrapper = screen.getByTestId('logoutOnInactivityWrapper');
       await userEvent.click(wrapper);

@@ -118,7 +118,7 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     );
     await userEvent.clear(screen.getByLabelText(/Address 1/));
     (await screen.getByLabelText(/Address 1/)).blur();
-    await act(() => {
+    waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       expect(screen.getByText('Required')).toBeInTheDocument();
     });
