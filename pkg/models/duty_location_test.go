@@ -434,7 +434,7 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		suite.FatalNoError(err)
 
 		// not active duty location
-		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, false)
+		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, "FAIRBANKS", testGbloc, testDutyLocationName, testTransportationName, false)
 
 		suite.False(oconusRateArea.Active)
 
@@ -473,7 +473,7 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		suite.FatalNoError(err)
 
 		// active duty location
-		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, true)
+		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, "FAIRBANKS", testGbloc, testDutyLocationName, testTransportationName, true)
 
 		suite.True(oconusRateArea.Active)
 
