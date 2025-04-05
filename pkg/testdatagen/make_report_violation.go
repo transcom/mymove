@@ -7,11 +7,15 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func MakeReportViolation(db *pop.Connection, assertions Assertions) models.ReportViolation {
+func MakeReportViolation(db *pop.Connection, assertions Assertions) (models.ReportViolation, error) {
 
 	report := assertions.Report
 	if isZeroUUID(assertions.Report.ID) {
-		report = makeEvaluationReport(db, assertions)
+		var err error
+		report, err = makeEvaluationReport(db, assertions)
+		if err != nil {
+			return models.ReportViolation{}, err
+		}
 	}
 
 	violation := assertions.Violation
@@ -29,5 +33,5 @@ func MakeReportViolation(db *pop.Connection, assertions Assertions) models.Repor
 	mergeModels(&reportViolation, assertions.ReportViolation)
 	mustCreate(db, &reportViolation, assertions.Stub)
 
-	return reportViolation
+	return reportViolation, nil
 }

@@ -96,7 +96,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	return address
 }
 
-func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []Trait) models.Address {
+func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []Trait) (models.Address, error) {
 	customs = setupCustomizations(customs, traits)
 
 	// Find address customization and extract the custom address
@@ -104,14 +104,14 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	if result := findValidCustomization(customs, Address); result != nil {
 		cAddress = result.Model.(models.Address)
 		if result.LinkOnly {
-			return cAddress
+			return cAddress, nil
 		}
 	}
 
 	// Create default Address
 	address := models.Address{
 		StreetAddress1: "N/A",
-		City:           "Fort Gorden",
+		City:           "GROVETOWN",
 		State:          "GA",
 		PostalCode:     "30813",
 		County:         models.StringPointer("RICHMOND"),
@@ -139,12 +139,22 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
+	if db != nil {
+		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			return models.Address{}, err
+		}
+
+		address.UsPostRegionCityID = &usprc.ID
+		address.UsPostRegionCity = usprc
+	}
+
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
 		mustCreate(db, &address)
 	}
 
-	return address
+	return address, nil
 }
 
 // BuildDefaultAddress makes an Address with default values
@@ -170,7 +180,6 @@ func GetTraitAddress2() []Customization {
 
 // GetTraitAddress3 is a sample GetTraitFunc
 func GetTraitAddress3() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -187,7 +196,6 @@ func GetTraitAddress3() []Customization {
 
 // GetTraitAddress4 is a sample GetTraitFunc
 func GetTraitAddress4() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -204,7 +212,6 @@ func GetTraitAddress4() []Customization {
 
 // GetTraitAddressAKZone1 is an address in Zone 1 of AK
 func GetTraitAddressAKZone1() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -222,14 +229,13 @@ func GetTraitAddressAKZone1() []Customization {
 
 // GetTraitAddressAKZone2 is an address in Zone 2 of Alaska
 func GetTraitAddressAKZone2() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
 				StreetAddress1: "44 John Riggins Rd",
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "FAIRBANKS",
+				City:           "FORT WAINWRIGHT",
 				State:          "AK",
 				PostalCode:     "99703",
 				IsOconus:       models.BoolPointer(true),
@@ -240,7 +246,6 @@ func GetTraitAddressAKZone2() []Customization {
 
 // GetTraitAddressAKZone3 is an address in Zone 3 of Alaska
 func GetTraitAddressAKZone3() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -258,7 +263,6 @@ func GetTraitAddressAKZone3() []Customization {
 
 // GetTraitAddressAKZone4 is an address in Zone 4 of Alaska
 func GetTraitAddressAKZone4() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -276,7 +280,6 @@ func GetTraitAddressAKZone4() []Customization {
 
 // GetTraitAddressAKZone5 is an address in Zone 5 of Alaska for NSRA15 rates
 func GetTraitAddressAKZone5() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{

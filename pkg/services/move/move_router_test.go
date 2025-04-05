@@ -351,6 +351,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					{
 						Model: models.Address{
 							PostalCode: postalCode,
+							City:       "JACKSONVILLE",
 						},
 					},
 				}, nil)
@@ -459,6 +460,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			{
 				Model: models.Address{
 					PostalCode: postalCode,
+					City:       "JACKSONVILLE",
 				},
 			},
 		}, nil)
@@ -1030,6 +1032,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			{
 				Model: models.Address{
 					PostalCode: postalCode,
+					City:       "JACKSONVILLE",
 				},
 			},
 		}, nil)
