@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 
@@ -190,7 +190,7 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
 
       renderComponent();
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(1);
         await userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
       });
@@ -218,7 +218,7 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
 
       await userEvent.type(screen.getByLabelText('Contractor Remarks'), 'Test remarks');
 
-      await act(async () => {
+      await waitFor(async () => {
         expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(1);
         await userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
       });

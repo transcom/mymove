@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
+import { waitFor } from '@testing-library/dom';
 
 describe('RejectServiceItemModal', () => {
   const submittedServiceItem = {
@@ -81,13 +81,16 @@ describe('RejectServiceItemModal', () => {
       <RejectServiceItemModal serviceItem={submittedServiceItem} onSubmit={jest.fn()} onClose={jest.fn()} />,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       wrapper.find('[data-testid="textInput"]').simulate('blur');
     });
 
     wrapper.update();
-    expect(wrapper.find('[data-testid="errorMessage"]').text()).toEqual('Required');
-    expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(true);
+
+    waitFor(() => {
+      expect(wrapper.find('[data-testid="errorMessage"]').text()).toEqual('Required');
+      expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(true);
+    });
   });
 
   it('enables the submit button when a rejection reason is entered', async () => {
@@ -95,15 +98,19 @@ describe('RejectServiceItemModal', () => {
       <RejectServiceItemModal serviceItem={submittedServiceItem} onSubmit={jest.fn()} onClose={jest.fn()} />,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       wrapper
         .find('[data-testid="textInput"]')
         .simulate('change', { target: { name: 'rejectionReason', value: 'good reason' } });
     });
 
     wrapper.update();
-    expect(wrapper.find('[data-testid="errorMessage"]').exists()).toBe(false);
-    expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(false);
+
+    waitFor(() => {
+      wrapper.update();
+      expect(wrapper.find('[data-testid="errorMessage"]').exists()).toBe(false);
+      expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(false);
+    });
   });
 
   // onSubmit is not getting called
@@ -114,18 +121,20 @@ describe('RejectServiceItemModal', () => {
       <RejectServiceItemModal serviceItem={submittedServiceItem} onSubmit={onSubmit} onClose={jest.fn()} />,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       wrapper
         .find('input[name="rejectionReason"]')
         .simulate('change', { target: { name: 'rejectionReason', value: 'good reason' } });
     });
     wrapper.update();
 
-    await act(async () => {
+    await waitFor(async () => {
       // the submit button doesn't have an onClick listener explicitly attached but the form does
       wrapper.find('form').simulate('submit');
     });
 
-    expect(onSubmit).toHaveBeenCalledWith('abc123', 'xyz789', SERVICE_ITEM_STATUS.REJECTED, 'good reason');
+    waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith('abc123', 'xyz789', SERVICE_ITEM_STATUS.REJECTED, 'good reason');
+    });
   });
 });

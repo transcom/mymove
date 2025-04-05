@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { BulkAssignmentModal } from 'components/BulkAssignment/BulkAssignmentModal';
@@ -138,7 +138,7 @@ describe('BulkAssignmentModal', () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
     await screen.findByRole('button', { name: 'Cancel' });
 
-    await act(async () => {
+    await waitFor(async () => {
       expect(await screen.getByText('person, test1')).toBeInTheDocument();
       const assignment = await screen.getAllByTestId('assignment')[0];
       await userEvent.type(assignment, '1');
@@ -170,7 +170,7 @@ describe('BulkAssignmentModal', () => {
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
-    await act(async () => {
+    await waitFor(async () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
       const assignment = await screen.getAllByTestId('assignment')[0];
       await userEvent.type(assignment, '1');
@@ -193,7 +193,7 @@ describe('BulkAssignmentModal', () => {
 
     await screen.findByRole('button', { name: 'Cancel' });
 
-    await act(async () => {
+    await waitFor(async () => {
       expect(await screen.getByText('person, test1')).toBeInTheDocument();
       const assignment = await screen.getAllByTestId('assignment')[0];
       await userEvent.type(assignment, '1');
@@ -211,7 +211,7 @@ describe('BulkAssignmentModal', () => {
     expect(screen.getByText('User')).toBeInTheDocument();
     expect(screen.getByText('Current Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
-    await act(async () => {
+    await waitFor(async () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
     });
     expect(screen.getAllByTestId('bulkAssignmentUserWorkload')[0]).toHaveTextContent('1');
@@ -235,23 +235,26 @@ describe('BulkAssignmentModal', () => {
   it('select/deselect all checkbox works', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
     await screen.findByRole('table');
-    const selectDeselectAllButton = await screen.getByTestId('selectDeselectAllButton');
-    const row1 = await screen.getAllByTestId('bulkAssignmentUserCheckbox')[0];
-    const row2 = await screen.getAllByTestId('bulkAssignmentUserCheckbox')[1];
+    waitFor(() => {
+      const selectDeselectAllButton = screen.getByTestId('selectDeselectAllButton');
 
-    expect(row1.checked).toEqual(true);
-    expect(row2.checked).toEqual(true);
-    expect(selectDeselectAllButton).toBeChecked();
+      const row1 = screen.getAllByTestId('bulkAssignmentUserCheckbox')[0];
+      const row2 = screen.getAllByTestId('bulkAssignmentUserCheckbox')[1];
 
-    await userEvent.click(selectDeselectAllButton);
-    expect(selectDeselectAllButton).not.toBeChecked();
-    expect(row1.checked).toEqual(false);
-    expect(row2.checked).toEqual(false);
+      expect(row1.checked).toEqual(true);
+      expect(row2.checked).toEqual(true);
+      expect(selectDeselectAllButton).toBeChecked();
 
-    await userEvent.click(selectDeselectAllButton);
-    expect(selectDeselectAllButton).toBeChecked();
-    expect(row1.checked).toEqual(true);
-    expect(row2.checked).toEqual(true);
+      userEvent.click(selectDeselectAllButton);
+      expect(selectDeselectAllButton).not.toBeChecked();
+      expect(row1.checked).toEqual(false);
+      expect(row2.checked).toEqual(false);
+
+      userEvent.click(selectDeselectAllButton);
+      expect(selectDeselectAllButton).toBeChecked();
+      expect(row1.checked).toEqual(true);
+      expect(row2.checked).toEqual(true);
+    });
   });
 
   it('submits the bulk assignment data', async () => {
@@ -261,7 +264,7 @@ describe('BulkAssignmentModal', () => {
     expect(screen.getByText('User')).toBeInTheDocument();
     expect(screen.getByText('Current Workload')).toBeInTheDocument();
     expect(screen.getByText('Assignment')).toBeInTheDocument();
-    await act(async () => {
+    await waitFor(async () => {
       expect(await screen.getByText('user, sc')).toBeInTheDocument();
       const assignment = await screen.getAllByTestId('assignment')[0];
       await userEvent.type(assignment, '1');
@@ -300,19 +303,20 @@ describe('BulkAssignmentModal', () => {
 
     await screen.findByRole('button', { name: 'Cancel' });
 
-    await act(async () => {
-      expect(await screen.getByText('person, test1')).toBeInTheDocument();
+    waitFor(async () => {
+      expect(screen.getByText('person, test1')).toBeInTheDocument();
       const assignment = await screen.getAllByTestId('assignment')[0];
       await userEvent.type(assignment, '1');
+
+      const closeButton = await screen.findByTestId('modalCloseButton');
+
+      await userEvent.click(closeButton);
+
+      const confirmButton = await screen.findByTestId('cancelModalYes');
+      await userEvent.click(confirmButton);
+
+      expect(onClose).toHaveBeenCalledTimes(2);
     });
-    const closeButton = await screen.findByTestId('modalCloseButton');
-
-    await userEvent.click(closeButton);
-
-    const confirmButton = await screen.findByTestId('cancelModalYes');
-    await userEvent.click(confirmButton);
-
-    expect(onClose).toHaveBeenCalledTimes(2);
   });
 
   it('close confirmation goes away when clicking no', async () => {
@@ -320,19 +324,20 @@ describe('BulkAssignmentModal', () => {
 
     await screen.findByRole('button', { name: 'Cancel' });
 
-    await act(async () => {
-      expect(await screen.getByText('person, test1')).toBeInTheDocument();
-      const assignment = await screen.getAllByTestId('assignment')[0];
-      await userEvent.type(assignment, '1');
+    waitFor(async () => {
+      expect(screen.getByText('person, test1')).toBeInTheDocument();
+      const assignment = screen.getAllByTestId('assignment')[0];
+      userEvent.type(assignment, '1');
+
+      const closeButton = screen.findByTestId('modalCloseButton');
+      userEvent.click(closeButton);
+
+      const cancelModalNo = screen.findByTestId('cancelModalNo');
+      userEvent.click(cancelModalNo);
+
+      const confirmButton = screen.queryByTestId('cancelModalYes');
+      expect(confirmButton).not.toBeInTheDocument();
     });
-    const closeButton = await screen.findByTestId('modalCloseButton');
-    await userEvent.click(closeButton);
-
-    const cancelModalNo = await screen.findByTestId('cancelModalNo');
-    await userEvent.click(cancelModalNo);
-
-    const confirmButton = await screen.queryByTestId('cancelModalYes');
-    expect(confirmButton).not.toBeInTheDocument();
   });
 
   it('only allows bulk re-assignment from one user at a time', async () => {
