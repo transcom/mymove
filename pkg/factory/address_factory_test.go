@@ -251,6 +251,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
 					IsOconus:       models.BoolPointer(false),
+					City:           defaultCity,
 				},
 			},
 		}, nil)
