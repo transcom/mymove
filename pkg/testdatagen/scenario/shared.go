@@ -474,12 +474,6 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 				AppContext:   appCtx,
 			},
 		},
-		{
-			Model: models.Address{
-				PostalCode: "30813",
-				City:       "GROVETOWN",
-			},
-		},
 	}, nil)
 
 	if *smWithCombo.Affiliation == models.AffiliationARMY || *smWithCombo.Affiliation == models.AffiliationAIRFORCE {
@@ -504,12 +498,6 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 				Status:               models.MTOShipmentStatusSubmitted,
 			},
 		},
-		{
-			Model: models.Address{
-				PostalCode: "30813",
-				City:       "GROVETOWN",
-			},
-		},
 	}, nil)
 
 	factory.BuildMTOShipment(db, []factory.Customization{
@@ -526,12 +514,6 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusSubmitted,
 				CounselorRemarks:     models.StringPointer("Please handle with care"),
-			},
-		},
-		{
-			Model: models.Address{
-				PostalCode: "30813",
-				City:       "GROVETOWN",
 			},
 		},
 	}, nil)
@@ -551,12 +533,6 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 				RejectionReason:      models.StringPointer("No longer necessary, included in other shipment"),
 			},
 		},
-		// {
-		// 	Model: models.Address{
-		// 		PostalCode: "30813",
-		// 		City:       "GROVETOWN",
-		// 	},
-		// },
 	}, nil)
 
 	factory.BuildPPMShipment(db, []factory.Customization{
@@ -2815,14 +2791,6 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 				State:      "GA",
 				PostalCode: "30813",
 			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
 			Type: &factory.Addresses.DeliveryAddress,
 		},
 		{
@@ -2940,14 +2908,6 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 			Model: models.PPMShipment{
 				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
 		},
 		{
 			Model: models.Address{
