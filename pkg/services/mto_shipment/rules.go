@@ -101,6 +101,10 @@ func checkUpdateAllowed() validator {
 				if isTOO {
 					return nil
 				}
+			case models.MTOShipmentStatusApprovalsRequested:
+				if isTOO {
+					return nil
+				}
 			default:
 				return err
 			}

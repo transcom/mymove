@@ -97,6 +97,8 @@ const (
 	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
 	// MTOShipmentStatusDiversionRequested indicates that the TOO has requested that the Prime divert a shipment
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
+	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
+	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS REQUESTED"
 )
 
 // LOAType represents the possible TAC and SAC types for a mto shipment
@@ -210,6 +212,7 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusCancellationRequested),
 		string(MTOShipmentStatusCanceled),
 		string(MTOShipmentStatusDiversionRequested),
+		string(MTOShipmentStatusApprovalsRequested),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {

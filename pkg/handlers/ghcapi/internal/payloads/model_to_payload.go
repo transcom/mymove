@@ -2196,7 +2196,8 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
 		status == models.MTOShipmentStatusDiversionRequested ||
-		status == models.MTOShipmentStatusCancellationRequested
+		status == models.MTOShipmentStatusCancellationRequested ||
+		status == models.MTOShipmentStatusApprovalsRequested
 }
 
 func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.AvailableOfficeUsers {
