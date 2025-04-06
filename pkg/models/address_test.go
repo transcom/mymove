@@ -35,11 +35,6 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 
-	// usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-	// suite.NotNil(usprc)
-	// suite.FatalNoError(err)
-
-	// var usprcId string
 	var usprc models.UsPostRegionCity
 	newAddress := m.Address{
 		UsPostRegionCityID: &usprc.ID,
