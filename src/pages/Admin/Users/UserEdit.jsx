@@ -1,58 +1,125 @@
-import React from 'react';
-import { Edit, SaveButton, SelectInput, SimpleForm, TextInput, Toolbar } from 'react-admin';
+import { Alert } from '@trussworks/react-uswds';
+import React, { useState } from 'react';
+import {
+  Confirm,
+  DeleteButton,
+  Edit,
+  SaveButton,
+  SelectInput,
+  SimpleForm,
+  TextInput,
+  Toolbar,
+  useRedirect,
+} from 'react-admin';
 
-const UserEditToolbar = (props) => (
-  <Toolbar {...props}>
-    <SaveButton />
-  </Toolbar>
-);
+import styles from './UserEdit.module.scss';
 
-const UserEdit = () => (
-  <Edit>
-    <SimpleForm
-      toolbar={<UserEditToolbar />}
-      sx={{ '& .MuiInputBase-input': { width: 232 } }}
-      mode="onBlur"
-      reValidateMode="onBlur"
-    >
-      <TextInput source="id" disabled />
-      <TextInput source="oktaEmail" />
-      <SelectInput
-        source="active"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-        sx={{ width: 256 }}
+import { deleteUser } from 'services/adminApi';
+
+const UserEdit = () => {
+  const redirect = useRedirect();
+  const [serverError, setServerError] = useState('');
+  const [open, setOpen] = useState(false);
+  const [userData, setUserData] = useState({});
+  const handleClick = () => setOpen(true);
+  const handleDialogClose = () => setOpen(false);
+
+  const renderUserEditToolbar = (props) => {
+    return (
+      <>
+        {serverError && (
+          <Alert type="error" slim className={styles.error}>
+            {serverError}
+          </Alert>
+        )}
+        <Toolbar {...props}>
+          <SaveButton />
+          <DeleteButton
+            mutationOptions={{
+              onSuccess: async (data) => {
+                // setting user data so we can use it in teh delete function
+                setUserData(data);
+                handleClick();
+              },
+            }}
+          />
+        </Toolbar>
+      </>
+    );
+  };
+
+  // hard deletes a user and associated roles/privileges
+  // cannot be undone, but the user is shown a confirmation modal to avoid oopsies
+  const deleteUserHandler = async () => {
+    await deleteUser(userData.id)
+      .then(() => {
+        redirect('/');
+      })
+      .catch((error) => {
+        setServerError(error);
+        redirect(false);
+      });
+  };
+
+  const handleConfirm = () => {
+    deleteUserHandler();
+    setOpen(false);
+  };
+
+  return (
+    <Edit>
+      <Confirm
+        isOpen={open}
+        title={`Delete user ${userData.firstName} ${userData.lastName}?`}
+        content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
+        onConfirm={handleConfirm}
+        onClose={handleDialogClose}
       />
-      <SelectInput
-        source="revokeAdminSession"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-        sx={{ width: 256 }}
-      />
-      <SelectInput
-        source="revokeOfficeSession"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-        sx={{ width: 256 }}
-      />
-      <SelectInput
-        source="revokeMilSession"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-        sx={{ width: 256 }}
-      />
-      <TextInput source="createdAt" disabled />
-      <TextInput source="updatedAt" disabled />
-    </SimpleForm>
-  </Edit>
-);
+      <SimpleForm
+        toolbar={renderUserEditToolbar()}
+        sx={{ '& .MuiInputBase-input': { width: 232 } }}
+        mode="onBlur"
+        reValidateMode="onBlur"
+      >
+        <TextInput source="id" disabled />
+        <TextInput source="oktaEmail" />
+        <SelectInput
+          source="active"
+          choices={[
+            { id: true, name: 'Yes' },
+            { id: false, name: 'No' },
+          ]}
+          sx={{ width: 256 }}
+        />
+        <SelectInput
+          source="revokeAdminSession"
+          choices={[
+            { id: true, name: 'Yes' },
+            { id: false, name: 'No' },
+          ]}
+          sx={{ width: 256 }}
+        />
+        <SelectInput
+          source="revokeOfficeSession"
+          choices={[
+            { id: true, name: 'Yes' },
+            { id: false, name: 'No' },
+          ]}
+          sx={{ width: 256 }}
+        />
+        <SelectInput
+          source="revokeMilSession"
+          choices={[
+            { id: true, name: 'Yes' },
+            { id: false, name: 'No' },
+          ]}
+          sx={{ width: 256 }}
+        />
+        <TextInput source="createdAt" disabled />
+        <TextInput source="updatedAt" disabled />
+      </SimpleForm>
+    </Edit>
+  );
+};
 
 export default UserEdit;

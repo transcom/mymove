@@ -56,3 +56,15 @@ export async function deleteOfficeUser(officeUserId) {
     { normalize: false },
   );
 }
+
+export async function deleteUser(userId) {
+  const operationPath = 'Users.deleteUser';
+
+  return makeAdminRequest(
+    operationPath,
+    {
+      userId,
+    },
+    { normalize: false },
+  );
+}
