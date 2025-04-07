@@ -93,6 +93,14 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             >
               Add Service Item
             </Link>
+            <Link
+              to={`../shipments/${shipment.id}/acknowledge`}
+              relative="path"
+              aria-label="Acknowledge Shipment"
+              className="usa-button usa-button-secondary"
+            >
+              Acknowledge Shipment
+            </Link>
           </>
         )}
       </div>
