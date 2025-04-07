@@ -795,7 +795,7 @@ server_test:
     - name: $postgres
     - name: $redis
   variables:
-    KUBERNETES_CPU_REQUEST: "8"
+    KUBERNETES_CPU_REQUEST: "16"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
     APPLICATION: app
