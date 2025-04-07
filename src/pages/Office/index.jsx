@@ -102,6 +102,7 @@ const PrimeSimulatorCreateSITExtensionRequest = lazy(() =>
 const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
   import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateDestinationAddress'),
 );
+const PrimeUIAcknowledgeMove = lazy(() => import('pages/PrimeUI/MoveTaskOrder/AcknowledgeMove'));
 
 const MoveSearch = lazy(() => import('pages/Office/MoveSearch/MoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
@@ -509,6 +510,15 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
                           <PrimeUIShipmentUpdateDestinationAddress />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      key="primeSimulatorAcknowledgeMovePath"
+                      path={primeSimulatorRoutes.ACKNOWLEDGE_MOVE_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIAcknowledgeMove />
                         </PrivateRoute>
                       }
                     />
