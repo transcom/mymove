@@ -253,3 +253,8 @@ properties:
     $ref: 'RateArea.yaml'
   destinationRateArea:
     $ref: 'RateArea.yaml'
+  primeAcknowledgedAt:
+    format: date-time
+    type: string
+    x-nullable: true
+    readOnly: true
