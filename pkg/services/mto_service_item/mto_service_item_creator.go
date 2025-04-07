@@ -211,14 +211,11 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 func calcTotalSITDuration(entryDate, departureDate time.Time) int {
 	difference := entryDate.Sub(departureDate)
 	days := difference.Hours() / 24
-	return int(math.Ceil(days))
+	return int(1 + math.Ceil(days))
 }
 
 func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
-	isPPM := false
-	if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
-		isPPM = true
-	}
+	isPPM := mtoShipment.ShipmentType == models.MTOShipmentTypePPM
 
 	var requestedPickupDate time.Time
 	if mtoShipment.RequestedPickupDate != nil {
@@ -226,15 +223,12 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 	} else {
 		return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No requested pickup date exists for this shipment.")
 	}
-	currTime := time.Now()
+
 	var distance int
 
-	contractCode, err := FetchContractCode(appCtx, currTime)
+	contractCode, err := FetchContractCode(appCtx, requestedPickupDate)
 	if err != nil {
-		contractCode, err = FetchContractCode(appCtx, requestedPickupDate)
-		if err != nil {
-			return 0, err
-		}
+		return 0, err
 	}
 
 	var adjustedWeight *unit.Pound
@@ -252,6 +246,10 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 
 	switch serviceItem.ReService.Code {
 	case models.ReServiceCodeDDFSIT:
+		if serviceItem.SITDestinationFinalAddress == nil {
+			return 0, apperror.NewBadDataError("No SIT Destination Final Address")
+		}
+
 		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		if err != nil {
 			return 0, err
@@ -268,12 +266,16 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDDDSIT:
+		if serviceItem.SITDestinationFinalAddress == nil {
+			return 0, apperror.NewBadDataError("No SIT Destination Final Address")
+		}
+
 		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
 
-		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+		if mtoShipment.DestinationAddress != nil && serviceItem.SITDestinationFinalAddress != nil {
 			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 			if err != nil {
 				return 0, err
@@ -294,13 +296,17 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDDASIT:
+		if serviceItem.SITDestinationFinalAddress == nil {
+			return 0, apperror.NewBadDataError("No SIT Destination Final Address")
+		}
+
 		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
 
 		daysSIT := 0
-		if serviceItem.SITDepartureDate != nil {
+		if serviceItem.SITDepartureDate != nil && serviceItem.SITEntryDate != nil {
 			daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
 		}
 
@@ -316,6 +322,10 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDDSFSC:
+		if serviceItem.SITDestinationFinalAddress == nil {
+			return 0, apperror.NewBadDataError("No SIT Destination Final Address")
+		}
+
 		eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, requestedPickupDate)
 		if err != nil {
 			return 0, err
@@ -342,12 +352,16 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDOPSIT:
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+		if serviceItem.SITOriginHHGOriginalAddress == nil {
+			return 0, apperror.NewBadDataError("No SIT Origin HHG Original Address.")
+		}
+
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
 
-		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+		if serviceItem.SITOriginHHGOriginalAddress != nil && serviceItem.SITOriginHHGActualAddress != nil {
 			distance, err = o.planner.ZipTransitDistance(appCtx, serviceItem.SITOriginHHGOriginalAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
 			if err != nil {
 				return 0, err
@@ -369,7 +383,11 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDOFSIT:
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+		if serviceItem.SITOriginHHGOriginalAddress == nil {
+			return 0, apperror.NewBadDataError("No SIT Origin HHG Original Address.")
+		}
+
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
@@ -379,13 +397,17 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDOASIT:
+		if mtoShipment.PickupAddress == nil {
+			return 0, apperror.NewBadDataError("No Pickup Address.")
+		}
+
 		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
 
 		daysSIT := 0
-		if serviceItem.SITDepartureDate != nil {
+		if serviceItem.SITDepartureDate != nil && serviceItem.SITEntryDate != nil {
 			daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
 		}
 
@@ -399,8 +421,8 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 
-		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+		if mtoShipment.PickupAddress != nil && serviceItem.SITOriginHHGActualAddress != nil {
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGActualAddress.PostalCode)
 			if err != nil {
 				return 0, err
 			}
