@@ -5783,7 +5783,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -7971,7 +7971,7 @@ func init() {
           "type": "string"
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -8105,7 +8105,7 @@ func init() {
           "readOnly": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -15245,7 +15245,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -17436,7 +17436,7 @@ func init() {
           "type": "string"
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -17570,7 +17570,7 @@ func init() {
           "readOnly": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },

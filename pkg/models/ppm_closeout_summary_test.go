@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -35,4 +36,48 @@ func (suite *ModelSuite) TestPPMCloseoutSummaryValidation() {
 
 		suite.verifyValidationErrors(&invalidPPMCloseoutSummary, expErrors)
 	})
+}
+
+func (suite *ModelSuite) TestFetchPPMCloseoutByPPMID_AllColumnsPopulated() {
+	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), nil)
+	now := time.Now()
+
+	closeout := models.PPMCloseoutSummary{
+		ID:                          uuid.Must(uuid.NewV4()),
+		PPMShipmentID:               ppmShipment.ID,
+		MaxAdvance:                  models.CentPointer(10000),
+		GTCCPaidContractedExpense:   models.CentPointer(20000),
+		MemberPaidContractedExpense: models.CentPointer(15000),
+		GTCCPaidPackingMaterials:    models.CentPointer(5000),
+		MemberPaidPackingMaterials:  models.CentPointer(4000),
+		GTCCPaidWeighingFee:         models.CentPointer(3000),
+		MemberPaidWeighingFee:       models.CentPointer(2500),
+		GTCCPaidRentalEquipment:     models.CentPointer(10000),
+		MemberPaidRentalEquipment:   models.CentPointer(9000),
+		GTCCPaidTolls:               models.CentPointer(1000),
+		MemberPaidTolls:             models.CentPointer(800),
+		GTCCPaidOil:                 models.CentPointer(600),
+		MemberPaidOil:               models.CentPointer(500),
+		GTCCPaidOther:               models.CentPointer(700),
+		MemberPaidOther:             models.CentPointer(600),
+		TotalGTCCPaidExpenses:       models.CentPointer(50000),
+		TotalMemberPaidExpenses:     models.CentPointer(40000),
+		RemainingIncentive:          models.CentPointer(10000),
+		GTCCPaidSIT:                 models.CentPointer(3000),
+		MemberPaidSIT:               models.CentPointer(2500),
+		GTCCPaidSmallPackage:        models.CentPointer(1200),
+		MemberPaidSmallPackage:      models.CentPointer(1100),
+		GTCCDisbursement:            models.CentPointer(2000),
+		MemberDisbursement:          models.CentPointer(1900),
+		CreatedAt:                   now,
+		UpdatedAt:                   now,
+	}
+
+	verrs, err := suite.DB().ValidateAndCreate(&closeout)
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "expected no validation errors")
+
+	fetched, err := models.FetchPPMCloseoutByPPMID(suite.DB(), ppmShipment.ID)
+	suite.NoError(err, "expected no error when fetching an existing record")
+	suite.NotNil(fetched)
 }

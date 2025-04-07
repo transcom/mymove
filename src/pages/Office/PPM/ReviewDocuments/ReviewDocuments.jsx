@@ -21,9 +21,9 @@ import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
 import { calculateWeightRequested } from 'hooks/custom';
-import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
-import { PPM_TYPES, PPM_DOCUMENT_TYPES } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
+import { PPM_TYPES, PPM_DOCUMENT_TYPES } from 'shared/constants';
+import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
 
 export const ReviewDocuments = ({ readOnly }) => {
   const { shipmentId, moveCode } = useParams();

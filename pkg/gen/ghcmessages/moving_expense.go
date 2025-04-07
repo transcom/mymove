@@ -53,7 +53,7 @@ type MovingExpense struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
-	// Indicates if the customer is claiming an expense as pro gear or not
+	// Indicates if the customer is claiming an expense as pro-gear or not
 	IsProGear *bool `json:"isProGear,omitempty"`
 
 	// Indicates if the service member is missing the receipt with the proof of expense amount

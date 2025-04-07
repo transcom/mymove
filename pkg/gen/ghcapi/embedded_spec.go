@@ -8512,7 +8512,7 @@ func init() {
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean"
         },
         "hasSecondaryDestinationAddress": {
@@ -11506,7 +11506,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -15310,7 +15310,7 @@ func init() {
           "x-omitempty": false
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -15548,7 +15548,7 @@ func init() {
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -26707,7 +26707,7 @@ func init() {
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean"
         },
         "hasSecondaryDestinationAddress": {
@@ -29701,7 +29701,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -33637,7 +33637,7 @@ func init() {
           "x-omitempty": false
         },
         "isProGear": {
-          "description": "Indicates if the customer is claiming an expense as pro gear or not",
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
           "type": "boolean",
           "x-nullable": true
         },
@@ -33876,7 +33876,7 @@ func init() {
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },

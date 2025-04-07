@@ -27,7 +27,7 @@ type UpdateMovingExpense struct {
 	// Required: true
 	Description *string `json:"description"`
 
-	// Indicates if the customer is claiming an expense as pro gear or not
+	// Indicates if the customer is claiming an expense as pro-gear or not
 	IsProGear *bool `json:"isProGear,omitempty"`
 
 	// Indicates if the customer is missing the receipt for their expense.
