@@ -406,6 +406,10 @@ golang_lint:
   tags:
     - $Gitlab_Runner_Tag
   image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:$GOLANGCI_LINT_VERSION # Refer to https://hub.docker.com/r/golangci/golangci-lint
+  variables:
+    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
   script:
 # Write the code coverage report to gl-code-quality-report.json
     # and print linting issues to stdout in the format: path/to/file:line description
@@ -500,6 +504,7 @@ pre_deps_yarn:
 
 check_generated_code:
   stage: pre_checks
+  interruptible: true
   image: $DOCKER_APP_IMAGE # Replace with the appropriate Docker image
   tags:
     - $Gitlab_Runner_Tag
@@ -634,7 +639,7 @@ compile_app_client:
     - <<: *yarn_cache
       policy: pull
   variables:
-    KUBERNETES_CPU_REQUEST: "6"
+    KUBERNETES_CPU_REQUEST: "8"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   before_script:
@@ -669,7 +674,7 @@ compile_app_server:
     - <<: *yarn_cache
       policy: pull
   variables:
-    KUBERNETES_CPU_REQUEST: "6"
+    KUBERNETES_CPU_REQUEST: "8"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
@@ -723,7 +728,7 @@ pre_test:
     - check_tls_certificate_stg
     - check_tls_certificate_prd
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script: *setup_milmove_env
@@ -784,7 +789,7 @@ server_test:
     - name: $postgres
     - name: $redis
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
     APPLICATION: app
@@ -896,7 +901,7 @@ client_test:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "6"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
   needs:
@@ -969,6 +974,9 @@ integration_test_devseed:
     - name: $postgres
     - name: $redis
   variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "6Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
     APPLICATION: app
     DB_PASSWORD: mysecretpassword
     DB_USER_LOW_PRIV: crud
