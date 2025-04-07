@@ -16,7 +16,7 @@ jobs:
       - name: Upload ZAP Scan Results
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-results
+          name: zap_scan
           path: ./zap_report/
 
   zap_scan_office:
