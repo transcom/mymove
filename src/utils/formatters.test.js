@@ -491,7 +491,7 @@ describe('formatAssignedOfficeUserFromContext', () => {
       re_assigned_tio: 'Robinson, Brian',
     });
   });
-  it('properly formats a TOOs name for assignment when H&A accessed from destination dequest dueue', () => {
+  it('properly formats a TOOs name for assignment when H&A accessed from destination request request', () => {
     const values = {
       changedValues: {
         too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
@@ -508,7 +508,7 @@ describe('formatAssignedOfficeUserFromContext', () => {
       assigned_too: 'McLaurin, Terry',
     });
   });
-  it('properly formats a TOOs name for reassignment when H&A accessed from destination dequest dueue', () => {
+  it('properly formats a TOOs name for reassignment when H&A accessed from destination request request', () => {
     const values = {
       changedValues: {
         too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
