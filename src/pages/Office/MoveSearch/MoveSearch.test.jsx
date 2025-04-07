@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, act } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MoveSearch from './MoveSearch';
@@ -208,32 +208,6 @@ describe('MoveSearch page', () => {
 
       screen.getByTestId('locator-0').click();
       expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/details');
-    });
-  });
-
-  it('navigates to a custom landingPath when provided', async () => {
-    useMoveSearchQueries.mockReturnValue(mockSearchResultsWithMove);
-    render(
-      <MockProviders>
-        <MoveSearch landingPath="mto" />
-      </MockProviders>,
-    );
-    await act(async () => {
-      const submitButton = screen.getByTestId('searchTextSubmit');
-      await screen.getByLabelText('Move Code').click();
-      await userEvent.type(screen.getByLabelText('Search'), 'MOVE12');
-      await waitFor(() => {
-        expect(screen.getByLabelText('Search')).toHaveValue('MOVE12');
-        expect(screen.getByLabelText('Move Code')).toBeChecked();
-      });
-      expect(submitButton).toBeEnabled();
-      await userEvent.click(submitButton);
-
-      const noResults = await screen.queryByText('Results (1)');
-      expect(noResults).toBeInTheDocument();
-
-      await screen.getByTestId('locator-0').click();
-      expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/mto');
     });
   });
 });

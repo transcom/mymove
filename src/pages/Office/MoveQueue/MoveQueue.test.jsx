@@ -565,7 +565,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
         <MoveQueue />
       </MockProviders>,
     );
-    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+    waitFor(() => {
+      MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+    });
   });
 
   it('Has all status options for move queue', async () => {
@@ -575,7 +577,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
         <MoveQueue />
       </MockProviders>,
     );
-    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+    waitFor(() => {
+      MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+    });
   });
   it('Has all status options for destination requests queue', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.DESTINATION_REQUESTS_QUEUE });

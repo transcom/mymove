@@ -235,26 +235,23 @@ describe('BulkAssignmentModal', () => {
   it('select/deselect all checkbox works', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
     await screen.findByRole('table');
-    waitFor(() => {
-      const selectDeselectAllButton = screen.getByTestId('selectDeselectAllButton');
+    const selectDeselectAllButton = await screen.getByTestId('selectDeselectAllButton');
+    const row1 = await screen.getAllByTestId('bulkAssignmentUserCheckbox')[0];
+    const row2 = await screen.getAllByTestId('bulkAssignmentUserCheckbox')[1];
 
-      const row1 = screen.getAllByTestId('bulkAssignmentUserCheckbox')[0];
-      const row2 = screen.getAllByTestId('bulkAssignmentUserCheckbox')[1];
+    expect(row1.checked).toEqual(true);
+    expect(row2.checked).toEqual(true);
+    expect(selectDeselectAllButton).toBeChecked();
 
-      expect(row1.checked).toEqual(true);
-      expect(row2.checked).toEqual(true);
-      expect(selectDeselectAllButton).toBeChecked();
+    await userEvent.click(selectDeselectAllButton);
+    expect(selectDeselectAllButton).not.toBeChecked();
+    expect(row1.checked).toEqual(false);
+    expect(row2.checked).toEqual(false);
 
-      userEvent.click(selectDeselectAllButton);
-      expect(selectDeselectAllButton).not.toBeChecked();
-      expect(row1.checked).toEqual(false);
-      expect(row2.checked).toEqual(false);
-
-      userEvent.click(selectDeselectAllButton);
-      expect(selectDeselectAllButton).toBeChecked();
-      expect(row1.checked).toEqual(true);
-      expect(row2.checked).toEqual(true);
-    });
+    await userEvent.click(selectDeselectAllButton);
+    expect(selectDeselectAllButton).toBeChecked();
+    expect(row1.checked).toEqual(true);
+    expect(row2.checked).toEqual(true);
   });
 
   it('submits the bulk assignment data', async () => {
@@ -303,20 +300,19 @@ describe('BulkAssignmentModal', () => {
 
     await screen.findByRole('button', { name: 'Cancel' });
 
-    waitFor(async () => {
-      expect(screen.getByText('person, test1')).toBeInTheDocument();
+    await act(async () => {
+      expect(await screen.getByText('person, test1')).toBeInTheDocument();
       const assignment = await screen.getAllByTestId('assignment')[0];
       await userEvent.type(assignment, '1');
-
-      const closeButton = await screen.findByTestId('modalCloseButton');
-
-      await userEvent.click(closeButton);
-
-      const confirmButton = await screen.findByTestId('cancelModalYes');
-      await userEvent.click(confirmButton);
-
-      expect(onClose).toHaveBeenCalledTimes(2);
     });
+    const closeButton = await screen.findByTestId('modalCloseButton');
+
+    await userEvent.click(closeButton);
+
+    const confirmButton = await screen.findByTestId('cancelModalYes');
+    await userEvent.click(confirmButton);
+
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 
   it('close confirmation goes away when clicking no', async () => {
@@ -324,20 +320,19 @@ describe('BulkAssignmentModal', () => {
 
     await screen.findByRole('button', { name: 'Cancel' });
 
-    waitFor(async () => {
-      expect(screen.getByText('person, test1')).toBeInTheDocument();
-      const assignment = screen.getAllByTestId('assignment')[0];
-      userEvent.type(assignment, '1');
-
-      const closeButton = screen.findByTestId('modalCloseButton');
-      userEvent.click(closeButton);
-
-      const cancelModalNo = screen.findByTestId('cancelModalNo');
-      userEvent.click(cancelModalNo);
-
-      const confirmButton = screen.queryByTestId('cancelModalYes');
-      expect(confirmButton).not.toBeInTheDocument();
+    await act(async () => {
+      expect(await screen.getByText('person, test1')).toBeInTheDocument();
+      const assignment = await screen.getAllByTestId('assignment')[0];
+      await userEvent.type(assignment, '1');
     });
+    const closeButton = await screen.findByTestId('modalCloseButton');
+    await userEvent.click(closeButton);
+
+    const cancelModalNo = await screen.findByTestId('cancelModalNo');
+    await userEvent.click(cancelModalNo);
+
+    const confirmButton = await screen.queryByTestId('cancelModalYes');
+    expect(confirmButton).not.toBeInTheDocument();
   });
 
   it('only allows bulk re-assignment from one user at a time', async () => {
@@ -493,6 +488,7 @@ describe('BulkAssignmentModal', () => {
       checkAllAssignmentBoxes(screen, 0);
     });
   });
+
   it('keeps all checkboxes selected when switching back to BA from Bulk Re-Assignment', async () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
 
@@ -697,103 +693,6 @@ describe('BulkAssignmentModal', () => {
     expect(screen.getByText('Cannot assign more moves than are available.')).toBeInTheDocument();
   });
 
-  it('does not persist unsaved assignment values while mode switching', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    await act(async () => {
-      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
-    });
-
-    const assignmentBoxesPreSwitch = screen.getAllByRole('spinbutton');
-    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
-
-    // check initial state
-    await waitFor(() => {
-      checkAllAssignmentBoxes(screen, 0);
-    });
-    // type some values
-    await waitFor(async () => {
-      await userEvent.type(assignmentBoxesPreSwitch[0], '2');
-      await userEvent.type(assignmentBoxesPreSwitch[1], '4');
-      await userEvent.type(assignmentBoxesPreSwitch[2], '6');
-    });
-
-    // first switch to bulk re assignment
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
-
-    const assignmentBoxesFirstSwitch = screen.getAllByRole('spinbutton');
-
-    await waitFor(() => {
-      checkAllAssignmentBoxes(screen, 0);
-    });
-    await waitFor(async () => {
-      await userEvent.type(assignmentBoxesFirstSwitch[0], '2');
-      await userEvent.type(assignmentBoxesFirstSwitch[1], '4');
-      await userEvent.type(assignmentBoxesFirstSwitch[2], '6');
-    });
-
-    // switch back to bulk assignment
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
-
-    await waitFor(() => {
-      checkAllAssignmentBoxes(screen, 0);
-    });
-
-    // second switch to bulk re assignment
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
-
-    await waitFor(() => {
-      checkAllAssignmentBoxes(screen, 0);
-    });
-  });
-  it('keeps all checkboxes selected when switching back to BA from Bulk Re-Assignment', async () => {
-    isBooleanFlagEnabled.mockResolvedValue(true);
-
-    await act(async () => {
-      render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);
-    });
-
-    const userSelectionBoxPreSwitch = screen.getAllByRole('checkbox').filter((checkbox) => checkbox.closest('cell'));
-    const bulkReAssignToggleSwitch = screen.getByLabelText('BulkAssignmentModeSwitch');
-
-    // check initial state
-    await waitFor(() => {
-      checkCheckboxSelectionStatus(screen, true);
-    });
-    // deselect a few boxes (all enabled by default)
-    await waitFor(async () => {
-      await userEvent.click(userSelectionBoxPreSwitch[0]);
-      await userEvent.click(userSelectionBoxPreSwitch[2]);
-    });
-
-    // switch to bulk re assignment
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
-
-    // should be in bulk re-assignment mode and checkboxes should not be visible
-    await waitFor(() => {
-      expect(bulkReAssignToggleSwitch).toBeChecked();
-      checkCheckboxSelectionStatus(screen, true);
-    });
-
-    // switch back to bulk assignment
-    await act(async () => {
-      await fireEvent.click(bulkReAssignToggleSwitch);
-    });
-
-    // back in bulk assignment mode and all checkoxes are selected
-    await waitFor(async () => {
-      expect(bulkReAssignToggleSwitch).not.toBeChecked();
-      checkCheckboxSelectionStatus(screen, true);
-    });
-  });
   it('equal assign does nothing when no users are selected', async () => {
     await act(async () => {
       render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} queueType={QUEUE_TYPES.COUNSELING} />);

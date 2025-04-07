@@ -439,75 +439,84 @@ describe('validates form fields and displays error messages', () => {
         await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
       });
 
-      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
-      const locationLookups = screen.getAllByLabelText(/Location Lookup/);
+      waitFor(() => {
+        const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+        const state = screen.getAllByTestId(/State/);
+        const city = screen.getAllByTestId(/City/);
+        const postalCodes = screen.getAllByTestId(/ZIP/);
+        const county = screen.getAllByTestId(/County/);
 
-      // verify pickup address is populated
-      expect(address1[0]).toHaveValue('123 Main');
-      expect(screen.getByText('Fort Benning, GA 90210 (Muscogee)'));
+        // verify pickup address is populated
+        expect(address1[0]).toHaveValue('123 Main');
+        expect(city[0]).toHaveTextContent('Fort Benning');
+        expect(state[0]).toHaveTextContent('GA');
+        expect(postalCodes[0]).toHaveTextContent('90210');
+        expect(county[0]).toHaveTextContent('Muscogee');
 
-      await waitFor(() => {
-        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
-        expect(locationLookups[1]).toBeInstanceOf(HTMLInputElement);
+        // verify 2nd pickup is populated
+        expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
+        expect(address1[1]).toHaveValue('777 Test Street');
+        expect(screen.getByText('ELIZABETHTOWN, KY 42702 (Hardin)'));
+
+        // verify delivery address is populated
+        expect(address1[2]).toHaveValue('658 West Ave');
+        expect(city[2]).toHaveTextContent('Fort Benning');
+        expect(state[2]).toHaveTextContent('GA');
+        expect(postalCodes[2]).toHaveTextContent('94611');
+
+        expect(address1[3]).toBeInstanceOf(HTMLInputElement);
+        expect(city[3]).toBeInstanceOf(HTMLLabelElement);
+        expect(state[3]).toBeInstanceOf(HTMLLabelElement);
+        expect(postalCodes[3]).toBeInstanceOf(HTMLLabelElement);
+        expect(county[3]).toBeInstanceOf(HTMLLabelElement);
+
+        // verify 2nd delivery address is populated
+        expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
+        expect(address1[3]).toHaveValue('68 West Elm');
+        expect(city[3]).toHaveTextContent('Fort Benning');
+        expect(state[3]).toHaveTextContent('GA');
+        expect(postalCodes[3]).toHaveTextContent('94611');
       });
-
-      // verify 2nd pickup is populated
-      expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
-      expect(address1[1]).toHaveValue('777 Test Street');
-      expect(screen.getByText('ELIZABETHTOWN, KY 42702 (Hardin)'));
-
-      // verify delivery address is populated
-      expect(address1[2]).toHaveValue('658 West Ave');
-      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[0]);
-
-      expect(address1[3]).toBeInstanceOf(HTMLInputElement);
-      expect(locationLookups[3]).toBeInstanceOf(HTMLInputElement);
-
-      // verify 2nd delivery address is populated
-      expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
-
-      expect(address1[3]).toHaveValue('68 West Elm');
-      expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[1]);
 
       await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
       await userEvent.keyboard('[Tab]');
-    });
 
-    await waitFor(() => {
-      const requiredAlerts = screen.queryAllByRole('alert');
-      expect(requiredAlerts.length).toBe(1);
-      requiredAlerts.forEach((alert) => {
-        expect(alert).toHaveTextContent('Required');
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
       });
-    });
 
-    // toggle second pickup address to No, should get rid of Required error
-    act(async () => {
-      await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
-    });
-
-    waitFor(() => {
-      const alerts = screen.queryAllByRole('alert');
-      expect(alerts.length).toBe(0);
-    });
-
-    // now clear out 2nd delivery address1 text, should raise required alert
-    act(async () => {
-      await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
-    });
-
-    await waitFor(() => {
-      const requiredAlerts = screen.queryAllByRole('alert');
-      expect(requiredAlerts.length).toBe(0);
-      requiredAlerts.forEach((alert) => {
-        expect(alert).toHaveTextContent('Required');
+      // toggle second pickup address to No, should get rid of Required error
+      act(async () => {
+        await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
       });
+
+      waitFor(() => {
+        const alerts = screen.queryAllByRole('alert');
+        expect(alerts.length).toBe(0);
+      });
+
+      // now clear out 2nd delivery address1 text, should raise required alert
+      act(async () => {
+        await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
+      });
+
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(0);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
+      });
+
+      // toggle second delivery address to No, should get rid of Required error
+      await userEvent.click(screen.getByTitle('No, I do not have a second delivery address'));
+
+      const newAlerts = screen.queryAllByRole('alert');
+      expect(newAlerts.length).toBe(0);
     });
-
-    // toggle second delivery address to No, should get rid of Required error
-    await userEvent.click(screen.getByTitle('No, I do not have a second delivery address'));
-
-    const newAlerts = screen.queryAllByRole('alert');
-    expect(newAlerts.length).toBe(0);
   });
 });

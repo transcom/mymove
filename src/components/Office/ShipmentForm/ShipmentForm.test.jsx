@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, within, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentForm from './ShipmentForm';
@@ -1404,12 +1404,10 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      waitFor(async () => {
-        await userEvent.click(screen.getByLabelText('Use pickup address'));
-        await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
-        await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
-        await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
-      });
+      await userEvent.click(screen.getByLabelText('Use pickup address'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+      await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
 
       const locationLookups = screen.getAllByLabelText(/Location Lookup/);
       const streetAddress1 = screen.getAllByLabelText(/Address 1/);
@@ -2309,14 +2307,14 @@ describe('ShipmentForm component', () => {
     it('validates the year field is within the valid range', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.BOAT_HAUL_AWAY} />);
 
-      await waitFor(async () => {
+      await act(async () => {
         await userEvent.click(screen.getByTestId('year'));
         await userEvent.type(screen.getByTestId('year'), '1600');
         const submitButton = screen.getByRole('button', { name: 'Save' });
         userEvent.click(submitButton);
-
-        expect(await screen.findByText('Invalid year')).toBeInTheDocument();
       });
+
+      expect(await screen.findByText('Invalid year')).toBeInTheDocument();
     });
 
     it('validates dimensions - fail', async () => {
@@ -2414,14 +2412,14 @@ describe('ShipmentForm component', () => {
     it('validates the year field is within the valid range', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
 
-      await waitFor(async () => {
+      await act(async () => {
         await userEvent.click(screen.getByTestId('year'));
         await userEvent.type(screen.getByTestId('year'), '1600');
         const submitButton = screen.getByRole('button', { name: 'Save' });
         userEvent.click(submitButton);
-
-        expect(await screen.findByText('Invalid year')).toBeInTheDocument();
       });
+
+      expect(await screen.findByText('Invalid year')).toBeInTheDocument();
     });
 
     it('validates dimensions - pass', async () => {
