@@ -38,51 +38,6 @@ func (o *DeleteProGearWeightTicketNoContent) WriteResponse(rw http.ResponseWrite
 	rw.WriteHeader(204)
 }
 
-// DeleteProGearWeightTicketBadRequestCode is the HTTP code returned for type DeleteProGearWeightTicketBadRequest
-const DeleteProGearWeightTicketBadRequestCode int = 400
-
-/*
-DeleteProGearWeightTicketBadRequest The request payload is invalid
-
-swagger:response deleteProGearWeightTicketBadRequest
-*/
-type DeleteProGearWeightTicketBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewDeleteProGearWeightTicketBadRequest creates DeleteProGearWeightTicketBadRequest with default headers values
-func NewDeleteProGearWeightTicketBadRequest() *DeleteProGearWeightTicketBadRequest {
-
-	return &DeleteProGearWeightTicketBadRequest{}
-}
-
-// WithPayload adds the payload to the delete pro gear weight ticket bad request response
-func (o *DeleteProGearWeightTicketBadRequest) WithPayload(payload *ghcmessages.Error) *DeleteProGearWeightTicketBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the delete pro gear weight ticket bad request response
-func (o *DeleteProGearWeightTicketBadRequest) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *DeleteProGearWeightTicketBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // DeleteProGearWeightTicketUnauthorizedCode is the HTTP code returned for type DeleteProGearWeightTicketUnauthorized
 const DeleteProGearWeightTicketUnauthorizedCode int = 401
 
