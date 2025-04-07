@@ -631,17 +631,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({
-        values,
-        isValid,
-        isSubmitting,
-        setValues,
-        handleSubmit,
-        setFieldError,
-        validateForm,
-        setFieldTouched,
-        ...formikProps
-      }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
         const {
           ppmType,
           hasSecondaryDestination,
@@ -693,7 +683,7 @@ const ShipmentForm = (props) => {
 
         const updateAddressTouched = (e, fieldName, address) => {
           handleAddressToggleChange(e, values, setValues, address);
-          setFieldTouched(`${fieldName}.usPostRegionCitiesID`, true);
+          formikProps.setFieldTouched(`${fieldName}.usPostRegionCitiesID`, true);
         };
 
         const handleUseCurrentResidenceChange = (e) => {
@@ -717,7 +707,15 @@ const ShipmentForm = (props) => {
                 ...values,
                 pickup: {
                   ...values.pickup,
-                  blankAddress,
+                  address: {
+                    streetAddress1: currentResidence.streetAddress1,
+                    streetAddress2: currentResidence.streetAddress2,
+                    streetAddress3: currentResidence.streetAddress3,
+                    city: '',
+                    state: '',
+                    postalCode: '',
+                    usPostRegionCitiesID: '',
+                  },
                 },
               },
               { shouldValidate: true },

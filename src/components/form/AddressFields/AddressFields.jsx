@@ -68,7 +68,7 @@ export const AddressFields = ({
       setFieldTouched(`${name}.postalCode`, false);
     });
     setFieldValue(`${name}.usPostRegionCitiesID`, usPostRegionCitiesID).then(() => {
-      setFieldTouched(`${name}.usPostRegionCitiesID`, true);
+      setFieldTouched(`${name}.usPostRegionCitiesID`, true, true);
     });
   };
 

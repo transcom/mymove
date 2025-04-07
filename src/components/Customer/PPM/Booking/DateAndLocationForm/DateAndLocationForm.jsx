@@ -152,20 +152,34 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
           const { checked } = e.target;
           if (checked) {
             // use current residence
-            setValues({
-              ...values,
-              pickupAddress: {
-                address: residentialAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  address: residentialAddress,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           } else {
             // Revert address
-            setValues({
-              ...values,
-              pickupAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  address: {
+                    streetAddress1: residentialAddress.streetAddress1,
+                    streetAddress2: residentialAddress.streetAddress2,
+                    streetAddress3: residentialAddress.streetAddress3,
+                    city: '',
+                    state: '',
+                    postalCode: '',
+                    usPostRegionCitiesID: '',
+                  },
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
