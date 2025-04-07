@@ -1,5 +1,5 @@
 import React from 'react';
-import { waitFor, screen, act } from '@testing-library/react';
+import { waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 
@@ -76,7 +76,7 @@ beforeEach(() => {
 });
 
 const renderBoatShipmentCreate = async (props) => {
-  await act(async () => {
+  await waitFor(async () => {
     renderWithRouter(<BoatShipmentCreate {...defaultProps} {...props} />, {
       path: customerRoutes.SHIPMENT_BOAT_CREATE_PATH,
       params: { moveId: 'move123' },
@@ -99,7 +99,7 @@ describe('BoatShipmentCreate component', () => {
       });
 
       const backButton = await screen.getByRole('button', { name: 'Back' });
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(backButton);
       });
 
@@ -112,7 +112,7 @@ describe('BoatShipmentCreate component', () => {
 
       await renderBoatShipmentCreate();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(screen.getByTestId('year'), '2022');
         await userEvent.type(screen.getByTestId('make'), 'Yamaha');
         await userEvent.type(screen.getByTestId('model'), 'SX210');
@@ -125,7 +125,7 @@ describe('BoatShipmentCreate component', () => {
 
       expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat Haul-Away (BHA)');
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
       });
 
@@ -165,7 +165,7 @@ describe('BoatShipmentCreate component', () => {
       });
       await renderBoatShipmentCreate();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(screen.getByTestId('year'), '2022');
         await userEvent.type(screen.getByTestId('make'), 'Yamaha');
         await userEvent.type(screen.getByTestId('model'), 'SX210');
@@ -178,7 +178,7 @@ describe('BoatShipmentCreate component', () => {
 
       expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat Haul-Away (BHA)');
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
       });
 
@@ -228,7 +228,7 @@ describe('BoatShipmentCreate component', () => {
 
       await renderBoatShipmentCreate({ mtoShipment: existingShipment });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.clear(screen.getByTestId('year'));
         await userEvent.type(screen.getByTestId('year'), '2021');
         await userEvent.clear(screen.getByTestId('make'));
@@ -247,7 +247,7 @@ describe('BoatShipmentCreate component', () => {
 
       expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat Tow-Away (BTA)');
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
       });
 

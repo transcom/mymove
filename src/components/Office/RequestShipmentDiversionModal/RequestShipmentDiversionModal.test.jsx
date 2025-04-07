@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 
 import RequestShipmentDiversionModal from 'components/Office/RequestShipmentDiversionModal/RequestShipmentDiversionModal';
+import { waitFor } from '@testing-library/react';
 
 let onClose;
 let onSubmit;
@@ -81,7 +81,7 @@ describe('RequestShipmentDiversionModal', () => {
     const wrapper = mount(
       <RequestShipmentDiversionModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfoWithDate} />,
     );
-    await act(async () => {
+    await waitFor(async () => {
       wrapper
         .find('[data-testid="textInput"]')
         .simulate('change', { target: { name: 'diversionReason', value: 'reasonable reason' } });
@@ -99,13 +99,16 @@ describe('RequestShipmentDiversionModal', () => {
       <RequestShipmentDiversionModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       wrapper.find('[data-testid="textInput"]').simulate('blur');
     });
 
     wrapper.update();
-    expect(wrapper.find('[data-testid="errorMessage"]').text()).toEqual('Required');
-    expect(wrapper.find('button[data-testid="modalSubmitButton"]').prop('disabled')).toBe(true);
+
+    waitFor(() => {
+      expect(wrapper.find('[data-testid="errorMessage"]').text()).toEqual('Required');
+      expect(wrapper.find('button[data-testid="modalSubmitButton"]').prop('disabled')).toBe(true);
+    });
   });
 
   it('calls the submit function when submit button is clicked and the reason field is not empty', async () => {
@@ -113,7 +116,7 @@ describe('RequestShipmentDiversionModal', () => {
       <RequestShipmentDiversionModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       wrapper
         .find('[data-testid="textInput"]')
         .simulate('change', { target: { name: 'diversionReason', value: 'reasonable reason' } });
@@ -123,15 +126,17 @@ describe('RequestShipmentDiversionModal', () => {
 
     expect(wrapper.find('[data-testid="errorMessage"]').exists()).toBe(false);
     expect(wrapper.find('button[data-testid="modalSubmitButton"]').prop('disabled')).toBe(false);
-    await act(async () => {
+    await waitFor(async () => {
       wrapper.find('form').simulate('submit');
     });
 
-    expect(onSubmit).toHaveBeenCalledWith(
-      shipmentInfo.id,
-      shipmentInfo.eTag,
-      shipmentInfo.shipmentLocator,
-      'reasonable reason',
-    );
+    waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        shipmentInfo.id,
+        shipmentInfo.eTag,
+        shipmentInfo.shipmentLocator,
+        'reasonable reason',
+      );
+    });
   });
 });

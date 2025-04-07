@@ -98,9 +98,7 @@ const UploadServiceRequest = ({ setFlashMessage }) => {
             ref={filePondEl}
             createUpload={handleUpload}
             onChange={onChange}
-            labelIdle={
-              'Drag & drop or <span class="filepond--label-action">click to upload a service request document</span>'
-            }
+            labelIdle='Drag & drop or <span class="filepond--label-action">click to upload a service request document</span>'
           />
         </div>
         <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />

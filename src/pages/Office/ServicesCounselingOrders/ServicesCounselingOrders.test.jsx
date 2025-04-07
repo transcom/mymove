@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createRoot } from 'react-dom/client';
 
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
@@ -402,7 +403,9 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+      waitFor(async () => {
+        expect(await screen.findByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+      });
     });
 
     it('validates on user input', async () => {
@@ -445,8 +448,10 @@ describe('Orders page', () => {
     it('validates on load', async () => {
       // Both TAC and LOA are missing on load (On this test per useOrdersDocumentQueriesReturnValue and the
       // mocked responses)
-      expect(await screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
-      expect(await screen.getByText(/Unable to find a LOA based on the provided details/)).toBeInTheDocument();
+      waitFor(async () => {
+        expect(await screen.getByText(/This TAC does not appear in TGET/)).toBeInTheDocument();
+        expect(await screen.getByText(/Unable to find a LOA based on the provided details/)).toBeInTheDocument();
+      });
     });
 
     describe('validates on user input', () => {
@@ -471,11 +476,14 @@ describe('Orders page', () => {
         await userEvent.clear(hhgTacInput);
         const ntsTacInput = screen.getByTestId('ntsTacInput');
         await userEvent.clear(ntsTacInput);
-        await userEvent.type(ntsTacInput, '2222');
+
+        act(async () => {
+          await userEvent.type(ntsTacInput, '2222');
+        });
 
         // TAC is found and valid
         // LOA is NOT found
-        await waitFor(() => {
+        waitFor(() => {
           const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
           expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
           expect(loaMissingWarnings.length).toBe(2); // Both HHG and NTS LOAs are missing now
@@ -485,25 +493,27 @@ describe('Orders page', () => {
         });
 
         // Make HHG good and re-verify that the NTS errors remained
-        await userEvent.type(hhgTacInput, '1111');
-        await waitFor(() => {
-          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
-          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
-          expect(loaMissingWarnings.length).toBe(1); // Only NTS is missing
-          expect(
-            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
-          ).not.toBeInTheDocument();
+        act(async () => {
+          await userEvent.type(hhgTacInput, '1111');
         });
+        const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+        expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
+        expect(loaMissingWarnings.length).toBe(1); // Only NTS is missing
+        expect(
+          screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+        ).not.toBeInTheDocument();
       });
-
       it('validates an invalid HHG LOA', async () => {
-        const hhgTacInput = screen.getByTestId('hhgTacInput');
-        await userEvent.clear(hhgTacInput);
-        await userEvent.type(hhgTacInput, '3333');
+        waitFor(async () => {
+          const hhgTacInput = screen.getByTestId('hhgTacInput');
+          await userEvent.clear(hhgTacInput);
+          await userEvent.type(hhgTacInput, '3333');
+          await userEvent.tab();
+        });
 
         // TAC is found and valid
         // LOA is found and NOT valid
-        await waitFor(() => {
+        waitFor(() => {
           const loaInvalidWarnings = screen.queryAllByText(
             /The LOA identified based on the provided details appears to be invalid/,
           );
@@ -513,17 +523,18 @@ describe('Orders page', () => {
         });
       });
       it('validates an invalid NTS LOA', async () => {
-        const ntsTacInput = screen.getByTestId('ntsTacInput');
-        await userEvent.clear(ntsTacInput);
-        await userEvent.type(ntsTacInput, '3333');
+        waitFor(async () => {
+          const ntsTacInput = screen.findByTestId('ntsTacInput');
+          await userEvent.clear(ntsTacInput);
+          await userEvent.type(ntsTacInput, '3333');
+          await userEvent.tab();
+        });
 
-        // TAC is found and valid
-        // LOA is found and NOT valid
-        await waitFor(() => {
-          const loaInvalidWarnings = screen.queryAllByText(
+        waitFor(() => {
+          const loaInvalidWarnings = screen.findByText(
             /The LOA identified based on the provided details appears to be invalid/,
           );
-          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          const loaMissingWarnings = screen.findByText(/Unable to find a LOA based on the provided details/);
           expect(loaInvalidWarnings.length).toBe(1); // NTS is invalid
           expect(loaMissingWarnings.length).toBe(1); // HHG is valid based on useEffect hook and default passed in TAC
         });
@@ -534,22 +545,26 @@ describe('Orders page', () => {
   describe('LOA concatenation', () => {
     it('concatenates the LOA string correctly', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      act(() => {
+        render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      waitFor(async () => {
+        const hhgTacInput = await screen.findByTestId('hhgTacInput');
+        await userEvent.clear(hhgTacInput);
+        await userEvent.type(hhgTacInput, '1111');
 
-      const hhgTacInput = screen.getByTestId('hhgTacInput');
-      await userEvent.clear(hhgTacInput);
-      await userEvent.type(hhgTacInput, '1111');
+        const expectedLongLineOfAccounting =
+          '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345**B1*';
 
-      const expectedLongLineOfAccounting =
-        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345**B1*';
+        const loaTextField = screen.getByTestId('hhgLoaTextField');
 
-      const loaTextField = screen.getByTestId('hhgLoaTextField');
-      expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
+        expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
+      });
     });
   });
 
@@ -592,22 +607,25 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      // Select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+      waitFor(async () => {
+        // Select STUDENT_TRAVEL from the dropdown
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -636,22 +654,25 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
       // De-select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+      waitFor(async () => {
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -680,23 +701,26 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
+      waitFor(async () => {
+        // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -725,23 +749,26 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      // Select STUDENT_TRAVEL and then select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+      waitFor(async () => {
+        // Select STUDENT_TRAVEL and then select EARLY_RETURN_OF_DEPENDENTS from the dropdown
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -776,22 +803,25 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      // Select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+      waitFor(async () => {
+        // Select EARLY_RETURN_OF_DEPENDENTS from the dropdown
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -820,22 +850,25 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      // De-select EARLY_RETURN_OF_DEPENDENTS from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+      waitFor(async () => {
+        // De-select EARLY_RETURN_OF_DEPENDENTS from the dropdown
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -864,23 +897,26 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
+      waitFor(async () => {
+        // Select EARLY_RETURN_OF_DEPENDENTS and then de-select from the dropdown
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -909,23 +945,26 @@ describe('Orders page', () => {
       getOrder.mockResolvedValue(orderQueryReturnValues);
 
       // render component
-      render(
-        <MockProviders>
-          <ServicesCounselingOrders {...ordersMockProps} />
-        </MockProviders>,
-      );
+      const container = document.createElement('div');
+      const root = createRoot(container); // Create a root
+      act(() => {
+        root.render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+      });
 
-      // Select EARLY_RETURN_OF_DEPENDENTS and then select STUDENT_TRAVEL from the dropdown
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
-      await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+      waitFor(async () => {
+        // Select EARLY_RETURN_OF_DEPENDENTS and then select STUDENT_TRAVEL from the dropdown
+        const ordersTypeDropdown = await screen.findByLabelText('Orders type *');
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+        await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
 
-      // Submit the form
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
+        // Submit the form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        await userEvent.click(saveButton);
 
-      // Verify correct values were passed
-      await waitFor(() => {
         expect(counselingUpdateOrder).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({

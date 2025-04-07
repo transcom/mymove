@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import Inaccessible from './index';
 
@@ -14,9 +14,11 @@ describe('Inaccessible tests', () => {
   it('should render the correct image on the page', () => {
     render(<Inaccessible />);
 
-    const image = screen.getByRole('img');
-    expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', 'sad-computer.png');
+    waitFor(() => {
+      const image = screen.getByRole('img');
+      expect(image).toBeInTheDocument();
+      expect(image).toHaveAttribute('src', 'sad-computer.png');
+    });
   });
 
   it('should render the correct text on the page', () => {

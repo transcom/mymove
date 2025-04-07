@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, fireEvent, act } from '@testing-library/react';
+import { render, waitFor, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
 import selectEvent from 'react-select-event';
@@ -225,11 +225,11 @@ describe('DateAndLocation component', () => {
 
       renderDateAndLocation();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
@@ -282,11 +282,11 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation();
 
       // Fill in form
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
@@ -334,15 +334,15 @@ describe('DateAndLocation component', () => {
 
       renderDateAndLocation();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(document.querySelector('input[name="sitExpected"]'));
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
@@ -402,7 +402,7 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
           '123 Any St',
@@ -410,7 +410,7 @@ describe('DateAndLocation component', () => {
         await userEvent.click(screen.getByTestId('useCurrentResidence'));
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
           '123 Any St',
@@ -423,7 +423,7 @@ describe('DateAndLocation component', () => {
       // Set Closeout office
       const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
-      await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
+      await waitFor(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -457,11 +457,11 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: navyServiceMember });
 
       // Fill in form
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
@@ -502,41 +502,41 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove });
 
       // Fill in form
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
           '123 Any St',
         );
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
           '123 Any St',
         );
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
@@ -545,7 +545,7 @@ describe('DateAndLocation component', () => {
       // Set Closeout office
       const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
-      await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
+      await waitFor(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -577,41 +577,41 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation({ serviceMember: armyServiceMember, move: mockMove, closeoutOffice: mockCloseoutOffice });
 
       // Fill in form
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
           '123 Any St',
         );
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
           '123 Any St',
         );
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
       });
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
@@ -620,7 +620,7 @@ describe('DateAndLocation component', () => {
       // Set Closeout office
       const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
-      await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
+      await waitFor(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 

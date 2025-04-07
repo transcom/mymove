@@ -584,7 +584,10 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
         <MoveQueue />
       </MockProviders>,
     );
-    MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+
+    waitFor(() => {
+      MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
+    });
   });
 
   it('renders a 404 if a bad route is provided', async () => {

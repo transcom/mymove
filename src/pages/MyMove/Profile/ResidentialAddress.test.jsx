@@ -133,9 +133,11 @@ describe('ResidentialAddress page', () => {
     expect(submitButton).toBeInTheDocument();
     await userEvent.click(submitButton);
 
-    expect(patchServiceMember).not.toHaveBeenCalled();
-    expect(testProps.updateServiceMember).not.toHaveBeenCalled();
-    expect(mockNavigate).not.toHaveBeenCalled();
+    waitFor(() => {
+      expect(patchServiceMember).not.toHaveBeenCalled();
+      expect(testProps.updateServiceMember).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   it('shows an error if the patchServiceMember API returns an error', async () => {

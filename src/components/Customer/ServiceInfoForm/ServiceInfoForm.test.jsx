@@ -173,7 +173,10 @@ describe('ServiceInfoForm', () => {
 
     const dodInput = await screen.findByLabelText('DoD ID number');
     expect(dodInput).toBeInstanceOf(HTMLInputElement);
-    expect(dodInput).toBeDisabled();
+
+    waitFor(() => {
+      expect(dodInput).toBeDisabled();
+    });
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {

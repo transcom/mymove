@@ -299,13 +299,15 @@ describe('EditOrdersForm component', () => {
       [/Pay grade/, true, HTMLSelectElement],
       [/Current duty location/, false, HTMLInputElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       render(
         <MockProviders>
           <EditOrdersForm {...testProps} />
         </MockProviders>,
       );
 
-      expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      expect(await waitFor(async () => screen.findByLabelText(formInput))).toBeInstanceOf(inputType);
       if (required) {
         expect(await screen.findByLabelText(formInput)).toBeRequired();
       }
