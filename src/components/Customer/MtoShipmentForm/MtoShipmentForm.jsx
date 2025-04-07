@@ -52,6 +52,7 @@ import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { isPreceedingAddressComplete } from 'shared/utils';
+import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
@@ -201,7 +202,6 @@ class MtoShipmentForm extends Component {
             hasSecondaryDelivery,
             hasTertiaryPickup,
             hasTertiaryDelivery,
-            pickup,
             delivery,
           } = values;
 
@@ -241,6 +241,7 @@ class MtoShipmentForm extends Component {
           const [isPreferredPickupDateAlertVisible, setIsPreferredPickupDateAlertVisible] = useState(false);
           const [isPreferredDeliveryDateAlertVisible, setIsPreferredDeliveryDateAlertVisible] = useState(false);
           const [preferredPickupDateAlertMessage, setPreferredPickupDateAlertMessage] = useState('');
+          const [preferredPickupDateErrorMessage, setPreferredPickupDateErrorMessage] = useState('');
           const [preferredDeliveryDateAlertMessage, setPreferredDeliveryDateAlertMessage] = useState('');
           const DEFAULT_COUNTRY_CODE = 'US';
 
@@ -250,8 +251,32 @@ class MtoShipmentForm extends Component {
             this.setState({ errorMessage: msg });
           };
 
+          const handlePickupDateChange = (e) => {
+            setPreferredPickupDateErrorMessage('');
+            setValues({
+              ...values,
+              pickup: {
+                ...values.pickup,
+                requestedDate: formatDate(e, datePickerFormat),
+              },
+            });
+            dateSelectionWeekendHolidayCheck(
+              dateSelectionIsWeekendHoliday,
+              DEFAULT_COUNTRY_CODE,
+              new Date(e),
+              'Preferred pickup date',
+              setPreferredPickupDateAlertMessage,
+              setIsPreferredPickupDateAlertVisible,
+              onDateSelectionErrorHandler,
+            );
+            // preferredPickupDate must be in the future for non-PPM shipments
+            if (new Date(formatDateWithUTC(e) || null).setHours(0, 0, 0, 0) <= new Date().setHours(0, 0, 0, 0)) {
+              setPreferredPickupDateErrorMessage('Preferred pickup date must be in the future.');
+            }
+          };
+
           useEffect(() => {
-            if (pickup?.requestedDate !== '') {
+            if (mtoShipment.requestedPickupDate !== '') {
               const preferredPickupDateSelectionHandler = (countryCode, date) => {
                 dateSelectionWeekendHolidayCheck(
                   dateSelectionIsWeekendHoliday,
@@ -263,10 +288,10 @@ class MtoShipmentForm extends Component {
                   onDateSelectionErrorHandler,
                 );
               };
-              const dateSelection = new Date(pickup.requestedDate);
+              const dateSelection = new Date(mtoShipment.requestedPickupDate);
               preferredPickupDateSelectionHandler(DEFAULT_COUNTRY_CODE, dateSelection);
             }
-          }, [pickup.requestedDate]);
+          }, []);
 
           useEffect(() => {
             if (delivery?.requestedDate !== '') {
@@ -285,6 +310,14 @@ class MtoShipmentForm extends Component {
               preferredDeliveryDateSelectionHandler(DEFAULT_COUNTRY_CODE, dateSelection);
             }
           }, [delivery.requestedDate]);
+
+          const validatePickupDate = (e) => {
+            let error = validateDate(e);
+            if (!error && preferredPickupDateErrorMessage) {
+              error = 'Required';
+            }
+            return error;
+          };
 
           return (
             <GridContainer>
@@ -315,7 +348,7 @@ class MtoShipmentForm extends Component {
                       {showPickupFields && (
                         <SectionWrapper className={formStyles.formSection}>
                           {showDeliveryFields && <h2>Pickup info</h2>}
-                          <Fieldset legend="Date">
+                          <Fieldset legend="Date" data-testid="preferredPickupDateFieldSet">
                             <Hint id="pickupDateHint" data-testid="pickupDateHint">
                               This is the day movers would put this shipment on their truck. Packing starts earlier.
                               Dates will be finalized when you talk to your Customer Care Representative. Your requested
@@ -327,12 +360,23 @@ class MtoShipmentForm extends Component {
                                 {preferredPickupDateAlertMessage}
                               </Alert>
                             )}
+                            {preferredPickupDateErrorMessage && (
+                              <Alert
+                                type="error"
+                                aria-live="assertive"
+                                headingLevel="h4"
+                                data-testid="preferredPickupDateAlert"
+                              >
+                                {preferredPickupDateErrorMessage}
+                              </Alert>
+                            )}
                             <DatePickerInput
                               name="pickup.requestedDate"
                               label="Preferred pickup date"
                               id="requestedPickupDate"
                               hint="Required"
-                              validate={validateDate}
+                              validate={validatePickupDate}
+                              onChange={handlePickupDateChange}
                             />
                           </Fieldset>
 
