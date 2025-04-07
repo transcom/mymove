@@ -1839,7 +1839,7 @@ const ShipmentForm = (props) => {
                   {!isPPM && (
                     <Button
                       data-testid="submitForm"
-                      disabled={isSubmitting || !isValid || requestedPickupDateErrorMessage}
+                      disabled={isSubmitting || !isValid}
                       type="submit"
                       onClick={handleSubmit}
                     >
