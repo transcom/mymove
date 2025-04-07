@@ -673,14 +673,6 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		mockSender := suite.TestNotificationSender()
 		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
-		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
 			siCreator,
@@ -775,17 +767,9 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		mockSender := suite.TestNotificationSender()
 		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
-		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
-			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			siCreator,
 			&routemocks.Planner{},
 			moveWeights,
 			moveTaskOrderUpdater,
@@ -879,17 +863,9 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		mockSender := suite.TestNotificationSender()
 		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
-		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
-			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			siCreator,
 			&routemocks.Planner{},
 			moveWeights,
 			moveTaskOrderUpdater,
@@ -953,17 +929,9 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		mockSender := suite.TestNotificationSender()
 		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
-		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
-			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			siCreator,
 			&routemocks.Planner{},
 			moveWeights,
 			moveTaskOrderUpdater,
@@ -1823,7 +1791,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
-			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			siCreator,
 			&routemocks.Planner{},
 			moveWeights,
 			moveTaskOrderUpdater,
@@ -1938,7 +1906,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
-			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			siCreator,
 			&routemocks.Planner{},
 			mockMoveWeights,
 			moveTaskOrderUpdater,
@@ -2051,7 +2019,7 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
-			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			siCreator,
 			&routemocks.Planner{},
 			moveWeights,
 			moveTaskOrderUpdater,
