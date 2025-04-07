@@ -70,7 +70,7 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 			ApplicationName: auth.OfficeApp,
 		}
 
-		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
+		progearWeightTicketCreator := NewOfficeProgearWeightTicketCreator()
 		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
 		suite.Nil(err)
@@ -87,7 +87,7 @@ func (suite *ProgearWeightTicketSuite) TestProgearWeightTicketCreator() {
 			ApplicationName: auth.OfficeApp,
 		}
 
-		progearWeightTicketCreator := NewCustomerProgearWeightTicketCreator()
+		progearWeightTicketCreator := NewOfficeProgearWeightTicketCreator()
 		progearWeightTicket, err := progearWeightTicketCreator.CreateProgearWeightTicket(suite.AppContextWithSessionForTest(session), uuid.Nil)
 
 		suite.Nil(progearWeightTicket)

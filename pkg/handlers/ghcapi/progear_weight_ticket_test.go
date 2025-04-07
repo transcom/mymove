@@ -64,6 +64,19 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		suite.NotNil(createdProgear.DocumentID.String())
 	})
 
+	suite.Run("DELETE failure - 404- Create not found", func() {
+		subtestData := makeCreateSubtestData(true)
+		params := subtestData.params
+
+		// Wrong ID provided
+		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
+		params.PpmShipmentID = *uuidString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&progearops.CreateProGearWeightTicketNotFound{}, response)
+	})
+
 	suite.Run("POST failure - 400- bad request", func() {
 		subtestData := makeCreateSubtestData(true)
 		// Missing PPM Shipment ID

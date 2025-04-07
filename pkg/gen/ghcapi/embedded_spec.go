@@ -4221,9 +4221,6 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
@@ -4265,9 +4262,6 @@ func init() {
         "responses": {
           "204": {
             "description": "Successfully soft deleted the pro-gear weight ticket"
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
             "$ref": "#/responses/PermissionDenied"
@@ -21837,12 +21831,6 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
@@ -21900,12 +21888,6 @@ func init() {
         "responses": {
           "204": {
             "description": "Successfully soft deleted the pro-gear weight ticket"
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
           },
           "401": {
             "description": "The request was denied",
