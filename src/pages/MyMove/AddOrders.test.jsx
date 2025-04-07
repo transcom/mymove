@@ -444,7 +444,7 @@ describe('Add Orders page', () => {
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     await act(async () => {
@@ -547,7 +547,7 @@ describe('Add Orders page', () => {
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     await act(async () => {
@@ -657,7 +657,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     });
     waitFor(async () => {
-      const selectedOptionCurrent = await screen.findByText(/Altus/);
+      const selectedOptionCurrent = await screen.findByText('Altus');
       await userEvent.click(selectedOptionCurrent);
     });
 
