@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -131,8 +130,8 @@ type MoveCanceler interface {
 }
 
 type MoveAssignedOfficeUserUpdater interface {
-	UpdateAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, officeUser *models.OfficeUser, role roles.RoleType) (*models.Move, error)
-	DeleteAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, role roles.RoleType) (*models.Move, error)
+	UpdateAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, officeUser *models.OfficeUser, queueType models.QueueType) (*models.Move, error)
+	DeleteAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, queueType models.QueueType) (*models.Move, error)
 }
 
 type CheckForLockedMovesAndUnlockHandler interface {
