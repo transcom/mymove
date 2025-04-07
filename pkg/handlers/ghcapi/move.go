@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -365,9 +364,9 @@ func (h DeleteAssignedOfficeUserHandler) Handle(params moveop.DeleteAssignedOffi
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
-			role := getRole(*params.Body.RoleType)
+			queueType := getQueue(*params.Body.QueueType)
 
-			move, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, moveID, role)
+			move, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, moveID, queueType)
 			if err != nil {
 				appCtx.Logger().Error("Error updating move", zap.Error(err))
 				return moveop.NewDeleteAssignedOfficeUserInternalServerError(), err
@@ -393,7 +392,7 @@ func (h UpdateAssignedOfficeUserHandler) Handle(params moveop.UpdateAssignedOffi
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
-			role := getRole(*params.Body.RoleType)
+			queueType := getQueue(*params.Body.QueueType)
 
 			officeUserID := uuid.FromStringOrNil(params.Body.OfficeUserID.String())
 
@@ -403,7 +402,7 @@ func (h UpdateAssignedOfficeUserHandler) Handle(params moveop.UpdateAssignedOffi
 				return moveop.NewUpdateAssignedOfficeUserNotFound(), err
 			}
 
-			move, err := h.MoveAssignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, moveID, &officeUser, role)
+			move, err := h.MoveAssignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, moveID, &officeUser, queueType)
 			if err != nil {
 				appCtx.Logger().Error("Error updating move with an assigned office user", zap.Error(err))
 				return moveop.NewUpdateAssignedOfficeUserInternalServerError(), err
@@ -437,16 +436,19 @@ func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStore
 	return uploadPayload, nil
 }
 
-func getRole(role string) roles.RoleType {
-	var roleType roles.RoleType
-	switch role {
-	case "services_counselor":
-		roleType = roles.RoleTypeServicesCounselor
-	case "task_ordering_officer":
-		roleType = roles.RoleTypeTOO
-	case "task_invoicing_officer":
-		roleType = roles.RoleTypeTIO
+func getQueue(queueName string) models.QueueType {
+	var queueType models.QueueType
+	switch queueName {
+	case "COUNSELING":
+		queueType = models.QueueTypeCounseling
+	case "CLOSEOUT":
+		queueType = models.QueueTypeCloseout
+	case "TASK_ORDER":
+		queueType = models.QueueTypeTaskOrder
+	case "PAYMENT_REQUEST":
+		queueType = models.QueueTypePaymentRequest
+	case "DESTINATION_REQUESTS":
+		queueType = models.QueueTypeDestinationRequest
 	}
-
-	return roleType
+	return queueType
 }
