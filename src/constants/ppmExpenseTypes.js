@@ -15,6 +15,7 @@ export const expenseTypesArr = [
   'OIL',
   'PACKING_MATERIALS',
   'RENTAL_EQUIPMENT',
+  'SMALL_PACKAGE',
   'STORAGE',
   'TOLLS',
   'WEIGHING_FEE',
