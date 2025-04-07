@@ -471,7 +471,7 @@ describe('ReviewDocuments', () => {
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+      await userEvent.click(screen.getByRole('button', { name: 'PPM Review Complete' }));
       const confirmPayload = {
         ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
         eTag: mtoShipmentWithOneWeightTicket.ppmShipment.eTag,
