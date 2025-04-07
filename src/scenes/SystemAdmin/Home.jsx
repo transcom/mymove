@@ -46,6 +46,8 @@ import RejectedOfficeUserList from 'pages/Admin/RejectedOfficeUsers/RejectedOffi
 import RejectedOfficeUserShow from 'pages/Admin/RejectedOfficeUsers/RejectedOfficeUserShow';
 import PaymentRequest858List from 'pages/Admin/PaymentRequests/PaymentRequest858List';
 import PaymentRequest858Show from 'pages/Admin/PaymentRequests/PaymentRequest858Show';
+import PaymentRequestEDIErrorList from 'pages/Admin/PaymentRequests/PaymentRequestEDIErrorList';
+import PaymentRequestEDIErrorShow from 'pages/Admin/PaymentRequests/PaymentRequestEDIErrorShow';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -111,6 +113,12 @@ const Home = () => (
         options={{ label: 'Payment Request Syncada Files' }}
         list={PaymentRequest858List}
         show={PaymentRequest858Show}
+      />
+      <Resource
+        name="payment-request-edi-errors"
+        options={{ label: 'EDI Error Payment Requests' }}
+        list={PaymentRequestEDIErrorList}
+        show={PaymentRequestEDIErrorShow}
       />
       <Resource name="electronic-orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
