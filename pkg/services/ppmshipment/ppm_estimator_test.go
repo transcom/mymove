@@ -878,7 +878,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -928,7 +928,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -979,7 +979,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight = SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight = SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 
@@ -1035,7 +1035,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -1090,7 +1090,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(0), newWeight)
 			suite.Nil(ppmFinal)
@@ -1152,7 +1152,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(8000), originalWeight)
 			suite.Equal(unit.Pound(4000), newWeight)
 			suite.Equal(unit.Cents(43756052), *ppmFinal)
@@ -1222,7 +1222,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(8000), originalWeight)
 			suite.Equal(unit.Pound(3000), newWeight)
 			suite.Equal(unit.Cents(32817790), *ppmFinal)
@@ -1262,7 +1262,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1}
 
 			//Both PPM's have valid weight tickets so both should return properly calculated totals
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 		})
@@ -1310,7 +1310,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in newWeight total
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 		})
@@ -1361,7 +1361,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(0), originalWeight)
 			suite.Equal(unit.Pound(13000), newWeight)
 		})
@@ -1414,7 +1414,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			//13000 comes from the full & empty weights being summed which we do not want in this scenario
 			suite.NotEqual(unit.Pound(13000), newWeight)
@@ -1470,7 +1470,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			//13000 comes from the full & empty weights being summed which we do not want in this scenario
 			suite.NotEqual(unit.Pound(13000), newWeight)
@@ -1554,7 +1554,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			newPPM.MovingExpenses = models.MovingExpenses{newMovingExpense1, newMovingExpense2}
 
-			originalWeight, newWeight := SumwWeights(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			// should be 0 because both were rejected
 			suite.Equal(unit.Pound(0), originalWeight)
 			// should be 2000 because both are now accepted so we add them together
@@ -1590,7 +1590,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			updatedMoveDate := time.Date(2020, time.March, 25, 0, 0, 0, 0, time.UTC)
 			newPPMShipment.ActualMoveDate = models.TimePointer(updatedMoveDate)
 
-			originalTotalWeight, newTotalWeight := SumwWeights(oldPPMShipment, newPPMShipment)
+			originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, newPPMShipment)
 			skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(&newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
 			suite.Equal(false, skipCalculateFinalIncentive)
 		})
@@ -1624,7 +1624,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPMShipment1 := oldPPMShipment
 			newPPMShipment1.ActualDestinationPostalCode = models.StringPointer("99011")
 
-			originalTotalWeight1, newTotalWeight1 := SumwWeights(oldPPMShipment, newPPMShipment1)
+			originalTotalWeight1, newTotalWeight1 := SumWeights(oldPPMShipment, newPPMShipment1)
 			skipCalculateFinalIncentive1 := shouldSkipCalculatingFinalIncentive(&newPPMShipment1, &oldPPMShipment, originalTotalWeight1, newTotalWeight1)
 			suite.Equal(false, skipCalculateFinalIncentive1)
 
@@ -1632,7 +1632,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPMShipment2 := oldPPMShipment
 			newPPMShipment2.ActualPickupPostalCode = models.StringPointer("99011")
 
-			originalTotalWeight2, newTotalWeight2 := SumwWeights(oldPPMShipment, newPPMShipment2)
+			originalTotalWeight2, newTotalWeight2 := SumWeights(oldPPMShipment, newPPMShipment2)
 			skipCalculateFinalIncentive2 := shouldSkipCalculatingFinalIncentive(&newPPMShipment2, &oldPPMShipment, originalTotalWeight2, newTotalWeight2)
 			suite.Equal(false, skipCalculateFinalIncentive2)
 		})
@@ -1675,7 +1675,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newWeightTicket.Status = &approved
 			newPPMShipment.WeightTickets = models.WeightTickets{newWeightTicket}
 
-			originalTotalWeight, newTotalWeight := SumwWeights(oldPPMShipment, newPPMShipment)
+			originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, newPPMShipment)
 			suite.Equal(unit.Pound(4000), originalTotalWeight)
 			suite.Equal(unit.Pound(6000), newTotalWeight)
 

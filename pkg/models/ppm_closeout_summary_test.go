@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -80,4 +81,13 @@ func (suite *ModelSuite) TestFetchPPMCloseoutByPPMID_AllColumnsPopulated() {
 	fetched, err := models.FetchPPMCloseoutByPPMID(suite.DB(), ppmShipment.ID)
 	suite.NoError(err, "expected no error when fetching an existing record")
 	suite.NotNil(fetched)
+}
+
+func (suite *ModelSuite) TestFetchPPMCloseoutByPPMID_NotFound() {
+	notFoundId := uuid.Must(uuid.NewV4())
+
+	fetched, err := models.FetchPPMCloseoutByPPMID(suite.DB(), notFoundId)
+	suite.Error(err)
+	suite.Equal(fetched, models.PPMCloseoutSummary{})
+	suite.True(errors.Is(err, models.ErrFetchNotFound), "Expected FETCH_NOT_FOUND error")
 }

@@ -840,8 +840,6 @@ func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
 }
 
 func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement) unit.Pound {
-
-	var err error
 	var ppmActualWeight unit.Pound
 	var maxLimit unit.Pound
 
@@ -854,10 +852,7 @@ func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipm
 
 	// Get the actual weight of the ppmShipment
 	if len(ppmShipment.WeightTickets) > 0 {
-		ppmActualWeight, err = s.PPMCloseoutFetcher.GetActualWeight(&ppmShipment)
-		if err != nil {
-			return 0
-		}
+		ppmActualWeight = s.PPMCloseoutFetcher.GetActualWeight(&ppmShipment)
 	}
 
 	// If actual weight is less than the lessor of maximum weight entitlement or the allowable weight, then use ppmActualWeight

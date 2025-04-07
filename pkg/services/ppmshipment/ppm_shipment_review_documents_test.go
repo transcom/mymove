@@ -190,7 +190,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
 		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
-		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000), nil)
+		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
 			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
 		)
@@ -356,7 +356,7 @@ func (suite *PPMShipmentSuite) TestReviewDocuments() {
 
 		mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
 		SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
-		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000), nil)
+		mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 		submitter := NewPPMShipmentReviewDocuments(
 			router, signedcertification.NewSignedCertificationCreator(), signedcertification.NewSignedCertificationUpdater(), SSWPPMComputer,
 		)

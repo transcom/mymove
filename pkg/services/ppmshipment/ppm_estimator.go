@@ -353,7 +353,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			return nil, err
 		}
 	}
-	originalTotalWeight, newTotalWeight := SumwWeights(oldPPMShipment, *newPPMShipment)
+	originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, *newPPMShipment)
 
 	if newPPMShipment.AllowableWeight != nil && *newPPMShipment.AllowableWeight < newTotalWeight {
 		newTotalWeight = *newPPMShipment.AllowableWeight
@@ -406,8 +406,8 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	}
 }
 
-// SumwWeights return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
-func SumwWeights(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
+// SumWeights return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
+func SumWeights(ppmShipment, newPPMShipment models.PPMShipment) (originalTotalWeight, newTotalWeight unit.Pound) {
 	// small package PPMs will not have weight tickets, so we need to instead use moving expenses
 	if newPPMShipment.PPMType != models.PPMTypeSmallPackage {
 		if len(ppmShipment.WeightTickets) >= 1 {
@@ -693,14 +693,14 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice,
 				apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, " no weight tickets")
 		}
-		_, totalWeightFromWeightTicketsOrExpenses = SumwWeights(blankPPM, *ppmShipment)
+		_, totalWeightFromWeightTicketsOrExpenses = SumWeights(blankPPM, *ppmShipment)
 	} else {
 		// for small package PPM-SPRs, moving expenses are used
 		if ppmShipment.MovingExpenses == nil {
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice,
 				apperror.NewPPMNoMovingExpensesError(ppmShipment.ID, " no moving expenses")
 		}
-		_, totalWeightFromWeightTicketsOrExpenses = SumwWeights(blankPPM, *ppmShipment)
+		_, totalWeightFromWeightTicketsOrExpenses = SumWeights(blankPPM, *ppmShipment)
 	}
 
 	var mtoShipment models.MTOShipment
