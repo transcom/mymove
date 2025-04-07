@@ -493,7 +493,7 @@ describe('validates form fields and displays error messages', () => {
       await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
       await userEvent.keyboard('[Tab]');
 
-      await waitFor( () => {
+      await waitFor(() => {
         const requiredAlerts = screen.queryAllByRole('alert');
         expect(requiredAlerts.length).toBe(1);
         requiredAlerts.forEach((alert) => {

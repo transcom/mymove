@@ -359,7 +359,7 @@ describe('Advance page', () => {
 
     await waitFor(() => expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment(mockMTOShipment)));
   });
-  
+
   it('routes to the review page when the user clicks save & continue', async () => {
     patchMTOShipment.mockResolvedValue({});
 
