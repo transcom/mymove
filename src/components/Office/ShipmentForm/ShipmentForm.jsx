@@ -694,7 +694,6 @@ const ShipmentForm = (props) => {
               {
                 ...values,
                 pickup: {
-                  ...values.pickup,
                   address: currentResidence,
                 },
               },
@@ -705,18 +704,7 @@ const ShipmentForm = (props) => {
             setValues(
               {
                 ...values,
-                pickup: {
-                  ...values.pickup,
-                  address: {
-                    streetAddress1: currentResidence.streetAddress1,
-                    streetAddress2: currentResidence.streetAddress2,
-                    streetAddress3: currentResidence.streetAddress3,
-                    city: '',
-                    state: '',
-                    postalCode: '',
-                    usPostRegionCitiesID: '',
-                  },
-                },
+                pickup: blankAddress,
               },
               { shouldValidate: true },
             );

@@ -166,17 +166,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues(
               {
                 ...values,
-                pickupAddress: {
-                  address: {
-                    streetAddress1: residentialAddress.streetAddress1,
-                    streetAddress2: residentialAddress.streetAddress2,
-                    streetAddress3: residentialAddress.streetAddress3,
-                    city: '',
-                    state: '',
-                    postalCode: '',
-                    usPostRegionCitiesID: '',
-                  },
-                },
+                pickupAddress: blankAddress,
               },
               { shouldValidate: true },
             );
