@@ -185,12 +185,13 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             });
           } else {
             // Revert address
-            setValues({
-              ...values,
-              destinationAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                destinationAddress: blankAddress,
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
