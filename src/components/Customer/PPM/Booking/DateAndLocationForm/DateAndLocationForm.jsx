@@ -152,20 +152,24 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
           const { checked } = e.target;
           if (checked) {
             // use current residence
-            setValues({
-              ...values,
-              pickupAddress: {
-                address: residentialAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  address: residentialAddress,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           } else {
             // Revert address
-            setValues({
-              ...values,
-              pickupAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: blankAddress,
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -181,12 +185,13 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             });
           } else {
             // Revert address
-            setValues({
-              ...values,
-              destinationAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                destinationAddress: blankAddress,
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
