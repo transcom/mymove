@@ -687,7 +687,7 @@ export async function getMovesQueue(
 
 export async function getDestinationRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
 ) {
   const operationPath = 'queues.getDestinationRequestsQueue';
   const paramFilters = {};
@@ -696,7 +696,7 @@ export async function getDestinationRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
@@ -1012,10 +1012,10 @@ export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   );
 }
 
-export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType }) {
+export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, queueType }) {
   return makeGHCRequest('move.updateAssignedOfficeUser', {
     moveID,
-    body: { officeUserId, roleType },
+    body: { officeUserId, queueType },
   });
 }
 
@@ -1025,10 +1025,10 @@ export async function checkForLockedMovesAndUnlock(key, officeUserID) {
   });
 }
 
-export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
+export async function deleteAssignedOfficeUserForMove({ moveID, queueType }) {
   return makeGHCRequest('move.deleteAssignedOfficeUser', {
     moveID,
-    body: { roleType },
+    body: { queueType },
   });
 }
 
