@@ -2122,6 +2122,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -2361,6 +2367,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
@@ -6119,6 +6131,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -6358,6 +6376,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
