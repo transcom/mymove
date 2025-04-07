@@ -98,7 +98,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
 		requestedDate := shipment.RequestedPickupDate.Truncate(24 * time.Hour)
 		if requestedDate.Before(today) || requestedDate.Equal(today) {
-			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
+			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "Requested pickup must be greater than or equal to tomorrow's date.")
 		}
 	}
 
