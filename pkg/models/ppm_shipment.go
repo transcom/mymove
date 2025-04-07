@@ -337,7 +337,8 @@ func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
 	}
 
 	// incentive-based and actual expense PPMs have weight tickets
-	for _, weightTicket := range ppm.WeightTickets {
+	weightTickets := ppm.WeightTickets.FilterRejected()
+	for _, weightTicket := range weightTickets {
 		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
 			totalNetWeight += *weightTicket.AdjustedNetWeight
 		} else {
