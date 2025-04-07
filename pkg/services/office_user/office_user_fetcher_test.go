@@ -129,7 +129,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 			},
 		}, nil)
 
-		fetchedUsers, err := fetcher.FetchOfficeUsersWithWorkloadByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeServicesCounselor, officeUser.TransportationOfficeID)
+		fetchedUsers, err := fetcher.FetchOfficeUsersWithWorkloadByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeServicesCounselor, officeUser.TransportationOfficeID, string(models.QueueTypeCounseling))
 		suite.NoError(err)
 		fetchedOfficeUser := fetchedUsers[0]
 		suite.Equal(officeUser.ID, fetchedOfficeUser.ID)
