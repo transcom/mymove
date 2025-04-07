@@ -168,34 +168,41 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
     return <MaintenancePage />;
   }
 
-  return (
-    <PermissionProvider permissions={props.userPermissions} currentUserId={props.officeUserId}>
-      <SelectedGblocProvider>
-        <div id="app-root">
-          <div className={siteClasses}>
-            <BypassBlock />
-            <CUIHeader />
-            {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
-            <main id="main" role="main" className="site__content site-office__content">
-              <ConnectedLogoutOnInactivity />
-              {props.hasRecentError && location.pathname === '/' && (
-                <SystemError>
-                  Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
-                  <br />
-                  If that doesn&apos;t fix it, contact the{' '}
-                  <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
-                    Technical Help Desk
-                  </a>{' '}
-                  (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil)and give them this code:
-                  <strong>{props.traceId}</strong>
-                </SystemError>
-              )}
-              {oktaLoggedOut && <OktaLoggedOutBanner />}
-              {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
+    const siteClasses = classnames('site', {
+      [`site--fullscreen`]: isFullscreenPage,
+    });
+    const script = document.createElement('script');
 
-              {props.showLoadingSpinner && <LoadingSpinner message={props.loadingSpinnerMessage} />}
+    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return (
+      <PermissionProvider permissions={userPermissions} currentUserId={officeUserId}>
+        <SelectedGblocProvider>
+          <div id="app-root">
+            <div className={siteClasses}>
+              <BypassBlock />
+              <CUIHeader />
+              {userIsLoggedIn && activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
+              {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+              {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
+              <main id="main" role="main" className="site__content site-office__content">
+                <ConnectedLogoutOnInactivity />
+                {hasRecentError && location.pathname === '/' && (
+                  <SystemError>
+                    Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
+                    <br />
+                    If that doesn&apos;t fix it, contact the{' '}
+                    <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
+                      Technical Help Desk
+                    </a>{' '}
+                    (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil)and give them this code:
+                    <strong>{traceId}</strong>
+                  </SystemError>
+                )}
+                {oktaLoggedOut && <OktaLoggedOutBanner />}
+                {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
+                {hasError && <SomethingWentWrong error={error} info={info} hasError={hasError} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>
                 {!props.userIsLoggedIn && (
