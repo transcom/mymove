@@ -1,6 +1,5 @@
 --B-22540  Alex Lusk  Create ppm_closeouts table to store dollar values for Advana
 --B-22545  Alex Lusk  Remove unused storage expense columns
---B-22656  Daniel Jordan  Add small package columns
 
 CREATE TABLE IF NOT EXISTS ppm_closeouts (
     id UUID PRIMARY KEY NOT NULL,
@@ -64,10 +63,3 @@ CREATE INDEX IF NOT EXISTS ppm_closeouts_ppm_shipment_id_idx ON ppm_closeouts (p
 ALTER TABLE ppm_closeouts
 	DROP COLUMN IF EXISTS gtcc_paid_storage,
 	DROP COLUMN IF EXISTS member_paid_storage;
-
-ALTER TABLE ppm_closeouts
-	ADD COLUMN IF NOT EXISTS gtcc_paid_small_package integer,
-	ADD COLUMN IF NOT EXISTS member_paid_small_package integer;
-
-COMMENT on COLUMN ppm_closeouts.gtcc_paid_small_package IS 'Amount paid for small package expenses using the service member''s GTCC. Stored in cents.';
-COMMENT on COLUMN ppm_closeouts.member_paid_small_package IS 'Amount paid for small package expenses by the service member. Stored in cents.';

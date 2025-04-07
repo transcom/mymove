@@ -21,16 +21,21 @@ import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
 import { calculateWeightRequested } from 'hooks/custom';
+import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
+import { PPM_TYPES, PPM_DOCUMENT_TYPES } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
-import { PPM_DOCUMENT_TYPES } from 'shared/constants';
 
 export const ReviewDocuments = ({ readOnly }) => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const ppmShipment = mtoShipment?.ppmShipment;
+  const isPPMSPR = ppmShipment?.ppmType === PPM_TYPES.SMALL_PACKAGE;
+
+  const [serverError, setServerError] = useState(null);
+  const [showOverview, setShowOverview] = useState(false);
 
   const [isFileUploading, setFileUploading] = useState(false);
-  const [showOverview, setShowOverview] = useState(false);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -42,22 +47,77 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   const [ppmShipmentInfo, setPpmShipmentInfo] = useState({});
   const [allWeightTicketsRejected, setAllWeightTicketsRejected] = useState(false);
+  const [allMovingExpensesRejected, setAllMovingExpensesRejected] = useState(false);
   let documentSets = useMemo(() => [], []);
   const weightTickets = useMemo(() => documents?.WeightTickets ?? [], [documents?.WeightTickets]);
+  const movingExpenses = useMemo(() => documents?.MovingExpenses ?? [], [documents?.MovingExpenses]);
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
-  const movingExpenses = documents?.MovingExpenses ?? [];
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
+  useEffect(() => {
+    if (
+      currentTotalWeight === 0 &&
+      documentSets[documentSetIndex]?.documentSet.status !== PPM_DOCUMENT_STATUS.REJECTED
+    ) {
+      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+    }
+  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
+  useEffect(() => {
+    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
+    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
+  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
+  useEffect(() => {
+    setCurrentAllowableWeight(currentAllowableWeight);
+  }, [currentAllowableWeight]);
+  useEffect(() => {
+    setCurrentMtoShipments(mtoShipments);
+  }, [mtoShipments]);
+
+  useEffect(() => {
+    if (mtoShipment) {
+      const updatedPpmShipmentInfo = {
+        ...mtoShipment.ppmShipment,
+        miles: mtoShipment.distance,
+        actualWeight: currentTotalWeight,
+      };
+      setPpmShipmentInfo(updatedPpmShipmentInfo);
+    }
+  }, [mtoShipment, currentTotalWeight]);
 
   useEffect(() => {
     if (weightTickets.length > 0) {
-      const allRejected = weightTickets.every((ticket) => ticket.status === 'REJECTED');
+      const allRejected = weightTickets.every((ticket) => ticket.status === PPM_DOCUMENT_STATUS.REJECTED);
       setAllWeightTicketsRejected(allRejected);
     } else {
       setAllWeightTicketsRejected(false);
     }
   }, [weightTickets]);
+
+  useEffect(() => {
+    if (movingExpenses.length > 0) {
+      const allRejected = movingExpenses.every((ticket) => ticket.status === PPM_DOCUMENT_STATUS.REJECTED);
+      setAllMovingExpensesRejected(allRejected);
+    } else {
+      setAllMovingExpensesRejected(false);
+    }
+  }, [movingExpenses]);
+
+  useEffect(() => {
+    if (showOverview) {
+      if (allWeightTicketsRejected && weightTickets.length > 0) {
+        setServerError(
+          'Cannot closeout PPM. All weight tickets have been rejected. At least one approved weight ticket is required.',
+        );
+      } else if (allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR) {
+        setServerError(
+          'Cannot closeout PPM. All moving expenses have been rejected. At least one approved moving expense is required for a PPM-SPR.',
+        );
+      } else {
+        setServerError(null);
+      }
+    }
+  }, [showOverview, allWeightTicketsRejected, weightTickets, allMovingExpensesRejected, movingExpenses, isPPMSPR]);
 
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
@@ -136,8 +196,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const formRef = useRef();
   const mainRef = useRef();
 
-  const [serverError, setServerError] = useState(null);
-
   const queryClient = useQueryClient();
 
   const onClose = () => {
@@ -186,12 +244,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const onContinue = () => {
     setServerError(null);
 
-    if (showOverview && allWeightTicketsRejected && weightTickets.length > 0) {
-      setServerError(
-        'Cannot closeout PPM. All weight tickets have been rejected. At least one approved weight ticket is required.',
-      );
-      return;
-    }
     if (formRef.current) {
       formRef.current.handleSubmit();
     }
@@ -503,7 +555,10 @@ export const ReviewDocuments = ({ readOnly }) => {
             type="submit"
             onClick={onContinue}
             data-testid="reviewDocumentsContinueButton"
-            disabled={showOverview && allWeightTicketsRejected && weightTickets.length > 0}
+            disabled={
+              (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+              (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+            }
           >
             {nextButton}
           </Button>

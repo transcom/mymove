@@ -1,3 +1,5 @@
+-- B-22656  Daniel Jordan  added columns pertaining to small package expenses
+
 ALTER TABLE moving_expenses
 ADD COLUMN IF NOT EXISTS tracking_number TEXT NULL,
 ADD COLUMN IF NOT EXISTS weight_shipped INT NULL,
