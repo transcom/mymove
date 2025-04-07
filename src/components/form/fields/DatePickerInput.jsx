@@ -28,6 +28,15 @@ export const DatePickerInput = (props) => {
   const [field, meta, helpers] = useField(props);
   const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
 
+  const defaultOnChange = (value, _, dayPickerInput) => {
+    if (value === undefined && dayPickerInput.getInput().value === '') {
+      // The user cleared the date input, so we shouldn't bother attempting to format it.
+      helpers.setValue(undefined);
+    } else {
+      helpers.setValue(formatDate(value, datePickerFormat));
+    }
+  };
+
   // Input elements need an ID prop to be associated with the label
   const inputId = useRef(id || `${name}_${uuidv4()}`);
   return (
@@ -48,7 +57,7 @@ export const DatePickerInput = (props) => {
             inputClassName={className}
             placeholder={datePickerFormat}
             format={datePickerFormat}
-            onChange={onChange || ((value) => helpers.setValue(formatDate(value, datePickerFormat)))}
+            onChange={onChange || defaultOnChange}
             onBlur={() => helpers.setTouched(true)}
             value={field.value}
             required={required}

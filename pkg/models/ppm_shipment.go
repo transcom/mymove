@@ -321,7 +321,8 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
 	totalNetWeight := unit.Pound(0)
-	for _, weightTicket := range ppm.WeightTickets {
+	weightTickets := ppm.WeightTickets.FilterRejected()
+	for _, weightTicket := range weightTickets {
 		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
 			totalNetWeight += *weightTicket.AdjustedNetWeight
 		} else {

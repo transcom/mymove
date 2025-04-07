@@ -71,6 +71,11 @@ type ListMove struct {
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 
+	// prime acknowledged at
+	// Read Only: true
+	// Format: date-time
+	PrimeAcknowledgedAt *strfmt.DateTime `json:"primeAcknowledgedAt,omitempty"`
+
 	// reference Id
 	// Example: 1001-3456
 	ReferenceID string `json:"referenceId,omitempty"`
@@ -110,6 +115,10 @@ func (m *ListMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeAcknowledgedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -244,6 +253,18 @@ func (m *ListMove) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *ListMove) validatePrimeAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeAcknowledgedAt", "body", "date-time", m.PrimeAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *ListMove) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -289,6 +310,10 @@ func (m *ListMove) ContextValidate(ctx context.Context, formats strfmt.Registry)
 	}
 
 	if err := m.contextValidateMoveCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePrimeAcknowledgedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -380,6 +405,15 @@ func (m *ListMove) contextValidateETag(ctx context.Context, formats strfmt.Regis
 func (m *ListMove) contextValidateMoveCode(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "moveCode", "body", string(m.MoveCode)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ListMove) contextValidatePrimeAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "primeAcknowledgedAt", "body", m.PrimeAcknowledgedAt); err != nil {
 		return err
 	}
 
