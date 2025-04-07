@@ -756,7 +756,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
 			}
 		}
-
+		//here
 		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
