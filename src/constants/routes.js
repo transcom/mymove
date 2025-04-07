@@ -165,6 +165,10 @@ export const qaeCSRRoutes = {
   CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
 };
 
+export const contractingOfficerRoutes = {
+  MOVE_SEARCH_PATH: '/cor/search',
+};
+
 export const hqRoutes = {
   BASE_MOVE_QUEUE: `/move-queue`,
   MOVE_QUEUE: `move-queue`,
@@ -195,6 +199,7 @@ export const primeSimulatorRoutes = {
   SHIPMENT_UPDATE_REWEIGH_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/reweigh/:reweighId/update`,
   CREATE_SIT_EXTENSION_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/sit-extension-requests/new`,
   SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/updateDestinationAddress`,
+  ACKNOWLEDGE_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/acknowledge`,
 };
 
 export const adminRoutes = {

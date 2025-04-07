@@ -576,6 +576,7 @@ func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
 	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 	dlhTestWeight := unit.Pound(4000)
+	now := time.Now()
 
 	// Create the MTOShipment with populated PickupAddress and DestinationAddress
 	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -589,11 +590,15 @@ func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
 				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
 				PrimeActualWeight:          &dlhTestWeight,
 				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+				TerminatedAt:               &now,
+				TerminationComments:        models.StringPointer("get in the choppuh"),
 			},
 		},
 	}, nil)
 	shipmentWithoutServiceItem := MTOShipmentWithoutServiceItems(&mtoShipment)
 	suite.NotNil(shipmentWithoutServiceItem)
+	suite.NotNil(shipmentWithoutServiceItem.TerminatedAt)
+	suite.NotNil(shipmentWithoutServiceItem.TerminationComments)
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentsWithoutServiceItems() {
