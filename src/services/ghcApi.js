@@ -101,6 +101,19 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
   );
 }
 
+export async function deleteMovingExpense({ ppmShipmentId, movingExpenseId }) {
+  return makeGHCRequest(
+    'ppm.deleteMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateProGearWeightTicket',

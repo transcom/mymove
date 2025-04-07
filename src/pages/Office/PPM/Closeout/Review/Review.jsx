@@ -38,7 +38,7 @@ import {
 } from 'utils/shipments';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { deleteWeightTicket } from 'services/ghcApi';
+import { deleteMovingExpense, deleteWeightTicket } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
@@ -86,6 +86,14 @@ const Review = () => {
   const queryClient = useQueryClient();
 
   const { mutate: mutateWeightTicket } = useMutation(deleteWeightTicket, {
+    onSuccess: () => {
+      setIsDeleteModalVisible(false);
+      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+      setIsDeleting(false);
+    },
+  });
+
+  const { mutate: mutateDeleteMovingExpense } = useMutation(deleteMovingExpense, {
     onSuccess: () => {
       setIsDeleteModalVisible(false);
       queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
@@ -146,8 +154,19 @@ const Review = () => {
       if (ppmShipmentId && itemId) setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }); // remove this line and add in the logic for deleting proGear
     }
     if (itemType === 'expense') {
-      // TODO
-      if (ppmShipmentId && itemId) setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }); // remove this line and add in the logic for deleting expense
+      setIsDeleting(true);
+      mutateDeleteMovingExpense(
+        { ppmShipmentId, movingExpenseId: itemId },
+        {
+          onSuccess: () => {
+            setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` });
+          },
+          onError: () => {
+            setIsDeleting(false);
+            setAlert({ type: 'error', message: `Something went wrong deleting ${itemNumber}. Please try again.` });
+          },
+        },
+      );
     }
   };
 

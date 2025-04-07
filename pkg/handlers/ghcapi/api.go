@@ -693,6 +693,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		movingexpense.NewOfficeMovingExpenseUpdater(ppmEstimator),
 	}
 
+	ghcAPI.PpmDeleteMovingExpenseHandler = DeleteMovingExpenseHandler{
+		handlerConfig,
+		movingexpense.NewMovingExpenseDeleter(),
+	}
+
 	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{
 		handlerConfig,
 		pwsviolation.NewPWSViolationsFetcher(),

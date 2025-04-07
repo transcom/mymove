@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -156,4 +157,52 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 
 		return movingexpenseops.NewUpdateMovingExpenseOK().WithPayload(returnPayload), nil
 	})
+}
+
+// DeleteMovingExpenseHandler
+type DeleteMovingExpenseHandler struct {
+	handlers.HandlerConfig
+	movingExpenseDeleter services.MovingExpenseDeleter
+}
+
+// Handle deletes a moving expense
+func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingExpenseParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				appCtx.Logger().Error("ghcapi.DeleteMovingExpenseHandler", zap.Error(noSessionErr))
+				return movingexpenseops.NewDeleteMovingExpenseUnauthorized(), noSessionErr
+			}
+			if !appCtx.Session().IsOfficeApp() {
+				return movingexpenseops.NewDeleteMovingExpenseForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			// Make sure the service member is not modifying another service member's PPM
+			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+
+			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+
+			err := h.movingExpenseDeleter.DeleteMovingExpense(appCtx, ppmID, movingExpenseID)
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.DeleteMovingExpenseHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
+				case apperror.ConflictError:
+					return movingexpenseops.NewDeleteMovingExpenseConflict(), err
+				case apperror.ForbiddenError:
+					return movingexpenseops.NewDeleteMovingExpenseForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return movingexpenseops.NewDeleteMovingExpenseUnprocessableEntity(), err
+				default:
+					return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+				}
+			}
+
+			return movingexpenseops.NewDeleteMovingExpenseNoContent(), nil
+		})
 }
