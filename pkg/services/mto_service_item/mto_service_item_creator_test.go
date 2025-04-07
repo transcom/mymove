@@ -2026,12 +2026,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Then attempt to create a DDASIT
 		serviceItemDDASIT := models.MTOServiceItem{
-			MoveTaskOrderID: shipment.MoveTaskOrderID,
-			MoveTaskOrder:   shipment.MoveTaskOrder,
-			MTOShipmentID:   &shipment.ID,
-			MTOShipment:     shipment,
-			ReService:       reServiceDDASIT,
-			Status:          models.MTOServiceItemStatusSubmitted,
+			MoveTaskOrderID:            shipment.MoveTaskOrderID,
+			MoveTaskOrder:              shipment.MoveTaskOrder,
+			MTOShipmentID:              &shipment.ID,
+			MTOShipment:                shipment,
+			ReService:                  reServiceDDASIT,
+			Status:                     models.MTOServiceItemStatusSubmitted,
+			SITDestinationFinalAddress: shipment.DestinationAddress,
 		}
 
 		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
