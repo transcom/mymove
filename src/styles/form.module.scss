@@ -187,3 +187,8 @@ p + .radioGroup {
   color: $color-red;
   font-weight: bold;
 }
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
