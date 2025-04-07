@@ -537,7 +537,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
-	mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000), nil)
+	mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 
 	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser, signedCert models.SignedCertification) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
 		reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(signedCert), setUpSignedCertificationUpdaterMock(signedCert), SSWPPMComputer)
