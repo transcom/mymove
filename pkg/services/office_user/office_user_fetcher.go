@@ -132,7 +132,7 @@ func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx 
 }
 
 // Fetch office users of the same role within a gbloc, with their workload, for assignment purposes
-func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUserWithWorkload, error) {
+func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID, queueType string) ([]models.OfficeUserWithWorkload, error) {
 	var officeUsers []models.OfficeUserWithWorkload
 
 	query :=
@@ -148,14 +148,21 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 		JOIN roles ON users_roles.role_id = roles.id
 		JOIN transportation_offices ON office_users.transportation_office_id = transportation_offices.id
 		LEFT JOIN moves
-			ON (
-				(roles.role_type = 'services_counselor' AND moves.sc_assigned_id = office_users.id) OR
-				(roles.role_type = 'task_ordering_officer' AND moves.too_assigned_id = office_users.id) OR
-				(roles.role_type = 'task_invoicing_officer' and moves.tio_assigned_id = office_users.id)
-			)
+			ON (`
+	if queueType == string(models.QueueTypeTaskOrder) {
+		query += `(roles.role_type = 'task_ordering_officer' AND moves.too_assigned_id = office_users.id)`
+	} else if queueType == string(models.QueueTypeDestinationRequest) {
+		query += `(roles.role_type = 'task_ordering_officer' AND moves.too_destination_assigned_id = office_users.id)`
+	} else {
+		query += `
+			(roles.role_type = 'services_counselor' AND moves.sc_assigned_id = office_users.id) OR
+			(roles.role_type = 'task_invoicing_officer' AND moves.tio_assigned_id = office_users.id)`
+	}
+
+	query += `)
 		WHERE roles.role_type = $1
-			AND transportation_offices.id = $2
-			AND office_users.active = TRUE
+		AND transportation_offices.id = $2
+		AND office_users.active = TRUE
 		GROUP BY office_users.id, office_users.first_name, office_users.last_name
 		ORDER BY office_users.last_name ASC, office_users.first_name ASC`
 
