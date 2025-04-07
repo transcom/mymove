@@ -84,7 +84,8 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	// in cases where the PPM is a small package, the final incentive isn't able to be calculated until after TIO reviews/approves their expenses
 	// because of this, we will update the final incentive here if the value is nil or different
 	if ppmShipment.PPMType == models.PPMTypeSmallPackage &&
-		(ppmShipment.FinalIncentive != nil || ppmShipment.FinalIncentive != nil && (previousFinalIncentive != nil && *previousFinalIncentive != *ppmShipment.FinalIncentive)) {
+		ppmShipment.FinalIncentive != nil &&
+		(previousFinalIncentive == nil || *previousFinalIncentive != *ppmShipment.FinalIncentive) {
 		verrs, err := appCtx.DB().ValidateAndUpdate(ppmShipment)
 		if verrs.HasAny() {
 			return nil, apperror.NewInvalidInputError(ppmShipment.ID, err, verrs, "unable to validate PPMShipment")

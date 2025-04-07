@@ -135,7 +135,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   isProGear:
-    description: Indicates if the customer is claiming an expense as pro gear or not
+    description: Indicates if the customer is claiming an expense as pro-gear or not
     type: boolean
     x-nullable: true
   proGearBelongsToSelf:

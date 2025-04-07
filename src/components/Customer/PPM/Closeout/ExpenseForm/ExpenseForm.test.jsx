@@ -237,10 +237,10 @@ describe('ExpenseForm component', () => {
       expect(screen.getByRole('option', { name: 'Small package reimbursement' }).selected).toBe(true);
       expect(screen.getByRole('option', { name: 'Small package reimbursement' })).toBeDisabled();
 
+      // these should be visible now because smallPackageExpense props has a isProGear value of true
       await waitFor(() => {
         expect(screen.getByTestId('proGearWeight')).toBeInTheDocument();
       });
-      // the extra pro gear fields should not be rendered until the user selects that the expense is pro gear
       expect(screen.queryByText(/Who does this pro-gear belong to/i)).toBeInTheDocument();
       expect(screen.queryByText(/Brief description of the pro-gear/i)).toBeInTheDocument();
     });

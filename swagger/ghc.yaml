@@ -7215,7 +7215,7 @@ definitions:
         x-nullable: true
       hasProGear:
         description: |
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
         x-nullable: true
       proGearWeight:
@@ -7440,7 +7440,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       isProGear:
-        description: Indicates if the customer is claiming an expense as pro gear or not
+        description: Indicates if the customer is claiming an expense as pro-gear or not
         type: boolean
         x-nullable: true
       proGearBelongsToSelf:
@@ -7697,7 +7697,7 @@ definitions:
         example: 4200
       hasProGear:
         description: |
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
       proGearWeight:
         type: integer
@@ -10432,7 +10432,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       isProGear:
-        description: Indicates if the customer is claiming an expense as pro gear or not
+        description: Indicates if the customer is claiming an expense as pro-gear or not
         type: boolean
         x-nullable: true
       proGearBelongsToSelf:

@@ -739,6 +739,7 @@ func BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(db *pop.Connection, user
 	}})
 
 	trackingNumber := "TRK1234"
+	trackingNumber2 := "TRK5678"
 	isProGear := true
 	proGearBelongsToSelf := true
 	proGearDescription := "Pro gear updated description"
@@ -768,7 +769,7 @@ func BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(db *pop.Connection, user
 			PaidWithGTCC:         models.BoolPointer(false),
 			MissingReceipt:       models.BoolPointer(false),
 			Amount:               models.CentPointer(unit.Cents(8675309)),
-			TrackingNumber:       &trackingNumber,
+			TrackingNumber:       &trackingNumber2,
 			IsProGear:            &isProGear,
 			ProGearBelongsToSelf: &proGearBelongsToSelf,
 			ProGearDescription:   &proGearDescription,

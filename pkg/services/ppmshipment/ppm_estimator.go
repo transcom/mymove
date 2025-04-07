@@ -142,7 +142,7 @@ func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShi
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
 	// If oldPPMShipment field value is nil we know that the value has been updated and we should return false - the adjusted net weight is accounted for in the
-	// SumwWeights function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
+	// SumWeights function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
 		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
 		(oldPPMShipment.ActualDestinationPostalCode != nil && *newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode) &&
@@ -698,7 +698,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		// for small package PPM-SPRs, moving expenses are used
 		if ppmShipment.MovingExpenses == nil {
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice,
-				apperror.NewPPMNoWeightTicketsError(ppmShipment.ID, " no moving expenses")
+				apperror.NewPPMNoMovingExpensesError(ppmShipment.ID, " no moving expenses")
 		}
 		_, totalWeightFromWeightTicketsOrExpenses = SumwWeights(blankPPM, *ppmShipment)
 	}

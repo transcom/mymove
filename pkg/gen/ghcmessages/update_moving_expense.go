@@ -25,7 +25,7 @@ type UpdateMovingExpense struct {
 	// A brief description of the expense.
 	Description *string `json:"description"`
 
-	// Indicates if the customer is claiming an expense as pro gear or not
+	// Indicates if the customer is claiming an expense as pro-gear or not
 	IsProGear *bool `json:"isProGear,omitempty"`
 
 	// moving expense type
