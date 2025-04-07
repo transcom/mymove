@@ -1,12 +1,11 @@
 import React from 'react';
-import { render, waitFor, screen, within, act, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { configureStore } from 'shared/store';
-import { createRoot } from 'react-dom/client';
 
 const serviceMember = {
   serviceMember: {
@@ -414,7 +413,7 @@ describe('validates form fields and displays error messages', () => {
   });
 
   it('remove Required alert when secondary pickup/delivery streetAddress1 is cleared but the toggle is switched to No', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       const newPPM = {
         ...defaultProps,
         mtoShipment: {
@@ -443,7 +442,7 @@ describe('validates form fields and displays error messages', () => {
       };
       render(
         <Provider store={mockStore.store}>
-          <DateAndLocationForm {...defaultProps} />
+          <DateAndLocationForm {...newPPM} serviceMember={navyServiceMember} />
         </Provider>,
       );
       waitFor(async () => {
@@ -469,6 +468,11 @@ describe('validates form fields and displays error messages', () => {
         expect(state[0]).toHaveTextContent('GA');
         expect(postalCodes[0]).toHaveTextContent('90210');
         expect(county[0]).toHaveTextContent('Muscogee');
+
+        // verify 2nd pickup is populated
+        expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
+        expect(address1[1]).toHaveValue('777 Test Street');
+        expect(screen.getByText('ELIZABETHTOWN, KY 42702 (Hardin)'));
 
         // verify delivery address is populated
         expect(address1[2]).toHaveValue('658 West Ave');
@@ -506,8 +510,10 @@ describe('validates form fields and displays error messages', () => {
         await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
       });
 
-      const alerts = screen.queryAllByRole('alert');
-      expect(alerts.length).toBe(0);
+      waitFor(() => {
+        const alerts = screen.queryAllByRole('alert');
+        expect(alerts.length).toBe(0);
+      });
 
       // now clear out 2nd delivery address1 text, should raise required alert
       act(async () => {
