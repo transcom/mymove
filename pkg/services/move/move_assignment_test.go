@@ -2,6 +2,8 @@ package move
 
 import (
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -502,6 +504,7 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 			{
 				Model: models.OfficeUser{
 					Email:  "officeuser1@example.com",
+					ID:     uuid.Must(uuid.NewV4()),
 					Active: true,
 				},
 			},
@@ -529,6 +532,7 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 			{
 				Model: models.OfficeUser{
 					Email:  "officeuser2@example.com",
+					ID:     uuid.Must(uuid.NewV4()),
 					Active: true,
 				},
 			},
@@ -551,6 +555,7 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 			{
 				Model: models.OfficeUser{
 					Email:  "officeuser3@example.com",
+					ID:     uuid.Must(uuid.NewV4()),
 					Active: true,
 				},
 			},
@@ -573,6 +578,7 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 			{
 				Model: models.OfficeUser{
 					Email:  "officeuser4@example.com",
+					ID:     uuid.Must(uuid.NewV4()),
 					Active: true,
 				},
 			},
@@ -665,10 +671,10 @@ func (suite *MoveServiceSuite) TestBulkMoveReAssignment() {
 		suite.Equal(officeUser1.ID, newMoveId1)
 		suite.Equal(officeUser2.ID, newMoveId2)
 		suite.Equal(officeUser3.ID, newMoveId3)
-		suite.Equal(officeUser2.ID, newMoveId4)
+		suite.Equal(officeUser1.ID, newMoveId4)
 		suite.Equal(officeUser2.ID, newMoveId5)
 		suite.Equal(officeUser3.ID, newMoveId6)
-		suite.Equal(officeUser1.ID, newMoveId7)
+		suite.Equal(officeUser2.ID, newMoveId7)
 		suite.Equal(officeUser3.ID, newMoveId8)
 	})
 }
