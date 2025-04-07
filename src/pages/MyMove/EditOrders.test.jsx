@@ -360,6 +360,7 @@ describe('EditOrders Page', () => {
   });
 
   it('shows an error if the API returns an error', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     renderWithProviders(<EditOrders {...testProps} />, {
       path: customerRoutes.ORDERS_EDIT_PATH,
       params: { moveId: 'testMoveId', orderId: 'testOrders1' },
@@ -391,6 +392,7 @@ describe('EditOrders Page', () => {
   });
 
   it('next button patches the orders and goes to the previous page', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     renderWithProviders(<EditOrders {...testProps} />, {
       path: customerRoutes.ORDERS_EDIT_PATH,
       params: { moveId: 'testMoveId', orderId: 'testOrders1' },
@@ -400,7 +402,9 @@ describe('EditOrders Page', () => {
     const submitButton = await screen.findByRole('button', { name: 'Save' });
     expect(submitButton).not.toBeDisabled();
 
-    await userEvent.click(submitButton);
+    await waitFor(() => {
+      userEvent.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks/dom';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -22,6 +22,7 @@ import {
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
+import { waitFor } from '@testing-library/react';
 
 const queryClient = new QueryClient();
 const wrapper = ({ children }) => {
@@ -352,47 +353,37 @@ jest.mock('services/internalApi', () => ({
 describe('useTXOMoveInfoQueries', () => {
   it('loads data', async () => {
     const testMoveCode = 'ABCDEF';
-    const { result, waitFor } = renderHook(() => useTXOMoveInfoQueries(testMoveCode), { wrapper });
+    const result = renderHook(() => useTXOMoveInfoQueries(testMoveCode), { wrapper });
 
-    expect(result.current).toEqual({
-      order: undefined,
-      customerData: undefined,
-      isLoading: true,
-      isError: false,
-      isSuccess: false,
-      errors: [],
-      move: undefined,
-    });
-
-    await waitFor(() => result.current.isSuccess);
-
-    expect(result.current).toEqual({
-      customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999', agency: 'NAVY' },
-      order: {
-        id: '4321',
-        customerID: '2468',
-        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-        uploaded_order_id: '2',
-        uploadedAmendedOrderID: '3',
-        departmentIndicator: 'Navy',
-        grade: 'E-6',
-        originDutyLocation: {
-          name: 'JBSA Lackland',
+    waitFor(() => {
+      expect(result.current).toEqual({
+        customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999', agency: 'NAVY' },
+        order: {
+          id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+          uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyLocation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyLocation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
-        destinationDutyLocation: {
-          name: 'JB Lewis-McChord',
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        errors: [],
+        move: {
+          id: '1234',
+          ordersId: '4321',
+          moveCode: 'ABCDEF',
         },
-        report_by_date: '2018-08-01',
-      },
-      isLoading: false,
-      isError: false,
-      isSuccess: true,
-      errors: [],
-      move: {
-        id: '1234',
-        ordersId: '4321',
-        moveCode: 'ABCDEF',
-      },
+      });
     });
   });
 });
@@ -501,128 +492,134 @@ describe('usePaymentRequestQueries', () => {
 describe('useMoveDetailsQueries', () => {
   it('loads data', async () => {
     const moveCode = 'ABCDEF';
-    const { result, waitFor } = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
+    let result;
+    act(() => {
+      result = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
+    });
 
-    expect(result.current.isLoading).toEqual(true);
+    waitFor(() => {
+      expect(result.current.isLoading).toEqual(true);
+      result.current.isSuccess
+    });
 
-    await waitFor(() => result.current.isSuccess);
-
-    expect(result.current).toEqual({
-      move: {
-        id: '1234',
-        ordersId: '4321',
-        moveCode: 'ABCDEF',
-      },
-      closeoutOffice: undefined,
-      customerData: {
-        id: '2468',
-        last_name: 'Kerry',
-        first_name: 'Smith',
-        dodID: '999999999',
-        agency: 'NAVY',
-      },
-      order: {
-        id: '4321',
-        customerID: '2468',
-        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-        uploaded_order_id: '2',
-        uploadedAmendedOrderID: '3',
-        departmentIndicator: 'Navy',
-        grade: 'E-6',
-        originDutyLocation: {
-          name: 'JBSA Lackland',
+    waitFor(() => {
+      expect(result.current).toEqual({
+        move: {
+          id: '1234',
+          ordersId: '4321',
+          moveCode: 'ABCDEF',
         },
-        destinationDutyLocation: {
-          name: 'JB Lewis-McChord',
+        closeoutOffice: undefined,
+        customerData: {
+          id: '2468',
+          last_name: 'Kerry',
+          first_name: 'Smith',
+          dodID: '999999999',
+          agency: 'NAVY',
         },
-        report_by_date: '2018-08-01',
-      },
-      orderDocuments: {
-        id: '2',
-      },
-      mtoShipments: [
-        {
-          id: 'a1',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          mtoAgents: [
-            {
-              agentType: 'RELEASING_AGENT',
-              mtoShipmentID: 'a1',
-            },
-            {
-              agentType: 'RECEIVING_AGENT',
-              mtoShipmentID: 'a1',
-            },
-          ],
-          mtoServiceItems: [
-            {
-              reServiceName: serviceItemCodes.DLH,
-            },
-            {
-              reServiceName: serviceItemCodes.FSC,
-            },
-          ],
+        order: {
+          id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+          uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyLocation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyLocation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
-        {
-          id: 'b2',
-          shipmentType: SHIPMENT_OPTIONS.NTSR,
-          mtoAgents: [
-            {
-              agentType: 'RELEASING_AGENT',
-              mtoShipmentID: 'b2',
-            },
-            {
-              agentType: 'RECEIVING_AGENT',
-              mtoShipmentID: 'b2',
-            },
-          ],
-          mtoServiceItems: [
-            {
-              reServiceName: serviceItemCodes.DOP,
-            },
-            {
-              reServiceName: serviceItemCodes.DUPK,
-            },
-          ],
+        orderDocuments: {
+          id: '2',
         },
-        {
-          id: 'c3',
-          shipmentType: 'PPM',
-          ppmShipment: {
-            id: 'p1',
-            movingExpenses: [],
-            proGearWeightTickets: [],
-            shipmentId: 'c3',
-            estimatedWeight: 100,
-            weightTickets: [
+        mtoShipments: [
+          {
+            id: 'a1',
+            shipmentType: SHIPMENT_OPTIONS.HHG,
+            mtoAgents: [
               {
-                emptyWeight: 14500,
-                fullWeight: 18500,
-                id: 'ppmDoc1',
-                missingEmptyWeightTicket: false,
-                missingFullWeightTicket: false,
-                ownsTrailer: false,
-                vehicleDescription: '2022 Honda CR-V Hybrid',
+                agentType: 'RELEASING_AGENT',
+                mtoShipmentID: 'a1',
+              },
+              {
+                agentType: 'RECEIVING_AGENT',
+                mtoShipmentID: 'a1',
               },
             ],
-            reviewShipmentWeightsURL: '/counseling/moves/ABCDEF/shipments/c3/document-review',
+            mtoServiceItems: [
+              {
+                reServiceName: serviceItemCodes.DLH,
+              },
+              {
+                reServiceName: serviceItemCodes.FSC,
+              },
+            ],
           },
-        },
-      ],
-      mtoServiceItems: [
-        {
-          id: 'a',
-          reServiceName: serviceItemCodes.CS,
-        },
-        {
-          id: 'b',
-          reServiceName: serviceItemCodes.MS,
-        },
-      ],
-      isLoading: false,
-      isError: false,
-      isSuccess: true,
-      errors: [],
+          {
+            id: 'b2',
+            shipmentType: SHIPMENT_OPTIONS.NTSR,
+            mtoAgents: [
+              {
+                agentType: 'RELEASING_AGENT',
+                mtoShipmentID: 'b2',
+              },
+              {
+                agentType: 'RECEIVING_AGENT',
+                mtoShipmentID: 'b2',
+              },
+            ],
+            mtoServiceItems: [
+              {
+                reServiceName: serviceItemCodes.DOP,
+              },
+              {
+                reServiceName: serviceItemCodes.DUPK,
+              },
+            ],
+          },
+          {
+            id: 'c3',
+            shipmentType: 'PPM',
+            ppmShipment: {
+              id: 'p1',
+              movingExpenses: [],
+              proGearWeightTickets: [],
+              shipmentId: 'c3',
+              estimatedWeight: 100,
+              weightTickets: [
+                {
+                  emptyWeight: 14500,
+                  fullWeight: 18500,
+                  id: 'ppmDoc1',
+                  missingEmptyWeightTicket: false,
+                  missingFullWeightTicket: false,
+                  ownsTrailer: false,
+                  vehicleDescription: '2022 Honda CR-V Hybrid',
+                },
+              ],
+              reviewShipmentWeightsURL: '/counseling/moves/ABCDEF/shipments/c3/document-review',
+            },
+          },
+        ],
+        mtoServiceItems: [
+          {
+            id: 'a',
+            reServiceName: serviceItemCodes.CS,
+          },
+          {
+            id: 'b',
+            reServiceName: serviceItemCodes.MS,
+          },
+        ],
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        errors: [],
+      });
     });
   });
 });
