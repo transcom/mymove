@@ -695,3 +695,7 @@ export function formatPortInfo(port) {
   }
   return '-';
 }
+
+export function formatFullName(firstName, middleName, lastName) {
+  return [firstName, middleName, lastName].filter(Boolean).join(' ');
+}

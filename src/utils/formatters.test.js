@@ -676,3 +676,39 @@ describe('toTitleCase', () => {
     expect(result).toEqual('Portland Oregon');
   });
 });
+
+describe('formatFullName', () => {
+  const { formatFullName } = formatters;
+
+  it('returns the full name with first, middle, and last names', () => {
+    expect(formatFullName('John', 'M', 'Doe')).toBe('John M Doe');
+  });
+
+  it('returns the full name without a middle name', () => {
+    expect(formatFullName('John', '', 'Doe')).toBe('John Doe');
+  });
+
+  it('returns the full name without a first name', () => {
+    expect(formatFullName('', 'M', 'Doe')).toBe('M Doe');
+  });
+
+  it('returns the full name without a last name', () => {
+    expect(formatFullName('John', 'M', '')).toBe('John M');
+  });
+
+  it('returns the full name with only a first name', () => {
+    expect(formatFullName('John', '', '')).toBe('John');
+  });
+
+  it('returns the full name with only a middle name', () => {
+    expect(formatFullName('', 'M', '')).toBe('M');
+  });
+
+  it('returns the full name with only a last name', () => {
+    expect(formatFullName('', '', 'Doe')).toBe('Doe');
+  });
+
+  it('returns an empty string if all names are empty', () => {
+    expect(formatFullName('', '', '')).toBe('');
+  });
+});
