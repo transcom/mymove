@@ -59,6 +59,10 @@ const EditOrdersForm = ({
     initialValues.orders_type === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
   const [prevOrderType, setPrevOrderType] = useState(initialValues.orders_type);
+  const [ordersType, setOrdersType] = useState(initialValues.orders_type);
+  const [grade, setGrade] = useState(initialValues.grade);
+  const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
+  const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -96,6 +100,12 @@ const EditOrdersForm = ({
       : Yup.number().notRequired(),
     dependents_twelve_and_over: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
+      : Yup.number().notRequired(),
+    civilian_tdy_ub_allowance: isCivilianTDYMove
+      ? Yup.number()
+          .transform((value) => (Number.isNaN(value) ? 0 : value))
+          .min(0, 'UB weight allowance must be 0 or more')
+          .max(2000, 'UB weight allowance cannot exceed 2000 lbs.')
       : Yup.number().notRequired(),
   });
 
@@ -170,6 +180,24 @@ const EditOrdersForm = ({
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, isLoading, finishedFetchingFF]);
 
+  useEffect(() => {
+    if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      if (isOconusMove && ordersType === ORDERS_TYPE.TEMPORARY_DUTY && grade === 'CIVILIAN_EMPLOYEE') {
+        setIsCivilianTDYMove(true);
+      } else {
+        setIsCivilianTDYMove(false);
+      }
+    }
+  }, [
+    currentDutyLocation,
+    newDutyLocation,
+    isOconusMove,
+    hasDependents,
+    enableUB,
+    ordersType,
+    grade,
+    isCivilianTDYMove,
+  ]);
   if (isLoading) {
     return <LoadingPlaceholder />;
   }
@@ -194,6 +222,7 @@ const EditOrdersForm = ({
         dependents_twelve_and_over: true,
         origin_duty_location: true,
         new_duty_location: true,
+        civilian_tdy_ub_allowance: true,
       }}
     >
       {({ isValid, isSubmitting, handleSubmit, handleChange, setValues, values, setFieldValue }) => {
@@ -233,6 +262,7 @@ const EditOrdersForm = ({
 
         const handleOrderTypeChange = (e) => {
           const { value } = e.target;
+          setOrdersType(value);
           if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
             setHasDependentsDisabled(true);
             handleHasDependentsChange({ target: { value: 'yes' } });
@@ -246,6 +276,22 @@ const EditOrdersForm = ({
             }
           }
           setPrevOrderType(value);
+        };
+
+        // Conditionally set the civilian TDY UB allowance warning message based on provided weight being in the 351 to 2000 lb range
+        const showcivilianTDYUBAllowanceWarning =
+          values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
+
+        const civilianTDYUBAllowanceWeightWarning =
+          '350 lbs. is the maximum UB weight allowance for a civilian TDY unless stated otherwise on your orders.';
+
+        let civilianTDYUBAllowanceWarning = '';
+        if (showcivilianTDYUBAllowanceWarning) {
+          civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
+        }
+
+        const toggleCivilianTDYUBTooltip = () => {
+          setShowCivilianTDYUBTooltip((prev) => !prev);
         };
 
         return (
@@ -487,6 +533,10 @@ const EditOrdersForm = ({
                 required
                 options={payGradeOptions}
                 showRequiredAsterisk
+                onChange={(e) => {
+                  setGrade(e.target.value);
+                  handleChange(e);
+                }}
               />
 
               <p>Uploads:</p>
@@ -505,6 +555,44 @@ const EditOrdersForm = ({
                   labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
                 />
               </div>
+
+              {isCivilianTDYMove && (
+                <FormGroup>
+                  <div>
+                    <MaskedTextField
+                      data-testid="civilianTDYUBAllowance"
+                      warning={civilianTDYUBAllowanceWarning}
+                      defaultValue="0"
+                      name="civilian_tdy_ub_allowance"
+                      id="civilianTDYUBAllowance"
+                      mask={Number}
+                      scale={0}
+                      signed={false}
+                      thousandsSeparator=","
+                      lazy={false}
+                      labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
+                      label={
+                        <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
+                          If your orders specify a specific UB weight allowance, enter it here.
+                          <ToolTip
+                            text={
+                              <span className={styles.toolTipText}>
+                                If you do not specify a UB weight allowance, the default of 0 lbs will be used.
+                              </span>
+                            }
+                            position="left"
+                            icon="info-circle"
+                            color="blue"
+                            data-testid="civilianTDYUBAllowanceToolTip"
+                            isVisible={showCivilianTDYUBTooltip}
+                            closeOnLeave
+                          />
+                        </Label>
+                      }
+                    />
+                  </div>
+                </FormGroup>
+              )}
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -547,6 +635,7 @@ EditOrdersForm.propTypes = {
     accompanied_tour: PropTypes.string,
     counseling_office_id: PropTypes.string,
     uploaded_orders: ExistingUploadsShape,
+    civilian_tdy_ub_allowance: PropTypes.string,
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
 };
