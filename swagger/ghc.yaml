@@ -3832,6 +3832,7 @@ paths:
             - CLOSEOUT
             - TASK_ORDER
             - PAYMENT_REQUEST
+            - DESTINATION_REQUESTS
       responses:
         '200':
           description: Successfully returned bulk assignment data
@@ -4206,6 +4207,11 @@ paths:
           name: counselingOffice
           type: string
           description: filters using a counselingOffice name of the move
+        - in: query
+          name: activeRole
+          type: string
+          description: |
+            user's actively logged in role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -5004,10 +5010,10 @@ paths:
         name: body
         schema:
           properties:
-            roleType:
+            queueType:
               type: string
           required:
-            - roleType
+            - queueType
     patch:
       consumes:
         - application/json
@@ -5937,6 +5943,8 @@ definitions:
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TIOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
   MoveHistory:
     properties:
@@ -7963,6 +7971,7 @@ definitions:
           - CLOSEOUT
           - TASK_ORDER
           - PAYMENT_REQUEST
+          - DESTINATION_REQUESTS
   BulkAssignmentForUser:
     type: object
     properties:
@@ -8769,11 +8778,11 @@ definitions:
       officeUserId:
         type: string
         format: uuid
-      roleType:
+      queueType:
         type: string
     required:
       - officeUserId
-      - roleType
+      - queueType
   AssignedOfficeUser:
     type: object
     properties:
