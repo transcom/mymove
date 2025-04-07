@@ -1,3 +1,10 @@
+--remove invalid zip
+--Washington, DC 20023
+
+update addresses set us_post_region_cities_id = '9213753e-f3d7-4448-aabd-09f38d046012', postal_code = '20022', updated_at = now() where us_post_region_cities_id = '5670873d-91a4-4e00-a53c-54a4639468d3';
+delete from us_post_region_cities where uspr_zip_id = '20023';
+delete from re_us_post_regions where uspr_zip_id = '20023';
+
 --update po box only for duty locs:
 --Lexington, KY 40523
 --Miami, FL 33163
