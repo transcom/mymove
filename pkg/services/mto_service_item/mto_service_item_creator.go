@@ -3,7 +3,6 @@ package mtoserviceitem
 import (
 	"database/sql"
 	"fmt"
-	"math"
 	"slices"
 	"strconv"
 	"time"
@@ -210,8 +209,8 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 func calcTotalSITDuration(entryDate, departureDate time.Time) int {
 	difference := entryDate.Sub(departureDate)
-	days := difference.Hours() / 24
-	return int(1 + math.Ceil(days))
+	days := 1 + difference.Hours()/24
+	return int(days)
 }
 
 func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
