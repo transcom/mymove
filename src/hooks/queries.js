@@ -1137,10 +1137,53 @@ export const useRolesPrivilegesQueries = () => {
     getRolesPrivileges(...queryKey),
   );
   const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
-  const rolesPrivs = data;
+  const mappings = data;
+
+  const roleNameMap = {
+    customer: 'Customer',
+    task_ordering_officer: 'Task Ordering Officer',
+    task_invoicing_officer: 'Task Invoicing Officer',
+    contracting_officer: 'Contracting Officer',
+    services_counselor: 'Services Counselor',
+    prime_simulator: 'Prime Simulator',
+    qae: 'Quality Assurance Evaluator',
+    customer_service_representative: 'Customer Service Representative',
+    gsr: 'Government Surveillance Representative',
+    headquarters: 'Headquarters',
+  };
+
+  const privilegeNameMap = {
+    supervisor: 'Supervisor',
+    safety: 'Safety',
+  };
+  const uniqueRolesMap = new Map();
+  const uniquePrivilegesMap = new Map();
+
+  mappings.forEach((mapping) => {
+    if (mapping.roleType) {
+      if (!uniqueRolesMap.has(mapping.roleType)) {
+        uniqueRolesMap.set(mapping.roleType, {
+          roleType: mapping.roleType,
+          roleName: roleNameMap[mapping.roleType] || mapping.roleType,
+        });
+      }
+    }
+
+    if (mapping.privilegeType) {
+      if (!uniquePrivilegesMap.has(mapping.privilegeType)) {
+        uniquePrivilegesMap.set(mapping.privilegeType, {
+          privilegeType: mapping.privilegeType,
+          privilegeName: privilegeNameMap[mapping.privilegeType] || mapping.privilegeType,
+        });
+      }
+    }
+  });
+
+  const roles = Array.from(uniqueRolesMap.values());
+  const privileges = Array.from(uniquePrivilegesMap.values());
 
   return {
-    result: rolesPrivs,
+    result: { roles, privileges },
     isLoading,
     isError,
     isSuccess,
