@@ -14,15 +14,17 @@ import {
 
 import styles from './UserEdit.module.scss';
 
-import { deleteUser } from 'services/adminApi';
+import { deleteUser, updateUser } from 'services/adminApi';
 
 const UserEdit = () => {
   const redirect = useRedirect();
   const [serverError, setServerError] = useState('');
-  const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [disableOpen, setDisableOpen] = useState(false);
   const [userData, setUserData] = useState({});
-  const handleClick = () => setOpen(true);
-  const handleDialogClose = () => setOpen(false);
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleDeleteClose = () => setDeleteOpen(false);
+  const handleDisableClose = () => setDisableOpen(false);
 
   const renderUserEditToolbar = (props) => {
     return (
@@ -39,7 +41,7 @@ const UserEdit = () => {
               onSuccess: async (data) => {
                 // setting user data so we can use it in teh delete function
                 setUserData(data);
-                handleClick();
+                handleDeleteClick();
               },
             }}
           />
@@ -55,25 +57,49 @@ const UserEdit = () => {
       .then(() => {
         redirect('/');
       })
+      .catch(() => {
+        setDisableOpen(true);
+        redirect(false);
+      });
+  };
+
+  const disableUserHandler = async () => {
+    userData.Active = false;
+    await updateUser(userData.id, userData)
+      .then(() => {
+        redirect('/');
+      })
       .catch((error) => {
         setServerError(error);
         redirect(false);
       });
   };
 
-  const handleConfirm = () => {
+  const handleDeleteConfirm = () => {
     deleteUserHandler();
-    setOpen(false);
+    setDeleteOpen(false);
+  };
+
+  const handleDisableConfirm = () => {
+    disableUserHandler();
+    setDisableOpen(false);
   };
 
   return (
     <Edit>
       <Confirm
-        isOpen={open}
+        isOpen={deleteOpen}
         title={`Delete user ${userData.firstName} ${userData.lastName}?`}
         content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
-        onConfirm={handleConfirm}
-        onClose={handleDialogClose}
+        onConfirm={handleDeleteConfirm}
+        onClose={handleDeleteClose}
+      />
+      <Confirm
+        isOpen={disableOpen}
+        title={`Deletion failed for user ${userData.firstName} ${userData.lastName}?`}
+        content="This deletion failed as this user is already tied to existing moves. Would you like to disable them instead?"
+        onConfirm={handleDisableConfirm}
+        onClose={handleDisableClose}
       />
       <SimpleForm
         toolbar={renderUserEditToolbar()}
