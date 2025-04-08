@@ -213,6 +213,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			AccompaniedTour:         models.BoolPointer(true),
 			DependentsTwelveAndOver: models.Int64Pointer(5),
 			DependentsUnderTwelve:   models.Int64Pointer(5),
+			CivilianTdyUbAllowance:  models.Int64Pointer(350),
 		}
 
 		params := ordersop.CreateOrdersParams{
@@ -252,7 +253,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.NotNil(createdEntitlement.AccompaniedTour)
 		suite.NotNil(createdEntitlement.DependentsTwelveAndOver)
 		suite.NotNil(createdEntitlement.DependentsUnderTwelve)
-
+		suite.NotNil(createdEntitlement.UBAllowance)
 	})
 
 	suite.Run("properly handles entitlement validation", func() {
