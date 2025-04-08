@@ -38,8 +38,8 @@ const ProGearForm = ({
   const isCustomerPage = appName === APP_NAME.MYMOVE;
 
   const [maxSelf, maxSpouse] = isCustomerPage
-    ? [entitlements.proGear, entitlements.proGearSpouse]
-    : [entitlements.proGearWeight, entitlements.proGearWeightSpouse];
+    ? [entitlements?.proGear, entitlements?.proGearSpouse]
+    : [entitlements?.proGearWeight, entitlements?.proGearWeightSpouse];
 
   const validationSchema = Yup.object().shape({
     belongsToSelf: Yup.bool().required('Required'),
