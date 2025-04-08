@@ -5,10 +5,12 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import {
   selectMTOShipmentById,
   selectProGearWeightTicketAndIndexById,
   selectServiceMemberFromLoggedInUser,
+  selectProGearEntitlements,
 } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -24,9 +26,10 @@ import {
   getAllMoves,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
-import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';
+import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
+import { APP_NAME } from 'constants/apps';
 
 const ProGear = () => {
   const dispatch = useDispatch();
@@ -35,6 +38,9 @@ const ProGear = () => {
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
 
+  const proGearEntitlements = useSelector((state) => selectProGearEntitlements(state));
+
+  const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, proGearId } = useParams();
 
   const [multiMove, setMultiMove] = useState(false);
@@ -86,6 +92,14 @@ const ProGear = () => {
     const moves = getAllMoves(serviceMemberId);
     dispatch(updateAllMoves(moves));
   }, [proGearId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
+
+  const handleErrorMessage = (error) => {
+    if (error?.response?.status === 412) {
+      setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else {
+      setErrorMessage('Failed to fetch shipment information');
+    }
+  };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
@@ -203,8 +217,8 @@ const ProGear = () => {
             setErrorMessage('Failed to fetch shipment information');
           });
       })
-      .catch(() => {
-        setErrorMessage('Failed to save updated trip record');
+      .catch((error) => {
+        handleErrorMessage(error);
       });
   };
 
@@ -232,19 +246,15 @@ const ProGear = () => {
   }
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
+      <NotificationScrollToTop dependency={errorMessage} />
       <GridContainer>
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Pro-gear</h1>
             {renderError()}
-            <div className={closingPageStyles['closing-section']}>
-              <p>
-                If you moved pro-gear for yourself or your spouse as part of this PPM, document the total weight here.
-                Reminder: This pro-gear should be included in your total weight moved.
-              </p>
-            </div>
             <ProGearForm
+              entitlements={proGearEntitlements}
               proGear={currentProGearWeightTicket}
               setNumber={currentIndex + 1}
               onBack={handleBack}
@@ -252,6 +262,7 @@ const ProGear = () => {
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
+              appName={appName}
             />
           </Grid>
         </Grid>
