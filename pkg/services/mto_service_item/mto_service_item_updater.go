@@ -320,7 +320,7 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		if err != nil {
 			return err
 		}
-		// here
+
 		if _, err = p.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
