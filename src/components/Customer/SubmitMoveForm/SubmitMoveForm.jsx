@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import { Button, TextInput, Label, FormGroup, Fieldset, ErrorMessage, Grid, Alert } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
+import { Checkbox } from '@material-ui/core';
 
 import styles from './SubmitMoveForm.module.scss';
 
@@ -10,15 +11,21 @@ import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import CertificationText from 'scenes/Legalese/CertificationText';
+import CertificationText from 'components/CertificationText/CertificationText';
 
 const SubmitMoveForm = (props) => {
   const { initialValues, onPrint, onSubmit, onBack, certificationText, error } = props;
+  const [hasReadTheAgreement, setHasReadTheAgreement] = useState(false);
+  const [hasAcknowledgedTerms, sethasAcknowledgedTerms] = useState(false);
 
   const validationSchema = Yup.object().shape({
     signature: Yup.string().required('Required'),
     date: Yup.date().required(),
   });
+
+  useEffect(() => {
+    sethasAcknowledgedTerms(hasReadTheAgreement);
+  }, [hasReadTheAgreement]);
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur onSubmit={onSubmit}>
@@ -39,7 +46,12 @@ const SubmitMoveForm = (props) => {
                 Print
               </Button>
 
-              <CertificationText certificationText={certificationText} />
+              <CertificationText certificationText={(certificationText, setHasReadTheAgreement)} />
+
+              <p>
+                <Checkbox name="acknowledgementCheckbox" disabled={hasReadTheAgreement} /> I have read and understand
+                the agreement as shown above,
+              </p>
 
               <div className={styles.signatureBox}>
                 <h3>SIGNATURE</h3>
@@ -57,6 +69,7 @@ const SubmitMoveForm = (props) => {
                         )}
                         <Field
                           as={TextInput}
+                          disabled={hasAcknowledgedTerms}
                           name="signature"
                           id="signature"
                           required
