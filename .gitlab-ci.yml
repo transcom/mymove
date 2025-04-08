@@ -633,7 +633,7 @@ compile_app_client:
     - <<: *yarn_cache
       policy: pull
   variables:
-    KUBERNETES_CPU_REQUEST: "4"
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   before_script:
@@ -668,7 +668,7 @@ compile_app_server:
     - <<: *yarn_cache
       policy: pull
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "1"
     KUBERNETES_MEMORY_REQUEST: "8Gi"
     KUBERNETES_MEMORY_LIMIT: "8Gi"
   needs:
