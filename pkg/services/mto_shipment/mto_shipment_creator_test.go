@@ -1250,6 +1250,89 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal("Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTS), err.Error())
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
+	// suite.PreloadData(func() {
+
+	// 	suite.Run("Test Requested Pickup date input validation.", func() {
+	// 		// Setup: Create the shipment creator and calculate dates
+	// 		subtestData := suite.createSubtestDataV2(nil)
+	// 		creator := subtestData.shipmentCreator
+
+	// 		// Calculate dates (truncated to midnight for consistent comparison)
+	// 		today := time.Now().Truncate(24 * time.Hour)
+	// 		yesterday := today.Add(-24 * time.Hour)
+	// 		tomorrow := today.Add(24 * time.Hour)
+
+	// 		// Define shipment types to test
+	// 		shipmentTypes := []struct {
+	// 			name         string
+	// 			shipmentType models.MTOShipmentType
+	// 			// Whether this shipment type is subject to the RequestedPickupDate future validation
+	// 			requiresFutureDate bool
+	// 		}{
+	// 			{name: "HHG", shipmentType: models.MTOShipmentTypeHHG, requiresFutureDate: true},
+	// 			{name: "HHG_INTO_NTS", shipmentType: models.MTOShipmentTypeHHGIntoNTS, requiresFutureDate: true},
+	// 			{name: "HHG_OUTOF_NTS", shipmentType: models.MTOShipmentTypeHHGOutOfNTS, requiresFutureDate: false},
+	// 			{name: "MOBILE_HOME", shipmentType: models.MTOShipmentTypeMobileHome, requiresFutureDate: false},
+	// 			{name: "BOAT_HAUL_AWAY", shipmentType: models.MTOShipmentTypeBoatHaulAway, requiresFutureDate: false},
+	// 			{name: "BOAT_TOW_AWAY", shipmentType: models.MTOShipmentTypeBoatTowAway, requiresFutureDate: false},
+	// 			{name: "UNACCOMPANIED_BAGGAGE", shipmentType: models.MTOShipmentTypeUnaccompaniedBaggage, requiresFutureDate: true},
+	// 			{name: "PPM", shipmentType: models.MTOShipmentTypePPM, requiresFutureDate: false},
+	// 		}
+
+	// 		// Define date scenarios
+	// 		dateScenarios := []struct {
+	// 			name         string
+	// 			date         *time.Time
+	// 			isFutureDate bool
+	// 		}{
+	// 			{name: "today", date: &today, isFutureDate: false},
+	// 			{name: "yesterday", date: &yesterday, isFutureDate: false},
+	// 			{name: "tomorrow", date: &tomorrow, isFutureDate: true},
+	// 		}
+
+	// 		// Run tests for each shipment type and date combination
+	// 		for _, shipment := range shipmentTypes {
+	// 			for _, dateScenario := range dateScenarios {
+	// 				testName := shipment.name + " with " + dateScenario.name + " pickup date"
+	// 				suite.Run(testName, func() {
+	// 					// Build the shipment
+	// 					mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+	// 						{
+	// 							Model:    subtestData.move,
+	// 							LinkOnly: true,
+	// 						},
+	// 						{
+	// 							Model: models.MTOShipment{
+	// 								ShipmentType:        shipment.shipmentType,
+	// 								RequestedPickupDate: dateScenario.date,
+	// 							},
+	// 						},
+	// 					}, nil)
+
+	// 					// Clear ID fields and attempt to create the shipment
+	// 					clearedShipment := clearShipmentIDFields(&mtoShipment)
+	// 					createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedShipment)
+
+	// 					// Determine if we expect an error
+	// 					// Error occurs if the shipment type requires a future date AND the date is not in the future
+	// 					expectError := shipment.requiresFutureDate && !dateScenario.isFutureDate
+
+	// 					if expectError {
+	// 						suite.Error(err, "Expected an error for %s with %s pickup date", shipment.name, dateScenario.name)
+	// 						suite.IsType(apperror.InvalidInputError{}, err)
+	// 						suite.Contains(err.Error(), "Requested pickup must be greater than or equal to tomorrow's date.")
+	// 						suite.Nil(createdShipment)
+	// 					} else {
+	// 						suite.NoError(err, "Expected no error for %s with %s pickup date", shipment.name, dateScenario.name)
+	// 						suite.NotNil(createdShipment)
+	// 						suite.Equal(dateScenario.date, createdShipment.RequestedPickupDate)
+	// 					}
+	// 				})
+	// 			}
+	// 		}
+	// 	})
+
+	// })
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
@@ -1298,82 +1381,3 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 
 	return shipment
 }
-
-
-// func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment_RequestedPickupDateInFuture() {
-// 	subtestData := suite.createSubtestDataV2(nil)
-// 	creator := subtestData.shipmentCreator
-
-// 	// Get today's date truncated to midnight for consistent comparison
-// 	today := time.Now().Truncate(24 * time.Hour)
-// 	yesterday := today.Add(-24 * time.Hour)
-// 	tomorrow := today.Add(24 * time.Hour)
-
-// 	// Test cases
-// 	testCases := []struct {
-// 		name            string
-// 		shipmentType    models.MTOShipmentType
-// 		requestedDate   *time.Time
-// 		expectedError   bool
-// 		errorMessage    string
-// 	}{
-// 		{
-// 			name:            "HHG shipment with today’s date should error",
-// 			shipmentType:    models.MTOShipmentTypeHHG,
-// 			requestedDate:   &today,
-// 			expectedError:   true,
-// 			errorMessage:    "RequestedPickupDate must be greater than or equal to tomorrow's date.",
-// 		},
-// 		{
-// 			name:            "HHG shipment with yesterday’s date should error",
-// 			shipmentType:    models.MTOShipmentTypeHHG,
-// 			requestedDate:   &yesterday,
-// 			expectedError:   true,
-// 			errorMessage:    "RequestedPickupDate must be greater than or equal to tomorrow's date.",
-// 		},
-// 		{
-// 			name:            "HHG shipment with tomorrow’s date should succeed",
-// 			shipmentType:    models.MTOShipmentTypeHHG,
-// 			requestedDate:   &tomorrow,
-// 			expectedError:   false,
-// 			errorMessage:    "",
-// 		},
-// 		{
-// 			name:            "PPM shipment with today’s date should succeed (condition skipped)",
-// 			shipmentType:    models.MTOShipmentTypePPM,
-// 			requestedDate:   &today,
-// 			expectedError:   false,
-// 			errorMessage:    "",
-// 		},
-// 	}
-
-// 	for _, tc := range testCases {
-// 		suite.Run(tc.name, func() {
-// 			mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-// 				{
-// 					Model:    subtestData.move,
-// 					LinkOnly: true,
-// 				},
-// 				{
-// 					Model: models.MTOShipment{
-// 						ShipmentType:        tc.shipmentType,
-// 						RequestedPickupDate: tc.requestedDate,
-// 					},
-// 				},
-// 			}, nil)
-
-// 			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-// 			createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-
-// 			if tc.expectedError {
-// 				suite.Error(err, "Expected an error for %s with requested date %s", tc.shipmentType, tc.requestedDate)
-// 				suite.IsType(apperror.InvalidInputError{}, err)
-// 				suite.Contains(err.Error(), tc.errorMessage)
-// 				suite.Nil(createdShipment)
-// 			} else {
-// 				suite.NoError(err, "Expected no error for %s with requested date %s", tc.shipmentType, tc.requestedDate)
-// 				suite.NotNil(createdShipment)
-// 			}
-// 		})
-// 	}
-// }
