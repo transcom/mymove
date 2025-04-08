@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { CheckboxGroupInput } from 'react-admin';
-
-import { adminOfficeRoles, roleTypes } from 'constants/userRoles';
-import { officeUserPrivileges, elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { useRolesPrivilegesQueries } from 'hooks/queries';
 
 const RolesPrivilegesCheckboxInput = (props) => {
+  const { adminUser, validate } = props;
+  const { result } = useRolesPrivilegesQueries();
+  const { roles, privileges } = result;
+  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
+
   let rolesSelected = [];
   let privilegesSelected = [];
-  const { adminUser } = props;
-
-  const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
 
   useEffect(() => {
     isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
@@ -23,9 +23,10 @@ const RolesPrivilegesCheckboxInput = (props) => {
       rolesSelected = [];
       return undefined;
     }
+
     return roles.reduce((rolesArray, role) => {
       if (role.roleType) {
-        if (isHeadquartersRoleFF || (!isHeadquartersRoleFF && role.roleType !== roleTypes.HQ)) {
+        if (isHeadquartersRoleFF || (!isHeadquartersRoleFF && role.roleType !== 'headquarters')) {
           rolesArray.push(role.roleType);
         }
       }
@@ -37,99 +38,55 @@ const RolesPrivilegesCheckboxInput = (props) => {
 
   const parseRolesCheckboxInput = (input) => {
     let index;
-    if (privilegesSelected.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
-      if (input.includes(roleTypes.CUSTOMER)) {
-        index = input.indexOf(roleTypes.CUSTOMER);
+
+    if (privilegesSelected.includes('safety')) {
+      if (input.includes('customer')) {
+        index = input.indexOf('customer');
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
-      if (input.includes(roleTypes.CONTRACTING_OFFICER)) {
-        index = input.indexOf(roleTypes.CONTRACTING_OFFICER);
+      if (input.includes('contracting_officer')) {
+        index = input.indexOf('contracting_officer');
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
-      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
-        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
+      if (input.includes('prime_simulator')) {
+        index = input.indexOf('prime_simulator');
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
-      if (input.includes(roleTypes.QAE)) {
-        index = input.indexOf(roleTypes.QAE);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE)) {
-        index = input.indexOf(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.GSR)) {
-        index = input.indexOf(roleTypes.GSR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
+      if (input.includes('gsr')) {
+        index = input.indexOf('gsr');
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
     }
 
-    if (privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
-      if (input.includes(roleTypes.CUSTOMER)) {
-        index = input.indexOf(roleTypes.CUSTOMER);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.CONTRACTING_OFFICER)) {
-        index = input.indexOf(roleTypes.CONTRACTING_OFFICER);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
-        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.GSR)) {
-        index = input.indexOf(roleTypes.GSR);
+    if (!isHeadquartersRoleFF && input.includes('headquarters')) {
+      if (input.includes('headquarters')) {
+        index = input.indexOf('headquarters');
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
     }
-
-    if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
-      if (input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    }
-
     return input.reduce((rolesArray, role) => {
-      rolesArray.push(adminOfficeRoles.find((adminOfficeRole) => adminOfficeRole.roleType === role));
+      rolesArray.push(roles.find((r) => r.roleType === role));
       return rolesArray;
     }, []);
   };
 
-  const makePrivilegesArray = (privileges) => {
-    if (!privileges || privileges.length === 0) {
+  const makePrivilegesArray = (privObjs) => {
+    if (!privObjs || privObjs.length === 0) {
       privilegesSelected = [];
       return undefined;
     }
-    return privileges.reduce((privilegesArray, privilege) => {
+
+    return privObjs.reduce((privilegesArray, privilege) => {
       if (privilege.privilegeType) {
         privilegesArray.push(privilege.privilegeType);
       }
@@ -142,67 +99,48 @@ const RolesPrivilegesCheckboxInput = (props) => {
   const parsePrivilegesCheckboxInput = (input) => {
     let index;
     if (
-      rolesSelected.includes(roleTypes.CUSTOMER) ||
-      rolesSelected.includes(roleTypes.CONTRACTING_OFFICER) ||
-      rolesSelected.includes(roleTypes.PRIME_SIMULATOR) ||
-      rolesSelected.includes(roleTypes.QAE) ||
-      rolesSelected.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) ||
-      rolesSelected.includes(roleTypes.GSR) ||
-      rolesSelected.includes(roleTypes.HQ)
+      rolesSelected.includes('customer') ||
+      rolesSelected.includes('contracting_officer') ||
+      rolesSelected.includes('prime_simulator') ||
+      rolesSelected.includes('gsr')
     ) {
-      if (input.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
-        index = input.indexOf(elevatedPrivilegeTypes.SUPERVISOR);
+      if (input.includes('safety')) {
+        index = input.indexOf('safety');
         if (index !== -1) {
           input.splice(index, 1);
         }
       }
     }
-    if (
-      rolesSelected.includes(roleTypes.CUSTOMER) ||
-      rolesSelected.includes(roleTypes.CONTRACTING_OFFICER) ||
-      rolesSelected.includes(roleTypes.PRIME_SIMULATOR) ||
-      rolesSelected.includes(roleTypes.GSR)
-    ) {
-      if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
-        index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    }
-
     return input.reduce((privilegesArray, privilege) => {
-      privilegesArray.push(
-        officeUserPrivileges.find((officeUserPrivilege) => officeUserPrivilege.privilegeType === privilege),
-      );
+      privilegesArray.push(privileges.find((officeUserPrivilege) => officeUserPrivilege.privilegeType === privilege));
       return privilegesArray;
     }, []);
   };
   // filter the privileges to exclude the Safety Moves checkbox if the admin user is NOT a super admin
-  const filteredPrivileges = officeUserPrivileges.filter((privilege) => {
-    if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY && !adminUser?.super) {
+  const filteredPrivileges = privileges.filter((privilege) => {
+    if (privilege.privilegeType === 'safety' && !adminUser?.super) {
       return false;
     }
     return true;
   });
-
   return (
     <>
       <CheckboxGroupInput
         source="roles"
         format={makeRoleTypeArray}
         parse={parseRolesCheckboxInput}
-        choices={adminOfficeRoles}
+        choices={roles}
         optionValue="roleType"
-        validate={props.validate}
+        optionText="roleName"
+        validate={validate}
       />
-
       <CheckboxGroupInput
         source="privileges"
         format={makePrivilegesArray}
         parse={parsePrivilegesCheckboxInput}
         choices={filteredPrivileges}
         optionValue="privilegeType"
+        optionText="privilegeName"
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
         The Safety Moves privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
@@ -211,5 +149,4 @@ const RolesPrivilegesCheckboxInput = (props) => {
     </>
   );
 };
-
 export { RolesPrivilegesCheckboxInput };
