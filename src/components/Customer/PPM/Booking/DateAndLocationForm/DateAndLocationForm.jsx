@@ -156,6 +156,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
               {
                 ...values,
                 pickupAddress: {
+                  ...values.pickup,
                   address: residentialAddress,
                 },
               },
@@ -166,7 +167,10 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues(
               {
                 ...values,
-                pickupAddress: blankAddress,
+                pickupAddress: {
+                  ...values.pickup,
+                  address: blankAddress.address,
+                },
               },
               { shouldValidate: true },
             );
@@ -180,6 +184,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues({
               ...values,
               destinationAddress: {
+                ...values.destinationAddress,
                 address: destinationDutyAddress,
               },
             });
@@ -188,7 +193,10 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues(
               {
                 ...values,
-                destinationAddress: blankAddress,
+                destinationAddress: {
+                  ...values.destinationAddress,
+                  address: blankAddress.address,
+                },
               },
               { shouldValidate: true },
             );

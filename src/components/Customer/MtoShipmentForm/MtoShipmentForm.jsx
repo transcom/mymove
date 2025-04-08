@@ -212,6 +212,7 @@ class MtoShipmentForm extends Component {
                 {
                   ...values,
                   pickup: {
+                    ...values.pickup,
                     address: currentResidence,
                   },
                 },
@@ -224,6 +225,7 @@ class MtoShipmentForm extends Component {
                 {
                   ...values,
                   pickup: {
+                    ...values.pickup,
                     address: mtoShipment.pickupAddress,
                   },
                 },
@@ -234,7 +236,10 @@ class MtoShipmentForm extends Component {
               setValues(
                 {
                   ...values,
-                  pickup: blankAddress,
+                  pickup: {
+                    ...values.pickup,
+                    address: blankAddress.address,
+                  },
                 },
                 { shouldValidate: true },
               );
