@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Scan mymove
     steps:
-      - name: ZAP Scan
+      - name: ZAP_scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           target: 'https://my.move.mil'
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Scan Office
     steps:
-      - name: ZAP Scan
+      - name: ZAP_Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           target: 'https://office.move.mil'
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Scan admin
     steps:
-      - name: ZAP Scan
+      - name: ZAP_Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           target: 'https://admin.move.mil'
