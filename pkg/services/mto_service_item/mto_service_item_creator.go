@@ -330,7 +330,7 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 
-		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+		if mtoShipment.DestinationAddress != nil {
 			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 			if err != nil {
 				return 0, err
