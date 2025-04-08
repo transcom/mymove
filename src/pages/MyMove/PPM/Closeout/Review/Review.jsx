@@ -164,6 +164,9 @@ const Review = () => {
     hasCompletedAllExpenses(expenses) &&
     hasCompletedAllProGear(proGear);
 
+  // PPM-SPRs must have at least one moving expense to advance
+  const ppmSmalLPackageCanAdvance = ppmType === PPM_TYPES.SMALL_PACKAGE && expenses && expenses.length < 1;
+
   const proGearContents = formatProGearItems(
     proGear,
     customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH,
@@ -282,9 +285,9 @@ const Review = () => {
               </Link>
               <Link
                 className={classnames(ppmStyles.saveButton, 'usa-button', {
-                  'usa-button--disabled': !canAdvance,
+                  'usa-button--disabled': !canAdvance || ppmSmalLPackageCanAdvance,
                 })}
-                aria-disabled={!canAdvance}
+                aria-disabled={!canAdvance || ppmSmalLPackageCanAdvance}
                 to={completePath}
               >
                 Save & Continue

@@ -7,7 +7,7 @@ import { generatePath } from 'react-router-dom';
 import { MockProviders } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import Review from 'pages/MyMove/PPM/Closeout/Review/Review';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { customerRoutes } from 'constants/routes';
 import {
   deleteWeightTicket,
@@ -633,5 +633,53 @@ describe('Review page', () => {
     await waitFor(() => {
       expect(screen.getByText('Receipt 1 successfully deleted.'));
     });
+  });
+
+  it('disables the save and continue link for small package shipments with no expenses', () => {
+    const mockMTOShipmentWithSmallPackageNoExpense = {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        ppmType: PPM_TYPES.SMALL_PACKAGE,
+        weightTickets: [],
+        movingExpenses: [],
+        proGearWeightTickets: [],
+        pickupAddress,
+        destinationAddress,
+      },
+      eTag: 'dummyETag',
+    };
+
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithSmallPackageNoExpense);
+    renderReviewPage();
+
+    const saveButton = screen.getByText('Save & Continue');
+    expect(saveButton).toHaveClass('usa-button--disabled');
+    expect(saveButton).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('enables the save and continue link for small package shipments when at least one expense exists', () => {
+    const mockMTOShipmentWithSmallPackageExpense = {
+      id: mockMTOShipmentId,
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: mockPPMShipmentId,
+        ppmType: PPM_TYPES.SMALL_PACKAGE,
+        weightTickets: [],
+        movingExpenses: [expenseOne],
+        proGearWeightTickets: [],
+        pickupAddress,
+        destinationAddress,
+      },
+      eTag: 'dummyETag',
+    };
+
+    selectMTOShipmentById.mockImplementationOnce(() => mockMTOShipmentWithSmallPackageExpense);
+    renderReviewPage();
+
+    const saveButton = screen.getByText('Save & Continue');
+    expect(saveButton).not.toHaveClass('usa-button--disabled');
+    expect(saveButton).toHaveAttribute('aria-disabled', 'false');
   });
 });
