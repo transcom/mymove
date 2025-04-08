@@ -45,6 +45,24 @@ describe('DatePickerInput', () => {
       expect(mockSetValue).toHaveBeenCalledWith('16 Jun 2020');
     });
 
+    it('calls setValue with undefined when the date picker input is cleared', () => {
+      const mockDayPickerInput = {
+        getInput: () => ({ value: '' }),
+      };
+      const input = wrapper.find(SingleDatePicker);
+      input.simulate('change', undefined, null, mockDayPickerInput);
+      expect(mockSetValue).toHaveBeenCalledWith(undefined);
+    });
+
+    it('calls setValue with "Invalid date" when the date picker input set to an invalid date value', () => {
+      const mockDayPickerInput = {
+        getInput: () => ({ value: 'X' }),
+      };
+      const input = wrapper.find(SingleDatePicker);
+      input.simulate('change', undefined, null, mockDayPickerInput);
+      expect(mockSetValue).toHaveBeenCalledWith('Invalid date');
+    });
+
     it('renders a required asterisk', () => {
       const requiredAsterisk = getShallowWrapper().find('RequiredAsterisk').dive();
       const asterisk = requiredAsterisk.find('[data-testid="requiredAsterisk"]');
