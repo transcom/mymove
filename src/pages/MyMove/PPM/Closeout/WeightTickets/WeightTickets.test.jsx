@@ -304,7 +304,7 @@ describe('Weight Tickets page', () => {
     });
   });
 
-  // remove this when E-06515 is implemented
+  // remove this when E-06516 is implemented
   it('displays a specific error when the DTODFailureErrorMessage is returned, and links the user to the about page', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });

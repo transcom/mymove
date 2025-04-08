@@ -113,7 +113,7 @@ const WeightTickets = () => {
     if (error?.response?.status === 412) {
       setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
     } else if (
-      // this 'else if' can be removed when E-06515 is implemented
+      // this 'else if' can be removed when E-06516 is implemented
       // along with zipError and handleErrorClick
       error?.response?.body?.detail ===
       'We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box.'
