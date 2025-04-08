@@ -244,7 +244,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {details?.status === 'APPROVED' &&
+        {details?.status === SERVICE_ITEM_STATUSES.APPROVED &&
           generateDetailText({
             'Estimated Price':
               details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
@@ -276,7 +276,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === 'APPROVED' &&
+            {details?.status === SERVICE_ITEM_STATUSES.APPROVED &&
               generateDetailText({
                 'Estimated Price':
                   details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
@@ -331,7 +331,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === 'APPROVED' &&
+            {details?.status === SERVICE_ITEM_STATUSES.APPROVED &&
               generateDetailText({
                 'Estimated Price':
                   details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
