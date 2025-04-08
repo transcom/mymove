@@ -15,8 +15,8 @@ import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
 import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
-import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { getTotalPackageWeightSPR, hasProGearSPR, hasSpouseProGearSPR } from 'utils/ppmCloseout';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 export const sectionTypes = {
   incentives: 'incentives',
