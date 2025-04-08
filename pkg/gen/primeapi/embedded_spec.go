@@ -3298,7 +3298,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -3311,6 +3312,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -9008,7 +9019,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -9021,6 +9033,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
