@@ -313,27 +313,29 @@ export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };
 
-export const usePaygradeRankDropdownOptions = (affiliation) => {
-  const paygradeRankOptionValues = useMemo(() => {
-    const affiliatedValues = rankOptionValuesByAffiliation(affiliation);
-    const paygradeRankOptions = Object.fromEntries(
-      Object.values(affiliatedValues).map((pgr) => {
-        return [pgr.abbv_rank, pgr.value];
-      }),
-    );
+export const makeRankAffiliationMappings = (affiliation) => {
+  const affiliatedValues = rankOptionValuesByAffiliation(affiliation);
+  const paygradeRankOptions = Object.fromEntries(
+    Object.values(affiliatedValues).map((pgr) => {
+      return [pgr.abbv_rank, pgr.value];
+    }),
+  );
 
-    const paygradeRankDropdownOptions = dropdownInputOptions(paygradeRankOptions);
-    const sortedResult = paygradeRankDropdownOptions.sort((a, b) => {
-      const theGradeA = affiliatedValues[a.key].grade;
-      const [typeA] = theGradeA.split('_');
-      const theGradeB = affiliatedValues[b.key].grade;
-      const [typeB] = theGradeB.split('_');
-      const typeCompare = typeB.localeCompare(typeA);
-      return typeCompare;
-    });
-    sortedResult.reverse();
-    return [affiliatedValues, sortedResult];
-  }, [affiliation]);
+  const paygradeRankDropdownOptions = dropdownInputOptions(paygradeRankOptions);
+  const sortedResult = paygradeRankDropdownOptions.sort((a, b) => {
+    const theGradeA = affiliatedValues[a.key].grade;
+    const [typeA] = theGradeA.split('_');
+    const theGradeB = affiliatedValues[b.key].grade;
+    const [typeB] = theGradeB.split('_');
+    const typeCompare = typeB.localeCompare(typeA);
+    return typeCompare;
+  });
+  sortedResult.reverse();
+  return [affiliatedValues, sortedResult];
+};
+
+export const usePaygradeRankDropdownOptions = (affiliation) => {
+  const paygradeRankOptionValues = useMemo(() => makeRankAffiliationMappings(affiliation), [affiliation]);
 
   switch (affiliation) {
     case '':

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS pay_grade_ranks (
 	created_at  timestamp,
 	updated_at  timestamp,
 	CONSTRAINT pay_grade_ranks_pkey PRIMARY KEY (id),
-	CONSTRAINT unique_pay_grade_ranks UNIQUE (pay_grade_id, affiliation, rank_short_name));
+	CONSTRAINT unique_pay_grade_ranks UNIQUE (affiliation, rank_short_name));
 
 COMMENT ON TABLE pay_grade_ranks IS 'Stores ranks and associated pay grades by branch of service';
 COMMENT ON COLUMN pay_grade_ranks.pay_grade_id IS 'ID for pay_grade record';

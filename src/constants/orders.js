@@ -62,6 +62,7 @@ export const ORDERS_PAY_GRADE_TYPE = {
   E_8: 'E_8',
   E_9: 'E_9',
   E_9_SPECIAL_SENIOR_ENLISTED: 'E_9_SPECIAL_SENIOR_ENLISTED',
+  O_1: 'O_1_ACADEMY_GRADUATE',
   O_1_ACADEMY_GRADUATE: 'O_1_ACADEMY_GRADUATE',
   O_2: 'O_2',
   O_3: 'O_3',
@@ -94,6 +95,7 @@ export const ORDERS_PAY_GRADE_OPTIONS = {
   E_8: 'E-8',
   E_9: 'E-9',
   E_9_SPECIAL_SENIOR_ENLISTED: 'E-9 (Special Senior Enlisted)',
+  O_1: 'O-1 or Service Academy Graduate',
   O_1_ACADEMY_GRADUATE: 'O-1 or Service Academy Graduate',
   O_2: 'O-2',
   O_3: 'O-3',
@@ -184,12 +186,12 @@ export const RANK_GRADE_ASSOCIATIONS = {
     {
       abbv_rank: 'ENS',
       rank: 'Ensign',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'MID',
       rank: 'Midshipman',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'WO5',
@@ -321,7 +323,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     {
       abbv_rank: '2LT',
       rank: 'Second Lieutenant',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'CMA',
@@ -428,12 +430,12 @@ export const RANK_GRADE_ASSOCIATIONS = {
     {
       abbv_rank: 'MID',
       rank: 'Midshipman',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'ENS',
       rank: 'Ensign',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'CWO4',
@@ -555,7 +557,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     {
       abbv_rank: '2LT',
       rank: 'Second Lieutenant',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'CW5',
@@ -697,17 +699,17 @@ export const RANK_GRADE_ASSOCIATIONS = {
     {
       abbv_rank: 'AVC',
       rank: 'Aviation Cadet',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: '2LT',
       rank: 'Second Lieutenant',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'AFC',
       rank: 'Air Force Academy Cadet',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'CMS',
@@ -809,17 +811,17 @@ export const RANK_GRADE_ASSOCIATIONS = {
     {
       abbv_rank: '2LT',
       rank: 'Second Lieutenant',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'OC',
       rank: 'Officer Candidate',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'CDT',
       rank: 'Cadet',
-      grade: 'O_1',
+      grade: 'O_1_ACADEMY_GRADUATE',
     },
     {
       abbv_rank: 'CW5',
