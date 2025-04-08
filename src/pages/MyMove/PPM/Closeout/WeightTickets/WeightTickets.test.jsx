@@ -129,6 +129,10 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const aboutPath = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
 const weightTicketsEditPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -297,6 +301,41 @@ describe('Weight Tickets page', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
+    });
+  });
+
+  // remove this when E-06515 is implemented
+  it('displays a specific error when the DTODFailureErrorMessage is returned, and links the user to the about page', async () => {
+    createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });
+    patchWeightTicket.mockRejectedValueOnce({
+      response: {
+        body: {
+          detail:
+            'We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box.',
+        },
+      },
+    });
+    renderWeightTicketsPage();
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
+    });
+    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.click(screen.getByLabelText('Yes'));
+    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('pickup and delivery ZIP codes')).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByTestId('ZipLink'));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(aboutPath);
     });
   });
 
