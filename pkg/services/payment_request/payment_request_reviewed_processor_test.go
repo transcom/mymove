@@ -716,3 +716,52 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
 	})
 }
+
+func (suite *PaymentRequestServiceSuite) TestSentToGexPaymentRequestSetBackToReviewedCronJob() {
+
+	suite.Run("if payment request has been stuck in SENT_TO_GEX for over 12 hours, reglag for review", func() {
+		// reflag in this case means:
+		// - setting status back to REVIEWED
+		// - clearing the sent_to_gex_at time
+
+		// create payment request older than 12 hours
+		staleTime := time.Now().Add(-13 * time.Hour)
+		stuckInSentToGexPR := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:      models.PaymentRequestStatusSentToGex,
+					SentToGexAt: &staleTime,
+				},
+			},
+		}, nil)
+
+		// create payment request newer than 12 hours
+		newerTime := time.Now().Add(-3 * time.Hour)
+		newerSentToGexPR := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:      models.PaymentRequestStatusSentToGex,
+					SentToGexAt: &newerTime,
+				},
+			},
+		}, nil)
+
+		// trigger the flag_sent_to_gex_for_review cron function
+		err := suite.AppContextForTest().DB().RawQuery("SELECT flag_sent_to_gex_for_review();").Exec()
+		suite.NoError(err)
+
+		// check that older than 12 hours SENT_TO_GEX PR was updated to REVIEWED status and sent_to_gex_at is null
+		var updatedOlderPR models.PaymentRequest
+		err = suite.AppContextForTest().DB().Find(&updatedOlderPR, stuckInSentToGexPR.ID)
+		suite.NoError(err)
+		suite.Equal(models.PaymentRequestStatusReviewed, updatedOlderPR.Status)
+		suite.Nil(updatedOlderPR.SentToGexAt)
+
+		// check that newer than 12 hours SENT_TO_GEX PR stays in SENT_TO_GEX and still has sent_to_gex_at value
+		var updatedNewerPR models.PaymentRequest
+		err = suite.AppContextForTest().DB().Find(&updatedNewerPR, newerSentToGexPR.ID)
+		suite.NoError(err)
+		suite.Equal(models.PaymentRequestStatusSentToGex, updatedNewerPR.Status)
+		suite.NotNil(updatedNewerPR.SentToGexAt)
+	})
+}
