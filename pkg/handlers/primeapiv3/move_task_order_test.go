@@ -910,10 +910,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), matchingPR.RecalculationOfPaymentRequestID.String())
 
 		// verify paymentServiceItems
+		suite.Len(paymentRequest.PaymentServiceItems, 4)
 		suite.Len(paymentRequestPayload.PaymentServiceItems, 4)
-		for i := 0; i < len(paymentRequest.PaymentServiceItems); i++ {
+		for i := range paymentRequest.PaymentServiceItems {
 			expectedPSI := paymentRequest.PaymentServiceItems[i]
 			resultPSI := paymentRequestPayload.PaymentServiceItems[i]
+
 			suite.Equal(expectedPSI.ID.String(), resultPSI.ID.String())
 			suite.Equal(expectedPSI.PaymentRequestID.String(), resultPSI.PaymentRequestID.String())
 			suite.Equal(expectedPSI.MTOServiceItemID.String(), resultPSI.MtoServiceItemID.String())
@@ -924,16 +926,19 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			suite.NotNil(resultPSI.ETag)
 
 			// verify paymentServiceItems params
+			suite.Len(expectedPSI.PaymentServiceItemParams, 2)
 			suite.Len(resultPSI.PaymentServiceItemParams, 2)
-			expectedPSIP := expectedPSI.PaymentServiceItemParams[0]
-			resultPSIP := resultPSI.PaymentServiceItemParams[0]
-			suite.Equal(expectedPSIP.ID.String(), resultPSIP.ID.String())
-			suite.Equal(expectedPSIP.PaymentServiceItemID.String(), resultPSIP.PaymentServiceItemID.String())
-			suite.Equal(expectedPSIP.ServiceItemParamKey.Key.String(), string(resultPSIP.Key))
-			suite.Equal(expectedPSIP.Value, resultPSIP.Value)
-			suite.Equal(expectedPSIP.ServiceItemParamKey.Type.String(), string(resultPSIP.Type))
-			suite.Equal(expectedPSIP.ServiceItemParamKey.Origin.String(), string(resultPSIP.Origin))
-			suite.NotNil(resultPSIP.ETag)
+			for j := range expectedPSI.PaymentServiceItemParams {
+				expectedPSIP := expectedPSI.PaymentServiceItemParams[j]
+				resultPSIP := resultPSI.PaymentServiceItemParams[j]
+				suite.Equal(expectedPSIP.ID.String(), resultPSIP.ID.String())
+				suite.Equal(expectedPSIP.PaymentServiceItemID.String(), resultPSIP.PaymentServiceItemID.String())
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Key.String(), string(resultPSIP.Key))
+				suite.Equal(expectedPSIP.Value, resultPSIP.Value)
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Type.String(), string(resultPSIP.Type))
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Origin.String(), string(resultPSIP.Origin))
+				suite.NotNil(resultPSIP.ETag)
+			}
 		}
 
 		// verify proofOfServiceDocs
