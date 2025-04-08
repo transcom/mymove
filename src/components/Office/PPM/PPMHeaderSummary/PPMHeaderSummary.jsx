@@ -129,6 +129,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
 PPMHeaderSummary.propTypes = {
   ppmNumber: string.isRequired,
   showAllFields: bool.isRequired,
+  readOnly: bool,
 };
 
-PPMHeaderSummary.defaultProps = {};
+PPMHeaderSummary.defaultProps = { readOnly: false };

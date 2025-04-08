@@ -127,6 +127,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                         ? 'When did you ship your package?'
                         : 'When did you leave your origin?'
                     }
+                    required
                   />
                   <Hint className={ppmStyles.hint}>
                     {ppmType === PPM_TYPES.SMALL_PACKAGE
@@ -192,7 +193,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                   />
                   <AddressFields
                     name="destinationAddress"
-                    legend="Delivery Address"
+                    legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                     className={styles.AddressFieldSet}
                     labelHint="Required"
                     locationLookup
@@ -200,7 +201,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     render={(fields) => (
                       <>
                         {fields}
-                        <h4>Second Delivery Address</h4>
+                        <h4>Second {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address</h4>
                         <FormGroup>
                           <p>
                             Will you deliver any belongings to a second address? (Must be near the delivery address.

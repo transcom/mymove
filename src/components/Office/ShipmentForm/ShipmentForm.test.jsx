@@ -1616,6 +1616,9 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).toBeChecked();
       });
 
+      expect(screen.queryByText('Destination Address')).toBeInTheDocument();
+      expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
+
       expect(screen.queryByText('Storage in transit')).not.toBeInTheDocument();
     });
   });

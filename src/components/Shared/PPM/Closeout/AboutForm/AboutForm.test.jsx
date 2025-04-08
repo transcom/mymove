@@ -432,6 +432,9 @@ describe('AboutForm component', () => {
           screen.queryByText(/If you picked things up or dropped things off from other places/),
         ).not.toBeInTheDocument();
 
+        expect(screen.queryByText('Destination Address')).toBeInTheDocument();
+        expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
+
         expect(screen.getByText('W-2 address')).toBeInTheDocument();
 
         expect(screen.getByRole('heading', { level: 2, name: /Locations/ })).toBeInTheDocument();
