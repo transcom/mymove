@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer, Link } from '@trussworks/react-uswds';
 
 import {
   selectMTOShipmentById,
@@ -84,9 +84,41 @@ const WeightTickets = () => {
     dispatch(updateAllMoves(moves));
   }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
 
+  const handleErrorClick = () => {
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+
+    navigate(path);
+  };
+
+  const zipError = (
+    <p>
+      We are unable to calculate your distance. It may be that you have entered an invalid ZIP code. Please check
+      the&nbsp;
+      <Link className="usa-link" href="#" onClick={handleErrorClick} data-testid="ZipLink">
+        pickup and delivery ZIP codes
+      </Link>
+      &nbsp;to ensure they were entered correctly and are not PO boxes. If you do not have a different ZIP code, then
+      please contact the &nbsp;
+      <Link className="usa-link" href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
+        Technical Help Desk
+      </Link>
+      .
+    </p>
+  );
+
   const handleErrorMessage = (error) => {
     if (error?.response?.status === 412) {
       setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else if (
+      // this 'else if' can be removed when E-06515 is implemented
+      // along with zipError and handleErrorClick
+      error?.response?.body?.detail ===
+      'We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box.'
+    ) {
+      setErrorMessage(zipError);
     } else {
       setErrorMessage(getResponseError(error.response, 'Failed to save updated trip record'));
     }

@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -98,9 +99,6 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 
 			updateWeightTicket, err := h.weightTicketUpdater.UpdateWeightTicket(appCtx, *weightTicket, params.IfMatch)
 
-			// temp error until E-06515 is implemented
-			// once that is implemented, remove this tempDTOD error and comment in the error below in the EventError case
-			tempDTODError := "We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code. Please press 'Cancel' and check your ZIP Code you entered under 'About your PPM' to ensure it was entered correctly and is not a PO Box. If you do not have a different ZIP Code, then please contact the Technical Help Desk."
 			if err != nil {
 				appCtx.Logger().Error("internalapi.UpdateWeightTicketHandler", zap.Error(err))
 				switch e := err.(type) {
@@ -133,8 +131,7 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 						NewUpdateWeightTicketInternalServerError().
 						WithPayload(
 							payloads.InternalServerError(
-								&tempDTODError,
-								// swag.String(err.Error()),
+								swag.String(err.Error()),
 								h.GetTraceIDFromRequest(params.HTTPRequest),
 							),
 						), err
