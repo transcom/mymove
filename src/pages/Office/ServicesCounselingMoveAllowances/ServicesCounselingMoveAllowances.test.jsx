@@ -171,6 +171,9 @@ const useCivilianTDYOrdersDocumentQueriesReturnValue = {
       sac: 'E2P3',
     },
   },
+  move: {
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  },
 };
 const editMoveStatuses = [
   MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
