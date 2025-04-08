@@ -2,6 +2,7 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createRoot } from 'react-dom/client';
 
 import Orders from './Orders';
 
@@ -9,7 +10,6 @@ import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
-import { createRoot } from 'react-dom/client';
 
 const mockOriginDutyLocation = {
   address: {
@@ -289,8 +289,8 @@ describe('Orders page', () => {
       });
       it('validates NTS with a valid TAC and no LOA', async () => {
         // Empty HHG from having a good useEffect TAC
+        const hhgTacInput = screen.getByTestId('hhgTacInput');
         act(async () => {
-          const hhgTacInput = screen.getByTestId('hhgTacInput');
           await userEvent.clear(hhgTacInput);
           const ntsTacInput = screen.getByTestId('ntsTacInput');
           await userEvent.clear(ntsTacInput);

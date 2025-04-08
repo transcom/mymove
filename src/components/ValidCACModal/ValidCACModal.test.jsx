@@ -1,9 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { createRoot } from 'react-dom/client';
 
 import { ValidCACModal } from './ValidCACModal';
-import { createRoot } from 'react-dom/client';
-import { act } from 'react-test-renderer';
 
 describe('ValidCACModal', () => {
   const onCloseMock = jest.fn();

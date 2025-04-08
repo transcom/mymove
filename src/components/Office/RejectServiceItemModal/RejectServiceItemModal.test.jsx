@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { waitFor } from '@testing-library/dom';
 
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
-import { waitFor } from '@testing-library/dom';
 
 describe('RejectServiceItemModal', () => {
   const submittedServiceItem = {

@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
+import { createRoot } from 'react-dom/client';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
@@ -10,7 +11,6 @@ import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE } from 'constants/orders';
-import { createRoot } from 'react-dom/client';
 
 const mockOriginDutyLocation = {
   address: {
@@ -447,7 +447,7 @@ describe('Orders page', () => {
       const container = document.createElement('div');
       const root = createRoot(container); // Create a root
       act(() => {
-        render(
+        root.render(
           <MockProviders>
             <ServicesCounselingOrders {...ordersMockProps} />
           </MockProviders>,

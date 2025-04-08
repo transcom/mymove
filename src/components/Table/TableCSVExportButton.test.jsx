@@ -1,10 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { waitFor } from '@testing-library/react';
 
 import TableCSVExportButton from './TableCSVExportButton';
 
 import { getPaymentRequestsQueue } from 'services/ghcApi';
-import { waitFor } from '@testing-library/react';
 
 const paymentRequestsResponse = {
   page: 1,

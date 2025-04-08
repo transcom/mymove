@@ -101,7 +101,6 @@ describe('LogoutOnInactivity', () => {
       const wrapper = screen.queryByTestId('logoutOnInactivityWrapper');
 
       waitFor(async () => {
-        const wrapper = await screen.queryByTestId('logoutOnInactivityWrapper');
         expect(wrapper).not.toBeInTheDocument();
       });
     });

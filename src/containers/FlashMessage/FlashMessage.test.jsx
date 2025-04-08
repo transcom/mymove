@@ -1,11 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Alert } from '@trussworks/react-uswds';
+import { waitFor } from '@testing-library/react';
 
 import ConnectedFlashMessage, { FlashMessage } from './FlashMessage';
 
 import { MockProviders } from 'testUtils';
-import { waitFor } from '@testing-library/react';
 
 describe('FlashMessage component', () => {
   it('renders an Alert', () => {

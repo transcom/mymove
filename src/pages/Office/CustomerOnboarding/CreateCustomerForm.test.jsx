@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitFor, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
+import { createRoot } from 'react-dom/client';
 
 import { CreateCustomerForm } from './CreateCustomerForm';
 
@@ -11,7 +12,6 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { roleTypes } from 'constants/userRoles';
-import { createRoot } from 'react-dom/client';
 
 const mockPickupLocation = [
   {

@@ -3,11 +3,11 @@ import * as Formik from 'formik';
 import { mount, shallow } from 'enzyme';
 import AsyncSelect from 'react-select/async';
 import { useField } from 'formik';
+import { waitFor } from '@testing-library/react';
 
 import { DutyLocationInput } from './DutyLocationInput';
 
 import { LocationSearchBoxComponent, LocationSearchBoxContainer } from 'components/LocationSearchBox/LocationSearchBox';
-import { waitFor } from '@testing-library/react';
 
 const mockSetValue = jest.fn();
 

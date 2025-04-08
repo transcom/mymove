@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, waitFor, within, act } from '@testing-library/react';
+import { createRoot } from 'react-dom/client';
 
 import MobileHomeShipmentInfoList from './MobileHomeShipmentInfoList';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { createRoot } from 'react-dom/client';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),

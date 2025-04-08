@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { waitFor } from '@testing-library/react';
 
 import RequestShipmentDiversionModal from 'components/Office/RequestShipmentDiversionModal/RequestShipmentDiversionModal';
-import { waitFor } from '@testing-library/react';
 
 let onClose;
 let onSubmit;

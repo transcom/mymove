@@ -1,12 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
+import { waitFor } from '@testing-library/react';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
-import { waitFor } from '@testing-library/react';
 
 const pendingPaymentRequest = {
   status: PAYMENT_REQUEST_STATUS.PENDING,

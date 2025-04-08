@@ -1,9 +1,8 @@
 import React from 'react';
-import { screen, fireEvent, waitFor, act, render } from '@testing-library/react';
+import { screen, fireEvent, act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MobileHomeShipmentForm from './MobileHomeShipmentForm';
-import { createRoot } from 'react-dom/client';
 
 const mtoShipment = {
   mobileHomeShipment: {
