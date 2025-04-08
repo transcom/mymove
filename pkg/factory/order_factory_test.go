@@ -12,7 +12,7 @@ import (
 func (suite *FactorySuite) TestBuildOrder() {
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
-	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+	defaultDepartmentIndicator := "ARMY"
 	defaultGrade := "E_1"
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
