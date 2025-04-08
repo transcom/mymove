@@ -915,7 +915,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		for i := range paymentRequest.PaymentServiceItems {
 			expectedPSI := paymentRequest.PaymentServiceItems[i]
 			resultPSI := paymentRequestPayload.PaymentServiceItems[i]
-
 			suite.Equal(expectedPSI.ID.String(), resultPSI.ID.String())
 			suite.Equal(expectedPSI.PaymentRequestID.String(), resultPSI.PaymentRequestID.String())
 			suite.Equal(expectedPSI.MTOServiceItemID.String(), resultPSI.MtoServiceItemID.String())
