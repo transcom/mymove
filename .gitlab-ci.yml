@@ -186,6 +186,8 @@ stages:
 
 .install_yarn: &install_yarn
   - |
+    git config --global url."https://github".insteadOf ssh://git@github
+    git config --global url."https://github.com/".insteadOf git@github.com:
     mkdir -p /builds/milmove/mymove/.cache
     mkdir -p /builds/milmove/mymove/.cache/yarn
     yarn install --frozen-lockfile --cache-folder /builds/milmove/mymove/.cache/yarn
