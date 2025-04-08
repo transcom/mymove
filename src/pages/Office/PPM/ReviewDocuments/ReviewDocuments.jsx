@@ -29,8 +29,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
-  const ppmShipment = mtoShipment?.ppmShipment;
-  const isPPMSPR = ppmShipment?.ppmType === PPM_TYPES.SMALL_PACKAGE;
 
   const [serverError, setServerError] = useState(null);
   const [showOverview, setShowOverview] = useState(false);
@@ -45,7 +43,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
-  const [ppmShipmentInfo, setPpmShipmentInfo] = useState({});
   const [allWeightTicketsRejected, setAllWeightTicketsRejected] = useState(false);
   const [allMovingExpensesRejected, setAllMovingExpensesRejected] = useState(false);
   let documentSets = useMemo(() => [], []);
@@ -55,6 +52,19 @@ export const ReviewDocuments = ({ readOnly }) => {
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
+
+  const ppmShipmentInfo = useMemo(() => {
+    if (mtoShipment && mtoShipment.ppmShipment) {
+      return {
+        ...mtoShipment.ppmShipment,
+        miles: mtoShipment.distance,
+        actualWeight: ppmActualWeight?.actualWeight ?? currentTotalWeight,
+      };
+    }
+    return {};
+  }, [mtoShipment, ppmActualWeight, currentTotalWeight]);
+  const isPPMSPR = ppmShipmentInfo?.ppmType === PPM_TYPES.SMALL_PACKAGE;
+
   useEffect(() => {
     if (
       currentTotalWeight === 0 &&
@@ -73,17 +83,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   useEffect(() => {
     setCurrentMtoShipments(mtoShipments);
   }, [mtoShipments]);
-
-  useEffect(() => {
-    if (mtoShipment) {
-      const updatedPpmShipmentInfo = {
-        ...mtoShipment.ppmShipment,
-        miles: mtoShipment.distance,
-        actualWeight: currentTotalWeight,
-      };
-      setPpmShipmentInfo(updatedPpmShipmentInfo);
-    }
-  }, [mtoShipment, currentTotalWeight]);
 
   useEffect(() => {
     if (weightTickets.length > 0) {
@@ -288,17 +287,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   useEffect(() => {
     setCurrentMtoShipments(mtoShipments);
   }, [mtoShipments]);
-
-  useEffect(() => {
-    if (mtoShipment) {
-      const updatedPpmShipmentInfo = {
-        ...mtoShipment.ppmShipment,
-        miles: mtoShipment.distance,
-        actualWeight: currentTotalWeight,
-      };
-      setPpmShipmentInfo(updatedPpmShipmentInfo);
-    }
-  }, [mtoShipment, currentTotalWeight]);
 
   const getAllUploads = () => {
     return documentSets.reduce((acc, documentSet) => {

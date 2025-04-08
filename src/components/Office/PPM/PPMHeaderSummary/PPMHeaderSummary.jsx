@@ -93,7 +93,9 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
       <div className={styles.header}>
         <h3>PPM {ppmNumber}</h3>
         {shipmentInfo?.ppmType === PPM_TYPES.SMALL_PACKAGE && (
-          <Tag data-testid="smallPackageTag">{getPPMTypeLabel(shipmentInfo.ppmType)}</Tag>
+          <Tag data-testid="smallPackageTag" className={styles.tagInfo}>
+            {getPPMTypeLabel(shipmentInfo.ppmType)}
+          </Tag>
         )}
         {shipmentInfo.isActualExpenseReimbursement && (
           <Tag className={styles.tagInfo}>actual expense reimbursement</Tag>
@@ -129,6 +131,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
 PPMHeaderSummary.propTypes = {
   ppmNumber: string.isRequired,
   showAllFields: bool.isRequired,
+  readOnly: bool,
 };
 
-PPMHeaderSummary.defaultProps = {};
+PPMHeaderSummary.defaultProps = { readOnly: false };

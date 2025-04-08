@@ -326,7 +326,7 @@ func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
 	if ppm.PPMType == PPMTypeSmallPackage {
 		if len(ppm.MovingExpenses) >= 1 {
 			for _, movingExpense := range ppm.MovingExpenses {
-				if movingExpense.WeightShipped != nil && *movingExpense.Status != PPMDocumentStatusRejected {
+				if movingExpense.WeightShipped != nil && movingExpense.Status != nil && *movingExpense.Status != PPMDocumentStatusRejected {
 					totalNetWeight += *movingExpense.WeightShipped
 				}
 			}
