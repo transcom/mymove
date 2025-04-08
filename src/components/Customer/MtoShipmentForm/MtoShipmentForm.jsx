@@ -14,6 +14,7 @@ import {
   Textarea,
   Button,
 } from '@trussworks/react-uswds';
+import moment from 'moment';
 
 import boatShipmentstyles from '../BoatShipment/BoatShipmentForm/BoatShipmentForm.module.scss';
 
@@ -269,7 +270,10 @@ class MtoShipmentForm extends Component {
               onDateSelectionErrorHandler,
             );
             // preferredPickupDate must be in the future for non-PPM shipments
-            if (new Date(formatDateWithUTC(e) || null).setHours(0, 0, 0, 0) <= new Date().setHours(0, 0, 0, 0)) {
+            const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+            const today = moment().startOf('day');
+
+            if (!pickupDate.isAfter(today)) {
               setPreferredPickupDateErrorMessage('Preferred pickup date must be in the future.');
             }
           };
@@ -363,7 +367,7 @@ class MtoShipmentForm extends Component {
                                 type="error"
                                 aria-live="assertive"
                                 headingLevel="h4"
-                                data-testid="preferredPickupDateAlert"
+                                data-testid="preferredPickupDateErrorAlert"
                               >
                                 {preferredPickupDateErrorMessage}
                               </Alert>
