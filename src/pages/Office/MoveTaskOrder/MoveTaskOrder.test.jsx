@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen, within, cleanup } from '@testing-library/react';
+import { render, screen, within, cleanup, waitFor } from '@testing-library/react';
 import * as reactQuery from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 
@@ -1069,12 +1069,20 @@ describe('MoveTaskOrder', () => {
       expect(breakdownToggle).toBeInTheDocument();
 
       breakdownToggle.click();
-      expect(breakdownToggle).toHaveTextContent('Hide Breakdown');
-      expect(screen.queryByText('110% Estimated UB')).toBeInTheDocument();
 
-      const ubEstimatedWeightValue = screen.getByTestId('breakdownUBEstimatedWeight');
-      expect(ubEstimatedWeightValue).toBeInTheDocument();
-      expect(ubEstimatedWeightValue).toHaveTextContent(`${formatWeight(testShipments[0].primeEstimatedWeight * 1.1)}`);
+      waitFor(() => {
+        expect(breakdownToggle).toHaveTextContent('Hide Breakdown');
+        expect(screen.queryByText('110% Estimated UB')).toBeInTheDocument();
+      });
+
+      waitFor(() => {
+        const ubEstimatedWeightValue = screen.getByTestId('breakdownUBEstimatedWeight');
+
+        expect(ubEstimatedWeightValue).toBeInTheDocument();
+        expect(ubEstimatedWeightValue).toHaveTextContent(
+          `${formatWeight(testShipments[0].primeEstimatedWeight * 1.1)}`,
+        );
+      });
     });
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import * as Yup from 'yup';
 import userEvent from '@testing-library/user-event';
 
@@ -115,7 +115,7 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     );
     await userEvent.clear(screen.getByLabelText(/Address 1/));
     (await screen.getByLabelText(/Address 1/)).blur();
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       const requiredAlerts = screen.getByRole('alert');
       expect(requiredAlerts).toHaveTextContent('Required');

@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
 
 import AllowancesList from './AllowancesList';
 
@@ -152,7 +151,7 @@ describe('AllowancesList', () => {
 
   it('does render oconus fields when present', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Formik initialValues={initialValuesOconusAdditions}>
           <AllowancesList info={{ ...oconusInfo }} showVisualCues />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
@@ -49,7 +49,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   };
 
   it('renders the component', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="shipmentInfo"
@@ -71,7 +71,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   it('renders pickup address', async () => {
     const mockStore = configureStore({});
 
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <EditPPMHeaderSummaryModal
@@ -95,7 +95,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   it('renders delivery address', async () => {
     const mockStore = configureStore({});
 
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <Provider store={mockStore.store}>
           <EditPPMHeaderSummaryModal
@@ -116,8 +116,28 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
   });
 
+  it('renders actual expense reimbursement', async () => {
+    await waitFor(async () => {
+      render(
+        <EditPPMHeaderSummaryModal
+          sectionType="shipmentInfo"
+          sectionInfo={sectionInfo}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          editItemName="isActualExpenseReimbursement"
+        />,
+      );
+    });
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
+    expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+  });
+
   it('renders allowable weight', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="shipmentInfo"
@@ -158,7 +178,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('closes the modal when close icon is clicked', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="shipmentInfo"
@@ -170,7 +190,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(await screen.getByLabelText('Close'));
     });
 
@@ -180,7 +200,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('closes the modal when the cancel button is clicked', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="shipmentInfo"
@@ -192,7 +212,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(await screen.getByRole('button', { name: 'Cancel' }));
     });
 
@@ -202,7 +222,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('calls the submit function when submit button is clicked', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="shipmentInfo"
@@ -214,7 +234,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
 
@@ -224,7 +244,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('displays required validation error when actual move date is empty', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="shipmentInfo"
@@ -236,7 +256,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.clear(await screen.getByLabelText('Actual move start date'));
       await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
@@ -246,7 +266,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('displays required validation error when advance amount received is empty', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="incentives"
@@ -258,7 +278,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.clear(await screen.getByLabelText('Advance received'));
       await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
@@ -268,7 +288,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('displays required validation error when allowable weight is empty', async () => {
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <EditPPMHeaderSummaryModal
           sectionType="shipmentInfo"
@@ -280,14 +300,14 @@ describe('EditPPMHeaderSummaryModal', () => {
       );
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
     });
 
     expect(await screen.findByText('Required')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
 
-    await act(async () => {
+    await waitFor(async () => {
       await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
       await userEvent.type(await screen.getByLabelText('Allowable Weight'), '-100');
     });

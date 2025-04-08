@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import CreateShipmentServiceItemForm from './CreateShipmentServiceItemForm';
@@ -97,7 +97,7 @@ describe('CreateShipmentServiceItemForm component', () => {
   ])('renders %s after selecting %s type', async (formName, serviceItemType) => {
     isBooleanFlagEnabled.mockResolvedValue(true);
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
-    await act(async () => {
+    await waitFor(async () => {
       render(
         <MockProviders>
           <CreateShipmentServiceItemForm shipment={shipment} createServiceItemMutation={jest.fn()} />
@@ -105,9 +105,9 @@ describe('CreateShipmentServiceItemForm component', () => {
       );
     });
 
-    const dropdown = await screen.getByRole('combobox', { name: 'Service item type' });
-    await userEvent.selectOptions(dropdown, [serviceItemType]);
+    const dropdown = screen.getByRole('combobox', { name: 'Service item type' });
+    userEvent.selectOptions(dropdown, [serviceItemType]);
 
-    expect(screen.getByRole('form', { testid: formName })).toBeInTheDocument();
+    await expect(screen.getByRole('form', { testid: formName })).toBeInTheDocument();
   });
 });

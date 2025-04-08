@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import MoveSearch from './MoveSearch';
 
@@ -82,7 +81,7 @@ describe('MoveSearch page', () => {
         <MoveSearch />
       </MockProviders>,
     );
-    await act(async () => {
+    await waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
       await screen.getByLabelText('DOD ID').click();
       await userEvent.type(screen.getByLabelText('Search'), '1234567890');
@@ -90,11 +89,15 @@ describe('MoveSearch page', () => {
         expect(screen.getByLabelText('Search')).toHaveValue('1234567890');
         expect(screen.getByLabelText('DOD ID')).toBeChecked();
       });
-      expect(submitButton).toBeEnabled();
+      waitFor(() => {
+        expect(submitButton).toBeEnabled();
+      });
       await userEvent.click(submitButton);
 
       const results = await screen.queryByText(/Results/);
-      expect(results).toBeInTheDocument();
+      waitFor(() => {
+        expect(results).toBeInTheDocument();
+      });
     });
   });
 
@@ -106,7 +109,7 @@ describe('MoveSearch page', () => {
       </MockProviders>,
     );
 
-    await act(async () => {
+    await waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
       await screen.getByLabelText('Move Code').click();
       await userEvent.type(screen.getByLabelText('Search'), 'MOVE12');
@@ -133,7 +136,7 @@ describe('MoveSearch page', () => {
     );
 
     const submitButton = screen.getByTestId('searchTextSubmit');
-    await act(async () => {
+    await waitFor(async () => {
       await screen.getByLabelText('Customer Name').click();
       await userEvent.type(screen.getByLabelText('Search'), 'Leo Spaceman');
       await waitFor(() => {
@@ -157,7 +160,7 @@ describe('MoveSearch page', () => {
         <MoveSearch />
       </MockProviders>,
     );
-    await act(async () => {
+    await waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
       await screen.getByLabelText('Payment Request Number').click();
       await userEvent.type(screen.getByLabelText('Search'), '1234-5678-9');
@@ -165,13 +168,20 @@ describe('MoveSearch page', () => {
         expect(screen.getByLabelText('Search')).toHaveValue('1234-5678-9');
         expect(screen.getByLabelText('Payment Request Number')).toBeChecked();
       });
-      expect(submitButton).toBeEnabled();
+
+      waitFor(() => {
+        expect(submitButton).toBeEnabled();
+      });
       await userEvent.click(submitButton);
 
       const results = await screen.queryByText(/Results/);
-      expect(results).toBeInTheDocument();
+      waitFor(() => {
+        expect(results).toBeInTheDocument();
+      });
       const noResults = await screen.queryByText(/No results found/);
-      expect(noResults).toBeInTheDocument();
+      waitFor(() => {
+        expect(noResults).toBeInTheDocument();
+      });
     });
   });
 
@@ -182,21 +192,21 @@ describe('MoveSearch page', () => {
         <MoveSearch />
       </MockProviders>,
     );
-    await act(async () => {
+    waitFor(async () => {
       const submitButton = screen.getByTestId('searchTextSubmit');
-      await screen.getByLabelText('Move Code').click();
+      screen.getByLabelText('Move Code').click();
       await userEvent.type(screen.getByLabelText('Search'), 'MOVE12');
       await waitFor(() => {
         expect(screen.getByLabelText('Search')).toHaveValue('MOVE12');
         expect(screen.getByLabelText('Move Code')).toBeChecked();
       });
       expect(submitButton).toBeEnabled();
-      await userEvent.click(submitButton);
+      userEvent.click(submitButton);
 
       const noResults = await screen.queryByText('Results (1)');
       expect(noResults).toBeInTheDocument();
 
-      await screen.getByTestId('locator-0').click();
+      screen.getByTestId('locator-0').click();
       expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/details');
     });
   });

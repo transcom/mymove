@@ -1,9 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 
 import { WizardPage } from 'shared/WizardPage';
 import { MockRouterProvider } from 'testUtils';
+import { act } from '@testing-library/react';
 
 const mockNavigate = jest.fn();
 

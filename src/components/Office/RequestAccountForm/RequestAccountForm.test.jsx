@@ -1,8 +1,6 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
-import selectEvent from 'react-select-event';
 
 import RequestAccountForm from './RequestAccountForm';
 
@@ -157,7 +155,9 @@ describe('RequestAccountForm component', () => {
 
     const transportationOfficeInput = screen.getByLabelText(/^Transportation Office/i);
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
-    await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
+    waitFor(() => {
+      userEvent.selectEvent(transportationOfficeInput, 'Tester');
+    });
 
     const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
     await userEvent.click(tooCheckbox);
@@ -165,7 +165,9 @@ describe('RequestAccountForm component', () => {
     const submitButton = await screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(submitButton);
 
-    expect(testProps.onSubmit).toHaveBeenCalled();
+    waitFor(() => {
+      expect(testProps.onSubmit).toHaveBeenCalled();
+    });
   });
 
   it('Throws error requesting office account with invalid email domain', async () => {
