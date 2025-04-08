@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -80,7 +79,7 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 	}
 
 	if !paymentRequestNeedingReview {
-		_, err := moveservice.AssignedOfficeUserUpdater.DeleteAssignedOfficeUser(moveservice.AssignedOfficeUserUpdater{}, appCtx, moveID, roles.RoleTypeTIO)
+		_, err := moveservice.AssignedOfficeUserUpdater.DeleteAssignedOfficeUser(moveservice.AssignedOfficeUserUpdater{}, appCtx, moveID, models.QueueTypePaymentRequest)
 		if err != nil {
 			return nil, err
 		}
