@@ -650,6 +650,10 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
     if (oldValues.tio_assigned_id === null) newValues.assigned_tio = name;
     if (oldValues.tio_assigned_id !== null) newValues.re_assigned_tio = name;
   }
+  if (changedValues?.too_destination_assigned_id) {
+    if (oldValues.too_destination_assigned_id == null) newValues.assigned_too_dest = name;
+    if (oldValues.too_destination_assigned_id !== null) newValues.re_assigned_too_dest = name;
+  }
   return newValues;
 };
 /**
