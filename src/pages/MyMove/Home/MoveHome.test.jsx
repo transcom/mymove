@@ -2,7 +2,7 @@
 import React from 'react';
 import { v4 } from 'uuid';
 import { mount } from 'enzyme';
-import { act, waitFor } from '@testing-library/react';
+import { act, waitFor, render, screen } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
 
@@ -10,7 +10,6 @@ import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -39,7 +38,7 @@ jest.mock('services/internalApi', () => ({
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(true)),
 }));
 
 const props = {
@@ -79,6 +78,28 @@ const defaultPropsNoOrders = {
         status: 'DRAFT',
         submittedAt: '0001-01-01T00:00:00.000Z',
         updatedAt: '0001-01-01T00:00:00.000Z',
+      },
+    ],
+    previousMoves: [],
+  },
+  uploadedOrderDocuments: [],
+  uploadedAmendedOrderDocuments: [],
+};
+
+const defaultWithLock = {
+  ...props,
+  serviceMemberMoves: {
+    currentMove: [
+      {
+        createdAt: '2024-02-16T15:55:20.639Z',
+        eTag: 'MjAyNC0wMi0xNlQxNTo1NToyMC42Mzk5MDRa',
+        id: '6dad799c-4567-4a7d-9419-1a686797768f',
+        moveCode: '4H8VCD',
+        orders: {},
+        status: 'DRAFT',
+        submittedAt: '0001-01-01T00:00:00.000Z',
+        updatedAt: '0001-01-01T00:00:00.000Z',
+        lockExpiresAt: '2099-04-07T17:21:30.450Z', // Date very far into the future to maintain lock
       },
     ],
     previousMoves: [],
@@ -1189,7 +1210,6 @@ afterEach(() => {
 describe('Home component', () => {
   describe('with default props, renders the right allowances', () => {
     it('renders Home with the right amount of components', async () => {
-      isBooleanFlagEnabled.mockResolvedValue(true);
       let wrapper;
       // wrapping rendering in act to ensure all state updates are complete
       await act(async () => {
@@ -1253,6 +1273,23 @@ describe('Home component', () => {
       // confirm move request step should have a disabled button
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeTruthy();
+    });
+  });
+
+  describe('with default props, with a lock on the move', () => {
+    const moveId = defaultWithLock.serviceMemberMoves.currentMove[0].id;
+    render(
+      <MockProviders path={customerRoutes.MOVE_HOME_PATH} params={{ moveId }}>
+        <MoveHome {...defaultWithLock} />
+      </MockProviders>,
+    );
+
+    it('renders Home with the right amount of components', () => {
+      expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+      expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
+      expect(screen.getByTestId('editButton')).toBeDisabled();
+      expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+      expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
     });
   });
 
@@ -1348,7 +1385,6 @@ describe('Home component', () => {
   });
 
   describe('with default props, orders with HHG & PPM shipments and NEEDS_SERVICE_COUNSELING move status', () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithSubmittedShipments);
 
     it('renders Home with the right amount of components', () => {
