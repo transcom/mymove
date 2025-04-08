@@ -735,95 +735,6 @@ describe('ShipmentForm component', () => {
     });
   });
 
-  it('when touched - requestedPickupDate must be in the future', async () => {
-    renderWithRouter(
-      <ShipmentForm
-        {...defaultProps}
-        isCreatePage={false}
-        shipmentType={SHIPMENT_OPTIONS.HHG}
-        displayDestinationType={false}
-      />,
-    );
-
-    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-    expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
-
-    await act(async () => {
-      const node = screen.getByLabelText('Requested pickup date');
-      await userEvent.clear(node);
-      await userEvent.paste('26 Mar 2022');
-      node.blur();
-    });
-
-    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
-    expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
-      'Requested pickup date must be in the future.',
-    );
-    expect(
-      await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
-    ).toHaveTextContent('Required');
-
-    const now = formatDateForDatePicker(formatDateWithUTC(new Date()));
-    await act(async () => {
-      const node = screen.getByLabelText('Requested pickup date');
-      await userEvent.clear(node);
-      await userEvent.paste(now);
-      node.blur();
-    });
-
-    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(now);
-    expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
-      'Requested pickup date must be in the future.',
-    );
-    expect(
-      await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
-    ).toHaveTextContent('Required');
-  });
-
-  it('when touched - valid requestedPickupDate hides errors', async () => {
-    renderWithRouter(
-      <ShipmentForm
-        {...defaultProps}
-        isCreatePage={false}
-        shipmentType={SHIPMENT_OPTIONS.HHG}
-        displayDestinationType={false}
-      />,
-    );
-
-    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-
-    await act(async () => {
-      const node = screen.getByLabelText('Requested pickup date');
-      await userEvent.clear(node);
-      await userEvent.paste('26 Mar 2022');
-      node.blur();
-    });
-
-    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
-    expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
-      'Requested pickup date must be in the future.',
-    );
-    expect(
-      await within(await screen.findByTestId('requestedPickupDateFieldSet')).findByTestId('errorMessage'),
-    ).toHaveTextContent('Required');
-
-    const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
-    await act(async () => {
-      const node = screen.getByLabelText('Requested pickup date');
-      await userEvent.clear(node);
-      await userEvent.paste(tomorrow);
-      node.blur();
-    });
-
-    expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrow);
-    await waitFor(() => {
-      expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
-      expect(
-        within(screen.getByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
-      ).not.toBeInTheDocument();
-    });
-  });
-
   describe('weight allowance appears at the top of the page', () => {
     it('renders the UB weight allowance for UB shipment form', async () => {
       renderWithRouter(
@@ -2642,7 +2553,7 @@ describe('ShipmentForm component', () => {
           node.blur();
         });
         expect(await screen.findByLabelText(/Requested pickup date/)).toHaveValue('26 Mar 2022');
-        expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+        expect(await screen.findByTestId('requestedPickupDateErrorAlert')).toHaveTextContent(
           'Requested pickup date must be in the future.',
         );
         expect(
@@ -2658,7 +2569,7 @@ describe('ShipmentForm component', () => {
           node.blur();
         });
         expect(await screen.findByLabelText(/Requested pickup date/)).toHaveValue(now);
-        expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+        expect(await screen.findByTestId('requestedPickupDateErrorAlert')).toHaveTextContent(
           'Requested pickup date must be in the future.',
         );
         expect(
@@ -2688,7 +2599,7 @@ describe('ShipmentForm component', () => {
           node.blur();
         });
         expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
-        expect(await screen.findByTestId('requestedPickupDateAlert')).toHaveTextContent(
+        expect(await screen.findByTestId('requestedPickupDateErrorAlert')).toHaveTextContent(
           'Requested pickup date must be in the future.',
         );
         expect(
@@ -2705,7 +2616,7 @@ describe('ShipmentForm component', () => {
         });
         expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrow);
         await waitFor(() => {
-          expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('requestedPickupDateErrorAlert')).not.toBeInTheDocument();
           expect(
             within(screen.getByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
           ).not.toBeInTheDocument();

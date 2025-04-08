@@ -6,6 +6,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio, Label, Tag } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import moment from 'moment';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -749,11 +750,12 @@ const ShipmentForm = (props) => {
             setIsRequestedPickupDateAlertVisible,
             onErrorHandler,
           );
+
           // requestedPickupDate must be in the future for non-PPM shipments
-          if (
-            !isPPM &&
-            new Date(formatDateWithUTC(e) || null).setHours(0, 0, 0, 0) <= new Date().setHours(0, 0, 0, 0)
-          ) {
+          const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+          const today = moment().startOf('day');
+
+          if (!isPPM && !pickupDate.isAfter(today)) {
             setRequestedPickupDateErrorMessage('Requested pickup date must be in the future.');
           }
         };
@@ -962,7 +964,7 @@ const ShipmentForm = (props) => {
                           type="error"
                           aria-live="assertive"
                           headingLevel="h4"
-                          data-testid="requestedPickupDateAlert"
+                          data-testid="requestedPickupDateErrorAlert"
                         >
                           {requestedPickupDateErrorMessage}
                         </Alert>
