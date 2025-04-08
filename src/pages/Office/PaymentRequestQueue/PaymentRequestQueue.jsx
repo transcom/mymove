@@ -31,11 +31,17 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { DEFAULT_EMPTY_VALUE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import handleQueueAssignment from 'utils/queues';
+import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
-export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue, showBranchFilter = true) => {
+export const columns = (
+  moveLockFlag,
+  queueType,
+  isQueueManagementEnabled,
+  setRefetchQueue,
+  showBranchFilter = true,
+) => {
   const cols = [
     createHeader(
       ' ',
@@ -164,7 +170,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, setRefetchQueue,
               <Dropdown
                 key={row.id}
                 onChange={(e) => {
-                  handleQueueAssignment(row.moveID, e.target.value, roleTypes.TIO);
+                  handleQueueAssignment(row.moveID, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
                 }}
                 title="Assigned dropdown"
@@ -335,7 +341,7 @@ const PaymentRequestQueue = ({
           defaultSortedColumns={[{ id: 'age', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, setRefetchQueue, showBranchFilter)}
+          columns={columns(moveLockFlag, queueType, isQueueManagementFFEnabled, setRefetchQueue, showBranchFilter)}
           title="Payment requests"
           handleClick={handleClick}
           useQueries={usePaymentRequestQueueQueries}
