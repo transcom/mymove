@@ -77,7 +77,7 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
       <div className={styles.dateSummary}>
         <p>{`PPM approved: ${formatCustomerDate(approvedAt)}`}</p>
         <p>{`PPM documentation submitted: ${formatCustomerDate(submittedAt)}`}</p>
-        <p>{`Documentation accepted and verified: ${formatCustomerDate(reviewedAt)}`}</p>
+        <p>{`PPM closeout completed: ${formatCustomerDate(reviewedAt)}`}</p>
       </div>
       <div>
         <p>
