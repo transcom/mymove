@@ -370,7 +370,6 @@ const TableQueue = ({
             onSubmit={onSubmitBulk}
             onClose={handleCloseBulkAssignModal}
             queueType={queueType}
-            selectedGbloc={selectedGbloc}
           />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
