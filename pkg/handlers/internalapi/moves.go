@@ -478,7 +478,6 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				}
 			}
 
-			// TODO: Bug? Not actually appending latestMove here?
 			// Place latest move in currentMovesList array
 			currentMovesList = append(currentMovesList, latestMove)
 
