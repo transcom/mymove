@@ -72,7 +72,7 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ serv
 		moveRouter,
 		moveWeights,
 		recalculator,
-		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
+		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), MTOShipmentHasRequestedPickupDateTodayOrEarlier()},
 	}
 }
 
@@ -86,7 +86,7 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ servic
 		moveRouter,
 		moveWeights,
 		recalculator,
-		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
+		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), MTOShipmentHasRequestedPickupDateTodayOrEarlier()},
 	}
 }
 
