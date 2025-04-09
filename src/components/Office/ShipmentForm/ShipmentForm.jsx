@@ -1496,7 +1496,8 @@ const ShipmentForm = (props) => {
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <AddressFields
                         name="pickup.address"
-                        legend="Pickup Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
+                        locationLookup
                         formikProps={formikProps}
                         render={(fields) => (
                           <>

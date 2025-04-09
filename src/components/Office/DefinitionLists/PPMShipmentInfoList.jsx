@@ -18,7 +18,7 @@ import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { getPPMTypeLabel } from 'shared/constants';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 
 const PPMShipmentInfoList = ({
   className,
@@ -118,7 +118,7 @@ const PPMShipmentInfoList = ({
   const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
-      <dt>Pickup Address</dt>
+      <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}</dt>
       <dd data-testid="pickupAddress">{pickupAddress ? formatAddress(pickupAddress) : '-'}</dd>
     </div>
   );
@@ -144,7 +144,7 @@ const PPMShipmentInfoList = ({
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
-      <dt>Delivery Address</dt>
+      <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}</dt>
       <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '-'}</dd>
     </div>
   );
