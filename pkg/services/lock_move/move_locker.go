@@ -96,44 +96,8 @@ func (m moveLocker) LockMoves(appCtx appcontext.AppContext, moveIds []uuid.UUID,
 		return err
 	}
 
-	// fetching transportation office that office user belongs to
-	// this data will be used to display to read-only viewers in the UI
-	// var transportationOffice models.TransportationOffice
-	// err = appCtx.DB().Q().
-	// 	Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-	// 	Join("addresses", "transportation_offices.address_id = addresses.id").
-	// 	Where("office_users.id = ?", officeUser.ID).
-	// 	// EagerPreload("Address", "Address.Country").
-	// 	First(&transportationOffice)
-
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if move.LockedByOfficeUserID != models.UUIDPointer(officeUserID) {
-	// 	move.LockedByOfficeUserID = models.UUIDPointer(officeUserID)
-	// }
-
-	// if officeUser != nil {
-	// 	move.LockedByOfficeUser = officeUser
-	// }
-
-	// if transportationOffice.ID != uuid.Nil {
-	// 	move.LockedByOfficeUser.TransportationOffice = transportationOffice
-	// }
-
-	// the lock will have a default expiration time of 30 minutes from initial opening
-	// this will reset with valid user activity
 	now := time.Now()
 	expirationTime := now.Add(30 * time.Minute)
-	// move.LockExpiresAt = &expirationTime
-
-	// Store move before update
-	// var moveBeforeUpdate = *move
-	// moveIdsToLock := make([]strfmt.UUID, len(moves))
-	// for i, move := range moves {
-	// 	moveIdsToLock[i] = strfmt.UUID(move.ID.String())
-	// }
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if err := appCtx.DB().RawQuery(
