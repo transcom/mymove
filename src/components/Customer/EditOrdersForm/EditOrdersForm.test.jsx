@@ -8,7 +8,7 @@ import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { MockProviders } from 'testUtils';
 
 jest.setTimeout(60000);
@@ -259,7 +259,7 @@ const civilianTDYTestProps = {
     report_by_date: '',
     has_dependents: '',
     uploaded_orders: [],
-    grade: 'CIVILIAN_EMPLOYEE',
+    grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
     origin_duty_location: { name: 'Luke AFB', address: { isOconus: false } },
     new_duty_location: { name: 'Luke AFB', provides_services_counseling: false, address: { isOconus: true } },
   },
@@ -278,7 +278,7 @@ const civilianTDYTestProps = {
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
   ],
   currentDutyLocation: { name: 'Luke AFB', address: { isOconus: false } },
-  grade: 'CIVILIAN_EMPLOYEE',
+  grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
   orders_type: ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY,
 };
 
@@ -309,6 +309,19 @@ describe('EditOrdersForm component', () => {
       if (required) {
         expect(await screen.findByLabelText(formInput)).toBeRequired();
       }
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
 
     it('rendering the upload area', async () => {
@@ -908,7 +921,7 @@ describe('EditOrdersForm component', () => {
     });
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIVILIAN_EMPLOYEE');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
 
     await waitFor(() => {
       expect(
@@ -935,7 +948,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIVILIAN_EMPLOYEE');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
