@@ -676,7 +676,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                         onShipmentClick={handleShipmentClick}
                         onDeleteClick={handleDeleteClick}
                         moveSubmitted={hasSubmittedMove()}
-                        editAndDeleteDisabled={isMoveLocked}
+                        isMoveLocked
                       />
                       {hasSubmittedMove() && (
                         <p className={styles.descriptionExtra}>
@@ -863,7 +863,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       onUploadClick={handlePPMUploadClick}
                       onDownloadError={togglePPMPacketErrorModal}
                       onFeedbackClick={handlePPMFeedbackClick}
-                      editDisabled={isMoveLocked}
+                      isMoveLocked={isMoveLocked}
                     />
                   </Step>
                 )}

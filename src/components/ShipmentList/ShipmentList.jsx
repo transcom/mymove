@@ -178,7 +178,7 @@ const ShipmentList = ({
   moveSubmitted,
   showShipmentWeight,
   showShipmentTooltip,
-  editAndDeleteDisabled,
+  isMoveLocked,
 }) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
@@ -201,7 +201,7 @@ const ShipmentList = ({
           shipmentNumbersByType[shipmentType] = 1;
         }
         const shipmentNumber = shipmentNumbersByType[shipmentType];
-        let canEditOrDelete = !moveSubmitted && !editAndDeleteDisabled;
+        let canEditOrDelete = !moveSubmitted && !isMoveLocked;
         let isOverweight;
         let isMissingWeight;
         let showNumber = shipmentCountByType[shipmentType] > 1;

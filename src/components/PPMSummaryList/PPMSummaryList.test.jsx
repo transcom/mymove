@@ -181,7 +181,7 @@ describe('PPMSummaryList component', () => {
   describe('move is locked by office user', () => {
     const props = { ...defaultProps, shipments: shipments.slice(0, 1) };
     it('should disable any edit/delete buttons', () => {
-      render(<PPMSummaryList {...props} editDisabled />);
+      render(<PPMSummaryList {...props} isMoveLocked />);
       const uploadButton = screen.getByRole('button', { name: 'Upload PPM Documents' });
       expect(uploadButton).toBeDisabled();
     });

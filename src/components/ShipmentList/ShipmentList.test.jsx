@@ -97,7 +97,7 @@ describe('ShipmentList component', () => {
   });
 
   it('disables edit/delete buttons if move is locked by office user', async () => {
-    render(<ShipmentList {...defaultProps} editAndDeleteDisabled />);
+    render(<ShipmentList {...defaultProps} isMoveLocked />);
 
     expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(5);
     expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm/i);

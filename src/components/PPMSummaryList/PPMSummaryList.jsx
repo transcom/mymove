@@ -89,7 +89,7 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
   );
 };
 
-const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick, editDisabled) => {
+const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick, isMoveLocked) => {
   const {
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
@@ -111,7 +111,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
         [
           <div>
             <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
-            <Button onClick={onButtonClick} disabled={editDisabled}>
+            <Button onClick={onButtonClick} disabled={isMoveLocked}>
               Upload PPM Documents
             </Button>
           </div>,
@@ -166,7 +166,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
   );
 };
 
-const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick, editDisabled }) => {
+const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick, isMoveLocked }) => {
   const { length } = shipments;
   return shipments.map((shipment, i) => {
     return (
@@ -178,7 +178,7 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackC
         onUploadClick={() => onUploadClick(shipment.id)}
         onDownloadError={onDownloadError}
         onFeedbackClick={() => onFeedbackClick(shipment.id)}
-        editDisabled={editDisabled}
+        isMoveLocked={isMoveLocked}
       />
     );
   });
@@ -191,10 +191,10 @@ const PPMSummaryListItem = ({
   onUploadClick,
   onDownloadError,
   onFeedbackClick,
-  editDisabled,
+  isMoveLocked,
 }) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
-  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick, editDisabled);
+  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick, isMoveLocked);
 };
 
 PPMSummaryList.propTypes = {
