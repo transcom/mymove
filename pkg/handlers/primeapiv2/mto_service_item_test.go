@@ -56,6 +56,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 						ShipmentType: models.MTOShipmentTypePPM,
 					},
 				},
+				{
+					Model: models.Address{
+						City:       "SULPHUR SPGS",
+						PostalCode: "75482",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
 			}, nil)
 		} else {
 			subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -77,7 +84,15 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// Do not create Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:     "90210",
+					City:           "Beverly Hills",
+					StreetAddress1: "13 Macon St",
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:                   mto.ID,
@@ -1029,6 +1044,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 				Model:    mto,
 				LinkOnly: true,
 			},
+			{
+				Model: models.Address{
+					City:       "SULPHUR SPGS",
+					PostalCode: "75482",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Now()
@@ -1043,7 +1065,15 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		// Do not create the Address in the database (factory.BuildAddress(nil, nil, nil)), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		subtestData.actualPickupAddress = factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:     "90210",
+					City:           "Beverly Hills",
+					StreetAddress1: "13 Macon St",
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:           mto.ID,

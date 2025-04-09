@@ -118,10 +118,11 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Equal("invalid input while updating an address", err.Error())
 		errors := err.(apperror.InvalidInputError)
-		suite.Len(errors.ValidationErrors.Errors, 3)
+		suite.Len(errors.ValidationErrors.Errors, 4)
 		suite.Contains(errors.ValidationErrors.Keys(), "street_address1")
 		suite.Contains(errors.ValidationErrors.Keys(), "city")
 		suite.Contains(errors.ValidationErrors.Keys(), "state")
+		suite.Contains(errors.ValidationErrors.Keys(), "invalid_us_post_region_city_id")
 	})
 
 	suite.Run("Fails to updates an address because of invalid county", func() {

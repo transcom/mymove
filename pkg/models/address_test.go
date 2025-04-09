@@ -33,6 +33,25 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 	suite.False(verrs.HasAny(), "Error validating model")
 }
 
+func (suite *ModelSuite) TestAddressInstantiationWithIncorrectUsPostRegionCityID() {
+
+	usPostRegionCityID := uuid.Must(uuid.NewV4())
+	newAddress := &m.Address{
+		StreetAddress1:     "street 1",
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("County"),
+		UsPostRegionCityID: &usPostRegionCityID,
+	}
+
+	expErrors := map[string][]string{
+		"invalid_us_post_region_city_id": {"UsPostRegionCityID is invalid."},
+	}
+
+	suite.verifyValidationErrors(newAddress, expErrors)
+}
+
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 
 	var usprc models.UsPostRegionCity
@@ -455,7 +474,7 @@ func (suite *ModelSuite) TestValidateUSPRCAssignment() {
 			UsPostRegionCityID: &incorrectUSPRCID,
 		}
 
-		valid, err := m.ValidateUSPRCAssignment(suite.DB(), *newAddress)
+		valid, err := m.ValidateUsPostRegionCityID(suite.DB(), *newAddress)
 		suite.NoError(err)
 		suite.Equal(false, valid)
 	})
@@ -477,7 +496,7 @@ func (suite *ModelSuite) TestValidateUSPRCAssignment() {
 
 		newAddress.UsPostRegionCityID = &expectedUSPRC.ID
 
-		valid, err := m.ValidateUSPRCAssignment(suite.DB(), *newAddress)
+		valid, err := m.ValidateUsPostRegionCityID(suite.DB(), *newAddress)
 		suite.NoError(err)
 		suite.Equal(true, valid)
 	})
@@ -496,7 +515,7 @@ func (suite *ModelSuite) TestValidateUSPRCAssignment() {
 			UsPostRegionCityID: &uuid,
 		}
 
-		valid, err := m.ValidateUSPRCAssignment(suite.DB(), *newAddress)
+		valid, err := m.ValidateUsPostRegionCityID(suite.DB(), *newAddress)
 		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BEVERLY HILLS.")
 		suite.Equal(false, valid)
 	})

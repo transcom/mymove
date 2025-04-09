@@ -78,7 +78,7 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 	}
 
 	if strings.TrimSpace(transformedAddress.City) != "" && strings.TrimSpace(transformedAddress.PostalCode) != "" {
-		validUSPRC, err := models.ValidateUSPRCAssignment(appCtx.DB(), transformedAddress)
+		validUSPRC, err := models.ValidateUsPostRegionCityID(appCtx.DB(), transformedAddress)
 		if err != nil {
 			return nil, err
 		}

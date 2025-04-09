@@ -132,6 +132,8 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 			Model: models.Address{
 				IsOconus:           models.BoolPointer(true),
 				UsPostRegionCityID: &usprc.ID,
+				City:               usprc.USPostRegionCityNm,
+				PostalCode:         usprc.UsprZipID,
 			},
 		},
 	}, nil)
@@ -265,6 +267,8 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 			Model: models.Address{
 				IsOconus:           models.BoolPointer(true),
 				UsPostRegionCityID: &usprc.ID,
+				City:               usprc.USPostRegionCityNm,
+				PostalCode:         usprc.UsprZipID,
 			},
 		},
 	}, nil)
