@@ -4561,12 +4561,6 @@ func init() {
             "description": "A string corresponding to the queue type",
             "name": "queueType",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
-            "name": "viewAsGBLOC",
-            "in": "query"
           }
         ],
         "responses": {
@@ -22055,12 +22049,6 @@ func init() {
             "type": "string",
             "description": "A string corresponding to the queue type",
             "name": "queueType",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
-            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],

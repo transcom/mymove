@@ -36,11 +36,6 @@ type GetBulkAssignmentDataParams struct {
 	  In: query
 	*/
 	QueueType *string
-	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
-
-	  In: query
-	*/
-	ViewAsGBLOC *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -56,11 +51,6 @@ func (o *GetBulkAssignmentDataParams) BindRequest(r *http.Request, route *middle
 
 	qQueueType, qhkQueueType, _ := qs.GetOK("queueType")
 	if err := o.bindQueueType(qQueueType, qhkQueueType, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qViewAsGBLOC, qhkViewAsGBLOC, _ := qs.GetOK("viewAsGBLOC")
-	if err := o.bindViewAsGBLOC(qViewAsGBLOC, qhkViewAsGBLOC, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -97,24 +87,6 @@ func (o *GetBulkAssignmentDataParams) validateQueueType(formats strfmt.Registry)
 	if err := validate.EnumCase("queueType", "query", *o.QueueType, []interface{}{"COUNSELING", "CLOSEOUT", "TASK_ORDER", "PAYMENT_REQUEST", "DESTINATION_REQUESTS"}, true); err != nil {
 		return err
 	}
-
-	return nil
-}
-
-// bindViewAsGBLOC binds and validates parameter ViewAsGBLOC from query.
-func (o *GetBulkAssignmentDataParams) bindViewAsGBLOC(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.ViewAsGBLOC = &raw
 
 	return nil
 }

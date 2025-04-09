@@ -13,8 +13,7 @@ import (
 
 // GetBulkAssignmentDataURL generates an URL for the get bulk assignment data operation
 type GetBulkAssignmentDataURL struct {
-	QueueType   *string
-	ViewAsGBLOC *string
+	QueueType *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -56,14 +55,6 @@ func (o *GetBulkAssignmentDataURL) Build() (*url.URL, error) {
 	}
 	if queueTypeQ != "" {
 		qs.Set("queueType", queueTypeQ)
-	}
-
-	var viewAsGBLOCQ string
-	if o.ViewAsGBLOC != nil {
-		viewAsGBLOCQ = *o.ViewAsGBLOC
-	}
-	if viewAsGBLOCQ != "" {
-		qs.Set("viewAsGBLOC", viewAsGBLOCQ)
 	}
 
 	_result.RawQuery = qs.Encode()

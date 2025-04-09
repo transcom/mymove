@@ -167,8 +167,8 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
-export async function getBulkAssignmentData(queueType, viewAsGBLOC) {
-  return makeGHCRequest('queues.getBulkAssignmentData', { queueType, viewAsGBLOC }, { normalize: false });
+export async function getBulkAssignmentData(queueType) {
+  return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
 }
 
 export async function saveBulkAssignmentData({ queueType, bulkAssignmentSavePayload }) {
