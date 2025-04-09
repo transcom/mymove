@@ -5,6 +5,7 @@ DB_DOCKER_CONTAINER_DEV = milmove-db-dev
 DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 DB_DOCKER_CONTAINER_IMAGE = postgres:16.4
+POSTGRES_WITH_CRON_IMAGE = postgres-with-cron
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -510,6 +511,7 @@ redis_reset: redis_destroy redis_run ## Reset Redis
 .PHONY: db_pull
 db_pull: ## Pull db image
 	docker pull $(DB_DOCKER_CONTAINER_IMAGE)
+	docker build -t $(POSTGRES_WITH_CRON_IMAGE) -f Dockerfile.pg_cron .
 
 .PHONY: db_dev_destroy
 db_dev_destroy: ## Destroy Dev DB
@@ -530,8 +532,13 @@ ifndef GITLAB
 	docker start $(DB_DOCKER_CONTAINER_DEV) || \
 		docker run -d --name $(DB_DOCKER_CONTAINER_DEV) \
 			-e POSTGRES_PASSWORD=$(PGPASSWORD) \
-			-p $(DB_PORT_DEV):$(DB_PORT_DOCKER)\
-			$(DB_DOCKER_CONTAINER_IMAGE)
+			-p $(DB_PORT_DEV):$(DB_PORT_DOCKER) \
+			$(POSTGRES_WITH_CRON_IMAGE) \
+			-c shared_preload_libraries=pg_cron \
+			-c cron.database_name=dev_db
+
+	@echo "Waiting for database to be ready..."
+	DB_NAME=postgres scripts/wait-for-db
 else
 	@echo "Relying on GitLab's database setup to start the DB."
 endif
