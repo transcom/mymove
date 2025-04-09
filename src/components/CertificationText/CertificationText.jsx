@@ -31,7 +31,27 @@ export const CertificationText = ({ certificationText, onScrollToBottom }) => {
 
   return (
     <div className="certification_text_box" onScroll={handleScroll}>
-      {getTextMarkdown(certificationText)}
+      <Box
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        sx={{
+          mt: 2,
+          maxHeight: 200,
+          overflowY: 'auto',
+          border: '1px solid #ccc',
+          p: 2,
+        }}
+      >
+        <div>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi vel urna in libero sollicitudin aliquam.
+          Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Integer non turpis a
+          ante scelerisque sodales. Vivamus malesuada libero non nunc luctus, et venenatis lorem semper. Praesent sit
+          amet mi vel justo fermentum luctus. Suspendisse potenti. Lorem ipsum dolor sit amet, consectetur adipiscing
+          elit. Morbi vel urna in libero sollicitudin aliquam. Vestibulum ante ipsum primis in faucibus orci luctus et
+          ultrices posuere cubilia curae; Integer non turpis a ante scelerisque sodales. Vivamus malesuada libero non
+          nunc luctus, et venenatis lorem semper. Praesent sit amet mi vel justo fermentum luctus. Suspendisse potenti.
+        </div>
+      </Box>
     </div>
   );
 };
