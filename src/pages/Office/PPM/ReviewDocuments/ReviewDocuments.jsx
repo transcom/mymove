@@ -66,25 +66,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const isPPMSPR = ppmShipmentInfo?.ppmType === PPM_TYPES.SMALL_PACKAGE;
 
   useEffect(() => {
-    if (
-      currentTotalWeight === 0 &&
-      documentSets[documentSetIndex]?.documentSet.status !== PPM_DOCUMENT_STATUS.REJECTED
-    ) {
-      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
-    }
-  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
-  useEffect(() => {
-    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
-    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
-  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
-  useEffect(() => {
-    setCurrentAllowableWeight(currentAllowableWeight);
-  }, [currentAllowableWeight]);
-  useEffect(() => {
-    setCurrentMtoShipments(mtoShipments);
-  }, [mtoShipments]);
-
-  useEffect(() => {
     if (weightTickets.length > 0) {
       const allRejected = weightTickets.every((ticket) => ticket.status === PPM_DOCUMENT_STATUS.REJECTED);
       setAllWeightTicketsRejected(allRejected);
@@ -273,7 +254,10 @@ export const ReviewDocuments = ({ readOnly }) => {
     currentDocumentSet?.categoryIndex != null ? currentDocumentSet.categoryIndex + 1 : 0;
 
   useEffect(() => {
-    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
+    if (
+      currentTotalWeight === 0 &&
+      documentSets[documentSetIndex]?.documentSet.status !== PPM_DOCUMENT_STATUS.REJECTED
+    ) {
       updateTotalWeight(ppmActualWeight?.actualWeight || 0);
     }
   }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);

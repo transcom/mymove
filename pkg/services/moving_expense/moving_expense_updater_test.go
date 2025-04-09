@@ -507,4 +507,52 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal((unit.Pound)(weightShipped), *updatedMovingExpense.WeightShipped, "WeightShipped should be updated")
 	})
 
+	suite.Run("Successfully clears small package expense fields when expense type changes", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		smallPackageType := models.MovingExpenseReceiptTypeSmallPackage
+		trackingNumber := "TRK9999"
+		isProGear := true
+		proGearBelongsToSelf := true
+		proGearDescription := "small package description"
+		weightShipped := 200
+
+		originalOverrides := &models.MovingExpense{
+			MovingExpenseType:    &smallPackageType,
+			TrackingNumber:       &trackingNumber,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		}
+
+		originalMovingExpense := setupForTest(appCtx, originalOverrides, true)
+
+		// a type different from SmallPackage
+		newExpenseType := models.MovingExpenseReceiptTypeOil
+		expectedMovingExpense := &models.MovingExpense{
+			ID:                originalMovingExpense.ID,
+			MovingExpenseType: &newExpenseType,
+			Description:       models.StringPointer("changing type from small package to oil"),
+			PaidWithGTCC:      models.BoolPointer(false),
+			MissingReceipt:    models.BoolPointer(false),
+			Amount:            models.CentPointer(unit.Cents(10000)),
+		}
+
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
+		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.NotNil(updatedMovingExpense)
+		suite.Equal(originalMovingExpense.ID, updatedMovingExpense.ID)
+		suite.Equal(*expectedMovingExpense.MovingExpenseType, *updatedMovingExpense.MovingExpenseType)
+		suite.Equal(*expectedMovingExpense.Description, *updatedMovingExpense.Description)
+
+		suite.Nil(updatedMovingExpense.TrackingNumber, "Expected TrackingNumber to be cleared")
+		suite.Nil(updatedMovingExpense.IsProGear, "Expected IsProGear to be cleared")
+		suite.Nil(updatedMovingExpense.ProGearBelongsToSelf, "Expected ProGearBelongsToSelf to be cleared")
+		suite.Nil(updatedMovingExpense.ProGearDescription, "Expected ProGearDescription to be cleared")
+		suite.Nil(updatedMovingExpense.WeightShipped, "Expected WeightShipped to be cleared")
+	})
+
 }
