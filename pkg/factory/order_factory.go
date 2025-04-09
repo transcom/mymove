@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -253,6 +254,19 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		}
 	}
 
+	paygradeRank := &models.PaygradeRank{}
+
+	paygradeRank.ID = strfmt.UUID("61c647fa-5325-45b9-8d6f-30a2aaa06308")
+	paygradeRank.PaygradeId = strfmt.UUID("6cb785d0-cabf-479a-a36d-a6aec294a4d0")
+	affiliation := "SPACE_FORCE"
+	paygradeRank.Affiliation = &affiliation
+	rankShortName := "SP1"
+	paygradeRank.RankNameAbbv = &rankShortName
+	rankName := "Specialist 1"
+	paygradeRank.RankName = &rankName
+	rankOrder := int64(22)
+	paygradeRank.RankOrder = &rankOrder
+
 	order := models.Order{
 		ServiceMember:                  serviceMember,
 		ServiceMemberID:                serviceMember.ID,
@@ -281,6 +295,8 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		MethodOfPayment:                defaultMethodOfPayment,
 		NAICS:                          defaultNAICS,
 		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
+		PaygradeRankId:                 strfmt.UUID("61c647fa-5325-45b9-8d6f-30a2aaa06308"),
+		Rank:                           *paygradeRank,
 	}
 
 	if amendedOrdersDocument != nil {
@@ -310,6 +326,14 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		if err != nil {
 			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", *order.Grade, err))
 		}
+
+		// paygradeRank := &models.PaygradeRank{}
+
+		// err = db.Where("affiliation = ?", serviceMember.Affiliation).Where("pay_grade_id = ?", existingPayGrade.ID).First(paygradeRank)
+		// if err != nil {
+		// 	order.Rank = *paygradeRank
+		// 	order.PaygradeRankId = paygradeRank.ID
+		// }
 
 		mustCreate(db, &order)
 	}
