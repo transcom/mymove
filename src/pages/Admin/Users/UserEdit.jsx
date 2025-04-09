@@ -26,27 +26,20 @@ const UserEdit = () => {
   const handleDeleteClose = () => setDeleteOpen(false);
   const handleDisableClose = () => setDisableOpen(false);
 
-  const renderUserEditToolbar = (props) => {
+  const renderUserEditToolbar = () => {
     return (
-      <>
-        {serverError && (
-          <Alert type="error" slim className={styles.error}>
-            {serverError}
-          </Alert>
-        )}
-        <Toolbar {...props}>
-          <SaveButton />
-          <DeleteButton
-            mutationOptions={{
-              onSuccess: async (data) => {
-                // setting user data so we can use it in teh delete function
-                setUserData(data);
-                handleDeleteClick();
-              },
-            }}
-          />
-        </Toolbar>
-      </>
+      <Toolbar>
+        <SaveButton />
+        <DeleteButton
+          mutationOptions={{
+            onSuccess: async (data) => {
+              // setting user data so we can use it in the delete function
+              setUserData(data);
+              handleDeleteClick();
+            },
+          }}
+        />
+      </Toolbar>
     );
   };
 
@@ -64,7 +57,7 @@ const UserEdit = () => {
   };
 
   const disableUserHandler = async () => {
-    userData.Active = false;
+    userData.active = false;
     await updateUser(userData.id, userData)
       .then(() => {
         redirect('/');
@@ -89,18 +82,28 @@ const UserEdit = () => {
     <Edit>
       <Confirm
         isOpen={deleteOpen}
-        title={`Delete user ${userData.firstName} ${userData.lastName}?`}
+        title={`Delete user ${userData.oktaEmail} ?`}
         content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteClose}
       />
       <Confirm
-        isOpen={disableOpen}
-        title={`Deletion failed for user ${userData.firstName} ${userData.lastName}?`}
+        isOpen={disableOpen && userData.active}
+        title={`Deletion failed for user ${userData.oktaEmail}`}
         content="This deletion failed as this user is already tied to existing moves. Would you like to disable them instead?"
         onConfirm={handleDisableConfirm}
         onClose={handleDisableClose}
       />
+      {disableOpen && !userData.active && (
+        <Alert type="error" slim className={styles.error}>
+          This deletion failed as this user is already tied to existing moves. The user is already disabled.
+        </Alert>
+      )}
+      {serverError && (
+        <Alert type="error" slim className={styles.error}>
+          {serverError}
+        </Alert>
+      )}
       <SimpleForm
         toolbar={renderUserEditToolbar()}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}
