@@ -97,7 +97,31 @@ func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_off
 	// if we don't find an exact match, then we need to send back an error because there's something weird in Okta
 	// that will require a HDT or manual fixing
 	if len(users) == 1 {
-		return &users[0], nil
+		oktaUser := &users[0]
+		groups, err := models.GetOktaUserGroups(appCtx, provider, apiKey, oktaUser.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		// checking if user is already in office group
+		found := false
+		for _, group := range groups {
+			if group.ID == officeGroupID {
+				found = true
+				break
+			}
+		}
+
+		// if they are not already in the office group, then we need to add them
+		// use case of this would be for customer users that are registering for office accounts
+		if !found {
+			err = models.AddOktaUserToGroup(appCtx, provider, apiKey, officeGroupID, oktaUser.ID)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return oktaUser, nil
 	} else if len(users) > 1 {
 		var errMsg error
 		if oktaEdipi != "" {
