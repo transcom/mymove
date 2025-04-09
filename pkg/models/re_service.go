@@ -157,6 +157,7 @@ const (
 	ApprovalRequestSITExtension             ApprovalRequestType = "SIT_EXTENSION"
 	ApprovalRequestDestinationAddressUpdate ApprovalRequestType = "DESTINATION_ADDRESS_UPDATE"
 	ApprovalRequestDiversion                ApprovalRequestType = "DIVERSION"
+	ApprovalRequestNewShipment              ApprovalRequestType = "NEW_SHIPMENT"
 )
 
 // ReService model struct
