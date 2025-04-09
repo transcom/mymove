@@ -23,9 +23,9 @@ const SubmitMoveForm = (props) => {
     date: Yup.date().required(),
   });
 
-  useEffect(() => {
-    sethasAcknowledgedTerms(hasReadTheAgreement);
-  }, [hasReadTheAgreement]);
+  const hasAgreedToTheTermsEvent = (event) => {
+    sethasAcknowledgedTerms(event.target.checked);
+  };
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur onSubmit={onSubmit}>
@@ -46,11 +46,16 @@ const SubmitMoveForm = (props) => {
                 Print
               </Button>
 
-              <CertificationText certificationText={(certificationText, setHasReadTheAgreement)} />
+              <CertificationText certificationText={certificationText} onScrollToBottom={setHasReadTheAgreement} />
 
               <p>
-                <Checkbox name="acknowledgementCheckbox" disabled={hasReadTheAgreement} /> I have read and understand
-                the agreement as shown above,
+                <Checkbox
+                  name="acknowledgementCheckbox"
+                  color="secondary"
+                  disabled={!hasReadTheAgreement}
+                  onChange={hasAgreedToTheTermsEvent}
+                />{' '}
+                I have read and understand the agreement as shown above,
               </p>
 
               <div className={styles.signatureBox}>
@@ -69,7 +74,7 @@ const SubmitMoveForm = (props) => {
                         )}
                         <Field
                           as={TextInput}
-                          disabled={hasAcknowledgedTerms}
+                          disabled={!hasAcknowledgedTerms}
                           name="signature"
                           id="signature"
                           required
