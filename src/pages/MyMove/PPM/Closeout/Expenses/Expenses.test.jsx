@@ -286,6 +286,9 @@ describe('Expenses page', () => {
           paidWithGTCC: true,
           WeightStored: NaN,
           SITLocation: undefined,
+          isProGear: false,
+          trackingNumber: '',
+          weightShipped: NaN,
         },
         mockExpense.eTag,
       );
@@ -326,6 +329,9 @@ describe('Expenses page', () => {
           paidWithGTCC: false,
           WeightStored: NaN,
           SITLocation: undefined,
+          isProGear: false,
+          trackingNumber: '',
+          weightShipped: NaN,
         },
         mockExpense.eTag,
       );
@@ -369,6 +375,9 @@ describe('Expenses page', () => {
           paidWithGTCC: false,
           SITLocation: 'ORIGIN',
           WeightStored: 120,
+          isProGear: false,
+          trackingNumber: '',
+          weightShipped: NaN,
         },
         mockExpense.eTag,
       );

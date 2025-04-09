@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { useField } from 'formik';
 import { Dropdown, FormGroup, Label } from '@trussworks/react-uswds';
 
+import RequiredAsterisk from '../RequiredAsterisk';
+
 import styles from './DropdownInput.module.scss';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
@@ -33,12 +35,9 @@ export const DropdownInput = (props) => {
     <FormGroup error={hasError}>
       <div className={styles.labelWrapper}>
         <Label error={hasError} htmlFor={inputId.current} hint={hint}>
-          {label}
-          {showRequiredAsterisk && (
-            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
-              *
-            </span>
-          )}
+          <span>
+            {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
         {/* {optional && <OptionalTag />} */}
       </div>

@@ -19,6 +19,9 @@ import (
 // swagger:model ProGearWeightTicket
 type ProGearWeightTicket struct {
 
+	// The total amount of the expense as indicated on the receipt
+	Amount *int64 `json:"amount"`
+
 	// Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.
 	BelongsToSelf *bool `json:"belongsToSelf"`
 
@@ -77,6 +80,9 @@ type ProGearWeightTicket struct {
 	// Customer submitted weight of the pro-gear.
 	// Minimum: 0
 	SubmittedWeight *int64 `json:"submittedWeight"`
+
+	// Tracking number for a small package expense
+	TrackingNumber *string `json:"trackingNumber"`
 
 	// updated at
 	// Required: true

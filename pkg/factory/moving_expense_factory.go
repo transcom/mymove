@@ -77,6 +77,11 @@ func BuildMovingExpense(db *pop.Connection, customs []Customization, traits []Tr
 		MissingReceipt:    models.BoolPointer(false),
 	}
 
+	// MergeModels is not working for PaidWithGTCC so overriding here
+	if cMovingExpense.PaidWithGTCC != nil {
+		movingExpense.PaidWithGTCC = cMovingExpense.PaidWithGTCC
+	}
+
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&movingExpense, cMovingExpense)
 
