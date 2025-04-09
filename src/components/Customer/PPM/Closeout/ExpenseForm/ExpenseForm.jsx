@@ -153,7 +153,14 @@ const ExpenseForm = ({
                   {ppmType !== PPM_TYPES.SMALL_PACKAGE ? `Receipt ` : `Package `}
                   {receiptNumber}
                 </h2>
-                <FormGroup>
+                {values.expenseType === expenseTypes.SMALL_PACKAGE && (
+                  <Hint data-testid="smallPackageInfo">
+                    Receipts from the package carrier should include the weight, cost, tracking number, and destination
+                    address. Receipts must be legible and unaltered. Files must be 25MB or smaller. You must upload at
+                    least one package carrier receipt to get paid for your Small Package Reimbursement PPM.
+                  </Hint>
+                )}
+                <FormGroup className={styles.dropdown}>
                   <DropdownInput
                     label="Select type"
                     name="expenseType"

@@ -505,6 +505,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(proGearBelongsToSelf, *updatedMovingExpense.ProGearBelongsToSelf, "ProGearBelongsToSelf should be updated")
 		suite.Equal(proGearDescription, *updatedMovingExpense.ProGearDescription, "ProGearDescription should be updated")
 		suite.Equal((unit.Pound)(weightShipped), *updatedMovingExpense.WeightShipped, "WeightShipped should be updated")
+		suite.Nil(updatedMovingExpense.Description)
 	})
 
 	suite.Run("Successfully clears small package expense fields when expense type changes", func() {

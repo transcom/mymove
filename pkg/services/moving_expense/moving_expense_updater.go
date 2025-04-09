@@ -193,6 +193,9 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 			if *updatedMovingExpense.WeightShipped != 0 {
 				mergedMovingExpense.WeightShipped = services.SetOptionalPoundField(updatedMovingExpense.WeightShipped, mergedMovingExpense.WeightShipped)
 			}
+			// description is not provided for small package expenses
+			mergedMovingExpense.Description = nil
+			updatedMovingExpense.Description = nil
 		} else if originalMovingExpense.MovingExpenseType != nil && *originalMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeSmallPackage {
 			// clearing related SPR values if expense type is being changed
 			mergedMovingExpense.TrackingNumber = nil

@@ -151,7 +151,7 @@ export default function ReviewExpense({
   );
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
-    description: descriptionString,
+    description: descriptionString || '',
     amount: amountValue ? `${formatCents(amountValue)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
     sitStartDate: sitStartDateValue,
@@ -235,6 +235,20 @@ export default function ReviewExpense({
 
       if (ppmSITLocation === '') {
         errorMessage += 'SIT Location is required.\n';
+      }
+
+      if (errorMessage !== '') {
+        onError(errorMessage);
+        return;
+      }
+    }
+
+    // if the expense is not a small package expense, description is required
+    if (selectedExpenseType.toUpperCase() !== expenseTypes.SMALL_PACKAGE) {
+      let errorMessage = '';
+
+      if (descriptionString === '' || descriptionString === null) {
+        errorMessage += 'Description is required.\n';
       }
 
       if (errorMessage !== '') {

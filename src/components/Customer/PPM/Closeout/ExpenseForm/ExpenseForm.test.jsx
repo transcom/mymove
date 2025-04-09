@@ -221,6 +221,7 @@ describe('ExpenseForm component', () => {
       expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('option', { name: 'Small package reimbursement' }).selected).toBe(true);
       expect(screen.getByRole('option', { name: 'Small package reimbursement' })).toBeDisabled();
+      expect(screen.getByTestId('smallPackageInfo')).toBeInTheDocument();
 
       await waitFor(() => {
         expect(screen.getByTestId('weightShipped')).toBeInTheDocument();
