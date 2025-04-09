@@ -22,6 +22,7 @@ import { createCompleteWeightTicket, createSecondCompleteWeightTicket } from 'ut
 import createUpload from 'utils/test/factories/upload';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { PPM_TYPES } from 'shared/constants';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 Element.prototype.scrollTo = jest.fn();
 
@@ -890,6 +891,39 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByLabelText('Exclude'));
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByText('Add a reason why this receipt is excluded')).toBeInTheDocument();
+    });
+
+    it('shows an error when a non-small package expense is submitted without a description', async () => {
+      const expenseNoDescription = {
+        ...mtoShipment.ppmShipment.movingExpenses[0],
+        movingExpenseType: expenseTypes.OIL,
+        status: PPM_DOCUMENT_STATUS.APPROVED,
+        description: '',
+      };
+      const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        mtoShipment,
+        documents: {
+          MovingExpenses: [expenseNoDescription],
+          ProGearWeightTickets: [],
+          WeightTickets: [],
+        },
+      };
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
+
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(screen.getByText('Review Oil #1')).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Description is required/)).toBeInTheDocument();
+      });
     });
   });
   describe('check over weight alerts', () => {

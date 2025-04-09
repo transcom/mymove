@@ -318,9 +318,6 @@ export const ReviewDocuments = ({ readOnly }) => {
               </Alert>
             </Grid>
           )}
-          <ErrorMessage className={styles.errorMessage} display={!!serverError}>
-            {serverError}
-          </ErrorMessage>
           <div className={classNames(styles.top, styles.noBottomBorder)}>
             {!readOnly && !showOverview && currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET && (
               <>
@@ -447,6 +444,9 @@ export const ReviewDocuments = ({ readOnly }) => {
               })}
           </div>
           <br />
+          <ErrorMessage className={styles.errorMessage} display={!!serverError}>
+            {serverError}
+          </ErrorMessage>
           {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
