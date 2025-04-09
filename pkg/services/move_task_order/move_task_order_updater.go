@@ -309,12 +309,8 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 	var wasMadeAvailableToPrime = false
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		searchParams := services.MoveTaskOrderFetcherParams{
-			IncludeHidden:   false,
-			MoveTaskOrderID: moveTaskOrderID,
-		}
 		var err error
-		move, err = o.FetchMoveTaskOrder(txnAppCtx, &searchParams)
+		move, err = o.FetchMoveTaskOrderForAvailableToPrime(txnAppCtx, moveTaskOrderID)
 		if err != nil {
 			return err
 		}
