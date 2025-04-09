@@ -27,7 +27,7 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
-import { saveBulkAssignmentData } from 'services/ghcApi';
+import { saveBulkAssignmentData, checkForLockedMovesAndUnlock } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 import { roleTypes } from 'constants/userRoles';
 
@@ -343,6 +343,7 @@ const TableQueue = ({
 
   const handleCloseBulkAssignModal = () => {
     setIsBulkAssignModalVisible(false);
+    checkForLockedMovesAndUnlock(officeUser.id);
   };
 
   const onSubmitBulk = (bulkAssignmentSaveData) => {
@@ -369,6 +370,7 @@ const TableQueue = ({
             onSubmit={onSubmitBulk}
             onClose={handleCloseBulkAssignModal}
             queueType={queueType}
+            selectedGbloc={selectedGbloc}
           />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>

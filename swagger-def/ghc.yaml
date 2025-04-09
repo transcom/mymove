@@ -3835,6 +3835,11 @@ paths:
             - TASK_ORDER
             - PAYMENT_REQUEST
             - DESTINATION_REQUESTS
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned bulk assignment data

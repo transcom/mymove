@@ -1690,6 +1690,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1751,6 +1752,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1867,6 +1869,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1933,6 +1936,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2006,6 +2010,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2045,6 +2050,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2120,6 +2126,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2426,6 +2433,7 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcher(),
 			movefetcher.NewMoveAssignerBulkAssignment(),
+			movelocker.NewMoveUnlocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2497,6 +2505,7 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcher(),
 			movefetcher.NewMoveAssignerBulkAssignment(),
+			movelocker.NewMoveUnlocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)

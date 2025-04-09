@@ -20,7 +20,7 @@ const initialValues = {
   moveData: [],
 };
 
-export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, queueType }) => {
+export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, queueType, selectedGbloc }) => {
   const bulkAssignmentSwitchLabels = ['Bulk Assignment', 'Bulk Re-assignment'];
   const errorMessage = 'Cannot assign more moves than are available.';
 
@@ -73,7 +73,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
 
   const fetchData = useCallback(async () => {
     try {
-      const data = await getBulkAssignmentData(queueType);
+      const data = await getBulkAssignmentData(queueType, selectedGbloc);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
 
@@ -87,7 +87,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
     } catch (err) {
       milmoveLogger.error('Error fetching bulk assignment data:', err);
     }
-  }, [queueType]);
+  }, [queueType, selectedGbloc]);
 
   useEffect(() => {
     fetchData();
@@ -126,7 +126,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
           <Formik
             onSubmit={(values) => {
               const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
-
               const totalAssignedMovesGreaterThanMovesAvailableReassignment = totalAssignment > numberOfMoves;
               if (totalAssignedMovesGreaterThanMovesAvailableReassignment) {
                 setIsError(true);
