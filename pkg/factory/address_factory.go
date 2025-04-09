@@ -77,8 +77,8 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		address.County = models.StringPointer("db nil when created")
 	}
 
-	if db != nil && address.PostalCode != "90210" && cAddress.UsPostRegionCityID == nil {
-		usprc, err := models.FindByZipCode(db, address.PostalCode)
+	if db != nil {
+		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
 		if err != nil && err != sql.ErrNoRows {
 			address.UsPostRegionCityID = nil
 			address.UsPostRegionCity = nil

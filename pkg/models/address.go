@@ -73,14 +73,14 @@ func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, erro
 	vs = append(vs, &validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"})
 
-	if a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil {
-		validUSPRC, err := ValidateUSPRCAssignment(dbConnection, *a)
+	if dbConnection != nil && a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil {
+		validUSPRC, err := ValidateUsPostRegionCityID(dbConnection, *a)
 		if err != nil {
 			return nil, err
 		}
 
 		if !validUSPRC {
-			vs = append(vs, &validators.StringIsPresent{Field: strconv.FormatBool(validUSPRC), Name: "True", Message: "UsPostRegionCity assignment is invalid"})
+			vs = append(vs, &validators.StringsMatch{Field: strconv.FormatBool(validUSPRC), Field2: "true", Name: "InvalidUsPostRegionCityID", Message: "UsPostRegionCityID is invalid."})
 		}
 	}
 
@@ -250,7 +250,7 @@ func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember Servic
 }
 
 // Validate an addresses USPRC assignment
-func ValidateUSPRCAssignment(db *pop.Connection, address Address) (bool, error) {
+func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, error) {
 
 	// If zip does not exist skip this validation
 	zipCount, err := db.Where("uspr_zip_id = $1", address.PostalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")

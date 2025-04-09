@@ -23,7 +23,7 @@ func (suite *ModelSuite) verifyValidationErrors(model m.ValidateableModel, exp m
 	t := suite.T()
 	t.Helper()
 
-	verrs, err := model.Validate(nil)
+	verrs, err := model.Validate(suite.DB())
 	if err != nil {
 		t.Fatal(err)
 	}

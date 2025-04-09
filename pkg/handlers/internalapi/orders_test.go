@@ -863,6 +863,8 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)

@@ -414,8 +414,8 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		airForce := models.AffiliationAIRFORCE
-		postalCode := "99501"
-		city := "ANCHORAGE"
+		postalCode := "99744"
+		city := "ANDERSON"
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -423,6 +423,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
 					City:               city,
+					State:              "AK",
 				},
 			},
 		}, nil)
@@ -461,8 +462,8 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		army := models.AffiliationARMY
-		postalCode := "99501"
-		city := "ANCHORAGE"
+		postalCode := "99744"
+		city := "ANDERSON"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
 
@@ -511,8 +512,8 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		usmc := models.AffiliationMARINES
-		postalCode := "99501"
-		city := "ANCHORAGE"
+		postalCode := "99744"
+		city := "ANDERSON"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		// this doesn't matter to the db function because it will check for USMC but we are just verifying it won't be JEAT despite the zip matching
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
