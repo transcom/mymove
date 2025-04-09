@@ -1,5 +1,0 @@
-# Dockerfile.pg_cron
-# hadolint ignore=DL3007
-FROM postgres:16.4
-
-RUN apt-get update && apt-get install -y postgresql-16-cron
