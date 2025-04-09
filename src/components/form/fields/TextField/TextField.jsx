@@ -5,10 +5,9 @@ import classnames from 'classnames';
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput, Textarea, ErrorMessage } from '@trussworks/react-uswds';
 
-import styles from './TextField.module.scss';
-
 import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 /**
  * This component renders a ReactUSWDS TextInput component inside of a FormGroup,
@@ -90,12 +89,9 @@ const TextField = ({
     <FormGroup className={formGroupClasses} error={showError}>
       <div className="labelWrapper">
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
-          {label}
-          {showRequiredAsterisk && (
-            <span data-testid="requiredAsterisk" className={styles.requiredAsterisk}>
-              *
-            </span>
-          )}
+          <span>
+            {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
         {optional && <OptionalTag />}
       </div>
