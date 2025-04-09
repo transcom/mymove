@@ -1765,6 +1765,87 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/uploads:
+    post:
+      summary: >-
+        Create a new upload for a PPM weight ticket, pro-gear, or moving expense
+        document
+      description: >-
+        Uploads represent a single digital file, such as a PNG, JPEG, PDF, or
+        spreadsheet.
+      operationId: createPPMUpload
+      tags:
+        - ppm
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ppmShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the ppm shipment
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '413':
+          description: payload is too large
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/weight-ticket:
+    post:
+      summary: Creates a weight ticket document
+      description: Created a weight ticket document with the given information
+      operationId: createWeightTicket
+      tags:
+        - ppm
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+      responses:
+        '200':
+          description: returns new weight ticket object
+          schema:
+            $ref: '#/definitions/WeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
@@ -1806,6 +1887,46 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a weight ticket by ID
+      description: >
+        Removes a single weight ticket from the closeout line items for a PPM
+        shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database. This
+        may change the PPM shipment's final
+
+        incentive.
+      operationId: deleteWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+        - description: ID of the weight ticket to be deleted
+          in: path
+          name: weightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the weight ticket
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -3711,6 +3832,7 @@ paths:
             - CLOSEOUT
             - TASK_ORDER
             - PAYMENT_REQUEST
+            - DESTINATION_REQUESTS
       responses:
         '200':
           description: Successfully returned bulk assignment data
@@ -4085,6 +4207,11 @@ paths:
           name: counselingOffice
           type: string
           description: filters using a counselingOffice name of the move
+        - in: query
+          name: activeRole
+          type: string
+          description: |
+            user's actively logged in role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4883,10 +5010,10 @@ paths:
         name: body
         schema:
           properties:
-            roleType:
+            queueType:
               type: string
           required:
-            - roleType
+            - queueType
     patch:
       consumes:
         - application/json
@@ -5429,6 +5556,10 @@ definitions:
         type: boolean
   FetchLineOfAccountingPayload:
     type: object
+    required:
+      - effectiveDate
+      - departmentIndicator
+      - tacCode
     properties:
       departmentIndicator:
         $ref: '#/definitions/DepartmentIndicator'
@@ -5812,6 +5943,8 @@ definitions:
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TIOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
   MoveHistory:
     properties:
@@ -6254,6 +6387,14 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - serviceMemberId
       - issueDate
@@ -6327,6 +6468,14 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - issueDate
       - reportByDate
@@ -6400,6 +6549,14 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - issueDate
       - reportByDate
@@ -6982,6 +7139,8 @@ definitions:
   UpdatePPMShipment:
     type: object
     properties:
+      ppmType:
+        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -7193,14 +7352,35 @@ definitions:
   UpdateWeightTicket:
     type: object
     properties:
+      vehicleDescription:
+        description: >-
+          Description of the vehicle used for the trip. E.g. make/model, type of
+          truck/van, etc.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       emptyWeight:
         description: Weight of the vehicle when empty.
         type: integer
         minimum: 0
+      missingEmptyWeightTicket:
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when empty.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       fullWeight:
         description: The weight of the vehicle when full.
         type: integer
         minimum: 0
+      missingFullWeightTicket:
+        description: >-
+          Indicates if the customer is missing a weight ticket for the vehicle
+          weight when full.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       ownsTrailer:
         description: Indicates if the customer used a trailer they own for the move.
         type: boolean
@@ -7455,6 +7635,8 @@ definitions:
       A personally procured move is a type of shipment that a service members
       moves themselves.
     properties:
+      ppmType:
+        $ref: '#/definitions/PPMType'
       expectedDepartureDate:
         description: |
           Date the customer expects to move.
@@ -7533,6 +7715,10 @@ definitions:
         example: false
         x-omitempty: false
         x-nullable: true
+      closeoutOfficeID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -7809,6 +7995,7 @@ definitions:
           - CLOSEOUT
           - TASK_ORDER
           - PAYMENT_REQUEST
+          - DESTINATION_REQUESTS
   BulkAssignmentForUser:
     type: object
     properties:
@@ -8615,11 +8802,11 @@ definitions:
       officeUserId:
         type: string
         format: uuid
-      roleType:
+      queueType:
         type: string
     required:
       - officeUserId
-      - roleType
+      - queueType
   AssignedOfficeUser:
     type: object
     properties:
@@ -9404,6 +9591,14 @@ definitions:
       eTag:
         type: string
         readOnly: true
+  PPMType:
+    type: string
+    title: PPM Type
+    description: Defines a PPM type
+    enum:
+      - INCENTIVE_BASED
+      - ACTUAL_EXPENSE
+      - SMALL_PACKAGE
   PPMDestinationAddress:
     description: A postal address
     type: object
@@ -9803,15 +9998,6 @@ definitions:
           given SIT service items for an instance of SIT (Either Origin or
           Destination), grouped by the date they went into SIT and service items
           limited explicitly to SIT related Re Service Codes.
-  PPMType:
-    type: string
-    title: PPM Type
-    description: Defines a PPM type
-    readOnly: true
-    enum:
-      - INCENTIVE_BASED
-      - ACTUAL_EXPENSE
-      - SMALL_PACKAGE
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:

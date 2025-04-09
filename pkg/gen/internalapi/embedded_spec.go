@@ -1755,6 +1755,51 @@ func init() {
         }
       }
     },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -4089,6 +4134,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -4347,6 +4395,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -6874,8 +6928,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -8029,6 +8082,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
@@ -10735,6 +10791,51 @@ func init() {
         }
       }
     },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -13425,6 +13526,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -13683,6 +13787,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -16215,8 +16325,7 @@ func init() {
         "INCENTIVE_BASED",
         "ACTUAL_EXPENSE",
         "SMALL_PACKAGE"
-      ],
-      "readOnly": true
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -17372,6 +17481,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "proGearWeight": {
           "type": "integer",
