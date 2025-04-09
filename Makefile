@@ -683,9 +683,7 @@ ifndef GITLAB
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
 			--mount type=tmpfs,destination=/var/lib/postgresql/data \
-			$(POSTGRES_WITH_CRON_IMAGE) \
-			-c shared_preload_libraries=pg_cron \
-			-c cron.database_name=$(DB_NAME_TEST)
+			$(DB_DOCKER_CONTAINER_IMAGE)
 else
 	@echo "Relying on GitLab's database setup to start the DB."
 endif
