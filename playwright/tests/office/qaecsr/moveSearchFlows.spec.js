@@ -22,7 +22,7 @@ test.describe('QAE Move Search', () => {
   test('is able to search by DOD ID', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     const moveLocator = move.locator;
-    const { edipi } = move.Orders.ServiceMember;
+    const { edipi } = move.Orders.service_member;
 
     await officePage.signInAsNewQAEUser();
 
@@ -59,7 +59,7 @@ test.describe('QAE Move Search', () => {
   test('is able to search by customer name', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     const moveLocator = move.locator;
-    const lastName = move.Orders.ServiceMember.last_name;
+    const lastName = move.Orders.service_member.last_name;
 
     await officePage.signInAsNewQAEUser();
 
