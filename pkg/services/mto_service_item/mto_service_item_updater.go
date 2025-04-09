@@ -309,7 +309,11 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 
 		//remove assigned user when all service items have been reviewed
 		if !serviceItemsNeedingReview {
-			move.TOOAssignedID = nil
+			if _, isDestination := models.DestinationServiceItemCodesMap[serviceItem.ReService.Code]; isDestination {
+				move.TOODestinationAssignedID = nil
+			} else if _, isOrigin := models.OriginServiceItemCodesMap[serviceItem.ReService.Code]; isOrigin {
+				move.TOOAssignedID = nil
+			}
 		}
 
 		//When updating a service item - remove the TOO assigned user
