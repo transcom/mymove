@@ -1,29 +1,29 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import denySITExtensionMove from 'constants/MoveHistory/EventTemplates/DenySITExtension/denySITExtensionMove';
+import approveSITExtensionMove from 'constants/MoveHistory/EventTemplates/ApproveSITExtension/approveSITExtensionMove';
 
-describe('when given a Deny SIT Extension Move move history record', () => {
+describe('when given a Approve SIT Extension Move item history record', () => {
   const historyRecord = {
     action: 'UPDATE',
     changedValues: {
       approved_at: '2025-04-09T13:43:45.206676+00:00',
       status: 'APPROVED',
     },
-    eventName: 'denySITExtension',
+    eventName: 'approveSITExtension',
     tableName: 'moves',
   };
 
-  it('matches the denySITExtensionMove template', () => {
+  it('correctly matches to the Approve SIT extension Move template', () => {
     const template = getTemplate(historyRecord);
-    expect(template).toMatchObject(denySITExtensionMove);
+    expect(template).toMatchObject(approveSITExtensionMove);
   });
 
   it('returns the correct event display name', () => {
-    expect(denySITExtensionMove.getEventNameDisplay()).toEqual('Updated move');
+    expect(approveSITExtensionMove.getEventNameDisplay()).toEqual('Updated move');
   });
 
-  it('renders the move details via LabeledDetails', () => {
+  it('renders the Approve SIT extension Move details correctly', () => {
     const template = getTemplate(historyRecord);
     render(template.getDetails(historyRecord));
 
