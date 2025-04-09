@@ -352,7 +352,7 @@ describe('PPMShipmentCard component', () => {
     expect(descriptionDefinitions.length).toBe(11);
 
     const expectedRows = [
-      ['Expected departure', '01 Jan 2020'],
+      ['Shipped date', '01 Jan 2020'],
       ['Shipped from Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
       ['Second Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
       ['Destination Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],

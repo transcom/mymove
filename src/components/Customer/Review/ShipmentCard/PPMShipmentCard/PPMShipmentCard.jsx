@@ -111,7 +111,7 @@ const PPMShipmentCard = ({
 
         <dl className={styles.shipmentCardSubsection}>
           <div className={styles.row}>
-            <dt>Expected departure</dt>
+            <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped date' : 'Expected departure'}</dt>
             <dd>{formatCustomerDate(expectedDepartureDate)}</dd>
           </div>
           <div className={styles.row}>

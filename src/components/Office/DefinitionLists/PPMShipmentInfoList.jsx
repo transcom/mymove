@@ -100,7 +100,7 @@ const PPMShipmentInfoList = ({
   const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
   const expectedDepartureDateElement = (
     <div className={expectedDepartureDateElementFlags.classes}>
-      <dt>Estimated Departure date</dt>
+      <dt>Estimated {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped' : 'Departure'} date</dt>
       <dd data-testid="expectedDepartureDate">
         {(expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')) || '—'}
       </dd>
@@ -110,7 +110,7 @@ const PPMShipmentInfoList = ({
   const actualDepartureDateElementFlags = getDisplayFlags('actualMoveDate');
   const actualDepartureDateElement = (
     <div className={actualDepartureDateElementFlags.classes}>
-      <dt>Actual Departure date</dt>
+      <dt>Actual {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped' : 'Departure'} date</dt>
       <dd data-testid="actualDepartureDate">{(actualMoveDate && formatDate(actualMoveDate, 'DD MMM YYYY')) || '—'}</dd>
     </div>
   );

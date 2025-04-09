@@ -77,6 +77,7 @@ describe('PPMShipmentInfoList', () => {
 
   it('renders small package PPM differences', () => {
     renderWithPermissions({ ppmShipment: { ppmType: PPM_TYPES.SMALL_PACKAGE } });
+    expect(screen.getByText('Estimated Shipped date')).toBeInTheDocument();
     expect(screen.getByText('Small Package Reimbursement')).toBeInTheDocument();
     expect(screen.getByText('Shipped from Address')).toBeInTheDocument();
     expect(screen.getByText('Destination Address')).toBeInTheDocument();
