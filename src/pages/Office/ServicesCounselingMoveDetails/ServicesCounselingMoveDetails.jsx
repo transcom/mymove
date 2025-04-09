@@ -99,6 +99,7 @@ const ServicesCounselingMoveDetails = ({
   let counselorCanEdit;
   let counselorCanCancelMove;
   let counselorCanEditNonPPM;
+  let isMoveCancelled;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -290,6 +291,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+    isMoveCancelled = move.status === MOVE_STATUSES.CANCELED;
 
     shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
       const editURL =
@@ -664,21 +666,24 @@ const ServicesCounselingMoveDetails = ({
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
 
   const allowedShipmentOptions = () => {
-    return (
-      <>
-        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-          HHG
-        </option>
-        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
-        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
-        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
-        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {!isLocalMove && enableUB && isOconusMove && (
-          <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
-        )}
-      </>
-    );
+    if (counselorCanEdit || counselorCanEditNonPPM) {
+      return (
+        <>
+          <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+            HHG
+          </option>
+          <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+          {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+          {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
+          {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+          {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+          {!isLocalMove && enableUB && isOconusMove && (
+            <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+          )}
+        </>
+      );
+    }
+    return <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>;
   };
 
   return (
@@ -826,8 +831,8 @@ const ServicesCounselingMoveDetails = ({
           <div className={styles.section} id="shipments">
             <DetailsPanel
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
-                !isMoveLocked && (
+                !isMoveLocked &&
+                !isMoveCancelled && (
                   <ButtonDropdown
                     ariaLabel="Add a new shipment"
                     data-testid="addShipmentButton"
@@ -902,14 +907,13 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Orders"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="view-edit-orders"
                     to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
-                    View and edit orders
+                    View {counselorCanEditOrdersAndAllowances() && 'and edit'} orders
                   </Link>
                 )
               }
@@ -922,14 +926,13 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Allowances"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
                     to={`../${servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}`}
                   >
-                    Edit allowances
+                    {counselorCanEditOrdersAndAllowances() ? 'Edit ' : 'View'} allowances
                   </Link>
                 )
               }
