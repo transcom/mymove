@@ -107,6 +107,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   useEffect(() => {
     const fetchData = async () => {
       setIsManageSupportingDocsEnabled(await isBooleanFlagEnabled('manage_supporting_docs'));
+      setMoveLockFlag(await isBooleanFlagEnabled('move_lock'));
     };
     fetchData();
   }, []);
@@ -133,16 +134,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       updateAllMoves(response);
     });
   }, [updateAllMoves, serviceMember]);
-
-  // Get move lock feature flag
-  useEffect(() => {
-    const fetchData = async () => {
-      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
-      setMoveLockFlag(lockedMoveFlag);
-    };
-
-    fetchData();
-  }, []);
 
   let uploadedOrderDocuments;
   let mtoShipments;

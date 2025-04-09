@@ -8,8 +8,9 @@ import MoveHome from './MoveHome';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
-import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
+import { cancelMove, downloadPPMAOAPacket, getAllMoves } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -1277,19 +1278,25 @@ describe('Home component', () => {
   });
 
   describe('with default props, with a lock on the move', () => {
-    const moveId = defaultWithLock.serviceMemberMoves.currentMove[0].id;
-    render(
-      <MockProviders path={customerRoutes.MOVE_HOME_PATH} params={{ moveId }}>
-        <MoveHome {...defaultWithLock} />
-      </MockProviders>,
-    );
+    it('renders Home with the right amount of components', async () => {
+      const moveId = defaultWithLock.serviceMemberMoves.currentMove[0].id;
+      getAllMoves.mockResolvedValue(true);
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      await act(async () => {
+        render(
+          <MockProviders path={customerRoutes.MOVE_HOME_PATH} params={{ moveId }}>
+            <MoveHome {...defaultWithLock} />
+          </MockProviders>,
+        );
+      });
 
-    it('renders Home with the right amount of components', () => {
-      expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
-      expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
-      expect(screen.getByTestId('editButton')).toBeDisabled();
-      expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
-      expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
+      await waitFor(() => {
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
+        expect(screen.getByTestId('editButton')).toBeDisabled();
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
+      });
     });
   });
 
