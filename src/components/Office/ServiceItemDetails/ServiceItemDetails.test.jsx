@@ -797,9 +797,8 @@ describe('ServiceItemDetails Price for MS, CS', () => {
   });
 });
 
-describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC, DOPSIT, DOFSIT, DOASIT, DOSFSC', () => {
-  // it.each([['IDFSIT'], ['IDDSIT'], , ['IDSFSC'], ['IOPSIT'], ['IOFSIT'], , ['IOSFSC']])(
-  it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT']])(
+describe('ServiceItemDetails Estimated Price for IDSFSC, IOSFSC IOASIT, IDASIT, IOPSIT, IDDSIT, IOFSIT, IDFSIT', () => {
+  it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT'], ['IOPSIT'], ['IDDSIT'], ['IOFSIT'], ['IDFSIT']])(
     'renders the formatted estimated price field for the approved service item: %s',
     (code) => {
       render(
@@ -817,8 +816,7 @@ describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC,
     },
   );
 
-  // it.each([['IDFSIT'], ['IDDSIT'], ['IDASIT'], ['IDSFSC'], ['IOPSIT'], ['IOFSIT'], ['IOASIT'], ['IOSFSC']])(
-  it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT']])(
+  it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT'], ['IOPSIT'], ['IDDSIT'], ['IOFSIT'], ['IDFSIT']])(
     'Does not render the formatted estimated price field for the submitted service item: %s',
     (code) => {
       render(

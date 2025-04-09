@@ -26,6 +26,16 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
+function generateEstimatedPriceTextIfApproved(details) {
+  if (details?.status === SERVICE_ITEM_STATUS.APPROVED) {
+    return generateDetailText({
+      'Estimated Price':
+        details.estimatedPrice !== undefined || null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+    });
+  }
+  return null;
+}
+
 const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code, shipment, sitStatus) => {
   const { customerContacts } = details;
   // Below we are using the sortBy func in lodash to sort the customer contacts
@@ -104,13 +114,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUS.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== undefined || null
-                    ? toDollarString(formatCents(details.estimatedPrice))
-                    : '-',
-              })}
+            {generateEstimatedPriceTextIfApproved(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -140,13 +144,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUS.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== undefined || null
-                    ? toDollarString(formatCents(details.estimatedPrice))
-                    : '-',
-              })}
+            {generateEstimatedPriceTextIfApproved(details)}
           </>
         )}
         {code === SERVICE_ITEM_CODES.DDDSIT && (
@@ -211,13 +209,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUS.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== undefined || null
-                    ? toDollarString(formatCents(details.estimatedPrice))
-                    : '-',
-              })}
+            {generateEstimatedPriceTextIfApproved(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -253,16 +245,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                   </>
                 ))
               : defaultDetailText}
-            {details?.status === SERVICE_ITEM_STATUS.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== undefined || null
-                    ? toDollarString(formatCents(details.estimatedPrice))
-                    : '-',
-              })}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {generateEstimatedPriceTextIfApproved(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -302,15 +288,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUS.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== undefined || null
-                    ? toDollarString(formatCents(details.estimatedPrice))
-                    : '-',
-              })}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {generateEstimatedPriceTextIfApproved(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -361,13 +341,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUS.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== undefined || null
-                    ? toDollarString(formatCents(details.estimatedPrice))
-                    : '-',
-              })}
+            {generateEstimatedPriceTextIfApproved(details)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
@@ -406,13 +380,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUS.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== undefined || null
-                    ? toDollarString(formatCents(details.estimatedPrice))
-                    : '-',
-              })}
+            {generateEstimatedPriceTextIfApproved(details)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (

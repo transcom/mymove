@@ -27,7 +27,7 @@ function testData(code) {
       'Billable weight (cwt)': '85 cwt',
     };
   }
-  if (code === 'DDDSIT') {
+  if (code === 'DDDSIT' || code === 'IDDSIT') {
     result = {
       ...result,
       Mileage: '51',
@@ -44,14 +44,22 @@ function testData(code) {
       ...result,
       'SIT delivery price': '1.71',
     };
-  } else if (code !== 'DOFSIT' && code !== 'DDFSIT' && code !== 'DOPSIT' && code.includes('SIT')) {
+  } else if (
+    code !== 'DOFSIT' &&
+    code !== 'IOFSIT' &&
+    code !== 'DDFSIT' &&
+    code !== 'IDFSIT' &&
+    code !== 'DOPSIT' &&
+    code !== 'IOPSIT' &&
+    code.includes('SIT')
+  ) {
     result = {
       ...result,
       'SIT days invoiced': '2',
       'Additional day SIT price': '1.71',
     };
   }
-  if (code === 'DOPSIT') {
+  if (code === 'DOPSIT' || code === 'IOPSIT') {
     result = {
       ...result,
       Mileage: '29',
@@ -418,8 +426,51 @@ it('returns correct data for InternationalDestinationAdditionalSIT', () => {
 });
 
 it('returns correct data for InternationalOriginSITPickup', () => {
-  const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
-  const expected = testData('DOPSIT');
+  const result = makeCalculations('IOPSIT', 99999, testParams.InternationalOriginSITPickup);
+  const expected = testData('IOPSIT');
 
   testAB(result, expected);
+});
+
+it('returns correct data for InternationalOriginSITFirstDay', () => {
+  const result = makeCalculations('IOFSIT', 99999, testParams.InternationalOrigin1stSIT);
+  const expected = testData('IOFSIT');
+
+  testAB(result, expected);
+});
+
+it('returns correct data for InternationalDestination1stSIT', () => {
+  const result = makeCalculations('IDFSIT', 99999, testParams.InternationalDestination1stSIT);
+  const expected = testData('IDFSIT');
+
+  testAB(result, expected);
+});
+
+describe('InternationalDestinationSITDelivery', () => {
+  it('returns correct data for InternationalDestSITDelivery', () => {
+    const result = makeCalculations('IDDSIT', 99999, testParams.InternationalDestinationSITDelivery);
+    const expected = testData('DDDSITc');
+
+    testAB(result, expected);
+  });
+  it('returns the correct data for mileage above 50', () => {
+    const result = makeCalculations('IDDSIT', 99999, testParams.InternationalDestinationSITDeliveryLonghaul);
+    const expected = testData('IDDSIT');
+
+    testAB(result, expected);
+  });
+
+  it('returns the correct data for mileage below 50 with matching ZIP3s', () => {
+    const result = makeCalculations('IDDSIT', 99999, testParams.InternationalDestinationSITDeliveryMatchingZip3);
+    const expected = testData('DDDSITb');
+
+    testAB(result, expected);
+  });
+
+  it('returns the correct data for mileage below 50 with non-matching ZIP3s', () => {
+    const result = makeCalculations('IDDSIT', 99999, testParams.InternationalDestinationSITDelivery);
+    const expected = testData('DDDSITc');
+
+    testAB(result, expected);
+  });
 });

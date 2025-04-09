@@ -373,6 +373,18 @@ const originPrice = (params, shipmentType, serviceCode) => {
   );
 };
 
+const originInternationalPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
+  return calculation(
+    value,
+    label,
+    formatDetail(sitRateAreaOrigin(params)),
+    formatDetail(referenceDate(params, shipmentType)),
+    formatDetail(peak(params)),
+  );
+};
+
 const shuttleOriginPriceDomestic = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
@@ -420,6 +432,19 @@ const destinationPrice = (params, shipmentType) => {
     value,
     label,
     formatDetail(serviceAreaDest(params)),
+    formatDetail(referenceDate(params, shipmentType)),
+    formatDetail(peak(params)),
+  );
+};
+
+const destinationInternationalPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
+
+  return calculation(
+    value,
+    label,
+    formatDetail(sitRateAreaDest(params)),
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
@@ -681,6 +706,19 @@ const sitDeliveryPriceShorthaulDifferentZIP3 = (params, shipmentType) => {
   );
 };
 
+const sitInternationalDeliveryPriceShorthaulDifferentZIP3 = (params, shipmentType) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
+
+  return calculation(
+    value,
+    label,
+    formatDetail(referenceDate(params, shipmentType)),
+    formatDetail(peak(params)),
+    formatDetail('<=50 miles'),
+  );
+};
+
 const daysInSIT = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NumberDaysSIT, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.DaysInSIT;
@@ -884,12 +922,10 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       const mileage = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
       const startZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress, params)?.slice(0, 3);
       const endZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)?.slice(0, 3);
-      // Mileage does not factor into the pricing for distances less than 50 miles and non-matching
-      // zip3, so we won't display mileage
       if (mileage <= LONGHAUL_MIN_DISTANCE && startZip !== endZip) {
         result = [
           billableWeight(params),
-          sitDeliveryPriceShorthaulDifferentZIP3(params, shipmentType), // Display under mileage threshold
+          sitInternationalDeliveryPriceShorthaulDifferentZIP3(params, shipmentType),
           priceEscalationFactor(params),
           totalAmountRequested(totalAmount),
         ];
@@ -977,11 +1013,29 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // International origin 1st day SIT
+    case SERVICE_ITEM_CODES.IOFSIT:
+      result = [
+        billableWeight(params),
+        originInternationalPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // Domestic destination 1st day SIT
     case SERVICE_ITEM_CODES.DDFSIT:
       result = [
         billableWeight(params),
         destinationPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // International destination 1st day SIT
+    case SERVICE_ITEM_CODES.IDFSIT:
+      result = [
+        billableWeight(params),
+        destinationInternationalPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
