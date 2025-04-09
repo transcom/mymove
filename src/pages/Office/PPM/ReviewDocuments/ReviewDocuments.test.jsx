@@ -407,6 +407,22 @@ describe('ReviewDocuments', () => {
       expect(screen.getByRole('button', { name: /close sidebar/i })).toBeInTheDocument();
     });
 
+    it('renders and handles the show/hide uploads button', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      const showUploadsButton = await screen.findByRole('button', { name: /Show Full Weight Documents/i });
+      expect(showUploadsButton).toBeInTheDocument();
+      await userEvent.click(showUploadsButton);
+
+      const hideUploadsButton = await screen.findByRole('button', { name: /Hide Full Weight Documents/i });
+      expect(hideUploadsButton).toBeInTheDocument();
+      await userEvent.click(hideUploadsButton);
+    });
+
     it('renders and handles the Continue button with the appropriate payload', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
@@ -471,7 +487,7 @@ describe('ReviewDocuments', () => {
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+      await userEvent.click(screen.getByRole('button', { name: 'PPM Review Complete' }));
       const confirmPayload = {
         ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
         eTag: mtoShipmentWithOneWeightTicket.ppmShipment.eTag,
