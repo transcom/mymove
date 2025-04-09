@@ -725,10 +725,35 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				return queues.NewGetBulkAssignmentDataUnauthorized(), err
 			}
 
-			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
-			if err != nil {
-				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
-				return queues.NewGetBulkAssignmentDataNotFound(), err
+			var officeUser models.OfficeUser
+			var viewAsTransportationOffice models.TransportationOffice
+			var err error
+			if params.ViewAsGBLOC != nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataNotFound(), err
+				}
+
+				indexOfMatchingTransportaionOfficeAssignment := slices.IndexFunc(officeUser.TransportationOfficeAssignments,
+					func(toa models.TransportationOfficeAssignment) bool {
+						return toa.TransportationOffice.Gbloc == *params.ViewAsGBLOC
+					})
+
+				if indexOfMatchingTransportaionOfficeAssignment >= 0 {
+					viewAsTransportationOffice = officeUser.TransportationOfficeAssignments[indexOfMatchingTransportaionOfficeAssignment].TransportationOffice
+				} else {
+					err := apperror.NewForbiddenError("Office user is requsting bulk assignment data for a GBLOC they are not assigned to")
+					appCtx.Logger().Error(fmt.Sprintf("Office user (%s) is not assigned to the GBLOC they are requesting bulk assignment data for: %s", officeUser.ID, *params.ViewAsGBLOC), zap.Error(err))
+					return queues.NewGetBulkAssignmentDataUnauthorized(), err
+				}
+			} else {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataNotFound(), err
+				}
+				viewAsTransportationOffice = officeUser.TransportationOffice
 			}
 
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
@@ -752,7 +777,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
-					officeUser.TransportationOfficeID,
+					viewAsTransportationOffice.ID,
 					*queueType,
 				)
 				if err != nil {
@@ -761,7 +786,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 				// fetch the moves available to be assigned to their office users
 				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentCounseling(
-					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+					appCtx, viewAsTransportationOffice.Gbloc, viewAsTransportationOffice.ID,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
@@ -774,7 +799,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
-					officeUser.TransportationOfficeID,
+					viewAsTransportationOffice.ID,
 					*queueType,
 				)
 				if err != nil {
@@ -783,7 +808,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 				// fetch the moves available to be assigned to their office users
 				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentCloseout(
-					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+					appCtx, viewAsTransportationOffice.Gbloc, viewAsTransportationOffice.ID,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
@@ -796,7 +821,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
+					viewAsTransportationOffice.ID,
 					*queueType,
 				)
 				if err != nil {
@@ -805,7 +830,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 				// fetch the moves available to be assigned to their office users
 				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentTaskOrder(
-					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+					appCtx, viewAsTransportationOffice.Gbloc, viewAsTransportationOffice.ID,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
@@ -818,7 +843,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTIO,
-					officeUser.TransportationOfficeID,
+					viewAsTransportationOffice.ID,
 					*queueType,
 				)
 				if err != nil {
@@ -827,7 +852,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 				// fetch the moves available to be assigned to their office users
 				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentPaymentRequest(
-					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+					appCtx, viewAsTransportationOffice.Gbloc, viewAsTransportationOffice.ID,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
@@ -840,7 +865,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
+					viewAsTransportationOffice.ID,
 					*queueType,
 				)
 				if err != nil {
@@ -849,7 +874,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 				// fetch the moves available to be assigned to their office users
 				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentDestination(
-					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+					appCtx, viewAsTransportationOffice.Gbloc, viewAsTransportationOffice.ID,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))

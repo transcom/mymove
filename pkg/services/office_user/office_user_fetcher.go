@@ -146,7 +146,8 @@ func (o *officeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCt
 				office_users.user_id = users_roles.user_id AND users_roles.deleted_at IS NULL
 			)
 		JOIN roles ON users_roles.role_id = roles.id
-		JOIN transportation_offices ON office_users.transportation_office_id = transportation_offices.id
+		JOIN transportation_office_assignments AS toas ON toas.id = office_users.id
+		JOIN transportation_offices ON toas.transportation_office_id = transportation_offices.id
 		LEFT JOIN moves
 			ON (`
 	if queueType == string(models.QueueTypeTaskOrder) {

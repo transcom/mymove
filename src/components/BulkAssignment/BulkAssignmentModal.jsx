@@ -17,7 +17,7 @@ const initialValues = {
   moveData: [],
 };
 
-export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType }) => {
+export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, closeText, queueType, selectedGbloc }) => {
   const [isError, setIsError] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [bulkAssignmentData, setBulkAssignmentData] = useState(null);
@@ -65,7 +65,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
 
   const fetchData = useCallback(async () => {
     try {
-      const data = await getBulkAssignmentData(queueType);
+      const data = await getBulkAssignmentData(queueType, selectedGbloc);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
       if (!data.bulkAssignmentMoveIDs) {
@@ -77,7 +77,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, title, submitText, clos
     } catch (err) {
       milmoveLogger.error('Error fetching bulk assignment data:', err);
     }
-  }, [queueType]);
+  }, [queueType, selectedGbloc]);
 
   useEffect(() => {
     fetchData();
