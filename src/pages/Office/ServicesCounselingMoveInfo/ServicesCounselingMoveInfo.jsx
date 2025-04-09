@@ -36,6 +36,7 @@ const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/Revi
 const About = lazy(() => import('pages/Office/PPM/Closeout/About/About'));
 const PPMReview = lazy(() => import('pages/Office/PPM/Closeout/Review/Review'));
 const WeightTickets = lazy(() => import('pages/Office/PPM/Closeout/WeightTickets/WeightTickets'));
+const ProGear = lazy(() => import('pages/Office/PPM/Closeout/ProGear/ProGear'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
@@ -171,6 +172,13 @@ const ServicesCounselingMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_PRO_GEAR_EDIT_PATH,
+        end: true,
+      },
+      pathname,
     );
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) {
@@ -245,6 +253,8 @@ const ServicesCounselingMoveInfo = () => {
             end
             element={<WeightTickets />}
           />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} end element={<ProGear />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} end element={<ProGear />} />
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
