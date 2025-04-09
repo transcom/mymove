@@ -31,6 +31,11 @@ export const formatSITAuthorizedEndDate = (sitStatus) => {
   return moment(sitStatus.currentSIT.sitAuthorizedEndDate, swaggerDateFormat).subtract(1, 'days');
 };
 
+// takes in a date and adds the days provided
+export const formatEndDate = (date, days) => {
+  return moment(date, swaggerDateFormat).add(days, 'days');
+};
+
 // ****************
 // ****************
 // date calculations
@@ -133,22 +138,26 @@ export const SitDaysAllowanceForm = ({ onChange }) => (
   </div>
 );
 
-export const SITHistoryItemHeader = ({ title, value }) => {
-  let action = '';
-
-  if (title.includes('approved')) {
-    action = 'Approved';
-  }
-
-  if (title.includes('authorized')) {
-    action = 'Authorized';
-  }
-
+export const SITHistoryItemHeaderDays = ({ title, approved, requested, value }) => {
   return (
     <div data-happo-hide className={styles.sitHistoryItemHeader}>
       {title}
       <span className={styles.hintText}>
-        {action} + Requested = {value}
+        Approved ({approved}) + <br />
+        Requested ({requested}) = {value}
+      </span>
+    </div>
+  );
+};
+
+export const SITHistoryItemHeaderDate = ({ title, endDate, requested, value }) => {
+  return (
+    <div data-happo-hide className={styles.sitHistoryItemHeader}>
+      {title}
+      <span className={styles.hintText}>
+        Previously authorized end date
+        <br />({formatDateForDatePicker(endDate)}) + <br />
+        days requested ({requested}) =<br /> {value}
       </span>
     </div>
   );

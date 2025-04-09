@@ -928,6 +928,7 @@ export const MoveTaskOrder = (props) => {
       });
     };
     const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
+      console.log('shipmentsWithStatus', shipmentsWithStatus);
       const unapprovedSITExtensionShipmentItems = [];
       let unapprovedSITExtensionCount = 0;
       shipmentsWithStatus?.forEach((mtoShipment) => {
