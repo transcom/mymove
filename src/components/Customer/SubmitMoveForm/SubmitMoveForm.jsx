@@ -51,7 +51,7 @@ const SubmitMoveForm = (props) => {
               <p>
                 <Checkbox
                   name="acknowledgementCheckbox"
-                  color="secondary"
+                  color="primary"
                   disabled={!hasReadTheAgreement}
                   onChange={hasAgreedToTheTermsEvent}
                 />{' '}

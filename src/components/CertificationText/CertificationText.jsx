@@ -13,12 +13,13 @@ export const CertificationText = ({ certificationText, onScrollToBottom }) => {
     return certificationMarkup;
   };
 
-  const handleScroll = () => {
+  const handleScroll = (e) => {
     const container = scrollContainerRef.current;
 
     if (container) {
       // Check if the user has scrolled to the bottom.
-      if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
+      const isAtBottom = Math.abs(e.target.scrollHeight - (e.target.scrollTop + e.target.clientHeight)) <= 1;
+      if (isAtBottom) {
         if (!hasScrolledToBottom) {
           setHasScrolledToBottom(true);
           if (onScrollToBottom) {
@@ -31,26 +32,8 @@ export const CertificationText = ({ certificationText, onScrollToBottom }) => {
 
   return (
     <div className="certification_text_box" onScroll={handleScroll}>
-      <Box
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-        sx={{
-          mt: 2,
-          maxHeight: 200,
-          overflowY: 'auto',
-          border: '1px solid #ccc',
-          p: 2,
-        }}
-      >
-        <div>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi vel urna in libero sollicitudin aliquam.
-          Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Integer non turpis a
-          ante scelerisque sodales. Vivamus malesuada libero non nunc luctus, et venenatis lorem semper. Praesent sit
-          amet mi vel justo fermentum luctus. Suspendisse potenti. Lorem ipsum dolor sit amet, consectetur adipiscing
-          elit. Morbi vel urna in libero sollicitudin aliquam. Vestibulum ante ipsum primis in faucibus orci luctus et
-          ultrices posuere cubilia curae; Integer non turpis a ante scelerisque sodales. Vivamus malesuada libero non
-          nunc luctus, et venenatis lorem semper. Praesent sit amet mi vel justo fermentum luctus. Suspendisse potenti.
-        </div>
+      <Box ref={scrollContainerRef} onScroll={handleScroll}>
+        {getTextMarkdown(certificationText)}
       </Box>
     </div>
   );
