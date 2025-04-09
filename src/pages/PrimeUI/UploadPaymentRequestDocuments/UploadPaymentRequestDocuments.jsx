@@ -113,9 +113,7 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
             ref={filePondEl}
             createUpload={handleUpload}
             onChange={onChange}
-            labelIdle={
-              'Drag & drop or <span class="filepond--label-action">click to upload a payment request document</span>'
-            }
+            labelIdle='Drag & drop or <span class="filepond--label-action">click to upload a payment request document</span>'
           />
         </div>
         <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />

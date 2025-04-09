@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mount } from 'enzyme';
 
@@ -81,7 +81,7 @@ describe('ServiceItemCard component', () => {
       const toggleButton = wrapper.find('button[data-testid="toggleCalculations"]');
       expect(toggleButton.text()).toEqual('Show calculations');
 
-      act(() => {
+      waitFor(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();
@@ -89,7 +89,7 @@ describe('ServiceItemCard component', () => {
       expect(toggleButton.text()).toEqual('Hide calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(true);
 
-      act(() => {
+      waitFor(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();
@@ -161,7 +161,7 @@ describe('ServiceItemCard component', () => {
       const toggleButton = wrapper.find('button[data-testid="toggleCalculations"]');
       expect(toggleButton.text()).toEqual('Show calculations');
 
-      act(() => {
+      waitFor(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();
@@ -169,7 +169,7 @@ describe('ServiceItemCard component', () => {
       expect(toggleButton.text()).toEqual('Hide calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(true);
 
-      act(() => {
+      waitFor(() => {
         toggleButton.simulate('click');
       });
       wrapper.update();

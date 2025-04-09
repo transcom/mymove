@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MobileHomeShipmentForm from './MobileHomeShipmentForm';
@@ -45,6 +45,7 @@ describe('MobileHomeShipmentForm component', () => {
   describe('displays form', () => {
     it('renders filled form on load', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
+
       expect(screen.getByTestId('year')).toHaveValue(mtoShipment.mobileHomeShipment.year);
       expect(screen.getByTestId('make')).toHaveValue(mtoShipment.mobileHomeShipment.make);
       expect(screen.getByTestId('model')).toHaveValue(mtoShipment.mobileHomeShipment.model);
@@ -98,17 +99,14 @@ describe('MobileHomeShipmentForm component', () => {
       await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
-
       expect(defaultProps.onSubmit).toHaveBeenCalled();
     });
 
     it('does not submit the form with invalid data', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
 
-      await act(async () => {
-        await userEvent.clear(screen.getByTestId('year'));
-        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-      });
+      await userEvent.clear(screen.getByTestId('year'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(defaultProps.onSubmit).not.toHaveBeenCalled();
     });

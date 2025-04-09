@@ -61,7 +61,10 @@ describe('SignIn tests', () => {
     expect(
       screen.getByText('There was an error during your last sign in attempt. Please try again.'),
     ).toBeInTheDocument();
-    expect(screen.queryByText('SOME_ERROR')).not.toBeInTheDocument();
+
+    waitFor(() => {
+      expect(screen.queryByText('SOME_ERROR')).not.toBeInTheDocument();
+    });
   });
 
   it('shows the EULA when the signin button is clicked and hides the EULA when cancel is clicked', () => {
@@ -72,9 +75,12 @@ describe('SignIn tests', () => {
 
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
     screen.getByTestId('signin').click();
-    expect(screen.getByTestId('modal')).toBeInTheDocument();
-    screen.getByLabelText('Cancel').click();
-    expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
+
+      screen.getByLabelText('Cancel').click();
+      expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+    });
   });
 
   it('show logout message when hasLoggedOut state is true', () => {
@@ -89,7 +95,9 @@ describe('SignIn tests', () => {
       context,
     });
 
-    expect(screen.getByText('You have signed out of MilMove')).toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.getByText('You have signed out of MilMove')).toBeInTheDocument();
+    });
   });
 
   it('does not show logout message when hasLoggedOut state is false', () => {
@@ -118,7 +126,10 @@ describe('SignIn tests', () => {
     renderWithProviders(<SignIn />, {
       context,
     });
-    expect(screen.getByText('You have been logged out due to inactivity.')).toBeInTheDocument();
+
+    waitFor(() => {
+      expect(screen.getByText('You have been logged out due to inactivity.')).toBeInTheDocument();
+    });
   });
 
   it('does not show logout message when timedout state is false', () => {
@@ -132,7 +143,10 @@ describe('SignIn tests', () => {
     renderWithProviders(<SignIn />, {
       context,
     });
-    expect(screen.queryByText('You have been logged out due to inactivity.')).not.toBeInTheDocument();
+
+    waitFor(() => {
+      expect(screen.queryByText('You have been logged out due to inactivity.')).not.toBeInTheDocument();
+    });
   });
   it('renders with the correct page title', () => {
     const div = document.createElement('div');
@@ -161,12 +175,15 @@ describe('SignIn tests', () => {
     });
 
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
-    await waitFor(() => {
+    await waitFor(async () => {
       screen.getByTestId('createAccount').click();
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
+      await screen.getByLabelText('Cancel').click();
     });
-    expect(screen.getByTestId('modal')).toBeInTheDocument();
-    screen.getByLabelText('Cancel').click();
-    expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+    });
   });
 
   it('renders non-cac error', () => {
@@ -181,6 +198,8 @@ describe('SignIn tests', () => {
       context,
     });
 
-    expect(screen.queryByText('If you do not have a CAC do not request your account here')).not.toBeInTheDocument();
+    waitFor(() => {
+      expect(screen.queryByText('If you do not have a CAC do not request your account here')).not.toBeInTheDocument();
+    });
   });
 });

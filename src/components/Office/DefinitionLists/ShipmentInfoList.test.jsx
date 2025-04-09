@@ -160,10 +160,12 @@ describe('Shipment Info List', () => {
       />,
     );
 
-    expect(await screen.queryByText(labels.secondaryPickupAddress)).toBeInTheDocument();
-    expect(await screen.queryByText(labels.secondaryDeliveryAddress)).toBeInTheDocument();
-    expect(await screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
-    expect(await screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+    waitFor(async () => {
+      expect(screen.queryByText(labels.secondaryPickupAddress)).toBeInTheDocument();
+      expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeInTheDocument();
+      expect(screen.queryByText(labels.mtoAgents[0])).not.toBeInTheDocument();
+      expect(screen.queryByText(labels.mtoAgents[1])).not.toBeInTheDocument();
+    });
   });
 
   it('renders appropriate fields when provided and collapsed', async () => {

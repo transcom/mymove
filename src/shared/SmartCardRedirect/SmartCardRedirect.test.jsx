@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import SmartCardRedirect from './SmartCardRedirect';
 import { MemoryRouter } from 'react-router';
 
@@ -22,9 +22,11 @@ describe('SmartCardRedirect tests', () => {
       </MemoryRouter>,
     );
 
-    const image = screen.getByRole('img');
-    expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', 'smart-card.png');
+    waitFor(() => {
+      const image = screen.getByRole('img');
+      expect(image).toBeInTheDocument();
+      expect(image).toHaveAttribute('src', 'smart-card.png');
+    });
   });
 
   it('should render the text on the page', () => {

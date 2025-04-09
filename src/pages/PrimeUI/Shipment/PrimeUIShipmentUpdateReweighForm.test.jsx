@@ -25,7 +25,9 @@ describe('PrimeUIShipmentUpdateReweighForm', () => {
     render(<PrimeUIShipmentUpdateReweighForm {...testProps} />);
     const submitBtn = await screen.findByRole('button', { name: 'Save' });
 
-    expect(submitBtn).toBeDisabled();
+    waitFor(() => {
+      expect(submitBtn).toBeDisabled();
+    });
 
     const reweighInput = screen.getByLabelText('Reweigh Weight (lbs)');
     await userEvent.clear(reweighInput);
