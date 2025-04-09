@@ -334,6 +334,20 @@ describe('DomesticDestinationSITDelivery', () => {
     testAB(result, expected);
   });
 
+  it('FuelSurcharge returns correct data for IOSFSC', () => {
+    const result = makeCalculations('IOSFSC', 99998, testParams.InternationalOriginSITFuelSurchage);
+    const expected = testData('IOSFSC');
+
+    testAB(result, expected);
+  });
+
+  it('FuelSurcharge returns correct data for IDSFSC', () => {
+    const result = makeCalculations('IDSFSC', 99998, testParams.InternationalDestinationSITFuelSurchage);
+    const expected = testData('IDSFSC');
+
+    testAB(result, expected);
+  });
+
   it('returns correct data for ISLH', () => {
     const result = makeCalculations('ISLH', 99999, testParams.InternationalShippingAndLinehaul);
     const expected = testData('ISLH');
@@ -387,4 +401,25 @@ describe('DomesticDestinationSITDelivery', () => {
 
     testAB(result, expected);
   });
+});
+
+it('returns correct data for InternationalOriginAdditionalSIT', () => {
+  const result = makeCalculations('IOASIT', 99999, testParams.InternationalOriginAdditionalSIT);
+  const expected = testData('IOASIT');
+
+  testAB(result, expected);
+});
+
+it('returns correct data for InternationalDestinationAdditionalSIT', () => {
+  const result = makeCalculations('IDASIT', 99999, testParams.InternationalDestinationAdditionalSIT);
+  const expected = testData('IDASIT');
+
+  testAB(result, expected);
+});
+
+it('returns correct data for InternationalOriginSITPickup', () => {
+  const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
+  const expected = testData('DOPSIT');
+
+  testAB(result, expected);
 });

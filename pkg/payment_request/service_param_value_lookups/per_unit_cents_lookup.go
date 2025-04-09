@@ -211,6 +211,45 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 		}
 		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
 
+	case models.ReServiceCodeIOPSIT:
+		// IOPSIT: Need rate area ID for origin
+		originRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.ServiceItem.SITOriginHHGActualAddressID, &serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for SIT origin address for shipment ID: %s and service ID %s: %s", shipmentID, serviceID, err)
+		}
+		isPeakPeriod := ghcrateengine.IsPeakPeriod(moveDate)
+		var reIntlOtherPrice models.ReIntlOtherPrice
+		err = appCtx.DB().Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("rate_area_id = ?", originRateAreaID).
+			Where("is_less_50_miles = ?", (*p.ServiceItem.SITDeliveryMiles <= 50)).
+			First(&reIntlOtherPrice)
+		if err != nil {
+			return "", fmt.Errorf("error fetching IOPSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, originRateAreaID, err)
+		}
+		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
+	case models.ReServiceCodeIDDSIT:
+		// IDDSIT: Need rate area ID for destination
+		destinationRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), *p.ServiceItem.SITDestinationFinalAddressID, &serviceID, contractID)
+		if err != nil {
+			return "", fmt.Errorf("error fetching rate area id for SIT destination address for shipment ID: %s and service ID %s: %s", shipmentID, serviceID, err)
+		}
+		isPeakPeriod := ghcrateengine.IsPeakPeriod(moveDate)
+		var reIntlOtherPrice models.ReIntlOtherPrice
+		err = appCtx.DB().Q().
+			Where("contract_id = ?", contractID).
+			Where("service_id = ?", serviceID).
+			Where("is_peak_period = ?", isPeakPeriod).
+			Where("rate_area_id = ?", destinationRateAreaID).
+			Where("is_less_50_miles = ?", (*p.ServiceItem.SITDeliveryMiles <= 50)).
+			First(&reIntlOtherPrice)
+		if err != nil {
+			return "", fmt.Errorf("error fetching IOPSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, destinationRateAreaID, err)
+		}
+		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
+
 	default:
 		return "", fmt.Errorf("unsupported service code to retrieve service item param PerUnitCents")
 	}

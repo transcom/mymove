@@ -2221,6 +2221,8 @@ definitions:
       - SITScheduleOrigin
       - SITServiceAreaDest
       - SITServiceAreaOrigin
+      - SITRateAreaDest
+      - SITRateAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
