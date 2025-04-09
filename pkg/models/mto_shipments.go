@@ -98,7 +98,7 @@ const (
 	// MTOShipmentStatusDiversionRequested indicates that the TOO has requested that the Prime divert a shipment
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
-	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS REQUESTED"
+	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS_REQUESTED"
 )
 
 // LOAType represents the possible TAC and SAC types for a mto shipment
