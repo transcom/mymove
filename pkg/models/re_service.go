@@ -136,7 +136,7 @@ const (
 	ReServiceCodePODFSC ReServiceCode = "PODFSC"
 )
 
-// destinationServiceItemCodesMap is a map of ReServiceCodes that represent destination SIT service items.
+// destinationServiceItemCodesMap is a map of ReServiceCodes that represent destination service items.
 // It is used for fast lookups to determine if a service item is destination-related.
 // This map is immutable and should not be modified after initialization.
 var DestinationServiceItemCodesMap = map[ReServiceCode]struct{}{
@@ -153,7 +153,7 @@ var DestinationServiceItemCodesMap = map[ReServiceCode]struct{}{
 }
 
 // originServiceItemCodesMap is a map of ReServiceCodes that do not represent destination SIT service items.
-// It includes all other ReServiceCodes, such as origin SIT codes and non-SIT codes, for fast lookups.
+// It includes all other ReServiceCodes, such as origin  codes , for fast lookups.
 // This map is immutable and should not be modified after initialization.
 var OriginServiceItemCodesMap = map[ReServiceCode]struct{}{
 	// Counseling and management
