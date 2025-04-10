@@ -2765,10 +2765,10 @@ func init() {
           "in": "body",
           "schema": {
             "required": [
-              "roleType"
+              "queueType"
             ],
             "properties": {
-              "roleType": {
+              "queueType": {
                 "type": "string"
               }
             }
@@ -4554,7 +4554,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUESTS"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -5024,6 +5025,18 @@ func init() {
             "type": "string",
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -7317,14 +7330,14 @@ func init() {
       "type": "object",
       "required": [
         "officeUserId",
-        "roleType"
+        "queueType"
       ],
       "properties": {
         "officeUserId": {
           "type": "string",
           "format": "uuid"
         },
-        "roleType": {
+        "queueType": {
           "type": "string"
         }
       }
@@ -7555,7 +7568,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
@@ -7719,6 +7733,12 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -8244,6 +8264,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counselingOfficeId": {
           "type": "string",
@@ -10757,6 +10783,9 @@ func init() {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -15146,6 +15175,12 @@ func init() {
         "originDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -19717,10 +19752,10 @@ func init() {
           "in": "body",
           "schema": {
             "required": [
-              "roleType"
+              "queueType"
             ],
             "properties": {
-              "roleType": {
+              "queueType": {
                 "type": "string"
               }
             }
@@ -22014,7 +22049,8 @@ func init() {
               "COUNSELING",
               "CLOSEOUT",
               "TASK_ORDER",
-              "PAYMENT_REQUEST"
+              "PAYMENT_REQUEST",
+              "DESTINATION_REQUESTS"
             ],
             "type": "string",
             "description": "A string corresponding to the queue type",
@@ -22514,6 +22550,18 @@ func init() {
             "type": "string",
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "user's actively logged in role.\n",
+            "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -25225,14 +25273,14 @@ func init() {
       "type": "object",
       "required": [
         "officeUserId",
-        "roleType"
+        "queueType"
       ],
       "properties": {
         "officeUserId": {
           "type": "string",
           "format": "uuid"
         },
-        "roleType": {
+        "queueType": {
           "type": "string"
         }
       }
@@ -25463,7 +25511,8 @@ func init() {
             "COUNSELING",
             "CLOSEOUT",
             "TASK_ORDER",
-            "PAYMENT_REQUEST"
+            "PAYMENT_REQUEST",
+            "DESTINATION_REQUESTS"
           ]
         },
         "userData": {
@@ -25631,6 +25680,12 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -26156,6 +26211,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counselingOfficeId": {
           "type": "string",
@@ -28669,6 +28730,9 @@ func init() {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOODestinationAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "additionalDocuments": {
@@ -33190,6 +33254,12 @@ func init() {
         "originDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"

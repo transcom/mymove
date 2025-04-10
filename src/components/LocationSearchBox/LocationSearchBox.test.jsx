@@ -135,6 +135,18 @@ describe('LocationSearchBoxContainer', () => {
       );
       expect(screen.getByText(testPlaceholderText)).toBeInTheDocument();
     });
+
+    it('renders a required asterisk', () => {
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          name="test_component"
+          searchLocations={mockLocationSearch}
+          showRequiredAsterisk
+        />,
+      );
+      expect(screen.getByTestId('requiredAsterisk')).toBeInTheDocument();
+    });
   });
 
   describe('updating options based on text', () => {
