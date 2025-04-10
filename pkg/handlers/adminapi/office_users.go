@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -306,6 +307,35 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				err = apperror.NewBadDataError("No roles were matched from payload")
 				appCtx.Logger().Error(err.Error())
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			if len(payload.Privileges) != 0 {
+				for _, privilege := range payload.Privileges {
+					for _, role := range payload.Roles {
+						privilegesAllowed, err := h.RoleAssociater.VerifyRolesPrivelegesAllowed(appCtx, role.RoleType, privilege.PrivilegeType)
+
+						if err != nil {
+							return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+						}
+
+						if !privilegesAllowed {
+							err = apperror.NewBadDataError("Office user role is not authorized for supplied privilege")
+							appCtx.Logger().Error(err.Error())
+							verrs := validate.NewErrors()
+							verrs.Add("Validation Error", err.Error())
+							validationError := &adminmessages.ValidationError{
+								InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+							}
+
+							validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
+							validationError.Detail = handlers.FmtString("Office user role is not authorized for supplied privilege")
+							validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
+
+							return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+
+						}
+					}
+				}
 			}
 
 			// if the user is being manually created, then we know they will already be approved
