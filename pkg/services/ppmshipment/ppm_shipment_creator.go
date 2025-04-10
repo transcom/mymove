@@ -2,12 +2,14 @@ package ppmshipment
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -158,6 +160,18 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		}
 		ppmShipment.MaxIncentive = maxIncentive
 
+		var mtoShipment models.MTOShipment
+		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
+			return err
+		}
+
+		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			mtoShipment.Status = models.MTOShipmentStatusApproved
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+			now := time.Now()
+			ppmShipment.ApprovedAt = &now
+		}
+
 		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
 		// Check validation errors
@@ -170,10 +184,6 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 
 		// updating the shipment after PPM creation due to addresses not being created until PPM shipment is created
 		// when populating the market_code column, it is considered domestic if both pickup & dest on the PPM are CONUS addresses
-		var mtoShipment models.MTOShipment
-		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
-			return err
-		}
 		if ppmShipment.PickupAddress != nil && ppmShipment.DestinationAddress != nil &&
 			ppmShipment.PickupAddress.IsOconus != nil && ppmShipment.DestinationAddress.IsOconus != nil {
 			pickupAddress := ppmShipment.PickupAddress
