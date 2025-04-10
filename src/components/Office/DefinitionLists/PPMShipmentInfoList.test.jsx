@@ -10,6 +10,7 @@ import { permissionTypes } from 'constants/permissions';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
+import { PPM_TYPES } from 'shared/constants';
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
@@ -72,6 +73,14 @@ describe('PPMShipmentInfoList', () => {
 
     expect(screen.getByTestId('maxIncentive')).toBeInTheDocument();
     expect(screen.getByText('Max Incentive')).toBeInTheDocument();
+  });
+
+  it('renders small package PPM differences', () => {
+    renderWithPermissions({ ppmShipment: { ppmType: PPM_TYPES.SMALL_PACKAGE } });
+    expect(screen.getByText('Estimated Shipped date')).toBeInTheDocument();
+    expect(screen.getByText('Small Package Reimbursement')).toBeInTheDocument();
+    expect(screen.getByText('Shipped from Address')).toBeInTheDocument();
+    expect(screen.getByText('Destination Address')).toBeInTheDocument();
   });
 
   it('PPM Download AOA Paperwork - success with Approved', async () => {
