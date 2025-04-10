@@ -6,3 +6,4 @@
 20250225183302_fn_prime_acknowledge_moves_shipments.up.sql
 20250225233157_fn_get_destination_queue.up.sql
 20250313200647_fn_calculate_escalated_price.up.sql
+20250328183455_fn_fetch_moves_for_bulk_assignment_destination.up.sql
