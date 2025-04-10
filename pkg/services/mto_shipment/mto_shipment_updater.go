@@ -736,7 +736,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			// we only want to update the authorized weight if the shipment is approved and the previous weight is nil
 			// otherwise, shipment_updater will handle updating authorized weight when a shipment is approved
-			if (dbShipment.PrimeEstimatedWeight == nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newShipment.NTSRecordedWeight == nil)) && newShipment.Status == models.MTOShipmentStatusApproved {
+			if (dbShipment.PrimeEstimatedWeight == nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && newShipment.NTSRecordedWeight == nil)) &&
+				(newShipment.Status == models.MTOShipmentStatusApproved || newShipment.Status == models.MTOShipmentStatusApprovalsRequested) {
 				// updates to prime estimated weight should change the authorized weight of the entitlement
 				// which can be manually adjusted by an office user if needed
 				err = updateAuthorizedWeight(appCtx, newShipment, move)
@@ -767,7 +768,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
-		if dbShipment.Status == models.MTOShipmentStatusApproved &&
+		if (dbShipment.Status == models.MTOShipmentStatusApproved ||
+			dbShipment.Status == models.MTOShipmentStatusApprovalsRequested) &&
 			(dbShipment.PrimeEstimatedWeight == nil ||
 				*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight ||
 				(newShipment.PrimeActualWeight != nil && dbShipment.PrimeActualWeight == nil) ||
