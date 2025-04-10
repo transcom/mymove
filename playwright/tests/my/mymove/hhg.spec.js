@@ -9,7 +9,7 @@ test.describe('HHG', () => {
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -115,7 +115,7 @@ test.describe('(MultiMove) HHG', () => {
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
@@ -225,7 +225,7 @@ test.describe('(MultiMove) HHG', () => {
   }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
