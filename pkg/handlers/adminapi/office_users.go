@@ -51,8 +51,10 @@ func payloadForRolePrivilege(p models.RolePrivilege) *adminmessages.RolePrivileg
 		ID:            *handlers.FmtUUID(p.ID),
 		RoleID:        *handlers.FmtUUID(p.RoleID),
 		RoleType:      *handlers.FmtString(string(p.Role.RoleType)),
+		RoleName:      *handlers.FmtString(string(p.Role.RoleName)),
 		PrivilegeID:   *handlers.FmtUUID(p.PrivilegeID),
 		PrivilegeType: *handlers.FmtString(string(p.Privilege.PrivilegeType)),
+		PrivilegeName: *handlers.FmtString(string(p.Privilege.PrivilegeName)),
 		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
 		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
 	}

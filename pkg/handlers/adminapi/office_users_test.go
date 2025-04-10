@@ -1051,7 +1051,9 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 
 		type rolePrivValidation struct {
 			RoleType      string
+			RoleName      string
 			PrivilegeType string
+			PrivilegeName string
 		}
 
 		rolePrivEntries := make(map[uuid.UUID]*rolePrivValidation)
@@ -1059,7 +1061,9 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		for _, rolePriv := range rolesPrivs {
 			rolePrivEntries[rolePriv.ID] = &rolePrivValidation{
 				RoleType:      string(rolePriv.Role.RoleType),
+				RoleName:      string(rolePriv.Role.RoleName),
 				PrivilegeType: string(rolePriv.Privilege.PrivilegeType),
+				PrivilegeName: string(rolePriv.Privilege.PrivilegeName),
 			}
 		}
 
@@ -1069,7 +1073,9 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			rolePriv, ok := rolePrivEntries[entryKey]
 			suite.NotNil(ok)
 			suite.Equal(rolePriv.RoleType, resRolePriv.RoleType)
+			suite.Equal(rolePriv.RoleName, resRolePriv.RoleName)
 			suite.Equal(rolePriv.PrivilegeType, resRolePriv.PrivilegeType)
+			suite.Equal(rolePriv.PrivilegeName, resRolePriv.PrivilegeName)
 
 			delete(rolePrivEntries, entryKey) // remove to ensure unique values
 		}
