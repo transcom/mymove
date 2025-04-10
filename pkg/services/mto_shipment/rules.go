@@ -234,6 +234,28 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
 	})
 }
 
+// MTOShipmentHasRequestedPickupDateTodayOrEarlier returns a validator that checks if the RequestedPickupDate
+// of an MTOShipment is today or earlier, which is invalid as the date must be at least tomorrow.
+// It compares the newer MTOShipment's RequestedPickupDate with the older version (if provided) and ensures
+// the date is in the future relative to today.
+func MTOShipmentHasRequestedPickupDateTodayOrEarlier() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if newer == nil || (newer.RequestedPickupDate == nil && (older == nil || older.RequestedPickupDate == nil)) {
+			return nil
+		}
+		if newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero() && (older == nil || !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate)) {
+			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
+			requestedDate := newer.RequestedPickupDate.Truncate(24 * time.Hour)
+			if !requestedDate.After(today){
+				verrs.Add("error validating mto shipment", "Requested pickup must be greater than or equal to tomorrow's date.")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "Requested pickup must be greater than or equal to tomorrow's date.")
+			}
+		}
+		return nil
+	})
+}
+
 // This function checks Prime specific validations on the model
 // It expects older to represent what's in the db and mtoShipment to represent the requested update
 // It updates mtoShipment accordingly if there are dependent updates like requiredDeliveryDate

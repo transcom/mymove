@@ -102,7 +102,7 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ service
 		moveRouter,
 		moveWeights,
 		recalculator,
-		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement()},
+		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement(), MTOShipmentHasRequestedPickupDateTodayOrEarlier()},
 	}
 }
 

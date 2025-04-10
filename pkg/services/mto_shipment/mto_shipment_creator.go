@@ -48,7 +48,7 @@ func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher serv
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()},
+		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate(), MTOShipmentHasRequestedPickupDateTodayOrEarlier()},
 	}
 }
 

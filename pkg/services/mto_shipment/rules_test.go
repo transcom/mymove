@@ -544,3 +544,148 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		suite.Contains(err.Error(), "not found for mtoShipment")
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasRequestedPickupDateTodayOrEarlier() {
+	// Helper to create dates relative to today
+	today := time.Now().Truncate(24 * time.Hour)
+	yesterday := today.AddDate(0, 0, -1)
+	tomorrow := today.AddDate(0, 0, 1)
+	future := today.AddDate(0, 0, 2)
+
+	// Test case structure
+	testCases := map[string]struct {
+		newer           *models.MTOShipment
+		older           *models.MTOShipment
+		expectedError   bool
+		errorMessage    string
+		validateMessage bool
+	}{
+		"nil newer shipment": {
+			newer:           nil,
+			older:           nil,
+			expectedError:   false,
+			validateMessage: false,
+		},
+		"nil RequestedPickupDate in newer and older": {
+			newer: &models.MTOShipment{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+			older: &models.MTOShipment{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+			expectedError:   false,
+			validateMessage: false,
+		},
+		"nil RequestedPickupDate in newer, non-nil in older": {
+			newer: &models.MTOShipment{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+			older: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &tomorrow,
+			},
+			expectedError:   false,
+			validateMessage: false,
+		},
+		"non-nil RequestedPickupDate in newer, nil older - today": {
+			newer: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &today,
+			},
+			older:           nil,
+			expectedError:   true,
+			errorMessage:    "Requested pickup must be greater than or equal to tomorrow's date.",
+			validateMessage: true,
+		},
+		"non-nil RequestedPickupDate in newer, nil older - yesterday": {
+			newer: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &yesterday,
+			},
+			older:           nil,
+			expectedError:   true,
+			errorMessage:    "Requested pickup must be greater than or equal to tomorrow's date.",
+			validateMessage: true,
+		},
+		"non-nil RequestedPickupDate in newer, nil older - tomorrow": {
+			newer: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &tomorrow,
+			},
+			older:           nil,
+			expectedError:   false,
+			validateMessage: false,
+		},
+		"non-nil RequestedPickupDate in newer, nil older - future": {
+			newer: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &future,
+			},
+			older:           nil,
+			expectedError:   false,
+			validateMessage: false,
+		},
+		"non-nil RequestedPickupDate in both, same date": {
+			newer: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &today,
+			},
+			older: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &today,
+			},
+			expectedError:   false,
+			validateMessage: false,
+		},
+		"non-nil RequestedPickupDate in both, different dates - today": {
+			newer: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &today,
+			},
+			older: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &tomorrow,
+			},
+			expectedError:   true,
+			errorMessage:    "Requested pickup must be greater than or equal to tomorrow's date.",
+			validateMessage: true,
+		},
+		"non-nil RequestedPickupDate in both, different dates - future": {
+			newer: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &future,
+			},
+			older: &models.MTOShipment{
+				ID:                 uuid.Must(uuid.NewV4()),
+				RequestedPickupDate: &today,
+			},
+			expectedError:   false,
+			validateMessage: false,
+		},
+	}
+
+	// Run the test cases
+	for name, tc := range testCases {
+		suite.Run(name, func() {
+			// Create the validator
+			checker := MTOShipmentHasRequestedPickupDateTodayOrEarlier()
+
+			// Call the validator
+			err := checker.Validate(suite.AppContextForTest(), tc.newer, tc.older)
+
+			// Verify the result
+			if tc.expectedError {
+				suite.Error(err)
+				suite.IsType(apperror.NewInvalidInputError(uuid.Nil, nil, nil, ""), err)
+				if tc.validateMessage {
+					suite.Contains(err.Error(), tc.errorMessage)
+				}
+				if tc.newer != nil {
+					suite.Contains(err.Error(), tc.newer.ID.String())
+				}
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+}
