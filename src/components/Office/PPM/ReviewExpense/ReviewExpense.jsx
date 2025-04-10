@@ -244,11 +244,35 @@ export default function ReviewExpense({
     }
 
     // if the expense is not a small package expense, description is required
-    if (selectedExpenseType.toUpperCase() !== expenseTypes.SMALL_PACKAGE) {
+    if (llvmExpenseTypes[selectedExpenseType] !== expenseTypes.SMALL_PACKAGE) {
       let errorMessage = '';
 
       if (descriptionString === '' || descriptionString === null) {
         errorMessage += 'Description is required.\n';
+      }
+
+      if (errorMessage !== '') {
+        onError(errorMessage);
+        return;
+      }
+    } else {
+      let errorMessage = '';
+      if (values.isProGear === '' || values.isProGear === null) {
+        errorMessage += 'Please select if the package is pro-gear or not.\n';
+      }
+
+      if (values.weightShipped === '' || values.weightShipped === null) {
+        errorMessage += 'Package weight is required for small package expenses.\n';
+      }
+
+      if (values.isProGear === 'true' || values.isProGear === true) {
+        if (values.proGearBelongsToSelf === '' || values.proGearBelongsToSelf === null) {
+          errorMessage += 'Please select who the pro-gear belongs to.\n';
+        }
+
+        if (values.proGearDescription === '' || values.proGearDescription === null) {
+          errorMessage += 'Pro-gear description is required.\n';
+        }
       }
 
       if (errorMessage !== '') {
@@ -381,6 +405,7 @@ export default function ReviewExpense({
                   value={selectedExpenseType}
                   disabled={readOnly}
                   onChange={(e) => {
+                    setFieldValue('movingExpenseType', e.target.value);
                     setSelectedExpenseType(e.target.value);
                     refreshPage(e);
                   }}
