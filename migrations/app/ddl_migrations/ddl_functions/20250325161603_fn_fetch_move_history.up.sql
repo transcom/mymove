@@ -1910,39 +1910,47 @@ BEGIN
     PERFORM fn_populate_move_history_service_item_dimensions(v_move_id);
     PERFORM fn_populate_move_history_service_item_customer_contacts(v_move_id);
 
-    RETURN QUERY
+    -- adding a CTE here to stop duplicate entries because of duplicate user_id values
+    -- with this CTE we get one consolidated row of user details
+    RETURN QUERY WITH user_info AS (
+      SELECT
+        ur.user_id,
+        MAX(ou.first_name) AS first_name,
+        MAX(ou.last_name) AS last_name,
+        MAX(ou.email) AS email,
+        MAX(ou.telephone) AS telephone
+      FROM users_roles ur
+      LEFT JOIN office_users ou ON ou.user_id = ur.user_id
+      GROUP BY ur.user_id
+    )
     SELECT
-        x.id,
-        x.schema_name,
-        x.table_name,
-        x.relid,
-        x.object_id,
-        x.session_userid,
-        x.event_name,
-        x.action_tstamp_tx,
-        x.action_tstamp_stm,
-        x.action_tstamp_clk,
-        x.transaction_id,
-        x.client_query,
-        x."action",
-        x.old_data,
-        x.changed_data,
-        x.statement_only,
-        x.context,
-        x.context_id,
-        x.move_id,
-        x.shipment_id,
-        COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
-        COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
-        COALESCE(office_users.email, service_members.personal_email) AS session_user_email,
-        COALESCE(office_users.telephone, service_members.telephone) AS session_user_telephone,
-        x.seq_num
+      x.id,
+      x.schema_name,
+      x.table_name,
+      x.relid,
+      x.object_id,
+      x.session_userid,
+      x.event_name,
+      x.action_tstamp_tx,
+      x.action_tstamp_stm,
+      x.action_tstamp_clk,
+      x.transaction_id,
+      x.client_query,
+      x."action",
+      x.old_data,
+      x.changed_data,
+      x.statement_only,
+      x.context,
+      x.context_id,
+      x.move_id,
+      x.shipment_id,
+      ui.first_name AS session_user_first_name,
+      ui.last_name AS session_user_last_name,
+      ui.email AS session_user_email,
+      ui.telephone AS session_user_telephone,
+      x.seq_num
     FROM audit_hist_temp x
-    LEFT JOIN users_roles ON x.session_userid = users_roles.user_id
-    LEFT JOIN roles ON users_roles.role_id = roles.id
-    LEFT JOIN office_users ON office_users.user_id = x.session_userid
-    LEFT JOIN service_members ON service_members.user_id = x.session_userid
-    LEFT JOIN (SELECT 'Prime' AS prime_user_first_name) prime_users ON roles.role_type = 'prime'
+    LEFT JOIN user_info ui ON ui.user_id = x.session_userid
     ORDER BY x.action_tstamp_tx DESC
     LIMIT per_page OFFSET offset_value;
 END;
