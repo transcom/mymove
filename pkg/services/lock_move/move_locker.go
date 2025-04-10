@@ -101,8 +101,8 @@ func (m moveLocker) LockMoves(appCtx appcontext.AppContext, moveIds []uuid.UUID,
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if err := appCtx.DB().RawQuery(
-			"UPDATE moves SET locked_by=?, lock_expires_at=?, updated_at=? WHERE id=ANY(?)",
-			officeUser.ID, expirationTime, now, pq.Array(moveIds),
+			"UPDATE moves SET locked_by=?, lock_expires_at=? WHERE id=ANY(?)",
+			officeUser.ID, expirationTime, pq.Array(moveIds),
 		).Exec(); err != nil {
 			return err
 		}
