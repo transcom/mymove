@@ -211,18 +211,16 @@ func MTOShipmentHasRequestedPickupDateTodayOrEarlier() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
-		if newer == nil || (newer.RequestedPickupDate == nil && older.RequestedPickupDate == nil) {
+		if newer == nil || (newer.RequestedPickupDate == nil && (older == nil || older.RequestedPickupDate == nil)) {
 			return nil
 		}
 
-		if newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate) {
-			now := time.Now()
-			startOfToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-			startOfRequestedPickupDate := time.Date(newer.RequestedPickupDate.Year(), newer.RequestedPickupDate.Month(), newer.RequestedPickupDate.Day(), 0, 0, 0, 0, now.Location())
-
-			if !startOfRequestedPickupDate.After(startOfToday) {
-				verrs.Add("error validating mto shipment", "RequestedPickupDate must be in the future.")
-				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "RequestedPickupDate must be in the future")
+		if newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero() && (older == nil || !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate)) {
+			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
+			requestedDate := newer.RequestedPickupDate.Truncate(24 * time.Hour)
+			if !requestedDate.After(today) {
+				verrs.Add("error validating mto shipment", "Requested pickup must be greater than or equal to tomorrow's date.")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "Requested pickup must be greater than or equal to tomorrow's date.")
 			}
 		}
 		return nil
