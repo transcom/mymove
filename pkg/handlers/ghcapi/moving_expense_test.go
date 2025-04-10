@@ -700,12 +700,14 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		movingExpense models.MovingExpense
 		params        movingexpenseops.DeleteMovingExpenseParams
 		handler       DeleteMovingExpenseHandler
+		officeUser    models.OfficeUser
 	}
 	makeDeleteSubtestData := func(authenticateRequest bool) (subtestData movingExpenseDeleteSubtestData) {
 		// Fake data:
 		subtestData.movingExpense = factory.BuildMovingExpense(suite.DB(), nil, nil)
 		subtestData.ppmShipment = subtestData.movingExpense.PPMShipment
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		subtestData.officeUser = officeUser
 
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expenses/%s", subtestData.ppmShipment.ID.String(), subtestData.movingExpense.ID.String())
 		req := httptest.NewRequest("DELETE", endpoint, nil)
@@ -746,11 +748,9 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
 		subtestData := makeDeleteSubtestData(false)
 
-		// officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		req := subtestData.params.HTTPRequest
-		// unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
@@ -760,23 +760,9 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
 	})
 
-	suite.Run("DELETE failure - 403 - permission denied - wrong service member user", func() {
-		subtestData := makeDeleteSubtestData(false)
-
-		otherServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateRequest(req, otherServiceMember)
-		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedReq
-
-		response := subtestData.handler.Handle(unauthorizedParams)
-
-		suite.IsType(&movingexpenseops.DeleteMovingExpenseForbidden{}, response)
-	})
 	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
 		subtestData := makeDeleteSubtestData(false)
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		officeUser := subtestData.officeUser
 
 		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
@@ -787,7 +773,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 
 		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
 		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
 
@@ -795,7 +781,7 @@ func (suite *HandlerSuite) TestDeleteMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.DeleteMovingExpenseNotFound{}, response)
 	})
 
-	suite.Run("DELETE failure - 404- not found", func() {
+	suite.Run("DELETE failure - 404 - not found", func() {
 		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 		// Wrong ID provided
