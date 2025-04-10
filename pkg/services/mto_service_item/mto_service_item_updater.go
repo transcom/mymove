@@ -309,6 +309,9 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 
 		//remove assigned user when all service items have been reviewed
 		if !serviceItemsNeedingReview {
+			if serviceItem.ReService == (models.ReService{}) || serviceItem.ReService.Code == "" {
+				return apperror.NewNotFoundError(move.ID, "ReService or ReService.Code is nil or empty.")
+			}
 			if _, isDestination := models.DestinationServiceItemCodesMap[serviceItem.ReService.Code]; isDestination {
 				move.TOODestinationAssignedID = nil
 			} else if _, isOrigin := models.OriginServiceItemCodesMap[serviceItem.ReService.Code]; isOrigin {
