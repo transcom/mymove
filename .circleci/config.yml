@@ -53,7 +53,7 @@ references:
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch integrationTesting
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
@@ -898,8 +898,8 @@ commands:
             export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
             export FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE=false
             export FEATURE_FLAG_QUEUE_MANAGEMENT=false
-            export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
             export FEATURE_FLAG_ENABLE_ALASKA=false
+            export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
             export FEATURE_FLAG_ENABLE_HAWAII=false
             export FEATURE_FLAG_BULK_ASSIGNMENT=false
 
@@ -1547,7 +1547,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v11-server-tests-coverage-
+            - v1-server-tests-coverage-integration
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1586,7 +1586,7 @@ jobs:
       - when:
           condition:
             and:
-              - equal: [main, << pipeline.git.branch >>]
+              - equal: [integrationTesting, << pipeline.git.branch >>]
               - when: always
           steps:
             - run:
@@ -1603,7 +1603,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v11-server-tests-coverage-{{ .BuildNum }}
+                key: v1-server-tests-coverage-integration{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
@@ -1665,26 +1665,30 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - restore_cache:
-          #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the test coverage in the
-          # cache
-          #
-          # To manually reset test coverage (e.g. a refactor or
-          # deleting code means coverage has gone down and we are ok
-          # with it), increment the version number of the cache
-          # e.g. go from v1-client-tests-coverage- to
-          # v2-client-tests-coverage-
-          #
-          # ##### NOTE: Make sure you also update the key in the
-          # ##### save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
-          keys:
-            - v8-client-tests-coverage-
+      - when:
+          condition:
+            equal: [integrationTesting, << pipeline.git.branch >>]
+          steps:
+            - restore_cache:
+                #
+                # https://circleci.com/docs/caching/#restoring-cache
+                #
+                # restore the latest version of the test coverage in the
+                # cache
+                #
+                # To manually reset test coverage (e.g. a refactor or
+                # deleting code means coverage has gone down and we are ok
+                # with it), increment the version number of the cache
+                # e.g. go from v1-client-tests-coverage- to
+                # v2-client-tests-coverage-
+                #
+                # ##### NOTE: Make sure you also update the key in the
+                # ##### save_cache below
+                #
+                # The trailing hyphen in restore_cache seems important
+                # according to the page linked above
+                keys:
+                  - v1-client-tests-coverage-integration
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1721,7 +1725,7 @@ jobs:
       - when:
           condition:
             and:
-              - equal: [main, << pipeline.git.branch >>]
+              - equal: [integrationTesting, << pipeline.git.branch >>]
           steps:
             - run:
                 name: 'Copy coverage to baseline'
@@ -1736,7 +1740,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v8-client-tests-coverage-{{ .BuildNum }}
+                key: v1-client-tests-coverage-integration{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
                 when: always
@@ -1753,7 +1757,6 @@ jobs:
                   --value "${coverage}" \
                   --timestamp "${timestamp}"
                 when: always
-
   # Compile the server side of the app once and persist the relevant
   # build artifacts to the workspace.
   # This way we don't have to re-run the build and since all necessary

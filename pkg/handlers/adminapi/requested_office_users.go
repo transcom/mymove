@@ -1,16 +1,14 @@
 package adminapi
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -27,18 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
-
-func payloadToOktaAccountCreationModel(payload *adminmessages.RequestedOfficeUserUpdate) models.OktaAccountCreationTemplate {
-	return models.OktaAccountCreationTemplate{
-		FirstName:   *payload.FirstName,
-		LastName:    *payload.LastName,
-		Login:       *payload.Email,
-		Email:       *payload.Email,
-		CacEdipi:    payload.Edipi,
-		MobilePhone: *payload.Telephone,
-		GsaID:       payload.OtherUniqueID,
-	}
-}
 
 func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	var user models.User
@@ -75,79 +61,95 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 	return payload
 }
 
-func CreateOfficeOktaAccount(appCtx appcontext.AppContext, params requested_office_users.UpdateRequestedOfficeUserParams) (*http.Response, error) {
-
-	// Payload to OktaAccountCreationTemplate
-	oktaAccountInformation := payloadToOktaAccountCreationModel(params.Body)
-
-	// Get Okta provider
-	provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
-	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error getting okta provider - okta account not created")))
-		return nil, err
-	}
-
-	// Setting viper so we can access the api key in the env vars
+func getOfficeGroupID() (apiKey, customerGroupID string) {
 	v := viper.New()
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
+	return v.GetString(cli.OktaAPIKeyFlag), v.GetString(cli.OktaOfficeGroupIDFlag)
+}
 
-	// Okta api key
-	apiKey := v.GetString(cli.OktaAPIKeyFlag)
+// fetchOrCreateOktaProfile send some requests to the Okta Users API
+// checks if a user already exists and if not, an okta account is created with access to the office group/application
+func fetchOrCreateOktaProfile(appCtx appcontext.AppContext, params requested_office_users.UpdateRequestedOfficeUserParams) (*models.CreatedOktaUser, error) {
+	apiKey, officeGroupID := getOfficeGroupID()
 
-	// Okta createUser url
-	activate := "true"
-	baseURL := provider.GetCreateAccountURL(activate)
+	payload := params.Body
+	oktaEmail := payload.Email
+	oktaFirstName := payload.FirstName
+	oktaLastName := payload.LastName
+	oktaPhone := payload.Telephone
+	oktaEdipi := payload.Edipi
+	oktaGsaId := payload.OtherUniqueID
 
-	// Build okta profile body
-	oktaProfileBody := models.OktaBodyProfile{
-		FirstName:   oktaAccountInformation.FirstName,
-		LastName:    oktaAccountInformation.LastName,
-		Login:       oktaAccountInformation.Login,
-		Email:       oktaAccountInformation.Email,
-		MobilePhone: oktaAccountInformation.MobilePhone,
-		CacEdipi:    oktaAccountInformation.CacEdipi,
-		GsaID:       oktaAccountInformation.GsaID,
-	}
-
-	// Build Post request body
-	body := models.OktaAccountCreationBody{
-		Profile:  oktaProfileBody,
-		GroupIds: []string{},
-	}
-
-	// Get Okta Office Group Id and add it to the request
-	oktaOfficeGroupID := v.GetString(cli.OktaOfficeGroupIDFlag)
-	body.GroupIds = append(body.GroupIds, oktaOfficeGroupID)
-
-	// Marshall Post request body
-	marshalledBody, err := json.Marshal(body)
+	provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
 	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error marshalling okta post request body - okta account not created")))
 		return nil, err
 	}
 
-	// Create POST request
-	userPostReq, err := http.NewRequest("POST", baseURL, bytes.NewReader(marshalledBody))
+	if oktaEmail == nil {
+		return nil, fmt.Errorf("required okta email is nil")
+	}
+	users, err := models.SearchForExistingOktaUsers(appCtx, provider, apiKey, *oktaEmail, &oktaEdipi, &oktaGsaId)
 	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error creating okta post request - okta account not created")))
 		return nil, err
 	}
 
-	// Set POST request header
-	userPostReq.Header.Add("Authorization", "SSWS "+apiKey)
-	userPostReq.Header.Add("Accept", "application/json")
-	userPostReq.Header.Add("Content-Type", "application/json")
+	// if we don't find an exact match, then we need to send back an error because there's something weird in Okta
+	// that will require a HDT or manual fixing
+	if len(users) == 1 {
+		oktaUser := &users[0]
+		groups, err := models.GetOktaUserGroups(appCtx, provider, apiKey, oktaUser.ID)
+		if err != nil {
+			return nil, err
+		}
 
-	// Execute POST request
-	client := &http.Client{}
-	res, err := client.Do(userPostReq)
-	if err != nil {
-		appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" error with okta account creation post request")))
-		return res, err
+		// checking if user is already in office group
+		found := false
+		for _, group := range groups {
+			if group.ID == officeGroupID {
+				found = true
+				break
+			}
+		}
+
+		// if they are not already in the office group, then we need to add them
+		// use case of this would be for customer users that are registering for office accounts
+		if !found {
+			err = models.AddOktaUserToGroup(appCtx, provider, apiKey, officeGroupID, oktaUser.ID)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return oktaUser, nil
+	} else if len(users) > 1 {
+		var errMsg error
+		if oktaEdipi != "" {
+			errMsg = fmt.Errorf("multiple Okta accounts found using email %s and EDIPI: %s", *oktaEmail, oktaEdipi)
+		} else if oktaGsaId != "" {
+			errMsg = fmt.Errorf("multiple Okta accounts found using email %s and GSA ID: %s", *oktaEmail, oktaGsaId)
+		} else {
+			errMsg = fmt.Errorf("multiple Okta accounts found with the given email %s, EDIPI %s, and/or GSA ID %s", *oktaEmail, oktaEdipi, oktaGsaId)
+		}
+		appCtx.Logger().Error("okta account fetch error", zap.Error(errMsg))
+		return nil, errMsg
 	}
 
-	return res, nil
+	profile := models.OktaProfile{
+		FirstName:   handlers.GetStringOrEmpty(oktaFirstName),
+		LastName:    handlers.GetStringOrEmpty(oktaLastName),
+		Email:       handlers.GetStringOrEmpty(oktaEmail),
+		Login:       handlers.GetStringOrEmpty(oktaEmail),
+		MobilePhone: handlers.GetStringOrEmpty(oktaPhone),
+		CacEdipi:    oktaEdipi,
+		GsaID:       &oktaGsaId,
+	}
+	oktaPayload := models.OktaUserPayload{
+		Profile:  profile,
+		GroupIds: []string{officeGroupID},
+	}
+
+	return models.CreateOktaUser(appCtx, provider, apiKey, oktaPayload)
 }
 
 // IndexRequestedOfficeUsersHandler returns a list of requested office users via GET /requested_office_users
@@ -295,15 +297,13 @@ type UpdateRequestedOfficeUserHandler struct {
 func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.UpdateRequestedOfficeUserParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			requestedOfficeUserID, err := uuid.FromString(params.OfficeUserID.String())
 			if err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing error for %s", params.OfficeUserID.String()), zap.Error(err))
+				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
 			}
 
 			body := params.Body
-
-			// roles are associated with users and not office_users, so we need to handle this logic separately
 			updatedRoles := rolesPayloadToModel(body.Roles)
 			if len(updatedRoles) == 0 {
 				err := apperror.NewBadDataError("No roles were matched from payload")
@@ -311,84 +311,66 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
 			}
 
-			// Only attempt to create an Okta account IF params.Body.Status is APPROVED
-			// Track if Okta account was successfully created or not
-			// we will skip this check if using the local dev environment
-			if params.Body.Status == "APPROVED" && appCtx.Session().IDToken != "devlocal" {
-				oktaAccountCreationResponse, createAccountError := CreateOfficeOktaAccount(appCtx, params)
-				if createAccountError != nil || oktaAccountCreationResponse.StatusCode != http.StatusOK {
-					// If there is an error creating the account or there is a respopnse code other than 200 then the account was not succssfully created
-					appCtx.Logger().Error("Error creating okta account", zap.Error(err))
-					return requested_office_users.NewGetRequestedOfficeUserInternalServerError(), err
-				}
-
-				if oktaAccountCreationResponse.StatusCode == http.StatusOK {
-
-					// Get the response Body
-					response, responseErr := io.ReadAll(oktaAccountCreationResponse.Body)
-					if responseErr != nil {
-						appCtx.Logger().Error("oktaAccountCreator Error", zap.Error(fmt.Errorf(" could not read response body")))
-					}
-
-					oktaAccountInfo := new(adminmessages.OktaAccountInfoResponse)
-					err = json.Unmarshal(response, &oktaAccountInfo)
+			var requestedOfficeUser *models.OfficeUser
+			transactionError := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
+				// handle Okta account creation only if the user is being approved
+				// ignore this if we are in our dev environment
+				if params.Body.Status == "APPROVED" && appCtx.Session().IDToken != "devlocal" {
+					var err error
+					_, err = fetchOrCreateOktaProfile(txAppCtx, params)
 					if err != nil {
-						appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+						txAppCtx.Logger().Error("error fetching/creating Okta profile", zap.Error(err))
+						return fmt.Errorf("failed to create Okta account: %w", err)
 					}
-
-					defer oktaAccountCreationResponse.Body.Close()
-
-					appCtx.Logger().Info("Okta account successfully created")
+					txAppCtx.Logger().Info("Okta account successfully fetched or created")
 				}
-			}
 
-			// UpdateRequestedOfficeUser runs in all cases EXCEPT the case that an attempt to create an Okta account has failed
-			requestedOfficeUser, verrs, err := h.RequestedOfficeUserUpdater.UpdateRequestedOfficeUser(appCtx, requestedOfficeUserID, params.Body)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-			if verrs != nil {
-				appCtx.Logger().Error(err.Error())
-				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), verrs
-			}
-
-			if requestedOfficeUser.UserID != nil && body.Roles != nil {
-				_, verrs, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *requestedOfficeUser.UserID, updatedRoles)
+				var verrs *validate.Errors
+				var err error
+				requestedOfficeUser, verrs, err = h.RequestedOfficeUserUpdater.UpdateRequestedOfficeUser(txAppCtx, requestedOfficeUserID, params.Body)
+				if err != nil {
+					txAppCtx.Logger().Error("Error updating RequestedOfficeUser", zap.Error(err))
+					return err
+				}
 				if verrs.HasAny() {
-					validationError := &adminmessages.ValidationError{
-						InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+					txAppCtx.Logger().Error("Validation errors updating RequestedOfficeUser", zap.String("errors", verrs.Error()))
+					return verrs
+				}
+
+				if requestedOfficeUser.UserID != nil && body.Roles != nil {
+					_, verrs, err = h.UserRoleAssociator.UpdateUserRoles(txAppCtx, *requestedOfficeUser.UserID, updatedRoles)
+					if verrs.HasAny() {
+						txAppCtx.Logger().Error("Validation errors updating user roles", zap.String("errors", verrs.Error()))
+						return verrs
 					}
-
-					validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
-					validationError.Detail = handlers.FmtString("The information you provided is invalid.")
-					validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
-
-					return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+					if err != nil {
+						txAppCtx.Logger().Error("Error updating user roles", zap.Error(err))
+						return err
+					}
 				}
+
+				roles, err := h.RoleAssociater.FetchRolesForUser(txAppCtx, *requestedOfficeUser.UserID)
 				if err != nil {
-					appCtx.Logger().Error("Error updating user roles", zap.Error(err))
-					return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
+					txAppCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+					return err
 				}
-			}
+				requestedOfficeUser.User.Roles = roles
 
-			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *requestedOfficeUser.UserID)
-			if err != nil {
-				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
-				return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), err
-			}
-
-			requestedOfficeUser.User.Roles = roles
-
-			// send the email to the user if their request was rejected
-			if params.Body.Status == "REJECTED" {
-				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewOfficeAccountRejected(requestedOfficeUser.ID),
-				)
-				if err != nil {
-					err = apperror.NewBadDataError("problem sending email to rejected office user")
-					appCtx.Logger().Error(err.Error())
-					return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
+				// send email notification if request was rejected
+				if params.Body.Status == "REJECTED" {
+					err = h.NotificationSender().SendNotification(txAppCtx, notifications.NewOfficeAccountRejected(requestedOfficeUser.ID))
+					if err != nil {
+						txAppCtx.Logger().Error("Error sending rejection email", zap.Error(err))
+						return apperror.NewBadDataError("problem sending email to rejected office user")
+					}
 				}
+
+				return nil
+			})
+
+			if transactionError != nil {
+				appCtx.Logger().Error("Transaction error while updating requested office user", zap.Error(transactionError))
+				return requested_office_users.NewUpdateRequestedOfficeUserInternalServerError(), transactionError
 			}
 
 			payload := payloadForRequestedOfficeUserModel(*requestedOfficeUser)

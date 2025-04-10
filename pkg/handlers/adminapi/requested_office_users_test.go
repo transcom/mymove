@@ -3,6 +3,7 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -738,7 +739,15 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		provider, err := factory.BuildOktaProvider("adminProvider")
 		suite.NoError(err)
 
+		// mocking the okta customer group id env variable
+		originalGroupID := os.Getenv("OKTA_OFFICE_GROUP_ID")
+		os.Setenv("OKTA_OFFICE_GROUP_ID", "notrealofficegroupId")
+		defer os.Setenv("OKTA_OFFICE_GROUP_ID", originalGroupID)
+
+		mockAndActivateOktaGETEndpointNoUserNoError(provider)
 		mockAndActivateOktaEndpoints(provider, 200)
+		mockAndActivateOktaGroupGETEndpointNoError(provider)
+		mockAndActivateOktaGroupAddEndpointNoError(provider)
 
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Task Ordering Officer"
@@ -845,6 +854,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		provider, err := factory.BuildOktaProvider("adminProvider")
 		suite.NoError(err)
 
+		mockAndActivateOktaGETEndpointNoUserNoError(provider)
 		mockAndActivateOktaEndpoints(provider, 500)
 
 		user := factory.BuildDefaultUser(suite.DB())
@@ -941,7 +951,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(requestedofficeuserop.NewGetRequestedOfficeUserInternalServerError(), response)
+		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserInternalServerError(), response)
 	})
 }
 
@@ -967,6 +977,38 @@ func mockAndActivateOktaEndpoints(provider *okta.Provider, responseCode int) {
 		httpmock.RegisterResponder("POST", createAccountEndpoint,
 			httpmock.NewStringResponder(500, ""))
 	}
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGETEndpointNoUserNoError(provider *okta.Provider) {
+	getUsersEndpoint := provider.GetUsersURL()
+	response := "[]"
+
+	httpmock.RegisterResponder("GET", getUsersEndpoint,
+		httpmock.NewStringResponder(200, response))
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupGETEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	getGroupsEndpoint := provider.GetUserGroupsURL(oktaID)
+
+	httpmock.RegisterResponder("GET", getGroupsEndpoint,
+		httpmock.NewStringResponder(200, `[]`))
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupAddEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	groupID := "notrealofficegroupId"
+	addGroupEndpoint := provider.AddUserToGroupURL(groupID, oktaID)
+
+	httpmock.RegisterResponder("PUT", addGroupEndpoint,
+		httpmock.NewStringResponder(204, ""))
 
 	httpmock.Activate()
 }

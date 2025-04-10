@@ -292,7 +292,7 @@ const MoveQueue = ({
         className={styles.tableTabs}
         items={[
           <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={tooRoutes.BASE_MOVE_QUEUE}>
-            <span data-testid="closeout-tab-link" className="tab-title" title="Move Queue">
+            <span data-testid="task-orders-tab-link" className="tab-title" title="Move Queue">
               Task Order Queue
             </span>
           </NavLink>,
@@ -301,7 +301,7 @@ const MoveQueue = ({
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
             to={tooRoutes.BASE_DESTINATION_REQUESTS_QUEUE}
           >
-            <span className="tab-title" title="Destination Requests Queue">
+            <span data-testid="destination-requests-tab-link" className="tab-title" title="Destination Requests Queue">
               Destination Requests Queue
             </span>
           </NavLink>,

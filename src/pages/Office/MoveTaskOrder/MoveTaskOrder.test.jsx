@@ -526,7 +526,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
-      expect(wrapper.find('h1').text()).toBe('Move task order');
+      expect(wrapper.find('h1').text()).toBe('Move Task Order');
     });
 
     it('displays empty state message', () => {
@@ -713,7 +713,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
-      expect(wrapper.find('h1').text()).toBe('Move task order');
+      expect(wrapper.find('h1').text()).toBe('Move Task Order');
     });
 
     it('renders the left nav with shipments', () => {
@@ -794,7 +794,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
-      expect(wrapper.find('h1').text()).toBe('Move task order');
+      expect(wrapper.find('h1').text()).toBe('Move Task Order');
     });
 
     it('renders the left nav with shipments', () => {
@@ -874,7 +874,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
-      expect(wrapper.find('h1').text()).toBe('Move task order');
+      expect(wrapper.find('h1').text()).toBe('Move Task Order');
     });
 
     it('renders the left nav with shipments', () => {

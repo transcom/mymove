@@ -2428,6 +2428,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
 			// Ensure assignedUser and assignedID are not nil before proceeding
 			if assignedUser != nil && assignedID != nil {
+
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
 					if officeUser.ID == *assignedID {
@@ -2782,6 +2783,30 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	return &searchCustomers
 }
 
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
+}
+
 // VLocation payload
 func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
 	if vLocation == nil {
@@ -2806,30 +2831,6 @@ func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
 	for i, vLocation := range vLocations {
 		copyOfVLocation := vLocation
 		payload[i] = VLocation(&copyOfVLocation)
-	}
-	return payload
-}
-
-// ReServiceItem payload
-func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
-	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
-		return nil
-	}
-	return &ghcmessages.ReServiceItem{
-		IsAutoApproved: reServiceItem.IsAutoApproved,
-		MarketCode:     string(reServiceItem.MarketCode),
-		ServiceCode:    string(reServiceItem.ReService.Code),
-		ShipmentType:   string(reServiceItem.ShipmentType),
-		ServiceName:    reServiceItem.ReService.Name,
-	}
-}
-
-// ReServiceItems payload
-func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
-	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
-	for i, reServiceItem := range reServiceItems {
-		copyOfReServiceItem := reServiceItem
-		payload[i] = ReServiceItem(&copyOfReServiceItem)
 	}
 	return payload
 }
