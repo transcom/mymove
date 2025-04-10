@@ -321,6 +321,24 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(officeUser.ID, *move.TOOAssignedID)
 	})
 
+	suite.Run("Successful creation of a move with an assigned TOO for Destination Request", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.TOODestinationAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.TOODestinationAssignedID)
+	})
+
 	suite.Run("Successful creation of a move with an assigned TIO", func() {
 		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
