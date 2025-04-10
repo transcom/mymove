@@ -209,7 +209,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 func calcTotalSITDuration(entryDate, departureDate time.Time) int {
 	difference := entryDate.Sub(departureDate)
-	days := 1 + difference.Hours()/24
+	days := difference.Hours() / 24
 	return int(days)
 }
 
@@ -295,11 +295,11 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 			return 0, err
 		}
 	case models.ReServiceCodeDDASIT:
-		if serviceItem.SITDestinationFinalAddress == nil {
-			return 0, apperror.NewBadDataError("No SIT Destination Final Address")
+		if mtoShipment.DestinationAddress == nil {
+			return 0, apperror.NewBadDataError("No Shipment Destination Address")
 		}
 
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceItem.SITDestinationFinalAddress.PostalCode)
+		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
 		if err != nil {
 			return 0, err
 		}
