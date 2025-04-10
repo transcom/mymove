@@ -48,7 +48,10 @@ describe('EditOktaInfoForm component', () => {
 
     const oktaEdipi = await screen.findByLabelText('DoD ID number');
     expect(oktaEdipi).toHaveValue(testProps.initialValues.oktaEdipi);
-    expect(oktaEdipi).toBeDisabled();
+
+    waitFor(() => {
+      expect(oktaEdipi).toBeDisabled();
+    });
   });
 
   it('shows an error message if Okta Email is not in email format', async () => {

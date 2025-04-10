@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 
@@ -27,10 +27,10 @@ describe('EditSitEntryDateModal', () => {
     const sitEntryDate = datePickers[1];
     const newEndDate = formatDateForDatePicker(moment().add(220, 'DD MM YYYY'));
     formatDateForDatePicker(moment(newEndDate, swaggerDateFormat));
-    await act(() => userEvent.type(sitEntryDate, newEndDate));
+    await waitFor(() => userEvent.type(sitEntryDate, newEndDate));
     await fireEvent.blur(sitEntryDate);
-    await act(() => userEvent.type(officeRemarksInput, 'Approved!'));
-    await act(() => userEvent.click(submitBtn));
+    await waitFor(() => userEvent.type(officeRemarksInput, 'Approved!'));
+    await waitFor(() => userEvent.click(submitBtn));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -43,7 +43,7 @@ describe('EditSitEntryDateModal', () => {
     await render(<EditSitEntryDateModal onSubmit={() => {}} onClose={mockClose} {...defaultValues} />);
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
-    await act(() => userEvent.click(closeBtn));
+    await waitFor(() => userEvent.click(closeBtn));
 
     await waitFor(() => {
       expect(mockClose).toHaveBeenCalled();

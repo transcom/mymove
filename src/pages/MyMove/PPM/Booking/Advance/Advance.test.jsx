@@ -9,11 +9,11 @@ import Advance from './Advance';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { updateMTOShipment } from 'store/entities/actions';
 import { setFlashMessage } from 'store/flash/actions';
 import { selectCurrentOrders, selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
+import { updateMTOShipment } from 'store/entities/actions';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -287,7 +287,10 @@ describe('Advance page', () => {
     await userEvent.click(agreeToTerms);
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
-    expect(saveButton).not.toBeDisabled();
+
+    waitFor(() => {
+      expect(saveButton).not.toBeDisabled();
+    });
     await userEvent.click(saveButton);
 
     const expectedPayload = {

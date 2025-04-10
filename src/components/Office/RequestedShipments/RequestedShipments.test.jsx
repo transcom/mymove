@@ -1,5 +1,4 @@
 import React from 'react';
-import { act } from 'react-dom/test-utils';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -240,7 +239,7 @@ describe('RequestedShipments', () => {
       const { container } = render(submittedRequestedShipmentsComponentWithPermission);
 
       // TODO this doesn't seem right
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           container.querySelector('input[name="shipments"]'),
           'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
@@ -251,14 +250,14 @@ describe('RequestedShipments', () => {
       expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: none');
 
       // TODO
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).not.toBeDisabled();
 
       // TODO
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
       });
       expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: block');
@@ -274,7 +273,7 @@ describe('RequestedShipments', () => {
       const { container } = render(submittedRequestedShipmentsComponentMissingRequiredInfo);
 
       // TODO
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           container.querySelector('input[name="shipments"]'),
           'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
@@ -285,7 +284,7 @@ describe('RequestedShipments', () => {
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
 
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       });
 
@@ -410,7 +409,7 @@ describe('RequestedShipments', () => {
           />
         </MockProviders>,
       );
-      await act(async () => {
+      await waitFor(async () => {
         await userEvent.type(
           container.querySelector('input[name="shipments"]'),
           'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',

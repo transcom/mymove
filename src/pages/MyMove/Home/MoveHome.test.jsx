@@ -2,7 +2,7 @@
 import React from 'react';
 import { v4 } from 'uuid';
 import { mount } from 'enzyme';
-import { act, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
 
@@ -1192,7 +1192,7 @@ describe('Home component', () => {
       isBooleanFlagEnabled.mockResolvedValue(true);
       let wrapper;
       // wrapping rendering in act to ensure all state updates are complete
-      await act(async () => {
+      await waitFor(async () => {
         wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithUBAllowance);
       });
       await waitFor(() => {

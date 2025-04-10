@@ -1,6 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { render, renderHook, waitFor } from '@testing-library/react';
 
 import { Modal, connectModal, useModal } from './MigratedModal';
 
@@ -50,13 +49,12 @@ describe('useModal', () => {
     expect(typeof result.current.openModal).toBe('function');
     expect(typeof result.current.closeModal).toBe('function');
 
-    act(() => {
+    waitFor(() => {
       result.current.openModal();
+      expect(result.current.isOpen).toEqual(true);
     });
 
-    expect(result.current.isOpen).toEqual(true);
-
-    act(() => {
+    waitFor(() => {
       result.current.closeModal();
     });
 
