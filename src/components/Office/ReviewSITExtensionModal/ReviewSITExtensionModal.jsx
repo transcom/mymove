@@ -99,7 +99,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
-            totalDaysRemaining,
+            approvedAndRequestedDaysCombined - sitStatus.totalSITDaysUsed,
           ]}
         />
       </div>

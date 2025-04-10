@@ -101,7 +101,7 @@ export const calculateApprovedAndRequestedDatesCombined = (sitExtension, totalDa
 // ************************
 
 export const SitEndDateForm = ({ onChange }) => (
-  <div className={styles.sitDatePicker}>
+  <div className={styles.sitDatePicker} data-testid="sitEndDate">
     <DatePickerInput name="sitEndDate" label="" id="sitEndDate" onChange={onChange} />
   </div>
 );
