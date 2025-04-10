@@ -1144,52 +1144,46 @@ export const useRolesPrivilegesQueries = () => {
   );
   const { isLoading, isError, isSuccess } = rolesPrivilegesQuery;
   const mappings = data;
-
-  const roleNameMap = {
-    customer: 'Customer',
-    task_ordering_officer: 'Task Ordering Officer',
-    task_invoicing_officer: 'Task Invoicing Officer',
-    contracting_officer: 'Contracting Officer',
-    services_counselor: 'Services Counselor',
-    prime_simulator: 'Prime Simulator',
-    qae: 'Quality Assurance Evaluator',
-    customer_service_representative: 'Customer Service Representative',
-    gsr: 'Government Surveillance Representative',
-    headquarters: 'Headquarters',
-  };
-
-  const privilegeNameMap = {
-    supervisor: 'Supervisor',
-    safety: 'Safety',
-  };
-  const uniqueRolesMap = new Map();
-  const uniquePrivilegesMap = new Map();
+  const privilegesMap = new Map();
+  const rolesWithPrivsMap = new Map();
 
   mappings.forEach((mapping) => {
-    if (mapping.roleType) {
-      if (!uniqueRolesMap.has(mapping.roleType)) {
-        uniqueRolesMap.set(mapping.roleType, {
-          roleType: mapping.roleType,
-          roleName: roleNameMap[mapping.roleType] || mapping.roleType,
+    // Create a map of privileges with their types and names.
+    if (mapping.privilegeType) {
+      if (!privilegesMap.has(mapping.privilegeType)) {
+        privilegesMap.set(mapping.privilegeType, {
+          privilegeType: mapping.privilegeType,
+          privilegeName: mapping.privilegeName,
         });
       }
     }
-
-    if (mapping.privilegeType) {
-      if (!uniquePrivilegesMap.has(mapping.privilegeType)) {
-        uniquePrivilegesMap.set(mapping.privilegeType, {
-          privilegeType: mapping.privilegeType,
-          privilegeName: privilegeNameMap[mapping.privilegeType] || mapping.privilegeType,
+    // Create a map of roles with their types, names, and allowed privileges.
+    if (mapping.roleType) {
+      if (!rolesWithPrivsMap.has(mapping.roleType)) {
+        rolesWithPrivsMap.set(mapping.roleType, {
+          roleType: mapping.roleType,
+          roleName: mapping.roleName,
+          allowedPrivileges: new Set(),
         });
+      }
+      // Add their allowed privilege types.
+      if (mapping.privilegeType) {
+        rolesWithPrivsMap.get(mapping.roleType).allowedPrivileges.add(mapping.privilegeType);
       }
     }
   });
 
-  const roles = Array.from(uniqueRolesMap.values());
-  const privileges = Array.from(uniquePrivilegesMap.values());
+  const rolesWithPrivs = Array.from(rolesWithPrivsMap.values()).map((roleObj) => ({
+    roleType: roleObj.roleType,
+    roleName: roleObj.roleName,
+    allowedPrivileges: Array.from(roleObj.allowedPrivileges),
+  }));
+  // Make an array of roles that don't have Safety Moves privileges.
+  const nonSafetyRoles = rolesWithPrivs.filter((roleObj) => !roleObj.allowedPrivileges.includes('safety'));
+  const privileges = Array.from(privilegesMap.values());
 
   return {
-    result: { roles, privileges },
+    result: { privileges, rolesWithPrivs, nonSafetyRoles },
     isLoading,
     isError,
     isSuccess,
