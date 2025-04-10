@@ -206,7 +206,7 @@ describe('PPMSummaryList component', () => {
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`PPM documentation submitted: 19 Apr 2022`)).toBeInTheDocument();
-      expect(screen.queryByText(`Documentation accepted and verified: 23 Apr 2022`)).toBeInTheDocument();
+      expect(screen.queryByText(`PPM closeout completed: 23 Apr 2022`)).toBeInTheDocument();
 
       expect(screen.getByText(/From:/, { selector: 'span' })).toBeInTheDocument();
       expect(screen.getByText(/Pickup Test City, NY 10001/, { selector: 'p' })).toBeInTheDocument();
