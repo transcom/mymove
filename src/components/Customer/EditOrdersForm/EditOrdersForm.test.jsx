@@ -311,6 +311,19 @@ describe('EditOrdersForm component', () => {
       if (required) {
         expect(await screen.findByLabelText(formInput)).toBeRequired();
       }
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
 
     it('rendering the upload area', async () => {

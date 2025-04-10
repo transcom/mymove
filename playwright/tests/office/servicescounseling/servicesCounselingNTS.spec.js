@@ -55,7 +55,9 @@ test.describe('Services counselor user', () => {
     // Fill out the orders details
     await page.getByLabel('Orders number').fill('1234');
     await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
-    await page.getByLabel('Orders type', { exact: true }).selectOption({ label: 'Permanent Change Of Station (PCS)' });
+    await page
+      .getByLabel('Orders type *', { exact: true })
+      .selectOption({ label: 'Permanent Change Of Station (PCS)' });
     await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 
     // Click the Save button and return to the move details page
@@ -107,7 +109,9 @@ test.describe('Services counselor user', () => {
     await page.getByLabel('Orders number').fill('1234');
     await page.getByLabel('Date issued').fill('1234');
     await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
-    await page.getByLabel('Orders type', { exact: true }).selectOption({ label: 'Permanent Change Of Station (PCS)' });
+    await page
+      .getByLabel('Orders type *', { exact: true })
+      .selectOption({ label: 'Permanent Change Of Station (PCS)' });
     await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 
     // Fill out the HHG and NTS accounting codes

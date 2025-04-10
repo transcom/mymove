@@ -638,6 +638,14 @@ const ppmShipmentQuery = {
   ],
 };
 
+const disabledMoveStatuses = [
+  MOVE_STATUSES.DRAFT,
+  MOVE_STATUSES.SUBMITTED,
+  MOVE_STATUSES.APPROVED,
+  MOVE_STATUSES.CANCELED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
+
 const ppmShipmentQueryNeedsCloseout = {
   ...newMoveDetailsQuery,
   mtoShipments: [
@@ -1805,6 +1813,31 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
+      });
+    });
+
+    describe('for view only orders and allowance move statuses', () => {
+      it('shows view buttons instead of edit', async () => {
+        for (let i = 0; i < disabledMoveStatuses.length; i += 1) {
+          const counselingCompletedMoveDetailsQueryValues = JSON.parse(
+            JSON.stringify(counselingCompletedMoveDetailsQuery),
+          );
+          counselingCompletedMoveDetailsQueryValues.move = {
+            id: 123,
+            moveCode: 'GLOBAL123',
+            ordersId: 1,
+            status: disabledMoveStatuses[i],
+          };
+
+          // set return values for mocked functions
+          useMoveDetailsQueries.mockReturnValue(counselingCompletedMoveDetailsQueryValues);
+          renderComponent();
+
+          const viewOrders = screen.queryAllByRole('link', { name: 'View orders' });
+          expect(viewOrders[0]).toBeInTheDocument();
+          const viewAllowances = screen.queryAllByRole('link', { name: 'View allowances' });
+          expect(viewAllowances[0]).toBeInTheDocument();
+        }
       });
     });
 

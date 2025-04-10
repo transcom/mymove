@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { MOVE_DOCUMENT_TYPE, MOVE_STATUSES } from 'shared/constants';
 import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -73,6 +73,20 @@ const mockLoa = {
   validHhgProgramCodeForLoa: true,
   validLoaForTac: true,
 };
+
+const editMoveStatuses = [
+  MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
+
+const disabledMoveStatuses = [
+  MOVE_STATUSES.DRAFT,
+  MOVE_STATUSES.SUBMITTED,
+  MOVE_STATUSES.APPROVED,
+  MOVE_STATUSES.CANCELED,
+  MOVE_STATUSES.APPROVALS_REQUESTED,
+];
 
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
@@ -150,6 +164,9 @@ const useOrdersDocumentQueriesReturnValue = {
       ntsSac: 'R6X1',
     },
   },
+  move: {
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  },
 };
 
 const ordersMockProps = {
@@ -212,7 +229,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
+      expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
     });
 
@@ -238,7 +255,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      const ordersTypeDropdown = screen.getByLabelText('Orders type');
+      const ordersTypeDropdown = screen.getByLabelText('Orders type *');
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
       await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
@@ -271,12 +288,98 @@ describe('Orders page', () => {
 
       expect(await screen.findByText(mockOriginDutyLocation.name)).toBeInTheDocument();
       expect(screen.getByText(mockDestinationDutyLocation.name)).toBeInTheDocument();
-      expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+      expect(screen.getByLabelText('Orders type *')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
       expect(screen.getByTestId('hhgTacInput')).toHaveValue('F8E1');
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
       expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
+    });
+
+    it('disables fields for correct statuses', async () => {
+      for (let i = 0; i < disabledMoveStatuses.length; i += 1) {
+        const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+        orderQueryReturnValues.move = {
+          id: 123,
+          moveCode: 'GLOBAL123',
+          ordersId: 1,
+          status: disabledMoveStatuses[i],
+        };
+
+        // set return values for mocked functions
+        useOrdersDocumentQueries.mockReturnValue(orderQueryReturnValues);
+        getOrder.mockResolvedValue(orderQueryReturnValues);
+
+        render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+
+        const currentDutyLocationInput = screen.getByLabelText('Current duty location *');
+        expect(currentDutyLocationInput).toBeInTheDocument();
+        expect(currentDutyLocationInput).toBeDisabled();
+        const newDutyLocationInput = screen.getByLabelText('New duty location *');
+        expect(newDutyLocationInput).toBeInTheDocument();
+        expect(newDutyLocationInput).toBeDisabled();
+        const payGradeInput = screen.getByLabelText('Pay grade *');
+        expect(payGradeInput).toBeInTheDocument();
+        expect(payGradeInput).toBeDisabled();
+        const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
+        expect(dependentsAuthorizedInput).toBeInTheDocument();
+        expect(dependentsAuthorizedInput).toBeDisabled();
+        const tacInput = screen.getByLabelText('TAC');
+        expect(tacInput).toBeInTheDocument();
+        expect(tacInput).toBeDisabled();
+        const tacInputRequired = screen.getByLabelText('TAC *');
+        expect(tacInputRequired).toBeInTheDocument();
+        expect(tacInputRequired).toBeDisabled();
+        const sacInputs = screen.queryAllByLabelText('SAC');
+        expect(sacInputs.length).toBe(2);
+        expect(sacInputs[0]).toBeDisabled();
+        expect(sacInputs[1]).toBeDisabled();
+      }
+    });
+
+    it('enables fields for correct statuses', async () => {
+      for (let i = 0; i < editMoveStatuses.length; i += 1) {
+        const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
+        orderQueryReturnValues.move = {
+          id: 123,
+          moveCode: 'GLOBAL123',
+          ordersId: 1,
+          status: editMoveStatuses[i],
+        };
+
+        render(
+          <MockProviders>
+            <ServicesCounselingOrders {...ordersMockProps} />
+          </MockProviders>,
+        );
+
+        const currentDutyLocationInput = screen.getByLabelText('Current duty location *');
+        expect(currentDutyLocationInput).toBeInTheDocument();
+        expect(currentDutyLocationInput).not.toBeDisabled();
+        const newDutyLocationInput = screen.getByLabelText('New duty location *');
+        expect(newDutyLocationInput).toBeInTheDocument();
+        expect(newDutyLocationInput).not.toBeDisabled();
+        const payGradeInput = screen.getByLabelText('Pay grade *');
+        expect(payGradeInput).toBeInTheDocument();
+        expect(payGradeInput).not.toBeDisabled();
+        const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
+        expect(dependentsAuthorizedInput).toBeInTheDocument();
+        expect(dependentsAuthorizedInput).not.toBeDisabled();
+        const tacInput = screen.getByLabelText('TAC');
+        expect(tacInput).toBeInTheDocument();
+        expect(tacInput).not.toBeDisabled();
+        const tacInputRequired = screen.getByLabelText('TAC *');
+        expect(tacInputRequired).toBeInTheDocument();
+        expect(tacInputRequired).not.toBeDisabled();
+        const sacInputs = screen.queryAllByLabelText('SAC');
+        expect(sacInputs.length).toBe(2);
+        expect(sacInputs[0]).not.toBeDisabled();
+        expect(sacInputs[1]).not.toBeDisabled();
+      }
     });
   });
 
@@ -494,7 +597,12 @@ describe('Orders page', () => {
     it('select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -536,7 +644,12 @@ describe('Orders page', () => {
     it('De-select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.STUDENT_TRAVEL;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('yes');
 
@@ -578,7 +691,12 @@ describe('Orders page', () => {
     it('select STUDENT_TRAVEL, De-select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -621,7 +739,12 @@ describe('Orders page', () => {
     it('select STUDENT_TRAVEL, select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -670,7 +793,12 @@ describe('Orders page', () => {
     it('select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -712,7 +840,12 @@ describe('Orders page', () => {
     it('De-select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('yes');
 
@@ -754,7 +887,12 @@ describe('Orders page', () => {
     it('select EARLY_RETURN_OF_DEPENDENTS, De-select EARLY_RETURN_OF_DEPENDENTS', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
@@ -797,7 +935,12 @@ describe('Orders page', () => {
     it('select EARLY_RETURN_OF_DEPENDENTS, select STUDENT_TRAVEL', async () => {
       // create a local copy of order return value and set initial values
       const orderQueryReturnValues = JSON.parse(JSON.stringify(useOrdersDocumentQueriesReturnValue));
-      orderQueryReturnValues.move = { id: 123, moveCode: 'GLOBAL123', ordersId: 1 };
+      orderQueryReturnValues.move = {
+        id: 123,
+        moveCode: 'GLOBAL123',
+        ordersId: 1,
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+      };
       orderQueryReturnValues.orders[1].order_type = ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION;
       orderQueryReturnValues.orders[1].has_dependents = formatYesNoAPIValue('no');
 
