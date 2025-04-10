@@ -20,7 +20,7 @@ BEGIN
 			WHERE duty_locations.provides_services_counseling = true and duty_locations.id = p_duty_location_id and j.code = p_gbloc_indicator
 			    and transportation_offices.provides_ppm_closeout = true
 			)
-		SELECT counseling_offices.id, counseling_offices.name, counseling_offices.gbloc
+		SELECT counseling_offices.id, counseling_offices.name
 			FROM counseling_offices
 			JOIN addresses cnsl_address on counseling_offices.counseling_address = cnsl_address.id
 			LEFT JOIN zip3_distances ON (
