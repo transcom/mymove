@@ -386,6 +386,28 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	return mto, nil
 }
 
+func (f moveTaskOrderFetcher) FetchMoveTaskOrderForAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error) {
+	mto := &models.Move{}
+
+	err := appCtx.DB().EagerPreload("MTOShipments").Find(mto, moveTaskOrderID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &models.Move{}, apperror.NewNotFoundError(moveTaskOrderID, "")
+		default:
+			return &models.Move{}, apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	for _, shipment := range mto.MTOShipments {
+		if shipment.Status == models.MTOShipmentStatusApproved && shipment.ShipmentType != models.MTOShipmentTypePPM {
+			return mto, nil
+		}
+	}
+
+	return nil, apperror.NewConflictError(moveTaskOrderID, "Cannot approve Move without an approved non-ppm shipment")
+}
+
 func (f moveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error) {
 	move := &models.Move{}
 	findMoveQuery := appCtx.DB().Q()
