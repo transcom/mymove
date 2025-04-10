@@ -411,7 +411,7 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: 'PPM Review Complete' }).click();
     await scPage.waitForPage.moveDetails();
 
     // Navigate to the "View documents" page
@@ -586,6 +586,35 @@ test.describe('Services counselor user', () => {
         await expect(page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
         await page.getByRole('button', { name: 'Save & Continue' }).click();
         await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+      });
+
+      test('can add, edit, and delete Weight moved', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // Add Weight Ticket
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByText('Add More Weight').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await scPage.fillOutWeightTicketPage({ hasTrailer: true, ownTrailer: true });
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Edit
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMoved-1').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Delete
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMovedDelete-1').click();
+        await expect(page.getByRole('heading', { name: 'Delete this?' })).toBeVisible();
+        await page.getByRole('button', { name: 'Yes, Delete' }).click();
+        await expect(page.getByText('Trip 1 successfully deleted.')).toBeVisible();
+        await expect(page.getByTestId('weightMovedDelete-1')).not.toBeVisible();
       });
     });
   });
