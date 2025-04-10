@@ -112,7 +112,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
         setFlashMessage(
           'OFFICE_ACCOUNT_REQUEST_SUCCESS',
           'success',
-          'Request Office Account form successfully submitted.',
+          'You have successfully requested access to MilMove. This request must be processed by an administrator prior to login. Once this process is completed, an approval or rejection email will be sent notifying you of the status of your account request.',
           '',
           true,
         );

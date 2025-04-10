@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 import selectEvent from 'react-select-event';
@@ -94,6 +94,15 @@ describe('RequestAccount page', () => {
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(saveBtn);
 
+    await waitFor(() => {
+      expect(props.setFlashMessage).toHaveBeenCalledWith(
+        'OFFICE_ACCOUNT_REQUEST_SUCCESS',
+        'success',
+        'You have successfully requested access to MilMove. This request must be processed by an administrator prior to login. Once this process is completed, an approval or rejection email will be sent notifying you of the status of your account request.',
+        '',
+        true,
+      );
+    });
     expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.SIGN_IN_PATH);
   });
 
