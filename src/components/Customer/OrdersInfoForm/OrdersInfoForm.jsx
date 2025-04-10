@@ -6,13 +6,14 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './OrdersInfoForm.module.scss';
 
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -79,7 +80,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       ? Yup.number()
           .transform((value) => (Number.isNaN(value) ? 0 : value))
           .min(0, 'UB weight allowance must be 0 or more')
-          .max(2000, 'UB weight allowance cannot exceed 2000 lbs.')
+          .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.')
       : Yup.number().notRequired(),
   });
 
@@ -140,7 +141,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
   useEffect(() => {
     if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
-      if (isOconusMove && ordersType === ORDERS_TYPE.TEMPORARY_DUTY && grade === 'CIVILIAN_EMPLOYEE') {
+      if (
+        isOconusMove &&
+        ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
+        grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
+      ) {
         setIsCivilianTDYMove(true);
       } else {
         setIsCivilianTDYMove(false);
@@ -238,9 +243,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
         const showcivilianTDYUBAllowanceWarning =
           values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
 
-        const civilianTDYUBAllowanceWeightWarning =
-          '350 lbs. is the maximum UB weight allowance for a civilian TDY unless stated otherwise on your orders.';
-
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {
           civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
@@ -255,12 +257,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
                 options={filteredOrderTypeOptions}
                 required
-                hint="Required"
+                showRequiredAsterisk
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
@@ -270,7 +273,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 name="issue_date"
                 label="Orders date"
                 required
-                hint="Required"
+                showRequiredAsterisk
                 renderInput={(input) => (
                   <>
                     {input}
@@ -281,14 +284,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 )}
               />
               <DatePickerInput
-                hint="Required"
                 name="report_by_date"
                 label={formatLabelReportByDate(values.orders_type)}
                 required
+                showRequiredAsterisk
               />
               <DutyLocationInput
                 label="Current duty location"
-                hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
@@ -296,6 +298,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   handleCounselingOfficeChange();
                 }}
                 required
+                showRequiredAsterisk
                 metaOverride={originMeta}
               />
               {currentDutyLocation.provides_services_counseling && (
@@ -304,8 +307,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
-                    hint="Required"
                     required
+                    showRequiredAsterisk
                     options={counselingOfficeOptions}
                   />
                   <Hint>
@@ -341,8 +344,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   <DutyLocationInput
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
+                    showRequiredAsterisk
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
                     onDutyLocationChange={(e) => {
@@ -354,8 +358,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 <DutyLocationInput
                   name="new_duty_location"
                   label="New duty location"
+                  showRequiredAsterisk
                   displayAddress={false}
-                  hint="Required"
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -364,7 +368,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
+                <Label>
+                  <span>
+                    Are dependents included in your orders? <RequiredAsterisk />
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -399,7 +407,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -451,6 +463,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     name="dependents_under_twelve"
                     label="Number of dependents under the age of 12"
                     id="dependentsUnderTwelve"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -464,6 +477,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     name="dependents_twelve_and_over"
                     label="Number of dependents of the age 12 or over"
                     id="dependentsTwelveAndOver"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -474,11 +488,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <DropdownInput
-                hint="Required"
                 label="Pay grade"
                 name="grade"
                 id="grade"
                 required
+                showRequiredAsterisk
                 options={payGradeOptions}
                 onChange={(e) => {
                   setGrade(e.target.value);
