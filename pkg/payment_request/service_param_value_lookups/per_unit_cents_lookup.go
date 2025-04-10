@@ -289,7 +289,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 			Where("is_less_50_miles = ?", (*p.ServiceItem.SITDeliveryMiles <= 50)).
 			First(&reIntlOtherPrice)
 		if err != nil {
-			return "", fmt.Errorf("error fetching IOPSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, originRateAreaID, err)
+			return "", fmt.Errorf("error fetching IOPSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, originRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, originRateAreaID, err)
 		}
 		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
 	case models.ReServiceCodeIDDSIT:
@@ -308,7 +308,7 @@ func (p PerUnitCentsLookup) lookup(appCtx appcontext.AppContext, s *ServiceItemP
 			Where("is_less_50_miles = ?", (*p.ServiceItem.SITDeliveryMiles <= 50)).
 			First(&reIntlOtherPrice)
 		if err != nil {
-			return "", fmt.Errorf("error fetching IOPSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, destinationRateAreaID, err)
+			return "", fmt.Errorf("error fetching IDDSIT per unit cents for contractID: %s, serviceID %s, isPeakPeriod: %t, destRateAreaID: %s: %s", contractID, serviceID, isPeakPeriod, destinationRateAreaID, err)
 		}
 		return reIntlOtherPrice.PerUnitCents.ToMillicents().ToCents().String(), nil
 
