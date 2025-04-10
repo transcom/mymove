@@ -53,6 +53,9 @@ type MovingExpense struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
+	// Indicates if the customer is claiming an expense as pro-gear or not
+	IsProGear *bool `json:"isProGear,omitempty"`
+
 	// Indicates if the service member is missing the receipt with the proof of expense amount
 	MissingReceipt *bool `json:"missingReceipt"`
 
@@ -68,6 +71,12 @@ type MovingExpense struct {
 	// Read Only: true
 	// Format: uuid
 	PpmShipmentID strfmt.UUID `json:"ppmShipmentId"`
+
+	// Indicates if the pro-gear belongs to the customer or their spouse
+	ProGearBelongsToSelf *bool `json:"proGearBelongsToSelf,omitempty"`
+
+	// A brief description of the pro-gear
+	ProGearDescription string `json:"proGearDescription,omitempty"`
 
 	// reason
 	Reason *PPMDocumentStatusReason `json:"reason"`
@@ -113,11 +122,17 @@ type MovingExpense struct {
 	// Format: date
 	SubmittedSitStartDate *strfmt.Date `json:"submittedSitStartDate"`
 
+	// Tracking number for a small package expense
+	TrackingNumber *string `json:"trackingNumber"`
+
 	// Timestamp when a property of this moving expense object was last modified (UTC)
 	// Required: true
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt"`
+
+	// The total weight shipped for a small package
+	WeightShipped *int64 `json:"weightShipped"`
 
 	// The total weight stored in PPM SIT
 	WeightStored *int64 `json:"weightStored"`
