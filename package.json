@@ -164,7 +164,7 @@
     "danger": "^11.3.1",
     "danger-plugin-jira-issue": "^1.4.1",
     "enzyme": "^3.11.0",
-    "eslint-config-airbnb": "19.0.4",
+    "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-ato": "file:./eslint-plugin-ato",
     "eslint-plugin-no-only-tests": "^3.1.0",
