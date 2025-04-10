@@ -78,14 +78,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				docID = &document.ID
 			}
 
-			newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
+			newUserUpload, url, verrs, createErr := uploader.CreateUserUploadForDocumentWrapper(
 				appCtx,
 				appCtx.Session().UserID,
 				h.FileStorer(),
 				file,
 				file.Header.Filename,
-				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
-				uploaderpkg.AllowedTypesServiceMember,
+				uploader.MaxCustomerUserUploadFileSizeLimit,
+				uploader.AllowedTypesServiceMember,
 				docID,
 				models.UploadTypeOFFICE,
 			)
@@ -93,11 +93,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 			if verrs.HasAny() || createErr != nil {
 				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
 				switch createErr.(type) {
-				case uploaderpkg.ErrTooLarge:
+				case uploader.ErrTooLarge:
 					return uploadop.NewCreateUploadRequestEntityTooLarge(), rollbackErr
-				case uploaderpkg.ErrFile:
+				case uploader.ErrFile:
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
-				case uploaderpkg.ErrFailedToInitUploader:
+				case uploader.ErrFailedToInitUploader:
 					return uploadop.NewCreateUploadInternalServerError(), rollbackErr
 				default:
 					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), rollbackErr
@@ -163,9 +163,9 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			userUploader, err := uploaderpkg.NewUserUploader(
+			userUploader, err := uploader.NewUserUploader(
 				h.FileStorer(),
-				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				uploader.MaxCustomerUserUploadFileSizeLimit,
 			)
 			if err != nil {
 				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))

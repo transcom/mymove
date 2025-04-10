@@ -6391,6 +6391,14 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - serviceMemberId
       - issueDate
@@ -6464,6 +6472,14 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - issueDate
       - reportByDate
@@ -6537,6 +6553,14 @@ definitions:
       dependentsAuthorized:
         type: boolean
         x-nullable: true
+      civilianTdyUbAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The weight in pounds set by the customer or office user that a
+          civilian TDY move is entitled to for Unaccompanied Baggage shipment
+          types.
     required:
       - issueDate
       - reportByDate
