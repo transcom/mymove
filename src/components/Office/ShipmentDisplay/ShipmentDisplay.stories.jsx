@@ -616,3 +616,19 @@ export const PPMShipmentServiceCounselorExcluded = () => (
     />
   </div>
 );
+
+export const PPMShipmentServiceCounselorSendToCustomer = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay
+      displayInfo={ppmInfo}
+      sendPpmToCustomer
+      counselorCanEdit={false}
+      ordersLOA={ordersLOA}
+      shipmentType={SHIPMENT_OPTIONS.PPM}
+      isSubmitted
+      allowApproval={false}
+      warnIfMissing={['counselorRemarks']}
+      completePpmForCustomerURL="/"
+    />
+  </div>
+);
