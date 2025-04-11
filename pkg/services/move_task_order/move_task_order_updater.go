@@ -577,19 +577,20 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingSendPPMToCustomer(app
 	}
 
 	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
-		ppmShipment.Shipment.Status = models.MTOShipmentStatusApproved
-
-		verrs, err := appCtx.DB().ValidateAndSave(&ppmShipment.Shipment)
-		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(ppmShipment.Shipment.ID, nil, verrs, "")
-		}
-		if err != nil {
-			return err
+		if ppmShipment.Shipment.Status != models.MTOShipmentStatusApproved {
+			ppmShipment.Shipment.Status = models.MTOShipmentStatusApproved
+			verrs, err := appCtx.DB().ValidateAndSave(&ppmShipment.Shipment)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(ppmShipment.Shipment.ID, nil, verrs, "")
+			}
+			if err != nil {
+				return err
+			}
 		}
 
 		// Pull old ppmshipment for estimator update
 		var ppm models.PPMShipment
-		err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+		err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 			EagerPreload(
 				"Shipment",
 				"WeightTickets",
@@ -633,7 +634,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingSendPPMToCustomer(app
 		now := time.Now()
 		ppmShipment.ApprovedAt = &now
 
-		verrs, err = appCtx.DB().ValidateAndSave(&ppmShipment)
+		verrs, err := appCtx.DB().ValidateAndSave(&ppmShipment)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(ppmShipment.ID, nil, verrs, "")
 		}

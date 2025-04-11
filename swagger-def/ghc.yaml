@@ -2017,7 +2017,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
       x-permissions:
-        - update.shipment #todo check the perms before PR
+        - update.shipment
   /ppm-shipments/{ppmShipmentId}/finish-document-review:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'

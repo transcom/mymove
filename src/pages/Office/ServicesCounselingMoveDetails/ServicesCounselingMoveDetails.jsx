@@ -563,7 +563,7 @@ const ServicesCounselingMoveDetails = ({
       setErrorMessage(null);
     },
     onError: (error) => {
-      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Failed to send PPM to customer.');
     },
   });
 
