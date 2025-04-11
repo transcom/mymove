@@ -8094,6 +8094,10 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
+      approvalRequestTypes:
+        type: array
+        items:
+          type: string
   QueueMovesResult:
     type: object
     properties:
