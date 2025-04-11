@@ -51,11 +51,9 @@ const RolesPrivilegesCheckboxInput = (props) => {
       }
 
       if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
-        if (input.includes(roleTypes.HQ)) {
-          index = input.indexOf(roleTypes.HQ);
-          if (index !== -1) {
-            input.splice(index, 1);
-          }
+        index = input.indexOf(roleTypes.HQ);
+        if (index !== -1) {
+          input.splice(index, 1);
         }
       }
     });
