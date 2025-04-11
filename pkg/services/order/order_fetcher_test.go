@@ -3243,7 +3243,8 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	buildMoveZone2AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
 		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		// zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		usprcAnchorage, err := models.FindByZipCodeAndCity(suite.DB(), "99501", "Anchorage")
 		suite.FatalNoError(err)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -3251,7 +3252,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 					City:               "Anchorage",
 					State:              "AK",
 					PostalCode:         "99501",
-					UsPostRegionCityID: &zone2UUID,
+					UsPostRegionCityID: &usprcAnchorage.ID,
 				},
 			},
 		}, nil)
@@ -3293,7 +3294,8 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	buildMoveZone4AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
 		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
+		// zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
+		usprcAnchorage, err := models.FindByZipCodeAndCity(suite.DB(), "99501", "Anchorage")
 		suite.FatalNoError(err)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -3301,7 +3303,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 					City:               "Anchorage",
 					State:              "AK",
 					PostalCode:         "99501",
-					UsPostRegionCityID: &zone4UUID,
+					UsPostRegionCityID: &usprcAnchorage.ID,
 				},
 			},
 		}, nil)

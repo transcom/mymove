@@ -353,7 +353,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		army := models.AffiliationARMY
-		postalCode := "99501"
+		postalCode := "99744"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
 
@@ -362,7 +362,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
-					City:               "ANCHORAGE",
+					City:               "ANDERSON",
 				},
 			},
 		}, nil)

@@ -1148,7 +1148,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcFairfield.ID,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 		actualPickupAddress.CountryId = &country.ID
 		actualPickupAddress.Country = &country
@@ -1219,10 +1227,115 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.Equal(1, numDOSFSCFound)
 	})
 
+	suite.Run("Create IOFSIT service item and auto-create IOASIT, IOPSIT, IOSFSC", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create IOFSIT service item with a new address
+		// Expected outcome: Success, 4 service items created
+
+		// Customer gets new pickup address for SIT Origin Pickup (IOPSIT) which gets added when
+		// creating IOFSIT (SIT origin first day).
+		shipment := setupTestInternationalData(false, true)
+
+		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
+		// that we properly create the address coming in from the API.
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+		usprcBeverlyHills, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         "90210",
+					City:               "Beverly Hills",
+					UsPostRegionCityID: &usprcBeverlyHills.ID,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
+
+		serviceItemIOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceIOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(50, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemsList := *createdServiceItems
+		suite.Equal(4, len(createdServiceItemsList))
+
+		numIOFSITFound := 0
+		numIOASITFound := 0
+		numIOPSITFound := 0
+		numIOSFSCFound := 0
+
+		for _, item := range createdServiceItemsList {
+			suite.Equal(serviceItemIOFSIT.MoveTaskOrderID, item.MoveTaskOrderID)
+			suite.Equal(serviceItemIOFSIT.MTOShipmentID, item.MTOShipmentID)
+			suite.Equal(serviceItemIOFSIT.SITEntryDate, item.SITEntryDate)
+			suite.Equal(serviceItemIOFSIT.Reason, item.Reason)
+			suite.Equal(serviceItemIOFSIT.SITPostalCode, item.SITPostalCode)
+			suite.Equal(actualPickupAddress.StreetAddress1, item.SITOriginHHGActualAddress.StreetAddress1)
+			suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
+
+			if item.ReService.Code == models.ReServiceCodeIOPSIT || item.ReService.Code == models.ReServiceCodeIOSFSC {
+				suite.Equal(*item.SITDeliveryMiles, 50)
+			}
+
+			switch item.ReService.Code {
+			case models.ReServiceCodeIOFSIT:
+				numIOFSITFound++
+			case models.ReServiceCodeIOASIT:
+				numIOASITFound++
+			case models.ReServiceCodeIOPSIT:
+				numIOPSITFound++
+			case models.ReServiceCodeIOSFSC:
+				numIOSFSCFound++
+			}
+		}
+
+		suite.Equal(1, numIOFSITFound)
+		suite.Equal(1, numIOASITFound)
+		suite.Equal(1, numIOPSITFound)
+		suite.Equal(1, numIOSFSCFound)
+	})
+
 	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
 		// Create DOFSIT
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcFairfield.ID,
+					PostalCode:         usprcFairfield.UsprZipID,
+					City:               usprcFairfield.USPostRegionCityNm,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 		actualPickupAddress.CountryId = &country.ID
 		actualPickupAddress.Country = &country

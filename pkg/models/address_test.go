@@ -49,7 +49,7 @@ func (suite *ModelSuite) TestAddressInstantiationWithIncorrectUsPostRegionCityID
 		"invalid_us_post_region_city_id": {"UsPostRegionCityID is invalid."},
 	}
 
-	suite.verifyValidationErrors(newAddress, expErrors)
+	suite.verifyValidationErrorsWithDBConnection(suite.DB(), newAddress, expErrors)
 }
 
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
@@ -247,6 +247,8 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 				Model: m.Address{
 					IsOconus:           m.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -345,6 +347,8 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 				Model: m.Address{
 					IsOconus:           m.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)

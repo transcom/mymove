@@ -113,7 +113,17 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		newAddress := factory.BuildAddress(nil, nil, nil)
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcFairfield.ID,
+					PostalCode:         usprcFairfield.UsprZipID,
+					City:               usprcFairfield.USPostRegionCityNm,
+				},
+			},
+		}, nil)
 		newAddress.Country = &country
 		newAddress.CountryId = &country.ID
 		newServiceItem := serviceItem
@@ -154,7 +164,17 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		newAddress := factory.BuildAddress(nil, nil, nil)
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcFairfield.ID,
+					PostalCode:         usprcFairfield.UsprZipID,
+					City:               usprcFairfield.USPostRegionCityNm,
+				},
+			},
+		}, nil)
 		newAddress.Country = &country
 		newAddress.CountryId = &country.ID
 		newServiceItem := serviceItem
@@ -347,7 +367,17 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		usprcDesMoines, err := models.FindByZipCodeAndCity(suite.DB(), "50309", "DES MOINES")
+		suite.NoError(err)
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcDesMoines.ID,
+					PostalCode:         usprcDesMoines.UsprZipID,
+					City:               usprcDesMoines.USPostRegionCityNm,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
 
 		// Set shipment SIT status
@@ -471,7 +501,17 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		usprcDesMoines, err := models.FindByZipCodeAndCity(suite.DB(), "50309", "DES MOINES")
+		suite.NoError(err)
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcDesMoines.ID,
+					PostalCode:         usprcDesMoines.UsprZipID,
+					City:               usprcDesMoines.USPostRegionCityNm,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
 
 		// Set shipment SIT status
@@ -599,7 +639,17 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
+		usprcDesMoines, err := models.FindByZipCodeAndCity(suite.DB(), "50309", "DES MOINES")
+		suite.NoError(err)
+		newAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcDesMoines.ID,
+					PostalCode:         usprcDesMoines.UsprZipID,
+					City:               usprcDesMoines.USPostRegionCityNm,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
 
 		// Set shipment SIT status

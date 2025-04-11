@@ -2052,6 +2052,12 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 	suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for CONUS -> OCONUS", func() {
+			usprcTulsa, err := models.FindByZipCodeAndCity(suite.DB(), "74133", "Tulsa")
+			suite.NoError(err)
+
+			usprcJBER, err := models.FindByZipCodeAndCity(suite.DB(), "99505", "JBER")
+			suite.NoError(err)
+
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.MTOShipment{
@@ -2060,20 +2066,22 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 				},
 				{
 					Model: models.Address{
-						StreetAddress1: "Tester Address",
-						City:           "Tulsa",
-						State:          "OK",
-						PostalCode:     "74133",
+						StreetAddress1:     "Tester Address",
+						City:               "Tulsa",
+						State:              "OK",
+						PostalCode:         "74133",
+						UsPostRegionCityID: &usprcTulsa.ID,
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
 				{
 					Model: models.Address{
-						StreetAddress1: "JBER",
-						City:           "JBER",
-						State:          "AK",
-						PostalCode:     "99505",
-						IsOconus:       models.BoolPointer(true),
+						StreetAddress1:     "JBER",
+						City:               "JBER",
+						State:              "AK",
+						PostalCode:         "99505",
+						IsOconus:           models.BoolPointer(true),
+						UsPostRegionCityID: &usprcJBER.ID,
 					},
 					Type: &factory.Addresses.DeliveryAddress,
 				},
@@ -2095,7 +2103,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
-			suite.Equal(unit.Cents(459178), *ppmEstimate)
+			suite.Equal(unit.Cents(525328), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for OCONUS -> CONUS", func() {
@@ -2142,7 +2150,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "74133")
-			suite.Equal(unit.Cents(423178), *ppmEstimate)
+			suite.Equal(unit.Cents(421978), *ppmEstimate)
 		})
 	})
 
@@ -2224,7 +2232,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "98421")
-			suite.Equal(unit.Cents(656532), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(1109572), *ppmMaxIncentive)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2304,7 +2312,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(676692), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(938452), *ppmMaxIncentive)
 		})
 	})
 
@@ -2371,7 +2379,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
-			suite.Equal(unit.Cents(459178), *ppmFinalIncentive)
+			suite.Equal(unit.Cents(525328), *ppmFinalIncentive)
 		})
 
 		suite.Run("Final Incentive - Success using estimated weight for OCONUS -> CONUS", func() {
@@ -2436,7 +2444,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "74133")
-			suite.Equal(unit.Cents(423178), *ppmFinalIncentive)
+			suite.Equal(unit.Cents(421978), *ppmFinalIncentive)
 		})
 	})
 
@@ -2540,7 +2548,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(41080), *estimatedSITCost)
+			suite.Equal(unit.Cents(47960), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
@@ -2591,7 +2599,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			estimatedSITCost, err := ppmEstimator.CalculatePPMSITEstimatedCost(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(20540), *estimatedSITCost)
+			suite.Equal(unit.Cents(23980), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCostBreakdown - Success for OCONUS PPM", func() {
@@ -2642,9 +2650,9 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			sitCosts, err := ppmEstimator.CalculatePPMSITEstimatedCostBreakdown(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(sitCosts)
-			suite.Equal(unit.Cents(20540), *sitCosts.EstimatedSITCost)
-			suite.Equal(unit.Cents(12140), *sitCosts.PriceFirstDaySIT)
-			suite.Equal(unit.Cents(8400), *sitCosts.PriceAdditionalDaySIT)
+			suite.Equal(unit.Cents(23980), *sitCosts.EstimatedSITCost)
+			suite.Equal(unit.Cents(11980), *sitCosts.PriceFirstDaySIT)
+			suite.Equal(unit.Cents(12000), *sitCosts.PriceAdditionalDaySIT)
 		})
 	})
 }
