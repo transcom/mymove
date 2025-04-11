@@ -101,7 +101,7 @@ const WeightTickets = () => {
         pickup and delivery ZIP codes
       </Link>
       &nbsp;to ensure they were entered correctly and are not PO boxes. If you do not have a different ZIP code, then
-      please contact the &nbsp;
+      please contact the&nbsp;
       <Link className="usa-link" href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
         Technical Help Desk
       </Link>
