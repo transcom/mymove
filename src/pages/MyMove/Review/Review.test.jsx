@@ -1,6 +1,8 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { cloneDeep } from 'lodash';
+import { act } from 'react-dom/test-utils';
 
 import ConnectedReview from 'pages/MyMove/Review/Review';
 import { renderWithProviders } from 'testUtils';
@@ -8,6 +10,7 @@ import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entit
 import { customerRoutes } from 'constants/routes';
 import { getAllMoves } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
@@ -29,6 +32,11 @@ jest.mock('store/entities/selectors', () => ({
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 afterEach(jest.resetAllMocks);
@@ -468,6 +476,21 @@ describe('Review page', () => {
     await userEvent.click(submitButton);
 
     expect(mockNavigate).toHaveBeenCalledWith(`/moves/${mockParams.moveId}/agreement`);
+  });
+
+  it('return home button is shown when move is locked by an office user', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    const testServiceMemberMovesWithLock = cloneDeep(testServiceMemberMoves);
+    testServiceMemberMovesWithLock.previousMoves[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+    selectAllMoves.mockImplementation(() => testServiceMemberMovesWithLock);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMovesWithLock);
+
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
+
+    expect(screen.getByRole('button', { name: 'Return home' })).toBeInTheDocument();
   });
 
   it('next button is disabled when a PPM shipment is in an incomplete state', async () => {

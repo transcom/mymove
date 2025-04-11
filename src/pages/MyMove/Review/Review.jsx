@@ -27,6 +27,8 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   const navigate = useNavigate();
   const [multiMove, setMultiMove] = useState(false);
   const { moveId } = useParams();
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
   const handleCancel = () => {
     if (multiMove) {
       navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
@@ -44,7 +46,34 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
     });
+    isBooleanFlagEnabled('move_lock').then((enabled) => {
+      setMoveLockFlag(enabled);
+    });
   }, [updateAllMoves, serviceMemberId]);
+
+  let mtoShipments;
+  let move;
+
+  if (serviceMemberMoves && serviceMemberMoves.currentMove && serviceMemberMoves.previousMoves) {
+    // Find the move in the currentMove array
+    const currentMove = serviceMemberMoves.currentMove.find((thisMove) => thisMove.id === moveId);
+    // Find the move in the previousMoves array if not found in currentMove
+    const previousMove = serviceMemberMoves.previousMoves.find((thisMove) => thisMove.id === moveId);
+    // the move will either be in the currentMove or previousMove object
+    move = currentMove || previousMove;
+    if (!move.mtoShipments) {
+      mtoShipments = [];
+    } else {
+      mtoShipments = move.mtoShipments;
+    }
+  }
+
+  useEffect(() => {
+    const now = new Date();
+    if (now < new Date(move?.lockExpiresAt) && moveLockFlag) {
+      setIsMoveLocked(true);
+    }
+  }, [move, moveLockFlag]);
 
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
@@ -56,11 +85,6 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
       </div>
     );
   }
-
-  const currentMove = serviceMemberMoves.currentMove.find((m) => m.id === moveId);
-  const previousMove = serviceMemberMoves.previousMoves.find((m) => m.id === moveId);
-  const move = currentMove || previousMove;
-  const { mtoShipments } = move;
 
   const handleNext = () => {
     const nextPath = generatePath(customerRoutes.MOVE_AGREEMENT_PATH, {
@@ -105,7 +129,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
                 shipments if needed, then move on to the final step.
               </p>
             </div>
-            <ConnectedSummary />
+            <ConnectedSummary isMoveLocked={isMoveLocked} />
             <div className={formStyles.formActions}>
               <WizardNavigation
                 onNextClick={handleNext}
@@ -113,7 +137,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
                 onCancelClick={handleCancel}
                 isFirstPage
                 showFinishLater
-                readOnly={!inDraftStatus}
+                readOnly={!inDraftStatus || isMoveLocked}
               />
             </div>
           </div>

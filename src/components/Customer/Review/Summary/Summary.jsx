@@ -173,7 +173,8 @@ export class Summary extends Component {
       );
     }
 
-    const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
+    const { isMoveLocked } = this.props;
+    const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT && !isMoveLocked;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
     let boatShipmentNumber = 0;
@@ -444,14 +445,14 @@ export class Summary extends Component {
 
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
 
-    // customer can add another shipment IFF the move is still draft
-    const canAddAnotherShipment = isReviewPage && currentMove.status === MOVE_STATUSES.DRAFT;
+    // customer can add another shipment IF the move is still draft
+    const { isMoveLocked } = this.props;
+    const canAddAnotherShipment = isReviewPage && currentMove.status === MOVE_STATUSES.DRAFT && !isMoveLocked;
 
     const showMoveSetup = showHHGShipmentSummary;
     const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: currentMove.id });
 
     const thirdSectionHasContent = showMoveSetup || (isReviewPage && mtoShipments.length > 0);
-
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -486,6 +487,7 @@ export class Summary extends Component {
             streetAddress2={serviceMember.residential_address.streetAddress2}
             streetAddress3={serviceMember.residential_address?.streetAddress3 || ''}
             telephone={serviceMember.telephone}
+            isMoveLocked={isMoveLocked}
           />
         </SectionWrapper>
         <SectionWrapper className={styles.SummarySectionWrapper}>
@@ -505,6 +507,7 @@ export class Summary extends Component {
             accompaniedTour={currentOrders.entitlement?.accompanied_tour}
             dependentsUnderTwelve={currentOrders.entitlement?.dependents_under_twelve}
             dependentsTwelveAndOver={currentOrders.entitlement?.dependents_twelve_and_over}
+            isMoveLocked={isMoveLocked}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (
