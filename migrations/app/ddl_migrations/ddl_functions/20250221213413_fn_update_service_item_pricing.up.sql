@@ -1,5 +1,6 @@
 --B-22462  M.Inthavongsay Adding initial migration file for update_service_item_pricing stored procedure using new migration process.
 --Also updating to allow IOSFSC and IDSFSC SIT service items.
+--B-22742  C. Kleinjan  Add pricing calculation for ICRT and IUCRT service items
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
     mileage INT
@@ -95,6 +96,7 @@ BEGIN
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
                     estimated_price := ROUND((escalated_price * (((length/1000) * (width/1000) * (height/1000)) / 100)), 2) * 100;
+					RAISE NOTICE ''%: Received estimated price of % (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, length/1000, width/1000, height/1000;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
