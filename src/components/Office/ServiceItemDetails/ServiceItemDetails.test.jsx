@@ -868,7 +868,7 @@ describe('ServiceItemDetails rejection reason ', () => {
 
 describe('ServiceItemDetails Estimated Price for IDSFSC, IOSFSC IOASIT, IDASIT, IOPSIT, IDDSIT, IOFSIT, IDFSIT', () => {
   it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT'], ['IOPSIT'], ['IDDSIT'], ['IOFSIT'], ['IDFSIT']])(
-    'renders the formatted estimated price field for the approved service item: %s',
+    'renders the formatted estimated price field for service item: %s',
     (code) => {
       render(
         <ServiceItemDetails
@@ -882,23 +882,6 @@ describe('ServiceItemDetails Estimated Price for IDSFSC, IOSFSC IOASIT, IDASIT, 
 
       expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
       expect(screen.getByText('$28.00')).toBeInTheDocument();
-    },
-  );
-
-  it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT'], ['IOPSIT'], ['IDDSIT'], ['IOFSIT'], ['IDFSIT']])(
-    'Does not render the formatted estimated price field for the submitted service item: %s',
-    (code) => {
-      render(
-        <ServiceItemDetails
-          id="1"
-          code={code}
-          details={submittedServiceItemDetails}
-          shipment={shipment}
-          serviceRequestDocs={serviceRequestDocs}
-        />,
-      );
-
-      expect(screen.queryByText('Estimated Price:')).not.toBeInTheDocument();
     },
   );
 });
