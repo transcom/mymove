@@ -1,5 +1,6 @@
 --B-22462  M.Inthavongsay Adding initial migration file for update_service_item_pricing stored procedure using new migration process.
 --Also updating to allow IOSFSC and IDSFSC SIT service items.
+--B-22463  M.Inthavongsay updating to allow IOASIT and IDASIT SIT service items.
 --B-22742  C. Kleinjan  Add pricing calculation for ICRT and IUCRT service items
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
@@ -42,7 +43,7 @@ BEGIN
 
     -- loop through service items in the shipment
     FOR service_item IN
-        SELECT si.id, si.re_service_id, si.sit_delivery_miles,
+        SELECT si.id, si.re_service_id, si.sit_delivery_miles, si.sit_departure_date, si.sit_entry_date,
         sit_origin_hhg_actual_address_id, sit_destination_final_address_id
         FROM mto_service_items si
         WHERE si.mto_shipment_id = shipment_id
@@ -96,7 +97,7 @@ BEGIN
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
                     estimated_price := ROUND((escalated_price * (((length/1000) * (width/1000) * (height/1000)) / 100)), 2) * 100;
-					RAISE NOTICE ''%: Received estimated price of % (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, length/1000, width/1000, height/1000;
+					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
@@ -113,6 +114,7 @@ BEGIN
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
                     estimated_price := ROUND((escalated_price * (((length/1000) * (width/1000) * (height/1000)) / 100)), 2) * 100;
+					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
@@ -196,6 +198,36 @@ BEGIN
                 ELSE
                     RAISE NOTICE ''service_code: % - Failed to compute pricing[estimated_fsc_multiplier: %, distance: %]'', service_code, estimated_fsc_multiplier, distance;
                 END IF;
+
+            WHEN service_code IN (''IOASIT'', ''IDASIT'') THEN
+                contract_id := get_contract_id(shipment.requested_pickup_date);
+
+                IF service_code = ''IOASIT'' THEN
+                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                ELSE
+                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                END IF;
+
+                days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date)) as days);
+                RAISE NOTICE ''days_in_sit = % (sit_departure_date: % - sit_entry_date: %)'', days_in_sit, service_item.sit_departure_date, service_item.sit_entry_date;
+
+                IF escalated_price IS NOT NULL AND days_in_sit IS NOT NULL AND days_in_sit >= 0 THEN
+                    RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
+
+                    -- multiply by 110% of estimated weight
+                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100) * days_in_sit, 2) * 100;
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100) * %) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight, days_in_sit;
+
+                    -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
+                END IF;
+
             ELSE
                 RAISE warning ''Unsupported service code: %'', service_code;
         END CASE;
