@@ -487,6 +487,17 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTitle('No, I do not have a third delivery address')).toBeInstanceOf(HTMLInputElement);
     });
 
+    it('goes back when the back button is clicked', async () => {
+      renderMtoShipmentForm();
+
+      const backButton = await screen.findByRole('button', { name: 'Back' });
+      await userEvent.click(backButton);
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(-1);
+      });
+    });
+
     it('renders a third address fieldset when the user has a third delivery address', async () => {
       renderMtoShipmentForm({ mtoShipment: mockMtoShipmentHHGWithDest });
 
