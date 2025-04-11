@@ -132,7 +132,7 @@ describe('PrimeUI Acknowledge Shipment Page', () => {
     fireEvent.change(dateInput, { target: { value: '99 Nov 2024' } });
 
     await waitFor(() => {
-      // Save button is now enabled since we inputted a valid date
+      // Save button is disabled since we inputted an invalid date
       expect(saveButton).toBeDisabled();
     });
   });
