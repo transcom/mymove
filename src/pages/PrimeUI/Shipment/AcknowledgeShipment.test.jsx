@@ -59,7 +59,7 @@ describe('PrimeUI Acknowledge Shipment Page', () => {
     const heading = screen.getByText('Acknowledge Shipment');
     expect(heading).toBeInTheDocument();
 
-    const shipmentIdElement = screen.getByText('Shipment Id:');
+    const shipmentIdElement = screen.getByText('Shipment ID:');
     expect(shipmentIdElement).toBeInTheDocument();
     expect(shipmentIdElement.nextSibling).toHaveTextContent('2');
 
@@ -77,7 +77,7 @@ describe('PrimeUI Acknowledge Shipment Page', () => {
     const heading = screen.getByText('Acknowledge Shipment');
     expect(heading).toBeInTheDocument();
 
-    const shipmentIdElement = screen.getByText('Shipment Id:');
+    const shipmentIdElement = screen.getByText('Shipment ID:');
     expect(shipmentIdElement).toBeInTheDocument();
     expect(shipmentIdElement.nextSibling).toHaveTextContent('3');
 

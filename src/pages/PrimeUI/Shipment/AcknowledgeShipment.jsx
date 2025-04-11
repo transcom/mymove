@@ -109,16 +109,15 @@ const AcknowledgeShipment = ({ setFlashMessage }) => {
               </Alert>
             </div>
           )}
-          <h2>Acknowledge Shipment</h2>
           <SectionWrapper className={formStyles.formSection}>
             <Formik initialValues={initialValues} onSubmit={onSubmit}>
               {({ isValid, isSubmitting, handleSubmit, dirty }) => {
                 return (
                   <Form className={formStyles.form}>
                     <dl className={descriptionListStyles.descriptionList} data-testid="acknowledgeShipmentDetails">
-                      <h2>Shipment</h2>
+                      <h2>Acknowledge Shipment</h2>
                       <div className={descriptionListStyles.row}>
-                        <dt>Shipment Id:</dt>
+                        <dt>Shipment ID:</dt>
                         <dd>{shipment.id}</dd>
                       </div>
                       <DatePickerInput
