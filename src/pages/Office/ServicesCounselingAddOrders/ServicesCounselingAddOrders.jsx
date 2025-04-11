@@ -29,7 +29,6 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const navigate = useNavigate();
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-
   const handleBack = () => {
     navigate(-1);
   };

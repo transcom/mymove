@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
@@ -26,6 +26,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import { showCounselingOffices } from 'services/ghcApi';
 import Hint from 'components/Hint';
+import { useCustomerQuery } from 'hooks/queries';
 
 let originMeta;
 let newDutyMeta = '';
@@ -37,7 +38,14 @@ const AddOrdersForm = ({
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
 }) => {
-  const { affiliation } = { affiliation: useSelector((state) => selectServiceMemberAffiliation(state)) ?? '' };
+  const { customerId: serviceMemberId } = useParams();
+  const { customerData: { agency = '' } = {} } = useCustomerQuery(serviceMemberId);
+  const loggedInAffiliation = useSelector((state) => selectServiceMemberAffiliation(state));
+  const locationResult = useLocation();
+  if (locationResult.state === null) {
+    locationResult.state = {};
+  }
+  const { state: { affiliation = loggedInAffiliation || agency } = { affiliation: null } } = locationResult;
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -52,7 +60,7 @@ const AddOrdersForm = ({
   const [ordersType, setOrdersType] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
-  const { customerId: serviceMemberId } = useParams();
+
   const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
 
   const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);

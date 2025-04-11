@@ -933,7 +933,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
 
 export const rankOptionValuesByAffiliation = (affiliation) =>
   Object.fromEntries(
-    RANK_GRADE_ASSOCIATIONS[affiliation].map((e) => [
+    (RANK_GRADE_ASSOCIATIONS[affiliation] ?? []).map((e) => [
       e.abbv_rank,
       { value: `${e.abbv_rank} / ${ORDERS_PAY_GRADE_OPTIONS[e.grade]}`, ...e },
     ]),

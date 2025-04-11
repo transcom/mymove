@@ -3,8 +3,8 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -109,8 +109,8 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	defaultPackingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
 
 	paygradeRank := &models.PaygradeRank{}
-	paygradeRank.ID = strfmt.UUID("61c647fa-5325-45b9-8d6f-30a2aaa06308")
-	paygradeRank.PaygradeId = strfmt.UUID("6cb785d0-cabf-479a-a36d-a6aec294a4d0")
+	paygradeRank.ID = *models.UUIDPointer(uuid.UUID([]byte("61c647fa-5325-45b9-8d6f-30a2aaa06308")))
+	paygradeRank.PaygradeId = *models.UUIDPointer(uuid.UUID([]byte("6cb785d0-cabf-479a-a36d-a6aec294a4d0")))
 	affiliation := "SPACE_FORCE"
 	paygradeRank.Affiliation = &affiliation
 	rankShortName := "SP1"
@@ -149,8 +149,8 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		MethodOfPayment:                defaultMethodOfPayment,
 		NAICS:                          defaultNAICS,
 		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
-		PaygradeRankId:                 strfmt.UUID("61c647fa-5325-45b9-8d6f-30a2aaa06308"),
-		Rank:                           *paygradeRank,
+		PaygradeRankId:                 models.UUIDPointer(uuid.UUID([]byte("61c647fa-5325-45b9-8d6f-30a2aaa06308"))),
+		Rank:                           paygradeRank,
 	}
 
 	// Overwrite values with those from assertions

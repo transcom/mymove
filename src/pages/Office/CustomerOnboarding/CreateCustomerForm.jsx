@@ -142,7 +142,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
             customerId,
           }),
-          { state: { isSafetyMoveSelected: isSafetyMove, isBluebarkMoveSelected: isBluebarkMove } },
+          {
+            state: {
+              isSafetyMoveSelected: isSafetyMove,
+              isBluebarkMoveSelected: isBluebarkMove,
+              affiliation: values.affiliation,
+            },
+          },
         );
       })
       .catch((e) => {
@@ -407,7 +413,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
-                    <h3>Contact Info</h3>
+                    <h3>Contact Info a</h3>
                     <MaskedTextField
                       label="Best contact phone"
                       id="telephone"

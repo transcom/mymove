@@ -350,7 +350,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				deptIndicator,
 				&originDutyLocation,
 				&grade,
-				nil,
+				payload.Rank,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,

@@ -8450,6 +8450,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -11991,6 +11997,12 @@ func init() {
         },
         "packingAndShippingInstructions": {
           "type": "string"
+        },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
         },
         "report_by_date": {
           "type": "string",
@@ -26578,6 +26590,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -30119,6 +30137,12 @@ func init() {
         },
         "packingAndShippingInstructions": {
           "type": "string"
+        },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
         },
         "report_by_date": {
           "type": "string",

@@ -103,7 +103,10 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
-	var rank = order.Rank.FormatToRankPayload()
+	var rank internalmessages.Rank
+	if order.Rank != nil {
+		rank = *order.Rank.FormatToRankPayload()
+	}
 
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
@@ -132,7 +135,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		AuthorizedWeight:           dBAuthorizedWeight,
 		Entitlement:                &entitlement,
 		ProvidesServicesCounseling: originDutyLocation.ProvidesServicesCounseling,
-		Rank:                       rank,
+		Rank:                       &rank,
 	}
 
 	return payload, nil
@@ -650,9 +653,9 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
 
-			order.PaygradeRankId = paygradeRank.ID
+			order.PaygradeRankId = &paygradeRank.ID
 			order.Grade = payload.Grade
-			order.Rank = *paygradeRank
+			order.Rank = paygradeRank
 			verrs, err := models.SaveOrder(appCtx.DB(), &order)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
