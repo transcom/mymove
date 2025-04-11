@@ -1331,4 +1331,4 @@ update re_us_post_regions set is_po_box = true where id = '4974a199-4fa3-484e-ac
 update re_us_post_regions set is_po_box = true where id = '18f493d1-c2ad-4954-892f-51b4ed5f569c'; 
 update re_us_post_regions set is_po_box = true where id = '27f5610d-f115-4325-86fc-67d89348306a'; 
 update re_us_post_regions set is_po_box = true where id = 'd8186def-81ea-478c-a531-89c187845825'; 
-update re_us_post_regions set is_po_box = true where id = 'd8afb5c0-74c5-42af-b179-ae88f656d1e5'; 
+update re_us_post_regions set is_po_box = true where id = 'd8afb5c0-74c5-42af-b179-ae88f656d1e5';
