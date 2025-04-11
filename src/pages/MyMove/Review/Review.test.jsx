@@ -425,17 +425,22 @@ describe('Review page', () => {
   it('renders the Review Page', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
   });
 
   it('Finish Later button goes back to the home page', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     const backButton = screen.getByRole('button', { name: 'Finish later' });
 
@@ -447,11 +452,14 @@ describe('Review page', () => {
   });
 
   it('next button goes to the Agreement page when move is in DRAFT status', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -463,11 +471,14 @@ describe('Review page', () => {
   });
 
   it('next button goes to the Agreement page when move is in DRAFT status with only HHG shipment', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -494,11 +505,14 @@ describe('Review page', () => {
   });
 
   it('next button is disabled when a PPM shipment is in an incomplete state', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -506,11 +520,14 @@ describe('Review page', () => {
   });
 
   it('next button is disabled when a there are no shipments', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -518,11 +535,14 @@ describe('Review page', () => {
   });
 
   it('return home button is displayed when move has been submitted', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptionsSubmitted);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptionsSubmitted);
+    });
 
     expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
 
@@ -530,11 +550,14 @@ describe('Review page', () => {
   });
 
   it('renders the success alert flash message', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, { ...mockRoutingOptions, initialState: testFlashState });
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, { ...mockRoutingOptions, initialState: testFlashState });
+    });
 
     expect(screen.getByRole('heading', { level: 4 })).toHaveTextContent('Details saved');
     expect(
