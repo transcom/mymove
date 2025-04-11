@@ -200,6 +200,7 @@ export const primeSimulatorRoutes = {
   CREATE_SIT_EXTENSION_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/sit-extension-requests/new`,
   SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/updateDestinationAddress`,
   ACKNOWLEDGE_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/acknowledge`,
+  ACKNOWLEDGE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/acknowledge`,
 };
 
 export const adminRoutes = {
