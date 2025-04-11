@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		emptyMTOShipment := models.MTOShipment{}
 		expErrors := map[string][]string{
 			"move_task_order_id": {"MoveTaskOrderID can not be blank."},
-			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED]."},
+			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED, TERMINATED_FOR_CAUSE]."},
 		}
 		suite.verifyValidationErrors(&emptyMTOShipment, expErrors)
 	})
@@ -285,15 +285,24 @@ func (suite *ModelSuite) TestDetermineMarketCode() {
 func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 	suite.Run("test creating approved service items for shipment", func() {
 
+		usprc1, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc1)
+		suite.FatalNoError(err)
+
+		usprc2, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99695", "ANCHORAGE")
+		suite.NotNil(usprc2)
+		suite.FatalNoError(err)
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
+					StreetAddress1:     "some address",
+					City:               "BEVERLY HILLS",
+					State:              "CA",
+					PostalCode:         "90210",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &usprc1.ID,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -304,16 +313,18 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					StreetAddress1:     "some address",
+					City:               "ANCHORAGE",
+					State:              "AK",
+					PostalCode:         "99695",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc2.ID,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
-		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
+
+		err = models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
 		suite.NoError(err)
 	})
 
@@ -403,13 +414,16 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		airForce := models.AffiliationAIRFORCE
-		postalCode := "99501"
+		postalCode := "99744"
+		city := "ANDERSON"
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               city,
+					State:              "AK",
 				},
 			},
 		}, nil)
@@ -448,7 +462,8 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		army := models.AffiliationARMY
-		postalCode := "99501"
+		postalCode := "99744"
+		city := "ANDERSON"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
 
@@ -457,6 +472,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               city,
 				},
 			},
 		}, nil)
@@ -496,7 +512,8 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		usmc := models.AffiliationMARINES
-		postalCode := "99501"
+		postalCode := "99744"
+		city := "ANDERSON"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		// this doesn't matter to the db function because it will check for USMC but we are just verifying it won't be JEAT despite the zip matching
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
@@ -506,6 +523,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               city,
 				},
 			},
 		}, nil)
@@ -569,7 +587,7 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "BEVERLY HILLS",
 					State:          "CA",
 					PostalCode:     "90210",
 					IsOconus:       models.BoolPointer(false),
@@ -579,9 +597,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "ANCHORAGE",
 					State:          "AK",
-					PostalCode:     "98765",
+					PostalCode:     "99501",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -598,9 +616,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
+					City:           "ANCHORAGE",
+					State:          "AK",
+					PostalCode:     "99501",
 					IsOconus:       models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -608,9 +626,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "ANCHORAGE",
 					State:          "AK",
-					PostalCode:     "98765",
+					PostalCode:     "99501",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.PickupAddress,
@@ -636,19 +654,19 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "ANCHORAGE",
 					State:          "AK",
-					PostalCode:     "98765",
+					PostalCode:     "99501",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some other address",
-					City:           "city",
+					StreetAddress1: "some address",
+					City:           "ANCHORAGE",
 					State:          "AK",
-					PostalCode:     "98765",
+					PostalCode:     "99501",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.PickupAddress,
@@ -665,7 +683,7 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "BEVERLY HILLS",
 					State:          "CA",
 					PostalCode:     "90210",
 					IsOconus:       nil,
@@ -675,9 +693,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "ANCHORAGE",
 					State:          "AK",
-					PostalCode:     "98765",
+					PostalCode:     "99501",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -695,7 +713,7 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "BEVERLY HILLS",
 					State:          "CA",
 					PostalCode:     "90210",
 					IsOconus:       models.BoolPointer(false),
@@ -705,9 +723,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
+					City:           "ANCHORAGE",
 					State:          "AK",
-					PostalCode:     "98765",
+					PostalCode:     "99501",
 					IsOconus:       nil,
 				},
 				Type: &factory.Addresses.DeliveryAddress,

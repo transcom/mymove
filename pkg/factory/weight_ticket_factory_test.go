@@ -149,10 +149,19 @@ func (suite *FactorySuite) TestBuildWeightTicket() {
 		customWeightTicket := models.WeightTicket{
 			EmptyWeight: models.PoundPointer(9999),
 		}
+
+		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+
 		// Nil passed in as db
 		weightTicket := BuildWeightTicket(nil, []Customization{
 			{
 				Model: customWeightTicket,
+			},
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprc.ID,
+				},
 			},
 		}, nil)
 
