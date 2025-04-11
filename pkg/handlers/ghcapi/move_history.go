@@ -34,7 +34,12 @@ func (h GetMoveHistoryHandler) Handle(params moveop.GetMoveHistoryParams) middle
 				PerPage: params.PerPage,
 			}
 
-			moveHistory, totalCount, err := h.FetchMoveHistory(appCtx, &moveHistoryRequestParams)
+			const featureFlagName = "move_history_proc_replacement"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			}
+			moveHistory, totalCount, err := h.FetchMoveHistory(appCtx, &moveHistoryRequestParams, flag.Match)
 
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving move history by locator", zap.Error(err))
