@@ -120,7 +120,12 @@ export const ShipmentListItem = ({
       )}
       {canEditOrDelete ? (
         <div className={styles['shipment-buttons']}>
-          <Button className={styles['edit-btn']} onClick={onDeleteClick} type="button">
+          <Button
+            className={styles['edit-btn']}
+            onClick={onDeleteClick}
+            type="button"
+            data-testid="deleteShipmentButton"
+          >
             Delete
           </Button>
           |
@@ -173,6 +178,7 @@ const ShipmentList = ({
   moveSubmitted,
   showShipmentWeight,
   showShipmentTooltip,
+  isMoveLocked,
 }) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
@@ -195,7 +201,7 @@ const ShipmentList = ({
           shipmentNumbersByType[shipmentType] = 1;
         }
         const shipmentNumber = shipmentNumbersByType[shipmentType];
-        let canEditOrDelete = !moveSubmitted;
+        let canEditOrDelete = !moveSubmitted && !isMoveLocked;
         let isOverweight;
         let isMissingWeight;
         let showNumber = shipmentCountByType[shipmentType] > 1;
