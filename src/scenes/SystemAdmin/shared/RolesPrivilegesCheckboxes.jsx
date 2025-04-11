@@ -9,7 +9,7 @@ import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 const RolesPrivilegesCheckboxInput = (props) => {
   const { adminUser, validate } = props;
   const { result } = useRolesPrivilegesQueries();
-  const { rolesWithPrivs, privileges, nonSafetyRoles } = result;
+  const { rolesWithPrivs, privileges, nonSafetyRoles, allowedSafetyRoles } = result;
   const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
 
   let rolesSelected = [];
@@ -104,6 +104,8 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }
     return true;
   });
+
+  const allowedSafetyMessage = allowedSafetyRoles.map((role) => role.roleName).join(', ');
   return (
     <>
       <CheckboxGroupInput
@@ -124,8 +126,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
         optionText="privilegeName"
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
-        The Safety Moves privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
-        Officer, Services Counselor, Quality Assurance Evaluator, Customer Service Representative, and Headquarters.
+        The Safety Moves privilege can only be selected for the following roles: {allowedSafetyMessage}.
       </span>
     </>
   );
