@@ -59,11 +59,9 @@ const adminQueryConfig = new QueryClient({
       retry: false, // default to no retries for now
       // do not re-query on window refocus
       refetchOnWindowFocus: false,
-      // onError: noop, // TODO - log errors?
       networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
     },
     mutations: {
-      // onError: noop, // TODO - log errors?
       networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
     },
   },
