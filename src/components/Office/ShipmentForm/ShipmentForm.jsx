@@ -80,6 +80,7 @@ import { datePickerFormat, formatDate } from 'shared/dates';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import { getResponseError } from 'services/internalApi';
 
 const ShipmentForm = (props) => {
   const {
@@ -200,15 +201,15 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSetError = (error, defaultError) => {
-    if (error?.response?.body?.message !== null && error?.response?.body?.message !== undefined) {
-      if (error?.statusCode !== null && error?.statusCode !== undefined) {
-        setErrorCode(error.statusCode);
-      }
-      setErrorMessage(`${error?.response?.body?.message}`);
-    } else {
-      setErrorMessage(defaultError);
+  const handleSetError = (error, defaultErrorMessage) => {
+    const { response } = error;
+
+    if (setErrorCode && (response?.statusCode || response?.status)) {
+      setErrorCode(response?.statusCode || response?.status);
     }
+
+    const message = getResponseError(response, defaultErrorMessage);
+    setErrorMessage(message);
   };
 
   const handleSubmitShipmentAddressUpdateReview = async (
