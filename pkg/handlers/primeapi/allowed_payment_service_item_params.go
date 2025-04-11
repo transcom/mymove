@@ -82,6 +82,15 @@ var (
 		models.ReServiceCodePODFSC: {
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeIUBPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIUBUPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeUBP: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 	}
 )
 

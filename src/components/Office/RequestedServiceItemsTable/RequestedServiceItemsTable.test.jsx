@@ -86,36 +86,33 @@ const serviceItemIUBUPK = {
 };
 
 const testDetails = (wrapper) => {
-  const detailTypes = wrapper.find('.detailType');
-  const detailDefinitions = wrapper.find('.detail dd');
+  const labelMap = wrapper
+    .find('dt')
+    .map((node, index) => [node.text().trim(), wrapper.find('dd').at(index).text().trim()]);
 
-  expect(detailTypes.at(0).text()).toBe('Description:');
-  expect(detailDefinitions.at(0).text()).toBe('grandfather clock');
-  expect(detailTypes.at(1).text()).toBe('Item size:');
-  expect(detailDefinitions.at(1).text()).toBe('7"x2"x3.5"');
+  const getValue = (label) => {
+    const entry = labelMap.find(([key]) => key === label);
+    if (!entry) throw new Error(`Label "${label}" not found`);
+    return entry[1];
+  };
 
-  expect(detailTypes.at(3).text()).toBe('Original Pickup Address:');
-  expect(detailDefinitions.at(3).text().includes('-')).toBe(true);
-  expect(detailTypes.at(4).text()).toBe('Actual Pickup Address:');
-  expect(detailDefinitions.at(4).text().includes('-')).toBe(true);
-  expect(detailTypes.at(5).text()).toBe('Delivery miles into SIT:');
-  expect(detailDefinitions.at(5).text().includes('-')).toBe(true);
-  expect(detailTypes.at(6).text()).toBe('Original Delivery Address:');
-  expect(detailDefinitions.at(6).text().includes('-')).toBe(true);
-  expect(detailTypes.at(7).text()).toBe('SIT entry date:');
-  expect(detailDefinitions.at(7).text().includes('-')).toBe(true);
-  expect(detailTypes.at(8).text()).toBe('First available delivery date 1:');
-  expect(detailDefinitions.at(8).text().includes('15 Sep 2020')).toBe(true);
-  expect(detailTypes.at(9).text()).toBe('Customer contact attempt 1:');
-  expect(detailDefinitions.at(9).text().includes('15 Sep 2020, 1200Z')).toBe(true);
+  const getAllValues = (label) => labelMap.filter(([key]) => key === label).map(([, value]) => value);
 
-  expect(detailTypes.at(10).text()).toBe('First available delivery date 2:');
-  expect(detailDefinitions.at(10).text().includes('21 Sep 2020')).toBe(true);
-  expect(detailTypes.at(11).text()).toBe('Customer contact attempt 2:');
-  expect(detailDefinitions.at(11).text().includes('21 Sep 2020, 2300Z')).toBe(true);
+  expect(getValue('Description:')).toBe('grandfather clock');
+  expect(getValue('Item size:')).toBe('7"x2"x3.5"');
 
-  expect(detailTypes.at(12).text()).toBe('Reason:');
-  expect(detailDefinitions.at(12).text().includes('Took a detour')).toBe(true);
+  expect(getValue('Original Pickup Address:')).toContain('-');
+  expect(getValue('Actual Pickup Address:')).toContain('-');
+  expect(getValue('Delivery miles into SIT:')).toContain('-');
+  expect(getValue('Original Delivery Address:')).toContain('-');
+  expect(getValue('SIT entry date:')).toContain('-');
+
+  expect(getValue('First available delivery date 1:')).toContain('15 Sep 2020');
+  expect(getValue('Customer contact attempt 1:')).toContain('15 Sep 2020, 1200Z');
+  expect(getValue('First available delivery date 2:')).toContain('21 Sep 2020');
+  expect(getValue('Customer contact attempt 2:')).toContain('21 Sep 2020, 2300Z');
+
+  expect(getAllValues('Reason:')).toContain('Took a detour');
 };
 
 describe('RequestedServiceItemsTable', () => {
