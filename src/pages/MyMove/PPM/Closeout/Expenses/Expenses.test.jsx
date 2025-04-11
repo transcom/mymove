@@ -66,8 +66,6 @@ const mockNewExpenseAndIndex = {
   index: 0,
 };
 
-const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
-
 const expensesEditPath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -166,7 +164,7 @@ describe('Expenses page', () => {
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 
     const saveBtn = screen.getByRole('button', { name: 'Save & Continue' });
     expect(saveBtn).toBeEnabled();
@@ -212,7 +210,7 @@ describe('Expenses page', () => {
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
@@ -245,7 +243,7 @@ describe('Expenses page', () => {
 
     expect(screen.getByLabelText('Select type')).toHaveDisplayValue('- Select -');
 
-    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
@@ -410,7 +408,7 @@ describe('Expenses page', () => {
     });
   });
 
-  it('routes to home when the return to homepage button is clicked', async () => {
+  it('routes to review when the cancel button is clicked', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
 
     renderWithMocks();
@@ -420,10 +418,10 @@ describe('Expenses page', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockNavigate).toHaveBeenCalledWith(movePath);
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls the delete handler when removing an existing upload', async () => {

@@ -42,8 +42,8 @@ func (f *shipmentTermination) TerminateShipment(appCtx appcontext.AppContext, sh
 		return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment cannot have an actual pickup date set in order to terminate for cause")
 	}
 
-	if shipment.Status != models.MTOShipmentStatusApproved {
-		return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment must be in APPROVED status in order to terminate for cause")
+	if shipment.Status != models.MTOShipmentStatusApproved && shipment.Status != models.MTOShipmentStatusApprovalsRequested {
+		return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment must be in APPROVED or APPROVALS_REQUESTED status in order to terminate for cause")
 	}
 
 	terminatedAt := time.Now()
