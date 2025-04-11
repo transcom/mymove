@@ -413,7 +413,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
-                    <h3>Contact Info a</h3>
+                    <h3>Contact Info</h3>
                     <MaskedTextField
                       label="Best contact phone"
                       id="telephone"

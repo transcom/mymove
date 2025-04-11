@@ -45,7 +45,7 @@ const AddOrdersForm = ({
   if (locationResult.state === null) {
     locationResult.state = {};
   }
-  const { state: { affiliation = loggedInAffiliation || agency } = { affiliation: null } } = locationResult;
+  const { state: { affiliation = loggedInAffiliation || agency } = { affiliation: null } } = { state: {} };
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');

@@ -67,6 +67,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
     new_duty_location: currentOrders?.new_duty_location || null,
     grade: currentOrders?.grade || null,
     origin_duty_location: currentOrders?.origin_duty_location || null,
+    rank: currentOrders?.rank?.rankShortName || '',
   };
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;

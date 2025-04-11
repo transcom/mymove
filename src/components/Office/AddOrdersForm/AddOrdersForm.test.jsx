@@ -1,13 +1,12 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
 
 import AddOrdersForm from './AddOrdersForm';
 
 import { MockProviders } from 'testUtils';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -151,9 +150,9 @@ const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
 describe('CreateMoveCustomerInfo Component', () => {
   it('renders the form inputs', async () => {
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await waitFor(() => {
@@ -187,9 +186,9 @@ describe('CreateMoveCustomerInfo Component', () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     const { getByLabelText } = render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     const ordersTypeDropdown = getByLabelText(/Orders type/);
@@ -223,9 +222,9 @@ describe('CreateMoveCustomerInfo Component', () => {
 
   it('shows an error message if trying to submit an invalid form', async () => {
     const { getByRole, findAllByRole, getByLabelText } = render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
     await userEvent.click(getByLabelText(/Orders type/));
     await userEvent.click(getByLabelText(/Orders date/));
@@ -253,9 +252,14 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
 
     render(
-      <Provider params={mockParams} store={mockStore.store}>
+      <MockProviders
+        initialState={{ affiliation: ORDERS_BRANCH_OPTIONS.AIR_FORCE }}
+        params={mockParams}
+        path={mockPath}
+        store={mockStore.store}
+      >
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
@@ -292,9 +296,9 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
@@ -313,9 +317,9 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
@@ -333,9 +337,9 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
@@ -380,9 +384,9 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
@@ -427,9 +431,9 @@ describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () =
 describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
   it('disables orders type when safety move is selected', async () => {
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} isSafetyMoveSelected />
-      </Provider>,
+      </MockProviders>,
     );
 
     expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
@@ -437,9 +441,9 @@ describe('AddOrdersForm - Edge Cases and Additional Scenarios', () => {
 
   it('disables orders type when bluebark move is selected', async () => {
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <AddOrdersForm {...testProps} isBluebarkMoveSelected />
-      </Provider>,
+      </MockProviders>,
     );
     expect(screen.getByLabelText(/Orders type/)).toBeDisabled();
   });
@@ -481,8 +485,14 @@ describe('AddOrdersForm - With Counseling Office', () => {
 
   it('disabled submit if counseling office is required and blank', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     render(
-      <MockProviders params={mockParams} path={mockPath} store={mockStore.store}>
+      <MockProviders
+        initialState={{ affiliation: ORDERS_BRANCH_OPTIONS.AIR_FORCE }}
+        params={mockParams}
+        path={mockPath}
+        store={mockStore.store}
+      >
         <AddOrdersForm {...testProps} />
       </MockProviders>,
     );
