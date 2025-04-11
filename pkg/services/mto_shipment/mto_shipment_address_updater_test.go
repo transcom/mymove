@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
@@ -212,243 +211,30 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		}
 	})
 
-	suite.Run("Successful - UpdateMTOShipmentAddress - Test updating international origin SITDeliveryMiles on shipment pickup address change", func() {
+	suite.Run("UB shipment without any OCONUS address should error", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
-		actualAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "177 Q st",
-					City:           "Solomons",
-					State:          "MD",
-					PostalCode:     "20688",
-				},
-			},
-		}, nil)
 
-		primeActualWeight := unit.Pound(1234)
-		primeEstimatedWeight := unit.Pound(1234)
+		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		// default factory is OCONUS dest and CONUS pickup
+		ubShipment := factory.BuildUBShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    availableToPrimeMove,
 				LinkOnly: true,
 			},
-			{
-				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
-					UsesExternalVendor:   true,
-					Status:               models.MTOShipmentStatusApproved,
-					PrimeEstimatedWeight: &primeActualWeight,
-					PrimeActualWeight:    &primeEstimatedWeight,
-				},
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.PickupAddress,
-				LinkOnly: true,
-			},
 		}, nil)
 
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    availableToPrimeMove,
-				LinkOnly: true,
-			},
-			{
-				Model:    externalShipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeIOSFSC,
-				},
-			},
-			{
-				Model:    actualAddress,
-				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    actualAddress,
-				Type:     &factory.Addresses.SITOriginHHGActualAddress,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status:          models.MTOServiceItemStatusApproved,
-					PricingEstimate: nil,
-				},
-			},
-		}, nil)
+		suite.True(*ubShipment.DestinationAddress.IsOconus)
+		suite.False(*ubShipment.PickupAddress.IsOconus)
 
-		eTag := etag.GenerateEtag(address.UpdatedAt)
+		updatedAddress := conusAddress
+		updatedAddress.ID = *ubShipment.DestinationAddressID
+		eTag := etag.GenerateEtag(ubShipment.DestinationAddress.UpdatedAt)
 
-		newAddress := address
-		newAddress.PostalCode = "67492"
-		newAddress.City = "WOODBINE"
-
-		var serviceItems []models.MTOServiceItem
-
-		// verify pre-update mto service items for both origin FSC SIT have not been set
-		err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
-		suite.NoError(err)
-		// expecting only IOSFSC and IDSFSC created for tests
-		suite.Equal(1, len(serviceItems))
-		for i := 0; i < len(serviceItems); i++ {
-			suite.Nil(serviceItems[i].PricingEstimate)
-			suite.True(serviceItems[i].SITDeliveryMiles == (*int)(nil))
-		}
-
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			"67492",
-			"20688",
-		).Return(5, nil)
-
-		mtoShipmentAddressIntlSITUpdater := NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater)
-
-		_, err = mtoShipmentAddressIntlSITUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &newAddress, externalShipment.ID, eTag, false)
-		suite.Nil(err)
-
-		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
-		suite.NoError(err)
-		suite.Equal(1, len(serviceItems))
-		for i := 0; i < len(serviceItems); i++ {
-			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
-			suite.NotNil(serviceItems[i].PricingEstimate)
-			suite.Equal(*serviceItems[i].SITDeliveryMiles, 5)
-		}
+		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, ubShipment.ID, eTag, false)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "At least one address for a UB shipment must be OCONUS")
 	})
 
-	suite.Run("Successful - UpdateMTOShipmentAddress - OCONUS Original Pickup - should not calculate pricing", func() {
-		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
-		actualAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					StreetAddress1: "177 Q st",
-					City:           "FAIRBANKS",
-					State:          "AK",
-					PostalCode:     "99708",
-					IsOconus:       models.BoolPointer(true), //OCONUS - prevent pricing
-				},
-			},
-		}, nil)
-
-		primeActualWeight := unit.Pound(1234)
-		primeEstimatedWeight := unit.Pound(1234)
-
-		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    availableToPrimeMove,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
-					UsesExternalVendor:   true,
-					Status:               models.MTOShipmentStatusApproved,
-					PrimeEstimatedWeight: &primeActualWeight,
-					PrimeActualWeight:    &primeEstimatedWeight,
-					MarketCode:           models.MarketCodeInternational,
-				},
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.PickupAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    availableToPrimeMove,
-				LinkOnly: true,
-			},
-			{
-				Model:    externalShipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeIOSFSC,
-				},
-			},
-			{
-				Model:    actualAddress,
-				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
-				LinkOnly: true,
-			},
-			{
-				Model:    actualAddress,
-				Type:     &factory.Addresses.SITOriginHHGActualAddress,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					Status:          models.MTOServiceItemStatusApproved,
-					PricingEstimate: nil,
-				},
-			},
-		}, nil)
-
-		eTag := etag.GenerateEtag(address.UpdatedAt)
-
-		newAddress := address
-		newAddress.PostalCode = "67492"
-		newAddress.City = "WOODBINE"
-
-		var serviceItems []models.MTOServiceItem
-
-		// verify pre-update mto service items for both origin FSC SIT have not been set
-		err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
-		suite.NoError(err)
-		// expecting only IOSFSC and IDSFSC created for tests
-		suite.Equal(1, len(serviceItems))
-		for i := 0; i < len(serviceItems); i++ {
-			suite.Nil(serviceItems[i].PricingEstimate)
-			suite.True(serviceItems[i].SITDeliveryMiles == (*int)(nil))
-		}
-
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(5, nil).Times(0)
-
-		mtoShipmentAddressIntlSITUpdater := NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater)
-
-		_, err = mtoShipmentAddressIntlSITUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &newAddress, externalShipment.ID, eTag, false)
-		suite.Nil(err)
-
-		err = suite.AppContextForTest().DB().Eager("SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress",
-			"ReService").Where("mto_shipment_id = ?", externalShipment.ID).Order("created_at asc").All(&serviceItems)
-
-		suite.NoError(err)
-		suite.Equal(1, len(serviceItems))
-		for i := 0; i < len(serviceItems); i++ {
-			suite.True(serviceItems[i].ReService.Code == models.ReServiceCodeIOSFSC)
-			// verify mileage and pricing were not calcuated because of OCONUS origin pickup - SITOriginHHGOriginalAddress
-			suite.Equal(*serviceItems[i].PricingEstimate, unit.Cents(0))
-			suite.NotNil(serviceItems[i].SITDeliveryMiles)
-			suite.NotNil(serviceItems[i].SITOriginHHGActualAddressID)
-			// verify SITOriginHHGActualAddress was not changed
-			suite.Equal(serviceItems[i].SITOriginHHGActualAddress.PostalCode, actualAddress.PostalCode)
-			// verify SITOriginHHGOriginalAddress was not changed
-			suite.Equal(serviceItems[i].SITOriginHHGOriginalAddress.PostalCode, actualAddress.PostalCode)
-		}
-	})
 }

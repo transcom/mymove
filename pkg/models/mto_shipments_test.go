@@ -587,7 +587,7 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "BEVERLY HILLS",
+					City:           "city",
 					State:          "CA",
 					PostalCode:     "90210",
 					IsOconus:       models.BoolPointer(false),
@@ -597,9 +597,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "ANCHORAGE",
+					City:           "city",
 					State:          "AK",
-					PostalCode:     "99501",
+					PostalCode:     "98765",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -616,9 +616,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "ANCHORAGE",
-					State:          "AK",
-					PostalCode:     "99501",
+					City:           "city",
+					State:          "CA",
+					PostalCode:     "90210",
 					IsOconus:       models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -626,9 +626,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "ANCHORAGE",
+					City:           "city",
 					State:          "AK",
-					PostalCode:     "99501",
+					PostalCode:     "98765",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.PickupAddress,
@@ -654,19 +654,19 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "ANCHORAGE",
+					City:           "city",
 					State:          "AK",
-					PostalCode:     "99501",
+					PostalCode:     "98765",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "ANCHORAGE",
+					StreetAddress1: "some other address",
+					City:           "city",
 					State:          "AK",
-					PostalCode:     "99501",
+					PostalCode:     "98765",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.PickupAddress,
@@ -683,7 +683,7 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "BEVERLY HILLS",
+					City:           "city",
 					State:          "CA",
 					PostalCode:     "90210",
 					IsOconus:       nil,
@@ -693,9 +693,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "ANCHORAGE",
+					City:           "city",
 					State:          "AK",
-					PostalCode:     "99501",
+					PostalCode:     "98765",
 					IsOconus:       models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -713,7 +713,7 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "BEVERLY HILLS",
+					City:           "city",
 					State:          "CA",
 					PostalCode:     "90210",
 					IsOconus:       models.BoolPointer(false),
@@ -723,9 +723,9 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "ANCHORAGE",
+					City:           "city",
 					State:          "AK",
-					PostalCode:     "99501",
+					PostalCode:     "98765",
 					IsOconus:       nil,
 				},
 				Type: &factory.Addresses.DeliveryAddress,

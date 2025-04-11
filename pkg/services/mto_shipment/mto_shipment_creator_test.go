@@ -900,17 +900,23 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		for _, tt := range testCases {
 			tt := tt
-			mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType: tt.shipmentType,
+
+			var mtoShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				mtoShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
+			} else {
+				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							ShipmentType: tt.shipmentType,
+						},
+					},
+				}, nil)
+			}
 
 			clearedShipment := clearShipmentIDFields(&mtoShipment)
 
@@ -943,17 +949,23 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			var err error
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType: tt.shipmentType,
+
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							ShipmentType: tt.shipmentType,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -961,19 +973,35 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
-			childShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &createdParentShipment.ID,
+			var childShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				childShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &createdParentShipment.ID,
+						},
+					},
+				}, nil)
+			} else {
+				childShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &createdParentShipment.ID,
+						},
+					},
+				}, nil)
+			}
 
 			clearedChildShipment := clearShipmentIDFields(&childShipment)
 			clearedChildShipment.PrimeActualWeight = nil
@@ -1004,17 +1032,23 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			var err error
-			unDivertedParentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType: tt.shipmentType,
+
+			var unDivertedParentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				unDivertedParentShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
+			} else {
+				unDivertedParentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							ShipmentType: tt.shipmentType,
+						},
+					},
+				}, nil)
+			}
 
 			clearedUndivertedParentShipment := clearShipmentIDFields(&unDivertedParentShipment)
 
@@ -1022,19 +1056,35 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
-			childFromParentDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+			var childFromParentDivertedShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				childFromParentDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+						},
+					},
+				}, nil)
+			} else {
+				childFromParentDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+						},
+					},
+				}, nil)
+			}
 
 			clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
 			clearedChildFromParentDivertedShipment.PrimeActualWeight = nil
@@ -1043,19 +1093,35 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
-			childOfDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+			var childOfDivertedShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				childOfDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+						},
+					},
+				}, nil)
+			} else {
+				childOfDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+						},
+					},
+				}, nil)
+			}
 
 			clearedChildOfDivertedShipment := clearShipmentIDFields(&childOfDivertedShipment)
 			clearedChildOfDivertedShipment.PrimeActualWeight = nil
@@ -1085,19 +1151,36 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			uuid, _ := uuid.NewV4()
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              true,
-						DivertedFromShipmentID: &uuid,
+
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              true,
+							DivertedFromShipmentID: &uuid,
+						},
+					},
+				}, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              true,
+							DivertedFromShipmentID: &uuid,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -1127,19 +1210,35 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			uuid, _ := uuid.NewV4()
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						Diversion:              false,
-						DivertedFromShipmentID: &uuid,
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							Diversion:              false,
+							DivertedFromShipmentID: &uuid,
+						},
+					},
+				}, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							Diversion:              false,
+							DivertedFromShipmentID: &uuid,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -1169,18 +1268,33 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			uuid, _ := uuid.NewV4()
-			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-				{
-					Model:    subtestData.move,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOShipment{
-						ShipmentType:           tt.shipmentType,
-						DivertedFromShipmentID: &uuid,
+			var parentShipment models.MTOShipment
+			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				parentShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
 					},
-				},
-			}, nil)
+					{
+						Model: models.MTOShipment{
+							DivertedFromShipmentID: &uuid,
+						},
+					},
+				}, nil)
+			} else {
+				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:           tt.shipmentType,
+							DivertedFromShipmentID: &uuid,
+						},
+					},
+				}, nil)
+			}
 
 			clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
@@ -1342,6 +1456,42 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Error(err)
 		suite.Equal("Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTS), err.Error())
 		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.Run("UB shipments will return an error if both addresses are CONUS", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+				},
+			},
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+		suite.Error(err)
+		suite.Equal("At least one address for a UB shipment must be OCONUS", err.Error())
 	})
 }
 
