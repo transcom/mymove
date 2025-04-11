@@ -3924,7 +3924,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	suite.Run("Updating the shipment actual weight within weight allowance creates reweigh requests for", func() {
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-
 		primeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -4424,9 +4423,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
 		suite.NoError(err)
 
-		for i := 0; i < len(expectedReServiceCodes); i++ {
-			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+		actualReServiceCodes := []models.ReServiceCode{}
+		for _, item := range serviceItems {
+			actualReServiceCodes = append(actualReServiceCodes, item.ReService.Code)
 		}
+
+		suite.ElementsMatch(expectedReServiceCodes, actualReServiceCodes)
 	})
 }
 
