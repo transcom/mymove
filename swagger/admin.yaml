@@ -18,8 +18,8 @@ schemes:
   - https
 consumes:
   - application/json
-# produces:
-#   - application/json
+produces:
+  - application/json
 tags:
   - name: Admin users
     description: Information about Admin UI users

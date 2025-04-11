@@ -319,7 +319,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 						}
 
 						if !privilegesAllowed {
-							err = apperror.NewBadDataError("Office user role is not authorized for supplied privilege")
+							err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
 							appCtx.Logger().Error(err.Error())
 							verrs := validate.NewErrors()
 							verrs.Add("Validation Error", err.Error())
@@ -328,7 +328,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 							}
 
 							validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
-							validationError.Detail = handlers.FmtString("Office user role is not authorized for supplied privilege")
+							validationError.Detail = handlers.FmtString("Selected office user role is not authorized for supplied privilege")
 							validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
 
 							return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
