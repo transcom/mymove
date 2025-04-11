@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -102,7 +103,17 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// Do not create Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		if err != nil {
+			log.Panic(err)
+		}
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcFairfield.ID,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 
 		serviceCode := models.ReService{Code: models.ReServiceCodeDOFSIT}
 
@@ -1090,6 +1101,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 				Model:    mto,
 				LinkOnly: true,
 			},
+			{
+				Model: models.Address{
+					City:       "SULPHUR SPGS",
+					PostalCode: "75482",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)
@@ -1105,7 +1123,20 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		// Do not create the Address in the database (factory.BuildAddress(nil, nil, nil)), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		usprcBeverlyHills, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		if err != nil {
+			log.Panic(err)
+		}
+		subtestData.actualPickupAddress = factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         "90210",
+					City:               "Beverly Hills",
+					StreetAddress1:     "13 Macon St",
+					UsPostRegionCityID: &usprcBeverlyHills.ID,
+				},
+			},
+		}, nil)
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:           mto.ID,

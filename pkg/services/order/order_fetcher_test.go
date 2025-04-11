@@ -149,6 +149,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.Address{
 					PostalCode: agfmPostalCode,
+					City:       "AVON",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -382,6 +383,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.Address{
 					PostalCode: postalCode,
+					City:       "DES MOINES",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -419,6 +421,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.Address{
 					PostalCode: postalCode,
+					City:       "DES MOINES",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -436,6 +439,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.Address{
 					PostalCode: postalCode,
+					City:       "DES MOINES",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -501,6 +505,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.Address{
 					PostalCode: postalCode,
+					City:       "DES MOINES",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -546,6 +551,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.Address{
 					PostalCode: postalCode,
+					City:       "DES MOINES",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -2489,14 +2495,20 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				},
 			},
 		}, nil)
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "35011", "ALEXANDER CITY")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		// Create data for a second Origin ZANY
 		dutyLocationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "Anchor 1212",
-					City:           "Fort Eisenhower",
-					State:          "GA",
-					PostalCode:     "89898",
+					StreetAddress1:     "Anchor 1212",
+					City:               usprc.USPostRegionCityNm,
+					State:              "GA",
+					PostalCode:         usprc.UsprZipID,
+					UsPostRegionCityID: &usprc.ID,
 				},
 			},
 		}, nil)
@@ -2589,6 +2601,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 		{
 			Model: models.Address{
 				PostalCode: postalCode,
+				City:       "DES MOINES",
 			},
 			Type: &factory.Addresses.PickupAddress,
 		},
@@ -2665,6 +2678,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 			{
 				Model: models.Address{
 					PostalCode: "06001",
+					City:       "AVON",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -2750,6 +2764,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 		{
 			Model: models.Address{
 				PostalCode: postalCode,
+				City:       "DES MOINES",
 			},
 			Type: &factory.Addresses.PickupAddress,
 		},
@@ -2813,6 +2828,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		{
 			Model: models.Address{
 				PostalCode: postalCode,
+				City:       "DES MOINES",
 			},
 			Type: &factory.Addresses.PickupAddress,
 		},
@@ -2831,6 +2847,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		{
 			Model: models.Address{
 				PostalCode: postalCode,
+				City:       "DES MOINES",
 			},
 			Type: &factory.Addresses.PickupAddress,
 		},
@@ -3200,7 +3217,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		// setting up two moves, each with requested destination SIT service items
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: postalCode},
+				Model: models.Address{PostalCode: postalCode, City: "BEVERLY HILLS"},
 			},
 		}, nil)
 
@@ -3241,10 +3258,14 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		postalCode := "AGFM"
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "AGFM", "AGFM")
 
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "35007", "ALABASTER")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		// setting up two moves, each with requested destination SIT service items
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: postalCode},
+				Model: models.Address{PostalCode: postalCode, UsPostRegionCityID: &usprc.ID},
 			},
 		}, nil)
 
@@ -3278,7 +3299,8 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	buildMoveZone2AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
 		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		// zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		usprcAnchorage, err := models.FindByZipCodeAndCity(suite.DB(), "99501", "Anchorage")
 		suite.FatalNoError(err)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -3286,7 +3308,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 					City:               "Anchorage",
 					State:              "AK",
 					PostalCode:         "99501",
-					UsPostRegionCityID: &zone2UUID,
+					UsPostRegionCityID: &usprcAnchorage.ID,
 				},
 			},
 		}, nil)
@@ -3328,7 +3350,8 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	buildMoveZone4AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
 		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
+		// zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
+		usprcAnchorage, err := models.FindByZipCodeAndCity(suite.DB(), "99501", "Anchorage")
 		suite.FatalNoError(err)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -3336,7 +3359,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 					City:               "Anchorage",
 					State:              "AK",
 					PostalCode:         "99501",
-					UsPostRegionCityID: &zone4UUID,
+					UsPostRegionCityID: &usprcAnchorage.ID,
 				},
 			},
 		}, nil)

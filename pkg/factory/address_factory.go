@@ -1,10 +1,7 @@
 package factory
 
 import (
-	"database/sql"
-
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -27,17 +24,15 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	}
 
 	// Create default Address
-	beverlyHillsUsprc := uuid.FromStringOrNil("3b9f0ae6-3b2b-44a6-9fcd-8ead346648c4")
 	address := models.Address{
-		StreetAddress1:     "123 Any Street",
-		StreetAddress2:     models.StringPointer("P.O. Box 12345"),
-		StreetAddress3:     models.StringPointer("c/o Some Person"),
-		City:               "Beverly Hills",
-		State:              "CA",
-		PostalCode:         "90210",
-		County:             models.StringPointer("LOS ANGELES"),
-		IsOconus:           models.BoolPointer(false),
-		UsPostRegionCityID: &beverlyHillsUsprc,
+		StreetAddress1: "123 Any Street",
+		StreetAddress2: models.StringPointer("P.O. Box 12345"),
+		StreetAddress3: models.StringPointer("c/o Some Person"),
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "90210",
+		County:         models.StringPointer("LOS ANGELES"),
+		IsOconus:       models.BoolPointer(false),
 	}
 
 	// Find/create the Country if customization is provided
@@ -61,6 +56,10 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
+	usPostRegionCity := FetchOrBuildUsPostRegionCityForAddress(db, customs, nil, &address)
+	address.UsPostRegionCityID = &usPostRegionCity.ID
+	address.UsPostRegionCity = &usPostRegionCity
+
 	// This helps assign counties & us_post_region_cities_id values when the factory is called for seed data or tests
 	// Additionally, also only run if not 90210. 90210's county is by default populated
 	if db != nil && address.PostalCode != "90210" {
@@ -77,17 +76,6 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		address.County = models.StringPointer("db nil when created")
 	}
 
-	if db != nil && address.PostalCode != "90210" && cAddress.UsPostRegionCityID == nil {
-		usprc, err := models.FindByZipCode(db, address.PostalCode)
-		if err != nil && err != sql.ErrNoRows {
-			address.UsPostRegionCityID = nil
-			address.UsPostRegionCity = nil
-		} else if usprc.ID != uuid.Nil {
-			address.UsPostRegionCityID = &usprc.ID
-			address.UsPostRegionCity = usprc
-		}
-	}
-
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
 		mustCreate(db, &address)
@@ -96,7 +84,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	return address
 }
 
-func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []Trait) models.Address {
+func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []Trait) (models.Address, error) {
 	customs = setupCustomizations(customs, traits)
 
 	// Find address customization and extract the custom address
@@ -104,14 +92,14 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	if result := findValidCustomization(customs, Address); result != nil {
 		cAddress = result.Model.(models.Address)
 		if result.LinkOnly {
-			return cAddress
+			return cAddress, nil
 		}
 	}
 
 	// Create default Address
 	address := models.Address{
 		StreetAddress1: "N/A",
-		City:           "Fort Gorden",
+		City:           "GROVETOWN",
 		State:          "GA",
 		PostalCode:     "30813",
 		County:         models.StringPointer("RICHMOND"),
@@ -139,12 +127,16 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
+	usPostRegionCity := FetchOrBuildUsPostRegionCityForAddress(db, customs, nil, &address)
+	address.UsPostRegionCityID = &usPostRegionCity.ID
+	address.UsPostRegionCity = &usPostRegionCity
+
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
 		mustCreate(db, &address)
 	}
 
-	return address
+	return address, nil
 }
 
 // BuildDefaultAddress makes an Address with default values
@@ -170,7 +162,6 @@ func GetTraitAddress2() []Customization {
 
 // GetTraitAddress3 is a sample GetTraitFunc
 func GetTraitAddress3() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -187,7 +178,6 @@ func GetTraitAddress3() []Customization {
 
 // GetTraitAddress4 is a sample GetTraitFunc
 func GetTraitAddress4() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -204,7 +194,6 @@ func GetTraitAddress4() []Customization {
 
 // GetTraitAddressAKZone1 is an address in Zone 1 of AK
 func GetTraitAddressAKZone1() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -222,14 +211,13 @@ func GetTraitAddressAKZone1() []Customization {
 
 // GetTraitAddressAKZone2 is an address in Zone 2 of Alaska
 func GetTraitAddressAKZone2() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
 				StreetAddress1: "44 John Riggins Rd",
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "FAIRBANKS",
+				City:           "FORT WAINWRIGHT",
 				State:          "AK",
 				PostalCode:     "99703",
 				IsOconus:       models.BoolPointer(true),
@@ -240,7 +228,6 @@ func GetTraitAddressAKZone2() []Customization {
 
 // GetTraitAddressAKZone3 is an address in Zone 3 of Alaska
 func GetTraitAddressAKZone3() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -258,7 +245,6 @@ func GetTraitAddressAKZone3() []Customization {
 
 // GetTraitAddressAKZone4 is an address in Zone 4 of Alaska
 func GetTraitAddressAKZone4() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
@@ -276,7 +262,6 @@ func GetTraitAddressAKZone4() []Customization {
 
 // GetTraitAddressAKZone5 is an address in Zone 5 of Alaska for NSRA15 rates
 func GetTraitAddressAKZone5() []Customization {
-
 	return []Customization{
 		{
 			Model: models.Address{
