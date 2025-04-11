@@ -14,7 +14,6 @@ import { formatDateWithUTC } from 'shared/dates';
 import { formatCityStateAndPostalCode } from 'utils/shipmentDisplay';
 import { formatWeight, convertFromThousandthInchToInch, formatCents, toDollarString } from 'utils/formatters';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
-import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
@@ -26,14 +25,11 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
-function generateEstimatedPriceTextIfApproved(details) {
-  if (details?.status === SERVICE_ITEM_STATUS.APPROVED) {
-    return generateDetailText({
-      'Estimated Price':
-        details.estimatedPrice !== undefined || null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
-    });
-  }
-  return null;
+function generateEstimatedPriceText(details) {
+  return generateDetailText({
+    'Estimated Price':
+      details.estimatedPrice !== undefined || null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+  });
 }
 
 const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code, shipment, sitStatus) => {
@@ -114,7 +110,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
-            {generateEstimatedPriceTextIfApproved(details)}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -144,7 +140,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
-            {generateEstimatedPriceTextIfApproved(details)}
+            {generateEstimatedPriceText(details)}
           </>
         )}
         {code === SERVICE_ITEM_CODES.DDDSIT && (
@@ -209,7 +205,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
-            {generateEstimatedPriceTextIfApproved(details)}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -246,7 +242,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 ))
               : defaultDetailText}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {generateEstimatedPriceTextIfApproved(details)}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -288,7 +284,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {generateEstimatedPriceTextIfApproved(details)}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -339,7 +335,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {generateEstimatedPriceTextIfApproved(details)}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -376,7 +372,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {generateEstimatedPriceTextIfApproved(details)}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
