@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import iconFacebook from 'uswds/src/img/usa-icons/facebook.svg';
 import iconTwitter from 'uswds/src/img/usa-icons/twitter.svg';
 
+import { milmoveHelpDesk } from 'shared/constants';
 import transcomEmblem from 'shared/images/transcom-emblem.svg';
 
 function Footer() {
@@ -23,7 +24,7 @@ function Footer() {
                   </a>
                 </li>
                 <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
-                  <a className="usa-footer__primary-link" href="mailto:usarmy.scott.sddc.mbx.g6-src-dps-hd@army.mil">
+                  <a id="helpMeLink" className="usa-footer__primary-link" href={milmoveHelpDesk}>
                     Help Me
                   </a>
                 </li>
