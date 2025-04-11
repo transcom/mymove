@@ -1,4 +1,4 @@
--- B-22742 Adding the ability to get escalated price for ICRT and IUCRT
+-- B-22742  C. Klienjan  Migrate function to DDL Migrations and adding the ability to get escalated price for ICRT and IUCRT
 CREATE OR REPLACE FUNCTION calculate_escalated_price(
     o_rate_area_id UUID,
     d_rate_area_id UUID,
