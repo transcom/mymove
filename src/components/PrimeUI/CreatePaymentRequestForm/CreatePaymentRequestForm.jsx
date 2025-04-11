@@ -89,10 +89,10 @@ const CreatePaymentRequestForm = ({
                             />
                           </div>
                           <ServiceItem serviceItem={mtoServiceItem} mtoShipment={mtoShipment} />
-                          {(mtoServiceItem.reServiceCode === 'DDASIT' ||
-                            mtoServiceItem.reServiceCode === 'DOASIT' ||
-                            mtoServiceItem.reServiceCode === 'IDASIT' ||
-                            mtoServiceItem.reServiceCode === 'IOASIT') && (
+                          {(mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDASIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOASIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IDASIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IOASIT) && (
                             <>
                               <TextField
                                 id={`${mtoServiceItem.id}-billedWeight`}
@@ -142,6 +142,8 @@ const CreatePaymentRequestForm = ({
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOSHUT ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDFSIT ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDDSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IDFSIT ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IOASIT ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DOP ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DDP ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.DPK ||
