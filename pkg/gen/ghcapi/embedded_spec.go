@@ -10681,7 +10681,8 @@ func init() {
         "APPROVED",
         "CANCELLATION_REQUESTED",
         "CANCELED",
-        "DIVERSION_REQUESTED"
+        "DIVERSION_REQUESTED",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -28628,7 +28629,8 @@ func init() {
         "APPROVED",
         "CANCELLATION_REQUESTED",
         "CANCELED",
-        "DIVERSION_REQUESTED"
+        "DIVERSION_REQUESTED",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },

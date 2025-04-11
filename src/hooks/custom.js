@@ -12,6 +12,7 @@ import { calculateShipmentNetWeight, getShipmentEstimatedWeight } from 'utils/sh
 export const includedStatusesForCalculatingWeights = (status) => {
   return (
     status === shipmentStatuses.APPROVED ||
+    status === shipmentStatuses.APPROVALS_REQUESTED ||
     status === shipmentStatuses.DIVERSION_REQUESTED ||
     status === shipmentStatuses.CANCELLATION_REQUESTED
   );

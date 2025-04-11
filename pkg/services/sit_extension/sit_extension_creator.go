@@ -91,6 +91,16 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 				return nil, err
 			}
 		}
+
+		shipment.Status = models.MTOShipmentStatusApprovalsRequested
+		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, apperror.NewInvalidInputError(
+				shipment.ID, err, verrs, "Invalid input found while updating shipment")
+		}
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return sitExtension, nil

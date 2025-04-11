@@ -55,7 +55,7 @@ func (f *moveCanceler) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID
 				} else if err != nil {
 					return apperror.NewQueryError("PPM Shipment", err, "Failed to update status for ppm shipment")
 				}
-			} else if shipment.Status != models.MTOShipmentStatusApproved {
+			} else if shipment.Status != models.MTOShipmentStatusApproved && shipment.Status != models.MTOShipmentStatusApprovalsRequested {
 				verrs, err := txnAppCtx.DB().ValidateAndUpdate(&shipmentDelta)
 				if verrs != nil && verrs.HasAny() {
 					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")

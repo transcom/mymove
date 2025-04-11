@@ -9782,6 +9782,7 @@ definitions:
       - CANCELLATION_REQUESTED
       - CANCELED
       - DIVERSION_REQUESTED
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:

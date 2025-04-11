@@ -114,6 +114,10 @@ func checkUpdateAllowed() validator {
 				if isTOO {
 					return nil
 				}
+			case models.MTOShipmentStatusApprovalsRequested:
+				if isTOO {
+					return nil
+				}
 			default:
 				return err
 			}
@@ -137,7 +141,7 @@ func checkDeleteAllowed() validator {
 		}
 
 		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-			if older.Status == models.MTOShipmentStatusApproved {
+			if older.Status == models.MTOShipmentStatusApproved || older.Status == models.MTOShipmentStatusApprovalsRequested {
 				return apperror.NewForbiddenError("TOO: APPROVED shipments cannot be deleted")
 			}
 		}
