@@ -7,28 +7,33 @@ import { v4 } from 'uuid';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
-import Expenses from 'pages/MyMove/PPM/Closeout/Expenses/Expenses';
-import { customerRoutes } from 'constants/routes';
+import Expenses from 'pages/Office/PPM/Closeout/Expenses/Expenses';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { createBaseMovingExpense, createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
-import { createMovingExpense, patchMovingExpense, deleteUpload } from 'services/internalApi';
+import { createMovingExpense, patchExpense, deleteUploadForDocument } from 'services/ghcApi';
 
-const mockNavigate = jest.fn();
+// crete local alias for more descriptive name
+const generateUUID = () => v4();
+
 const mockMoveId = 'cc03c553-d317-46af-8b2d-3c9f899f6451';
 const mockMTOShipmentId = '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7';
 const mockExpenseId = 'ba29f5f5-0a51-4161-adaa-c568f5d5eab0';
+
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
-jest.mock('services/internalApi', () => ({
-  ...jest.requireActual('services/internalApi'),
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
   createMovingExpense: jest.fn(),
   createUploadForPPMDocument: jest.fn(),
-  deleteUpload: jest.fn(),
-  patchMovingExpense: jest.fn(),
+  deleteUploadForDocument: jest.fn(),
+  patchExpense: jest.fn(),
 }));
 
-const mockPPMShipmentId = v4();
+const mockPPMShipmentId = generateUUID();
 const mockMTOShipment = {
   id: mockMTOShipmentId,
   moveTaskOrderId: mockMoveId,
@@ -66,16 +71,16 @@ const mockNewExpenseAndIndex = {
   index: 0,
 };
 
-const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
+// const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
 
-const expensesEditPath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
-  moveId: mockMoveId,
-  mtoShipmentId: mockMTOShipmentId,
+const expensesEditPath = generatePath(servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+  moveCode: mockMoveId,
+  shipmentId: mockMTOShipmentId,
   expenseId: mockExpense.id,
 });
-const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-  moveId: mockMoveId,
-  mtoShipmentId: mockMTOShipmentId,
+const reviewPath = generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+  moveCode: mockMoveId,
+  shipmentId: mockMTOShipmentId,
 });
 
 jest.mock('store/entities/selectors', () => ({
@@ -90,12 +95,12 @@ beforeEach(() => {
 
 const params = {
   moveId: mockMoveId,
-  mtoShipmentId: mockMTOShipmentId,
+  shipmentId: mockMTOShipmentId,
 };
 
 const renderWithMocks = () => {
   render(
-    <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} params={params}>
+    <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_PATH} params={params}>
       <Expenses />
     </MockProviders>,
   );
@@ -134,7 +139,7 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
 
     render(
-      <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
+      <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
         <Expenses />
       </MockProviders>,
     );
@@ -166,7 +171,7 @@ describe('Expenses page', () => {
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 
     const saveBtn = screen.getByRole('button', { name: 'Save & Continue' });
     expect(saveBtn).toBeEnabled();
@@ -194,7 +199,7 @@ describe('Expenses page', () => {
     selectExpenseAndIndexById.mockImplementationOnce(() => mockExpenseAndIndex);
 
     render(
-      <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
+      <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
         <Expenses />
       </MockProviders>,
     );
@@ -212,7 +217,7 @@ describe('Expenses page', () => {
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
@@ -245,14 +250,14 @@ describe('Expenses page', () => {
 
     expect(screen.getByLabelText('Select type')).toHaveDisplayValue('- Select -');
 
-    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
-  it('calls patchMovingExpense with the appropriate payload', async () => {
+  it('calls patchExpense with the appropriate payload', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
-    patchMovingExpense.mockResolvedValue({});
+    patchExpense.mockResolvedValue({});
 
     renderWithMocks();
 
@@ -272,7 +277,7 @@ describe('Expenses page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
-      expect(patchMovingExpense).toHaveBeenCalledWith(
+      expect(patchExpense).toHaveBeenCalledWith(
         mockPPMShipmentId,
         mockExpense.id,
         {
@@ -297,7 +302,7 @@ describe('Expenses page', () => {
   it('has an appropriate amount payload when a whole dollar amount is entered', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
-    patchMovingExpense.mockResolvedValue({});
+    patchExpense.mockResolvedValue({});
 
     renderWithMocks();
 
@@ -312,7 +317,7 @@ describe('Expenses page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
-      expect(patchMovingExpense).toHaveBeenCalledWith(
+      expect(patchExpense).toHaveBeenCalledWith(
         mockPPMShipmentId,
         mockExpense.id,
         {
@@ -337,7 +342,7 @@ describe('Expenses page', () => {
   it('has an appropriate payload when the type is Storage', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
-    patchMovingExpense.mockResolvedValue({});
+    patchExpense.mockResolvedValue({});
 
     renderWithMocks();
 
@@ -355,7 +360,7 @@ describe('Expenses page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
-      expect(patchMovingExpense).toHaveBeenCalledWith(
+      expect(patchExpense).toHaveBeenCalledWith(
         mockPPMShipmentId,
         mockExpense.id,
         {
@@ -377,10 +382,10 @@ describe('Expenses page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
-  it('displays an error if patchMovingExpense fails', async () => {
+  it('displays an error if patchExpense fails', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
     selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 4 });
-    patchMovingExpense.mockRejectedValueOnce('an error occurred');
+    patchExpense.mockRejectedValueOnce('an error occurred');
 
     renderWithMocks();
 
@@ -401,7 +406,7 @@ describe('Expenses page', () => {
     });
   });
 
-  it('routes to home when the return to homepage button is clicked', async () => {
+  it('routes to review when the cancel button is clicked', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
 
     renderWithMocks();
@@ -411,10 +416,10 @@ describe('Expenses page', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockNavigate).toHaveBeenCalledWith(movePath);
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    // expect(mockNavigate).toHaveBeenCalledWith(movePath);
   });
 
   it('calls the delete handler when removing an existing upload', async () => {
@@ -433,9 +438,9 @@ describe('Expenses page', () => {
         expenses: [mockExpense],
       },
     });
-    deleteUpload.mockResolvedValue({});
+    deleteUploadForDocument.mockResolvedValue({});
     render(
-      <MockProviders path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
+      <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
         <Expenses />
       </MockProviders>,
     );

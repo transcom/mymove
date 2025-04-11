@@ -10,7 +10,7 @@ import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
+import ExpenseForm from 'components/Office/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
@@ -103,7 +103,6 @@ const Expenses = () => {
       });
   };
 
-  // jeh: Resume editing here
   const handleUploadComplete = (err) => {
     if (err) {
       setErrorMessage('Encountered error when completing file upload');

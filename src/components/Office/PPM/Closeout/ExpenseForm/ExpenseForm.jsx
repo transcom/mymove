@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 import styles from './ExpenseForm.module.scss';
 
-import ppmStyles from 'components/Office/PPM/Closeout/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { formatCents } from 'utils/formatters';
 import { numOfDaysBetweenDates } from 'utils/dates';
 import { expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
@@ -241,7 +241,7 @@ const ExpenseForm = ({
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Return To Homepage
+                  Cancel
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}
