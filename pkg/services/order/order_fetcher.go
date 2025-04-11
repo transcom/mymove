@@ -126,9 +126,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	secondarySortOrderQuery := secondarySortOrder(params.Sort)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
-	tooDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
+	tooFilterOutDestinationRequestsQuery := tooQueueOriginRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [22]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
+	options := [22]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, secondarySortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooFilterOutDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -210,8 +210,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			}
 		} else {
 			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false')))").
-					Where("mto_shipments.status IN ('SUBMITTED','APPROVALS_REQUESTED')")
+				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false')))")
 			}
 			// TODO  not sure we'll need this once we're in a situation where closeout param is always passed
 			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
@@ -922,6 +921,20 @@ func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
 			baseQuery := `
+			(mto_shipments.status IN ('SUBMITTED','APPROVALS_REQUESTED')
+        		OR (mto_shipments.status = 'APPROVED'
+        			AND
+                		(
+                        	moves.excess_weight_qualified_at IS NOT NULL
+                        	AND moves.excess_weight_acknowledged_at IS NULL
+		                )
+        		        OR (
+                	        moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
+                    	    AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
+                		)
+        		)
+    		)
+			AND
 			-- check for moves with destination requests and NOT origin requests, then return the inverse for the TOO queue with the NOT wrapped around the query
 			NOT (
 					-- check for moves with destination requests
@@ -986,17 +999,6 @@ func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 											'FSC', 'DMHF', 'DBTF', 'DBHF', 'IBTF', 'IBHF', 'DCRTSA',
 											'DLH', 'DOP', 'DPK', 'DSH', 'DNPK', 'INPK', 'UBP',
 											'ISLH', 'POEFSC', 'PODFSC', 'IHPK')
-						)
-						-- keep moves in the TOO queue if they have an unacknowledged excess weight risk
-						OR (
-							(
-								moves.excess_weight_qualified_at IS NOT NULL
-								AND moves.excess_weight_acknowledged_at IS NULL
-							)
-							OR (
-								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
-								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
-							)
 						)
 					)
 				)

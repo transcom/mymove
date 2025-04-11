@@ -97,7 +97,7 @@ const (
 	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
 	// MTOShipmentStatusDiversionRequested indicates that the TOO has requested that the Prime divert a shipment
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
-	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
+	// MoveStatusAPPROVALSREQUESTED is the approvals requested status type for MTO Shipments
 	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS_REQUESTED"
 )
 
