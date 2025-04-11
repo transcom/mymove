@@ -73,6 +73,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameSITScheduleDest,
 	models.ServiceItemParamNameSITServiceAreaDest,
 	models.ServiceItemParamNameSITServiceAreaOrigin,
+	models.ServiceItemParamNameSITRateAreaDest,
+	models.ServiceItemParamNameSITRateAreaOrigin,
 	models.ServiceItemParamNameNumberDaysSIT,
 	models.ServiceItemParamNameZipSITDestHHGFinalAddress,
 	models.ServiceItemParamNameZipSITDestHHGOriginalAddress,
@@ -167,6 +169,13 @@ func ServiceParamLookupInitialize(
 				return nil, err
 			}
 			sitDestinationOriginalAddress = *mtoServiceItem.SITDestinationOriginalAddress
+		}
+	}
+
+	if mtoServiceItem.SITOriginHHGActualAddressID != nil && mtoServiceItem.SITOriginHHGActualAddress == nil {
+		err := appCtx.DB().Load(&mtoServiceItem, "SITOriginHHGActualAddress")
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -391,6 +400,14 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	}
 
 	lookups[models.ServiceItemParamNameSITServiceAreaOrigin] = ServiceAreaLookup{
+		Address: *serviceItem.SITOriginHHGOriginalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITRateAreaDest] = RateAreaLookup{
+		Address: *serviceItem.SITDestinationFinalAddress,
+	}
+
+	lookups[models.ServiceItemParamNameSITRateAreaOrigin] = RateAreaLookup{
 		Address: *serviceItem.SITOriginHHGOriginalAddress,
 	}
 
