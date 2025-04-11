@@ -34,6 +34,10 @@ type RolePrivilege struct {
 	// Format: uuid
 	PrivilegeID strfmt.UUID `json:"privilegeId,omitempty"`
 
+	// privilege name
+	// Example: Supervisor
+	PrivilegeName string `json:"privilegeName,omitempty"`
+
 	// privilege type
 	// Example: supervisor
 	PrivilegeType string `json:"privilegeType,omitempty"`
@@ -42,6 +46,10 @@ type RolePrivilege struct {
 	// Example: c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e
 	// Format: uuid
 	RoleID strfmt.UUID `json:"roleId,omitempty"`
+
+	// role name
+	// Example: Task Ordering Officer
+	RoleName string `json:"roleName,omitempty"`
 
 	// role type
 	// Example: task_ordering_officer
