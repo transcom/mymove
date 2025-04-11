@@ -764,6 +764,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -1200,6 +1202,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)

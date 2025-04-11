@@ -345,22 +345,14 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MT
 	armyAffiliation := models.AffiliationARMY
 	navyAffiliation := models.AffiliationNAVY
 
-	usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-	suite.NotNil(usprc)
-	suite.FatalNoError(err)
-
-	usprc2, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "22222", "ARLINGTON")
-	suite.NotNil(usprc)
-	suite.FatalNoError(err)
-
 	firstMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "89523", UsPostRegionCityID: &usprc.ID, City: "RENO"},
+			Model: models.Address{PostalCode: "89523"},
 		},
 	}, nil)
 	firstMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "11111", UsPostRegionCityID: &usprc.ID, City: usprc.USPostRegionCityNm},
+			Model: models.Address{PostalCode: "11111"},
 		},
 	}, nil)
 
@@ -398,12 +390,12 @@ func setupTestData(suite *MoveServiceSuite) (models.Move, models.Move, models.MT
 	}, nil)
 	secondMoveOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "90211", UsPostRegionCityID: &usprc.ID, City: "BEVERLY HILLS"},
+			Model: models.Address{PostalCode: "90211"},
 		},
 	}, nil)
 	secondMoveNewDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{PostalCode: "22222", UsPostRegionCityID: &usprc2.ID, City: "ARLINGTON"},
+			Model: models.Address{PostalCode: "22222"},
 		},
 	}, nil)
 

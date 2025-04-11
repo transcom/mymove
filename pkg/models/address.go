@@ -73,7 +73,16 @@ func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, erro
 	vs = append(vs, &validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"})
 
-	if dbConnection != nil && a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil {
+	var validPostalCode bool
+	if dbConnection != nil {
+		var err error
+		validPostalCode, err = ValidPostalCode(dbConnection, a.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if dbConnection != nil && a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil && validPostalCode && a.ID != uuid.Nil {
 		validUSPRC, err := ValidateUsPostRegionCityID(dbConnection, *a)
 		if err != nil {
 			return nil, err
@@ -252,13 +261,7 @@ func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember Servic
 // Validate an addresses USPRC assignment
 func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, error) {
 
-	// If zip does not exist skip this validation
-	zipCount, err := db.Where("uspr_zip_id = $1", address.PostalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
-	if err != nil {
-		return false, err
-	}
-
-	if address.UsPostRegionCityID != nil && strings.TrimSpace(address.City) != "" && strings.TrimSpace(address.PostalCode) != "" && len(strings.TrimSpace(address.PostalCode)) == 5 && zipCount > 0 {
+	if address.UsPostRegionCityID != nil && strings.TrimSpace(address.City) != "" && strings.TrimSpace(address.PostalCode) != "" {
 		expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
 		if err != nil {
 			return false, err
@@ -270,4 +273,24 @@ func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, erro
 	}
 
 	return false, nil
+}
+
+func ValidPostalCode(db *pop.Connection, postalCode string) (bool, error) {
+
+	valid := true
+
+	zipCount, err := db.Where("uspr_zip_id = $1", postalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
+	if err != nil {
+		return false, err
+	}
+
+	if zipCount == 0 {
+		valid = false
+	}
+
+	if len(strings.TrimSpace(postalCode)) != 5 {
+		valid = false
+	}
+
+	return valid, nil
 }

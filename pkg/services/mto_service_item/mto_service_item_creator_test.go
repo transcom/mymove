@@ -1200,7 +1200,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcFairfield.ID,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 		actualPickupAddress.CountryId = &country.ID
 		actualPickupAddress.Country = &country
@@ -1285,7 +1293,17 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		usprcBeverlyHills, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
+		suite.NoError(err)
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         "90210",
+					City:               "Beverly Hills",
+					UsPostRegionCityID: &usprcBeverlyHills.ID,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 		actualPickupAddress.CountryId = &country.ID
 		actualPickupAddress.Country = &country
@@ -1357,9 +1375,19 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	})
 
 	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
 		// Create DOFSIT
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Address{
+					UsPostRegionCityID: &usprcFairfield.ID,
+					PostalCode:         usprcFairfield.UsprZipID,
+					City:               usprcFairfield.USPostRegionCityNm,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 		actualPickupAddress.CountryId = &country.ID
 		actualPickupAddress.Country = &country
