@@ -123,6 +123,10 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewIntlCratingPricer(), nil
 	case models.ReServiceCodeIUCRT:
 		return NewIntlUncratingPricer(), nil
+	case models.ReServiceCodeIOPSIT:
+		return NewInternationalOriginSITPickupPricer(), nil
+	case models.ReServiceCodeIDDSIT:
+		return NewInternationalDestinationSITDeliveryPricer(), nil
 	case models.ReServiceCodeIUBPK:
 		return NewIntlUBPackPricer(), nil
 	case models.ReServiceCodeIUBUPK:
