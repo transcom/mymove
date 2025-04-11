@@ -54,7 +54,6 @@ func (router shipmentRouter) Approve(_ appcontext.AppContext, shipment *models.M
 			),
 		)
 	}
-
 	if shipment.UsesExternalVendor {
 		return apperror.NewConflictError(
 			shipment.ID,
