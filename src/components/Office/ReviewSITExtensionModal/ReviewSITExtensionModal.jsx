@@ -28,16 +28,17 @@ import {
   calculateDaysInPreviousSIT,
   calculateSITEndDate,
   CurrentSITDateData,
-  formatSITAuthorizedEndDate,
   formatSITDepartureDate,
   formatSITEntryDate,
   getSITCurrentLocation,
   SitDaysAllowanceForm,
   SitEndDateForm,
-  SITHistoryItemHeader,
   calculateApprovedAndRequestedDaysCombined,
   calculateSITTotalDaysRemaining,
   calculateApprovedAndRequestedDatesCombined,
+  formatEndDate,
+  SITHistoryItemHeaderDays,
+  SITHistoryItemHeaderDate,
 } from 'utils/sitFormatters';
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
@@ -86,14 +87,19 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
         <DataTable
           custClass={styles.totalDaysTable}
           columnHeaders={[
-            <SITHistoryItemHeader title="Total days of SIT approved" value={approvedAndRequestedDaysCombined} />,
+            <SITHistoryItemHeaderDays
+              title="Total days of SIT proposed"
+              approved={shipment.sitDaysAllowance}
+              requested={sitExtension.requestedDays}
+              value={approvedAndRequestedDaysCombined}
+            />,
             'Total days used',
-            'Total days remaining',
+            'Proposed total days remaining (if extension request is approved)',
           ]}
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
-            totalDaysRemaining,
+            approvedAndRequestedDaysCombined - sitStatus.totalSITDaysUsed,
           ]}
         />
       </div>
@@ -102,7 +108,12 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
         <DataTable
           columnHeaders={[
             `SIT start date`,
-            <SITHistoryItemHeader title="SIT authorized end date" value={approvedAndRequestedDatesCombined} />,
+            <SITHistoryItemHeaderDate
+              title="Proposed SIT authorized end date"
+              endDate={sitStatus.currentSIT.sitAuthorizedEndDate}
+              requested={sitExtension.requestedDays}
+              value={approvedAndRequestedDatesCombined}
+            />,
             'Calculated total SIT days',
           ]}
           dataRow={[
@@ -135,13 +146,14 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  */
 const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
   const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
+  const approvedAndRequestedDaysCombined = calculateApprovedAndRequestedDaysCombined(shipment, sitExtension);
   const initialValues = {
     acceptExtension: '',
     convertToCustomerExpense: false,
-    daysApproved: String(shipment.sitDaysAllowance),
+    daysApproved: String(approvedAndRequestedDaysCombined),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: formatSITAuthorizedEndDate(sitStatus),
+    sitEndDate: formatEndDate(sitStatus.currentSIT.sitAuthorizedEndDate, sitExtension.requestedDays),
   };
   const minimumDaysAllowed = shipment.sitDaysAllowance;
   const sitEntryDate = formatSITEntryDate(sitStatus.currentSIT.sitEntryDate);

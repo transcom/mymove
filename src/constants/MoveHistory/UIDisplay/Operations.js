@@ -62,6 +62,8 @@ export default {
   finishDocumentReview: 'finishDocumentReview', // ghc.yaml
   getMove: 'getMove', // ghc.yaml
   createSITExtension: 'createSITExtension', // prime.yaml
+  approveSITExtension: 'approveSITExtension',
+  denySITExtension: 'denySITExtension',
   patchMove: 'patchMove', // internal.yaml
   uploadAdditionalDocuments: 'uploadAdditionalDocuments', // internal.yaml
   createOrder: 'createOrder', // ghc.yaml
