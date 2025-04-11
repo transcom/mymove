@@ -75,6 +75,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+			mock.AnythingOfType("bool"),
 		).Return(&moveHistory, int64(1), nil)
 
 		// Validate incoming payload: no body to validate
@@ -159,6 +160,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+			mock.AnythingOfType("bool"),
 		).Return(&models.MoveHistory{}, int64(0), apperror.NotFoundError{})
 
 		// Validate incoming payload: no body to validate
@@ -191,6 +193,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		mockHistoryFetcher.On("FetchMoveHistory",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*services.FetchMoveHistoryParams"),
+			mock.AnythingOfType("bool"),
 		).Return(&models.MoveHistory{}, int64(0), apperror.QueryError{})
 
 		// Validate incoming payload: no body to validate
