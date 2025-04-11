@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -122,6 +123,15 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 						WithPayload(
 							payloads.InternalServerError(
 								nil,
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
+				case apperror.EventError:
+					return weightticketops.
+						NewUpdateWeightTicketInternalServerError().
+						WithPayload(
+							payloads.InternalServerError(
+								swag.String(err.Error()),
 								h.GetTraceIDFromRequest(params.HTTPRequest),
 							),
 						), err
