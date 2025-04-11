@@ -726,6 +726,7 @@ type GetBulkAssignmentDataHandler struct {
 	handlers.HandlerConfig
 	services.OfficeUserFetcherPop
 	services.MoveFetcherBulkAssignment
+	services.MoveLocker
 }
 
 func (h GetBulkAssignmentDataHandler) Handle(
@@ -781,6 +782,14 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
 				}
+				moveIdsToLock := make([]uuid.UUID, len(moves))
+				for i, move := range moves {
+					moveIdsToLock[i] = move.ID
+				}
+				err = h.LockMoves(appCtx, moveIdsToLock, officeUser.ID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Failed to lock Services Counseling Queue moves for office user ID: %s", officeUser.ID), zap.Error(err))
+				}
 
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			case string(models.QueueTypeCloseout):
@@ -802,6 +811,15 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+
+				moveIdsToLock := make([]uuid.UUID, len(moves))
+				for i, move := range moves {
+					moveIdsToLock[i] = move.ID
+				}
+				err = h.LockMoves(appCtx, moveIdsToLock, officeUser.ID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Failed to lock PPM Closeout Queue moves for office user ID: %s", officeUser.ID), zap.Error(err))
 				}
 
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
@@ -826,6 +844,15 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
 				}
 
+				moveIdsToLock := make([]uuid.UUID, len(moves))
+				for i, move := range moves {
+					moveIdsToLock[i] = move.ID
+				}
+				err = h.LockMoves(appCtx, moveIdsToLock, officeUser.ID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Failed to lock Task Order Queue moves for office user ID: %s", officeUser.ID), zap.Error(err))
+				}
+
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			case string(models.QueueTypePaymentRequest):
 				// fetch the TIOs who work at their office
@@ -846,6 +873,15 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+
+				moveIdsToLock := make([]uuid.UUID, len(moves))
+				for i, move := range moves {
+					moveIdsToLock[i] = move.ID
+				}
+				err = h.LockMoves(appCtx, moveIdsToLock, officeUser.ID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Failed to lock Payment Request Queue moves for office user ID: %s", officeUser.ID), zap.Error(err))
 				}
 
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
@@ -870,6 +906,15 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
 				}
 
+				moveIdsToLock := make([]uuid.UUID, len(moves))
+				for i, move := range moves {
+					moveIdsToLock[i] = move.ID
+				}
+				err = h.LockMoves(appCtx, moveIdsToLock, officeUser.ID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Failed to lock Destination Requests Queue moves for office user ID: %s", officeUser.ID), zap.Error(err))
+				}
+
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			}
 
@@ -883,6 +928,7 @@ type SaveBulkAssignmentDataHandler struct {
 	services.OfficeUserFetcherPop
 	services.MoveFetcher
 	services.MoveAssigner
+	services.MoveUnlocker
 }
 
 func (h SaveBulkAssignmentDataHandler) Handle(
@@ -917,6 +963,12 @@ func (h SaveBulkAssignmentDataHandler) Handle(
 			queueType := params.BulkAssignmentSavePayload.QueueType
 			moveData := params.BulkAssignmentSavePayload.MoveData
 			userData := params.BulkAssignmentSavePayload.UserData
+
+			// unlock moves that were locked when the bulk assignment modal was opened
+			err = h.MoveUnlocker.CheckForLockedMovesAndUnlock(appCtx, officeUser.ID)
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("Failed to unlock moves for office user ID: %s", officeUser.ID), zap.Error(err))
+			}
 
 			// fetch the moves available to be assigned to their office users
 			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, moveData)

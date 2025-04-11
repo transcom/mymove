@@ -1059,7 +1059,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, qu
   });
 }
 
-export async function checkForLockedMovesAndUnlock(key, officeUserID) {
+export async function checkForLockedMovesAndUnlock(officeUserID) {
   return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
