@@ -21,9 +21,14 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <div className={styles.shipmentHeadingType}>
-        <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
-        <h2>{shipmentInfo.shipmentType}</h2>
+        <h2>
+          <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
+          {shipmentInfo.shipmentType}
+        </h2>
         <div>
+          {shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE && (
+            <Tag className="usa-tag--cancellation">terminated for cause</Tag>
+          )}
           {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--cancellation">canceled</Tag>}
           {shipmentInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
           {!shipmentInfo.isDiversion && shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (

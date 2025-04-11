@@ -26,6 +26,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import { profileStates } from 'constants/customerStates';
 import { getAllMoves } from 'services/internalApi';
+import { milmoveHelpDesk } from 'shared/constants';
 
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves, setCanAddOrders }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
@@ -99,31 +100,16 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           <div className={styles.flashMessage}>
             <ConnectedFlashMessage />
           </div>
-          {serviceMemberMoves &&
-          serviceMemberMoves.previousMoves &&
-          serviceMemberMoves.previousMoves.length === 0 &&
-          serviceMemberMoves.currentMove &&
-          serviceMemberMoves.currentMove.length === 0 ? (
-            <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-              <p data-testid="welcomeHeader">
-                Select &quot;Create a Move&quot; to get started. <br />
-                <br />
-                If you encounter any issues please contact your local Transportation Office or the Help Desk for further
-                assistance.
-              </p>
-            </Helper>
-          ) : (
-            <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-              <p data-testid="welcomeHeaderPrevMoves">
-                Select &quot;Create a Move&quot; to get started. <br />
-                <br />
-                Once you have validated your profile, please click the &quot;Validate&quot; button and proceed to
-                starting your move. <br />
-                If you encounter any issues please contact your local Transportation Office or the Help Desk for further
-                assistance.
-              </p>
-            </Helper>
-          )}
+          <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
+            <p data-testid="welcomeHeader">
+              Select &quot;Create a Move&quot; to get started. If you already have a move, locate the applicable move
+              code below and select &quot;Go to Move&quot;.
+              <br /> <br />
+              If you encounter any issues, please contact your local Transportation Office or the
+              <a href={milmoveHelpDesk}> Help Desk </a>
+              for further assistance.
+            </p>
+          </Helper>
           <div className={styles.centeredContainer}>
             <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick} data-testid="createMoveBtn">
               <span>Create a Move</span>

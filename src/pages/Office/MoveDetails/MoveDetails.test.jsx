@@ -1050,7 +1050,7 @@ describe('MoveDetails page', () => {
 
     it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-move-details' }).exists()).toBe(true);
-      expect(wrapper.containsMatchingElement(<h1>Move details</h1>)).toBe(true);
+      expect(wrapper.containsMatchingElement(<h1>Move Details</h1>)).toBe(true);
     });
 
     it('renders side navigation for each section', () => {

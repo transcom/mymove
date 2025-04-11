@@ -3153,13 +3153,14 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portlocation.NewPortLocationFetcher(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())

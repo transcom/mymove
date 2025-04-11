@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -35,6 +36,8 @@ type PPMCloseoutSummary struct {
 	RemainingIncentive          *unit.Cents `json:"remaining_incentive" db:"remaining_incentive"`
 	GTCCPaidSIT                 *unit.Cents `json:"gtcc_paid_sit" db:"gtcc_paid_sit"`
 	MemberPaidSIT               *unit.Cents `json:"member_paid_sit" db:"member_paid_sit"`
+	GTCCPaidSmallPackage        *unit.Cents `json:"gtcc_paid_small_package" db:"gtcc_paid_small_package"`
+	MemberPaidSmallPackage      *unit.Cents `json:"member_paid_small_package" db:"member_paid_small_package"`
 	GTCCDisbursement            *unit.Cents `json:"gtcc_disbursement" db:"gtcc_disbursement"`
 	MemberDisbursement          *unit.Cents `json:"member_disbursement" db:"member_disbursement"`
 	CreatedAt                   time.Time   `json:"created_at" db:"created_at"`
@@ -51,4 +54,17 @@ func (p *PPMCloseoutSummary) Validate(_ *pop.Connection) (*validate.Errors, erro
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PPMShipmentID, Name: "PPMShipmentID"},
 	), nil
+}
+
+func FetchPPMCloseoutByPPMID(db *pop.Connection, ppmID uuid.UUID) (PPMCloseoutSummary, error) {
+	var closeout PPMCloseoutSummary
+	err := db.Q().Where("ppm_shipment_id = ?", ppmID).First(&closeout)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return PPMCloseoutSummary{}, ErrFetchNotFound
+		}
+		return PPMCloseoutSummary{}, err
+	}
+
+	return closeout, nil
 }

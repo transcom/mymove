@@ -27,6 +27,9 @@ type UpdateMovingExpense struct {
 	// Required: true
 	Description *string `json:"description"`
 
+	// Indicates if the customer is claiming an expense as pro-gear or not
+	IsProGear *bool `json:"isProGear,omitempty"`
+
 	// Indicates if the customer is missing the receipt for their expense.
 	// Required: true
 	MissingReceipt *bool `json:"missingReceipt"`
@@ -38,6 +41,12 @@ type UpdateMovingExpense struct {
 	// Indicates if the service member used their government issued card to pay for the expense
 	// Required: true
 	PaidWithGTCC *bool `json:"paidWithGTCC"`
+
+	// Indicates if the pro-gear belongs to the customer or their spouse
+	ProGearBelongsToSelf *bool `json:"proGearBelongsToSelf,omitempty"`
+
+	// A brief description of the pro-gear
+	ProGearDescription string `json:"proGearDescription,omitempty"`
 
 	// The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
 	// Format: date
@@ -52,6 +61,12 @@ type UpdateMovingExpense struct {
 	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
+
+	// Tracking number for a small package expense
+	TrackingNumber *string `json:"trackingNumber"`
+
+	// The total weight shipped for a small package
+	WeightShipped int64 `json:"weightShipped,omitempty"`
 
 	// The total weight stored in PPM SIT
 	WeightStored int64 `json:"weightStored,omitempty"`

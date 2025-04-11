@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { ReviewDocuments } from './ReviewDocuments';
 
-import PPMDocumentsStatus from 'constants/ppms';
+import PPMDocumentsStatus, { PPM_DOCUMENT_STATUS } from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import {
   usePPMShipmentDocsQueries,
@@ -21,6 +21,8 @@ import {
 import { createCompleteWeightTicket, createSecondCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import createUpload from 'utils/test/factories/upload';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
+import { PPM_TYPES } from 'shared/constants';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 Element.prototype.scrollTo = jest.fn();
 
@@ -890,6 +892,39 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByText('Add a reason why this receipt is excluded')).toBeInTheDocument();
     });
+
+    it('shows an error when a non-small package expense is submitted without a description', async () => {
+      const expenseNoDescription = {
+        ...mtoShipment.ppmShipment.movingExpenses[0],
+        movingExpenseType: expenseTypes.OIL,
+        status: PPM_DOCUMENT_STATUS.APPROVED,
+        description: '',
+      };
+      const usePPMShipmentDocsQueriesReturnValueExpensesOnly = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        mtoShipment,
+        documents: {
+          MovingExpenses: [expenseNoDescription],
+          ProGearWeightTickets: [],
+          WeightTickets: [],
+        },
+      };
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
+
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(screen.getByText('Review Oil #1')).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Description is required/)).toBeInTheDocument();
+      });
+    });
   });
   describe('check over weight alerts', () => {
     it('does not display an alert when move is not over weight', async () => {
@@ -919,6 +954,63 @@ describe('ReviewDocuments', () => {
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
       const alert = screen.getByText('This move has excess weight. Edit the PPM net weight to resolve.');
       expect(alert).toBeInTheDocument();
+    });
+
+    it('shows uploads for all documents on the summary page', async () => {
+      const rejectedMovingExpense = {
+        ...mtoShipment.ppmShipment.movingExpenses[0],
+        status: PPM_DOCUMENT_STATUS.REJECTED,
+      };
+
+      const mtoShipmentPPMSPR = {
+        ...mtoShipment,
+        ppmShipment: {
+          ...mtoShipment.ppmShipment,
+          ppmType: PPM_TYPES.SMALL_PACKAGE,
+        },
+      };
+
+      const usePPMShipmentDocsQueriesReturnValueRejected = {
+        mtoShipment: mtoShipmentPPMSPR,
+        documents: {
+          MovingExpenses: [rejectedMovingExpense],
+          ProGearWeightTickets: [],
+          WeightTickets: [],
+        },
+        isError: false,
+        isLoading: false,
+        isSuccess: true,
+      };
+
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueRejected);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+
+      mockPatchExpense.mockResolvedValueOnce({
+        ...usePPMShipmentDocsQueriesReturnValueRejected.documents.MovingExpenses[0],
+        status: PPM_DOCUMENT_STATUS.REJECTED,
+      });
+
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(await screen.findByRole('heading', { name: 'Receipt 1', level: 3 })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Reject'));
+      await userEvent.type(screen.getByLabelText(/Reason/), 'rejecting');
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+      await waitFor(() => {
+        expect(mockPatchExpense).toHaveBeenCalled();
+      });
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+
+      const submitButton = screen.getByRole('button', { name: 'PPM Review Complete' });
+      expect(submitButton).toBeDisabled();
+
+      expect(
+        screen.getByText(/Cannot closeout PPM.*approved moving expense is required for a PPM-SPR/i),
+      ).toBeInTheDocument();
     });
   });
 });

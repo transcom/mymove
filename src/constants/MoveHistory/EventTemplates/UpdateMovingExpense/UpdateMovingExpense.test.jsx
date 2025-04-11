@@ -5,7 +5,7 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { ppmExpenseTypes } from 'constants/ppmExpenseTypes';
-import ppms from 'constants/ppms';
+import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
 
 const expenseTypes = ppmExpenseTypes.map((expense) => [expense.value, expense.key]);
 
@@ -29,7 +29,7 @@ describe('When given an updated expense document it', () => {
     it.each(expenseTypes)('%s documents', (label, docType) => {
       expenseRecord.oldValues.moving_expense_type = docType;
       expenseRecord.changedValues = {
-        status: ppms.APPROVED,
+        status: PPM_DOCUMENT_STATUS.APPROVED,
         amount: '999999',
       };
 
@@ -46,7 +46,7 @@ describe('When given an updated expense document it', () => {
     it.each(expenseTypes)('%s documents', (label, docType) => {
       expenseRecord.oldValues.moving_expense_type = docType;
       expenseRecord.changedValues = {
-        status: ppms.REJECTED,
+        status: PPM_DOCUMENT_STATUS.REJECTED,
         reason: 'cannot read document',
       };
 
@@ -63,7 +63,7 @@ describe('When given an updated expense document it', () => {
     it.each(expenseTypes)('%s documents', (label, docType) => {
       expenseRecord.oldValues.moving_expense_type = docType;
       expenseRecord.changedValues = {
-        status: ppms.EXCLUDED,
+        status: PPM_DOCUMENT_STATUS.EXCLUDED,
         reason: 'claim on taxes',
       };
 

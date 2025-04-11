@@ -126,7 +126,7 @@ type PPMNoWeightTicketsError struct {
 	message string
 }
 
-// NewNotFoundError returns an error for when a struct can not be found
+// NewPPMNoWeightTicketsError returns an error for when a PPM does not have any weight tickets
 func NewPPMNoWeightTicketsError(id uuid.UUID, message string) PPMNoWeightTicketsError {
 	return PPMNoWeightTicketsError{
 		id:      id,
@@ -136,6 +136,23 @@ func NewPPMNoWeightTicketsError(id uuid.UUID, message string) PPMNoWeightTickets
 
 func (e PPMNoWeightTicketsError) Error() string {
 	return fmt.Sprintf("ID: %s - PPM Shipment has no weight tickets assigned to it, can't calculate any weights. %s", e.id.String(), e.message)
+}
+
+type PPMNoMovingExpensesError struct {
+	id      uuid.UUID
+	message string
+}
+
+// PPMNoMovingExpensesError returns an error for when a PPM does not have moving expenses - this is used for PPM-SPRs
+func NewPPMNoMovingExpensesError(id uuid.UUID, message string) PPMNoMovingExpensesError {
+	return PPMNoMovingExpensesError{
+		id:      id,
+		message: message,
+	}
+}
+
+func (e PPMNoMovingExpensesError) Error() string {
+	return fmt.Sprintf("ID: %s - PPM-SPR Shipment has no moving expenses assigned to it, can't calculate any weights. %s", e.id.String(), e.message)
 }
 
 // ErrorCode contains error codes for the route package

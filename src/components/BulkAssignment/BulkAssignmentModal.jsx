@@ -76,6 +76,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
       const data = await getBulkAssignmentData(queueType);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
+
       if (!data.bulkAssignmentMoveIDs) {
         setIsDisabled(true);
         setNumberOfMoves(0);
@@ -125,6 +126,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
           <Formik
             onSubmit={(values) => {
               const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
+
               const totalAssignedMovesGreaterThanMovesAvailableReassignment = totalAssignment > numberOfMoves;
               if (totalAssignedMovesGreaterThanMovesAvailableReassignment) {
                 setIsError(true);

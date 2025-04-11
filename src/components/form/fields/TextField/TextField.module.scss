@@ -1,0 +1,21 @@
+@import 'shared/styles/colors';
+
+.requiredAsterisk {
+    color: $color-red;
+    font-weight: bold;
+}
+
+.inputWithPrefix {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.prefix {
+    position: absolute;
+    padding-top: 9px;
+    left: 0.6rem;
+    color: #565c65;
+    font-size: 1rem;
+    z-index: 1;
+}
