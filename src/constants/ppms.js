@@ -5,6 +5,12 @@ export default {
   EXCLUDED: 'EXCLUDED',
 };
 
+export const PPM_DOCUMENT_STATUS = {
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  EXCLUDED: 'EXCLUDED',
+};
+
 export const ReviewDocumentsStatus = {
   ACCEPT: 'Accept',
   REJECT: 'Reject',

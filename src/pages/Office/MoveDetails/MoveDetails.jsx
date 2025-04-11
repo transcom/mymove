@@ -129,7 +129,6 @@ const MoveDetails = ({
         { fieldName: 'storageFacility' },
         { fieldName: 'ntsRecordedWeight' },
         { fieldName: 'serviceOrderNumber' },
-        { fieldName: 'requestedPickupDate' },
         { fieldName: 'tacType' },
         { ...fieldRequestedPickupDate },
       ],

@@ -49,9 +49,17 @@ func (p *ppmShipmentUpdatedSubmitter) SubmitUpdatedCustomerCloseOut(appCtx appco
 
 	// initial allowable weight is equal to net weight of all shipments, E-05722
 	var allowableWeight = unit.Pound(0)
-	if len(updatedPPMShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range ppmShipment.WeightTickets {
-			allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+	if updatedPPMShipment.PPMType != models.PPMTypeSmallPackage {
+		if len(updatedPPMShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range ppmShipment.WeightTickets {
+				allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	} else {
+		if len(updatedPPMShipment.MovingExpenses) >= 1 {
+			for _, movingExpense := range ppmShipment.MovingExpenses {
+				allowableWeight += *movingExpense.WeightShipped
+			}
 		}
 	}
 	updatedPPMShipment.AllowableWeight = &allowableWeight

@@ -993,6 +993,46 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				},
 			},
 		}, nil)
+		serviceItemUBP := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &successShipment.ID,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeUBP,
+				},
+			},
+		}, nil)
+		serviceItemIUBPK := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &successShipment.ID,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIUBPK,
+				},
+			},
+		}, nil)
 
 		recalcPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -1061,6 +1101,40 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 		}, nil)
 
+		paymentServiceItem3 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					RejectionReason: models.StringPointer("UBP rejection reason"),
+					Status:          models.PaymentServiceItemStatusDenied,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemUBP,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		paymentServiceItem4 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					RejectionReason: models.StringPointer("IUBPK rejection reason"),
+					Status:          models.PaymentServiceItemStatusDenied,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemIUBPK,
+				LinkOnly: true,
+			},
+		}, nil)
+
 		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
 			{
 				Model:    paymentRequest,
@@ -1075,7 +1149,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 		}, nil)
 
-		paymentRequest.PaymentServiceItems = models.PaymentServiceItems{paymentServiceItem1, paymentServiceItem2}
+		paymentRequest.PaymentServiceItems = models.PaymentServiceItems{paymentServiceItem1, paymentServiceItem2, paymentServiceItem3, paymentServiceItem4}
 		proofOfServiceDoc.PrimeUploads = models.PrimeUploads{uploads}
 		paymentRequest.ProofOfServiceDocs = models.ProofOfServiceDocs{proofOfServiceDoc}
 
@@ -1117,28 +1191,35 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), paymentRequestPayload.RecalculationOfPaymentRequestID.String())
 
 		// verify paymentServiceItems
-		suite.Len(paymentRequestPayload.PaymentServiceItems, 2)
-		PSI1 := paymentRequest.PaymentServiceItems[0]
-		PSI1Payload := paymentRequestPayload.PaymentServiceItems[0]
-		suite.Equal(PSI1.ID.String(), PSI1Payload.ID.String())
-		suite.Equal(PSI1.PaymentRequestID.String(), PSI1Payload.PaymentRequestID.String())
-		suite.Equal(PSI1.MTOServiceItemID.String(), PSI1Payload.MtoServiceItemID.String())
-		suite.Equal(PSI1.Status.String(), string(PSI1Payload.Status))
-		suite.Equal(*handlers.FmtCost(PSI1.PriceCents), *PSI1Payload.PriceCents)
-		suite.Equal(*PSI1.RejectionReason, *PSI1Payload.RejectionReason)
-		suite.Equal(PSI1.ReferenceID, PSI1Payload.ReferenceID)
-		suite.NotNil(PSI1Payload.ETag)
-		// verify payment service Items
-		suite.Len(PSI1Payload.PaymentServiceItemParams, 2)
-		PSIP1 := PSI1.PaymentServiceItemParams[0]
-		PSIP1Payload := PSI1Payload.PaymentServiceItemParams[0]
-		suite.Equal(PSIP1.ID.String(), PSIP1Payload.ID.String())
-		suite.Equal(PSIP1.PaymentServiceItemID.String(), PSIP1Payload.PaymentServiceItemID.String())
-		suite.Equal(PSIP1.ServiceItemParamKey.Key.String(), string(PSIP1Payload.Key))
-		suite.Equal(PSIP1.Value, PSIP1Payload.Value)
-		suite.Equal(PSIP1.ServiceItemParamKey.Type.String(), string(PSIP1Payload.Type))
-		suite.Equal(PSIP1.ServiceItemParamKey.Origin.String(), string(PSIP1Payload.Origin))
-		suite.NotNil(PSIP1Payload.ETag)
+		suite.Len(paymentRequest.PaymentServiceItems, 4)
+		suite.Len(paymentRequestPayload.PaymentServiceItems, 4)
+		for i := range paymentRequest.PaymentServiceItems {
+			expectedPSI := paymentRequest.PaymentServiceItems[i]
+			resultPSI := paymentRequestPayload.PaymentServiceItems[i]
+			suite.Equal(expectedPSI.ID.String(), resultPSI.ID.String())
+			suite.Equal(expectedPSI.PaymentRequestID.String(), resultPSI.PaymentRequestID.String())
+			suite.Equal(expectedPSI.MTOServiceItemID.String(), resultPSI.MtoServiceItemID.String())
+			suite.Equal(expectedPSI.Status.String(), string(resultPSI.Status))
+			suite.Equal(handlers.FmtCost(expectedPSI.PriceCents), resultPSI.PriceCents)
+			suite.Equal(expectedPSI.RejectionReason, resultPSI.RejectionReason)
+			suite.Equal(expectedPSI.ReferenceID, resultPSI.ReferenceID)
+			suite.NotNil(resultPSI.ETag)
+
+			// verify paymentServiceItems params
+			suite.Len(expectedPSI.PaymentServiceItemParams, 2)
+			suite.Len(resultPSI.PaymentServiceItemParams, 2)
+			for j := range expectedPSI.PaymentServiceItemParams {
+				expectedPSIP := expectedPSI.PaymentServiceItemParams[j]
+				resultPSIP := resultPSI.PaymentServiceItemParams[j]
+				suite.Equal(expectedPSIP.ID.String(), resultPSIP.ID.String())
+				suite.Equal(expectedPSIP.PaymentServiceItemID.String(), resultPSIP.PaymentServiceItemID.String())
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Key.String(), string(resultPSIP.Key))
+				suite.Equal(expectedPSIP.Value, resultPSIP.Value)
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Type.String(), string(resultPSIP.Type))
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Origin.String(), string(resultPSIP.Origin))
+				suite.NotNil(resultPSIP.ETag)
+			}
+		}
 
 		// verify proofOfServiceDocs
 		upload := paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].Upload
