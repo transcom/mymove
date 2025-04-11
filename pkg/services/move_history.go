@@ -9,7 +9,7 @@ import (
 //
 //go:generate mockery --name MoveHistoryFetcher
 type MoveHistoryFetcher interface {
-	FetchMoveHistory(appCtx appcontext.AppContext, params *FetchMoveHistoryParams) (*models.MoveHistory, int64, error)
+	FetchMoveHistory(appCtx appcontext.AppContext, params *FetchMoveHistoryParams, useDatabaseProcInstead bool) (*models.MoveHistory, int64, error)
 }
 
 type FetchMoveHistoryParams struct {
