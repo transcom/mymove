@@ -1317,6 +1317,7 @@ export const MoveTaskOrder = (props) => {
                     originState: pickupAddress?.state || '',
                     originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
+                    actualPickupDate: mtoShipment.actualPickupDate,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.ppmShipment?.status || mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
