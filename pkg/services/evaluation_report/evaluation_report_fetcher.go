@@ -43,7 +43,7 @@ func (f *evaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppCo
 func (f *evaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.AppContext, reportID uuid.UUID, officeUserID uuid.UUID) (*models.EvaluationReport, error) {
 	var report models.EvaluationReport
 	// Get the report by its ID
-	err := appCtx.DB().EagerPreload("Move", "OfficeUser", "GsrAppeals.OfficeUser", "ReportViolations", "ReportViolations.Violation", "ReportViolations.GsrAppeals.OfficeUser").Find(&report, reportID)
+	err := appCtx.DB().EagerPreload("Move", "Move.Orders", "OfficeUser", "GsrAppeals.OfficeUser", "ReportViolations", "ReportViolations.Violation", "ReportViolations.GsrAppeals.OfficeUser").Find(&report, reportID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

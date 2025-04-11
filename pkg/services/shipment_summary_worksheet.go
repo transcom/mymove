@@ -58,6 +58,7 @@ type Page1Values struct {
 	IsActualExpenseReimbursement    bool
 	IsSmallPackageReimbursement     bool
 	GCCExpenseReimbursementType     string
+	SafetyMoveHeading               string
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet
@@ -103,13 +104,15 @@ type Page2Values struct {
 	FormattedOtherExpenses
 	IncentiveExpenseReimbursementType string
 	HeaderExpenseReimbursementType    string
+	SafetyMoveHeading                 string
 }
 
 // Page3Values is an object representing a Shipment Summary Worksheet
 type Page3Values struct {
-	CUIBanner        string
-	PreparationDate3 string
-	AddShipments     map[string]string
+	CUIBanner         string
+	PreparationDate3  string
+	AddShipments      map[string]string
+	SafetyMoveHeading string
 }
 
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
