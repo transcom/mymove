@@ -380,7 +380,6 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				if err != nil {
 					return nil, err
 				}
-
 				return finalIncentive, nil
 			}
 		} else {
@@ -400,7 +399,6 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			if err != nil {
 				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
-
 			return finalIncentive, nil
 		} else {
 			return nil, nil

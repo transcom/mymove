@@ -140,11 +140,6 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 						move.MTOShipments[i].PPMShipment.MaxIncentive = maxIncentive
 					}
 
-					// Estimated Incentive cannot be more than maxIncentive
-					if *ppm.EstimatedIncentive > *ppm.MaxIncentive {
-						ppm.EstimatedIncentive = ppm.MaxIncentive
-					}
-
 					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 					now := time.Now()
 					move.MTOShipments[i].PPMShipment.ApprovedAt = &now
