@@ -241,7 +241,9 @@ func (suite *AddressSuite) TestAddressCreator() {
 		})
 
 		suite.Nil(address)
-		suite.Error(err, "address has invalid us post region city assignment")
+		suite.Error(err, "error creating an address")
+		errors := err.(apperror.InvalidInputError)
+		suite.Contains(errors.ValidationErrors.Keys(), "invalid_us_post_region_city_id")
 	})
 
 	suite.Run("returns error when USPRC validation fails", func() {

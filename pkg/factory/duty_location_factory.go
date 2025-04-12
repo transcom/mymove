@@ -164,7 +164,7 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 			},
 			{
 				Model: models.Address{
-					City:       "GROVETOWN",
+					City:       "Fort Eisenhower",
 					State:      "GA",
 					PostalCode: "30813",
 				},
@@ -190,10 +190,10 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 			},
 		},
 		{
-			// Update the DutyLocationAddress (but not TO address) to GROVETOWN, Georgia
+			// Update the DutyLocationAddress (but not TO address) to Fort Eisenhower, Georgia
 			Type: &Addresses.DutyLocationAddress,
 			Model: models.Address{
-				City:       "GROVETOWN",
+				City:       "Fort Eisenhower",
 				State:      "GA",
 				PostalCode: "30813",
 			},

@@ -16,7 +16,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 	customAddress1 := "101 This is Awesome Street"
 	customAddress2 := models.StringPointer("Unit 2525")
 	customAddress3 := models.StringPointer("c/o Another Person")
-	customCity := "BOISE"
+	customCity := "Modesto"
 	customState := "ID"
 	customPostalCode := "83725"
 	customCounty := models.StringPointer("ADA")
@@ -142,15 +142,11 @@ func (suite *FactorySuite) TestBuildAddress() {
 		precount, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "77083", "HOUSTON")
-		suite.NoError(err)
-
 		address := BuildAddress(nil, []Customization{
 			{
 				Model: models.Address{
-					StreetAddress1:     customAddress1,
-					IsOconus:           models.BoolPointer(false),
-					UsPostRegionCityID: &usprc.ID,
+					StreetAddress1: customAddress1,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, []Trait{
@@ -215,12 +211,12 @@ func (suite *FactorySuite) TestBuildAddress() {
 
 func (suite *FactorySuite) TestBuildMinimalAddress() {
 	defaultStreet := "N/A"
-	defaultCity := "GROVETOWN"
+	defaultCity := "Fort Gorden"
 	defaultState := "GA"
 	defaultPostalCode := "30813"
 
 	customStreet := "101 Custom Street"
-	customPostalCode := "30813"
+	customPostalCode := "98765"
 
 	suite.Run("Successful creation of default minimal address", func() {
 		// Under test:      BuildMinimalAddress
@@ -251,7 +247,6 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
 					IsOconus:       models.BoolPointer(false),
-					City:           defaultCity,
 				},
 			},
 		}, nil)
@@ -295,16 +290,12 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		precount, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
 
-		usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		suite.NoError(err)
-
 		address, err := BuildMinimalAddress(nil, []Customization{
 			{
 				Model: models.Address{
-					StreetAddress1:     customStreet,
-					PostalCode:         customPostalCode,
-					IsOconus:           models.BoolPointer(false),
-					UsPostRegionCityID: &usprc.ID,
+					StreetAddress1: customStreet,
+					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)

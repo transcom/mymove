@@ -356,8 +356,8 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 		}, nil)
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
-		city := "GROVETOWN"
-		state := "GA"
+		city := "Atco"
+		state := "NJ"
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,
