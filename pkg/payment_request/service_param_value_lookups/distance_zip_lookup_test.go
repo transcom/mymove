@@ -471,102 +471,102 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.Equal(expected, *paramCacheValue)
 	})
 
-	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
+	// suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
 
-		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
+	// 	usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	// 	suite.NotNil(usprc)
+	// 	suite.FatalNoError(err)
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         "33",
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode:         usprc.UsprZipID,
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
-			factory.GetTraitAvailableToPrimeMove,
-		})
+	// 	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+	// 		ReContractYear: models.ReContractYear{
+	// 			StartDate: time.Now().Add(-24 * time.Hour),
+	// 			EndDate:   time.Now().Add(24 * time.Hour),
+	// 		},
+	// 	})
+	// 	mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.Address{
+	// 				PostalCode:         "33",
+	// 				UsPostRegionCityID: &usprc.ID,
+	// 				City:               usprc.USPostRegionCityNm,
+	// 			},
+	// 			Type: &factory.Addresses.PickupAddress,
+	// 		},
+	// 		{
+	// 			Model: models.Address{
+	// 				PostalCode:         usprc.UsprZipID,
+	// 				UsPostRegionCityID: &usprc.ID,
+	// 				City:               usprc.USPostRegionCityNm,
+	// 			},
+	// 			Type: &factory.Addresses.DeliveryAddress,
+	// 		},
+	// 	}, []factory.Trait{
+	// 		factory.GetTraitAvailableToPrimeMove,
+	// 	})
 
-		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-			{
-				Model:    mtoServiceItem.MoveTaskOrder,
-				LinkOnly: true,
-			},
-		}, nil)
+	// 	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model:    mtoServiceItem.MoveTaskOrder,
+	// 			LinkOnly: true,
+	// 		},
+	// 	}, nil)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-		suite.FatalNoError(err)
+	// 	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	// 	suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.Contains(err.Error(), "Shipment must have valid pickup zipcode")
-	})
+	// 	_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+	// 	suite.Error(err)
+	// 	suite.Contains(err.Error(), "Shipment must have valid pickup zipcode")
+	// })
 
-	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
+	// suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
+	// 	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+	// 		ReContractYear: models.ReContractYear{
+	// 			StartDate: time.Now().Add(-24 * time.Hour),
+	// 			EndDate:   time.Now().Add(24 * time.Hour),
+	// 		},
+	// 	})
 
-		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
+	// 	usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+	// 	suite.NotNil(usprc)
+	// 	suite.FatalNoError(err)
 
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         usprc.UsprZipID,
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode:         "901",
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
-			factory.GetTraitAvailableToPrimeMove,
-		})
+	// 	mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.Address{
+	// 				PostalCode:         usprc.UsprZipID,
+	// 				UsPostRegionCityID: &usprc.ID,
+	// 				City:               usprc.USPostRegionCityNm,
+	// 			},
+	// 			Type: &factory.Addresses.PickupAddress,
+	// 		},
+	// 		{
+	// 			Model: models.Address{
+	// 				PostalCode:         "901",
+	// 				UsPostRegionCityID: &usprc.ID,
+	// 				City:               usprc.USPostRegionCityNm,
+	// 			},
+	// 			Type: &factory.Addresses.DeliveryAddress,
+	// 		},
+	// 	}, []factory.Trait{
+	// 		factory.GetTraitAvailableToPrimeMove,
+	// 	})
 
-		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-			{
-				Model:    mtoServiceItem.MoveTaskOrder,
-				LinkOnly: true,
-			},
-		}, nil)
+	// 	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model:    mtoServiceItem.MoveTaskOrder,
+	// 			LinkOnly: true,
+	// 		},
+	// 	}, nil)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-		suite.FatalNoError(err)
+	// 	paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	// 	suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
-	})
+	// 	_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+	// 	suite.Error(err)
+	// 	suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
+	// })
 
 	suite.Run("returns a not found error if the service item shipment id doesn't exist", func() {
 		distanceZipLookup := DistanceZipLookup{

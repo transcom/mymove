@@ -2,6 +2,7 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -56,7 +57,22 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
-	usPostRegionCity := FetchOrBuildUsPostRegionCityForAddress(db, customs, nil, &address)
+	usprc := models.UsPostRegionCity{
+		USPostRegionCityNm: address.City,
+		UsprZipID:          address.PostalCode,
+		UsprcCountyNm:      *address.County,
+		State:              address.State,
+	}
+
+	if cAddress.UsPostRegionCityID != nil && *cAddress.UsPostRegionCityID != uuid.Nil {
+		usprc.ID = *cAddress.UsPostRegionCityID
+	}
+
+	usPostRegionCity := FetchOrBuildUsPostRegionCity(db, []Customization{
+		{
+			Model: usprc,
+		},
+	}, nil)
 	address.UsPostRegionCityID = &usPostRegionCity.ID
 	address.UsPostRegionCity = &usPostRegionCity
 
@@ -99,7 +115,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	// Create default Address
 	address := models.Address{
 		StreetAddress1: "N/A",
-		City:           "GROVETOWN",
+		City:           "Fort Gorden",
 		State:          "GA",
 		PostalCode:     "30813",
 		County:         models.StringPointer("RICHMOND"),
@@ -127,7 +143,17 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
-	usPostRegionCity := FetchOrBuildUsPostRegionCityForAddress(db, customs, nil, &address)
+	usPostRegionCity := FetchOrBuildUsPostRegionCity(db, []Customization{
+		{
+			Model: models.UsPostRegionCity{
+				USPostRegionCityNm: address.City,
+				UsprZipID:          address.PostalCode,
+				UsprcCountyNm:      *address.County,
+				State:              address.State,
+			},
+		},
+	}, nil)
+
 	address.UsPostRegionCityID = &usPostRegionCity.ID
 	address.UsPostRegionCity = &usPostRegionCity
 

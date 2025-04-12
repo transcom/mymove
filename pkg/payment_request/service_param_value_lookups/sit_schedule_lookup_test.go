@@ -134,13 +134,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	suite.Run("lookup SITScheduleOrigin not found", func() {
 		setupTestData()
 
-		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: "00000", UsPostRegionCityID: &usprc.ID, City: usprc.UsprZipID},
+				Model: models.Address{PostalCode: "00000"},
 			},
 		}, nil)
 
@@ -173,14 +169,10 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	suite.Run("lookup SITScheduleDest not found", func() {
 		setupTestData()
 
-		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode:         "00100",
-					UsPostRegionCityID: &usprc.ID,
+					PostalCode: "00100",
 				},
 			},
 		}, nil)

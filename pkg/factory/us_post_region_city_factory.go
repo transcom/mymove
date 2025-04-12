@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits []Trait, address *models.Address) models.UsPostRegionCity {
+func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits []Trait) models.UsPostRegionCity {
 	customs = setupCustomizations(customs, traits)
 
 	var cUsPostRegionCity models.UsPostRegionCity
@@ -26,16 +26,11 @@ func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, t
 	usPostRegionCity := models.UsPostRegionCity{
 		UsprZipID:          "90210",
 		USPostRegionCityNm: "BEVERLY HILLS",
+		UsprcCountyNm:      "LOS ANGELES",
 		State:              "CA",
 		CtryGencDgphCd:     "US",
-		UsprcCountyNm:      "LOS ANGELES",
 		UsPostRegionId:     uuid.FromStringOrNil("5a6c650f-f4a9-428a-ae9d-20a251769dc5"),
 		CityId:             uuid.FromStringOrNil("d684959a-f59c-4c05-b7c8-0a16df6718aa"),
-	}
-
-	if address.PostalCode != "" && address.City != "" {
-		usPostRegionCity.USPostRegionCityNm = address.City
-		usPostRegionCity.UsprZipID = address.PostalCode
 	}
 
 	// Overwrite values with those from customizations
@@ -64,17 +59,9 @@ func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, t
 
 	}
 
-	if usPostRegionCity.ID == uuid.Nil && db == nil {
-		usPostRegionCity.ID = uuid.Must(uuid.NewV4())
-	}
+	// if usPostRegionCity.ID == uuid.Nil && db == nil {
+	// 	usPostRegionCity.ID = uuid.Must(uuid.NewV4())
+	// }
 
 	return usPostRegionCity
-}
-
-func FetchOrBuildUsPostRegionCityForAddress(db *pop.Connection, customs []Customization, traits []Trait, address *models.Address) models.UsPostRegionCity {
-	return FetchOrBuildUsPostRegionCity(db, customs, traits, address)
-}
-
-func FetchOrBuildUsPostRegionCityDefault(db *pop.Connection, customs []Customization, traits []Trait) models.UsPostRegionCity {
-	return FetchOrBuildUsPostRegionCity(db, customs, traits, nil)
 }

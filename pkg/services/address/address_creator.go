@@ -77,16 +77,6 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.UsPostRegionCityID = &usprc.ID
 	}
 
-	if strings.TrimSpace(transformedAddress.City) != "" && strings.TrimSpace(transformedAddress.PostalCode) != "" {
-		validUSPRC, err := models.ValidateUsPostRegionCityID(appCtx.DB(), transformedAddress)
-		if err != nil {
-			return nil, err
-		}
-		if !validUSPRC {
-			return nil, fmt.Errorf("address has invalid us post region city assignment")
-		}
-	}
-
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
 		if verrs != nil && verrs.HasAny() {

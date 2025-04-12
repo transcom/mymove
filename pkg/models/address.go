@@ -82,7 +82,7 @@ func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, erro
 		}
 	}
 
-	if dbConnection != nil && a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil && validPostalCode && a.ID != uuid.Nil {
+	if dbConnection != nil && a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil && validPostalCode {
 		validUSPRC, err := ValidateUsPostRegionCityID(dbConnection, *a)
 		if err != nil {
 			return nil, err

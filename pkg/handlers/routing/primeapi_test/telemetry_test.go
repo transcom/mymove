@@ -74,7 +74,7 @@ func (suite *PrimeAPISuite) TestTelemetry() {
 		suite.Contains(spans[0].Attributes, semconv.HTTPTarget(req.URL.String()))
 		suite.Contains(spans[0].Attributes, semconv.HTTPRoute(routePattern))
 
-		// suite.Equal(1, len(metrics))
+		suite.Equal(1, len(metrics))
 
 		// this is mostly duplicated from the
 		// telemetry.OtelHTTPMiddlewareTrace
@@ -85,7 +85,7 @@ func (suite *PrimeAPISuite) TestTelemetry() {
 		metricExport := metrics[0]
 		// 2 metric groups exported, one for our custom mymove/request and one
 		// from contrib/otelhttp
-		// suite.Equal(2, len(metricExport.ScopeMetrics))
+		suite.Equal(2, len(metricExport.ScopeMetrics))
 
 		var requestCountScope metricdata.ScopeMetrics
 		var otelHTTPScope metricdata.ScopeMetrics
@@ -100,7 +100,7 @@ func (suite *PrimeAPISuite) TestTelemetry() {
 			}
 		}
 
-		// suite.Equal(1, len(requestCountScope.Metrics))
+		suite.Equal(1, len(requestCountScope.Metrics))
 		requestCountAgg := requestCountScope.Metrics[0]
 		suite.Equal("http.server.request_count", requestCountAgg.Name)
 		sumAgg, ok := requestCountAgg.Data.(metricdata.Sum[int64])
