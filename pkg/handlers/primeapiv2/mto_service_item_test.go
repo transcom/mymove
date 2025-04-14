@@ -2,7 +2,6 @@ package primeapiv2
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -57,13 +56,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 						ShipmentType: models.MTOShipmentTypePPM,
 					},
 				},
-				{
-					Model: models.Address{
-						City:       "SULPHUR SPGS",
-						PostalCode: "75482",
-					},
-					Type: &factory.Addresses.PickupAddress,
-				},
 			}, nil)
 		} else {
 			subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -85,20 +77,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// Do not create Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		usprcBeverlyHills, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		if err != nil {
-			log.Panic(err)
-		}
-		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         "90210",
-					City:               "Beverly Hills",
-					StreetAddress1:     "13 Macon St",
-					UsPostRegionCityID: &usprcBeverlyHills.ID,
-				},
-			},
-		}, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:                   mto.ID,
@@ -123,40 +102,40 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		return makeSubtestDataWithPPMShipmentType(false)
 	}
 
-	// suite.Run("Successful POST - Integration Test", func() {
-	// 	subtestData := makeSubtestData()
-	// 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-	// 	planner := &routemocks.Planner{}
-	// 	planner.On("ZipTransitDistance",
-	// 		mock.AnythingOfType("*appcontext.appContext"),
-	// 		mock.Anything,
-	// 		mock.Anything,
-	// 	).Return(400, nil)
-	// 	creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-	// 	handler := CreateMTOServiceItemHandler{
-	// 		suite.HandlerConfig(),
-	// 		creator,
-	// 		mtoChecker,
-	// 	}
+	suite.Run("Successful POST - Integration Test", func() {
+		subtestData := makeSubtestData()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
 
-	// 	// Validate incoming payload
-	// 	suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
 
-	// 	response := handler.Handle(subtestData.params)
-	// 	suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-	// 	okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		response := handler.Handle(subtestData.params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 
-	// 	// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
-	// 	//   but those are not listed in the enum in the swagger file.  They aren't allowed for
-	// 	//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
-	// 	//   is used for both.  Need to figure out best way to resolve.
-	// 	// Validate outgoing payload (each element of slice)
-	// 	// for _, mtoServiceItem := range okResponse.Payload {
-	// 	// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-	// 	// }
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
 
-	// 	suite.NotZero(okResponse.Payload[0].ID())
-	// })
+		suite.NotZero(okResponse.Payload[0].ID())
+	})
 
 	suite.Run("Successful POST for Creating Shuttling without PrimeEstimatedWeight set - Integration Test", func() {
 		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -1042,189 +1021,169 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		originalPickupAddressID *uuid.UUID
 	}
 
-	// makeSubtestData := func() (subtestData *localSubtestData) {
-	// 	subtestData = &localSubtestData{}
-	// 	mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	// 	subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    mto,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.Address{
-	// 				City:       "SULPHUR SPGS",
-	// 				PostalCode: "75482",
-	// 			},
-	// 			Type: &factory.Addresses.PickupAddress,
-	// 		},
-	// 	}, nil)
-	// 	factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-	// 	sitEntryDate := time.Now()
-	// 	sitPostalCode := "00000"
+	makeSubtestData := func() (subtestData *localSubtestData) {
+		subtestData = &localSubtestData{}
+		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		sitEntryDate := time.Now()
+		sitPostalCode := "00000"
 
-	// 	// Original customer pickup address
-	// 	subtestData.originalPickupAddress = subtestData.mtoShipment.PickupAddress
-	// 	subtestData.originalPickupAddressID = subtestData.mtoShipment.PickupAddressID
+		// Original customer pickup address
+		subtestData.originalPickupAddress = subtestData.mtoShipment.PickupAddress
+		subtestData.originalPickupAddressID = subtestData.mtoShipment.PickupAddressID
 
-	// 	// Customer gets new pickup address
+		// Customer gets new pickup address
 
-	// 	// Do not create the Address in the database (factory.BuildAddress(nil, nil, nil)), because if the information is coming from the Prime
-	// 	// via the Prime API, the address will not have a valid database ID. And tests need to ensure
-	// 	// that we properly create the address coming in from the API.
-	// 	usprcBeverlyHills, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-	// 	if err != nil {
-	// 		log.Panic(err)
-	// 	}
-	// 	subtestData.actualPickupAddress = factory.BuildAddress(nil, []factory.Customization{
-	// 		{
-	// 			Model: models.Address{
-	// 				PostalCode:         "90210",
-	// 				City:               "Beverly Hills",
-	// 				StreetAddress1:     "13 Macon St",
-	// 				UsPostRegionCityID: &usprcBeverlyHills.ID,
-	// 			},
-	// 		},
-	// 	}, []factory.Trait{factory.GetTraitAddress2})
+		// Do not create the Address in the database (factory.BuildAddress(nil, nil, nil)), because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
+		// that we properly create the address coming in from the API.
+		subtestData.actualPickupAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
-	// 	subtestData.mtoServiceItem = models.MTOServiceItem{
-	// 		MoveTaskOrderID:           mto.ID,
-	// 		MTOShipmentID:             &subtestData.mtoShipment.ID,
-	// 		ReService:                 models.ReService{},
-	// 		Reason:                    models.StringPointer("lorem ipsum"),
-	// 		SITEntryDate:              &sitEntryDate,
-	// 		SITPostalCode:             &sitPostalCode,
-	// 		SITOriginHHGActualAddress: &subtestData.actualPickupAddress,
-	// 	}
+		subtestData.mtoServiceItem = models.MTOServiceItem{
+			MoveTaskOrderID:           mto.ID,
+			MTOShipmentID:             &subtestData.mtoShipment.ID,
+			ReService:                 models.ReService{},
+			Reason:                    models.StringPointer("lorem ipsum"),
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			SITOriginHHGActualAddress: &subtestData.actualPickupAddress,
+		}
 
-	// 	// Verify the addresses for original pickup and new pickup are not the same
-	// 	suite.NotEqual(subtestData.originalPickupAddressID, subtestData.mtoServiceItem.SITOriginHHGActualAddressID, "address ID is not the same")
-	// 	suite.NotEqual(subtestData.originalPickupAddress.StreetAddress1, subtestData.mtoServiceItem.SITOriginHHGActualAddress.StreetAddress1, "street address is not the same")
-	// 	suite.NotEqual(subtestData.originalPickupAddress.City, subtestData.mtoServiceItem.SITOriginHHGActualAddress.City, "city is not the same")
-	// 	suite.NotEqual(subtestData.originalPickupAddress.PostalCode, subtestData.mtoServiceItem.SITOriginHHGActualAddress.PostalCode, "zip is not the same")
+		// Verify the addresses for original pickup and new pickup are not the same
+		suite.NotEqual(subtestData.originalPickupAddressID, subtestData.mtoServiceItem.SITOriginHHGActualAddressID, "address ID is not the same")
+		suite.NotEqual(subtestData.originalPickupAddress.StreetAddress1, subtestData.mtoServiceItem.SITOriginHHGActualAddress.StreetAddress1, "street address is not the same")
+		suite.NotEqual(subtestData.originalPickupAddress.City, subtestData.mtoServiceItem.SITOriginHHGActualAddress.City, "city is not the same")
+		suite.NotEqual(subtestData.originalPickupAddress.PostalCode, subtestData.mtoServiceItem.SITOriginHHGActualAddress.PostalCode, "zip is not the same")
 
-	// 	return subtestData
-	// }
-	// builder := query.NewQueryBuilder()
-	// mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
+		return subtestData
+	}
+	builder := query.NewQueryBuilder()
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
-	// suite.Run("Successful POST - Create DOFSIT", func() {
-	// 	subtestData := makeSubtestData()
-	// 	// Under test: createMTOServiceItemHandler function
-	// 	// Set up:     We hit the endpoint with a standalone DOFSIT MTOServiceItem
-	// 	// Expected outcome:
-	// 	//             Successful creation of DOFSIT with DOPSIT added
-	// 	// SETUP
-	// 	// Create the payload
+	suite.Run("Successful POST - Create DOFSIT", func() {
+		subtestData := makeSubtestData()
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a standalone DOFSIT MTOServiceItem
+		// Expected outcome:
+		//             Successful creation of DOFSIT with DOPSIT added
+		// SETUP
+		// Create the payload
 
-	// 	requestedApprovalsRequestedStatus := false
-	// 	subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
-	// 	subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-	// 	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-	// 	planner := &routemocks.Planner{}
-	// 	planner.On("ZipTransitDistance",
-	// 		mock.AnythingOfType("*appcontext.appContext"),
-	// 		mock.Anything,
-	// 		mock.Anything,
-	// 	).Return(400, nil)
-	// 	creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-	// 	handler := CreateMTOServiceItemHandler{
-	// 		suite.HandlerConfig(),
-	// 		creator,
-	// 		mtoChecker,
-	// 	}
+		requestedApprovalsRequestedStatus := false
+		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
+		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
 
-	// 	// CALL FUNCTION UNDER TEST
-	// 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
-	// 	params := mtoserviceitemops.CreateMTOServiceItemParams{
-	// 		HTTPRequest: req,
-	// 		Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
-	// 	}
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
+		}
 
-	// 	// CHECK RESULTS
+		// CHECK RESULTS
 
-	// 	// Validate incoming payload
-	// 	suite.NoError(params.Body.Validate(strfmt.Default))
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
-	// 	response := handler.Handle(params)
-	// 	suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-	// 	okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 
-	// 	// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
-	// 	//   but those are not listed in the enum in the swagger file.  They aren't allowed for
-	// 	//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
-	// 	//   is used for both.  Need to figure out best way to resolve.
-	// 	// Validate outgoing payload (each element of slice)
-	// 	// for _, mtoServiceItem := range okResponse.Payload {
-	// 	// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-	// 	// }
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
 
-	// 	// Verify address was updated on MTO Shipment
-	// 	var updatedMTOShipment models.MTOShipment
-	// 	suite.NoError(suite.DB().Eager("PickupAddress").Find(&updatedMTOShipment, subtestData.mtoShipment.ID))
+		// Verify address was updated on MTO Shipment
+		var updatedMTOShipment models.MTOShipment
+		suite.NoError(suite.DB().Eager("PickupAddress").Find(&updatedMTOShipment, subtestData.mtoShipment.ID))
 
-	// 	// Verify the HHG pickup address is the actual address on the shipment
-	// 	suite.Equal(*subtestData.mtoShipment.PickupAddressID, *updatedMTOShipment.PickupAddressID, "hhg actual address id is the same")
-	// 	suite.Equal(subtestData.actualPickupAddress.StreetAddress1, updatedMTOShipment.PickupAddress.StreetAddress1, "hhg actual street address is the same")
-	// 	suite.Equal(subtestData.actualPickupAddress.City, updatedMTOShipment.PickupAddress.City, "hhg actual city is the same")
-	// 	suite.Equal(subtestData.actualPickupAddress.State, updatedMTOShipment.PickupAddress.State, "hhg actual state is the same")
-	// 	suite.Equal(subtestData.actualPickupAddress.PostalCode, updatedMTOShipment.PickupAddress.PostalCode, "hhg actual zip is the same")
+		// Verify the HHG pickup address is the actual address on the shipment
+		suite.Equal(*subtestData.mtoShipment.PickupAddressID, *updatedMTOShipment.PickupAddressID, "hhg actual address id is the same")
+		suite.Equal(subtestData.actualPickupAddress.StreetAddress1, updatedMTOShipment.PickupAddress.StreetAddress1, "hhg actual street address is the same")
+		suite.Equal(subtestData.actualPickupAddress.City, updatedMTOShipment.PickupAddress.City, "hhg actual city is the same")
+		suite.Equal(subtestData.actualPickupAddress.State, updatedMTOShipment.PickupAddress.State, "hhg actual state is the same")
+		suite.Equal(subtestData.actualPickupAddress.PostalCode, updatedMTOShipment.PickupAddress.PostalCode, "hhg actual zip is the same")
 
-	// 	// Verify address on SIT service item
-	// 	suite.NotZero(okResponse.Payload[0].ID())
+		// Verify address on SIT service item
+		suite.NotZero(okResponse.Payload[0].ID())
 
-	// 	foundDOFSIT := false
-	// 	foundDOPSIT := false
-	// 	foundDOASIT := false
+		foundDOFSIT := false
+		foundDOPSIT := false
+		foundDOASIT := false
 
-	// 	for _, serviceItem := range okResponse.Payload {
+		for _, serviceItem := range okResponse.Payload {
 
-	// 		// Find the matching MTO Service Item from the DB for the returned payload
-	// 		var mtosi models.MTOServiceItem
-	// 		id := serviceItem.ID()
-	// 		findServiceItemErr := suite.DB().Eager("ReService", "SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress").Find(&mtosi, &id)
-	// 		suite.NoError(findServiceItemErr)
+			// Find the matching MTO Service Item from the DB for the returned payload
+			var mtosi models.MTOServiceItem
+			id := serviceItem.ID()
+			findServiceItemErr := suite.DB().Eager("ReService", "SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress").Find(&mtosi, &id)
+			suite.NoError(findServiceItemErr)
 
-	// 		if mtosi.ReService.Code == models.ReServiceCodeDOPSIT || mtosi.ReService.Code == models.ReServiceCodeDOFSIT || mtosi.ReService.Code == models.ReServiceCodeDOASIT {
-	// 			suite.IsType(&primemessages.MTOServiceItemOriginSIT{}, serviceItem)
-	// 			sitItem := serviceItem.(*primemessages.MTOServiceItemOriginSIT)
+			if mtosi.ReService.Code == models.ReServiceCodeDOPSIT || mtosi.ReService.Code == models.ReServiceCodeDOFSIT || mtosi.ReService.Code == models.ReServiceCodeDOASIT {
+				suite.IsType(&primemessages.MTOServiceItemOriginSIT{}, serviceItem)
+				sitItem := serviceItem.(*primemessages.MTOServiceItemOriginSIT)
 
-	// 			if mtosi.ReService.Code == models.ReServiceCodeDOPSIT {
-	// 				foundDOPSIT = true
-	// 			} else if mtosi.ReService.Code == models.ReServiceCodeDOFSIT {
-	// 				foundDOFSIT = true
-	// 			} else if mtosi.ReService.Code == models.ReServiceCodeDOASIT {
-	// 				foundDOASIT = true
-	// 			}
+				if mtosi.ReService.Code == models.ReServiceCodeDOPSIT {
+					foundDOPSIT = true
+				} else if mtosi.ReService.Code == models.ReServiceCodeDOFSIT {
+					foundDOFSIT = true
+				} else if mtosi.ReService.Code == models.ReServiceCodeDOASIT {
+					foundDOASIT = true
+				}
 
-	// 			// Verify the return primev2messages payload has the correct addresses
-	// 			suite.NotNil(sitItem.SitHHGActualOrigin, "primev2messages SitHHGActualOrigin is not Nil")
-	// 			suite.NotEqual(uuid.Nil, sitItem.SitHHGActualOrigin.ID, "primev2messages actual address ID is not nil")
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.StreetAddress1, *sitItem.SitHHGActualOrigin.StreetAddress1, "primev2messages actual street address is the same")
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.City, *sitItem.SitHHGActualOrigin.City, "primev2messages actual city is the same")
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.State, *sitItem.SitHHGActualOrigin.State, "primev2messages actual state is the same")
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.PostalCode, *sitItem.SitHHGActualOrigin.PostalCode, "primev2messages actual zip is the same")
+				// Verify the return primev2messages payload has the correct addresses
+				suite.NotNil(sitItem.SitHHGActualOrigin, "primev2messages SitHHGActualOrigin is not Nil")
+				suite.NotEqual(uuid.Nil, sitItem.SitHHGActualOrigin.ID, "primev2messages actual address ID is not nil")
+				suite.Equal(updatedMTOShipment.PickupAddress.StreetAddress1, *sitItem.SitHHGActualOrigin.StreetAddress1, "primev2messages actual street address is the same")
+				suite.Equal(updatedMTOShipment.PickupAddress.City, *sitItem.SitHHGActualOrigin.City, "primev2messages actual city is the same")
+				suite.Equal(updatedMTOShipment.PickupAddress.State, *sitItem.SitHHGActualOrigin.State, "primev2messages actual state is the same")
+				suite.Equal(updatedMTOShipment.PickupAddress.PostalCode, *sitItem.SitHHGActualOrigin.PostalCode, "primev2messages actual zip is the same")
 
-	// 			// Verify the HHG original pickup address is the original address on the service item
-	// 			suite.NotNil(mtosi.SITOriginHHGOriginalAddressID, "original address ID is not nil")
-	// 			suite.NotEqual(uuid.Nil, *mtosi.SITOriginHHGOriginalAddressID)
-	// 			suite.Equal(subtestData.originalPickupAddress.StreetAddress1, mtosi.SITOriginHHGOriginalAddress.StreetAddress1, "original street address is the same")
-	// 			suite.Equal(subtestData.originalPickupAddress.City, mtosi.SITOriginHHGOriginalAddress.City, "original city is the same")
-	// 			suite.Equal(subtestData.originalPickupAddress.State, mtosi.SITOriginHHGOriginalAddress.State, "original state is the same")
-	// 			suite.Equal(subtestData.originalPickupAddress.PostalCode, mtosi.SITOriginHHGOriginalAddress.PostalCode, "original zip is the same")
+				// Verify the HHG original pickup address is the original address on the service item
+				suite.NotNil(mtosi.SITOriginHHGOriginalAddressID, "original address ID is not nil")
+				suite.NotEqual(uuid.Nil, *mtosi.SITOriginHHGOriginalAddressID)
+				suite.Equal(subtestData.originalPickupAddress.StreetAddress1, mtosi.SITOriginHHGOriginalAddress.StreetAddress1, "original street address is the same")
+				suite.Equal(subtestData.originalPickupAddress.City, mtosi.SITOriginHHGOriginalAddress.City, "original city is the same")
+				suite.Equal(subtestData.originalPickupAddress.State, mtosi.SITOriginHHGOriginalAddress.State, "original state is the same")
+				suite.Equal(subtestData.originalPickupAddress.PostalCode, mtosi.SITOriginHHGOriginalAddress.PostalCode, "original zip is the same")
 
-	// 			// Verify the HHG pickup address is the actual address on the service item
-	// 			suite.NotNil(mtosi.SITOriginHHGActualAddressID, "actual address ID is not nil")
-	// 			suite.NotEqual(uuid.Nil, *mtosi.SITOriginHHGActualAddressID)
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.StreetAddress1, mtosi.SITOriginHHGActualAddress.StreetAddress1, "shipment actual street address is the same")
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.City, mtosi.SITOriginHHGActualAddress.City, "shipment actual city is the same")
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.State, mtosi.SITOriginHHGActualAddress.State, "shipment actual state is the same")
-	// 			suite.Equal(updatedMTOShipment.PickupAddress.PostalCode, mtosi.SITOriginHHGActualAddress.PostalCode, "shipment actual zip is the same")
-	// 		}
-	// 	}
-	// 	suite.Equal(true, foundDOFSIT, "Found expected ReServiceCodeDOFSIT")
-	// 	suite.Equal(true, foundDOPSIT, "Found expected ReServiceCodeDOPSIT")
-	// 	suite.Equal(true, foundDOASIT, "Found expected ReServiceCodeDOASIT")
-	// })
+				// Verify the HHG pickup address is the actual address on the service item
+				suite.NotNil(mtosi.SITOriginHHGActualAddressID, "actual address ID is not nil")
+				suite.NotEqual(uuid.Nil, *mtosi.SITOriginHHGActualAddressID)
+				suite.Equal(updatedMTOShipment.PickupAddress.StreetAddress1, mtosi.SITOriginHHGActualAddress.StreetAddress1, "shipment actual street address is the same")
+				suite.Equal(updatedMTOShipment.PickupAddress.City, mtosi.SITOriginHHGActualAddress.City, "shipment actual city is the same")
+				suite.Equal(updatedMTOShipment.PickupAddress.State, mtosi.SITOriginHHGActualAddress.State, "shipment actual state is the same")
+				suite.Equal(updatedMTOShipment.PickupAddress.PostalCode, mtosi.SITOriginHHGActualAddress.PostalCode, "shipment actual zip is the same")
+			}
+		}
+		suite.Equal(true, foundDOFSIT, "Found expected ReServiceCodeDOFSIT")
+		suite.Equal(true, foundDOPSIT, "Found expected ReServiceCodeDOPSIT")
+		suite.Equal(true, foundDOASIT, "Found expected ReServiceCodeDOASIT")
+	})
 
 }
 
