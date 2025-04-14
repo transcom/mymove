@@ -884,21 +884,4 @@ describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC,
       expect(screen.getByText('$28.00')).toBeInTheDocument();
     },
   );
-
-  it.each([['DDFSIT'], ['DDDSIT'], ['DDASIT'], ['DDSFSC'], ['DOPSIT'], ['DOFSIT'], ['DOASIT'], ['DOSFSC']])(
-    'Does not render the formatted estimated price field for the submitted service item: %s',
-    (code) => {
-      render(
-        <ServiceItemDetails
-          id="1"
-          code={code}
-          details={submittedServiceItemDetails}
-          shipment={shipment}
-          serviceRequestDocs={serviceRequestDocs}
-        />,
-      );
-
-      expect(screen.queryByText('Estimated Price:')).not.toBeInTheDocument();
-    },
-  );
 });

@@ -13,7 +13,7 @@ import { SitStatusShape } from 'types/sitStatusShape';
 import { formatDateWithUTC } from 'shared/dates';
 import { formatCityStateAndPostalCode } from 'utils/shipmentDisplay';
 import { formatWeight, convertFromThousandthInchToInch, formatCents, toDollarString } from 'utils/formatters';
-import SERVICE_ITEM_STATUSES, { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
@@ -244,11 +244,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {details?.status === SERVICE_ITEM_STATUSES.APPROVED &&
-          generateDetailText({
-            'Estimated Price':
-              details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
-          })}
+        {generateDetailText({
+          'Estimated Price':
+            details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+        })}
       </dl>
     </div>
   );
@@ -276,11 +275,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUSES.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
-              })}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -331,11 +329,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUSES.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
-              })}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -372,11 +369,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
-            {details?.status === SERVICE_ITEM_STATUSES.APPROVED &&
-              generateDetailText({
-                'Estimated Price':
-                  details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
-              })}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
