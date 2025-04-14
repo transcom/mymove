@@ -298,17 +298,23 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		if err != nil {
 			return err
 		}
-
-		destNeedingReview, origNeedingReview, err := checkSubmittedServiceItems(moveWithServiceItems.MTOServiceItems)
-		if err != nil {
-			return err
+		destServiceItemsNeedingReview := false
+		originServiceItemsNeedingReview := false
+		for _, request := range moveWithServiceItems.MTOServiceItems {
+			if request.Status == models.MTOServiceItemStatusSubmitted {
+				if _, isDestination := models.DestinationServiceItemCodesMap[serviceItem.ReService.Code]; isDestination {
+					destServiceItemsNeedingReview = true
+				} else if _, isOrigin := models.OriginServiceItemCodesMap[serviceItem.ReService.Code]; isOrigin {
+					originServiceItemsNeedingReview = true
+				}
+				break
+			}
 		}
 
 		//remove assigned user when all service items have been reviewed
-		if !destNeedingReview {
+		if _, isDestination := models.DestinationServiceItemCodesMap[serviceItem.ReService.Code]; !destServiceItemsNeedingReview && isDestination {
 			move.TOODestinationAssignedID = nil
-		}
-		if !origNeedingReview {
+		} else if _, isOrigin := models.OriginServiceItemCodesMap[serviceItem.ReService.Code]; !originServiceItemsNeedingReview && isOrigin {
 			move.TOOAssignedID = nil
 		}
 
@@ -888,37 +894,4 @@ func ValidateUpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItemData 
 	newServiceItem := serviceItemData.setNewMTOServiceItem()
 
 	return newServiceItem, nil
-}
-
-// checkSubmittedServiceItems checks for SUBMITTED service items in the given list,
-// setting flags for destination and origin items needing review.
-// It returns an error if any service item's ReService or Code is invalid.
-func checkSubmittedServiceItems(serviceItems models.MTOServiceItems) (destNeedingReview bool, origNeedingReview bool, err error) {
-	destNeedingReview = false
-	origNeedingReview = false
-
-	for _, item := range serviceItems {
-		// Skip items that are not SUBMITTED
-		if item.Status != models.MTOServiceItemStatusSubmitted {
-			continue
-		}
-
-		// Validate ReService and Code
-		if item.ReService == (models.ReService{}) {
-			return false, false, apperror.NewInvalidInputError(item.ID, nil, nil, "Service item ReService is missing or invalid")
-		}
-		if item.ReService.Code == "" {
-			return false, false, apperror.NewInvalidInputError(item.ID, nil, nil, "Service item ReService Code is missing or empty")
-		}
-
-		// Check if the item is a destination or origin service item
-		if _, isDestination := models.DestinationServiceItemCodesMap[item.ReService.Code]; isDestination {
-			destNeedingReview = true
-		}
-		if _, isOrigin := models.OriginServiceItemCodesMap[item.ReService.Code]; isOrigin {
-			origNeedingReview = true
-		}
-	}
-
-	return destNeedingReview, origNeedingReview, nil
 }
