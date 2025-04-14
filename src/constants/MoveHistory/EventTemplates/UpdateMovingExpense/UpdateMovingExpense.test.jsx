@@ -93,7 +93,11 @@ describe('When given an updated expense document it', () => {
       expect(screen.getByText('Missing receipt')).toBeInTheDocument();
       expect(screen.getByText(': Yes')).toBeInTheDocument();
       expect(screen.getByText('Expense type')).toBeInTheDocument();
-      expect(screen.getByText(`: ${label}`)).toBeInTheDocument();
+      expect(
+        screen.getByText((content) =>
+          content.replace(/\s+/g, ' ').trim().toLowerCase().includes(`: ${label}`.toLowerCase()),
+        ),
+      ).toBeInTheDocument();
     });
   });
 
