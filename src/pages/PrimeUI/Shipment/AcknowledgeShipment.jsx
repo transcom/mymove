@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Formik } from 'formik';
 import { func } from 'prop-types';
 import { connect } from 'react-redux';
-import { useMutation } from '@tanstack/react-query';
+import { Formik } from 'formik';
 import { Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useParams, useNavigate, generatePath } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 
 import { acknowledgeMovesAndShipments } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
@@ -20,19 +20,25 @@ import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { formatDateForSwagger, formatDateWithUTC } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import scrollToTop from 'shared/scrollToTop';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import scrollToTop from 'shared/scrollToTop';
 import Hint from 'components/Hint/index';
 
-const AcknowledgeMove = ({ setFlashMessage }) => {
+const AcknowledgeShipment = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const navigate = useNavigate();
-  const { moveCodeOrID } = useParams();
+  const { moveCodeOrID, shipmentId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
-  const { mutate: acknowledgeMoveRequestMutation } = useMutation(acknowledgeMovesAndShipments, {
+  const { mutate: acknowledgeShipmentRequestMutation } = useMutation(acknowledgeMovesAndShipments, {
     onSuccess: () => {
-      setFlashMessage(`ACKNOWLEDGE_MOVE_SUCCESS${moveCodeOrID}`, 'success', 'Successfully acknowledged move', '', true);
+      setFlashMessage(
+        `ACKNOWLEDGE_SHIPMENT_SUCCESS${shipmentId}`,
+        'success',
+        'Successfully acknowledged shipment',
+        '',
+        true,
+      );
 
       navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
     },
@@ -64,8 +70,10 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const shipment = moveTaskOrder.mtoShipments.find((s) => s.id === shipmentId);
+
   const initialValues = {
-    primeAcknowledgedAt: formatDateWithUTC(moveTaskOrder.primeAcknowledgedAt, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+    primeAcknowledgedAt: formatDateWithUTC(shipment.primeAcknowledgedAt, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
   };
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
@@ -77,11 +85,16 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
     const body = [
       {
         id: moveTaskOrder.id,
-        primeAcknowledgedAt: formatDateForSwagger(primeAcknowledgedAt),
+        mtoShipments: [
+          {
+            id: shipment.id,
+            primeAcknowledgedAt: formatDateForSwagger(primeAcknowledgedAt),
+          },
+        ],
       },
     ];
 
-    acknowledgeMoveRequestMutation({ body });
+    acknowledgeShipmentRequestMutation({ body });
   };
 
   return (
@@ -96,27 +109,22 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
               </Alert>
             </div>
           )}
-          <h2>Acknowledge Move</h2>
           <SectionWrapper className={formStyles.formSection}>
             <Formik initialValues={initialValues} onSubmit={onSubmit}>
               {({ isValid, isSubmitting, handleSubmit, dirty }) => {
                 return (
                   <Form className={formStyles.form}>
-                    <dl className={descriptionListStyles.descriptionList} data-testid="moveDetails">
-                      <h2>Move</h2>
+                    <dl className={descriptionListStyles.descriptionList} data-testid="acknowledgeShipmentDetails">
+                      <h2>Acknowledge Shipment</h2>
                       <div className={descriptionListStyles.row}>
-                        <dt>Move Code:</dt>
-                        <dd>{moveTaskOrder.moveCode}</dd>
-                      </div>
-                      <div className={descriptionListStyles.row}>
-                        <dt>Move Id:</dt>
-                        <dd>{moveTaskOrder.id}</dd>
+                        <dt>Shipment ID:</dt>
+                        <dd>{shipment.id}</dd>
                       </div>
                       <DatePickerInput
                         data-testid="primeAcknowledgedAt"
                         name="primeAcknowledgedAt"
                         label="Prime Acknowledged At"
-                        disabled={moveTaskOrder.primeAcknowledgedAt}
+                        disabled={shipment.primeAcknowledgedAt}
                       />
                       <Hint id="primeAcknowledgedAtHint" data-testid="primeAcknowledgedAtHint">
                         Prime Acknowledged At date can only be saved one time.
@@ -141,7 +149,7 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
   );
 };
 
-AcknowledgeMove.propTypes = {
+AcknowledgeShipment.propTypes = {
   setFlashMessage: func.isRequired,
 };
 
@@ -149,4 +157,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(AcknowledgeMove);
+export default connect(() => ({}), mapDispatchToProps)(AcknowledgeShipment);
