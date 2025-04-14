@@ -28,7 +28,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput } from 'components/form/fields';
-import { Form } from 'components/form/Form';
+import { ErrorMessage, Form } from 'components/form';
 import Hint from 'components/Hint/index';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes } from 'constants/routes';
@@ -364,16 +364,6 @@ class MtoShipmentForm extends Component {
                                 {preferredPickupDateAlertMessage}
                               </Alert>
                             )}
-                            {preferredPickupDateErrorMessage && (
-                              <Alert
-                                type="error"
-                                aria-live="assertive"
-                                headingLevel="h4"
-                                data-testid="preferredPickupDateErrorAlert"
-                              >
-                                {preferredPickupDateErrorMessage}
-                              </Alert>
-                            )}
                             <DatePickerInput
                               name="pickup.requestedDate"
                               label="Preferred pickup date"
@@ -382,8 +372,14 @@ class MtoShipmentForm extends Component {
                               validate={validatePickupDate}
                               onChange={handlePickupDateChange}
                             />
+                            {preferredPickupDateErrorMessage && (
+                              <span data-testid="preferredPickupDateErrorAlert">
+                                <ErrorMessage id="preferredPickupDateErrorAlert" display>
+                                  {preferredPickupDateErrorMessage}
+                                </ErrorMessage>
+                              </span>
+                            )}
                           </Fieldset>
-
                           <AddressFields
                             name="pickup.address"
                             legend="Pickup Address"

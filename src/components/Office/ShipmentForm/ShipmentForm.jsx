@@ -28,7 +28,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
-import { Form } from 'components/form/Form';
+import { ErrorMessage, Form } from 'components/form';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
@@ -960,16 +960,6 @@ const ShipmentForm = (props) => {
                           {requestedPickupDateAlertMessage}
                         </Alert>
                       )}
-                      {requestedPickupDateErrorMessage && (
-                        <Alert
-                          type="error"
-                          aria-live="assertive"
-                          headingLevel="h4"
-                          data-testid="requestedPickupDateErrorAlert"
-                        >
-                          {requestedPickupDateErrorMessage}
-                        </Alert>
-                      )}
                       <DatePickerInput
                         name="pickup.requestedDate"
                         label="Requested pickup date"
@@ -977,6 +967,13 @@ const ShipmentForm = (props) => {
                         validate={validatePickupDate}
                         onChange={handlePickupDateChange}
                       />
+                      {requestedPickupDateErrorMessage && (
+                        <span data-testid="requestedPickupDateErrorAlert">
+                          <ErrorMessage id="requestedPickupDateErrorAlert" display>
+                            {requestedPickupDateErrorMessage}
+                          </ErrorMessage>
+                        </span>
+                      )}
                     </Fieldset>
                     {!isNTSR && (
                       <>
