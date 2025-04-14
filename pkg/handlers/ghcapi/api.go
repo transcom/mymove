@@ -643,6 +643,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		paymentrequest.NewPaymentRequestShipmentsSITBalance(),
 	}
 
+	ghcAPI.PpmCreateProGearWeightTicketHandler = CreateProGearWeightTicketHandler{handlerConfig, progear.NewOfficeProgearWeightTicketCreator()}
+	ghcAPI.PpmDeleteProGearWeightTicketHandler = DeleteProGearWeightTicketHandler{handlerConfig, progear.NewProgearWeightTicketDeleter()}
+
 	ghcAPI.PpmUpdateProGearWeightTicketHandler = UpdateProgearWeightTicketHandler{
 		handlerConfig,
 		progear.NewOfficeProgearWeightTicketUpdater(),
