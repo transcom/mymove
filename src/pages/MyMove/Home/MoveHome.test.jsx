@@ -1340,7 +1340,6 @@ describe('Home component', () => {
   });
 
   describe('with default props, orders and unsubmitted HHG & PPM shipments', () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithUnsubmittedShipments);
 
     it('renders Home with the right amount of components', () => {
@@ -1393,6 +1392,7 @@ describe('Home component', () => {
   });
 
   describe('with default props, orders with HHG & PPM shipments and NEEDS_SERVICE_COUNSELING move status', () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithSubmittedShipments);
 
     it('renders Home with the right amount of components', () => {
