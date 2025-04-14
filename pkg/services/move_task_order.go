@@ -46,7 +46,6 @@ type MoveTaskOrderCreator interface {
 //go:generate mockery --name MoveTaskOrderFetcher
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
-	FetchMoveTaskOrderForAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error)
 	ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 	ListNewPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, int, error)

@@ -309,21 +309,33 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 	var wasMadeAvailableToPrime = false
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: moveTaskOrderID,
+		}
 		var err error
-		move, err = o.FetchMoveTaskOrderForAvailableToPrime(txnAppCtx, moveTaskOrderID)
+		move, err = o.FetchMoveTaskOrder(txnAppCtx, &searchParams)
 		if err != nil {
 			return err
 		}
 
-		if move.AvailableToPrimeAt == nil {
-			now := time.Now()
-			move.AvailableToPrimeAt = &now
+		var earliestPickupDate *time.Time
+		for _, shipment := range move.MTOShipments {
+			if shipment.Status == models.MTOShipmentStatusApproved && shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.RequestedPickupDate.Before(time.Now()) {
+				earliestPickupDate = shipment.RequestedPickupDate
+			}
+		}
+
+		if move.AvailableToPrimeAt == nil && earliestPickupDate != nil {
+			move.AvailableToPrimeAt = earliestPickupDate
 
 			err = o.updateMove(txnAppCtx, move, order.CheckRequiredFields())
 			if err != nil {
 				return err
 			}
 			wasMadeAvailableToPrime = true
+		} else {
+			return apperror.NewConflictError(moveTaskOrderID, "Cannot approve move without approved HHG shipment")
 		}
 		return nil
 	})
