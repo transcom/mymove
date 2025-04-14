@@ -4631,6 +4631,8 @@ func createHHGWithOriginSITServiceItems(
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
 	originSITAddress.Country = nil
+	originSITAddress.UsPostRegionCityID = nil
+	originSITAddress.UsPostRegionCity = nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -5358,6 +5360,8 @@ func createHHGWithPaymentServiceItems(
 	originSITAddress.CountryId = &country.ID
 	originSITAddress.Country = nil
 	originSITAddress.ID = uuid.Nil
+	originSITAddress.UsPostRegionCity = nil
+	originSITAddress.UsPostRegionCityID = nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
