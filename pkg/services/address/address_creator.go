@@ -67,7 +67,7 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 	}
 	transformedAddress.IsOconus = &isOconus
 
-	if (transformedAddress.UsPostRegionCityID == nil || transformedAddress.UsPostRegionCity == nil) && strings.TrimSpace(transformedAddress.City) != "" && strings.TrimSpace(transformedAddress.PostalCode) != "" {
+	if (transformedAddress.UsPostRegionCityID == nil || transformedAddress.UsPostRegionCityID.IsNil() || transformedAddress.UsPostRegionCity == nil) && strings.TrimSpace(transformedAddress.City) != "" && strings.TrimSpace(transformedAddress.PostalCode) != "" {
 		usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), transformedAddress.PostalCode, transformedAddress.City)
 		if err != nil {
 			return nil, err
