@@ -23,6 +23,7 @@ DECLARE
     fuel_price NUMERIC;
     cents_above_baseline NUMERIC;
     price_difference NUMERIC;
+    days_in_sit INTEGER;
     length NUMERIC;
     width NUMERIC;
     height NUMERIC;
