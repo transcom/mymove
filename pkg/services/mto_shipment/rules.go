@@ -13,6 +13,19 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 )
 
+func checkUBShipmentOCONUSRequirement() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if newer.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			isShipmentOCONUS := models.IsShipmentOCONUS(*newer)
+			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
+				verrs.Add("UB shipment error", "At least one address for a UB shipment must be OCONUS")
+			}
+		}
+		return verrs
+	})
+}
+
 func checkStatus() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
