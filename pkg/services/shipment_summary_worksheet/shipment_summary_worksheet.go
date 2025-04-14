@@ -319,7 +319,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.MaxIncentive
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
