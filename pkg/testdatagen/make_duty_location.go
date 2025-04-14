@@ -120,11 +120,19 @@ func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) (models.DutyLoc
 			return fortEisenhower, nil
 		}
 	}
+
+	fetchedUsPostRegionCity, err := models.FindByZipCodeAndCity(db, "30813", "GROVETOWN")
+	if err != nil {
+		log.Panic(err)
+	}
+
 	fortEisenhowerAssertions := Assertions{
 		Address: models.Address{
-			City:       "GROVETOWN",
-			State:      "GA",
-			PostalCode: "30813",
+			City:               fetchedUsPostRegionCity.USPostRegionCityNm,
+			State:              "GA",
+			PostalCode:         fetchedUsPostRegionCity.UsprZipID,
+			UsPostRegionCityID: &fetchedUsPostRegionCity.ID,
+			UsPostRegionCity:   fetchedUsPostRegionCity,
 		},
 		DutyLocation: models.DutyLocation{
 			Name: "Fort Eisenhower, GA 30813",

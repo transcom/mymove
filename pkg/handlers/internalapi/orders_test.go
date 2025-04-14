@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.UsprcCountyNm,
+					City:               usprc.USPostRegionCityNm,
 					PostalCode:         usprc.UsprZipID,
 				},
 			},

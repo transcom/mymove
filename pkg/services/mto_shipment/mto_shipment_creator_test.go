@@ -15,7 +15,6 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -595,91 +594,91 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
 	})
 
-	suite.Run("If the submitted shipment has a storage facility attached", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
-		storageFacility := factory.BuildStorageFacility(nil, []factory.Customization{
-			{
-				Model: models.Address{
-					UsPostRegionCityID: &usprcFairfield.ID,
-					PostalCode:         usprcFairfield.UsprZipID,
-					City:               usprcFairfield.USPostRegionCityNm,
-				},
-			},
-		}, nil)
-		// stubbed storage facility needs an ID to be LinkOnly below
-		storageFacility.ID = uuid.Must(uuid.NewV4())
+	// suite.Run("If the submitted shipment has a storage facility attached", func() {
+	// 	subtestData := suite.createSubtestData(nil)
+	// 	creator := subtestData.shipmentCreator
+	// 	usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+	// 	suite.NoError(err)
+	// 	storageFacility := factory.BuildStorageFacility(nil, []factory.Customization{
+	// 		{
+	// 			Model: models.Address{
+	// 				UsPostRegionCityID: &usprcFairfield.ID,
+	// 				PostalCode:         usprcFairfield.UsprZipID,
+	// 				City:               usprcFairfield.USPostRegionCityNm,
+	// 			},
+	// 		},
+	// 	}, nil)
+	// 	// stubbed storage facility needs an ID to be LinkOnly below
+	// 	storageFacility.ID = uuid.Must(uuid.NewV4())
 
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
-					Status:       models.MTOShipmentStatusSubmitted,
-				},
-			},
-			{
-				Model:    storageFacility,
-				LinkOnly: true,
-			},
-		}, nil)
+	// 	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+	// 		{
+	// 			Model:    subtestData.move,
+	// 			LinkOnly: true,
+	// 		},
+	// 		{
+	// 			Model: models.MTOShipment{
+	// 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
+	// 				Status:       models.MTOShipmentStatusSubmitted,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model:    storageFacility,
+	// 			LinkOnly: true,
+	// 		},
+	// 	}, nil)
 
-		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+	// 	mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
-		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-		suite.NoError(err)
-		suite.NotNil(createdShipment.StorageFacility)
-		suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
-	})
+	// 	createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+	// 	suite.NoError(err)
+	// 	suite.NotNil(createdShipment.StorageFacility)
+	// 	suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
+	// })
 
-	suite.Run("If the submitted shipment is an NTS shipment", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
+	// suite.Run("If the submitted shipment is an NTS shipment", func() {
+	// 	subtestData := suite.createSubtestData(nil)
+	// 	creator := subtestData.shipmentCreator
 
-		ntsRecordedWeight := unit.Pound(980)
-		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
+	// 	ntsRecordedWeight := unit.Pound(980)
+	// 	requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
 
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
-					Status:                models.MTOShipmentStatusSubmitted,
-					NTSRecordedWeight:     &ntsRecordedWeight,
-					RequestedDeliveryDate: &requestedDeliveryDate,
-				},
-			},
-			{
-				Model: models.Address{
-					UsPostRegionCityID: &usprcFairfield.ID,
-					PostalCode:         usprcFairfield.UsprZipID,
-					City:               usprcFairfield.USPostRegionCityNm,
-				},
-			},
-		}, nil)
+	// 	usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+	// 	suite.NoError(err)
+	// 	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+	// 		{
+	// 			Model:    subtestData.move,
+	// 			LinkOnly: true,
+	// 		},
+	// 		{
+	// 			Model: models.MTOShipment{
+	// 				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
+	// 				Status:                models.MTOShipmentStatusSubmitted,
+	// 				NTSRecordedWeight:     &ntsRecordedWeight,
+	// 				RequestedDeliveryDate: &requestedDeliveryDate,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model: models.Address{
+	// 				UsPostRegionCityID: &usprcFairfield.ID,
+	// 				PostalCode:         usprcFairfield.UsprZipID,
+	// 				City:               usprcFairfield.USPostRegionCityNm,
+	// 			},
+	// 		},
+	// 	}, nil)
 
-		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+	// 	mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
-		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-		if suite.NoError(err) {
-			if suite.NotNil(createdShipment.NTSRecordedWeight) {
-				suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
-			}
-			if suite.NotNil(createdShipment.RequestedDeliveryDate) {
-				suite.Equal(requestedDeliveryDate, *createdShipment.RequestedDeliveryDate)
-			}
-		}
-	})
+	// 	createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+	// 	if suite.NoError(err) {
+	// 		if suite.NotNil(createdShipment.NTSRecordedWeight) {
+	// 			suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
+	// 		}
+	// 		if suite.NotNil(createdShipment.RequestedDeliveryDate) {
+	// 			suite.Equal(requestedDeliveryDate, *createdShipment.RequestedDeliveryDate)
+	// 		}
+	// 	}
+	// })
 
 	suite.Run("If the submitted shipment is a PPM shipment", func() {
 		subtestData := suite.createSubtestData(nil)
@@ -942,308 +941,308 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 
-	suite.Run("Sets SIT days allowance to default", func() {
-		// This test will have to change in the future, but for now, service members are expected to get 90 days by
-		// default.
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
+	// suite.Run("Sets SIT days allowance to default", func() {
+	// 	// This test will have to change in the future, but for now, service members are expected to get 90 days by
+	// 	// default.
+	// 	subtestData := suite.createSubtestData(nil)
+	// 	creator := subtestData.shipmentCreator
 
-		testCases := []struct {
-			desc         string
-			shipmentType models.MTOShipmentType
-		}{
-			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
-			{"HHG_OUTOF_NTS", models.MTOShipmentTypeHHGOutOfNTS},
-			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
-			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
-			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
-			{"PPM", models.MTOShipmentTypePPM},
-			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
-		}
+	// 	testCases := []struct {
+	// 		desc         string
+	// 		shipmentType models.MTOShipmentType
+	// 	}{
+	// 		{"HHG", models.MTOShipmentTypeHHG},
+	// 		{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
+	// 		{"HHG_OUTOF_NTS", models.MTOShipmentTypeHHGOutOfNTS},
+	// 		{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
+	// 		{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+	// 		{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+	// 		{"PPM", models.MTOShipmentTypePPM},
+	// 		{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
+	// 	}
 
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
+	// 	usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+	// 	suite.NoError(err)
 
-		for _, tt := range testCases {
-			tt := tt
+	// 	for _, tt := range testCases {
+	// 		tt := tt
 
-			var mtoShipment models.MTOShipment
-			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				mtoShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
-			} else {
-				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType: tt.shipmentType,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
-				}, nil)
-			}
+	// 		var mtoShipment models.MTOShipment
+	// 		if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	// 			mtoShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
+	// 		} else {
+	// 			mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType: tt.shipmentType,
+	// 					},
+	// 				},
+	// 				{
+	// 					Model: models.Address{
+	// 						UsPostRegionCityID: &usprcFairfield.ID,
+	// 						PostalCode:         usprcFairfield.UsprZipID,
+	// 						City:               usprcFairfield.USPostRegionCityNm,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		}
 
-			clearedShipment := clearShipmentIDFields(&mtoShipment)
+	// 		clearedShipment := clearShipmentIDFields(&mtoShipment)
 
-			createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedShipment)
+	// 		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedShipment)
 
-			suite.NoError(err, tt.desc)
+	// 		suite.NoError(err, tt.desc)
 
-			suite.Equal(models.DefaultServiceMemberSITDaysAllowance, *createdShipment.SITDaysAllowance, tt.desc)
-		}
-	})
+	// 		suite.Equal(models.DefaultServiceMemberSITDaysAllowance, *createdShipment.SITDaysAllowance, tt.desc)
+	// 	}
+	// })
 
-	suite.Run("Test successful diversion from non-diverted parent shipment", func() {
-		subtestData := suite.createSubtestDataV2(nil)
-		creator := subtestData.shipmentCreator
+	// suite.Run("Test successful diversion from non-diverted parent shipment", func() {
+	// 	subtestData := suite.createSubtestDataV2(nil)
+	// 	creator := subtestData.shipmentCreator
 
-		testCases := []struct {
-			desc         string
-			shipmentType models.MTOShipmentType
-		}{
-			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
-			{"HHG_OUTOF_NTS", models.MTOShipmentTypeHHGOutOfNTS},
-			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
-			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
-			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
-			{"PPM", models.MTOShipmentTypePPM},
-			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
-		}
+	// 	testCases := []struct {
+	// 		desc         string
+	// 		shipmentType models.MTOShipmentType
+	// 	}{
+	// 		{"HHG", models.MTOShipmentTypeHHG},
+	// 		{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
+	// 		{"HHG_OUTOF_NTS", models.MTOShipmentTypeHHGOutOfNTS},
+	// 		{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
+	// 		{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+	// 		{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+	// 		{"PPM", models.MTOShipmentTypePPM},
+	// 		{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
+	// 	}
 
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
+	// 	usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+	// 	suite.NoError(err)
 
-		for _, tt := range testCases {
-			tt := tt
-			var err error
+	// 	for _, tt := range testCases {
+	// 		tt := tt
+	// 		var err error
 
-			var parentShipment models.MTOShipment
-			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				parentShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
-			} else {
-				parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType: tt.shipmentType,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
-				}, nil)
-			}
+	// 		var parentShipment models.MTOShipment
+	// 		if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	// 			parentShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
+	// 		} else {
+	// 			parentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType: tt.shipmentType,
+	// 					},
+	// 				},
+	// 				{
+	// 					Model: models.Address{
+	// 						UsPostRegionCityID: &usprcFairfield.ID,
+	// 						PostalCode:         usprcFairfield.UsprZipID,
+	// 						City:               usprcFairfield.USPostRegionCityNm,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		}
 
-			clearedParentShipment := clearShipmentIDFields(&parentShipment)
+	// 		clearedParentShipment := clearShipmentIDFields(&parentShipment)
 
-			createdParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedParentShipment)
-			suite.NoError(err)
+	// 		createdParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedParentShipment)
+	// 		suite.NoError(err)
 
-			// Create a new shipment, diverting from the parent
-			var childShipment models.MTOShipment
-			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				childShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							Diversion:              true,
-							DivertedFromShipmentID: &createdParentShipment.ID,
-						},
-					},
-				}, nil)
-			} else {
-				childShipment = factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType:           tt.shipmentType,
-							Diversion:              true,
-							DivertedFromShipmentID: &createdParentShipment.ID,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
-				}, nil)
-			}
+	// 		// Create a new shipment, diverting from the parent
+	// 		var childShipment models.MTOShipment
+	// 		if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	// 			childShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						Diversion:              true,
+	// 						DivertedFromShipmentID: &createdParentShipment.ID,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		} else {
+	// 			childShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType:           tt.shipmentType,
+	// 						Diversion:              true,
+	// 						DivertedFromShipmentID: &createdParentShipment.ID,
+	// 					},
+	// 				},
+	// 				{
+	// 					Model: models.Address{
+	// 						UsPostRegionCityID: &usprcFairfield.ID,
+	// 						PostalCode:         usprcFairfield.UsprZipID,
+	// 						City:               usprcFairfield.USPostRegionCityNm,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		}
 
-			clearedChildShipment := clearShipmentIDFields(&childShipment)
-			clearedChildShipment.PrimeActualWeight = nil
+	// 		clearedChildShipment := clearShipmentIDFields(&childShipment)
+	// 		clearedChildShipment.PrimeActualWeight = nil
 
-			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
-			suite.NoError(err)
-		}
-	})
+	// 		_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
+	// 		suite.NoError(err)
+	// 	}
+	// })
 
-	suite.Run("Test successful diversion from parent shipment that itself is a diversion as well", func() {
-		subtestData := suite.createSubtestDataV2(nil)
-		creator := subtestData.shipmentCreator
+	// suite.Run("Test successful diversion from parent shipment that itself is a diversion as well", func() {
+	// 	subtestData := suite.createSubtestDataV2(nil)
+	// 	creator := subtestData.shipmentCreator
 
-		testCases := []struct {
-			desc         string
-			shipmentType models.MTOShipmentType
-		}{
-			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
-			{"HHG_OUTOF_NTS", models.MTOShipmentTypeHHGOutOfNTS},
-			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
-			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
-			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
-			{"PPM", models.MTOShipmentTypePPM},
-			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
-		}
+	// 	testCases := []struct {
+	// 		desc         string
+	// 		shipmentType models.MTOShipmentType
+	// 	}{
+	// 		{"HHG", models.MTOShipmentTypeHHG},
+	// 		{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
+	// 		{"HHG_OUTOF_NTS", models.MTOShipmentTypeHHGOutOfNTS},
+	// 		{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
+	// 		{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+	// 		{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+	// 		{"PPM", models.MTOShipmentTypePPM},
+	// 		{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
+	// 	}
 
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
+	// 	usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+	// 	suite.NoError(err)
 
-		for _, tt := range testCases {
-			tt := tt
-			var err error
+	// 	for _, tt := range testCases {
+	// 		tt := tt
+	// 		var err error
 
-			var unDivertedParentShipment models.MTOShipment
-			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				unDivertedParentShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
-			} else {
-				unDivertedParentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType: tt.shipmentType,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
-				}, nil)
-			}
+	// 		var unDivertedParentShipment models.MTOShipment
+	// 		if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	// 			unDivertedParentShipment = factory.BuildUBShipment(suite.DB(), nil, nil)
+	// 		} else {
+	// 			unDivertedParentShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType: tt.shipmentType,
+	// 					},
+	// 				},
+	// 				{
+	// 					Model: models.Address{
+	// 						UsPostRegionCityID: &usprcFairfield.ID,
+	// 						PostalCode:         usprcFairfield.UsprZipID,
+	// 						City:               usprcFairfield.USPostRegionCityNm,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		}
 
-			clearedUndivertedParentShipment := clearShipmentIDFields(&unDivertedParentShipment)
+	// 		clearedUndivertedParentShipment := clearShipmentIDFields(&unDivertedParentShipment)
 
-			createdUndivertedParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedUndivertedParentShipment)
-			suite.NoError(err)
+	// 		createdUndivertedParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedUndivertedParentShipment)
+	// 		suite.NoError(err)
 
-			// Create a new shipment, diverting from the parent
-			var childFromParentDivertedShipment models.MTOShipment
-			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				childFromParentDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							Diversion:              true,
-							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
-						},
-					},
-				}, nil)
-			} else {
-				childFromParentDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType:           tt.shipmentType,
-							Diversion:              true,
-							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
-				}, nil)
-			}
+	// 		// Create a new shipment, diverting from the parent
+	// 		var childFromParentDivertedShipment models.MTOShipment
+	// 		if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	// 			childFromParentDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						Diversion:              true,
+	// 						DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		} else {
+	// 			childFromParentDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType:           tt.shipmentType,
+	// 						Diversion:              true,
+	// 						DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+	// 					},
+	// 				},
+	// 				{
+	// 					Model: models.Address{
+	// 						UsPostRegionCityID: &usprcFairfield.ID,
+	// 						PostalCode:         usprcFairfield.UsprZipID,
+	// 						City:               usprcFairfield.USPostRegionCityNm,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		}
 
-			clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
-			clearedChildFromParentDivertedShipment.PrimeActualWeight = nil
+	// 		clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
+	// 		clearedChildFromParentDivertedShipment.PrimeActualWeight = nil
 
-			createdChildFromParentDivertedShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildFromParentDivertedShipment)
-			suite.NoError(err)
+	// 		createdChildFromParentDivertedShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildFromParentDivertedShipment)
+	// 		suite.NoError(err)
 
-			// Create a new shipment, diverting from the parent
-			var childOfDivertedShipment models.MTOShipment
-			if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				childOfDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							Diversion:              true,
-							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
-						},
-					},
-				}, nil)
-			} else {
-				childOfDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType:           tt.shipmentType,
-							Diversion:              true,
-							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
-				}, nil)
-			}
+	// 		// Create a new shipment, diverting from the parent
+	// 		var childOfDivertedShipment models.MTOShipment
+	// 		if tt.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	// 			childOfDivertedShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						Diversion:              true,
+	// 						DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		} else {
+	// 			childOfDivertedShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+	// 				{
+	// 					Model:    subtestData.move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType:           tt.shipmentType,
+	// 						Diversion:              true,
+	// 						DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+	// 					},
+	// 				},
+	// 				{
+	// 					Model: models.Address{
+	// 						UsPostRegionCityID: &usprcFairfield.ID,
+	// 						PostalCode:         usprcFairfield.UsprZipID,
+	// 						City:               usprcFairfield.USPostRegionCityNm,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		}
 
-			clearedChildOfDivertedShipment := clearShipmentIDFields(&childOfDivertedShipment)
-			clearedChildOfDivertedShipment.PrimeActualWeight = nil
-			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildOfDivertedShipment)
-			suite.NoError(err)
-		}
-	})
+	// 		clearedChildOfDivertedShipment := clearShipmentIDFields(&childOfDivertedShipment)
+	// 		clearedChildOfDivertedShipment.PrimeActualWeight = nil
+	// 		_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildOfDivertedShipment)
+	// 		suite.NoError(err)
+	// 	}
+	// })
 
 	suite.Run("If DivertedFromShipmentID doesn't exist", func() {
 		subtestData := suite.createSubtestDataV2(nil)

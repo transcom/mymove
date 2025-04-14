@@ -130,10 +130,9 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	address := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				IsOconus:           models.BoolPointer(true),
-				UsPostRegionCityID: &usprc.ID,
-				City:               usprc.USPostRegionCityNm,
-				PostalCode:         usprc.UsprZipID,
+				IsOconus:   models.BoolPointer(true),
+				City:       usprc.USPostRegionCityNm,
+				PostalCode: usprc.UsprZipID,
 			},
 		},
 	}, nil)
@@ -265,10 +264,9 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 	address := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				IsOconus:           models.BoolPointer(true),
-				UsPostRegionCityID: &usprc.ID,
-				City:               usprc.USPostRegionCityNm,
-				PostalCode:         usprc.UsprZipID,
+				IsOconus:   models.BoolPointer(true),
+				City:       usprc.USPostRegionCityNm,
+				PostalCode: usprc.UsprZipID,
 			},
 		},
 	}, nil)

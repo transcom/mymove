@@ -2,7 +2,6 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -57,25 +56,6 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
-	usprc := models.UsPostRegionCity{
-		USPostRegionCityNm: address.City,
-		UsprZipID:          address.PostalCode,
-		UsprcCountyNm:      *address.County,
-		State:              address.State,
-	}
-
-	if cAddress.UsPostRegionCityID != nil && *cAddress.UsPostRegionCityID != uuid.Nil {
-		usprc.ID = *cAddress.UsPostRegionCityID
-	}
-
-	usPostRegionCity := FetchOrBuildUsPostRegionCity(db, []Customization{
-		{
-			Model: usprc,
-		},
-	}, nil)
-	address.UsPostRegionCityID = &usPostRegionCity.ID
-	address.UsPostRegionCity = &usPostRegionCity
-
 	// This helps assign counties & us_post_region_cities_id values when the factory is called for seed data or tests
 	// Additionally, also only run if not 90210. 90210's county is by default populated
 	if db != nil && address.PostalCode != "90210" {
@@ -91,6 +71,21 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		// If no db supplied, mark that
 		address.County = models.StringPointer("db nil when created")
 	}
+
+	usprc := models.UsPostRegionCity{
+		USPostRegionCityNm: address.City,
+		UsprZipID:          address.PostalCode,
+		UsprcCountyNm:      *address.County,
+		State:              address.State,
+	}
+
+	usPostRegionCity := FetchOrBuildUsPostRegionCity(db, []Customization{
+		{
+			Model: usprc,
+		},
+	}, nil)
+	address.UsPostRegionCityID = &usPostRegionCity.ID
+	address.UsPostRegionCity = &usPostRegionCity
 
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
@@ -143,17 +138,18 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
 
+	usprc := models.UsPostRegionCity{
+		USPostRegionCityNm: address.City,
+		UsprZipID:          address.PostalCode,
+		UsprcCountyNm:      *address.County,
+		State:              address.State,
+	}
+
 	usPostRegionCity := FetchOrBuildUsPostRegionCity(db, []Customization{
 		{
-			Model: models.UsPostRegionCity{
-				USPostRegionCityNm: address.City,
-				UsprZipID:          address.PostalCode,
-				UsprcCountyNm:      *address.County,
-				State:              address.State,
-			},
+			Model: usprc,
 		},
 	}, nil)
-
 	address.UsPostRegionCityID = &usPostRegionCity.ID
 	address.UsPostRegionCity = &usPostRegionCity
 
