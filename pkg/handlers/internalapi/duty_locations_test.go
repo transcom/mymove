@@ -34,17 +34,17 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 
 	newAKAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "ANCHORAGE",
+		City:           "SCHENECTADY",
 		State:          "AK",
-		PostalCode:     "99510",
+		PostalCode:     "12345",
 		County:         models.StringPointer("County"),
 	}
 
 	newHIAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "AIEA",
+		City:           "SCHENECTADY",
 		State:          "HI",
-		PostalCode:     "96701",
+		PostalCode:     "12345",
 		County:         models.StringPointer("County"),
 	}
 	factory.FetchOrBuildCountry(suite.AppContextForTest().DB(), nil, nil)
@@ -131,9 +131,9 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 
 	suite.NoError(locationPayloadsAlaska.Validate(strfmt.Default))
 
-	// if len(locationPayloadsAlaska) != 2 {
-	// 	t.Errorf("Should have 2 responses, got %v", len(locationPayloadsAlaska))
-	// }
+	if len(locationPayloadsAlaska) != 2 {
+		t.Errorf("Should have 2 responses, got %v", len(locationPayloadsAlaska))
+	}
 
 	//////////////////////////////////////////////////////////////
 	// test when alaska is not enabled
