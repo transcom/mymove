@@ -1048,6 +1048,7 @@ export const useGHCGetMoveHistory = ({
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
   const { historyRecords, ...dataProps } = data;
+
   return {
     queueResult: { data: historyRecords, ...dataProps },
     isLoading,
