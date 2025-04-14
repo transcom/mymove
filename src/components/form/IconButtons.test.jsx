@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { DocsButton, EditButton, ReviewButton, TerminateButton } from './IconButtons';
+import { DocsButton, EditButton, ReviewButton } from './IconButtons';
 
 describe('DocsButton', () => {
   it('should render the button', () => {
@@ -56,26 +56,6 @@ describe('ReviewButton', () => {
   it('onClick works', async () => {
     const mockFn = jest.fn();
     render(<ReviewButton label="this review button" onClick={mockFn} />);
-    await userEvent.click(screen.getByRole('button'));
-    await waitFor(() => {
-      expect(mockFn).toHaveBeenCalled();
-    });
-  });
-});
-
-describe('TerminateButton', () => {
-  it('should render the button', () => {
-    render(<TerminateButton label="my terminate button" />);
-    expect(screen.getByRole('button')).toHaveTextContent('my terminate button');
-    expect(screen.getByTestId('terminateBtn')).toBeInTheDocument();
-  });
-  it('should pass props down', () => {
-    render(<TerminateButton label="my terminate button" className="sample-class" />);
-    expect(screen.getByRole('button')).toHaveClass('sample-class');
-  });
-  it('onClick works', async () => {
-    const mockFn = jest.fn();
-    render(<TerminateButton label="my terminate button" onClick={mockFn} />);
     await userEvent.click(screen.getByRole('button'));
     await waitFor(() => {
       expect(mockFn).toHaveBeenCalled();

@@ -171,7 +171,6 @@ describe('Shipment Container', () => {
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeDisabled();
     });
     it('renders the terminated for cause tag when shipment status allows', async () => {
-      isBooleanFlagEnabled.mockResolvedValue(true);
       const hhgInfoTerminated = { ...hhgInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE };
 
       render(
@@ -190,66 +189,6 @@ describe('Shipment Container', () => {
         const tag = screen.getByTestId('terminatedTag');
         expect(tag).toBeInTheDocument();
         expect(tag).toHaveTextContent(/terminated for cause/i);
-      });
-    });
-    it('renders the terminate shipment button when permissions allow', async () => {
-      isBooleanFlagEnabled.mockResolvedValue(true);
-      const hhgInfoApproved = { ...hhgInfo, shipmentStatus: shipmentStatuses.APPROVED, actualPickupdate: null };
-
-      render(
-        <MockProviders permissions={[permissionTypes.createShipmentTermination]}>
-          <ShipmentDisplay
-            shipmentId="1"
-            displayInfo={hhgInfoApproved}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            isSubmitted
-            allowApproval={false}
-          />
-        </MockProviders>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByRole('button', { name: 'Terminate shipment' })).toBeVisible();
-      });
-    });
-    it('does NOT show the terminate shipment button when permissions allow but the shipment is a PPM', async () => {
-      isBooleanFlagEnabled.mockResolvedValue(true);
-      const ppmInfoApproved = { ...ppmInfo, shipmentStatus: shipmentStatuses.APPROVED, actualPickupdate: null };
-
-      render(
-        <MockProviders permissions={[permissionTypes.createShipmentTermination]}>
-          <ShipmentDisplay
-            shipmentId="1"
-            displayInfo={ppmInfoApproved}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            isSubmitted
-            allowApproval={false}
-          />
-        </MockProviders>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByRole('button', { name: 'Terminate shipment' })).not.toBeInTheDocument();
-      });
-    });
-    it('does NOT show the terminate shipment button when permissions do not allow', async () => {
-      isBooleanFlagEnabled.mockResolvedValue(true);
-      const hhgInfoApproved = { ...hhgInfo, shipmentStatus: shipmentStatuses.APPROVED, actualPickupdate: null };
-
-      render(
-        <MockProviders permissions={[permissionTypes.updateShipment]}>
-          <ShipmentDisplay
-            shipmentId="1"
-            displayInfo={hhgInfoApproved}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            isSubmitted
-            allowApproval={false}
-          />
-        </MockProviders>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByRole('button', { name: 'Terminate shipment' })).not.toBeInTheDocument();
       });
     });
   });
