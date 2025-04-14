@@ -4131,7 +4131,101 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's pro-gear weight ticket. This will only contain the minimum necessary fields for a\npro-gear weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a pro-gear weight ticket",
+        "operationId": "createProGearWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a pro-gear weight line item by ID",
+        "operationId": "deleteProGearWeightTicket",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the pro-gear weight ticket to be deleted",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the pro-gear weight ticket"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
         "consumes": [
@@ -5031,6 +5125,12 @@ func init() {
             "type": "string",
             "description": "user's actively logged in role.\n",
             "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -7727,6 +7827,12 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -8252,6 +8358,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counselingOfficeId": {
           "type": "string",
@@ -15157,6 +15269,12 @@ func init() {
         "originDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -15447,6 +15565,10 @@ func init() {
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
+        },
+        "description": {
+          "description": "Description of pro gear included in trips set.",
+          "type": "string"
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
@@ -21438,7 +21560,147 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets": {
+      "post": {
+        "description": "Creates a PPM shipment's pro-gear weight ticket. This will only contain the minimum necessary fields for a\npro-gear weight ticket. Data should be filled in using the patch endpoint.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Creates a pro-gear weight ticket",
+        "operationId": "createProGearWeightTicket",
+        "responses": {
+          "201": {
+            "description": "returns a new pro-gear weight ticket object",
+            "schema": {
+              "$ref": "#/definitions/ProGearWeightTicket"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
+      "delete": {
+        "description": "Removes a single pro-gear weight ticket set from the closeout line items for a PPM shipment. Soft deleted\nrecords are not visible in milmove, but are kept in the database.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Soft deletes a pro-gear weight line item by ID",
+        "operationId": "deleteProGearWeightTicket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the pro-gear weight ticket to be deleted",
+            "name": "proGearWeightTicketId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the pro-gear weight ticket"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
         "consumes": [
@@ -22532,6 +22794,12 @@ func init() {
             "type": "string",
             "description": "user's actively logged in role.\n",
             "name": "activeRole",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -25650,6 +25918,12 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -26175,6 +26449,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counselingOfficeId": {
           "type": "string",
@@ -33212,6 +33492,12 @@ func init() {
         "originDutyLocationId"
       ],
       "properties": {
+        "civilianTdyUbAllowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
@@ -33503,6 +33789,10 @@ func init() {
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean"
+        },
+        "description": {
+          "description": "Description of pro gear included in trips set.",
+          "type": "string"
         },
         "hasWeightTickets": {
           "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",

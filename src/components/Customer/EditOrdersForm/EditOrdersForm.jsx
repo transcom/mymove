@@ -11,17 +11,23 @@ import styles from './EditOrdersForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import {
+  civilianTDYUBAllowanceWeightWarning,
+  FEATURE_FLAG_KEYS,
+  MOVE_STATUSES,
+  documentSizeLimitMsg,
+} from 'shared/constants';
 import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { FEATURE_FLAG_KEYS, MOVE_STATUSES, documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
@@ -104,7 +110,7 @@ const EditOrdersForm = ({
       ? Yup.number()
           .transform((value) => (Number.isNaN(value) ? 0 : value))
           .min(0, 'UB weight allowance must be 0 or more')
-          .max(2000, 'UB weight allowance cannot exceed 2000 lbs.')
+          .max(2000, 'UB weight allowance cannot exceed 2,000 lbs.')
       : Yup.number().notRequired(),
   });
 
@@ -181,7 +187,11 @@ const EditOrdersForm = ({
 
   useEffect(() => {
     if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
-      if (isOconusMove && ordersType === ORDERS_TYPE.TEMPORARY_DUTY && grade === 'CIVILIAN_EMPLOYEE') {
+      if (
+        isOconusMove &&
+        ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
+        grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
+      ) {
         setIsCivilianTDYMove(true);
       } else {
         setIsCivilianTDYMove(false);
@@ -281,9 +291,6 @@ const EditOrdersForm = ({
         const showcivilianTDYUBAllowanceWarning =
           values.civilian_tdy_ub_allowance > 350 && values.civilian_tdy_ub_allowance <= 2000;
 
-        const civilianTDYUBAllowanceWeightWarning =
-          '350 lbs. is the maximum UB weight allowance for a civilian TDY unless stated otherwise on your orders.';
-
         let civilianTDYUBAllowanceWarning = '';
         if (showcivilianTDYUBAllowanceWarning) {
           civilianTDYUBAllowanceWarning = civilianTDYUBAllowanceWeightWarning;
@@ -308,29 +315,30 @@ const EditOrdersForm = ({
             </h1>
             <SectionWrapper className={formStyles.formSection}>
               <h2>Edit Orders:</h2>
+              {requiredAsteriskMessage}
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
                 options={ordersTypeOptions}
                 required
-                hint="Required"
+                showRequiredAsterisk
                 onChange={(e) => {
                   handleChange(e);
                   handleOrderTypeChange(e);
                 }}
               />
-              <DatePickerInput name="issue_date" label="Orders date" hint="Required" required />
+              <DatePickerInput name="issue_date" label="Orders date" showRequiredAsterisk required />
               <DatePickerInput
                 name="report_by_date"
                 label={formatLabelReportByDate(values.orders_type)}
                 required
-                hint="Required"
+                showRequiredAsterisk
               />
               <DutyLocationInput
                 label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
-                hint="Required"
+                showRequiredAsterisk
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
                   handleCounselingOfficeChange();
@@ -344,7 +352,7 @@ const EditOrdersForm = ({
                     label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
-                    hint="Required"
+                    showRequiredAsterisk
                     required
                     options={officeOptions}
                   />
@@ -382,6 +390,7 @@ const EditOrdersForm = ({
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
+                    showRequiredAsterisk
                     hint="Enter the option closest to your delivery address. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
@@ -394,6 +403,7 @@ const EditOrdersForm = ({
                 <DutyLocationInput
                   name="new_duty_location"
                   label="New duty location"
+                  showRequiredAsterisk
                   displayAddress={false}
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
@@ -403,7 +413,11 @@ const EditOrdersForm = ({
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
+                <Label>
+                  <span>
+                    Are dependents included in your orders? <RequiredAsterisk />
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -438,7 +452,11 @@ const EditOrdersForm = ({
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -490,7 +508,7 @@ const EditOrdersForm = ({
                     name="dependents_under_twelve"
                     label="Number of dependents under the age of 12"
                     id="dependentsUnderTwelve"
-                    labelHint="Required"
+                    showRequiredAsterisk
                     mask={Number}
                     scale={0}
                     signed={false}
@@ -507,7 +525,7 @@ const EditOrdersForm = ({
                     mask={Number}
                     scale={0}
                     signed={false}
-                    labelHint="Required"
+                    showRequiredAsterisk
                     thousandsSeparator=","
                     lazy={false}
                   />
@@ -520,7 +538,7 @@ const EditOrdersForm = ({
                 id="grade"
                 required
                 options={payGradeOptions}
-                hint="Required"
+                showRequiredAsterisk
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
