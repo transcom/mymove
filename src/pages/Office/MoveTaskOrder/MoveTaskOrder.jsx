@@ -92,8 +92,7 @@ function showShipmentFilter(shipment) {
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELED ||
-    shipment.status === shipmentStatuses.TERMINATED_FOR_CAUSE ||
-    shipment.status === shipmentStatuses.APPROVALS_REQUESTED
+    shipment.status === shipmentStatuses.TERMINATED_FOR_CAUSE
   );
 }
 
@@ -827,7 +826,6 @@ export const MoveTaskOrder = (props) => {
     mtoShipments?.forEach((mtoShipment) => {
       if (
         mtoShipment.status === shipmentStatuses.APPROVED ||
-        mtoShipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
         mtoShipment.status === shipmentStatuses.DIVERSION_REQUESTED
       ) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
@@ -1284,8 +1282,7 @@ export const MoveTaskOrder = (props) => {
               mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
               mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED &&
               mtoShipment.status !== shipmentStatuses.CANCELED &&
-              mtoShipment.status !== shipmentStatuses.TERMINATED_FOR_CAUSE &&
-              mtoShipment.status !== shipmentStatuses.APPROVALS_REQUESTED
+              mtoShipment.status !== shipmentStatuses.TERMINATED_FOR_CAUSE
             ) {
               return false;
             }

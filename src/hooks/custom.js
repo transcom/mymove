@@ -13,8 +13,7 @@ export const includedStatusesForCalculatingWeights = (status) => {
   return (
     status === shipmentStatuses.APPROVED ||
     status === shipmentStatuses.DIVERSION_REQUESTED ||
-    status === shipmentStatuses.CANCELLATION_REQUESTED ||
-    status === shipmentStatuses.APPROVALS_REQUESTED
+    status === shipmentStatuses.CANCELLATION_REQUESTED
   );
 };
 
