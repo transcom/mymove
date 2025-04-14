@@ -684,286 +684,286 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NotNil(ordersPayload.OriginDutyLocation.ETag)
 	})
 
-	// suite.Run("Success - return all PaymentRequests fields assoicated with the getMoveTaskOrder", func() {
-	// 	handler := GetMoveTaskOrderHandler{
-	// 		suite.HandlerConfig(),
-	// 		movetaskorder.NewMoveTaskOrderFetcher(waf),
-	// 	}
+	suite.Run("Success - return all PaymentRequests fields assoicated with the getMoveTaskOrder", func() {
+		handler := GetMoveTaskOrderHandler{
+			suite.HandlerConfig(),
+			movetaskorder.NewMoveTaskOrderFetcher(waf),
+		}
 
-	// 	successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	// 	successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.MTOShipment{
-	// 				Status: models.MTOShipmentStatusApproved,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    successMove,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
-	// 	serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.MTOServiceItem{
-	// 				MTOShipmentID: &successShipment.ID,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    successMove,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    successShipment,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.ReService{
-	// 				Code: models.ReServiceCodeDLH,
-	// 			},
-	// 		},
-	// 	}, nil)
-	// 	serviceItemUBP := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.MTOServiceItem{
-	// 				MTOShipmentID: &successShipment.ID,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    successMove,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    successShipment,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.ReService{
-	// 				Code: models.ReServiceCodeUBP,
-	// 			},
-	// 		},
-	// 	}, nil)
-	// 	serviceItemIUBPK := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.MTOServiceItem{
-	// 				MTOShipmentID: &successShipment.ID,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    successMove,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    successShipment,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.ReService{
-	// 				Code: models.ReServiceCodeIUBPK,
-	// 			},
-	// 		},
-	// 	}, nil)
+		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &successShipment.ID,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDLH,
+				},
+			},
+		}, nil)
+		serviceItemUBP := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &successShipment.ID,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeUBP,
+				},
+			},
+		}, nil)
+		serviceItemIUBPK := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &successShipment.ID,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    successShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIUBPK,
+				},
+			},
+		}, nil)
 
-	// 	recalcPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.PaymentRequest{
-	// 				SequenceNumber: 2,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    successMove,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		recalcPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					SequenceNumber: 2,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.PaymentRequest{
-	// 				IsFinal:                         true,
-	// 				Status:                          models.PaymentRequestStatusReviewed,
-	// 				RejectionReason:                 models.StringPointer("no good"),
-	// 				SequenceNumber:                  1,
-	// 				RecalculationOfPaymentRequestID: &recalcPaymentRequest.ID,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    successMove,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					IsFinal:                         true,
+					Status:                          models.PaymentRequestStatusReviewed,
+					RejectionReason:                 models.StringPointer("no good"),
+					SequenceNumber:                  1,
+					RecalculationOfPaymentRequestID: &recalcPaymentRequest.ID,
+				},
+			},
+			{
+				Model:    successMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	paymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
-	// 		{
-	// 			Key:     models.ServiceItemParamNameContractCode,
-	// 			KeyType: models.ServiceItemParamTypeString,
-	// 			Value:   "TEST",
-	// 		},
-	// 		{
-	// 			Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
-	// 			KeyType: models.ServiceItemParamTypeTimestamp,
-	// 			Value:   "2023-05-03T14:38:30Z",
-	// 		},
-	// 	}
-	// 	paymentServiceItem1 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
-	// 		{
-	// 			Model: models.PaymentServiceItem{
-	// 				RejectionReason: models.StringPointer("rejection reason"),
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    paymentRequest,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    serviceItem,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		paymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+			{
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "TEST",
+			},
+			{
+				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				KeyType: models.ServiceItemParamTypeTimestamp,
+				Value:   "2023-05-03T14:38:30Z",
+			},
+		}
+		paymentServiceItem1 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					RejectionReason: models.StringPointer("rejection reason"),
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	paymentServiceItem2 := factory.BuildPaymentServiceItemWithParams(suite.DB(), models.ReServiceCodeMS, paymentServiceItemParams, []factory.Customization{
-	// 		{
-	// 			Model:    paymentRequest,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    serviceItem,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		paymentServiceItem2 := factory.BuildPaymentServiceItemWithParams(suite.DB(), models.ReServiceCodeMS, paymentServiceItemParams, []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItem,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	paymentServiceItem3 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
-	// 		{
-	// 			Model: models.PaymentServiceItem{
-	// 				RejectionReason: models.StringPointer("UBP rejection reason"),
-	// 				Status:          models.PaymentServiceItemStatusDenied,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    paymentRequest,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    serviceItemUBP,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		paymentServiceItem3 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					RejectionReason: models.StringPointer("UBP rejection reason"),
+					Status:          models.PaymentServiceItemStatusDenied,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemUBP,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	paymentServiceItem4 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
-	// 		{
-	// 			Model: models.PaymentServiceItem{
-	// 				RejectionReason: models.StringPointer("IUBPK rejection reason"),
-	// 				Status:          models.PaymentServiceItemStatusDenied,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    paymentRequest,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model:    serviceItemIUBPK,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		paymentServiceItem4 := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					RejectionReason: models.StringPointer("IUBPK rejection reason"),
+					Status:          models.PaymentServiceItemStatusDenied,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceItemIUBPK,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    paymentRequest,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		proofOfServiceDoc := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	uploads := factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    proofOfServiceDoc,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		uploads := factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
+			{
+				Model:    proofOfServiceDoc,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	paymentRequest.PaymentServiceItems = models.PaymentServiceItems{paymentServiceItem1, paymentServiceItem2, paymentServiceItem3, paymentServiceItem4}
-	// 	proofOfServiceDoc.PrimeUploads = models.PrimeUploads{uploads}
-	// 	paymentRequest.ProofOfServiceDocs = models.ProofOfServiceDocs{proofOfServiceDoc}
+		paymentRequest.PaymentServiceItems = models.PaymentServiceItems{paymentServiceItem1, paymentServiceItem2, paymentServiceItem3, paymentServiceItem4}
+		proofOfServiceDoc.PrimeUploads = models.PrimeUploads{uploads}
+		paymentRequest.ProofOfServiceDocs = models.ProofOfServiceDocs{proofOfServiceDoc}
 
-	// 	params := movetaskorderops.GetMoveTaskOrderParams{
-	// 		HTTPRequest: request,
-	// 		MoveID:      successMove.Locator,
-	// 	}
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
+		}
 
-	// 	// Validate incoming payload: no body to validate
+		// Validate incoming payload: no body to validate
 
-	// 	response := handler.Handle(params)
-	// 	suite.IsNotErrResponse(response)
-	// 	suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
 
-	// 	moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-	// 	movePayload := moveResponse.Payload
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
 
-	// 	// Validate outgoing payload
-	// 	suite.NoError(movePayload.Validate(strfmt.Default))
+		// Validate outgoing payload
+		suite.NoError(movePayload.Validate(strfmt.Default))
 
-	// 	suite.Len(movePayload.PaymentRequests, 2)
-	// 	var matchingPR *primev2messages.PaymentRequest
-	// 	for i := range movePayload.PaymentRequests {
-	// 		pr := movePayload.PaymentRequests[i]
-	// 		if pr.ID.String() == paymentRequest.ID.String() {
-	// 			matchingPR = pr
-	// 			break
-	// 		}
-	// 	}
-	// 	paymentRequestPayload := matchingPR
+		suite.Len(movePayload.PaymentRequests, 2)
+		var matchingPR *primev2messages.PaymentRequest
+		for i := range movePayload.PaymentRequests {
+			pr := movePayload.PaymentRequests[i]
+			if pr.ID.String() == paymentRequest.ID.String() {
+				matchingPR = pr
+				break
+			}
+		}
+		paymentRequestPayload := matchingPR
 
-	// 	suite.NotNil(matchingPR, "expected to find a payment request payload matching paymentRequest.ID")
-	// 	suite.Equal(paymentRequest.ID.String(), matchingPR.ID.String())
-	// 	suite.Equal(successMove.ID.String(), matchingPR.MoveTaskOrderID.String())
-	// 	suite.Equal(paymentRequest.IsFinal, *matchingPR.IsFinal)
-	// 	suite.Equal(*paymentRequest.RejectionReason, *matchingPR.RejectionReason)
-	// 	suite.Equal(paymentRequest.Status.String(), string(matchingPR.Status))
-	// 	suite.Equal(paymentRequest.PaymentRequestNumber, matchingPR.PaymentRequestNumber)
-	// 	suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), matchingPR.RecalculationOfPaymentRequestID.String())
+		suite.NotNil(matchingPR, "expected to find a payment request payload matching paymentRequest.ID")
+		suite.Equal(paymentRequest.ID.String(), matchingPR.ID.String())
+		suite.Equal(successMove.ID.String(), matchingPR.MoveTaskOrderID.String())
+		suite.Equal(paymentRequest.IsFinal, *matchingPR.IsFinal)
+		suite.Equal(*paymentRequest.RejectionReason, *matchingPR.RejectionReason)
+		suite.Equal(paymentRequest.Status.String(), string(matchingPR.Status))
+		suite.Equal(paymentRequest.PaymentRequestNumber, matchingPR.PaymentRequestNumber)
+		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), matchingPR.RecalculationOfPaymentRequestID.String())
 
-	// 	// verify paymentServiceItems
-	// 	suite.Len(paymentRequest.PaymentServiceItems, 4)
-	// 	suite.Len(paymentRequestPayload.PaymentServiceItems, 4)
-	// 	for i := range paymentRequest.PaymentServiceItems {
-	// 		expectedPSI := paymentRequest.PaymentServiceItems[i]
-	// 		resultPSI := paymentRequestPayload.PaymentServiceItems[i]
-	// 		suite.Equal(expectedPSI.ID.String(), resultPSI.ID.String())
-	// 		suite.Equal(expectedPSI.PaymentRequestID.String(), resultPSI.PaymentRequestID.String())
-	// 		suite.Equal(expectedPSI.MTOServiceItemID.String(), resultPSI.MtoServiceItemID.String())
-	// 		suite.Equal(expectedPSI.Status.String(), string(resultPSI.Status))
-	// 		suite.Equal(handlers.FmtCost(expectedPSI.PriceCents), resultPSI.PriceCents)
-	// 		suite.Equal(expectedPSI.RejectionReason, resultPSI.RejectionReason)
-	// 		suite.Equal(expectedPSI.ReferenceID, resultPSI.ReferenceID)
-	// 		suite.NotNil(resultPSI.ETag)
+		// verify paymentServiceItems
+		suite.Len(paymentRequest.PaymentServiceItems, 4)
+		suite.Len(paymentRequestPayload.PaymentServiceItems, 4)
+		for i := range paymentRequest.PaymentServiceItems {
+			expectedPSI := paymentRequest.PaymentServiceItems[i]
+			resultPSI := paymentRequestPayload.PaymentServiceItems[i]
+			suite.Equal(expectedPSI.ID.String(), resultPSI.ID.String())
+			suite.Equal(expectedPSI.PaymentRequestID.String(), resultPSI.PaymentRequestID.String())
+			suite.Equal(expectedPSI.MTOServiceItemID.String(), resultPSI.MtoServiceItemID.String())
+			suite.Equal(expectedPSI.Status.String(), string(resultPSI.Status))
+			suite.Equal(handlers.FmtCost(expectedPSI.PriceCents), resultPSI.PriceCents)
+			suite.Equal(expectedPSI.RejectionReason, resultPSI.RejectionReason)
+			suite.Equal(expectedPSI.ReferenceID, resultPSI.ReferenceID)
+			suite.NotNil(resultPSI.ETag)
 
-	// 		// verify paymentServiceItems params
-	// 		suite.Len(expectedPSI.PaymentServiceItemParams, 2)
-	// 		suite.Len(resultPSI.PaymentServiceItemParams, 2)
-	// 		for j := range expectedPSI.PaymentServiceItemParams {
-	// 			expectedPSIP := expectedPSI.PaymentServiceItemParams[j]
-	// 			resultPSIP := resultPSI.PaymentServiceItemParams[j]
-	// 			suite.Equal(expectedPSIP.ID.String(), resultPSIP.ID.String())
-	// 			suite.Equal(expectedPSIP.PaymentServiceItemID.String(), resultPSIP.PaymentServiceItemID.String())
-	// 			suite.Equal(expectedPSIP.ServiceItemParamKey.Key.String(), string(resultPSIP.Key))
-	// 			suite.Equal(expectedPSIP.Value, resultPSIP.Value)
-	// 			suite.Equal(expectedPSIP.ServiceItemParamKey.Type.String(), string(resultPSIP.Type))
-	// 			suite.Equal(expectedPSIP.ServiceItemParamKey.Origin.String(), string(resultPSIP.Origin))
-	// 			suite.NotNil(resultPSIP.ETag)
-	// 		}
-	// 	}
+			// verify paymentServiceItems params
+			suite.Len(expectedPSI.PaymentServiceItemParams, 2)
+			suite.Len(resultPSI.PaymentServiceItemParams, 2)
+			for j := range expectedPSI.PaymentServiceItemParams {
+				expectedPSIP := expectedPSI.PaymentServiceItemParams[j]
+				resultPSIP := resultPSI.PaymentServiceItemParams[j]
+				suite.Equal(expectedPSIP.ID.String(), resultPSIP.ID.String())
+				suite.Equal(expectedPSIP.PaymentServiceItemID.String(), resultPSIP.PaymentServiceItemID.String())
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Key.String(), string(resultPSIP.Key))
+				suite.Equal(expectedPSIP.Value, resultPSIP.Value)
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Type.String(), string(resultPSIP.Type))
+				suite.Equal(expectedPSIP.ServiceItemParamKey.Origin.String(), string(resultPSIP.Origin))
+				suite.NotNil(resultPSIP.ETag)
+			}
+		}
 
-	// 	// verify proofOfServiceDocs
-	// 	upload := paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].Upload
-	// 	uploadPayload := paymentRequestPayload.ProofOfServiceDocs[0].Uploads[0]
-	// 	suite.Equal(upload.ID.String(), uploadPayload.ID.String())
-	// 	suite.Equal(upload.Filename, *uploadPayload.Filename)
-	// 	suite.Equal(upload.Bytes, *uploadPayload.Bytes)
-	// 	suite.Equal(upload.ContentType, *uploadPayload.ContentType)
-	// 	suite.Empty(uploadPayload.URL)
-	// 	suite.Empty(uploadPayload.Status)
-	// 	suite.NotNil(uploadPayload.CreatedAt)
-	// 	suite.NotNil(uploadPayload.UpdatedAt)
+		// verify proofOfServiceDocs
+		upload := paymentRequest.ProofOfServiceDocs[0].PrimeUploads[0].Upload
+		uploadPayload := paymentRequestPayload.ProofOfServiceDocs[0].Uploads[0]
+		suite.Equal(upload.ID.String(), uploadPayload.ID.String())
+		suite.Equal(upload.Filename, *uploadPayload.Filename)
+		suite.Equal(upload.Bytes, *uploadPayload.Bytes)
+		suite.Equal(upload.ContentType, *uploadPayload.ContentType)
+		suite.Empty(uploadPayload.URL)
+		suite.Empty(uploadPayload.Status)
+		suite.NotNil(uploadPayload.CreatedAt)
+		suite.NotNil(uploadPayload.UpdatedAt)
 
-	// 	suite.NotNil(paymentRequestPayload.ETag)
-	// })
+		suite.NotNil(paymentRequestPayload.ETag)
+	})
 
 	suite.Run("Success - return all MTOServiceItemBasic fields assoicated with the getMoveTaskOrder", func() {
 		handler := GetMoveTaskOrderHandler{
