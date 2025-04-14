@@ -198,5 +198,11 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 				PostalCode: "30813",
 			},
 		},
+		{
+			Model: models.UsPostRegionCity{
+				USPostRegionCityNm: "Fort Eisenhower",
+				UsprZipID:          "30813",
+			},
+		},
 	}
 }
