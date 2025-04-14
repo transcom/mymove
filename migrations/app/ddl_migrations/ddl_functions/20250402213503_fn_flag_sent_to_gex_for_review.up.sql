@@ -2,12 +2,13 @@
 CREATE TABLE IF NOT EXISTS reflagged_payment_requests (
   payment_request_number TEXT NOT NULL PRIMARY KEY,
   reflagged_count INTEGER NOT NULL DEFAULT 0,
-  updated_at TIMESTAMP DEFAULT now()
+  updated_at TIMESTAMP NOT NULL DEFAULT now(),
+  created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 CREATE OR REPLACE FUNCTION flag_sent_to_gex_for_review() RETURNS void AS $$
 DECLARE -- time interval and timestamp for considering a payment request stuck in SENT_TO_GEX status
   stale_interval INTERVAL := INTERVAL '12 hours';
-  stale_sent_to_gex TIMESTAMP := now() - stale_interval;
+stale_sent_to_gex TIMESTAMP := now() - stale_interval;
 BEGIN WITH updated_payment_requests AS (
   UPDATE payment_requests
   SET status = 'REVIEWED'::payment_request_status,
