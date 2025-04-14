@@ -83,7 +83,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		{
 			Model: usprc,
 		},
-	}, nil)
+	}, traits)
 	address.UsPostRegionCityID = &usPostRegionCity.ID
 	address.UsPostRegionCity = &usPostRegionCity
 
@@ -149,7 +149,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		{
 			Model: usprc,
 		},
-	}, nil)
+	}, traits)
 	address.UsPostRegionCityID = &usPostRegionCity.ID
 	address.UsPostRegionCity = &usPostRegionCity
 
@@ -179,6 +179,12 @@ func GetTraitAddress2() []Customization {
 				PostalCode:     "94535",
 			},
 		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "94535",
+				USPostRegionCityNm: "Fairfield",
+			},
+		},
 	}
 }
 
@@ -195,6 +201,12 @@ func GetTraitAddress3() []Customization {
 				PostalCode:     "50309",
 			},
 		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "50309",
+				USPostRegionCityNm: "Des Moines",
+			},
+		},
 	}
 }
 
@@ -209,6 +221,12 @@ func GetTraitAddress4() []Customization {
 				City:           "Houston",
 				State:          "TX",
 				PostalCode:     "77083",
+			},
+		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "77083",
+				USPostRegionCityNm: "Houston",
 			},
 		},
 	}
@@ -228,6 +246,12 @@ func GetTraitAddressAKZone1() []Customization {
 				IsOconus:       models.BoolPointer(true),
 			},
 		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "99695",
+				USPostRegionCityNm: "ANCHORAGE",
+			},
+		},
 	}
 }
 
@@ -243,6 +267,12 @@ func GetTraitAddressAKZone2() []Customization {
 				State:          "AK",
 				PostalCode:     "99703",
 				IsOconus:       models.BoolPointer(true),
+			},
+		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "99703",
+				USPostRegionCityNm: "FORT WAINWRIGHT",
 			},
 		},
 	}
@@ -262,6 +292,12 @@ func GetTraitAddressAKZone3() []Customization {
 				IsOconus:       models.BoolPointer(true),
 			},
 		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "99697",
+				USPostRegionCityNm: "KODIAK",
+			},
+		},
 	}
 }
 
@@ -279,6 +315,12 @@ func GetTraitAddressAKZone4() []Customization {
 				IsOconus:       models.BoolPointer(true),
 			},
 		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "99801",
+				USPostRegionCityNm: "JUNEAU",
+			},
+		},
 	}
 }
 
@@ -294,6 +336,12 @@ func GetTraitAddressAKZone5() []Customization {
 				State:          "AK",
 				PostalCode:     "99721",
 				IsOconus:       models.BoolPointer(true),
+			},
+		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "99721",
+				USPostRegionCityNm: "ANAKTUVUK",
 			},
 		},
 	}
