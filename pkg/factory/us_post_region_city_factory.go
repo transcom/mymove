@@ -59,9 +59,5 @@ func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, t
 
 	}
 
-	// if usPostRegionCity.ID == uuid.Nil && db == nil {
-	// 	usPostRegionCity.ID = uuid.Must(uuid.NewV4())
-	// }
-
 	return usPostRegionCity
 }
