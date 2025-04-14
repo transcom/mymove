@@ -2,13 +2,15 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import createSITExtensionMove from 'constants/MoveHistory/EventTemplates/CreateSITExtension/createSITExtensionMove';
+import Actions from 'constants/MoveHistory/Database/Actions';
+import { MOVE_STATUSES } from 'shared/constants';
 
 describe('when given a Deny SIT Extension move history record', () => {
   const historyRecord = {
-    action: 'UPDATE',
+    action: Actions.UPDATE,
     changedValues: {
       approvals_requested_at: '2025-04-09T13:43:45.206676+00:00',
-      status: 'APPROVALS REQUESTED',
+      status: MOVE_STATUSES.APPROVALS_REQUESTED,
     },
     eventName: 'createSITExtension',
     tableName: 'moves',

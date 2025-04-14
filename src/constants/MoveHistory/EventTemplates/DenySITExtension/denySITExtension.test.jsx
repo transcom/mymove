@@ -2,15 +2,17 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import denySITExtension from 'constants/MoveHistory/EventTemplates/DenySITExtension/denySITExtension';
+import Actions from 'constants/MoveHistory/Database/Actions';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 describe('when given a Deny SIT Extension item history record', () => {
   const historyRecord = {
-    action: 'UPDATE',
+    action: Actions.UPDATE,
     changedValues: {
       customer_expense: false,
       decision_date: '2025-04-09T13:43:45.090591',
       office_remarks: 'rejected',
-      status: 'DENIED',
+      status: SIT_EXTENSION_STATUS.DENIED,
     },
     context: [
       {

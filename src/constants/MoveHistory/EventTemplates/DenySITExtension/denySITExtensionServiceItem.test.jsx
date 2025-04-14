@@ -2,10 +2,11 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import denySITExtensionServiceItem from 'constants/MoveHistory/EventTemplates/DenySITExtension/denySITExtensionServiceItem';
+import Actions from 'constants/MoveHistory/Database/Actions';
 
 describe('when given a denySITExtensionServiceItem history record', () => {
   const historyRecord = {
-    action: 'UPDATE',
+    action: Actions.UPDATE,
     changedValues: {
       customer_expense: true,
       customer_expense_reason: 'converting to customer expense',
