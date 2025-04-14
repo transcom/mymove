@@ -511,3 +511,32 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
 	})
 }
+
+func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		description := "test description"
+		hasWeightTickets, belongsToSelf := true, true
+
+		input := &ghcmessages.UpdateProGearWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			BelongsToSelf:    belongsToSelf,
+			Status:           status,
+			Reason:           reason,
+			Description:      description,
+		}
+
+		result := ProgearWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.ProgearWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+		suite.Equal(belongsToSelf, *result.BelongsToSelf)
+		suite.Equal(reason, *result.Reason)
+		suite.Equal(description, *result.Description)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+	})
+}

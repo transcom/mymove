@@ -117,8 +117,14 @@ describe('OrdersDetailForm', () => {
     const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
     expect(dependentsAuthorizedInput).toBeInTheDocument();
     expect(dependentsAuthorizedInput).toBeDisabled();
-    const tacInputs = screen.queryAllByLabelText('TAC');
+    const tacInput = screen.getByLabelText('TAC');
+    expect(tacInput).toBeInTheDocument();
+    expect(tacInput).toBeDisabled();
+    const tacInputRequired = screen.getByLabelText('TAC *');
+    expect(tacInputRequired).toBeInTheDocument();
+    expect(tacInputRequired).toBeDisabled();
     const sacInputs = screen.queryAllByLabelText('SAC');
+    const tacInputs = screen.queryAllByLabelText('TAC');
     expect(tacInputs.length).toBe(1);
     expect(sacInputs.length).toBe(2);
     expect(tacInputs[0]).toBeDisabled();

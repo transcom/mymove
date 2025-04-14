@@ -256,6 +256,7 @@ const PPMShipmentInfoList = ({
           label="Download AOA Paperwork (PDF)"
           asyncRetrieval={downloadPPMAOAPacket}
           onFailure={onErrorModalToggle}
+          loadingMessage="Downloading AOA Paperwork (PDF)..."
         />
       </dd>
     </div>
@@ -270,6 +271,7 @@ const PPMShipmentInfoList = ({
           label="Download Payment Packet (PDF)"
           asyncRetrieval={downloadPPMPaymentPacket}
           onFailure={onErrorModalToggle}
+          loadingMessage="Downloading Payment Packet (PDF)..."
         />
       </dd>
     </div>

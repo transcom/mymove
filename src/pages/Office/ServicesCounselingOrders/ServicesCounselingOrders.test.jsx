@@ -315,24 +315,26 @@ describe('Orders page', () => {
           </MockProviders>,
         );
 
-        const currentDutyLocationInput = screen.getByLabelText('Current duty location');
+        const currentDutyLocationInput = screen.getByLabelText('Current duty location *');
         expect(currentDutyLocationInput).toBeInTheDocument();
         expect(currentDutyLocationInput).toBeDisabled();
-        const newDutyLocationInput = screen.getByLabelText('New duty location');
+        const newDutyLocationInput = screen.getByLabelText('New duty location *');
         expect(newDutyLocationInput).toBeInTheDocument();
         expect(newDutyLocationInput).toBeDisabled();
-        const payGradeInput = screen.getByLabelText('Pay grade');
+        const payGradeInput = screen.getByLabelText('Pay grade *');
         expect(payGradeInput).toBeInTheDocument();
         expect(payGradeInput).toBeDisabled();
         const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
         expect(dependentsAuthorizedInput).toBeInTheDocument();
         expect(dependentsAuthorizedInput).toBeDisabled();
-        const tacInputs = screen.queryAllByLabelText('TAC');
+        const tacInput = screen.getByLabelText('TAC');
+        expect(tacInput).toBeInTheDocument();
+        expect(tacInput).toBeDisabled();
+        const tacInputRequired = screen.getByLabelText('TAC *');
+        expect(tacInputRequired).toBeInTheDocument();
+        expect(tacInputRequired).toBeDisabled();
         const sacInputs = screen.queryAllByLabelText('SAC');
-        expect(tacInputs.length).toBe(2);
         expect(sacInputs.length).toBe(2);
-        expect(tacInputs[0]).toBeDisabled();
-        expect(tacInputs[1]).toBeDisabled();
         expect(sacInputs[0]).toBeDisabled();
         expect(sacInputs[1]).toBeDisabled();
       }
@@ -354,24 +356,26 @@ describe('Orders page', () => {
           </MockProviders>,
         );
 
-        const currentDutyLocationInput = screen.getByLabelText('Current duty location');
+        const currentDutyLocationInput = screen.getByLabelText('Current duty location *');
         expect(currentDutyLocationInput).toBeInTheDocument();
         expect(currentDutyLocationInput).not.toBeDisabled();
-        const newDutyLocationInput = screen.getByLabelText('New duty location');
+        const newDutyLocationInput = screen.getByLabelText('New duty location *');
         expect(newDutyLocationInput).toBeInTheDocument();
         expect(newDutyLocationInput).not.toBeDisabled();
-        const payGradeInput = screen.getByLabelText('Pay grade');
+        const payGradeInput = screen.getByLabelText('Pay grade *');
         expect(payGradeInput).toBeInTheDocument();
         expect(payGradeInput).not.toBeDisabled();
         const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
         expect(dependentsAuthorizedInput).toBeInTheDocument();
         expect(dependentsAuthorizedInput).not.toBeDisabled();
-        const tacInputs = screen.queryAllByLabelText('TAC');
+        const tacInput = screen.getByLabelText('TAC');
+        expect(tacInput).toBeInTheDocument();
+        expect(tacInput).not.toBeDisabled();
+        const tacInputRequired = screen.getByLabelText('TAC *');
+        expect(tacInputRequired).toBeInTheDocument();
+        expect(tacInputRequired).not.toBeDisabled();
         const sacInputs = screen.queryAllByLabelText('SAC');
-        expect(tacInputs.length).toBe(2);
         expect(sacInputs.length).toBe(2);
-        expect(tacInputs[0]).not.toBeDisabled();
-        expect(tacInputs[1]).not.toBeDisabled();
         expect(sacInputs[0]).not.toBeDisabled();
         expect(sacInputs[1]).not.toBeDisabled();
       }
