@@ -57,6 +57,9 @@ type MTOServiceItemDomesticShuttle struct {
 	// Example: Storage items need to be picked up.
 	// Required: true
 	Reason *string `json:"reason"`
+
+	// Indicates if "Approvals Requested" status is being requested.
+	RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -181,6 +184,9 @@ func (m *MTOServiceItemDomesticShuttle) UnmarshalJSON(raw []byte) error {
 		// Example: Storage items need to be picked up.
 		// Required: true
 		Reason *string `json:"reason"`
+
+		// Indicates if "Approvals Requested" status is being requested.
+		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -249,6 +255,7 @@ func (m *MTOServiceItemDomesticShuttle) UnmarshalJSON(raw []byte) error {
 	result.EstimatedWeight = data.EstimatedWeight
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
+	result.RequestApprovalsRequestedStatus = data.RequestApprovalsRequestedStatus
 
 	*m = result
 
@@ -280,6 +287,9 @@ func (m MTOServiceItemDomesticShuttle) MarshalJSON() ([]byte, error) {
 		// Example: Storage items need to be picked up.
 		// Required: true
 		Reason *string `json:"reason"`
+
+		// Indicates if "Approvals Requested" status is being requested.
+		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 	}{
 
 		ActualWeight: m.ActualWeight,
@@ -289,6 +299,8 @@ func (m MTOServiceItemDomesticShuttle) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
+
+		RequestApprovalsRequestedStatus: m.RequestApprovalsRequestedStatus,
 	})
 	if err != nil {
 		return nil, err

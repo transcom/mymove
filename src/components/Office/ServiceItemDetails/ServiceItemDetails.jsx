@@ -230,8 +230,6 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 ))
               : defaultDetailText}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -259,10 +257,12 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
   const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
 
   let detailSection;
+  const detailSectionElements = [];
+
   switch (code) {
     case SERVICE_ITEM_CODES.DOFSIT:
     case SERVICE_ITEM_CODES.IOFSIT: {
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <dl>
             {generateDetailText(
@@ -279,8 +279,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               'Estimated Price':
                 details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
             })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -294,7 +292,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
@@ -306,7 +304,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
         formatDateWithUTC(sitStatus.currentSIT.sitAuthorizedEndDate, 'DD MMM YYYY');
       const numberOfDaysApprovedForSIT = shipment.sitDaysAllowance ? shipment.sitDaysAllowance - 1 : 0;
 
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <dl>
             {generateDetailText(
@@ -335,8 +333,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               'Estimated Price':
                 details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
             })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -350,7 +346,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
@@ -358,7 +354,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case SERVICE_ITEM_CODES.IOPSIT:
     case SERVICE_ITEM_CODES.DOSFSC:
     case SERVICE_ITEM_CODES.IOSFSC: {
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <dl>
             {generateDetailText(
@@ -377,8 +373,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               'Estimated Price':
                 details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
             })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -392,7 +386,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
@@ -412,6 +406,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
         shipment,
         sitStatus,
       );
+      detailSectionElements.push(detailSection);
       break;
     }
     case SERVICE_ITEM_CODES.DCRT:
@@ -427,15 +422,13 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
         crateDimensions?.height,
       )}"`;
-      detailSection = (
+      detailSectionElements.push(
         <div className={styles.detailCrating}>
           <dl>
             {description && generateDetailText({ Description: description }, id)}
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -449,7 +442,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
@@ -465,14 +458,12 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
         crateDimensions?.height,
       )}"`;
-      detailSection = (
+      detailSectionElements.push(
         <div className={styles.detailCrating}>
           <dl>
             {description && generateDetailText({ Description: description }, id)}
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -486,22 +477,20 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
     case SERVICE_ITEM_CODES.DOSHUT:
     case SERVICE_ITEM_CODES.DDSHUT: {
       const estimatedWeight = details.estimatedWeight != null ? formatWeight(details.estimatedWeight) : `— lbs`;
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <dl>
             <div key={`${id}-estimatedWeight`} className={styles.detailLine}>
               <dd className={styles.detailType}>{estimatedWeight}</dd> <dt>estimated weight</dt>
             </div>
             {generateDetailText({ Reason: details.reason })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -515,14 +504,14 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
     case SERVICE_ITEM_CODES.IOSHUT:
     case SERVICE_ITEM_CODES.IDSHUT: {
       const estimatedWeight = details.estimatedWeight != null ? formatWeight(details.estimatedWeight) : `— lbs`;
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <dl>
             <div key={`${id}-estimatedWeight`} className={styles.detailLine}>
@@ -533,8 +522,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             })}
             {generateDetailText({ Reason: details.reason })}
             {generateDetailText({ Market: details.market })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -548,7 +535,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
@@ -567,24 +554,24 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
     case SERVICE_ITEM_CODES.POEFSC:
     case SERVICE_ITEM_CODES.PODFSC:
     case SERVICE_ITEM_CODES.UBP: {
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <dl>
             {generateDetailText({
               'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
             })}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
     case SERVICE_ITEM_CODES.MS:
     case SERVICE_ITEM_CODES.CS: {
       const { estimatedPrice } = details;
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <dl>{estimatedPrice && generateDetailText({ Price: `$${formatCents(estimatedPrice)}` }, id)}</dl>
-        </div>
+        </div>,
       );
       break;
     }
@@ -600,7 +587,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
         crateDimensions?.height,
       )}"`;
-      detailSection = (
+      detailSectionElements.push(
         <div className={styles.detailCrating}>
           <dl>
             {description && generateDetailText({ Description: description }, id)}
@@ -609,8 +596,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {externalCrate && generateDetailText({ 'External crate': 'Yes' }, id)}
             {market && generateDetailText({ Market: market }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -624,7 +609,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
@@ -640,7 +625,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
         crateDimensions?.height,
       )}"`;
-      detailSection = (
+      detailSectionElements.push(
         <div className={styles.detailCrating}>
           <dl>
             {description && generateDetailText({ Description: description }, id)}
@@ -648,8 +633,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {market && generateDetailText({ Market: market }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -663,17 +646,15 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
       break;
     }
     default:
-      detailSection = (
+      detailSectionElements.push(
         <div>
           <div>—</div>
           <dl>
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -687,13 +668,22 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
-        </div>
+        </div>,
       );
   }
-  return <div>{detailSection}</div>;
-};
+  detailSectionElements.push(
+    <div>
+      {details.rejectionReason &&
+        generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+    </div>,
+  );
 
-ServiceItemDetails.propTypes = ServiceItemDetailsShape.isRequired;
+  return (
+    <div>
+      <dl>{detailSectionElements}</dl>
+    </div>
+  );
+};
 
 ServiceItemDetails.propTypes = {
   details: ServiceItemDetailsShape,
