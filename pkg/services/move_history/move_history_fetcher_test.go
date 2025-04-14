@@ -1265,33 +1265,37 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	})
 
 	suite.Run("has audit history records for terminated shipments", func() {
-		terminator := mtoshipment.NewShipmentTermination()
+		for _, tc := range procFeatureFlagCases {
+			suite.Run(tc.testScenario, func() {
+				terminator := mtoshipment.NewShipmentTermination()
 
-		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil)
+				shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status: models.MTOShipmentStatusApproved,
+						},
+					},
+				}, nil)
 
-		terminatedShipment, err := terminator.TerminateShipment(suite.AppContextForTest(), shipment.ID, "get in the choppuh")
-		suite.NoError(err)
-		suite.Equal(shipment.ID, terminatedShipment.ID)
+				terminatedShipment, err := terminator.TerminateShipment(suite.AppContextForTest(), shipment.ID, "get in the choppuh")
+				suite.NoError(err)
+				suite.Equal(shipment.ID, terminatedShipment.ID)
 
-		params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
-		moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
-		suite.NotNil(moveHistoryData)
-		suite.NoError(err)
+				params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+				moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
+				suite.NotNil(moveHistoryData)
+				suite.NoError(err)
 
-		terminationFound := false
-		for _, h := range moveHistoryData.AuditHistories {
-			if h.AuditedTable == "mto_shipments" && *h.ObjectID == terminatedShipment.ID {
-				terminationFound = true
-				break
-			}
+				terminationFound := false
+				for _, h := range moveHistoryData.AuditHistories {
+					if h.AuditedTable == "mto_shipments" && *h.ObjectID == terminatedShipment.ID {
+						terminationFound = true
+						break
+					}
+				}
+				suite.True(terminationFound, "AuditHistories contains an AuditHistory with a terminated shipment")
+			})
 		}
-		suite.True(terminationFound, "AuditHistories contains an AuditHistory with a terminated shipment")
 	})
 }
 
