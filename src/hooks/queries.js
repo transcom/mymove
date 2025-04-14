@@ -75,7 +75,6 @@ import {
   ROLE_PRIVILEGES,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
-import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 
 /**
  * Function that fetches and attaches weight tickets to corresponding ppmShipment objects on
@@ -1179,17 +1178,11 @@ export const useRolesPrivilegesQueries = () => {
     roleName: roleObj.roleName,
     allowedPrivileges: Array.from(roleObj.allowedPrivileges),
   }));
-  // Make an array of roles that don't have Safety Moves privileges.
-  const nonSafetyRoles = rolesWithPrivs.filter(
-    (roleObj) => !roleObj.allowedPrivileges.includes(elevatedPrivilegeTypes.SAFETY),
-  );
-  const allowedSafetyRoles = rolesWithPrivs.filter((roleObj) =>
-    roleObj.allowedPrivileges.includes(elevatedPrivilegeTypes.SAFETY),
-  );
+
   const privileges = Array.from(privilegesMap.values());
 
   return {
-    result: { privileges, rolesWithPrivs, nonSafetyRoles, allowedSafetyRoles },
+    result: { privileges, rolesWithPrivs },
     isLoading,
     isError,
     isSuccess,
