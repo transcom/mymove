@@ -2366,9 +2366,12 @@ describe('MtoShipmentForm component', () => {
           await userEvent.clear(node);
           node.blur();
         });
-        expect(
-          await within(await screen.findByTestId('preferredPickupDateFieldSet')).findByTestId('errorMessage'),
-        ).toHaveTextContent('Required');
+        let dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
+        });
 
         // Trigger invalid date error - must be in the future
         await act(async () => {
@@ -2378,12 +2381,15 @@ describe('MtoShipmentForm component', () => {
           node.blur();
         });
         expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('26 Mar 2022');
-        expect(await screen.findByTestId('preferredPickupDateErrorAlert')).toHaveTextContent(
+        expect((await screen.findByTestId('preferredPickupDateErrorAlert')).firstChild).toHaveTextContent(
           'Preferred pickup date must be in the future.',
         );
-        expect(
-          await within(await screen.findByTestId('preferredPickupDateFieldSet')).findByTestId('errorMessage'),
-        ).toHaveTextContent('Required');
+        dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
+        });
 
         // Trigger invalid date error - cannot be today
         const now = formatDateForDatePicker(formatDateWithUTC(new Date()));
@@ -2394,12 +2400,15 @@ describe('MtoShipmentForm component', () => {
           node.blur();
         });
         expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(now);
-        expect(await screen.findByTestId('preferredPickupDateErrorAlert')).toHaveTextContent(
+        expect((await screen.findByTestId('preferredPickupDateErrorAlert')).firstChild).toHaveTextContent(
           'Preferred pickup date must be in the future.',
         );
-        expect(
-          await within(await screen.findByTestId('preferredPickupDateFieldSet')).findByTestId('errorMessage'),
-        ).toHaveTextContent('Required');
+        dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
+        });
       },
     );
 
@@ -2425,12 +2434,15 @@ describe('MtoShipmentForm component', () => {
           node.blur();
         });
         expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('26 Mar 2022');
-        expect(await screen.findByTestId('preferredPickupDateErrorAlert')).toHaveTextContent(
+        expect((await screen.findByTestId('preferredPickupDateErrorAlert')).firstChild).toHaveTextContent(
           'Preferred pickup date must be in the future.',
         );
-        expect(
-          await within(await screen.findByTestId('preferredPickupDateFieldSet')).findByTestId('errorMessage'),
-        ).toHaveTextContent('Required');
+        const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
+        });
 
         // Valid date, hides errors
         const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
