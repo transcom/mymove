@@ -7,6 +7,7 @@ import ShipmentContainer from './ShipmentContainer';
 
 import { shipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
 
 const headingInfo = {
   shipmentInfo: {
@@ -32,9 +33,11 @@ const headingInfo = {
 describe('Shipment Container', () => {
   it('renders the container successfully', async () => {
     render(
-      <ShipmentContainer>
-        <ShipmentHeading {...headingInfo} />
-      </ShipmentContainer>,
+      <MockProviders>
+        <ShipmentContainer>
+          <ShipmentHeading {...headingInfo} />
+        </ShipmentContainer>
+      </MockProviders>,
     );
 
     const shipmentContainer = await screen.findByTestId('ShipmentContainer');
@@ -46,9 +49,11 @@ describe('Shipment Container', () => {
 
   it('renders a child component passed to it', async () => {
     render(
-      <ShipmentContainer>
-        <ShipmentHeading {...headingInfo} />
-      </ShipmentContainer>,
+      <MockProviders>
+        <ShipmentContainer>
+          <ShipmentHeading {...headingInfo} />
+        </ShipmentContainer>
+      </MockProviders>,
     );
 
     const childHeading = await screen.findByRole('heading', { level: 2, name: headingInfo.shipmentInfo.shipmentType });
@@ -67,9 +72,11 @@ describe('Shipment Container', () => {
     };
 
     render(
-      <ShipmentContainer shipmentType={shipmentType}>
-        <ShipmentHeading {...newHeadingInfo} />
-      </ShipmentContainer>,
+      <MockProviders>
+        <ShipmentContainer shipmentType={shipmentType}>
+          <ShipmentHeading {...newHeadingInfo} />
+        </ShipmentContainer>
+      </MockProviders>,
     );
 
     const shipmentContainer = await screen.findByTestId('ShipmentContainer');
