@@ -478,6 +478,7 @@ describe('Add Orders page', () => {
       accompanied_tour: true,
       dependents_under_twelve: 1,
       dependents_twelve_and_over: 2,
+      civilian_tdy_ub_allowance: 0,
       counseling_office_id: null,
       origin_duty_location: {
         address: {
@@ -578,6 +579,7 @@ describe('Add Orders page', () => {
       counseling_office_id: null,
       dependents_twelve_and_over: null,
       dependents_under_twelve: null,
+      civilian_tdy_ub_allowance: null,
       accompanied_tour: null,
       origin_duty_location: {
         address: {
