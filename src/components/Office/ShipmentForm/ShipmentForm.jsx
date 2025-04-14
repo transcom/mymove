@@ -955,8 +955,13 @@ const ShipmentForm = (props) => {
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
                     <Fieldset data-testid="requestedPickupDateFieldSet">
-                      {isRequestedPickupDateAlertVisible && (
-                        <Alert type="warning" aria-live="polite" headingLevel="h4">
+                      {isRequestedPickupDateAlertVisible && !requestedPickupDateErrorMessage && (
+                        <Alert
+                          type="warning"
+                          aria-live="polite"
+                          headingLevel="h4"
+                          data-testid="requestedPickupDateAlert"
+                        >
                           {requestedPickupDateAlertMessage}
                         </Alert>
                       )}

@@ -359,8 +359,13 @@ class MtoShipmentForm extends Component {
                               pickup/load date should be your latest preferred pickup/load date, or the date you need to
                               be out of your origin residence.
                             </Hint>
-                            {isPreferredPickupDateAlertVisible && (
-                              <Alert type="warning" aria-live="polite" headingLevel="h4">
+                            {isPreferredPickupDateAlertVisible && !preferredPickupDateErrorMessage && (
+                              <Alert
+                                type="warning"
+                                aria-live="polite"
+                                headingLevel="h4"
+                                data-testid="preferredPickupDateAlert"
+                              >
                                 {preferredPickupDateAlertMessage}
                               </Alert>
                             )}

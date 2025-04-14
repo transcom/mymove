@@ -15,10 +15,16 @@ import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
+import { dateSelectionIsWeekendHoliday } from 'services/ghcApi';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const mockMutateFunction = jest.fn();
@@ -2594,8 +2600,17 @@ describe('ShipmentForm component', () => {
     );
 
     it.each(shipmentTypesToTest)(
-      'requestedPickupDate (isCreate:%s | %s) - validation errors hide when valid',
+      'requestedPickupDate (isCreate:%s | %s) - validation errors hide when valid and holiday alert shows',
       async (isCreate, shipmentType, mockShipment) => {
+        const expectedDateSelectionIsWeekendHolidayResponse = {
+          country_code: 'US',
+          country_name: 'United States',
+          is_weekend: true,
+          is_holiday: true,
+        };
+        dateSelectionIsWeekendHoliday.mockImplementation(() =>
+          Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+        );
         renderWithRouter(
           <ShipmentForm
             {...defaultProps}
@@ -2617,6 +2632,7 @@ describe('ShipmentForm component', () => {
         expect(await screen.findByTestId('requestedPickupDateErrorAlert')).toHaveTextContent(
           'Requested pickup date must be in the future.',
         );
+        expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
         const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
           'formGroup',
         );
@@ -2638,6 +2654,7 @@ describe('ShipmentForm component', () => {
           expect(
             within(screen.getByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
           ).not.toBeInTheDocument();
+          expect(screen.getByTestId('requestedPickupDateAlert')).toBeVisible();
         });
       },
     );

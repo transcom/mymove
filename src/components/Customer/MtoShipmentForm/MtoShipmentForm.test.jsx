@@ -2317,7 +2317,7 @@ describe('MtoShipmentForm component', () => {
     );
 
     it.each(shipmentTypesToTest)(
-      'preferredPickupDate (isCreate: %s | %s) - validation errors hide when valid',
+      'preferredPickupDate (isCreate: %s | %s) - validation errors hide when valid and holiday alert shows',
       async (isCreate, shipmentType, mockShipment) => {
         const expectedDateSelectionIsWeekendHolidayResponse = {
           country_code: 'US',
@@ -2341,6 +2341,7 @@ describe('MtoShipmentForm component', () => {
         expect((await screen.findByTestId('preferredPickupDateErrorAlert')).firstChild).toHaveTextContent(
           'Preferred pickup date must be in the future.',
         );
+        expect(screen.queryByTestId('preferredPickupDateAlert')).not.toBeInTheDocument();
         const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
           'formGroup',
         );
@@ -2363,6 +2364,7 @@ describe('MtoShipmentForm component', () => {
           expect(
             within(screen.getByTestId('preferredPickupDateFieldSet')).queryByTestId('errorMessage'),
           ).not.toBeInTheDocument();
+          expect(screen.getByTestId('preferredPickupDateAlert')).toBeVisible();
         });
       },
     );
