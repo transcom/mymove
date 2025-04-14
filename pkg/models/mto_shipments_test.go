@@ -415,15 +415,13 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.FatalNoError(err)
 		airForce := models.AffiliationAIRFORCE
 		postalCode := "99744"
-		city := "ANDERSON"
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
-					City:               city,
-					State:              "AK",
+					City:               "ANDERSON",
 				},
 			},
 		}, nil)
@@ -463,7 +461,6 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.FatalNoError(err)
 		army := models.AffiliationARMY
 		postalCode := "99744"
-		city := "ANDERSON"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
 
@@ -472,7 +469,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
-					City:               city,
+					City:               "ANDERSON",
 				},
 			},
 		}, nil)

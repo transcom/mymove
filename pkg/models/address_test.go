@@ -12,9 +12,10 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
-	usprc, err := m.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-	suite.NotNil(usprc)
-	suite.FatalNoError(err)
+
+	usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "BEVERLY HILLS")
+	suite.NoError(err)
+
 	newAddress := &m.Address{
 		StreetAddress1:     "street 1",
 		StreetAddress2:     m.StringPointer("street 2"),
@@ -24,7 +25,6 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		PostalCode:         "90210",
 		County:             m.StringPointer("County"),
 		UsPostRegionCityID: &usprc.ID,
-		UsPostRegionCity:   usprc,
 	}
 
 	verrs, err := newAddress.Validate(suite.DB())
@@ -70,14 +70,18 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 }
 
 func (suite *ModelSuite) TestAddressCountryCode() {
+	usprc, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "BEVERLY HILLS")
+	suite.NoError(err)
+
 	noCountry := m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "BEVERLY HILLS",
-		State:          "CA",
-		PostalCode:     "90210",
-		County:         m.StringPointer("county"),
+		StreetAddress1:     "street 1",
+		StreetAddress2:     m.StringPointer("street 2"),
+		StreetAddress3:     m.StringPointer("street 3"),
+		City:               "BEVERLY HILLS",
+		State:              "CA",
+		PostalCode:         "90210",
+		County:             m.StringPointer("county"),
+		UsPostRegionCityID: &usprc.ID,
 	}
 
 	var expected *string
@@ -442,7 +446,6 @@ func (suite *ModelSuite) TestIsAddressAlaska() {
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
 		City:           "BEVERLY HILLS",
-		State:          "CA",
 		PostalCode:     "90210",
 		County:         m.StringPointer("County"),
 	}

@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"log"
+
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -21,16 +23,12 @@ func MakeAddress(db *pop.Connection, assertions Assertions) (models.Address, err
 
 	mergeModels(&address, assertions.Address)
 
-	if db != nil {
-		var err error
-		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
-		if err != nil {
-			return models.Address{}, err
-		}
-
-		address.UsPostRegionCity = usprc
-		address.UsPostRegionCityID = &usprc.ID
+	usPostRegionCity, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+	if err != nil {
+		log.Panic(err)
 	}
+	address.UsPostRegionCity = usPostRegionCity
+	address.UsPostRegionCityID = &usPostRegionCity.ID
 
 	mustCreate(db, &address, assertions.Stub)
 
@@ -52,16 +50,12 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) (models.Address, er
 
 	mergeModels(&address, assertions.Address)
 
-	if db != nil {
-		var err error
-		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
-		if err != nil {
-			return models.Address{}, err
-		}
-
-		address.UsPostRegionCity = usprc
-		address.UsPostRegionCityID = &usprc.ID
+	usPostRegionCity, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+	if err != nil {
+		log.Panic(err)
 	}
+	address.UsPostRegionCity = usPostRegionCity
+	address.UsPostRegionCityID = &usPostRegionCity.ID
 
 	mustCreate(db, &address, assertions.Stub)
 
@@ -83,16 +77,12 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) (models.Address, er
 
 	mergeModels(&address, assertions.Address)
 
-	if db != nil {
-		var err error
-		usprc, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
-		if err != nil {
-			return models.Address{}, err
-		}
-
-		address.UsPostRegionCity = usprc
-		address.UsPostRegionCityID = &usprc.ID
+	usPostRegionCity, err := models.FindByZipCodeAndCity(db, address.PostalCode, address.City)
+	if err != nil {
+		log.Panic(err)
 	}
+	address.UsPostRegionCity = usPostRegionCity
+	address.UsPostRegionCityID = &usPostRegionCity.ID
 
 	mustCreate(db, &address, assertions.Stub)
 

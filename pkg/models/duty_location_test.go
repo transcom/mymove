@@ -17,8 +17,8 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	newAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "FORT BRAGG",
-		State:          "CA",
-		PostalCode:     "95437",
+		State:          "NC",
+		PostalCode:     "28310",
 	}
 	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
 	suite.NoError(err)
@@ -61,9 +61,9 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 
 	newAddress2 := models.Address{
 		StreetAddress1: "some address",
-		City:           "VIRGINIA BEACH",
-		State:          "VA",
-		PostalCode:     "23456",
+		City:           "BOURNEVILLE",
+		State:          "OH",
+		PostalCode:     "45617",
 	}
 	createdAddress2, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress2)
 	suite.NoError(err)
@@ -104,16 +104,16 @@ func (suite *ModelSuite) TestFindDutyLocationExcludeStates() {
 		StreetAddress1: "some address",
 		City:           "ANCHORAGE",
 		State:          "AK",
-		PostalCode:     "99515",
+		PostalCode:     "99511",
 	}
 	createdAddress1, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAKAddress)
 	suite.NoError(err)
 
 	newHIAddress := models.Address{
 		StreetAddress1: "some address",
-		City:           "PEARL HARBOR",
+		City:           "HANA",
 		State:          "HI",
-		PostalCode:     "96860",
+		PostalCode:     "96713",
 	}
 	createdAddress2, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newHIAddress)
 	suite.NoError(err)
@@ -273,9 +273,9 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 
 		address := models.Address{
 			StreetAddress1:     "n/a",
-			City:               city,
-			State:              usprc.State,
-			PostalCode:         postalCode,
+			City:               usprc.USPostRegionCityNm,
+			State:              "AK",
+			PostalCode:         usprc.UsprZipID,
 			County:             models.StringPointer("SomeCounty"),
 			IsOconus:           models.BoolPointer(true),
 			UsPostRegionCityID: &usprc.ID,
@@ -495,9 +495,9 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Po_Box_Zip() {
 
 		address := models.Address{
 			StreetAddress1:     "n/a",
-			City:               city,
-			State:              usprc.State,
-			PostalCode:         postalCode,
+			City:               usprc.USPostRegionCityNm,
+			State:              "VA",
+			PostalCode:         usprc.UsprZipID,
 			County:             models.StringPointer("SomeCounty"),
 			IsOconus:           models.BoolPointer(true),
 			UsPostRegionCityID: &usprc.ID,

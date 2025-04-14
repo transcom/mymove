@@ -65,7 +65,6 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, error) {
-
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"})
 	vs = append(vs, &validators.StringIsPresent{Field: a.City, Name: "City"})
@@ -94,6 +93,43 @@ func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, erro
 	}
 
 	return validate.Validate(vs...), nil
+}
+
+// Validate an addresses USPRC assignment
+func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, error) {
+
+	if address.UsPostRegionCityID != nil && strings.TrimSpace(address.City) != "" && strings.TrimSpace(address.PostalCode) != "" {
+		expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			return false, err
+		}
+
+		if expectedUSPRC.ID == *address.UsPostRegionCityID {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func ValidPostalCode(db *pop.Connection, postalCode string) (bool, error) {
+
+	valid := true
+
+	zipCount, err := db.Where("uspr_zip_id = $1", postalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
+	if err != nil {
+		return false, err
+	}
+
+	if zipCount == 0 {
+		valid = false
+	}
+
+	if len(strings.TrimSpace(postalCode)) != 5 {
+		valid = false
+	}
+
+	return valid, nil
 }
 
 // MarshalLogObject is required to be able to zap.Object log TDLs
@@ -256,41 +292,4 @@ func FetchAddressGbloc(db *pop.Connection, address Address, serviceMember Servic
 	}
 
 	return gbloc, nil
-}
-
-// Validate an addresses USPRC assignment
-func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, error) {
-
-	if address.UsPostRegionCityID != nil && strings.TrimSpace(address.City) != "" && strings.TrimSpace(address.PostalCode) != "" {
-		expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
-		if err != nil {
-			return false, err
-		}
-
-		if expectedUSPRC.ID == *address.UsPostRegionCityID {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
-func ValidPostalCode(db *pop.Connection, postalCode string) (bool, error) {
-
-	valid := true
-
-	zipCount, err := db.Where("uspr_zip_id = $1", postalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
-	if err != nil {
-		return false, err
-	}
-
-	if zipCount == 0 {
-		valid = false
-	}
-
-	if len(strings.TrimSpace(postalCode)) != 5 {
-		valid = false
-	}
-
-	return valid, nil
 }

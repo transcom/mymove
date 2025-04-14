@@ -442,9 +442,9 @@ func (suite *ModelSuite) TestSaveOrder() {
 
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
-		PostalCode:     newPostalCode,
 		City:           "FORT BRAGG",
-		State:          "CA",
+		State:          "NC",
+		PostalCode:     newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
 	suite.NoError(err)
@@ -502,9 +502,9 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	addressCreator := address.NewAddressCreator()
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
-		PostalCode:     newPostalCode,
 		City:           "FORT BRAGG",
-		State:          "CA",
+		State:          "NC",
+		PostalCode:     newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
 	suite.NoError(err)
