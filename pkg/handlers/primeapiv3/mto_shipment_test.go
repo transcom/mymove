@@ -95,9 +95,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mtoServiceItemCreator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
-	mockCreator := mocks.ShipmentCreator{}
+	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
+	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primev3messages.Address
 	var secondaryPickupAddress primev3messages.Address
@@ -110,7 +112,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
@@ -315,7 +316,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Validate outgoing payload
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
-		// check that the mto shipment status is Submitted
+		// check that the mto shipment status is submitted
 		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
@@ -330,6 +331,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler, move := setupTestData(true, true)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "International St.",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		oconusDestAddress := primev3messages.Address{
+			City:           &oconusAddress.City,
+			PostalCode:     &oconusAddress.PostalCode,
+			State:          &oconusAddress.State,
+			StreetAddress1: &oconusAddress.StreetAddress1,
+			StreetAddress2: oconusAddress.StreetAddress2,
+			StreetAddress3: oconusAddress.StreetAddress3,
+		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -341,7 +364,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
+				DestinationAddress:   struct{ primev3messages.Address }{oconusDestAddress},
 			},
 		}
 
@@ -357,8 +380,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
 		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, "MTO Shipment should have been submitted")
-		suite.Require().Equal(createMTOShipmentPayload.Status, primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, createMTOShipmentPayload.ShipmentType, "MTO Shipment type should be unaccompanied baggage")
+		suite.Require().Equal(primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, createMTOShipmentPayload.Status, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
