@@ -1398,7 +1398,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1415,7 +1415,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal("Prime", *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1432,7 +1432,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1449,7 +1449,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1465,7 +1465,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, user.ID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(user.ID, *auditHistoriesForUser[0].SessionUserID)
 				suite.Equal(fakeEventName, *auditHistoriesForUser[0].EventName)
 			})
 		}
