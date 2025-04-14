@@ -2,14 +2,16 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import approveSITExtension from 'constants/MoveHistory/EventTemplates/ApproveSITExtension/approveSITExtension';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import Actions from 'constants/MoveHistory/Database/Actions';
 
-describe('when given a Approve SIT Extension item history record', () => {
+describe('when given an Approve SIT Extension item history record', () => {
   const historyRecord = {
-    action: 'UPDATE',
+    action: Actions.UPDATE,
     changedValues: {
       decision_date: '2025-04-09T13:43:45.090591',
       office_remarks: 'approved',
-      status: 'APPROVED',
+      status: SIT_EXTENSION_STATUS.APPROVED,
       approved_days: 10,
     },
     context: [

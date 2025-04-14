@@ -2,10 +2,11 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import approveSITExtensionShipment from 'constants/MoveHistory/EventTemplates/ApproveSITExtension/approveSITExtensionShipment';
+import Actions from 'constants/MoveHistory/Database/Actions';
 
-describe('when given a Approve SIT Extension Shipment item history record', () => {
+describe('when given an Approve SIT Extension Shipment item history record', () => {
   const historyRecord = {
-    action: 'UPDATE',
+    action: Actions.UPDATE,
     changedValues: {
       dest_sit_auth_end_date: '2025-11-13',
     },

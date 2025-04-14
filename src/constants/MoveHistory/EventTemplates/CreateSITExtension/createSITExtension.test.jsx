@@ -2,15 +2,17 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import createSITExtension from 'constants/MoveHistory/EventTemplates/CreateSITExtension/createSITExtension';
+import { SIT_EXTENSION_REASON, SIT_EXTENSION_REASONS, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
+import Actions from 'constants/MoveHistory/Database/Actions';
 
 describe('when given a Create SIT Extension item history record', () => {
   const historyRecord = {
-    action: 'INSERT',
+    action: Actions.INSERT,
     changedValues: {
       contractor_remarks: 'remarks',
-      request_reason: 'SERIOUS_ILLNESS_MEMBER',
+      request_reason: SIT_EXTENSION_REASON.SERIOUS_ILLNESS_MEMBER,
       requested_days: 10,
-      status: 'PENDING',
+      status: SIT_EXTENSION_STATUS.PENDING,
     },
     context: [
       {
@@ -42,7 +44,7 @@ describe('when given a Create SIT Extension item history record', () => {
     expect(screen.getByText('Contractor remarks')).toBeInTheDocument();
     expect(screen.getByText(': remarks')).toBeInTheDocument();
     expect(screen.getByText('Request reason')).toBeInTheDocument();
-    expect(screen.getByText(': Serious illness of the member')).toBeInTheDocument();
+    expect(screen.getByText(`: ${SIT_EXTENSION_REASONS.SERIOUS_ILLNESS_MEMBER}`)).toBeInTheDocument();
     expect(screen.getByText('Requested days')).toBeInTheDocument();
     expect(screen.getByText(': 10')).toBeInTheDocument();
   });
