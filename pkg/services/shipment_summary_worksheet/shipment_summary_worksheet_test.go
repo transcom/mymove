@@ -99,14 +99,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
 	gradeWtgAllotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(grade), ordersType)
 	suite.NoError(err)
-	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelfPlusDependents), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
 	suite.Equal(unit.Pound(500), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.Order.Grade)
 	weightAllotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(*ssd.Order.Grade), ssd.Order.OrdersType)
 	suite.NoError(err)
 	// E_9 rank, no dependents, with spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
+	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
@@ -1152,13 +1152,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
-	hasDependants := true
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	waf := entitlements.NewWeightAllotmentFetcher()
 	allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE1), ordersType)
 	suite.NoError(err)
 	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, hasDependants, spouseHasProGear, ordersType)
+	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil), spouseHasProGear, ordersType)
 	suite.NoError(err)
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
@@ -1168,13 +1167,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement()
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNoDependants() {
 	spouseHasProGear := false
-	hasDependants := false
 	waf := entitlements.NewWeightAllotmentFetcher()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	allotment, err := waf.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE1), ordersType)
 	suite.NoError(err)
 	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, hasDependants, spouseHasProGear, ordersType)
+	sswEntitlement, err := SSWGetEntitlement(suite.AppContextForTest(), models.ServiceMemberGradeE1, factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil), spouseHasProGear, ordersType)
 	suite.NoError(err)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
