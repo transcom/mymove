@@ -32,7 +32,7 @@ export const CertificationText = ({ certificationText, onScrollToBottom }) => {
 
   return (
     <div className="certification_text_box" onScroll={handleScroll}>
-      <Box ref={scrollContainerRef} onScroll={handleScroll}>
+      <Box data-testid="certificationTextBox" ref={scrollContainerRef} onScroll={handleScroll}>
         {getTextMarkdown(certificationText)}
       </Box>
     </div>

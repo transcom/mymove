@@ -32,21 +32,50 @@ describe('SubmitMoveForm component', () => {
     });
   });
 
-  it('submits the form when its valid', async () => {
+  it('submits the form when it is valid', async () => {
     await act(async () => {
       render(<SubmitMoveForm {...testProps} />);
     });
 
-    const signatureInput = screen.getByLabelText('SIGNATURE');
+    const docContainer = screen.getByTestId('certificationTextBox');
+
+    // Mock scroll values to simulate reaching the bottom
+    Object.defineProperty(docContainer, 'scrollHeight', {
+      configurable: true,
+      value: 300,
+    });
+    Object.defineProperty(docContainer, 'clientHeight', {
+      configurable: true,
+      value: 100,
+    });
+    Object.defineProperty(docContainer, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 200,
+    });
+
+    // Trigger scroll event on the correct element
+    fireEvent.scroll(docContainer);
+
+    // Wait for checkbox to become enabled
+    const checkbox = await screen.findByRole('checkbox', {
+      name: /i have read and understand/i,
+    });
+    await waitFor(() => expect(checkbox).toBeEnabled());
+
+    // Click the checkbox
+    userEvent.click(checkbox);
+
+    // Type into the signature input (should now be enabled)
+    const signatureInput = await screen.findByLabelText('SIGNATURE');
+    await waitFor(() => expect(signatureInput).toBeEnabled());
+    await userEvent.type(signatureInput, testProps.currentUser);
+
+    // Click the complete button
     const submitBtn = screen.getByTestId('wizardCompleteButton');
+    await userEvent.click(submitBtn);
 
-    await act(async () => {
-      await userEvent.type(signatureInput, testProps.currentUser);
-    });
-    await act(async () => {
-      await fireEvent.click(submitBtn);
-    });
-
+    // Wait for form submission
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
     });

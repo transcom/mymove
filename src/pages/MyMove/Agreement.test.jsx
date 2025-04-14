@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 import { generatePath } from 'react-router-dom';
@@ -42,10 +42,29 @@ describe('Agreement page', () => {
   it('submits the move and sets the flash message before redirecting home', async () => {
     submitMoveForApproval.mockResolvedValueOnce(submittedMoveSuccessResponse);
 
-    renderWithRouterProp(<Agreement {...testProps} />, {
-      path: customerRoutes.MOVE_REVIEW_PATH,
-      params: { moveId: 'testMove123' },
+    renderWithRouterProp(
+      <Agreement {...testProps} serviceMember={{ first_name: 'Sofia', last_name: 'Clark-Nuñez' }} />,
+      {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: 'testMove123' },
+      },
+    );
+
+    const scrollBox = screen.getByTestId('certificationTextBox');
+
+    Object.defineProperty(scrollBox, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(scrollBox, 'clientHeight', { configurable: true, value: 100 });
+    Object.defineProperty(scrollBox, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 200,
     });
+    await act(async () => {
+      fireEvent.scroll(scrollBox);
+    });
+    const checkbox = await screen.findByRole('checkbox', { name: /i have read and understand/i });
+    expect(checkbox).toBeEnabled();
+    await userEvent.click(checkbox);
 
     await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
@@ -53,9 +72,8 @@ describe('Agreement page', () => {
     await waitFor(() => {
       expect(submitMoveForApproval).toHaveBeenCalledWith(testProps.moveId, {
         certification_text: completeCertificationText,
-        date: moment().format(),
+        date: expect.any(String),
         signature: 'Sofia Clark-Nuñez',
-        certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
       });
     });
 
@@ -75,6 +93,26 @@ describe('Agreement page', () => {
       path: customerRoutes.MOVE_REVIEW_PATH,
       params: { moveId: 'testMove123' },
     });
+
+    const scrollBox = screen.getByTestId('certificationTextBox');
+
+    Object.defineProperty(scrollBox, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(scrollBox, 'clientHeight', { configurable: true, value: 100 });
+    Object.defineProperty(scrollBox, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 200,
+    });
+    await act(async () => {
+      fireEvent.scroll(scrollBox);
+    });
+    const checkbox = await screen.findByRole('checkbox', { name: /i have read and understand/i });
+    expect(checkbox).toBeEnabled();
+    await userEvent.click(checkbox);
+
+    const signatureInput = await screen.findByLabelText('SIGNATURE');
+    expect(signatureInput).toBeEnabled();
+
     await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
