@@ -9,7 +9,7 @@ import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 const RolesPrivilegesCheckboxInput = (props) => {
   const { adminUser, validate } = props;
   const { result } = useRolesPrivilegesQueries();
-  const { rolesWithPrivs, privileges, nonSafetyRoles, allowedSafetyRoles } = result;
+  const { rolesWithPrivs, privileges } = result;
   const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
 
   let rolesSelected = [];
@@ -20,6 +20,16 @@ const RolesPrivilegesCheckboxInput = (props) => {
       setHeadquartersRoleFF(enabled);
     });
   }, []);
+
+  // Make an array of roles that don't have Safety Moves privileges.
+  const nonSafetyRoles = rolesWithPrivs.filter(
+    (roleObj) => !roleObj.allowedPrivileges.includes(elevatedPrivilegeTypes.SAFETY),
+  );
+
+  // Make an array of roles that do have Safety Moves privileges.
+  const allowedSafetyRoles = rolesWithPrivs.filter((roleObj) =>
+    roleObj.allowedPrivileges.includes(elevatedPrivilegeTypes.SAFETY),
+  );
 
   const makeRoleTypeArray = (roles) => {
     if (!roles || roles.length === 0) {
