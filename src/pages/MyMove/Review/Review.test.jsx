@@ -33,11 +33,6 @@ jest.mock('services/internalApi', () => ({
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
-
 afterEach(jest.resetAllMocks);
 
 describe('Review page', () => {
