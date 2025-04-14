@@ -3,6 +3,7 @@ export const expenseTypes = {
   OIL: 'OIL',
   PACKING_MATERIALS: 'PACKING_MATERIALS',
   RENTAL_EQUIPMENT: 'RENTAL_EQUIPMENT',
+  SMALL_PACKAGE: 'SMALL_PACKAGE',
   STORAGE: 'STORAGE',
   TOLLS: 'TOLLS',
   WEIGHING_FEE: 'WEIGHING_FEE',
@@ -14,6 +15,7 @@ export const expenseTypesArr = [
   'OIL',
   'PACKING_MATERIALS',
   'RENTAL_EQUIPMENT',
+  'SMALL_PACKAGE',
   'STORAGE',
   'TOLLS',
   'WEIGHING_FEE',
@@ -25,6 +27,7 @@ export const expenseTypeLabels = {
   OIL: 'Oil',
   PACKING_MATERIALS: 'Packing materials',
   RENTAL_EQUIPMENT: 'Rental equipment',
+  SMALL_PACKAGE: 'Small package reimbursement',
   STORAGE: 'Storage',
   TOLLS: 'Tolls',
   WEIGHING_FEE: 'Weighing fee',
@@ -33,22 +36,16 @@ export const expenseTypeLabels = {
 
 export const getExpenseTypeValue = (key) => expenseTypeLabels[key];
 
-export const llvmExpenseTypes = {
-  'Contracted expense': 'CONTRACTED_EXPENSE',
-  Oil: 'OIL',
-  'Packing materials': 'PACKING_MATERIALS',
-  'Rental equipment': 'RENTAL_EQUIPMENT',
-  Storage: 'STORAGE',
-  Tolls: 'TOLLS',
-  'Weighing fee': 'WEIGHING_FEE',
-  Other: 'OTHER',
-};
+export const llvmExpenseTypes = Object.fromEntries(
+  Object.entries(expenseTypeLabels).map(([key, value]) => [value, key]),
+);
 
 export const ppmExpenseTypes = [
   { value: 'Contracted expense', key: 'CONTRACTED_EXPENSE' },
   { value: 'Oil', key: 'OIL' },
   { value: 'Packing materials', key: 'PACKING_MATERIALS' },
   { value: 'Rental equipment', key: 'RENTAL_EQUIPMENT' },
+  { value: 'Small package reimbursement', key: 'SMALL_PACKAGE' },
   { value: 'Storage', key: 'STORAGE' },
   { value: 'Tolls', key: 'TOLLS' },
   { value: 'Weighing fee', key: 'WEIGHING_FEE' },
