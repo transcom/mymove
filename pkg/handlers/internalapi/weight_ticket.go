@@ -128,10 +128,11 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 						), err
 				case apperror.EventError:
 					return weightticketops.
-						NewUpdateWeightTicketInternalServerError().
+						NewUpdateWeightTicketBadRequest().
 						WithPayload(
-							payloads.InternalServerError(
-								swag.String(err.Error()),
+							payloads.ClientError(
+								handlers.InternalServerErrMessage,
+								*swag.String(err.Error()),
 								h.GetTraceIDFromRequest(params.HTTPRequest),
 							),
 						), err
