@@ -23,6 +23,9 @@ func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, t
 		}
 	}
 
+	// Incases of no DB connection
+	defaultID := uuid.FromStringOrNil("3b9f0ae6-3b2b-44a6-9fcd-8ead346648c4")
+
 	usPostRegionCity := models.UsPostRegionCity{
 		UsprZipID:          "90210",
 		USPostRegionCityNm: "BEVERLY HILLS",
@@ -39,12 +42,19 @@ func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, t
 	// If db is false, it's a stub. No need to create in database.
 	if db != nil {
 
+		isValidPostalCode, err := models.ValidPostalCode(db, usPostRegionCity.UsprZipID)
+		if err != nil {
+			log.Panic(err)
+		}
+
 		fetchedUsPostRegionCity, err := models.FindByZipCodeAndCity(db, usPostRegionCity.UsprZipID, usPostRegionCity.USPostRegionCityNm)
 		if err != nil && err != sql.ErrNoRows {
 			if errors.Unwrap(err) != nil {
 				unWrappedErr := errors.Unwrap(err)
 				if unWrappedErr == sql.ErrNoRows {
-					mustCreate(db, &usPostRegionCity)
+					if isValidPostalCode {
+						mustCreate(db, &usPostRegionCity)
+					}
 				} else {
 					log.Panic(err)
 				}
@@ -54,7 +64,13 @@ func FetchOrBuildUsPostRegionCity(db *pop.Connection, customs []Customization, t
 		} else if err == nil && fetchedUsPostRegionCity != nil {
 			return *fetchedUsPostRegionCity
 		} else {
-			mustCreate(db, &usPostRegionCity)
+			if isValidPostalCode {
+				mustCreate(db, &usPostRegionCity)
+			}
+		}
+
+		if !isValidPostalCode {
+			usPostRegionCity.ID = defaultID
 		}
 
 	}
