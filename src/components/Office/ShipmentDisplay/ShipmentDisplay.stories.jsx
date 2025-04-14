@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import {
   ordersLOA,
@@ -25,8 +24,6 @@ import { store } from 'shared/store';
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 
-const queryClient = new QueryClient();
-
 export default {
   title: 'Office Components/Shipment Display',
   component: ShipmentDisplay,
@@ -35,23 +32,19 @@ export default {
       // Dont wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
         return (
-          <QueryClientProvider client={queryClient}>
-            <Provider store={store}>
-              <MockRouterProvider>
-                <Story />
-              </MockRouterProvider>
-            </Provider>
-          </QueryClientProvider>
+          <Provider store={store}>
+            <MockRouterProvider>
+              <Story />
+            </MockRouterProvider>
+          </Provider>
         );
       }
 
       // By default, show component with permissions
       return (
-        <QueryClientProvider client={queryClient}>
-          <MockProviders permissions={[permissionTypes.updateShipment]}>
-            <Story />
-          </MockProviders>
-        </QueryClientProvider>
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <Story />
+        </MockProviders>
       );
     },
   ],
