@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, act, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import SubmitMoveForm from './SubmitMoveForm';
@@ -9,6 +9,7 @@ describe('SubmitMoveForm component', () => {
     onSubmit: jest.fn(),
     onPrint: jest.fn(),
     onBack: jest.fn(),
+    currentUser: 'Test User',
     initialValues: { signature: '', date: '2021-01-20' },
   };
 
@@ -32,13 +33,19 @@ describe('SubmitMoveForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    const { getByLabelText, getByTestId } = render(<SubmitMoveForm {...testProps} />);
+    await act(async () => {
+      render(<SubmitMoveForm {...testProps} />);
+    });
 
-    const signatureInput = getByLabelText('SIGNATURE');
-    const submitBtn = getByTestId('wizardCompleteButton');
+    const signatureInput = screen.getByLabelText('SIGNATURE');
+    const submitBtn = screen.getByTestId('wizardCompleteButton');
 
-    await userEvent.type(signatureInput, 'My Name');
-    await userEvent.click(submitBtn);
+    await act(async () => {
+      await userEvent.type(signatureInput, testProps.currentUser);
+    });
+    await act(async () => {
+      await fireEvent.click(submitBtn);
+    });
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();

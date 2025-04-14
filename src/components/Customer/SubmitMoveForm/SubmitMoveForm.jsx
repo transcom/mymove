@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import { Button, TextInput, Label, FormGroup, Fieldset, ErrorMessage, Grid, Alert } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
-import { Checkbox } from '@material-ui/core';
+import { Checkbox, FormControlLabel } from '@material-ui/core';
 
 import styles from './SubmitMoveForm.module.scss';
 
@@ -14,12 +14,16 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import CertificationText from 'components/CertificationText/CertificationText';
 
 const SubmitMoveForm = (props) => {
-  const { initialValues, onPrint, onSubmit, onBack, certificationText, error } = props;
+  const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser } = props;
   const [hasReadTheAgreement, setHasReadTheAgreement] = useState(false);
   const [hasAcknowledgedTerms, sethasAcknowledgedTerms] = useState(false);
 
   const validationSchema = Yup.object().shape({
-    signature: Yup.string().required('Required'),
+    signature: Yup.string()
+      .required('Required')
+      .test('matches-user-name', 'Typed signature must match your exact user name', (signature) => {
+        return signature === currentUser;
+      }),
     date: Yup.date().required(),
   });
 
@@ -48,15 +52,19 @@ const SubmitMoveForm = (props) => {
 
               <CertificationText certificationText={certificationText} onScrollToBottom={setHasReadTheAgreement} />
 
-              <p>
-                <Checkbox
-                  name="acknowledgementCheckbox"
-                  color="primary"
-                  disabled={!hasReadTheAgreement}
-                  onChange={hasAgreedToTheTermsEvent}
-                />{' '}
-                I have read and understand the agreement as shown above,
-              </p>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="acknowledgementCheckbox"
+                      color="primary"
+                      disabled={!hasReadTheAgreement}
+                      onChange={hasAgreedToTheTermsEvent}
+                    />
+                  }
+                  label="I have read and understand the agreement as shown above"
+                />
+              </FormGroup>
 
               <div className={styles.signatureBox}>
                 <h3>SIGNATURE</h3>
@@ -64,7 +72,13 @@ const SubmitMoveForm = (props) => {
                   In consideration of said household goods or mobile homes being shipped at Government expense, I hereby
                   agree to the certifications stated above.
                 </p>
+
                 <Fieldset>
+                  <Grid row>
+                    <Grid tablet={{ col: 'fill' }}>
+                      <p>{currentUser}</p>
+                    </Grid>
+                  </Grid>
                   <Grid row gap>
                     <Grid tablet={{ col: 'fill' }}>
                       <FormGroup error={showSignatureError}>
@@ -87,6 +101,11 @@ const SubmitMoveForm = (props) => {
                         <Label htmlFor="date">Date</Label>
                         <Field as={TextInput} name="date" id="date" disabled />
                       </FormGroup>
+                    </Grid>
+                  </Grid>
+                  <Grid row gap>
+                    <Grid tablet={{ col: 'fill' }}>
+                      <p>Typed signature must match displayed name</p>
                     </Grid>
                   </Grid>
                 </Fieldset>
