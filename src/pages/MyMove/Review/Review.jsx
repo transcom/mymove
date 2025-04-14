@@ -27,7 +27,6 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   const navigate = useNavigate();
   const [multiMove, setMultiMove] = useState(false);
   const { moveId } = useParams();
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
   const handleCancel = () => {
     if (multiMove) {
@@ -45,9 +44,6 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
     });
     isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
-    });
-    isBooleanFlagEnabled('move_lock').then((enabled) => {
-      setMoveLockFlag(enabled);
     });
   }, [updateAllMoves, serviceMemberId]);
 
@@ -70,10 +66,10 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
 
   useEffect(() => {
     const now = new Date();
-    if (now < new Date(move?.lockExpiresAt) && moveLockFlag) {
+    if (now < new Date(move?.lockExpiresAt)) {
       setIsMoveLocked(true);
     }
-  }, [move, moveLockFlag]);
+  }, [move]);
 
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {

@@ -101,13 +101,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
-  const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsManageSupportingDocsEnabled(await isBooleanFlagEnabled('manage_supporting_docs'));
-      setMoveLockFlag(await isBooleanFlagEnabled('move_lock'));
     };
     fetchData();
   }, []);
@@ -158,10 +156,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   useEffect(() => {
     const now = new Date();
-    if (now < new Date(move?.lockExpiresAt) && moveLockFlag) {
+    if (now < new Date(move?.lockExpiresAt)) {
       setIsMoveLocked(true);
     }
-  }, [move, moveLockFlag]);
+  }, [move]);
 
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {

@@ -39,7 +39,7 @@ jest.mock('services/internalApi', () => ({
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(true)),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const props = {
@@ -1211,6 +1211,7 @@ afterEach(() => {
 describe('Home component', () => {
   describe('with default props, renders the right allowances', () => {
     it('renders Home with the right amount of components', async () => {
+      isBooleanFlagEnabled.mockResolvedValue(true);
       let wrapper;
       // wrapping rendering in act to ensure all state updates are complete
       await act(async () => {
@@ -1281,7 +1282,6 @@ describe('Home component', () => {
     it('renders Home with the right amount of components', async () => {
       const moveId = defaultWithLock.serviceMemberMoves.currentMove[0].id;
       getAllMoves.mockResolvedValue(true);
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       await act(async () => {
         render(
           <MockProviders path={customerRoutes.MOVE_HOME_PATH} params={{ moveId }}>
@@ -1340,6 +1340,7 @@ describe('Home component', () => {
   });
 
   describe('with default props, orders and unsubmitted HHG & PPM shipments', () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithUnsubmittedShipments);
 
     it('renders Home with the right amount of components', () => {

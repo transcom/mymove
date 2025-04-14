@@ -10,7 +10,6 @@ import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entit
 import { customerRoutes } from 'constants/routes';
 import { getAllMoves } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
@@ -433,7 +432,6 @@ describe('Review page', () => {
   });
 
   it('Finish Later button goes back to the home page', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
@@ -452,7 +450,6 @@ describe('Review page', () => {
   });
 
   it('next button goes to the Agreement page when move is in DRAFT status', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
@@ -471,7 +468,6 @@ describe('Review page', () => {
   });
 
   it('next button goes to the Agreement page when move is in DRAFT status with only HHG shipment', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
@@ -490,7 +486,6 @@ describe('Review page', () => {
   });
 
   it('return home button is shown when move is locked by an office user', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const testServiceMemberMovesWithLock = cloneDeep(testServiceMemberMoves);
     testServiceMemberMovesWithLock.previousMoves[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
     selectAllMoves.mockImplementation(() => testServiceMemberMovesWithLock);
@@ -505,7 +500,6 @@ describe('Review page', () => {
   });
 
   it('next button is disabled when a PPM shipment is in an incomplete state', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
@@ -520,7 +514,6 @@ describe('Review page', () => {
   });
 
   it('next button is disabled when a there are no shipments', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
@@ -535,7 +528,6 @@ describe('Review page', () => {
   });
 
   it('return home button is displayed when move has been submitted', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
@@ -550,7 +542,6 @@ describe('Review page', () => {
   });
 
   it('renders the success alert flash message', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
