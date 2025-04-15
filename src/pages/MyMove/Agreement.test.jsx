@@ -72,8 +72,9 @@ describe('Agreement page', () => {
     await waitFor(() => {
       expect(submitMoveForApproval).toHaveBeenCalledWith(testProps.moveId, {
         certification_text: completeCertificationText,
-        date: expect.any(String),
+        date: moment().format(),
         signature: 'Sofia Clark-Nuñez',
+        certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
       });
     });
 
@@ -89,10 +90,13 @@ describe('Agreement page', () => {
   it('renders an error if submitting the move responds with a server error', async () => {
     submitMoveForApproval.mockRejectedValueOnce({ errors: { signature: 'Signature can not be blank.' } });
 
-    renderWithRouterProp(<Agreement {...testProps} />, {
-      path: customerRoutes.MOVE_REVIEW_PATH,
-      params: { moveId: 'testMove123' },
-    });
+    renderWithRouterProp(
+      <Agreement {...testProps} serviceMember={{ first_name: 'Sofia', last_name: 'Clark-Nuñez' }} />,
+      {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: 'testMove123' },
+      },
+    );
 
     const scrollBox = screen.getByTestId('certificationTextBox');
 
