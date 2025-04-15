@@ -284,7 +284,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     if (hasAnyShipments()) {
       return (
         <div>
-          <div style={{ marginLeft: '-15px' }}>
+          <div className={styles.addShipmentIcon}>
             <FontAwesomeIcon icon="plus" />
             &nbsp;&nbsp; Add a shipment
           </div>
