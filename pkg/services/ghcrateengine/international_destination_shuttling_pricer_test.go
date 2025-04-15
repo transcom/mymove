@@ -13,10 +13,10 @@ import (
 
 const (
 	idshutTestMarket               = models.Market("O")
-	idshutTestBasePriceCents       = unit.Cents(353)
-	idshutTestEscalationCompounded = 1.125
+	idshutTestBasePriceCents       = unit.Cents(15623)
+	idshutTestEscalationCompounded = 1.11000
 	idshutTestWeight               = unit.Pound(4000)
-	idshutTestPriceCents           = unit.Cents(15880)
+	idshutTestPriceCents           = unit.Cents(693680)
 )
 
 var idshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -33,7 +33,7 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalDestinationShuttlingPri
 		suite.Equal(idshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(idshutTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(idshutTestBasePriceCents)},
 		}
@@ -71,7 +71,7 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalDestinationShuttlingPri
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, ioshutTestMarket, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
-		twoYearsLaterPickupDate := idshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := idshutTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, idshutTestWeight, idshutTestMarket)
 		suite.Error(err)
 

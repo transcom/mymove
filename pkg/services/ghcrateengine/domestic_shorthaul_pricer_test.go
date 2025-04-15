@@ -74,7 +74,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		paymentServiceItem := suite.setupDomesticShorthaulServiceItems(requestedPickup)
 		expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
 		cost, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(6566400)
+		expectedCost := unit.Cents(6998400)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
@@ -328,11 +328,13 @@ func (suite *GHCRateEngineServiceSuite) removeOnePaymentServiceItem(paymentServi
 }
 
 func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Escalation:           1.0197,
 				EscalationCompounded: 1.0407,
+				StartDate:            testdatagen.ContractStartDate,
+				EndDate:              testdatagen.ContractEndDate,
 			},
 		})
 
@@ -348,7 +350,6 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDSH,
-				Name: "Dom. Shorthaul",
 			},
 		},
 	}, nil)

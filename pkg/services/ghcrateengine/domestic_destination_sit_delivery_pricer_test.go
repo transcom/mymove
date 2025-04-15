@@ -15,8 +15,8 @@ const (
 	dddsitTestSchedule                            = 1
 	dddsitTestServiceArea                         = "888"
 	dddsitTestIsPeakPeriod                        = false
-	dddsitTestContractYearName                    = "DDDSIT Test Year"
-	dddsitTestEscalationCompounded                = 1.03
+	dddsitTestContractYearName                    = testdatagen.DefaultContractYearName
+	dddsitTestEscalationCompounded                = 1.11000
 	dddsitTestWeight                              = unit.Pound(2250)
 	dddsitTestWeightLower                         = unit.Pound(500)
 	dddsitTestWeightUpper                         = unit.Pound(4999)
@@ -35,7 +35,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	distance := unit.Miles(37)
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
-	expectedPrice := unit.Cents(505125) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
+	expectedPrice := unit.Cents(544365) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
@@ -159,7 +159,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	distance := unit.Miles(37) // <= 50 miles
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
-	expectedPrice := unit.Cents(505125)
+	expectedPrice := unit.Cents(544365)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
