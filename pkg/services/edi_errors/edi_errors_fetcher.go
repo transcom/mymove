@@ -6,12 +6,13 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 type ediErrorFetcher struct{}
 
 // NewEDIErrorFetcher returns an instance that implements the EDIErrorFetcher interface
-func NewEDIErrorFetcher() EDIErrorFetcher {
+func NewEDIErrorFetcher() services.EDIErrorFetcher {
 	return &ediErrorFetcher{}
 }
 

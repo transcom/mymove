@@ -1306,6 +1306,36 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  EdiError:
+    type: object
+    required:
+      - id
+      - paymentRequestID
+      - ediType
+    properties:
+      id:
+        type: string
+        format: uuid
+      paymentRequestID:
+        type: string
+        format: uuid
+      code:
+        type: string
+        x-nullable: true
+      description:
+        type: string
+        x-nullable: true
+      ediType:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+
+  EdiErrors:
+    type: array
+    items:
+      $ref: '#/definitions/EdiError'
 
 paths:
   /user:
@@ -2707,3 +2737,29 @@ paths:
           description: Payment Request EDI Files not found
         '500':
           description: server error
+  /edi-errors:
+    get:
+      summary: List of EDI Errors
+      description: >
+        Returns a list of EDI errors tied to payment requests that are in EDI_ERROR status.
+        This endpoint is for Admin UI use only.
+      operationId: fetchEdiErrors
+      tags:
+        - EDI Errors
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/EdiErrors'
+        '400':
+          description: Invalid request
+        '401':
+          description: Must be authenticated to use this end point
+        '500':
+          description: Server error

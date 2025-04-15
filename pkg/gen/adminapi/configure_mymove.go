@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/e_d_i_errors"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
@@ -76,6 +77,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OfficeUsersDeleteOfficeUserHandler == nil {
 		api.OfficeUsersDeleteOfficeUserHandler = office_users.DeleteOfficeUserHandlerFunc(func(params office_users.DeleteOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
+		})
+	}
+	if api.EdiErrorsFetchEdiErrorsHandler == nil {
+		api.EdiErrorsFetchEdiErrorsHandler = e_d_i_errors.FetchEdiErrorsHandlerFunc(func(params e_d_i_errors.FetchEdiErrorsParams) middleware.Responder {
+			return middleware.NotImplemented("operation e_d_i_errors.FetchEdiErrors has not yet been implemented")
 		})
 	}
 	if api.AdminUsersGetAdminUserHandler == nil {

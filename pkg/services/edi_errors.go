@@ -1,4 +1,4 @@
-package edi_errors
+package services
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
