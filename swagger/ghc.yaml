@@ -2059,6 +2059,41 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Creates a pro-gear weight ticket
+      description: >
+        Creates a PPM shipment's pro-gear weight ticket. This will only contain
+        the minimum necessary fields for a
+
+        pro-gear weight ticket. Data should be filled in using the patch
+        endpoint.
+      operationId: createProGearWeightTicket
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: returns a new pro-gear weight ticket object
+          schema:
+            $ref: '#/definitions/ProGearWeightTicket'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
@@ -2099,6 +2134,41 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a pro-gear weight line item by ID
+      description: >
+        Removes a single pro-gear weight ticket set from the closeout line items
+        for a PPM shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database.
+      operationId: deleteProGearWeightTicket
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+        - description: ID of the pro-gear weight ticket to be deleted
+          in: path
+          name: proGearWeightTicketId
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the pro-gear weight ticket
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -5894,6 +5964,41 @@ definitions:
       CIVILIAN_EMPLOYEE: Civilian Employee
       ACADEMY_CADET: Service Academy Cadet
       MIDSHIPMAN: Midshipman
+  Rank:
+    type: object
+    x-nullable: true
+    title: Rank
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      paygradeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      affiliation:
+        type: string
+        x-nullable: true
+        title: Affiliation
+        enum:
+          - NAVY_AND_MARINES
+          - ARMY
+          - ARMY_CORPS_OF_ENGINEERS
+          - AIR_AND_SPACE_FORCE
+          - COAST_GUARD
+          - OFFICE_OF_SECRETARY_OF_DEFENSE
+      rankName:
+        type: string
+        x-nullable: true
+        example: SGT
+      rankOrder:
+        type: integer
+        x-nullable: true
+      rankShortName:
+        type: string
+        x-nullable: true
+        title: Rank Abbv
   Move:
     properties:
       id:
@@ -6288,10 +6393,7 @@ definitions:
       grade:
         $ref: '#/definitions/Grade'
       rank:
-        type: string
-        title: Rank of service member
-        example: PV1
-        x-nullable: true
+        $ref: '#/definitions/Rank'
       agency:
         $ref: '#/definitions/Affiliation'
       entitlement:
@@ -6568,6 +6670,11 @@ definitions:
         $ref: '#/definitions/NullableString'
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        title: Rank of service member
+        example: PV1
+        x-nullable: true
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6653,6 +6760,11 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        title: Rank of service member
+        example: PV1
+        x-nullable: true
       dependentsAuthorized:
         type: boolean
         x-nullable: true
@@ -7346,7 +7458,7 @@ definitions:
         x-nullable: true
       hasProGear:
         description: |
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
         x-nullable: true
       proGearWeight:
@@ -7560,6 +7672,28 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      weightShipped:
+        description: The total weight shipped for a small package
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      isProGear:
+        description: Indicates if the customer is claiming an expense as pro-gear or not
+        type: boolean
+        x-nullable: true
+      proGearBelongsToSelf:
+        description: Indicates if the pro-gear belongs to the customer or their spouse
+        type: boolean
+        x-nullable: true
+      proGearDescription:
+        description: A brief description of the pro-gear
+        type: string
+        x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7581,6 +7715,9 @@ definitions:
         $ref: '#/definitions/PPMDocumentStatus'
       reason:
         description: The reason the services counselor has excluded or rejected the item.
+        type: string
+      description:
+        description: Description of pro gear included in trips set.
         type: string
   ApproveShipments:
     type: object
@@ -7806,7 +7943,7 @@ definitions:
         example: 4200
       hasProGear:
         description: |
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
       proGearWeight:
         type: integer
@@ -10344,6 +10481,7 @@ definitions:
       - STORAGE
       - TOLLS
       - WEIGHING_FEE
+      - SMALL_PACKAGE
     x-display-value:
       CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
@@ -10354,6 +10492,7 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+      SMALL_PACKAGE: Small package reimbursement
     x-nullable: true
     x-omitempty: false
   SubmittedMovingExpenseType:
@@ -10533,6 +10672,27 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      weightShipped:
+        description: The total weight shipped for a small package
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      isProGear:
+        description: Indicates if the customer is claiming an expense as pro-gear or not
+        type: boolean
+        x-nullable: true
+      proGearBelongsToSelf:
+        description: Indicates if the pro-gear belongs to the customer or their spouse
+        type: boolean
+        x-nullable: true
+      proGearDescription:
+        description: A brief description of the pro-gear
+        type: string
     required:
       - id
       - createdAt
@@ -10633,6 +10793,16 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      amount:
+        description: The total amount of the expense as indicated on the receipt
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt

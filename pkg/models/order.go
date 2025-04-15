@@ -357,8 +357,7 @@ func FetchOrderAmendmentsInfo(db *pop.Connection, session *auth.Session, id uuid
 // DO NOT USE IF YOU NEED USER AUTH
 func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 	var order Order
-	order.Rank = &PaygradeRank{}
-	err := db.Q().Find(&order, id)
+	err := db.Q().Eager("Rank").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

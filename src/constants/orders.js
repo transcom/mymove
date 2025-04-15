@@ -931,10 +931,16 @@ export const RANK_GRADE_ASSOCIATIONS = {
   ],
 };
 
-export const rankOptionValuesByAffiliation = (affiliation) =>
-  Object.fromEntries(
+export const formatRankGradeDisplayValue = ({ rank, grade }) => {
+  return `${rank} / ${grade}`;
+};
+
+export const rankOptionValuesByAffiliation = (affiliation) => {
+  const affiliationPaygradeRankEntries = Object.fromEntries(
     (RANK_GRADE_ASSOCIATIONS[affiliation] ?? []).map((e) => [
       e.abbv_rank,
-      { value: `${e.abbv_rank} / ${ORDERS_PAY_GRADE_OPTIONS[e.grade]}`, ...e },
+      { value: formatRankGradeDisplayValue({ rank: e.abbv_rank, grade: ORDERS_PAY_GRADE_OPTIONS[e.grade] }), ...e },
     ]),
   );
+  return affiliationPaygradeRankEntries;
+};

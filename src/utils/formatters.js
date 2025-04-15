@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import moment from 'moment';
 import numeral from 'numeral';
 
-import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import {
   ORDERS_TYPE_OPTIONS,
@@ -15,6 +14,7 @@ import {
 } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
+import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12

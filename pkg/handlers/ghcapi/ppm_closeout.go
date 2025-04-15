@@ -107,10 +107,7 @@ func (h GetPPMActualWeightHandler) Handle(params ppmcloseoutops.GetPPMActualWeig
 				return handleError(err)
 			}
 
-			ppmActualWeight, err := h.PPMCloseoutFetcher.GetActualWeight(ppmShipment)
-			if err != nil {
-				return handleError(err)
-			}
+			ppmActualWeight := h.PPMCloseoutFetcher.GetActualWeight(ppmShipment)
 
 			returnPayload := payloads.PPMActualWeight(&ppmActualWeight)
 

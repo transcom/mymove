@@ -290,6 +290,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
       grade: values.payGrade,
+
       hasDependents:
         values.ordersType === ORDERS_TYPE.STUDENT_TRAVEL || values.ordersType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
           ? formatYesNoAPIValue('yes')
@@ -312,6 +313,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
+    rank: order?.rank?.rankShortName,
     dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
@@ -395,6 +397,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                 </div>
                 <div className={styles.body}>
                   <OrdersDetailForm
+                    agency={order?.agency}
                     deptIndicatorOptions={deptIndicatorDropdownOptions}
                     ordersTypeOptions={ordersTypeDropdownOptions}
                     ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}

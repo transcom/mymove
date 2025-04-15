@@ -429,6 +429,16 @@ func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder mode
 		order.Entitlement.DBAuthorizedWeight = &weight
 	}
 
+	if payload.Rank != nil {
+		rankRecord := models.PaygradeRank{}
+		var err = appCtx.DB().Where("affiliation = ?", order.ServiceMember.Affiliation).Where("rank_short_name = ?", payload.Rank).First(&rankRecord)
+		if err != nil {
+			return models.Order{}, err
+		}
+		order.Rank = &rankRecord
+		order.PaygradeRankId = &rankRecord.ID
+	}
+
 	if payload.HasDependents != nil {
 		order.HasDependents = *payload.HasDependents
 	}

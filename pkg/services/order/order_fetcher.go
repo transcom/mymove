@@ -167,6 +167,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.Entitlement",
 			"Orders.OrdersType",
 			"MTOShipments",
+			"MTOShipments.SITDurationUpdates",
+			"MTOShipments.DeliveryAddressUpdate",
 			"MTOServiceItems",
 			"MTOServiceItems.ReService",
 			"ShipmentGBLOC",
@@ -610,6 +612,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
+		"Rank",
 	).Find(order, orderID)
 
 	if err != nil {
