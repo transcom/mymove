@@ -1384,7 +1384,7 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewDeleteMovingExpense(o.context, o.PpmDeleteMovingExpenseHandler)
- 	if o.handlers["DELETE"] == nil {
+	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}"] = ppm.NewDeleteProGearWeightTicket(o.context, o.PpmDeleteProGearWeightTicketHandler)

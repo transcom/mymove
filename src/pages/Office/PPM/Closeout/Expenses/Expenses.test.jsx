@@ -6,11 +6,11 @@ import { v4 } from 'uuid';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
-import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import Expenses from 'pages/Office/PPM/Closeout/Expenses/Expenses';
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { createBaseMovingExpense, createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createMovingExpense, patchExpense, deleteUploadForDocument } from 'services/ghcApi';
+import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 
 // crete local alias for more descriptive name
 const generateUUID = () => v4();
@@ -18,6 +18,9 @@ const generateUUID = () => v4();
 const mockMoveId = 'cc03c553-d317-46af-8b2d-3c9f899f6451';
 const mockMTOShipmentId = '6b7a5769-4393-46fb-a4c4-d3f6ac7584c7';
 const mockExpenseId = 'ba29f5f5-0a51-4161-adaa-c568f5d5eab0';
+const mockExpenseEtag = window.btoa(new Date());
+const mockExpenseDocumentId = generateUUID();
+const mockExpenseDocumentUploadId = generateUUID();
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -31,6 +34,10 @@ jest.mock('services/ghcApi', () => ({
   createUploadForPPMDocument: jest.fn(),
   deleteUploadForDocument: jest.fn(),
   patchExpense: jest.fn(),
+}));
+
+jest.mock('hooks/queries', () => ({
+  usePPMShipmentAndDocsOnlyQueries: jest.fn(),
 }));
 
 const mockPPMShipmentId = generateUUID();
@@ -58,30 +65,79 @@ const mockEmptyExpenseAndIndex = {
   index: -1,
 };
 
-const mockExpense = createCompleteMovingExpense();
-const mockNewExpense = createBaseMovingExpense();
-
-const mockExpenseAndIndex = {
-  expense: mockExpense,
-  index: 0,
+const mockExpenseWithNoValues = {
+  id: mockExpenseId,
+  ppmShipmentId: mockPPMShipmentId,
+  documentId: mockExpenseDocumentId,
+  eTag: mockExpenseEtag,
+};
+const mockExpense = {
+  id: mockExpenseId,
+  ppmShipmentId: mockPPMShipmentId,
+  amount: 7500,
+  description: 'Medium and large boxes',
+  movingExpenseType: expenseTypes.PACKING_MATERIALS,
+  documentId: mockExpenseDocumentId,
+  eTag: mockExpenseEtag,
+};
+const mockExpenseWithUpload = {
+  id: mockExpenseId,
+  ppmShipmentId: mockPPMShipmentId,
+  amount: 8500,
+  description: 'Peanuts and wrapping paper',
+  movingExpenseType: expenseTypes.PACKING_MATERIALS,
+  documentId: mockExpenseDocumentId,
+  document: {
+    id: mockExpenseDocumentId,
+    uploads: [
+      {
+        id: mockExpenseDocumentUploadId,
+        createdAt: '2022-06-22T23:25:50.490Z',
+        bytes: 819200,
+        url: 'a/fake/path',
+        filename: 'an_expense.jpg',
+        contentType: 'image/jpg',
+      },
+    ],
+  },
+  eTag: mockExpenseEtag,
 };
 
-const mockNewExpenseAndIndex = {
-  expense: mockNewExpense,
-  index: 0,
-};
-
-// const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
-
-const expensesEditPath = generatePath(servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+const expensesEditPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
   moveCode: mockMoveId,
   shipmentId: mockMTOShipmentId,
   expenseId: mockExpense.id,
 });
-const reviewPath = generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+const reviewPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_REVIEW_PATH, {
   moveCode: mockMoveId,
   shipmentId: mockMTOShipmentId,
 });
+
+const renderExpensesPage = () => {
+  const mockRoutingConfig = {
+    path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_PATH,
+    params: { moveCode: mockMoveId, shipmentId: mockMTOShipmentId },
+  };
+
+  render(
+    <MockProviders {...mockRoutingConfig}>
+      <Expenses />
+    </MockProviders>,
+  );
+};
+
+const renderEditExpensesPage = () => {
+  const mockRoutingConfig = {
+    path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH,
+    params: { moveCode: mockMoveId, shipmentId: mockMTOShipmentId, expenseId: mockExpenseId },
+  };
+
+  render(
+    <MockProviders {...mockRoutingConfig}>
+      <Expenses />
+    </MockProviders>,
+  );
+};
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
@@ -93,36 +149,18 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const params = {
-  moveId: mockMoveId,
-  shipmentId: mockMTOShipmentId,
-};
-
-const renderWithMocks = () => {
-  render(
-    <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_PATH} params={params}>
-      <Expenses />
-    </MockProviders>,
-  );
-};
-
 describe('Expenses page', () => {
-  it('loads the selected shipment from redux for a new expense', async () => {
-    createMovingExpense.mockResolvedValue(mockExpense);
-
-    renderWithMocks();
-
-    await waitFor(() => {
-      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
+  it('displays an error if the createMovingExpense request fails', async () => {
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpense] },
+      isError: null,
     });
 
-    expect(selectExpenseAndIndexById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId, undefined);
-  });
-
-  it('displays an error if the createMovingExpense request fails', async () => {
     createMovingExpense.mockRejectedValue('an error occurred');
 
-    renderWithMocks();
+    renderExpensesPage();
 
     await waitFor(() => {
       expect(screen.getByText('Failed to create trip record')).toBeInTheDocument();
@@ -130,19 +168,14 @@ describe('Expenses page', () => {
   });
 
   it('does not make create moving expense api request if id param exists', async () => {
-    const editParams = {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      expenseId: mockExpenseId,
-    };
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpense] },
+      isError: null,
+    });
 
-    selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
-
-    render(
-      <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
-        <Expenses />
-      </MockProviders>,
-    );
+    renderEditExpensesPage();
 
     await waitFor(() => {
       expect(createMovingExpense).not.toHaveBeenCalled();
@@ -150,11 +183,15 @@ describe('Expenses page', () => {
   });
 
   it('renders the page content', async () => {
-    createMovingExpense.mockResolvedValue(mockExpense);
-    selectExpenseAndIndexById.mockReturnValueOnce(mockEmptyExpenseAndIndex);
-    selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
+    createMovingExpense.mockResolvedValue(mockExpenseWithUpload);
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpenseWithUpload] },
+      isError: null,
+    });
 
-    renderWithMocks();
+    renderEditExpensesPage();
 
     await waitFor(() => {
       expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
@@ -165,11 +202,11 @@ describe('Expenses page', () => {
     // renders form content
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
     expect(screen.getByLabelText('Select type')).toHaveDisplayValue('Packing materials');
-    expect(screen.getByLabelText('What did you buy or rent?')).toHaveValue('Medium and large boxes');
+    expect(screen.getByLabelText('What did you buy or rent?')).toHaveValue('Peanuts and wrapping paper');
     expect(screen.getByLabelText('No')).toBeChecked();
-    expect(screen.getByLabelText('Amount')).toHaveValue('75.00');
+    expect(screen.getByLabelText('Amount')).toHaveValue('85.00');
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
-    expect(screen.getByText('expense.pdf')).toBeInTheDocument();
+    expect(screen.getByText('an_expense.jpg')).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 
@@ -177,53 +214,33 @@ describe('Expenses page', () => {
     expect(saveBtn).toBeEnabled();
   });
 
-  it('replaces the router history with newly created weight ticket id', async () => {
+  it('replaces the router history with newly created expense id', async () => {
     createMovingExpense.mockResolvedValueOnce(mockExpense);
-    selectExpenseAndIndexById.mockReturnValueOnce(mockEmptyExpenseAndIndex);
-    selectExpenseAndIndexById.mockReturnValue(mockExpenseAndIndex);
 
-    renderWithMocks();
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpense] },
+      isError: null,
+    });
+
+    renderExpensesPage();
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(expensesEditPath, { replace: true });
     });
   });
 
-  it('loads the selected shipment and existing expense from redux', async () => {
-    const editParams = {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      expenseId: mockExpenseId,
-    };
-
-    selectExpenseAndIndexById.mockImplementationOnce(() => mockExpenseAndIndex);
-
-    render(
-      <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
-        <Expenses />
-      </MockProviders>,
-    );
-
-    await waitFor(() => {
-      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
-    });
-    expect(selectExpenseAndIndexById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId, mockExpenseId);
-
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
-    expect(screen.getByLabelText('Select type')).toHaveDisplayValue('Packing materials');
-    expect(screen.getByLabelText('What did you buy or rent?')).toHaveValue('Medium and large boxes');
-    expect(screen.getByLabelText('No')).toBeChecked();
-    expect(screen.getByLabelText('Amount')).toHaveValue('75.00');
-    expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
-    expect(screen.getByText('expense.pdf')).toBeInTheDocument();
-
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
-  });
-
   it('displays the creation form when adding a new expense', async () => {
-    selectExpenseAndIndexById.mockReturnValueOnce(mockNewExpenseAndIndex);
-    renderWithMocks();
+    createMovingExpense.mockResolvedValue(mockExpenseWithNoValues);
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpenseWithNoValues] },
+      isError: null,
+    });
+
+    renderEditExpensesPage();
 
     await waitFor(() => {
       expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
@@ -255,14 +272,19 @@ describe('Expenses page', () => {
   });
 
   it('calls patchExpense with the appropriate payload', async () => {
-    createMovingExpense.mockResolvedValue(mockExpense);
-    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
-    patchExpense.mockResolvedValue({});
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpenseWithUpload] },
+      isError: null,
+    });
 
-    renderWithMocks();
+    patchExpense.mockResolvedValue();
+
+    renderEditExpensesPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
     });
     await userEvent.selectOptions(screen.getByLabelText('Select type'), ['CONTRACTED_EXPENSE']);
     await userEvent.clear(screen.getByLabelText('What did you buy or rent?'));
@@ -277,10 +299,10 @@ describe('Expenses page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
-      expect(patchExpense).toHaveBeenCalledWith(
-        mockPPMShipmentId,
-        mockExpense.id,
-        {
+      expect(patchExpense).toHaveBeenCalledWith({
+        ppmShipmentId: mockPPMShipmentId,
+        expenseId: mockExpenseId,
+        payload: {
           ppmShipmentId: mockPPMShipmentId,
           movingExpenseType: 'CONTRACTED_EXPENSE',
           description: 'Boxes and tape',
@@ -292,22 +314,27 @@ describe('Expenses page', () => {
           WeightStored: NaN,
           SITLocation: undefined,
         },
-        mockExpense.eTag,
-      );
+        eTag: mockExpenseEtag,
+      });
     });
 
     expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('has an appropriate amount payload when a whole dollar amount is entered', async () => {
-    createMovingExpense.mockResolvedValue(mockExpense);
-    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
-    patchExpense.mockResolvedValue({});
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpenseWithUpload] },
+      isError: null,
+    });
 
-    renderWithMocks();
+    patchExpense.mockResolvedValue();
+
+    renderEditExpensesPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
     });
     await userEvent.clear(screen.getByLabelText('Amount'));
     await userEvent.type(screen.getByLabelText('Amount'), '12');
@@ -317,13 +344,13 @@ describe('Expenses page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
-      expect(patchExpense).toHaveBeenCalledWith(
-        mockPPMShipmentId,
-        mockExpense.id,
-        {
+      expect(patchExpense).toHaveBeenCalledWith({
+        ppmShipmentId: mockPPMShipmentId,
+        expenseId: mockExpenseId,
+        payload: {
           ppmShipmentId: mockPPMShipmentId,
           movingExpenseType: 'PACKING_MATERIALS',
-          description: 'Medium and large boxes',
+          description: 'Peanuts and wrapping paper',
           missingReceipt: false,
           amount: 1200,
           SITEndDate: undefined,
@@ -332,23 +359,29 @@ describe('Expenses page', () => {
           WeightStored: NaN,
           SITLocation: undefined,
         },
-        mockExpense.eTag,
-      );
+        eTag: mockExpenseEtag,
+      });
     });
 
     expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('has an appropriate payload when the type is Storage', async () => {
-    createMovingExpense.mockResolvedValue(mockExpense);
-    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 1 });
-    patchExpense.mockResolvedValue({});
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpenseWithUpload] },
+      isError: null,
+    });
 
-    renderWithMocks();
+    patchExpense.mockResolvedValue();
+
+    renderEditExpensesPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 2');
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 1');
     });
+
     await userEvent.selectOptions(screen.getByLabelText('Select type'), ['STORAGE']);
     await userEvent.type(screen.getByLabelText('Start date'), '10/10/2022');
     await userEvent.type(screen.getByLabelText('End date'), '10/11/2022');
@@ -360,34 +393,38 @@ describe('Expenses page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
-      expect(patchExpense).toHaveBeenCalledWith(
-        mockPPMShipmentId,
-        mockExpense.id,
-        {
+      expect(patchExpense).toHaveBeenCalledWith({
+        ppmShipmentId: mockPPMShipmentId,
+        expenseId: mockExpenseId,
+        payload: {
           ppmShipmentId: mockPPMShipmentId,
           movingExpenseType: 'STORAGE',
-          description: 'Medium and large boxes',
+          description: 'Peanuts and wrapping paper',
           missingReceipt: false,
-          amount: 7500,
+          amount: 8500,
           SITEndDate: '2022-10-11',
           SITStartDate: '2022-10-10',
           paidWithGTCC: false,
           SITLocation: 'ORIGIN',
           WeightStored: 120,
         },
-        mockExpense.eTag,
-      );
+        eTag: mockExpenseEtag,
+      });
     });
 
     expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('displays an error if patchExpense fails', async () => {
-    createMovingExpense.mockResolvedValue(mockExpense);
-    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 4 });
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [{}, {}, {}, {}, mockExpenseWithUpload] },
+      isError: null,
+    });
     patchExpense.mockRejectedValueOnce('an error occurred');
 
-    renderWithMocks();
+    renderEditExpensesPage();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Receipt 5');
@@ -408,42 +445,31 @@ describe('Expenses page', () => {
 
   it('routes to review when the cancel button is clicked', async () => {
     createMovingExpense.mockResolvedValue(mockExpense);
-
-    renderWithMocks();
-
-    await waitFor(() => {
-      expect(selectMTOShipmentById).toHaveBeenCalledWith(expect.anything(), mockMTOShipmentId);
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [mockExpense] },
+      isError: null,
     });
+
+    renderEditExpensesPage();
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    // expect(mockNavigate).toHaveBeenCalledWith(movePath);
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls the delete handler when removing an existing upload', async () => {
-    const editParams = {
-      moveId: mockMoveId,
-      mtoShipmentId: mockMTOShipmentId,
-      expenseId: mockExpense.id,
-    };
-
-    selectExpenseAndIndexById.mockReturnValue({ expense: mockExpense, index: 0 });
-
-    selectMTOShipmentById.mockReturnValue({
-      ...mockMTOShipment,
-      ppmShipment: {
-        ...mockMTOShipment.ppmShipment,
-        expenses: [mockExpense],
-      },
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipment,
+      documents: { MovingExpenses: [{}, {}, {}, {}, mockExpenseWithUpload] },
+      isError: null,
     });
     deleteUploadForDocument.mockResolvedValue({});
-    render(
-      <MockProviders path={servicesCounselingRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} params={editParams}>
-        <Expenses />
-      </MockProviders>,
-    );
+    renderEditExpensesPage();
 
     let deleteButtons;
     await waitFor(() => {
@@ -452,14 +478,19 @@ describe('Expenses page', () => {
     });
     await userEvent.click(deleteButtons[0]);
     await waitFor(() => {
-      expect(screen.queryByText('empty_weight.jpg')).not.toBeInTheDocument();
+      expect(screen.queryByText('an_expense.jpg')).not.toBeInTheDocument();
     });
   });
 
   it('expect loadingPlaceholder when mtoShipment is falsy', async () => {
-    selectMTOShipmentById.mockReturnValueOnce(null);
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: null,
+      documents: { MovingExpenses: [mockExpenseWithUpload] },
+      isError: null,
+    });
 
-    renderWithMocks();
+    renderExpensesPage();
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Loading, please wait...');

@@ -113,7 +113,7 @@ export async function deleteMovingExpense({ ppmShipmentId, movingExpenseId }) {
     },
   );
 }
-      
+
 export async function createProGearWeightTicket(ppmShipmentId) {
   return makeGHCRequest(
     'ppm.createProGearWeightTicket',

@@ -149,7 +149,7 @@ const Expenses = () => {
 
     mutatePatchMovingExpense({
       ppmShipmentId: currentExpense.ppmShipmentId,
-      movingExpenseId: currentExpense.id,
+      expenseId: currentExpense.id,
       payload,
       eTag: currentExpense.eTag,
     });
