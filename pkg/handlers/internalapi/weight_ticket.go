@@ -131,7 +131,7 @@ func (h UpdateWeightTicketHandler) Handle(params weightticketops.UpdateWeightTic
 						NewUpdateWeightTicketBadRequest().
 						WithPayload(
 							payloads.ClientError(
-								handlers.InternalServerErrMessage,
+								handlers.BadRequestErrMessage,
 								*swag.String(err.Error()),
 								h.GetTraceIDFromRequest(params.HTTPRequest),
 							),
