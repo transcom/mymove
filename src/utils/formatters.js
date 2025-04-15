@@ -5,7 +5,7 @@ import numeral from 'numeral';
 
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 
@@ -569,6 +569,8 @@ export function formatDistanceUnitMiles(distance) {
 export const constructSCOrderOconusFields = (values) => {
   const isOconus = values.originDutyLocation?.address?.isOconus || values.newDutyLocation?.address?.isOconus;
   const dependents = values.hasDependents;
+  const isCivilianTDYMove =
+    values.ordersType === ORDERS_TYPE.TEMPORARY_DUTY && values.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
   // The `hasDependents` check within accompanied tour is due to
   // the dependents section being possible to conditionally render
   // and then un-render while still being OCONUS
@@ -597,6 +599,13 @@ export const constructSCOrderOconusFields = (values) => {
           // then provide the number of dependents over 12. Default to 0 if not present
           Number(values.dependentsTwelveAndOver) ?? 0
         : // If CONUS or no dependents, omit this field altogether
+          null,
+    civilianTdyUbAllowance:
+      isOconus && isCivilianTDYMove
+        ? // If OCONUS
+          // then provide the civilian TDY UB allowance. Default to 0 if not present
+          Number(values.civilianTdyUbAllowance) ?? 0
+        : // If CONUS, omit this field altogether
           null,
   };
 };
