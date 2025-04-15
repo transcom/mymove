@@ -974,7 +974,7 @@ integration_test_devseed:
     - name: $postgres
     - name: $redis
   variables:
-    KUBERNETES_CPU_REQUEST: "1"
+    KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "6Gi"
     KUBERNETES_MEMORY_LIMIT: "6Gi"
     APPLICATION: app
