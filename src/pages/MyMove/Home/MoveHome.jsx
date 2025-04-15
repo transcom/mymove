@@ -595,7 +595,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
                   actionBtnLabel={
-                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Non-Orders Documentation' : null
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Additional Documentation' : null
                   }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
