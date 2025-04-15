@@ -527,3 +527,33 @@ func (suite *ModelSuite) TestValidateUSPRCAssignment() {
 		suite.Equal(false, valid)
 	})
 }
+
+func (suite *ModelSuite) TestValidPostalCode() {
+
+	suite.Run("returns true or false if a postal code is valid or not", func() {
+
+		testCases := []struct {
+			name        string
+			input       string
+			expected    bool
+			expectedErr bool
+		}{
+			{"5 digit postal code", "90201", true, false},
+			{"5 digit postal code not in the UsPostRegionCity table", "76334", false, false},
+			{"Not a 5 digit postal code", "33", false, false},
+		}
+
+		for _, tc := range testCases {
+			suite.Run(tc.name, func() {
+				isValid, err := m.ValidPostalCode(suite.DB(), tc.input)
+				if tc.expectedErr {
+					suite.Error(err)
+				} else {
+					suite.NoError(err)
+				}
+
+				suite.Equal(tc.expected, isValid)
+			})
+		}
+	})
+}
