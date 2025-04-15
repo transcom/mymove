@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -1326,15 +1325,15 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 
 //region Private Functions
 
-func filterAuditHistoryByUserID(auditHistories models.AuditHistories, userID uuid.UUID) models.AuditHistories {
-	auditHistoriesForUser := models.AuditHistories{}
-	for _, auditHistory := range auditHistories {
-		if auditHistory.SessionUserID != nil && *auditHistory.SessionUserID == userID {
-			auditHistoriesForUser = append(auditHistoriesForUser, auditHistory)
-		}
-	}
-	return auditHistoriesForUser
-}
+// func filterAuditHistoryByUserID(auditHistories models.AuditHistories, userID uuid.UUID) models.AuditHistories {
+// 	auditHistoriesForUser := models.AuditHistories{}
+// 	for _, auditHistory := range auditHistories {
+// 		if auditHistory.SessionUserID != nil && *auditHistory.SessionUserID == userID {
+// 			auditHistoriesForUser = append(auditHistoriesForUser, auditHistory)
+// 		}
+// 	}
+// 	return auditHistoriesForUser
+// }
 
 func removeEscapeJSONtoObject(data *string) map[string]interface{} {
 	var result map[string]interface{}

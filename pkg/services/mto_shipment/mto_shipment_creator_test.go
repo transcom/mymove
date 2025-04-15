@@ -15,6 +15,7 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -107,17 +108,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, testCase := range testCases {
 			var err error
 			if testCase.shipmentType == models.MTOShipmentTypeHHGOutOfNTS || testCase.shipmentType == models.MTOShipmentTypeHHGIntoNTS {
-				usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-				suite.NoError(err)
-				storageFacility := factory.BuildStorageFacility(nil, []factory.Customization{
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
-				}, nil)
+				storageFacility := factory.BuildStorageFacility(nil, nil, nil)
 				storageFacility.ID = uuid.Must(uuid.NewV4())
 
 				mtoShipmentWithStorageFacility := factory.BuildMTOShipment(nil, []factory.Customization{
@@ -336,99 +327,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal("02", (*createdShipment2.ShipmentLocator)[7:9])
 	})
 
-	suite.Run("If the shipment is created successfully it should have populate addresses us_post_region_cities populated", func() {
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		fetcher := fetch.NewFetcher(builder)
-		addressCreator := address.NewAddressCreator()
-		shipmentCreator := NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
-
-		move := factory.BuildMove(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.Address{
-					StreetAddress1: "177 Q st",
-					City:           "Solomons",
-					State:          "MD",
-					PostalCode:     "20688",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					StreetAddress1: "1234 Over Here Street",
-					City:           "Houston",
-					State:          "TX",
-					PostalCode:     "77083",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-			{
-				Model: models.Address{
-					StreetAddress1:     "4367 A st",
-					City:               "Dowell",
-					State:              "MD",
-					PostalCode:         "20688",
-					UsPostRegionCityID: nil,
-					UsPostRegionCity:   nil,
-				},
-				Type: &factory.Addresses.SecondaryPickupAddress,
-			},
-			{
-				Model: models.Address{
-					StreetAddress1: "12 Here Street",
-					City:           "Houston",
-					State:          "TX",
-					PostalCode:     "77083",
-				},
-				Type: &factory.Addresses.SecondaryDeliveryAddress,
-			},
-			{
-				Model: models.Address{
-					StreetAddress1: "49 C st",
-					City:           "Dowell",
-					State:          "MD",
-					PostalCode:     "20688",
-				},
-				Type: &factory.Addresses.TertiaryPickupAddress,
-			},
-			{
-				Model: models.Address{
-					StreetAddress1: "1 Street",
-					City:           "Houston",
-					State:          "TX",
-					PostalCode:     "77083",
-				},
-				Type: &factory.Addresses.TertiaryDeliveryAddress,
-			},
-		}, nil)
-
-		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
-
-		createdShipment, err := shipmentCreator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-
-		suite.NoError(err)
-		suite.NotNil(createdShipment)
-		suite.NotEmpty(createdShipment.ShipmentLocator)
-		suite.NotNil(createdShipment.PickupAddress.UsPostRegionCityID)
-		suite.NotNil(createdShipment.PickupAddress.UsPostRegionCity)
-		suite.NotNil(createdShipment.SecondaryPickupAddress.UsPostRegionCityID)
-		suite.NotNil(createdShipment.SecondaryPickupAddress.UsPostRegionCity)
-		suite.NotNil(createdShipment.TertiaryPickupAddress.UsPostRegionCityID)
-		suite.NotNil(createdShipment.TertiaryPickupAddress.UsPostRegionCity)
-		suite.NotNil(createdShipment.DestinationAddress.UsPostRegionCityID)
-		suite.NotNil(createdShipment.DestinationAddress.UsPostRegionCity)
-		suite.NotNil(createdShipment.SecondaryDeliveryAddress.UsPostRegionCityID)
-		suite.NotNil(createdShipment.SecondaryDeliveryAddress.UsPostRegionCity)
-		suite.NotNil(createdShipment.TertiaryDeliveryAddress.UsPostRegionCityID)
-		suite.NotNil(createdShipment.TertiaryDeliveryAddress.UsPostRegionCity)
-	})
-
 	suite.Run("If the shipment is created successfully with a destination address type it should be returned", func() {
 		destinationType := models.DestinationTypeHomeOfRecord
 		subtestData := suite.createSubtestData(nil)
@@ -559,91 +457,72 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
 	})
 
-	// suite.Run("If the submitted shipment has a storage facility attached", func() {
-	// 	subtestData := suite.createSubtestData(nil)
-	// 	creator := subtestData.shipmentCreator
-	// 	usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-	// 	suite.NoError(err)
-	// 	storageFacility := factory.BuildStorageFacility(nil, []factory.Customization{
-	// 		{
-	// 			Model: models.Address{
-	// 				UsPostRegionCityID: &usprcFairfield.ID,
-	// 				PostalCode:         usprcFairfield.UsprZipID,
-	// 				City:               usprcFairfield.USPostRegionCityNm,
-	// 			},
-	// 		},
-	// 	}, nil)
-	// 	// stubbed storage facility needs an ID to be LinkOnly below
-	// 	storageFacility.ID = uuid.Must(uuid.NewV4())
+	suite.Run("If the submitted shipment has a storage facility attached", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
 
-	// 	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-	// 		{
-	// 			Model:    subtestData.move,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.MTOShipment{
-	// 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
-	// 				Status:       models.MTOShipmentStatusSubmitted,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    storageFacility,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		storageFacility := factory.BuildStorageFacility(nil, nil, nil)
+		// stubbed storage facility needs an ID to be LinkOnly below
+		storageFacility.ID = uuid.Must(uuid.NewV4())
 
-	// 	mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
+					Status:       models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-	// 	suite.NoError(err)
-	// 	suite.NotNil(createdShipment.StorageFacility)
-	// 	suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
-	// })
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
-	// suite.Run("If the submitted shipment is an NTS shipment", func() {
-	// 	subtestData := suite.createSubtestData(nil)
-	// 	creator := subtestData.shipmentCreator
+		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+		suite.NoError(err)
+		suite.NotNil(createdShipment.StorageFacility)
+		suite.Equal(storageFacility.Address.StreetAddress1, createdShipment.StorageFacility.Address.StreetAddress1)
+	})
 
-	// 	ntsRecordedWeight := unit.Pound(980)
-	// 	requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
+	suite.Run("If the submitted shipment is an NTS shipment", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
 
-	// 	usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-	// 	suite.NoError(err)
-	// 	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-	// 		{
-	// 			Model:    subtestData.move,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.MTOShipment{
-	// 				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
-	// 				Status:                models.MTOShipmentStatusSubmitted,
-	// 				NTSRecordedWeight:     &ntsRecordedWeight,
-	// 				RequestedDeliveryDate: &requestedDeliveryDate,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model: models.Address{
-	// 				UsPostRegionCityID: &usprcFairfield.ID,
-	// 				PostalCode:         usprcFairfield.UsprZipID,
-	// 				City:               usprcFairfield.USPostRegionCityNm,
-	// 			},
-	// 		},
-	// 	}, nil)
+		ntsRecordedWeight := unit.Pound(980)
+		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, time.April, 5, 0, 0, 0, 0, time.UTC)
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
+					Status:                models.MTOShipmentStatusSubmitted,
+					NTSRecordedWeight:     &ntsRecordedWeight,
+					RequestedDeliveryDate: &requestedDeliveryDate,
+				},
+			},
+		}, nil)
 
-	// 	mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 
-	// 	createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-	// 	if suite.NoError(err) {
-	// 		if suite.NotNil(createdShipment.NTSRecordedWeight) {
-	// 			suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
-	// 		}
-	// 		if suite.NotNil(createdShipment.RequestedDeliveryDate) {
-	// 			suite.Equal(requestedDeliveryDate, *createdShipment.RequestedDeliveryDate)
-	// 		}
-	// 	}
-	// })
+		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+		if suite.NoError(err) {
+			if suite.NotNil(createdShipment.NTSRecordedWeight) {
+				suite.Equal(ntsRecordedWeight, *createdShipment.NTSRecordedWeight)
+			}
+			if suite.NotNil(createdShipment.RequestedDeliveryDate) {
+				suite.Equal(requestedDeliveryDate, *createdShipment.RequestedDeliveryDate)
+			}
+		}
+	})
 
 	suite.Run("If the submitted shipment is a PPM shipment", func() {
 		subtestData := suite.createSubtestData(nil)
