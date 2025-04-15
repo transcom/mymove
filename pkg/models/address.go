@@ -88,7 +88,7 @@ func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, erro
 		}
 
 		if !validUSPRC {
-			vs = append(vs, &validators.StringsMatch{Field: strconv.FormatBool(validUSPRC), Field2: "true", Name: "InvalidUsPostRegionCityID", Message: "UsPostRegionCityID is invalid."})
+			vs = append(vs, &validators.StringsMatch{Field: strconv.FormatBool(validUSPRC), Field2: "true", Name: "UsPostRegionCityID", Message: "UsPostRegionCityID is invalid."})
 		}
 	}
 
