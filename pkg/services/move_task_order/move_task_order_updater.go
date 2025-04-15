@@ -328,8 +328,6 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 				return err
 			}
 			wasMadeAvailableToPrime = true
-		} else {
-			return apperror.NewConflictError(moveTaskOrderID, "Cannot approve move without approved HHG shipment")
 		}
 		return nil
 	})

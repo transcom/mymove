@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
-// MTOEarliestRequestedPickupLookup does lookup on the MTOAvailableToPrime timestamp
+// MTOEarliestRequestedPickupLookup does lookup on the MTOEarliestRequestedPickup timestamp
 type MTOEarliestRequestedPickupLookup struct {
 }
 
