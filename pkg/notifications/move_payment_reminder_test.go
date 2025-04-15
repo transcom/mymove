@@ -438,3 +438,5 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmailsForRetireeSepara
 	}
 	suite.Len(formattedEmails, 5)
 }
+
+// Write unit test to test that the payment reminder email is not sent for a
