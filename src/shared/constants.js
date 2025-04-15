@@ -18,6 +18,7 @@ export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
 export const technicalHelpDeskURL =
   'https://www.militaryonesource.mil/resources/gov/customer-service-contacts-for-military-pcs/#technical-help-desk';
+export const milmoveHelpDesk = 'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil';
 
 export function serviceName() {
   if (isAdminSite) {
