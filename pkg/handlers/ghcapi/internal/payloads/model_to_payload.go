@@ -981,7 +981,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus, storer stora
 }
 
 // PPMShipment payload
-func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -1024,6 +1024,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
 		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
 	}
 
 	if ppmShipment.SITLocation != nil {
@@ -1215,6 +1216,26 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.SITReimburseableAmount != nil {
 		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
+	}
+
+	if movingExpense.TrackingNumber != nil {
+		payload.TrackingNumber = movingExpense.TrackingNumber
+	}
+
+	if movingExpense.WeightShipped != nil {
+		payload.WeightShipped = handlers.FmtPoundPtr(movingExpense.WeightShipped)
+	}
+
+	if movingExpense.IsProGear != nil {
+		payload.IsProGear = movingExpense.IsProGear
+	}
+
+	if movingExpense.ProGearBelongsToSelf != nil {
+		payload.ProGearBelongsToSelf = movingExpense.ProGearBelongsToSelf
+	}
+
+	if movingExpense.ProGearDescription != nil {
+		payload.ProGearDescription = *movingExpense.ProGearDescription
 	}
 
 	return payload
@@ -2332,6 +2353,30 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	for _, item := range move.MTOServiceItems {
 		if item.Status == models.MTOServiceItemStatusSubmitted {
 			requestTypes = append(requestTypes, string(item.ReService.Code))
+		}
+	}
+	if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestAmendedOrders))
+	}
+	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
+	for _, shipment := range move.MTOShipments {
+		if shipment.Status == models.MTOShipmentStatusSubmitted {
+			if shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestDiversion))
+			}
+			if !shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestNewShipment))
+			}
+		}
+		if shipment.DeliveryAddressUpdate != nil && shipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+			requestTypes = append(requestTypes, string(models.ApprovalRequestDestinationAddressUpdate))
+		}
+		for _, sitDurationUpdate := range shipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestSITExtension))
+			}
 		}
 	}
 
