@@ -15,10 +15,10 @@ const formatChangedValues = (historyRecord) => {
 };
 
 export default {
-  action: a.INSERT,
-  eventName: o.createSITExtension,
-  tableName: t.sit_extensions,
-  getEventNameDisplay: () => 'SIT extension requested',
+  action: a.UPDATE,
+  eventName: o.approveSITExtension,
+  tableName: t.mto_shipments,
+  getEventNameDisplay: () => 'SIT extension approved',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
   },
