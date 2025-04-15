@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -78,20 +79,13 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		approvedMove.Orders.Entitlement.DBAuthorizedWeight = &updateDBAuthorizedWeight
 		suite.MustSave(&approvedMove.Orders)
 
-		usprcNorfolk, err := models.FindByZipCodeAndCity(suite.DB(), "23503", "Norfolk")
-		suite.NoError(err)
-
 		// update Pickup Address
 		oldAddress := *approvedShipment.PickupAddress
 		updateAddress := approvedShipment.PickupAddress
 		updateAddress.City = "Norfolk"
 		updateAddress.State = "VA"
 		updateAddress.PostalCode = "23503"
-		updateAddress.UsPostRegionCityID = &usprcNorfolk.ID
 		suite.MustSave(updateAddress)
-
-		usprcHampton, err := models.FindByZipCodeAndCity(suite.DB(), "23661", "Hampton")
-		suite.NoError(err)
 
 		// update Secondary Pickup Address
 		oldSecondaryPickupAddress := *approvedShipment.SecondaryPickupAddress
@@ -99,7 +93,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		updateSecondaryPickupAddress.City = "Hampton"
 		updateSecondaryPickupAddress.State = "VA"
 		updateSecondaryPickupAddress.PostalCode = "23661"
-		updateSecondaryPickupAddress.UsPostRegionCityID = &usprcHampton.ID
 		suite.MustSave(updateSecondaryPickupAddress)
 
 		// update move
@@ -1158,182 +1151,146 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
-	// moveHistoryFetcher := NewMoveHistoryFetcher()
-	procFeatureFlagCases := []struct {
-		testScenario string
-		useDbProc    bool
-	}{
-		{
-			testScenario: "Do not use the new proc",
-			useDbProc:    false,
-		},
-		{
-			testScenario: "Use the new proc",
-			useDbProc:    true,
-		},
-	}
+	moveHistoryFetcher := NewMoveHistoryFetcher()
 
 	//region Helper functions
-	// setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType, isOfficeUser bool) string {
-	// 	assertions := testdatagen.Assertions{
-	// 		OfficeUser: models.OfficeUser{
-	// 			FirstName: userFirstName,
-	// 		},
-	// 		User: models.User{
-	// 			ID: *userID,
-	// 		},
-	// 	}
+	setupTestData := func(userID *uuid.UUID, userFirstName string, roleTypes []roles.RoleType, isOfficeUser bool) string {
+		assertions := testdatagen.Assertions{
+			OfficeUser: models.OfficeUser{
+				FirstName: userFirstName,
+			},
+			User: models.User{
+				ID: *userID,
+			},
+		}
 
-	// 	var user models.User
-	// 	if isOfficeUser {
-	// 		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
-	// 			{
-	// 				Model: models.OfficeUser{
-	// 					FirstName: userFirstName,
-	// 				},
-	// 			},
-	// 			{
-	// 				Model: models.User{
-	// 					ID: *userID,
-	// 				},
-	// 			},
-	// 		}, nil)
+		var user models.User
+		if isOfficeUser {
+			officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+				{
+					Model: models.OfficeUser{
+						FirstName: userFirstName,
+					},
+				},
+				{
+					Model: models.User{
+						ID: *userID,
+					},
+				},
+			}, nil)
 
-	// 		user = officeUser.User
-	// 	} else {
-	// 		user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
-	// 	}
-	// 	approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	// 	factory.BuildAuditHistory(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: factory.TestDataAuditHistory{
-	// 				ObjectID:      models.UUIDPointer(approvedMove.ID),
-	// 				SessionUserID: models.UUIDPointer(user.ID),
-	// 			},
-	// 		},
-	// 	}, nil)
-	// 	return approvedMove.Locator
-	// }
+			user = officeUser.User
+		} else {
+			user = testdatagen.MakeUserWithRoleTypes(suite.DB(), roleTypes, assertions)
+		}
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		factory.BuildAuditHistory(suite.DB(), []factory.Customization{
+			{
+				Model: factory.TestDataAuditHistory{
+					ObjectID:      models.UUIDPointer(approvedMove.ID),
+					SessionUserID: models.UUIDPointer(user.ID),
+				},
+			},
+		}, nil)
+		return approvedMove.Locator
+	}
 
-	// setupServiceMemberTestData := func(userFirstName string, fakeEventName string) (string, models.User) {
-	// 	// Create an unsubmitted move with the service member attached to the orders.
-	// 	move := factory.BuildMove(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.ServiceMember{
-	// 				FirstName: &userFirstName,
-	// 			},
-	// 		},
-	// 	}, nil)
-	// 	user := move.Orders.ServiceMember.User
-	// 	factory.BuildAuditHistory(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: factory.TestDataAuditHistory{
-	// 				ObjectID:      models.UUIDPointer(move.ID),
-	// 				SessionUserID: models.UUIDPointer(user.ID),
-	// 				EventName:     &fakeEventName,
-	// 			},
-	// 		},
-	// 	}, nil)
-	// 	return move.Locator, user
-	// }
+	setupServiceMemberTestData := func(userFirstName string, fakeEventName string) (string, models.User) {
+		// Create an unsubmitted move with the service member attached to the orders.
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: &userFirstName,
+				},
+			},
+		}, nil)
+		user := move.Orders.ServiceMember.User
+		factory.BuildAuditHistory(suite.DB(), []factory.Customization{
+			{
+				Model: factory.TestDataAuditHistory{
+					ObjectID:      models.UUIDPointer(move.ID),
+					SessionUserID: models.UUIDPointer(user.ID),
+					EventName:     &fakeEventName,
+				},
+			},
+		}, nil)
+		return move.Locator, user
+	}
 	//endregion
 
-	// suite.Run("Test with TOO user", func() {
-	// 	for _, tc := range procFeatureFlagCases {
-	// 		suite.Run(tc.testScenario, func() {
-	// 			userID, _ := uuid.NewV4()
-	// 			userName := "TOO_user"
-	// 			locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO}, true)
-	// 			params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
-	// 			moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
-	// 			suite.Nil(err)
-	// 			auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
-	// 			suite.Equal(1, len(auditHistoriesForUser))
-	// 			suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
-	// 		})
-	// 	}
-	// })
+	suite.Run("Test with TOO user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "TOO_user"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO}, true)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+	})
 
-	// suite.Run("Test with Prime user", func() {
-	// 	for _, tc := range procFeatureFlagCases {
-	// 		suite.Run(tc.testScenario, func() {
+	suite.Run("Test with Prime user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "Prime_user"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime}, false)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal("Prime", *auditHistoriesForUser[0].SessionUserFirstName)
+	})
 
-	// 			userID, _ := uuid.NewV4()
-	// 			userName := "Prime_user"
-	// 			locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypePrime}, false)
-	// 			params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
-	// 			moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
-	// 			suite.Nil(err)
-	// 			auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
-	// 			suite.Equal(1, len(auditHistoriesForUser))
-	// 			suite.Equal("Prime", *auditHistoriesForUser[0].SessionUserFirstName)
-	// 		})
-	// 	}
-	// })
+	suite.Run("Test with TOO and Prime Simulator user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "TOO_and_prime_simulator_user"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator}, true)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+	})
 
-	// suite.Run("Test with TOO and Prime Simulator user", func() {
-	// 	for _, tc := range procFeatureFlagCases {
-	// 		suite.Run(tc.testScenario, func() {
-
-	// 			userID, _ := uuid.NewV4()
-	// 			userName := "TOO_and_prime_simulator_user"
-	// 			locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypePrimeSimulator}, true)
-	// 			params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
-	// 			moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
-	// 			suite.Nil(err)
-	// 			auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
-	// 			suite.Equal(1, len(auditHistoriesForUser))
-	// 			suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
-	// 		})
-	// 	}
-	// })
-
-	// suite.Run("Test with TOO and Customer user", func() {
-	// 	for _, tc := range procFeatureFlagCases {
-	// 		suite.Run(tc.testScenario, func() {
-
-	// 			userID, _ := uuid.NewV4()
-	// 			userName := "TOO_and_customer_user"
-	// 			locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeCustomer}, true)
-	// 			params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
-	// 			moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
-	// 			suite.Nil(err)
-	// 			auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
-	// 			suite.Equal(1, len(auditHistoriesForUser))
-	// 			suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
-	// 		})
-	// 	}
-	// })
+	suite.Run("Test with TOO and Customer user", func() {
+		userID, _ := uuid.NewV4()
+		userName := "TOO_and_customer_user"
+		locator := setupTestData(&userID, userName, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeCustomer}, true)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+	})
 
 	suite.Run("Test with Service Member user", func() {
-		for _, tc := range procFeatureFlagCases {
-			suite.Run(tc.testScenario, func() {
-				// userName := "service_member_creator"
-				// fakeEventName := "submitMoveForApproval"
-				// locator, user := setupServiceMemberTestData(userName, fakeEventName)
-				// params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
-				// moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
-				// suite.Nil(err)
-				// auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, user.ID)
-				// suite.Equal(1, len(auditHistoriesForUser))
-				// suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
-				// suite.Equal(fakeEventName, *auditHistoriesForUser[0].EventName)
-			})
-		}
+		userName := "service_member_creator"
+		fakeEventName := "submitMoveForApproval"
+		locator, user := setupServiceMemberTestData(userName, fakeEventName)
+		params := services.FetchMoveHistoryParams{Locator: locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+		moveHistory, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params)
+		suite.Nil(err)
+		auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, user.ID)
+		suite.Equal(1, len(auditHistoriesForUser))
+		suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+		suite.Equal(fakeEventName, *auditHistoriesForUser[0].EventName)
 	})
 }
 
 //region Private Functions
 
-// func filterAuditHistoryByUserID(auditHistories models.AuditHistories, userID uuid.UUID) models.AuditHistories {
-// 	auditHistoriesForUser := models.AuditHistories{}
-// 	for _, auditHistory := range auditHistories {
-// 		if auditHistory.SessionUserID != nil && *auditHistory.SessionUserID == userID {
-// 			auditHistoriesForUser = append(auditHistoriesForUser, auditHistory)
-// 		}
-// 	}
-// 	return auditHistoriesForUser
-// }
+func filterAuditHistoryByUserID(auditHistories models.AuditHistories, userID uuid.UUID) models.AuditHistories {
+	auditHistoriesForUser := models.AuditHistories{}
+	for _, auditHistory := range auditHistories {
+		if auditHistory.SessionUserID != nil && *auditHistory.SessionUserID == userID {
+			auditHistoriesForUser = append(auditHistoriesForUser, auditHistory)
+		}
+	}
+	return auditHistoriesForUser
+}
 
 func removeEscapeJSONtoObject(data *string) map[string]interface{} {
 	var result map[string]interface{}
