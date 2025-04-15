@@ -455,8 +455,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - less than 50 miles returns perUnitCent value for IOPSIT", func() {
-		sitDeliveyMileage := 1
-		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOPSIT, models.IntPointer(sitDeliveyMileage))
+		sitDeliveryMileage := 1
+		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOPSIT, models.IntPointer(sitDeliveryMileage))
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
@@ -467,8 +467,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - over 50 miles returns perUnitCent value for IOPSIT", func() {
-		sitDeliveyMileage := 51
-		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOPSIT, models.IntPointer(sitDeliveyMileage))
+		sitDeliveryMileage := 51
+		move := setupTestDataPickupOCONUS(models.ReServiceCodeIOPSIT, models.IntPointer(sitDeliveryMileage))
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
@@ -479,8 +479,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - less than 50 miles returns perUnitCent value for IDDSIT", func() {
-		sitDeliveyMileage := 1
-		move := setupTestDataDestOCONUS(models.ReServiceCodeIDDSIT, models.IntPointer(sitDeliveyMileage))
+		sitDeliveryMileage := 1
+		move := setupTestDataDestOCONUS(models.ReServiceCodeIDDSIT, models.IntPointer(sitDeliveryMileage))
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
@@ -491,8 +491,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - over 50 miles returns perUnitCent value for IDDSIT", func() {
-		sitDeliveyMileage := 51
-		move := setupTestDataDestOCONUS(models.ReServiceCodeIDDSIT, models.IntPointer(sitDeliveyMileage))
+		sitDeliveryMileage := 51
+		move := setupTestDataDestOCONUS(models.ReServiceCodeIDDSIT, models.IntPointer(sitDeliveryMileage))
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
