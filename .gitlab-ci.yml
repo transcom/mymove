@@ -86,6 +86,8 @@ stages:
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=2048
+  - export SERVICE_RESERVATION_APP_MEM=16384
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
