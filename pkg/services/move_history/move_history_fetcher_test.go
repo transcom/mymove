@@ -243,6 +243,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 			suite.Run(tc.testScenario, func() {
 
 				_ = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
 				params := services.FetchMoveHistoryParams{Locator: "QX97UY", Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
 				_, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
 				suite.Error(err)
@@ -256,6 +257,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 			suite.Run(tc.testScenario, func() {
 
 				approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
 				// update move
 				tioRemarks := "updating TIO remarks for test"
 				approvedMove.TIORemarks = &tioRemarks
@@ -662,6 +664,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 							if changedData["type"] == "ITEM" {
 								verifyServiceItemDimensionsHistoryFound = true
 							}
+
 							if h.Context != nil {
 								context := removeEscapeJSONtoArray(h.Context)
 								if context[0]["shipment_type"] == string(serviceItem.MTOShipment.ShipmentType) && context[0]["shipment_id_abbr"] == shipmentIDAbbr {
@@ -1447,7 +1450,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
 				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
-
 			})
 		}
 	})

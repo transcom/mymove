@@ -1851,6 +1851,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 -- ============================================
 -- ============================================
 -- Main Function: fetch_move_history
@@ -1946,7 +1947,7 @@ BEGIN
     PERFORM fn_populate_move_history_service_item_dimensions(v_move_id);
     PERFORM fn_populate_move_history_service_item_customer_contacts(v_move_id);
     PERFORM fn_populate_sit_extensions(v_move_id);
-    
+
     -- adding a CTE here to stop duplicate entries because of duplicate user_id values
     -- with this CTE we get one consolidated row of user details
     RETURN QUERY WITH user_info AS (
