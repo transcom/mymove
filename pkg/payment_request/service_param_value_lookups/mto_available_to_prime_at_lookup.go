@@ -2,6 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -9,17 +10,17 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
-// MTOAvailableToPrimeAtLookup does lookup on the MTOAvailableToPrime timestamp
-type MTOAvailableToPrimeAtLookup struct {
+// MTOEarliestRequestedPickupLookup does lookup on the MTOAvailableToPrime timestamp
+type MTOEarliestRequestedPickupLookup struct {
 }
 
-func (m MTOAvailableToPrimeAtLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	db := appCtx.DB()
 
 	// Get the MoveTaskOrder
 	moveTaskOrderID := keyData.MoveTaskOrderID
 	var moveTaskOrder models.Move
-	err := db.Find(&moveTaskOrder, moveTaskOrderID)
+	err := db.EagerPreload("MTOShipments").Find(&moveTaskOrder, moveTaskOrderID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -29,7 +30,26 @@ func (m MTOAvailableToPrimeAtLookup) lookup(appCtx appcontext.AppContext, keyDat
 		}
 	}
 
-	availableToPrimeAt := moveTaskOrder.AvailableToPrimeAt
+	var earliestPickupDate *time.Time
+	for _, shipment := range moveTaskOrder.MTOShipments {
+		if shipment.ShipmentType != models.MTOShipmentTypePPM && earliestPickupDate == nil {
+			earliestPickupDate = shipment.RequestedPickupDate
+		}
+
+		if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.RequestedPickupDate.Before(*earliestPickupDate) {
+			earliestPickupDate = shipment.RequestedPickupDate
+		}
+	}
+
+	utcMidnight := models.TimePointer(time.Date(
+		earliestPickupDate.Year(),
+		earliestPickupDate.Month(),
+		earliestPickupDate.Day(),
+		0, 0, 0, 0,
+		time.UTC,
+	))
+
+	availableToPrimeAt := utcMidnight
 	if availableToPrimeAt == nil {
 		return "", apperror.NewBadDataError("This move task order is not available to prime")
 	}

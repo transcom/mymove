@@ -203,7 +203,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	subtestData.paramKeyMTOAvailableToPrimeAt = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Key:         models.ServiceItemParamNameMTOEarliestRequestedPickup,
 				Description: "prime mto made available date",
 				Type:        models.ServiceItemParamTypeDate,
 				Origin:      models.ServiceItemParamOriginSystem,

@@ -319,15 +319,9 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 			return err
 		}
 
-		var earliestPickupDate *time.Time
-		for _, shipment := range move.MTOShipments {
-			if shipment.Status == models.MTOShipmentStatusApproved && shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.RequestedPickupDate.Before(time.Now()) {
-				earliestPickupDate = shipment.RequestedPickupDate
-			}
-		}
-
-		if move.AvailableToPrimeAt == nil && earliestPickupDate != nil {
-			move.AvailableToPrimeAt = earliestPickupDate
+		if move.AvailableToPrimeAt == nil {
+			now := time.Now()
+			move.AvailableToPrimeAt = &now
 
 			err = o.updateMove(txnAppCtx, move, order.CheckRequiredFields())
 			if err != nil {

@@ -15,7 +15,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
-	key := models.ServiceItemParamNameMTOAvailableToPrimeAt
+	key := models.ServiceItemParamNameMTOEarliestRequestedPickup
 
 	availableToPrimeAt := time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
 	var mtoServiceItem models.MTOServiceItem
