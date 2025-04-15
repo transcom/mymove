@@ -1200,8 +1200,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		// usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		// suite.NoError(err)
 		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 		actualPickupAddress.CountryId = &country.ID
@@ -1287,8 +1285,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-		// usprcBeverlyHills, err := models.FindByZipCodeAndCity(suite.DB(), "90210", "Beverly Hills")
-		// suite.NoError(err)
 		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
 		actualPickupAddress.CountryId = &country.ID
@@ -1765,13 +1761,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 					Status: models.MoveStatusAPPROVED,
 				},
 			},
-			// {
-			// 	Model: models.Address{
-			// 		PostalCode: "90210",
-			// 		City:       "Beverly Hills",
-			// 	},
-			// 	Type: &factory.Addresses.DutyLocationTOAddress,
-			// },
 		}, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
