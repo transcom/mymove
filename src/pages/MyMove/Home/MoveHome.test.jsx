@@ -1322,6 +1322,15 @@ describe('Home component', () => {
       expect(wrapper.text()).toContain('Confirm move request');
     });
 
+    it('has enabled and disabled buttons based on step', () => {
+      // shipment step button should now be "Add another shipment"
+      const shipmentStep = wrapper.find('Step[step="3"]');
+      expect(shipmentStep.prop('actionBtnLabel')).toContain('Add another shipment');
+      // confirm move request step should now be enabled
+      const confirmMoveRequest = wrapper.find('Step[step="4"]');
+      expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
+    });
+
     it('cancel move button is visible', async () => {
       const cancelMoveButtonId = `button[data-testid="cancel-move-button"]`;
       expect(wrapper.find(cancelMoveButtonId).length).toBe(1);

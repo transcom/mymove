@@ -422,6 +422,22 @@ describe('Review page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
   });
 
+  it('Add Shipment button goes to the review page', async () => {
+    selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
+
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+
+    const addShipmentButton = screen.getByRole('button', { name: 'Add another shipment' });
+
+    expect(addShipmentButton).toBeInTheDocument();
+
+    await userEvent.click(addShipmentButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/moves/testPreviousMove/shipment-type');
+  });
+
   it('Finish Later button goes back to the home page', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);

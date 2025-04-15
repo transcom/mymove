@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './WizardNavigation.module.scss';
 
 const WizardNavigation = ({
-  onAddShipment,
   isReviewPage,
   isFirstPage,
   isLastPage,
@@ -15,6 +14,7 @@ const WizardNavigation = ({
   editMode,
   readOnly,
   onBackClick,
+  onAddShipment,
   onNextClick,
   onCancelClick,
 }) => {
@@ -53,7 +53,7 @@ const WizardNavigation = ({
       </Button>
 
       {isReviewPage && (
-        <Button type="button" onClick={onAddShipment} className={styles.button}>
+        <Button type="button" onClick={onAddShipment} className={styles.button} data-testid="wizardAddShipmentButton">
           <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />
           &nbsp;&nbsp;Add another shipment
         </Button>
@@ -83,6 +83,7 @@ WizardNavigation.propTypes = {
   editMode: PropTypes.bool,
   readOnly: PropTypes.bool,
   onBackClick: PropTypes.func,
+  onAddShipment: PropTypes.func,
   onNextClick: PropTypes.func,
   onCancelClick: PropTypes.func,
 };
@@ -96,6 +97,7 @@ WizardNavigation.defaultProps = {
   editMode: false,
   readOnly: false,
   onBackClick: () => {},
+  onAddShipment: () => {},
   onNextClick: () => {},
   onCancelClick: () => {},
 };

@@ -98,6 +98,26 @@ describe('WizardNavigation', () => {
     });
   });
 
+  describe('if Add Shipment is an option', () => {
+    const mockProps = {
+      onBackClick: jest.fn(),
+      onAddShipment: jest.fn(),
+      onNextClick: jest.fn(),
+      onCancelClick: jest.fn(),
+    };
+    const wrapper = mount(<WizardNavigation isReviewPage {...mockProps} />);
+    const onAddShipment = wrapper.find('button[data-testid="wizardAddShipmentButton"]');
+
+    it('shows the Add Shipment button', () => {
+      expect(onAddShipment.length).toBe(1);
+    });
+
+    it('hooks up the onClick handlers', () => {
+      onAddShipment.simulate('click');
+      expect(mockProps.onAddShipment).toHaveBeenCalled();
+    });
+  });
+
   describe('if Finish Later is an option', () => {
     const mockProps = {
       onBackClick: jest.fn(),
