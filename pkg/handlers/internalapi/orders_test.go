@@ -37,10 +37,16 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		},
 	}, nil)
 	suite.Run("can create conus orders", func() {
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "35023")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus: models.BoolPointer(false),
+					IsOconus:   models.BoolPointer(false),
+					City:       "BESSEMER",
+					PostalCode: usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -102,7 +108,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		orderID := okResponse.Payload.ID.String()
 		createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
 		var createdEntitlement models.Entitlement
-		err := suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
+		err = suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
 		suite.NoError(err)
 		suite.NotEmpty(createdEntitlement)
 		suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
@@ -133,6 +139,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -258,6 +266,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -720,11 +730,20 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 
+	usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99506")
+	suite.NotNil(usprc)
+	suite.FatalNoError(err)
+
 	suite.Run("Can update CONUS orders", func() {
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "35023")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus: models.BoolPointer(false),
+					IsOconus:   models.BoolPointer(false),
+					PostalCode: usprc.UsprZipID,
+					City:       "BESSEMER",
 				},
 			},
 		}, nil)
@@ -844,6 +863,8 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -1154,6 +1175,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 		{
 			Model: models.Address{
 				PostalCode: "90210",
+				City:       "BEVERLY HILLS",
 			},
 		},
 	}, nil)
@@ -1161,6 +1183,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 		{
 			Model: models.Address{
 				PostalCode: "35023",
+				City:       "BESSEMER",
 			},
 		},
 	}, nil)

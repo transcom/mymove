@@ -28,7 +28,8 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 			ReportViolationFetcher: fetcher,
 		}
 
-		reportViolation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		reportViolation, err := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		suite.NoError(err)
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/report-violations/%s",
 			reportViolation.ReportID.String()), nil)

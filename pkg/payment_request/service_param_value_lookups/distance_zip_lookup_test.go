@@ -24,16 +24,24 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
+
+		usprc1, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "33607", "ROCKY POINT")
+		suite.NoError(err)
+		usprc2, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NoError(err)
+
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "33607",
+					PostalCode: usprc1.UsprZipID,
+					City:       usprc1.USPostRegionCityNm,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					PostalCode: "90210",
+					PostalCode: usprc2.UsprZipID,
+					City:       usprc2.USPostRegionCityNm,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -86,6 +94,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					PostalCode: "74133",
+					City:       "TULSA",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -148,7 +157,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					StreetAddress1: "JBER",
-					City:           "JBER",
+					City:           "ANCHORAGE",
 					State:          "AK",
 					PostalCode:     "99505",
 					IsOconus:       models.BoolPointer(true),
@@ -158,8 +167,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		}, nil)
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode, City: ppmShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode, City: ppmShipment.DestinationAddress.City},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -188,6 +197,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					PostalCode: "88101",
+					City:       "CANNON AFB",
 				},
 			},
 		}, nil)
@@ -196,12 +206,14 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					PostalCode: "33607",
+					City:       "ROCKY POINT",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					City:       "BEVERLY HILLS",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -261,8 +273,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode, City: ppmShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode, City: ppmShipment.DestinationAddress.City},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -292,8 +304,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		}, nil)
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode, City: ppmShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode, City: ppmShipment.DestinationAddress.City},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -324,12 +336,14 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					PostalCode: "90211",
+					City:       "BEVERLY HILLS",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					City:       "BEVERLY HILLS",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -370,12 +384,14 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					PostalCode: "33607",
+					City:       "ROCKY POINT",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					City:       "BEVERLY HILLS",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -456,6 +472,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -465,13 +486,17 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "33",
+					PostalCode:         "33",
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					PostalCode: "90103",
+					PostalCode:         usprc.UsprZipID,
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -502,16 +527,25 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "33607",
+					PostalCode:         usprc.UsprZipID,
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					PostalCode: "901",
+					PostalCode:         "901",
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -558,6 +592,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 					{
 						Model: models.Address{
 							PostalCode: "90211",
+							City:       "BEVERLY HILLS",
 						},
 					},
 				}, nil),
@@ -569,6 +604,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 					{
 						Model: models.Address{
 							PostalCode: "90211",
+							City:       "BEVERLY HILLS",
 						},
 					},
 				}, nil),
@@ -578,8 +614,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		}, nil)
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: MTOShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: MTOShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: MTOShipment.PickupAddress.PostalCode, City: MTOShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: MTOShipment.DestinationAddress.PostalCode, City: MTOShipment.DestinationAddress.City},
 		}
 
 		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{

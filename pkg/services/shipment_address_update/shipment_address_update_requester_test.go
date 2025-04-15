@@ -424,7 +424,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
+			City:           "FAIRFIELD",
 			State:          "CA",
 			PostalCode:     shipment.DestinationAddress.PostalCode,
 		}
@@ -470,7 +470,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		).Return(2500, nil).Once()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
@@ -479,12 +479,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			{
 				Model: models.Address{
 					PostalCode: "89523",
+					City:       "RENO",
+					State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "89503",
+					City:       "RENO",
+					State:      "NV",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -518,20 +522,24 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			{
 				Model: models.Address{
 					PostalCode: "89523",
+					City:       "RENO",
+					State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					City:       "Beverly Hills",
+					State:      "CA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
-			State:          "CA",
+			City:           "RENO",
+			State:          "NV",
 			PostalCode:     "89503",
 		}
 
@@ -607,8 +615,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
-			State:          "CA",
+			City:           "RENO",
+			State:          "NV",
 			PostalCode:     "89503",
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -616,6 +624,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			{
 				Model: models.Address{
 					PostalCode: "94535",
+					City:       "FAIRFIELD",
+					State:      "CA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -664,13 +674,14 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			{
 				Model: models.Address{
 					PostalCode: "87108",
+					City:       "ALBUQUERQUE",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Albuquerque",
+			City:           "SAN YSIDRO",
 			State:          "NM",
 			PostalCode:     "87053",
 		}
@@ -1251,7 +1262,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					StreetAddress1:     "Cold Ave.",
-					City:               "Fairbanks",
+					City:               "FORT WAINWRIGHT",
 					State:              "AK",
 					PostalCode:         "99703",
 					IsOconus:           models.BoolPointer(true),
@@ -1461,7 +1472,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					StreetAddress1:     "Cold Ave.",
-					City:               "Fairbanks",
+					City:               "FORT WAINWRIGHT",
 					State:              "AK",
 					PostalCode:         "99703",
 					IsOconus:           models.BoolPointer(true),
@@ -1562,6 +1573,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
+					City:       "RENO",
+					State:      "NV",
 					IsOconus:   models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.PickupAddress,
@@ -1569,6 +1582,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					City:       "Beverly Hills",
+					State:      "CA",
 					IsOconus:   models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -1581,8 +1596,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
-			State:          "CA",
+			City:           "RENO",
+			State:          "NV",
 			PostalCode:     "89503",
 		}
 
@@ -1631,12 +1646,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
+					City:       "RENO",
+					State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					City:       "Beverly Hills",
+					State:      "CA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -1654,8 +1673,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
-			State:          "CA",
+			City:           "RENO",
+			State:          "NV",
 			PostalCode:     "89503",
 		}
 
@@ -1693,7 +1712,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
+			City:           "FAIRFIELD",
 			State:          "CA",
 			PostalCode:     shipment.DestinationAddress.PostalCode,
 		}
@@ -1741,12 +1760,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
+					City:       "RENO",
+					State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					City:       "Beverly Hills",
+					State:      "CA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -1758,8 +1781,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
-			State:          "CA",
+			City:           "RENO",
+			State:          "NV",
 			PostalCode:     "89503",
 		}
 
@@ -1811,12 +1834,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
+					City:       "RENO",
+					State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "89503",
+					City:       "RENO",
+					State:      "NV",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},

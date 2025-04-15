@@ -100,10 +100,17 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "77777",
+					PostalCode:         usprc.UsprZipID,
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -757,6 +764,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)
@@ -1193,6 +1202,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					PostalCode:         usprc.UsprZipID,
+					City:               usprc.USPostRegionCityNm,
 				},
 			},
 		}, nil)

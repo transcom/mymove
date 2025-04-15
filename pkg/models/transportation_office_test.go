@@ -28,7 +28,7 @@ func CreateTestShippingOffice(suite *ModelSuite) m.TransportationOffice {
 	addressCreator := address.NewAddressCreator()
 	newAddress := &m.Address{
 		StreetAddress1: "123 washington Ave",
-		City:           "Springfield",
+		City:           "ANCHORAGE",
 		State:          "AK",
 		PostalCode:     "99515"}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
@@ -85,6 +85,7 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 		{
 			Model: m.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -111,6 +112,7 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 		{
 			Model: m.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -136,6 +138,7 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 		{
 			Model: m.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -164,6 +167,7 @@ func (suite *ModelSuite) TestGetCounselingOffices() {
 		{
 			Model: m.Address{
 				PostalCode: "20906",
+				City:       "ASPEN HILL",
 			},
 		},
 	}, nil)

@@ -149,6 +149,7 @@ func (suite *FactorySuite) TestBuildWeightTicket() {
 		customWeightTicket := models.WeightTicket{
 			EmptyWeight: models.PoundPointer(9999),
 		}
+
 		// Nil passed in as db
 		weightTicket := BuildWeightTicket(nil, []Customization{
 			{
