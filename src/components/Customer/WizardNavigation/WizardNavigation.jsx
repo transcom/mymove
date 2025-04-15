@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './WizardNavigation.module.scss';
 
@@ -49,11 +50,18 @@ const WizardNavigation = ({
         {submitButtonText}
       </Button>
 
+      {isFirstPage && (
+        <Button type="button" onClick={onNextClick} className={styles.button}>
+          <FontAwesomeIcon icon="plus" />
+          Add another shipment
+        </Button>
+      )}
+
       {(showFinishLater || editMode) && (
         <Button
           type="button"
+          secondary
           className={styles.button}
-          unstyled
           onClick={onCancelClick}
           data-testid="wizardCancelButton"
         >
