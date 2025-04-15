@@ -276,8 +276,7 @@ const MoveDetails = ({
       shipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
       shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-      shipment.status === shipmentStatuses.CANCELED ||
-      shipment.status === shipmentStatuses.APPROVALS_REQUESTED,
+      shipment.status === shipmentStatuses.CANCELED,
   );
 
   const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(

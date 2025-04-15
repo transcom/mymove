@@ -89,10 +89,10 @@ function formatShipmentDate(shipmentDateString) {
 function showShipmentFilter(shipment) {
   return (
     shipment.status === shipmentStatuses.APPROVED ||
+    shipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
-    shipment.status === shipmentStatuses.CANCELED ||
-    shipment.status === shipmentStatuses.APPROVALS_REQUESTED
+    shipment.status === shipmentStatuses.CANCELED
   );
 }
 

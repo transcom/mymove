@@ -929,6 +929,7 @@ func tooQueueOriginRequestsFilter(role roles.RoleType) QueryOption {
 		if role == roles.RoleTypeTOO {
 			baseQuery := `
 			(mto_shipments.status IN ('SUBMITTED','APPROVALS_REQUESTED')
+				-- keep moves in the TOO queue if they have an unacknowledged excess weight risk
         		OR (mto_shipments.status = 'APPROVED'
         			AND
                 		(

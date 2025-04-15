@@ -594,9 +594,9 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 			if reweighActiveForMove {
 				for _, shipment := range move.MTOShipments {
 					if (shipment.Status == models.MTOShipmentStatusApproved ||
+						shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 						shipment.Status == models.MTOShipmentStatusDiversionRequested ||
-						shipment.Status == models.MTOShipmentStatusCancellationRequested ||
-						shipment.Status == models.MTOShipmentStatusApprovalsRequested) &&
+						shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 						shipment.Reweigh.ID == uuid.Nil &&
 						shipment.ShipmentType != models.MTOShipmentTypePPM {
 						_, err := h.ShipmentReweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
@@ -816,9 +816,9 @@ func (h ApproveShipmentsHandler) Handle(params shipmentops.ApproveShipmentsParam
 					for i := range move.MTOShipments {
 						shipment := move.MTOShipments[i]
 						if (shipment.Status == models.MTOShipmentStatusApproved ||
+							shipment.Status == models.MTOShipmentStatusApprovalsRequested ||
 							shipment.Status == models.MTOShipmentStatusDiversionRequested ||
-							shipment.Status == models.MTOShipmentStatusCancellationRequested ||
-							shipment.Status == models.MTOShipmentStatusApprovalsRequested) &&
+							shipment.Status == models.MTOShipmentStatusCancellationRequested) &&
 							shipment.Reweigh.ID == uuid.Nil &&
 							shipment.ShipmentType != models.MTOShipmentTypePPM {
 							_, err := h.ShipmentReweighRequester.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
