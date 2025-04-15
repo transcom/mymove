@@ -74,11 +74,6 @@ const SubmitMoveForm = (props) => {
                 </p>
 
                 <Fieldset>
-                  <Grid row>
-                    <Grid tablet={{ col: 'fill' }}>
-                      <p>{currentUser}</p>
-                    </Grid>
-                  </Grid>
                   <Grid row gap>
                     <Grid tablet={{ col: 'fill' }}>
                       <FormGroup error={showSignatureError}>
@@ -101,6 +96,11 @@ const SubmitMoveForm = (props) => {
                         <Label htmlFor="date">Date</Label>
                         <Field as={TextInput} name="date" id="date" disabled />
                       </FormGroup>
+                    </Grid>
+                  </Grid>
+                  <Grid row>
+                    <Grid tablet={{ col: 'fill' }}>
+                      <p>{currentUser}</p>
                     </Grid>
                   </Grid>
                   <Grid row gap>
