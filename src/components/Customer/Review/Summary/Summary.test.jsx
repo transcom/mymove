@@ -1,11 +1,9 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
-import { FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { renderWithRouterProp } from 'testUtils';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { customerRoutes } from 'constants/routes';
 import { selectCurrentMoveFromAllMoves } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -603,17 +601,6 @@ const testProps = {
 describe('Summary page', () => {
   describe('if the user can add another shipment', () => {
     selectCurrentMoveFromAllMoves.mockImplementation(() => testMove);
-    it('displays the Add Another Shipment section', () => {
-      renderWithRouterProp(<Summary {...testProps} />, {
-        path: customerRoutes.MOVE_REVIEW_PATH,
-        params: { moveId: '123' },
-      });
-
-      expect(screen.getByRole('link', { name: 'Add another shipment' })).toHaveAttribute(
-        'href',
-        '/moves/123/shipment-type',
-      );
-    });
 
     it('displays contact local PPPO office message', async () => {
       renderWithRouterProp(<Summary {...testProps} />, {
@@ -621,87 +608,6 @@ describe('Summary page', () => {
         params: { moveId: '123' },
       });
       expect(await screen.findByText(/\*To change these fields, contact your local PPPO office/)).toBeInTheDocument();
-    });
-
-    it('displays a button that opens a modal', async () => {
-      renderWithRouterProp(<Summary {...testProps} />, {
-        path: customerRoutes.MOVE_REVIEW_PATH,
-        params: { moveId: '123' },
-      });
-
-      expect(
-        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).not.toBeInTheDocument();
-
-      expect(screen.getByTitle('Help with adding shipments')).toBeInTheDocument();
-      await userEvent.click(screen.getByTitle('Help with adding shipments'));
-
-      expect(
-        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).toBeInTheDocument();
-    });
-
-    it('add shipment modal displays default text, nothing is disabled', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-
-      renderWithRouterProp(<Summary {...testProps} />, {
-        path: customerRoutes.MOVE_REVIEW_PATH,
-        params: { moveId: '123' },
-      });
-
-      expect(
-        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).not.toBeInTheDocument();
-
-      expect(screen.getByTitle('Help with adding shipments')).toBeInTheDocument();
-      await userEvent.click(screen.getByTitle('Help with adding shipments'));
-
-      expect(
-        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).toBeInTheDocument();
-
-      // verify it display default text in modal when nothing is disabled
-      expect(await screen.findByText(/If none of these apply to you, you probably/)).toBeInTheDocument();
-
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.MOBILE_HOME);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
-    });
-
-    it('add shipment modal displays still in dev mode', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-
-      renderWithRouterProp(<Summary {...testProps} />, {
-        path: customerRoutes.MOVE_REVIEW_PATH,
-        params: { moveId: '123' },
-      });
-
-      expect(
-        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).not.toBeInTheDocument();
-
-      await userEvent.click(screen.getByTitle('Help with adding shipments'));
-
-      expect(
-        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).toBeInTheDocument();
-
-      // verify it display default text in modal feature flag is enabled. display under construction text
-      expect(
-        await screen.findByText(
-          /Some shipment types are still being developed and will become available at a later date./,
-        ),
-      ).toBeInTheDocument();
-
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.MOBILE_HOME);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
     });
   });
   afterEach(jest.clearAllMocks);
