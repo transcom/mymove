@@ -262,3 +262,30 @@ describe('calculateApprovedAndRequestedDatesCombined', () => {
     expect(result).toBe(expectedDate);
   });
 });
+
+describe('SIT Formatter Helpers', () => {
+  it('calculateEndDate returns the correct end day', () => {
+    const sitEntryDate = '2025-01-01';
+    const userEnteredEndDate = '2025-02-15';
+    const endDay = calculateEndDate(sitEntryDate, userEnteredEndDate);
+    expect(moment(endDay).format('YYYY-MM-DD')).toBe('2025-02-16');
+  });
+
+  it('calculateSitDaysAllowance returns the correct allowance', () => {
+    const sitEntryDate = '2025-01-01';
+    const daysInPreviousSIT = 0;
+    const endDay = '2025-02-15';
+    const allowance = calculateSitDaysAllowance(sitEntryDate, daysInPreviousSIT, endDay);
+    const expectedAllowance = moment(endDay).diff(moment(sitEntryDate), 'days');
+    expect(allowance).toBe(expectedAllowance);
+  });
+
+  it('calculateSITEndDate returns the correct end date', () => {
+    const sitEntryDate = '2025-01-01';
+    const daysApproved = 90;
+    const daysInPreviousSIT = 0;
+    const sitEndDate = calculateSITEndDate(sitEntryDate, daysApproved, daysInPreviousSIT);
+    const expectedDate = moment(sitEntryDate).add(90, 'days').subtract(1, 'days').format('YYYY-MM-DD');
+    expect(moment(sitEndDate).format('YYYY-MM-DD')).toBe(expectedDate);
+  });
+});
