@@ -46,7 +46,7 @@ func (suite *ModelSuite) TestAddressInstantiationWithIncorrectUsPostRegionCityID
 	}
 
 	expErrors := map[string][]string{
-		"invalid_us_post_region_city_id": {"UsPostRegionCityID is invalid."},
+		"us_post_region_city_id": {"UsPostRegionCityID is invalid."},
 	}
 
 	suite.verifyValidationErrorsWithDBConnection(suite.AppContextForTest(), newAddress, expErrors)
