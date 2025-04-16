@@ -83,8 +83,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
-		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(10, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
+		tenYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(10, 0, 0)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, tenYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
