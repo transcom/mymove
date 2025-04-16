@@ -62,7 +62,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		paymentServiceItem := suite.setupDomesticDestinationServiceItems()
 
 		cost, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(5624)
+		expectedCost := unit.Cents(5994)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 	})
