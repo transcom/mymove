@@ -142,10 +142,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
+		tomorrow := time.Now().Add(24 * time.Hour)
 		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
 			},
 		}, nil)
 		subtestData.mtoShipment.MoveTaskOrderID = mto.ID

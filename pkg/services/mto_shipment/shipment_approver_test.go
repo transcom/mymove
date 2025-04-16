@@ -177,6 +177,10 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 			BasePointCity: pickupAddress.City,
 			State:         pickupAddress.State,
 		},
+		ReContractYear: models.ReContractYear{
+			StartDate: time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC),
+			EndDate:   time.Date(2026, time.December, 31, 0, 0, 0, 0, time.UTC),
+		},
 	})
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
@@ -301,7 +305,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 
-		pickupDate := time.Now()
+		pickupDate := time.Now().Add(24 * time.Hour)
 		internationalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -404,6 +408,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 
+		pickupDate := time.Now().Add(24 * time.Hour)
 		internationalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -422,9 +427,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+					RequestedPickupDate: &pickupDate,
 				},
 			},
 			{
@@ -482,6 +488,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 
+		pickupDate := time.Now().Add(24 * time.Hour)
 		internationalShipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -500,9 +507,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+					RequestedPickupDate: &pickupDate,
 				},
 			},
 			{
@@ -706,6 +714,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		estimatedWeight := unit.Pound(1212)
 
+		tomorrow := time.Now().Add(24 * time.Hour)
+		peakPeriod := time.Date(tomorrow.Year(), testdatagen.DateInsidePeakRateCycle.Month(), testdatagen.DateInsidePeakRateCycle.Day(), 0, 0, 0, 0, time.UTC)
+
 		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -715,7 +726,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusSubmitted,
 					PrimeEstimatedWeight: &estimatedWeight,
-					RequestedPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					RequestedPickupDate:  &peakPeriod,
 				},
 			},
 		}, nil)
@@ -814,6 +825,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
+		tomorrow := time.Now().Add(24 * time.Hour)
 		shipmentHeavy := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -825,6 +837,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate:  &tomorrow,
 				},
 			},
 			{
@@ -869,6 +882,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.shipmentApprover
 
 		rejectionReason := "a reason"
+		pickupDate := time.Now().Add(24 * time.Hour)
 		rejectedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -876,8 +890,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status:          models.MTOShipmentStatusRejected,
-					RejectionReason: &rejectionReason,
+					Status:              models.MTOShipmentStatusRejected,
+					RejectionReason:     &rejectionReason,
+					RequestedPickupDate: &pickupDate,
 				},
 			},
 		}, nil)
@@ -935,6 +950,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		approver := subtestData.mockedShipmentApprover
 		shipmentRouter := subtestData.mockedShipmentRouter
 
+		pickupDate := time.Now().Add(24 * time.Hour)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -942,7 +958,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &pickupDate,
 				},
 			},
 		}, nil)
@@ -1044,6 +1061,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 
+		pickupDate := time.Now().Add(24 * time.Hour)
 		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1055,6 +1073,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate:  &pickupDate,
 				},
 			},
 			{
@@ -1080,6 +1099,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate:  &pickupDate,
 				},
 			},
 			{
@@ -1104,6 +1124,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 					ScheduledPickupDate: &testdatagen.DateInsidePeakRateCycle,
 					NTSRecordedWeight:   &estimatedWeight,
 					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &pickupDate,
 				},
 			},
 			{
@@ -1161,6 +1182,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		approver := subtestData.shipmentApprover
 		estimatedWeight := unit.Pound(1234)
+		pickupDate := time.Now().Add(24 * time.Hour)
 		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1170,6 +1192,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusSubmitted,
 					PrimeEstimatedWeight: &estimatedWeight,
+					RequestedPickupDate:  &pickupDate,
 				},
 			},
 		}, nil)
@@ -1201,6 +1224,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		approver := subtestData.shipmentApprover
 		estimatedWeight := unit.Pound(100000)
+		pickupDate := time.Now().Add(24 * time.Hour)
 		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1210,6 +1234,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusSubmitted,
 					PrimeEstimatedWeight: &estimatedWeight,
+					RequestedPickupDate:  &pickupDate,
 				},
 			},
 		}, nil)
@@ -1232,6 +1257,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the CONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		tomorrow := time.Now().Add(24 * time.Hour)
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1250,9 +1276,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 			{
@@ -1300,6 +1327,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to CONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		tomorrow := time.Now().Add(24 * time.Hour)
 		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
@@ -1323,6 +1351,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 					Status:              models.MTOShipmentStatusSubmitted,
 					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
 					ScheduledPickupDate: &scheduledPickupDate,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 			{
@@ -1371,6 +1400,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 	suite.Run("If the OCONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
 		var scheduledPickupDate time.Time
+		tomorrow := time.Now().Add(24 * time.Hour)
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1393,6 +1423,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 					Status:              models.MTOShipmentStatusSubmitted,
 					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
 					ScheduledPickupDate: &scheduledPickupDate,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 			{
@@ -1466,6 +1497,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
+		tomorrow := time.Now().Add(24 * time.Hour)
 		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1473,7 +1505,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1485,7 +1518,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1518,6 +1552,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
+		tomorrow := time.Now().Add(24 * time.Hour)
 		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1525,7 +1560,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
@@ -1537,7 +1573,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 			},
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
+					Status:              models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate: &tomorrow,
 				},
 			},
 		}, nil)
