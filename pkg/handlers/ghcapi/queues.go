@@ -170,7 +170,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeTaskOrder))
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -205,24 +205,29 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 
 			ListOrderParams := services.ListOrderParams{
-				Branch:                  params.Branch,
-				Locator:                 params.Locator,
-				Edipi:                   params.Edipi,
-				Emplid:                  params.Emplid,
-				CustomerName:            params.CustomerName,
-				DestinationDutyLocation: params.DestinationDutyLocation,
-				OriginDutyLocation:      params.OriginDutyLocation,
-				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
-				RequestedMoveDate:       params.RequestedMoveDate,
-				Status:                  params.Status,
-				Page:                    params.Page,
-				PerPage:                 params.PerPage,
-				Sort:                    params.Sort,
-				Order:                   params.Order,
-				TOOAssignedUser:         params.AssignedTo,
-				CounselingOffice:        params.CounselingOffice,
+				Branch:                     params.Branch,
+				Locator:                    params.Locator,
+				Edipi:                      params.Edipi,
+				Emplid:                     params.Emplid,
+				CustomerName:               params.CustomerName,
+				DestinationDutyLocation:    params.DestinationDutyLocation,
+				OriginDutyLocation:         params.OriginDutyLocation,
+				AppearedInTOOAt:            handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
+				RequestedMoveDate:          params.RequestedMoveDate,
+				Status:                     params.Status,
+				Page:                       params.Page,
+				PerPage:                    params.PerPage,
+				Sort:                       params.Sort,
+				Order:                      params.Order,
+				OrderType:                  params.OrderType,
+				TOODestinationAssignedUser: params.AssignedTo,
+				CounselingOffice:           params.CounselingOffice,
 			}
 
+			var activeRole string
+			if params.ActiveRole != nil {
+				activeRole = *params.ActiveRole
+			}
 			// we only care about moves in APPROVALS REQUESTED status
 			if params.Status == nil {
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVALSREQUESTED)}
@@ -234,6 +239,23 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			}
 			if params.PerPage == nil {
 				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetMovesQueueInternalServerError(), err
+				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
@@ -248,21 +270,35 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 			}
 
-			var officeUser models.OfficeUser
-			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
-				if err != nil {
-					appCtx.Logger().Error("Error retrieving office user", zap.Error(err))
-					return queues.NewGetDestinationRequestsQueueInternalServerError(), err
-				}
-			}
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 			officeUser.User.Privileges = privileges
 			officeUser.User.Roles = appCtx.Session().Roles
-
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeTOO,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
@@ -289,9 +325,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
-			var activeRole string
-			officeUsers := models.OfficeUsers{officeUser}
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, nil, activeRole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeDestinationRequest))
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -674,7 +708,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -813,6 +847,64 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			}
 			return queues.NewGetBulkAssignmentDataOK().WithPayload(&officeUserData), nil
+		})
+}
+
+// SaveBulkAssignmentDataHandler saves the bulk assignment data
+type SaveBulkAssignmentDataHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserFetcherPop
+	services.MoveFetcher
+	services.MoveAssigner
+}
+
+func (h SaveBulkAssignmentDataHandler) Handle(
+	params queues.SaveBulkAssignmentDataParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
+			}
+
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataNotFound(), err
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			if !isSupervisor {
+				appCtx.Logger().Error("Unauthorized", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataUnauthorized(), err
+			}
+
+			queueType := params.BulkAssignmentSavePayload.QueueType
+			moveData := params.BulkAssignmentSavePayload.MoveData
+			userData := params.BulkAssignmentSavePayload.UserData
+
+			// fetch the moves available to be assigned to their office users
+			movesForAssignment, err := h.MoveFetcher.FetchMovesByIdArray(appCtx, moveData)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving moves for assignment", zap.Error(err))
+				return queues.NewSaveBulkAssignmentDataInternalServerError(), err
+			}
+
+			_, err = h.MoveAssigner.BulkMoveAssignment(appCtx, queueType, userData, movesForAssignment)
+			if err != nil {
+				appCtx.Logger().Error("Error assigning moves", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataInternalServerError(), err
+			}
+
+			return queues.NewSaveBulkAssignmentDataNoContent(), nil
 		})
 }
 

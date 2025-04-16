@@ -5,6 +5,7 @@ import { formatQAReportID } from './formatters';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
 import { MOVE_STATUSES } from 'shared/constants';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 describe('formatters', () => {
   describe('format date for customer app', () => {
@@ -237,7 +238,7 @@ describe('formatters', () => {
 
   describe('paymentRequestStatusReadable', () => {
     it('returns expected string for PENDING', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment requested');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment Requested');
     });
 
     it('returns expected string for REVIEWED', () => {
@@ -249,15 +250,15 @@ describe('formatters', () => {
     });
 
     it('returns expected string for TPPS_RECEIVED', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.TPPS_RECEIVED)).toEqual('Received');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.TPPS_RECEIVED)).toEqual('TPPS Received');
     });
 
     it('returns expected string for PAID', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('TPPS Paid');
     });
 
     it('returns expected string for EDI_ERROR', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI error');
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.EDI_ERROR)).toEqual('EDI Error');
     });
 
     it('returns expected string for DEPRECATED', () => {
@@ -507,6 +508,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: null,
       dependentsUnderTwelve: null,
       dependentsTwelveAndOver: null,
+      civilianTdyUbAllowance: null,
     });
   });
 
@@ -523,6 +525,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: null,
       dependentsUnderTwelve: null,
       dependentsTwelveAndOver: null,
+      civilianTdyUbAllowance: null,
     });
   });
 
@@ -542,6 +545,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: true,
       dependentsUnderTwelve: 3,
       dependentsTwelveAndOver: 2,
+      civilianTdyUbAllowance: null,
     });
   });
 
@@ -550,9 +554,12 @@ describe('constructSCOrderOconusFields', () => {
       originDutyLocation: { address: { isOconus: false } },
       newDutyLocation: { address: { isOconus: true } },
       hasDependents: true,
+      ordersType: ORDERS_TYPE.TEMPORARY_DUTY,
+      grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
       accompaniedTour: 'yes',
       dependentsUnderTwelve: '5',
       dependentsTwelveAndOver: '1',
+      civilianTdyUbAllowance: '251',
     };
 
     const result = formatters.constructSCOrderOconusFields(values);
@@ -561,6 +568,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: true,
       dependentsUnderTwelve: 5,
       dependentsTwelveAndOver: 1,
+      civilianTdyUbAllowance: 251,
     });
   });
 
@@ -570,6 +578,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: 'yes',
       dependentsUnderTwelve: '3',
       dependentsTwelveAndOver: '2',
+      civilianTdyUbAllowance: 251,
     };
 
     const result = formatters.constructSCOrderOconusFields(values);
@@ -578,6 +587,7 @@ describe('constructSCOrderOconusFields', () => {
       accompaniedTour: null,
       dependentsUnderTwelve: null,
       dependentsTwelveAndOver: null,
+      civilianTdyUbAllowance: null,
     });
   });
 });

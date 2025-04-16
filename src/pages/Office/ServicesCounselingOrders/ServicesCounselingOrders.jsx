@@ -29,7 +29,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
-import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
 
@@ -37,7 +37,7 @@ const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_O
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
+const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode } = useParams();
@@ -183,6 +183,11 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
 
   const order = Object.values(orders)?.[0];
 
+  const counselorCanEdit =
+    move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+    move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
+    (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt); // status is set to 'Approval Requested' if customer uploads amended orders.
+
   useEffect(() => {
     if (isLoading || isError) {
       return;
@@ -306,6 +311,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
+    dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
   const tacWarningMsg =
@@ -365,20 +371,26 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                       View allowances
                     </Link>
                   </div>
-                  <DocumentViewerFileManager
-                    fileUploadRequired={!hasOrdersDocuments}
-                    orderId={orderId}
-                    documentId={orderDocumentId}
-                    files={ordersDocuments}
-                    documentType={MOVE_DOCUMENT_TYPE.ORDERS}
-                  />
-                  <DocumentViewerFileManager
-                    orderId={orderId}
-                    documentId={amendedOrderDocumentId}
-                    files={amendedDocuments}
-                    documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
-                    updateAmendedDocument={updateAmendedDocument}
-                  />
+                  {counselorCanEdit && (
+                    <>
+                      <DocumentViewerFileManager
+                        fileUploadRequired={!hasOrdersDocuments}
+                        orderId={orderId}
+                        documentId={orderDocumentId}
+                        files={ordersDocuments}
+                        documentType={MOVE_DOCUMENT_TYPE.ORDERS}
+                        onAddFile={onAddFile}
+                      />
+                      <DocumentViewerFileManager
+                        orderId={orderId}
+                        documentId={amendedOrderDocumentId}
+                        files={amendedDocuments}
+                        documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
+                        updateAmendedDocument={updateAmendedDocument}
+                        onAddFile={onAddFile}
+                      />
+                    </>
+                  )}
                 </div>
                 <div className={styles.body}>
                   <OrdersDetailForm
@@ -396,13 +408,18 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
                     validateNTSTac={handleNTSTacValidation}
                     payGradeOptions={payGradeDropdownOptions}
+                    formIsDisabled={!counselorCanEdit}
                     hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
                   />
                 </div>
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
-                    <Button type="submit" disabled={formik.isSubmitting} onClick={scrollToViewFormikError(formik)}>
+                    <Button
+                      type="submit"
+                      disabled={formik.isSubmitting || !counselorCanEdit}
+                      onClick={scrollToViewFormikError(formik)}
+                    >
                       Save
                     </Button>
                     <Button type="button" secondary onClick={handleClose}>

@@ -32,6 +32,7 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
@@ -328,12 +329,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	mockSender := suite.TestNotificationSender()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
@@ -349,7 +350,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 		handler := UpdateMTOShipmentStatusHandler{
 			handlerConfig,
@@ -535,13 +535,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	setupTestData := func() DeleteMTOShipmentHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(400, nil)
 
 		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {

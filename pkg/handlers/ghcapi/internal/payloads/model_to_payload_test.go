@@ -669,6 +669,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	authorizedWeight := 8000
 	ubAllowance := 300
 	weightRestriction := 1000
+	ubWeightRestriction := 1200
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -687,6 +688,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		UpdatedAt:                      time.Now(),
 		UBAllowance:                    &ubAllowance,
 		WeightRestriction:              &weightRestriction,
+		UBWeightRestriction:            &ubWeightRestriction,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
@@ -709,6 +711,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
 	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
+	suite.Equal(ubWeightRestriction, int(*returnedEntitlement.UbWeightRestriction))
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {
@@ -716,19 +719,9 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	id2, _ := uuid.NewV4()
 	oktaID := "thisIsNotARealID"
 
-	oktaUser := models.CreatedOktaUser{
-		ID: oktaID,
-		Profile: struct {
-			FirstName   string `json:"firstName"`
-			LastName    string `json:"lastName"`
-			MobilePhone string `json:"mobilePhone"`
-			SecondEmail string `json:"secondEmail"`
-			Login       string `json:"login"`
-			Email       string `json:"email"`
-		}{
-			Email: "john.doe@example.com",
-		},
-	}
+	var oktaUser models.CreatedOktaUser
+	oktaUser.ID = oktaID
+	oktaUser.Profile.Email = "john.doe@example.com"
 
 	residentialAddress := models.Address{
 		StreetAddress1: "123 New St",
@@ -1540,7 +1533,7 @@ func (suite *PayloadsSuite) TestPaymentServiceItems() {
 
 func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
 	suite.Run("transforms PaymentServiceItemParam", func() {
-		paramKey := factory.BuildServiceItemParamKey(suite.DB(), nil, nil)
+		paramKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), nil, nil)
 		param := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
 			{Model: paramKey},
 		}, nil)
@@ -1947,4 +1940,54 @@ func (suite *PayloadsSuite) TestCounselingOffices() {
 		suite.Equal(office1.ID.String(), payload[0].ID.String())
 		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
+}
+
+func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
+	// Create mock users and IDs
+	userTOO := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
+	userTOODestination := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
+	userSC := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
+	idTOO := uuid.Must(uuid.NewV4())
+	idTOODestination := uuid.Must(uuid.NewV4())
+	idSC := uuid.Must(uuid.NewV4())
+
+	// Create a mock move with assigned users
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ID:                         uuid.Must(uuid.NewV4()),
+				TOOAssignedUser:            userTOO,
+				TOOAssignedID:              &idTOO,
+				TOODestinationAssignedUser: userTOODestination,
+				TOODestinationAssignedID:   &idTOODestination,
+				SCAssignedUser:             userSC,
+				SCAssignedID:               &idSC,
+			},
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Define test cases
+	testCases := []struct {
+		name         string
+		role         string
+		queueType    string
+		officeUser   *models.OfficeUser
+		officeUserID *uuid.UUID
+	}{
+		{"TOO assigned user for TaskOrder queue", string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), userTOO, &idTOO},
+		{"TOO assigned user for DestinationRequest queue", string(roles.RoleTypeTOO), string(models.QueueTypeDestinationRequest), userTOODestination, &idTOODestination},
+		{"SC assigned user", string(roles.RoleTypeServicesCounselor), "", userSC, &idSC},
+		{"Unknown role should return nil", "UnknownRole", "", nil, nil},
+		{"TOO with unknown queue should return nil", string(roles.RoleTypeTOO), "UnknownQueue", nil, nil},
+	}
+
+	// Run test cases
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			expectedOfficeUser, expectedOfficeUserID := getAssignedUserAndID(tc.role, tc.queueType, move)
+			suite.Equal(tc.officeUser, expectedOfficeUser)
+			suite.Equal(tc.officeUserID, expectedOfficeUserID)
+		})
+	}
 }

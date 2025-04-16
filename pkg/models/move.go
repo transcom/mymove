@@ -101,8 +101,11 @@ type Move struct {
 	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	TOODestinationAssignedID                       *uuid.UUID            `json:"too_destination_assigned_id" db:"too_destination_assigned_id"`
+	TOODestinationAssignedUser                     *OfficeUser           `json:"too_destination_assigned" belongs_to:"office_users" fk_id:"too_destination_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	CounselingOffice                               *TransportationOffice `json:"counseling_transportation_office" belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
+	PrimeAcknowledgedAt                            *time.Time            `db:"prime_acknowledged_at"`
 }
 
 type MoveWithEarliestDate struct {
@@ -704,7 +707,6 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 		}
 	}
 	return totalNetWeight
-
 }
 
 // gets total weight from all ppm and hhg shipments within a move

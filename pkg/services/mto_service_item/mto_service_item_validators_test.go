@@ -181,6 +181,29 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.NoError(err)
 	})
 
+	suite.Run("checkForSITItemChanges - should not throw error when SIT Item is changed - international", func() {
+
+		// Update the non-updateable fields:
+		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
+
+		// Make both sthe newServiceItem of type DOFSIT because this type of service item will be checked by checkForSITItemChanges
+		newServiceItem.ReService.Code = models.ReServiceCodeIOFSIT
+
+		// Sit Entry Date change. Need to make the newServiceItem different than the old.
+		newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
+		newServiceItem.SITEntryDate = &newSitEntryDate
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+
+		err := serviceItemData.checkForSITItemChanges(&serviceItemData)
+
+		suite.NoError(err)
+	})
+
 	suite.Run("checkForSITItemChanges - should throw error when SIT Item is not changed", func() {
 
 		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
@@ -188,6 +211,29 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// Make both service items of type DOFSIT because this type of service item will be checked by checkForSITItemChanges
 		oldServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
 		newServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+		oldServiceItem.SITDepartureDate, newServiceItem.SITDepartureDate = &now, &now
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+
+		err := serviceItemData.checkForSITItemChanges(&serviceItemData)
+
+		// Should error with message if nothing has changed between the new service item and the old one
+		suite.Error(err)
+		suite.Contains(err.Error(), "To re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
+
+	})
+
+	suite.Run("checkForSITItemChanges - should throw error when SIT Item is not changed - international", func() {
+
+		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
+
+		// Make both service items of type IOFSIT because this type of service item will be checked by checkForSITItemChanges
+		oldServiceItem.ReService.Code = models.ReServiceCodeIOFSIT
+		newServiceItem.ReService.Code = models.ReServiceCodeIOFSIT
 		oldServiceItem.SITDepartureDate, newServiceItem.SITDepartureDate = &now, &now
 
 		serviceItemData := updateMTOServiceItemData{
@@ -239,6 +285,62 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newDDDSIT,
 			oldServiceItem:     oldDDDSIT,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
+
+		suite.NoError(err)
+		suite.NoVerrs(serviceItemData.verrs)
+	})
+
+	// Test successful check for SIT departure service item - IDDSIT
+	suite.Run("checkSITDeparture w/ IDDSIT - success", func() {
+		// Under test:  checkSITDeparture checks that the service item is a
+		//			    IDDSIT or IOPSIT if the user is trying to update the
+		// 			    SITDepartureDate
+		// Set up:      Create an old and new IDDSIT, with a new date and try to update.
+		// Expected outcome: Success if both are IDDSIT
+		oldIDDSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDDSIT,
+				},
+			},
+		}, nil)
+		newIDDSIT := oldIDDSIT
+		newIDDSIT.SITDepartureDate = &now
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newIDDSIT,
+			oldServiceItem:     oldIDDSIT,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
+
+		suite.NoError(err)
+		suite.NoVerrs(serviceItemData.verrs)
+	})
+
+	// Test successful check for SIT departure service item - IDDSIT
+	suite.Run("checkSITDeparture w/ IDDSIT - success", func() {
+		// Under test:  checkSITDeparture checks that the service item is a
+		//			    IDDSIT or IOPSIT if the user is trying to update the
+		// 			    SITDepartureDate
+		// Set up:      Create an old and new IDDSIT, with a new date and try to update.
+		// Expected outcome: Success if both are IDDSIT
+		oldIDDSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIDDSIT,
+				},
+			},
+		}, nil)
+		newIDDSIT := oldIDDSIT
+		newIDDSIT.SITDepartureDate = &now
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newIDDSIT,
+			oldServiceItem:     oldIDDSIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
@@ -398,6 +500,37 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	})
 
 	// Test unsuccessful check service item when the reason isn't being updated
+	suite.Run("checkReasonWasUpdatedOnRejectedSIT - failure when empty string - international", func() {
+		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
+		// Set up:      Create any SIT service item
+		// Expected outcome: ConflictError
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// only checks rejected SIT service items
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+		oldServiceItem.Status = models.MTOServiceItemStatusRejected
+
+		// This only checks SIT service items
+		newServiceItem.ReService.Code = models.ReServiceCodeIDFSIT
+		oldServiceItem.ReService.Code = models.ReServiceCodeIDFSIT
+
+		newServiceItem.Reason = models.StringPointer("")
+		oldServiceItem.Reason = models.StringPointer("a reason")
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkReasonWasUpdatedOnRejectedSIT(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.NoVerrs(serviceItemData.verrs)
+		suite.Contains(err.Error(), "- reason cannot be empty when resubmitting a previously rejected SIT service item")
+	})
+
+	// Test unsuccessful check service item when the reason isn't being updated
 	suite.Run("checkReasonWasUpdatedOnRejectedSIT - failure when no reason is provided", func() {
 		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
 		// Set up:      Create any SIT service item
@@ -428,6 +561,37 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Contains(err.Error(), "- you must provide a new reason when resubmitting a previously rejected SIT service item")
 	})
 
+	// Test unsuccessful check service item when the reason isn't being updated
+	suite.Run("checkReasonWasUpdatedOnRejectedSIT - failure when no reason is provided - international", func() {
+		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
+		// Set up:      Create any SIT service item
+		// Expected outcome: ConflictError
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// only checks rejected SIT service items
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+		oldServiceItem.Status = models.MTOServiceItemStatusRejected
+
+		// This only checks SIT service items
+		newServiceItem.ReService.Code = models.ReServiceCodeIDFSIT
+		oldServiceItem.ReService.Code = models.ReServiceCodeIDFSIT
+
+		newServiceItem.Reason = nil
+		oldServiceItem.Reason = models.StringPointer("a reason")
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkReasonWasUpdatedOnRejectedSIT(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.NoVerrs(serviceItemData.verrs)
+		suite.Contains(err.Error(), "- you must provide a new reason when resubmitting a previously rejected SIT service item")
+	})
+
 	suite.Run("checkReasonWasUpdatedOnRejectedSIT - success", func() {
 		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
 		// Set up:      Create any SIT service item
@@ -441,6 +605,34 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// This only checks SIT service items
 		newServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
 		oldServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+
+		newServiceItem.Reason = models.StringPointer("one reason")
+		oldServiceItem.Reason = models.StringPointer("another reason")
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkReasonWasUpdatedOnRejectedSIT(suite.AppContextForTest())
+
+		suite.NoError(err)
+		suite.NoVerrs(serviceItemData.verrs)
+	})
+
+	suite.Run("checkReasonWasUpdatedOnRejectedSIT - international - success", func() {
+		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
+		// Set up:      Create any SIT service item
+		// Expected outcome: No errors
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// only checks rejected SIT service items
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+		oldServiceItem.Status = models.MTOServiceItemStatusRejected
+
+		// This only checks SIT service items
+		newServiceItem.ReService.Code = models.ReServiceCodeIDFSIT
+		oldServiceItem.ReService.Code = models.ReServiceCodeIDFSIT
 
 		newServiceItem.Reason = models.StringPointer("one reason")
 		oldServiceItem.Reason = models.StringPointer("another reason")
@@ -860,6 +1052,72 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 	})
 
+	suite.Run("SITDepartureDate - Does not error or update shipment auth end date when set after the authorized end date - international", func() {
+		// Under test:  checkSITDepartureDate checks that
+		//				the SITDepartureDate is not later than the authorized end date
+		// Set up:      Create an old and new IOPSIT and IDDSIT, with a date later than the
+		// 				shipment and try to update.
+		// Expected outcome: No ERROR if departure date comes after the end date.
+		//					 Shipment auth end date does not change
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeIOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeIDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &before,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &later
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err)
+			suite.False(serviceItemData.verrs.HasAny())
+
+			// Double check the shipment and ensure that the SITDepartureDate is after the authorized end date and does not alter the authorized end date
+			var postUpdateShipment models.MTOShipment
+			err = suite.DB().Find(&postUpdateShipment, mtoShipment.ID)
+			suite.NoError(err)
+			if tc.reServiceCode == models.ReServiceCodeIOPSIT {
+				suite.True(mtoShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+			}
+			if tc.reServiceCode == models.ReServiceCodeIDDSIT {
+				suite.True(mtoShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITDepartureDate.Truncate(24 * time.Hour).After(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+			}
+		}
+	})
+
 	suite.Run("SITDepartureDate - errors when set before or equal the SIT entry date", func() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -946,6 +1204,56 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			}, nil)
 			newSITServiceItem := oldSITServiceItem
 			newSITServiceItem.SITDepartureDate = &now
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err) // Just verrs
+			suite.True(serviceItemData.verrs.HasAny())
+			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
+		}
+
+	})
+
+	suite.Run("SITDepartureDate - errors when set before the SIT entry date - international", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeIOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeIDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &later,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &before
 			serviceItemData := updateMTOServiceItemData{
 				updatedServiceItem: newSITServiceItem,
 				oldServiceItem:     oldSITServiceItem,

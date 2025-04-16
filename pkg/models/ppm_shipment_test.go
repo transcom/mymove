@@ -29,6 +29,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 	}{
 		"Successful Minimal Validation": {
 			ppmShipment: models.PPMShipment{
+				PPMType:               models.PPMTypeIncentiveBased,
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
@@ -39,6 +40,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		},
 		"Missing Required Fields": {
 			ppmShipment: models.PPMShipment{
+				PPMType:              models.PPMTypeIncentiveBased,
 				PickupAddressID:      models.UUIDPointer(uuid.Nil),
 				DestinationAddressID: models.UUIDPointer(uuid.Nil),
 			},
@@ -53,6 +55,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		"Optional fields raise errors with invalid values": {
 			ppmShipment: models.PPMShipment{
 				// Setting up min required fields here so that we don't get these in our errors.
+				PPMType:               models.PPMTypeIncentiveBased,
 				ShipmentID:            uuid.Must(uuid.NewV4()),
 				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
 				Status:                models.PPMShipmentStatusDraft,
@@ -160,12 +163,6 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		moveDate := time.Now()
 		mileage := 1000
 		weight := 2000
@@ -212,7 +209,8 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		moveDate := time.Now()
+		// no contract for this date
+		moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 		mileage := 1000
 		weight := 2000
 
@@ -240,12 +238,6 @@ func (suite *ModelSuite) TestCalculatePPMSITCost() {
 			},
 		}, nil)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		moveDate := time.Now()
 		sitDays := 7
 		weight := 2000
@@ -275,7 +267,8 @@ func (suite *ModelSuite) TestCalculatePPMSITCost() {
 			},
 		}, nil)
 
-		moveDate := time.Now()
+		// no contract for this date
+		moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 		sitDays := 7
 		weight := 2000
 

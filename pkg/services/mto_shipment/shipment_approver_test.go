@@ -21,11 +21,11 @@ import (
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	servicesMocks "github.com/transcom/mymove/pkg/services/mocks"
-	shipmentmocks "github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mt "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -36,7 +36,7 @@ type approveShipmentSubtestData struct {
 	planner                *mocks.Planner
 	shipmentApprover       services.ShipmentApprover
 	mockedShipmentApprover services.ShipmentApprover
-	mockedShipmentRouter   *shipmentmocks.ShipmentRouter
+	mockedShipmentRouter   *servicesMocks.ShipmentRouter
 	reServiceCodes         []models.ReServiceCode
 	moveWeights            services.MoveWeights
 	mtoUpdater             services.MoveTaskOrderUpdater
@@ -112,19 +112,18 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		return mockUpdater
 	}
 
-	subtestData.mockedShipmentRouter = &shipmentmocks.ShipmentRouter{}
+	subtestData.mockedShipmentRouter = &servicesMocks.ShipmentRouter{}
 
 	router := NewShipmentRouter()
 
 	builder := query.NewQueryBuilder()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	ppmEstimator := &servicesMocks.PPMEstimator{}
 	queryBuilder := query.NewQueryBuilder()
@@ -135,7 +134,8 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
-	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf)
+	mockSender := setUpMockNotificationSender()
+	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
 
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights, subtestData.mtoUpdater, moveRouter)
 	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights, subtestData.mtoUpdater, moveRouter)
@@ -160,14 +160,6 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		},
 	}, nil)
 
-	//ContractCode
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			StartDate: time.Now().Add(-24 * time.Hour),
-			EndDate:   time.Now().Add(24 * time.Hour),
-		},
-	})
-
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReDomesticServiceArea: models.ReDomesticServiceArea{
 			ServiceArea: dopTestServiceArea,
@@ -184,7 +176,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-			ContractID:            contractYear.Contract.ID,
+			ContractID:            contractYear.ContractID,
 			Contract:              contractYear.Contract,
 			DomesticServiceAreaID: serviceArea.ID,
 			DomesticServiceArea:   serviceArea,
@@ -257,7 +249,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		return mockUpdater
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	ppmEstimator := &servicesMocks.PPMEstimator{}
 	queryBuilder := query.NewQueryBuilder()
 	planner := &mocks.Planner{}
@@ -324,16 +316,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}, nil)
 		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-
 		shipmentRouter := NewShipmentRouter()
 		waf := entitlements.NewWeightAllotmentFetcher()
-		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf)
+		mockSender := setUpMockNotificationSender()
+		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
 		var serviceItemCreator services.MTOServiceItemCreator
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -354,7 +340,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			true,
 		).Return(500, nil)
 
 		// Approve international shipment
@@ -734,7 +719,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(500, nil)
 
 		preApprovalTime := time.Now()
@@ -763,10 +747,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(subtestData.reServiceCodes[i], serviceItems[i].ReService.Code)
-			if serviceItems[i].ReService.Code == models.ReServiceCodeDOP {
-				// pricing estimate will be nil for invalid service area
-				suite.Nil(serviceItems[i].PricingEstimate)
-			}
 		}
 	})
 
@@ -854,7 +834,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			createdShipment.PickupAddress.PostalCode,
 			createdShipment.DestinationAddress.PostalCode,
-			false,
 		).Return(500, nil)
 
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
@@ -1130,7 +1109,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			false,
 		).Return(500, nil).Run(func(args mock.Arguments) {
 			TransitDistancePickupArg = args.Get(1).(string)
 			TransitDistanceDestinationArg = args.Get(2).(string)
@@ -1185,7 +1163,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			false,
 		).Return(500, nil)
 
 		suite.Equal(8000, *shipment.MoveTaskOrder.Orders.Entitlement.AuthorizedWeight())
@@ -1226,7 +1203,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			false,
 		).Return(500, nil)
 
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -1309,6 +1285,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to CONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1327,9 +1304,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate: &scheduledPickupDate,
 				},
 			},
 			{
@@ -1377,6 +1355,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1395,9 +1374,10 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   models.MarketCodeInternational,
-					Status:       models.MTOShipmentStatusSubmitted,
-					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:          models.MarketCodeInternational,
+					Status:              models.MTOShipmentStatusSubmitted,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+					ScheduledPickupDate: &scheduledPickupDate,
 				},
 			},
 			{

@@ -32,8 +32,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	verifyAddressFields := func(address *models.Address, payload *primev3messages.Address) {
 		suite.Equal(address.ID.String(), payload.ID.String())
 		suite.Equal(address.StreetAddress1, *payload.StreetAddress1)
-		suite.Equal(*address.StreetAddress2, *payload.StreetAddress2)
-		suite.Equal(*address.StreetAddress3, *payload.StreetAddress3)
+		if address.StreetAddress2 != nil {
+			suite.Equal(*address.StreetAddress2, *payload.StreetAddress2)
+		}
+		if address.StreetAddress3 != nil {
+			suite.Equal(*address.StreetAddress3, *payload.StreetAddress3)
+		}
 		suite.Equal(address.City, *payload.City)
 		suite.Equal(address.State, *payload.State)
 		suite.Equal(address.PostalCode, *payload.PostalCode)
@@ -812,14 +816,24 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.NoError(movePayload.Validate(strfmt.Default))
 
 		suite.Len(movePayload.PaymentRequests, 2)
-		paymentRequestPayload := movePayload.PaymentRequests[0]
-		suite.Equal(paymentRequest.ID.String(), paymentRequestPayload.ID.String())
-		suite.Equal(successMove.ID.String(), paymentRequestPayload.MoveTaskOrderID.String())
-		suite.Equal(paymentRequest.IsFinal, *paymentRequestPayload.IsFinal)
-		suite.Equal(*paymentRequest.RejectionReason, *paymentRequestPayload.RejectionReason)
-		suite.Equal(paymentRequest.Status.String(), string(paymentRequestPayload.Status))
-		suite.Equal(paymentRequest.PaymentRequestNumber, paymentRequestPayload.PaymentRequestNumber)
-		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), paymentRequestPayload.RecalculationOfPaymentRequestID.String())
+		var matchingPR *primev3messages.PaymentRequest
+		for i := range movePayload.PaymentRequests {
+			pr := movePayload.PaymentRequests[i]
+			if pr.ID.String() == paymentRequest.ID.String() {
+				matchingPR = pr
+				break
+			}
+		}
+		paymentRequestPayload := matchingPR
+
+		suite.NotNil(matchingPR, "expected to find a payment request payload matching paymentRequest.ID")
+		suite.Equal(paymentRequest.ID.String(), matchingPR.ID.String())
+		suite.Equal(successMove.ID.String(), matchingPR.MoveTaskOrderID.String())
+		suite.Equal(paymentRequest.IsFinal, *matchingPR.IsFinal)
+		suite.Equal(*paymentRequest.RejectionReason, *matchingPR.RejectionReason)
+		suite.Equal(paymentRequest.Status.String(), string(matchingPR.Status))
+		suite.Equal(paymentRequest.PaymentRequestNumber, matchingPR.PaymentRequestNumber)
+		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), matchingPR.RecalculationOfPaymentRequestID.String())
 
 		// verify paymentServiceItems
 		suite.Len(paymentRequestPayload.PaymentServiceItems, 2)
@@ -1484,6 +1498,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 					PrimeEstimatedWeightRecordedDate: &aWeekAgo,
 					RequiredDeliveryDate:             &nowDate,
 					ScheduledDeliveryDate:            &nowDate,
+					MarketCode:                       models.MarketCodeInternational,
 				},
 			},
 			{

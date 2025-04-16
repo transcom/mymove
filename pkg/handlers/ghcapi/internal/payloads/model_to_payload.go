@@ -124,6 +124,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
+		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
 	}
 
 	return payload, nil
@@ -751,6 +752,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.WeightRestriction != nil {
 		weightRestriction = models.Int64Pointer(int64(*entitlement.WeightRestriction))
 	}
+	var ubWeightRestriction *int64
+	if entitlement.UBWeightRestriction != nil {
+		ubWeightRestriction = models.Int64Pointer(int64(*entitlement.UBWeightRestriction))
+	}
 
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
@@ -769,9 +774,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		AccompaniedTour:                accompaniedTour,
 		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
-		GunSafe:           gunSafe,
-		WeightRestriction: weightRestriction,
-		ETag:              etag.GenerateEtag(entitlement.UpdatedAt),
+		GunSafe:             gunSafe,
+		WeightRestriction:   weightRestriction,
+		UbWeightRestriction: ubWeightRestriction,
+		ETag:                etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 
 }
@@ -982,6 +988,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	payloadPPMShipment := &ghcmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
+		PpmType:                        ghcmessages.PPMType(ppmShipment.PPMType),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
 		CreatedAt:                      strfmt.DateTime(ppmShipment.CreatedAt),
 		UpdatedAt:                      strfmt.DateTime(ppmShipment.UpdatedAt),
@@ -2302,8 +2309,23 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	return officeUsers
 }
 
+func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
+	switch activeRole {
+	case string(roles.RoleTypeTOO):
+		switch queueType {
+		case string(models.QueueTypeTaskOrder):
+			return move.TOOAssignedUser, move.TOOAssignedID
+		case string(models.QueueTypeDestinationRequest):
+			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
+		}
+	case string(roles.RoleTypeServicesCounselor):
+		return move.SCAssignedUser, move.SCAssignedID
+	}
+	return nil, nil
+}
+
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2378,10 +2400,12 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
 		}
-		if (activeRole == string(roles.RoleTypeTOO) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
+		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
-
+		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
+		}
 		// these branches have their own closeout specific offices
 		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
 		// requestedPpmStatus also represents if we are viewing the closeout queue
@@ -2400,20 +2424,21 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				availableOfficeUsers = officeUsersSafety
 			}
 
-			// if the assigned user is not in the returned list of available users append them to the end
-			if (activeRole == string(roles.RoleTypeTOO)) && (move.TOOAssignedUser != nil) {
+			// Determine the assigned user and ID based on active role and queue type
+			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
+			// Ensure assignedUser and assignedID are not nil before proceeding
+			if assignedUser != nil && assignedID != nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == *move.TOOAssignedID {
+					if officeUser.ID == *assignedID {
 						userFound = true
 						break
 					}
 				}
 				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
 				}
 			}
-
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
 				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
 			}
@@ -2628,13 +2653,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
-		numShipments := 0
-
-		for _, shipment := range move.MTOShipments {
-			if shipment.Status != models.MTOShipmentStatusDraft {
-				numShipments++
-			}
-		}
+		numShipments := len(move.MTOShipments)
 
 		var pickupDate, deliveryDate *strfmt.Date
 

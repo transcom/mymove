@@ -320,6 +320,7 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	}
 
 	model := &models.PPMShipment{
+		PPMType:         models.PPMType(ppmShipment.PpmType),
 		Status:          models.PPMShipmentStatusSubmitted,
 		SITExpected:     ppmShipment.SitExpected,
 		EstimatedWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
@@ -626,6 +627,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		return nil
 	}
 	model := &models.PPMShipment{
+		PPMType:                        models.PPMType(ppmShipment.PpmType),
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
@@ -820,6 +822,11 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateP
 		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(progearWeightTicket.Status))),
 		Reason:           handlers.FmtString(progearWeightTicket.Reason),
 	}
+
+	if progearWeightTicket.Description != "" {
+		model.Description = handlers.FmtString(progearWeightTicket.Description)
+	}
+
 	return model
 }
 
@@ -838,6 +845,17 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
 	}
+
+	if weightTicket.VehicleDescription != nil {
+		model.VehicleDescription = handlers.FmtString(*weightTicket.VehicleDescription)
+	}
+	if weightTicket.MissingEmptyWeightTicket != nil {
+		model.MissingEmptyWeightTicket = handlers.FmtBool(*weightTicket.MissingEmptyWeightTicket)
+	}
+	if weightTicket.MissingFullWeightTicket != nil {
+		model.MissingFullWeightTicket = handlers.FmtBool(*weightTicket.MissingFullWeightTicket)
+	}
+
 	return model
 }
 

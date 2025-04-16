@@ -291,7 +291,114 @@ func (suite *NotificationSuite) TestMoveCounseledHTMLTemplateRenderWithWeightRes
 	}
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your counselor has approved move details for the assigned move code abc123 from origDutyLocation to destDutyLocation in the MilMove system.</p> <p>Your move has been identified as going to an administratively restricted HHG weight location. Your weight restriction is 1500lbs.</p>
+<p>This is a confirmation that your counselor has approved move details for the assigned move code abc123 from origDutyLocation to destDutyLocation in the MilMove system.</p> <p>Your move has been identified as going to an administratively restricted HHG weight location. Your weight restriction is 1500 lbs.</p>
+<p>Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
+<p>What this means to you:</br>
+If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
+<p><strong>Next steps for a PPM:</strong>
+<ul>
+  <li>Please Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).</li>
+  <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive (or Actual Expense Reimbursement for Civilians) could be affected. Failure to obtain weight tickets will result in losing eligibility to receive your incentive.</li>
+<p>Note: To receive allowance for Pro-Gear, you must identify allowable items and provide weight tickets separately for Pro-Gear.</p>
+  <li>For authorized storage:</li>
+    <ul>
+      <li>You will need to get weight ticket(s) for the items you store.</li>
+      <li>Storage costs cannot be paid in advance.</li>
+    </ul>
+  <li>If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="https://my.move.mil/">MilMove</a> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
+  <li>Once you complete your PPM, log into <a href="https://my.move.mil/">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
+</ul>
+<p><strong>Next steps for government arranged shipments:</strong></br>
+<ul>
+  <li>Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.</li>
+  <li>Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.</li>
+  <li>HomeSafe is required to contact you within one Government Business Day. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.</li>
+</ul>
+<p>Thank you,<br>
+USTRANSCOM MilMove Team</p>
+<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
+
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          approver.ID,
+		ApplicationName: auth.OfficeApp,
+	}), s)
+
+	suite.NoError(err)
+	suite.Equal(trimExtraSpaces(expectedHTMLContent), trimExtraSpaces(htmlContent))
+}
+
+func (suite *NotificationSuite) TestMoveCounseledHTMLTemplateRenderWithUBWeightRestriction() {
+	approver := factory.BuildUser(nil, nil, nil)
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	notification := NewMoveCounseled(move.ID)
+
+	originDutyLocation := "origDutyLocation"
+
+	s := MoveCounseledEmailData{
+		OriginDutyLocation:         &originDutyLocation,
+		DestinationLocation:        "destDutyLocation",
+		Locator:                    "abc123",
+		MyMoveLink:                 MyMoveLink,
+		ActualExpenseReimbursement: true,
+		UbWeightRestriction:        "850",
+	}
+
+	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
+<p>This is a confirmation that your counselor has approved move details for the assigned move code abc123 from origDutyLocation to destDutyLocation in the MilMove system.</p> <p>Your move has been identified as going to an administratively restricted UB weight location. Your weight restriction is 850 lbs.</p>
+<p>Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
+<p>What this means to you:</br>
+If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
+<p><strong>Next steps for a PPM:</strong>
+<ul>
+  <li>Please Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).</li>
+  <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive (or Actual Expense Reimbursement for Civilians) could be affected. Failure to obtain weight tickets will result in losing eligibility to receive your incentive.</li>
+<p>Note: To receive allowance for Pro-Gear, you must identify allowable items and provide weight tickets separately for Pro-Gear.</p>
+  <li>For authorized storage:</li>
+    <ul>
+      <li>You will need to get weight ticket(s) for the items you store.</li>
+      <li>Storage costs cannot be paid in advance.</li>
+    </ul>
+  <li>If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="https://my.move.mil/">MilMove</a> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
+  <li>Once you complete your PPM, log into <a href="https://my.move.mil/">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
+</ul>
+<p><strong>Next steps for government arranged shipments:</strong></br>
+<ul>
+  <li>Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.</li>
+  <li>Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.</li>
+  <li>HomeSafe is required to contact you within one Government Business Day. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.</li>
+</ul>
+<p>Thank you,<br>
+USTRANSCOM MilMove Team</p>
+<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
+
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          approver.ID,
+		ApplicationName: auth.OfficeApp,
+	}), s)
+
+	suite.NoError(err)
+	suite.Equal(trimExtraSpaces(expectedHTMLContent), trimExtraSpaces(htmlContent))
+}
+
+func (suite *NotificationSuite) TestMoveCounseledHTMLTemplateRenderWithWeightRestrictionAndUBWeightRestriction() {
+	approver := factory.BuildUser(nil, nil, nil)
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	notification := NewMoveCounseled(move.ID)
+
+	originDutyLocation := "origDutyLocation"
+
+	s := MoveCounseledEmailData{
+		OriginDutyLocation:         &originDutyLocation,
+		DestinationLocation:        "destDutyLocation",
+		Locator:                    "abc123",
+		MyMoveLink:                 MyMoveLink,
+		ActualExpenseReimbursement: true,
+		WeightRestriction:          "1500",
+		UbWeightRestriction:        "850",
+	}
+
+	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
+<p>This is a confirmation that your counselor has approved move details for the assigned move code abc123 from origDutyLocation to destDutyLocation in the MilMove system.</p> <p>Your move has been identified as going to an administratively restricted weight location. Your HHG weight restriction is 1500 lbs and UB weight restriction is 850 lbs.</p>
 <p>Be advised, you may be required to pay excess cost if you choose to move more than your weight restriction. </p>
 <p>What this means to you:</br>
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>

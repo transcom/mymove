@@ -3,14 +3,12 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
-	"time"
 
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
@@ -27,12 +25,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	var mtoServiceItemDiffZip3 models.MTOServiceItem
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 
 		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 
@@ -211,7 +203,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(0, errors.New("error with ZipTransitDistance"))
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), errorPlanner, mtoServiceItemSameZip3, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)

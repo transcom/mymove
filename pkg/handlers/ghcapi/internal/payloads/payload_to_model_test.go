@@ -227,6 +227,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	}
 
 	ppmShipment := ghcmessages.CreatePPMShipment{
+		PpmType:               ghcmessages.PPMType(models.PPMTypeIncentiveBased),
 		ExpectedDepartureDate: expectedDepartureDate,
 		PickupAddress:         struct{ ghcmessages.Address }{pickupAddress},
 		DestinationAddress: struct {
@@ -239,6 +240,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	suite.NotNil(model)
 	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
 	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+	suite.Equal(model.PPMType, models.PPMTypeIncentiveBased)
 	suite.NotNil(model)
 
 	// test when street address 1 contains white spaces
@@ -364,4 +366,116 @@ func (suite *PayloadsSuite) TestVLocationModel() {
 	suite.Equal(state, payload.StateName, "Expected State to match")
 	suite.Equal(postalCode, payload.UsprZipID, "Expected PostalCode to match")
 	suite.Equal(county, payload.UsprcCountyNm, "Expected County to match")
+}
+
+func (suite *PayloadsSuite) TestWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		emptyWeight := int64(5000)
+		fullWeight := int64(8000)
+		ownsTrailer := true
+		trailerMeetsCriteria := false
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		adjustedNetWeight := int64(2900)
+		netWeightRemarks := "Adjusted for fuel weight"
+		vehicleDescription := "Ford F-150"
+		missingEmptyWeightTicket := true
+		missingFullWeightTicket := false
+
+		input := &ghcmessages.UpdateWeightTicket{
+			EmptyWeight:              &emptyWeight,
+			FullWeight:               &fullWeight,
+			OwnsTrailer:              ownsTrailer,
+			TrailerMeetsCriteria:     trailerMeetsCriteria,
+			Status:                   status,
+			Reason:                   reason,
+			AdjustedNetWeight:        &adjustedNetWeight,
+			NetWeightRemarks:         netWeightRemarks,
+			VehicleDescription:       &vehicleDescription,
+			MissingEmptyWeightTicket: &missingEmptyWeightTicket,
+			MissingFullWeightTicket:  &missingFullWeightTicket,
+		}
+
+		result := WeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.WeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&emptyWeight), result.EmptyWeight)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&fullWeight), result.FullWeight)
+		suite.Equal(handlers.FmtBool(ownsTrailer), result.OwnsTrailer)
+		suite.Equal(handlers.FmtBool(trailerMeetsCriteria), result.TrailerMeetsCriteria)
+		suite.Equal(handlers.FmtString(reason), result.Reason)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&adjustedNetWeight), result.AdjustedNetWeight)
+		suite.Equal(handlers.FmtString(netWeightRemarks), result.NetWeightRemarks)
+		suite.Equal(handlers.FmtString(vehicleDescription), result.VehicleDescription)
+		suite.Equal(handlers.FmtBool(missingEmptyWeightTicket), result.MissingEmptyWeightTicket)
+		suite.Equal(handlers.FmtBool(missingFullWeightTicket), result.MissingFullWeightTicket)
+	})
+
+	suite.Run("Success - Missing optional fields", func() {
+		emptyWeight := int64(5000)
+		fullWeight := int64(8000)
+		ownsTrailer := true
+		trailerMeetsCriteria := false
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		adjustedNetWeight := int64(2900)
+		netWeightRemarks := "Adjusted for fuel weight"
+
+		input := &ghcmessages.UpdateWeightTicket{
+			EmptyWeight:          &emptyWeight,
+			FullWeight:           &fullWeight,
+			OwnsTrailer:          ownsTrailer,
+			TrailerMeetsCriteria: trailerMeetsCriteria,
+			Status:               status,
+			Reason:               reason,
+			AdjustedNetWeight:    &adjustedNetWeight,
+			NetWeightRemarks:     netWeightRemarks,
+		}
+
+		result := WeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.WeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&emptyWeight), result.EmptyWeight)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&fullWeight), result.FullWeight)
+		suite.Equal(handlers.FmtBool(ownsTrailer), result.OwnsTrailer)
+		suite.Equal(handlers.FmtBool(trailerMeetsCriteria), result.TrailerMeetsCriteria)
+		suite.Equal(handlers.FmtString(reason), result.Reason)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&adjustedNetWeight), result.AdjustedNetWeight)
+		suite.Equal(handlers.FmtString(netWeightRemarks), result.NetWeightRemarks)
+
+		suite.Nil(result.VehicleDescription)
+		suite.Nil(result.MissingEmptyWeightTicket)
+		suite.Nil(result.MissingFullWeightTicket)
+	})
+}
+
+func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		description := "test description"
+		hasWeightTickets, belongsToSelf := true, true
+
+		input := &ghcmessages.UpdateProGearWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			BelongsToSelf:    belongsToSelf,
+			Status:           status,
+			Reason:           reason,
+			Description:      description,
+		}
+
+		result := ProgearWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.ProgearWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+		suite.Equal(belongsToSelf, *result.BelongsToSelf)
+		suite.Equal(reason, *result.Reason)
+		suite.Equal(description, *result.Description)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+	})
 }

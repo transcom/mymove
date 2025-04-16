@@ -20,8 +20,15 @@ import (
 // swagger:model CounselingUpdateOrderPayload
 type CounselingUpdateOrderPayload struct {
 
+	// The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.
+	// Example: 3
+	CivilianTdyUbAllowance *int64 `json:"civilianTdyUbAllowance,omitempty"`
+
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
+
+	// dependents authorized
+	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// grade
 	Grade *Grade `json:"grade,omitempty"`

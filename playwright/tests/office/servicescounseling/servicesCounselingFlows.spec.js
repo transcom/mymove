@@ -9,6 +9,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
+const completePPMCloseoutForCustomerEnabled = process.env.FEATURE_FLAG_COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER;
 const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
@@ -410,7 +411,7 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
+    await page.getByRole('button', { name: 'PPM Review Complete' }).click();
     await scPage.waitForPage.moveDetails();
 
     // Navigate to the "View documents" page
@@ -547,6 +548,74 @@ test.describe('Services counselor user', () => {
       fullPpmMoveLocator = fullPpmMove.locator;
       await scPage.searchForCloseoutMove(fullPpmMoveLocator);
       await expect(page.getByTestId('ppmType-0')).toContainText('Full');
+    });
+
+    test.describe('Complete PPM closeout on behalf of customer', () => {
+      test.skip(completePPMCloseoutForCustomerEnabled === 'false', 'Skip if FF is disabled.');
+      test('can complete PPM About page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPM();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // fill out About PPM page
+        await expect(page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'How to complete your PPM' })).toBeVisible();
+        await scPage.fillOutAboutPage();
+
+        await expect(page.getByRole('heading', { name: 'How to complete your PPM' })).not.toBeVisible();
+      });
+
+      test('can navigate to PPM review page and edit About PPM page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // Review page
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Documents' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Weight moved' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Pro-gear' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Expenses' })).toBeVisible();
+
+        // Edit About PPM page
+        await page.locator('[data-testid="aboutYourPPM"] a').getByText('Edit').click();
+        await expect(page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+      });
+
+      test('can add, edit, and delete Weight moved', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByRole('button', { name: /Complete PPM on behalf of the Customer/i })).toBeVisible();
+        await page.getByRole('button', { name: 'Complete PPM on behalf of the Customer' }).click();
+
+        // Add Weight Ticket
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByText('Add More Weight').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await scPage.fillOutWeightTicketPage({ hasTrailer: true, ownTrailer: true });
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Edit
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMoved-1').click();
+        await expect(page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+
+        // Delete
+        await expect(page.getByRole('heading', { name: 'Review' })).toBeVisible();
+        await page.getByTestId('weightMovedDelete-1').click();
+        await expect(page.getByRole('heading', { name: 'Delete this?' })).toBeVisible();
+        await page.getByRole('button', { name: 'Yes, Delete' }).click();
+        await expect(page.getByText('Trip 1 successfully deleted.')).toBeVisible();
+        await expect(page.getByTestId('weightMovedDelete-1')).not.toBeVisible();
+      });
     });
   });
 

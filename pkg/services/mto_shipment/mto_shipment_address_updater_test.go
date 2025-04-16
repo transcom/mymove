@@ -19,7 +19,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
@@ -72,7 +71,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 	suite.Run("Test updating service item destination address on shipment address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Some Street",
+					City:           "Some City",
+					State:          "SC",
+					PostalCode:     "29229",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -87,8 +97,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				},
 			},
 			{
-				Model:    address,
+				Model:    deliveryAddress,
 				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickUpAddress,
+				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -99,9 +114,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
 		suite.Equal(8, len(sitServiceItems))
 
-		eTag := etag.GenerateEtag(address.UpdatedAt)
+		eTag := etag.GenerateEtag(deliveryAddress.UpdatedAt)
 
-		updatedAddress := address
+		updatedAddress := deliveryAddress
 		updatedAddress.StreetAddress1 = "123 Somewhere Ln"
 
 		//  With mustBeAvailableToPrime = true, we should receive an error
@@ -124,7 +139,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 	suite.Run("Test updating origin SITDeliveryMiles on shipment pickup address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		address := factory.BuildAddress(suite.DB(), nil, nil)
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		pickUpAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Some Street",
+					City:           "Some City",
+					State:          "SC",
+					PostalCode:     "29229",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
 
 		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -139,8 +165,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				},
 			},
 			{
-				Model:    address,
+				Model:    deliveryAddress,
 				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickUpAddress,
+				Type:     &factory.Addresses.PickupAddress,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -151,11 +182,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
 		suite.Equal(8, len(sitServiceItems))
 
-		eTag := etag.GenerateEtag(address.UpdatedAt)
+		eTag := etag.GenerateEtag(deliveryAddress.UpdatedAt)
 
-		oldAddress := address
+		oldAddress := deliveryAddress
 		oldAddress.PostalCode = "75116"
-		newAddress := address
+		newAddress := deliveryAddress
 		newAddress.PostalCode = "67492"
 
 		//  With mustBeAvailableToPrime = true, we should receive an error
@@ -170,7 +201,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-			false,
 		).Return(465, nil)
 		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
 		suite.Equal(2, len(*mtoServiceItems))
@@ -180,4 +210,31 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			}
 		}
 	})
+
+	suite.Run("UB shipment without any OCONUS address should error", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		// default factory is OCONUS dest and CONUS pickup
+		ubShipment := factory.BuildUBShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.True(*ubShipment.DestinationAddress.IsOconus)
+		suite.False(*ubShipment.PickupAddress.IsOconus)
+
+		updatedAddress := conusAddress
+		updatedAddress.ID = *ubShipment.DestinationAddressID
+		eTag := etag.GenerateEtag(ubShipment.DestinationAddress.UpdatedAt)
+
+		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, ubShipment.ID, eTag, false)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "At least one address for a UB shipment must be OCONUS")
+	})
+
 }

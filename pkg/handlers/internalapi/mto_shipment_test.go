@@ -28,6 +28,7 @@ import (
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -35,6 +36,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -48,7 +50,7 @@ type mtoShipmentObjects struct {
 func (suite *HandlerSuite) setUpMTOShipmentObjects() *mtoShipmentObjects {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	return &mtoShipmentObjects{
 		builder:    builder,
@@ -78,7 +80,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -112,7 +113,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		testMTOShipmentObjects.moveRouter,
 		setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	mockSender := suite.TestNotificationSender()
+	waf := entitlements.NewWeightAllotmentFetcher()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 
 	type mtoCreateSubtestData struct {
 		serviceMember models.ServiceMember
@@ -271,13 +275,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - UB", func() {
-		// const ubFlag = "true"
-		// suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
-
 		subtestData := makeCreateSubtestData(true, true)
 
 		params := subtestData.params
 		params.Body.ShipmentType = internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE.Pointer()
+
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "International St.",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		// UB shipments need one address to be OCONUS
+		params.Body.PickupAddress.PostalCode = &pickupAddress.PostalCode
+		params.Body.PickupAddress.City = &pickupAddress.City
+		params.Body.PickupAddress.State = &pickupAddress.State
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -744,7 +763,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 
-	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	mockSender := suite.TestNotificationSender()
+	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())

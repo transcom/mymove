@@ -9,7 +9,7 @@ import { createOrders, getServiceMember, showCounselingOffices } from 'services/
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { setCanAddOrders, setMoveId } from 'store/general/actions';
+import { setCanAddOrders, setMoveId, setShowLoadingSpinner } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_TYPE } from 'constants/orders';
 
@@ -53,6 +53,11 @@ jest.mock('store/general/actions', () => ({
   setMoveId: jest.fn().mockImplementation(() => ({
     type: '',
     payload: '',
+  })),
+  setShowLoadingSpinner: jest.fn().mockImplementation(() => ({
+    type: '',
+    showSpinner: false,
+    loadingSpinnerMessage: '',
   })),
 }));
 
@@ -296,6 +301,23 @@ describe('Add Orders page', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('calls the loading spinner when a current duty location is selected', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+    // Select a CONUS current duty location
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+    await waitFor(() => {
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
+    });
+  });
+
   it('does not render the input boxes for number of dependents over or under 12 if both locations are CONUS', async () => {
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
@@ -456,6 +478,7 @@ describe('Add Orders page', () => {
       accompanied_tour: true,
       dependents_under_twelve: 1,
       dependents_twelve_and_over: 2,
+      civilian_tdy_ub_allowance: 0,
       counseling_office_id: null,
       origin_duty_location: {
         address: {
@@ -556,6 +579,7 @@ describe('Add Orders page', () => {
       counseling_office_id: null,
       dependents_twelve_and_over: null,
       dependents_under_twelve: null,
+      civilian_tdy_ub_allowance: null,
       accompanied_tour: null,
       origin_duty_location: {
         address: {

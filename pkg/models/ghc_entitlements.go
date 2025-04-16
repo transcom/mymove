@@ -35,6 +35,7 @@ type Entitlement struct {
 	ProGearWeight                                int              `db:"pro_gear_weight"`
 	ProGearWeightSpouse                          int              `db:"pro_gear_weight_spouse"`
 	WeightRestriction                            *int             `db:"weight_restriction"`
+	UBWeightRestriction                          *int             `db:"ub_weight_restriction"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }
@@ -126,7 +127,7 @@ func (e *Entitlement) UBWeightAllowance() *int {
 }
 
 // GetUBWeightAllowance returns the UB weight allowance for a UB shipment, part of the overall entitlements for an order
-func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOconus *bool, newDutyLocationIsOconus *bool, branch *ServiceMemberAffiliation, grade *internalmessages.OrderPayGrade, orderType *internalmessages.OrdersType, dependentsAuthorized *bool, isAccompaniedTour *bool, dependentsUnderTwelve *int, dependentsTwelveAndOver *int) (int, error) {
+func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOconus *bool, newDutyLocationIsOconus *bool, branch *ServiceMemberAffiliation, grade *internalmessages.OrderPayGrade, orderType *internalmessages.OrdersType, dependentsAuthorized *bool, isAccompaniedTour *bool, dependentsUnderTwelve *int, dependentsTwelveAndOver *int, civilianTDYUBAllowance *int) (int, error) {
 	originDutyLocationIsOconusValue := false
 	if originDutyLocationIsOconus != nil {
 		originDutyLocationIsOconusValue = *originDutyLocationIsOconus
@@ -163,6 +164,10 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 	if dependentsTwelveAndOver != nil {
 		twelveAndOverDependents = *dependentsTwelveAndOver
 	}
+	civilianTDYProvidedUBAllowance := 0
+	if civilianTDYUBAllowance != nil {
+		civilianTDYProvidedUBAllowance = *civilianTDYUBAllowance
+	}
 
 	// only calculate UB allowance if either origin or new duty locations are OCONUS
 	if originDutyLocationIsOconusValue || newDutyLocationIsOconusValue {
@@ -176,6 +181,9 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 
 		if typeOfOrder == string(internalmessages.OrdersTypeSTUDENTTRAVEL) {
 			ubAllowance = studentTravelMaxAllowance
+		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && typeOfOrder == string(internalmessages.OrdersTypeTEMPORARYDUTY) {
+			ubAllowance = civilianTDYProvidedUBAllowance
+			return ubAllowance, nil
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
 			ubAllowance = civilianBaseUBAllowance
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && (underTwelveDependents > 0 || twelveAndOverDependents > 0) {

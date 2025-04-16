@@ -1666,6 +1666,140 @@ func init() {
         }
       }
     },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/register": {
+      "post": {
+        "description": "Creates an Okta profile and MilMove profile using the information provided.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "registration"
+        ],
+        "summary": "Self registration of a customer. This creates a MilMove and Okta profile using the information provided.",
+        "operationId": "customerRegistration",
+        "parameters": [
+          {
+            "description": "registration information",
+            "name": "registration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAndMilMoveUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully registered service member"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -3883,6 +4017,86 @@ func init() {
         }
       }
     },
+    "CreateOktaAndMilMoveUser": {
+      "type": "object",
+      "required": [
+        "affiliation",
+        "email",
+        "edipi",
+        "firstName",
+        "lastName",
+        "telephone"
+      ],
+      "properties": {
+        "affiliation": {
+          "title": "Branch",
+          "$ref": "#/definitions/Affiliation"
+        },
+        "edipi": {
+          "type": "string",
+          "format": "edipi",
+          "title": "DoD ID number",
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "5789345789"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "emailIsPreferred": {
+          "description": "Indicates if email is the preferred method of contact",
+          "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "1234567"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitial": {
+          "type": "string",
+          "title": "Middle Initial",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "phoneIsPreferred": {
+          "description": "Indicates if phone is the preferred method of contact",
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -3919,6 +4133,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -4178,6 +4395,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -4486,6 +4709,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
         },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
@@ -6029,6 +6258,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -6511,6 +6744,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -6683,6 +6919,16 @@ func init() {
         "CANCELED"
       ],
       "readOnly": true
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -7837,6 +8083,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -8686,6 +8935,9 @@ func init() {
     },
     {
       "name": "application_parameters"
+    },
+    {
+      "name": "registration"
     }
   ]
 }`))
@@ -10443,6 +10695,143 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/feature-flags/boolean/{key}": {
+      "post": {
+        "description": "Determines if a feature flag is enabled.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a feature flag is enabled. Only used for unauthenticated users.",
+        "operationId": "booleanFeatureFlagUnauthenticated",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Boolean Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/register": {
+      "post": {
+        "description": "Creates an Okta profile and MilMove profile using the information provided.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "registration"
+        ],
+        "summary": "Self registration of a customer. This creates a MilMove and Okta profile using the information provided.",
+        "operationId": "customerRegistration",
+        "parameters": [
+          {
+            "description": "registration information",
+            "name": "registration",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateOktaAndMilMoveUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successfully registered service member"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/open/validation_code": {
+      "post": {
+        "description": "Verifies if the provided validation code is active",
+        "tags": [
+          "validation_code"
+        ],
+        "summary": "Verifies if the provided validation code is active",
+        "operationId": "validateCode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "validationCode"
+              ],
+              "properties": {
+                "validationCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request was not made with a supported session - it must come from the customer app"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -13020,6 +13409,86 @@ func init() {
         }
       }
     },
+    "CreateOktaAndMilMoveUser": {
+      "type": "object",
+      "required": [
+        "affiliation",
+        "email",
+        "edipi",
+        "firstName",
+        "lastName",
+        "telephone"
+      ],
+      "properties": {
+        "affiliation": {
+          "title": "Branch",
+          "$ref": "#/definitions/Affiliation"
+        },
+        "edipi": {
+          "type": "string",
+          "format": "edipi",
+          "title": "DoD ID number",
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "5789345789"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "x-nullable": false,
+          "example": "user@userdomain.com"
+        },
+        "emailIsPreferred": {
+          "description": "Indicates if email is the preferred method of contact",
+          "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "1234567"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": false
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": false
+        },
+        "middleInitial": {
+          "type": "string",
+          "title": "Middle Initial",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "phoneIsPreferred": {
+          "description": "Indicates if phone is the preferred method of contact",
+          "type": "boolean"
+        },
+        "secondaryTelephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": false,
+          "example": "212-555-5555"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
@@ -13056,6 +13525,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
         },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -13315,6 +13787,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "civilian_tdy_ub_allowance": {
+          "description": "The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         },
         "counseling_office_id": {
           "type": "string",
@@ -13625,6 +14103,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 3
+        },
+        "ub_weight_restriction": {
+          "description": "Indicates the UB weight restricted to a specific location.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 1100
         },
         "weight_restriction": {
           "description": "Indicates the weight restricted to a specific location.",
@@ -15170,6 +15654,10 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "ubWeightRestriction": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -15653,6 +16141,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -15825,6 +16316,16 @@ func init() {
         "CANCELED"
       ],
       "readOnly": true
+    },
+    "PPMType": {
+      "description": "Defines a PPM type",
+      "type": "string",
+      "title": "PPM Type",
+      "enum": [
+        "INCENTIVE_BASED",
+        "ACTUAL_EXPENSE",
+        "SMALL_PACKAGE"
+      ]
     },
     "PatchMovePayload": {
       "type": "object",
@@ -16981,6 +17482,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppmType": {
+          "$ref": "#/definitions/PPMType"
+        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -17842,6 +18346,9 @@ func init() {
     },
     {
       "name": "application_parameters"
+    },
+    {
+      "name": "registration"
     }
   ]
 }`))
