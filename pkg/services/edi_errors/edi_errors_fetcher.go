@@ -40,6 +40,7 @@ func (f *ediErrorFetcher) FetchEdiErrors(appCtx appcontext.AppContext) (models.E
 	var ediErrors models.EdiErrors
 	err = appCtx.DB().Q().
 		Where("payment_request_id IN (?)", ediErrorPaymentRequestIds).
+		Eager("PaymentRequest").
 		All(&ediErrors)
 
 	if err != nil {

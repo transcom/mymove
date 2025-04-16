@@ -2738,6 +2738,10 @@ func init() {
         "paymentRequestID": {
           "type": "string",
           "format": "uuid"
+        },
+        "paymentRequestNumber": {
+          "type": "string",
+          "example": "1234-5678-1"
         }
       }
     },
@@ -6635,6 +6639,10 @@ func init() {
         "paymentRequestID": {
           "type": "string",
           "format": "uuid"
+        },
+        "paymentRequestNumber": {
+          "type": "string",
+          "example": "1234-5678-1"
         }
       }
     },

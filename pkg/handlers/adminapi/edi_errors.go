@@ -16,13 +16,13 @@ import (
 
 func payloadForEdiErrorModel(e models.EdiError) *adminmessages.EdiError {
 	return &adminmessages.EdiError{
-		ID:               handlers.FmtUUID(e.ID),
-		PaymentRequestID: handlers.FmtUUID(e.PaymentRequestID),
-		Code:             e.Code,
-		Description:      e.Description,
-		EdiType:          (*string)(&e.EDIType),
-		CreatedAt:        strfmt.DateTime(e.CreatedAt),
-		// UpdatedAt:        handlers.FmtDateTimePtr(&e.UpdatedAt),
+		ID:                   handlers.FmtUUID(e.ID),
+		PaymentRequestID:     handlers.FmtUUID(e.PaymentRequestID),
+		PaymentRequestNumber: e.PaymentRequest.PaymentRequestNumber,
+		Code:                 e.Code,
+		Description:          e.Description,
+		EdiType:              (*string)(&e.EDIType),
+		CreatedAt:            strfmt.DateTime(e.CreatedAt),
 	}
 }
 

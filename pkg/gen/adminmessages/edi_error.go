@@ -43,6 +43,10 @@ type EdiError struct {
 	// Required: true
 	// Format: uuid
 	PaymentRequestID *strfmt.UUID `json:"paymentRequestID"`
+
+	// payment request number
+	// Example: 1234-5678-1
+	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 }
 
 // Validate validates this edi error
