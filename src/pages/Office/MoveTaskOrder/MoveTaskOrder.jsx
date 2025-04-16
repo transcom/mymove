@@ -765,9 +765,6 @@ export const MoveTaskOrder = (props) => {
   };
 
   /**
-   * */
-
-  /**
    * @function
    * @param {string} mtoServiceItemID
    * @param {Date} newSitEntryDate

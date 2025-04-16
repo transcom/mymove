@@ -327,14 +327,6 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", *order.Grade, err))
 		}
 
-		// paygradeRank := &models.PaygradeRank{}
-
-		// err = db.Where("affiliation = ?", serviceMember.Affiliation).Where("pay_grade_id = ?", existingPayGrade.ID).First(paygradeRank)
-		// if err != nil {
-		// 	order.Rank = *paygradeRank
-		// 	order.PaygradeRankId = paygradeRank.ID
-		// }
-
 		mustCreate(db, &order)
 	}
 

@@ -669,10 +669,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		})
 }
 
-// func (h UpdateOrdersHandler) AuditableAppContextFromRequestWithErrors(request *http.Request, f func(appCtx appcontext.AppContext) (middleware.Responder, error)) middleware.Responder {
-// 	panic("unimplemented")
-// }
-
 // Helper func for the UpdateOrdersHandler to check if the entitlement has changed from the new payload
 // This handles the nil checks and value comparisons outside of the handler func for organization
 func hasEntitlementChanged(order models.Order, payloadOrderType *internalmessages.OrdersType, payloadPayGrade *internalmessages.OrderPayGrade, payloadDependentsUnderTwelve *int64, payloadDependentsTwelveAndOver *int64, payloadAccompaniedTour *bool) bool {
