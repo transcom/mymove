@@ -136,7 +136,7 @@ test.describe('Download Orders', () => {
   test('Users can download their orders for viewing', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
 
     // Sign-in and navigate to move home page
     await customerPage.signInAsExistingCustomer(userId);
@@ -162,7 +162,7 @@ test.describe('Download Amended Orders', () => {
   test('Users can download their amended orders for viewing', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
 
     // Sign-in and navigate to move home page
     await customerPage.signInAsExistingCustomer(userId);

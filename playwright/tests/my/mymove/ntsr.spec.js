@@ -8,7 +8,7 @@ test.describe('NTSR', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate to create a new shipment
@@ -68,7 +68,7 @@ test.describe('(MultiMove) NTSR', () => {
 
   test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
     const move = await customerPage.testHarness.buildMoveWithOrders();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
