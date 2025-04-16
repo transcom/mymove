@@ -92,7 +92,7 @@ describe('OrdersDetailForm', () => {
     const newDutyLocationInput = screen.getByLabelText(/New duty location/);
     expect(newDutyLocationInput).toBeInTheDocument();
     expect(newDutyLocationInput).toBeDisabled();
-    const payGradeInput = screen.getByLabelText(/Pay grade/);
+    const payGradeInput = screen.getByLabelText(/Rank/);
     expect(payGradeInput).toBeInTheDocument();
     expect(payGradeInput).toBeDisabled();
     const dateIssuedInput = screen.getByLabelText(/Date issued/);

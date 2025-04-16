@@ -701,6 +701,9 @@ definitions:
       grade:
         $ref: '#/definitions/OrderPayGrade'
         title: Grade
+      rank:
+        $ref: '#/definitions/Rank'
+        title: Rank
       first_name:
         type: string
         example: John
@@ -1225,6 +1228,41 @@ definitions:
       CIVILIAN_EMPLOYEE: Civilian Employee
       ACADEMY_CADET: Service Academy Cadet
       MIDSHIPMAN: Midshipman
+  Rank:
+    type: object
+    x-nullable: true
+    title: Rank
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      paygradeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      affiliation:
+        type: string
+        x-nullable: true
+        title: Affiliation
+        enum:
+          - NAVY_AND_MARINES
+          - ARMY
+          - ARMY_CORPS_OF_ENGINEERS
+          - AIR_AND_SPACE_FORCE
+          - COAST_GUARD
+          - OFFICE_OF_SECRETARY_OF_DEFENSE
+      rankName:
+        type: string
+        x-nullable: true
+        example: SGT
+      rankOrder:
+        type: integer
+        x-nullable: true
+      rankShortName:
+        type: string
+        x-nullable: true
+        title: Rank Abbv
   DeptIndicator:
     type: string
     x-nullable: true
@@ -1353,6 +1391,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        $ref: '#/definitions/Rank'
       issue_date:
         type: string
         description: The date and time that these orders were cut.
@@ -1552,6 +1592,10 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        type: string
+        x-nullable: true
+        title: Rank
       origin_duty_location_id:
         type: string
         format: uuid

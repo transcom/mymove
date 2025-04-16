@@ -104,6 +104,8 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	PaygradeRankId                 *uuid.UUID                         `db:"pay_grade_rank_id"`
+	Rank                           *PaygradeRank                      `json:"rank" belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id" references:"id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -202,7 +204,9 @@ func strictUnmarshal(data []byte, v interface{}) error {
 
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
-	var order Order
+	var order = Order{
+		Rank: &PaygradeRank{},
+	}
 	err := db.Q().EagerPreload("ServiceMember.User",
 		"OriginDutyLocation.Address",
 		"OriginDutyLocation.TransportationOffice",
@@ -214,14 +218,28 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.CloseoutOffice.Address",
 		"Entitlement",
 		"OriginDutyLocation",
-		"OriginDutyLocation.ProvidesServicesCounseling").
-		Find(&order, id)
+		"OriginDutyLocation.ProvidesServicesCounseling",
+		"PaygradeRankId",
+	).Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
+	}
+
+	var rankIdToFind = &order.PaygradeRankId
+	if rankIdToFind == nil || len((*rankIdToFind).Bytes()) == 0 || len(order.PaygradeRankId) == 0 {
+		err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Where("pay_grade_id = ?", "6cb785d0-cabf-479a-a36d-a6aec294a4d0").First(order.Rank)
+		order.PaygradeRankId = &order.Rank.ID
+		order.Grade = internalmessages.NewOrderPayGrade(ServiceMemberGradeE1)
+	} else {
+		err = db.Find(order.Rank, &order.PaygradeRankId)
+	}
+
+	if err != nil {
+		return Order{}, ErrFetchNotFound
 	}
 
 	// Conduct allotment lookup
@@ -339,7 +357,7 @@ func FetchOrderAmendmentsInfo(db *pop.Connection, session *auth.Session, id uuid
 // DO NOT USE IF YOU NEED USER AUTH
 func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Find(&order, id)
+	err := db.Q().Eager("Rank").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

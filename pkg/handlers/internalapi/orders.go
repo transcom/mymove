@@ -103,6 +103,11 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
+	var rank internalmessages.Rank
+	if order.Rank != nil {
+		rank = *order.Rank.FormatToRankPayload()
+	}
+
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                         handlers.FmtUUID(order.ID),
@@ -130,6 +135,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		AuthorizedWeight:           dBAuthorizedWeight,
 		Entitlement:                &entitlement,
 		ProvidesServicesCounseling: originDutyLocation.ProvidesServicesCounseling,
+		Rank:                       &rank,
 	}
 
 	return payload, nil
@@ -315,6 +321,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				deptIndicator,
 				&originDutyLocation,
 				grade,
+				payload.Rank,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
@@ -503,12 +510,19 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.DestinationGBLOC = newDutyLocationGBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
-
+			rank := payload.Rank
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			paygradeRank := &models.PaygradeRank{}
+
+			err = appCtx.DB().Where("affiliation = ?", serviceMember.Affiliation).Where("rank_short_name = ?", rank).First(paygradeRank)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -631,12 +645,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				}
 
 			}
-			order.Grade = payload.Grade
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
 
+			order.PaygradeRankId = &paygradeRank.ID
+			order.Grade = payload.Grade
+			order.Rank = paygradeRank
 			verrs, err := models.SaveOrder(appCtx.DB(), &order)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

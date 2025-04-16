@@ -312,6 +312,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
     payGrade: order?.grade,
     dependentsAuthorized,
+    rank: order?.rank?.rankShortName,
   };
 
   return (
@@ -394,6 +395,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
                     to={permissionTypes.updateOrders}
                     fallback={
                       <OrdersDetailForm
+                        agency={order?.agency}
+                        departmentIndicator={order?.department_indicator}
                         deptIndicatorOptions={deptIndicatorDropdownOptions}
                         ordersTypeOptions={ordersTypeDropdownOptions}
                         ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
@@ -410,13 +413,14 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
                         showOrdersAcknowledgement={hasAmendedOrders}
                         ordersType={order.order_type}
                         setFieldValue={formik.setFieldValue}
-                        payGradeOptions={payGradeDropdownOptions}
                         formIsDisabled
                       />
                     }
                   >
                     <OrdersDetailForm
+                      agency={order?.agency}
                       deptIndicatorOptions={deptIndicatorDropdownOptions}
+                      departmentIndicator={order?.department_indicator}
                       ordersTypeOptions={ordersTypeDropdownOptions}
                       ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
                       hhgTacWarning={hhgTacWarning}

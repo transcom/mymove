@@ -648,7 +648,12 @@ func Order(order *models.Order) *ghcmessages.Order {
 	if order.Grade != nil {
 		grade = ghcmessages.Grade(*order.Grade)
 	}
-	//
+
+	var rank ghcmessages.Rank
+	if order.Rank != nil {
+		rank = ghcmessages.Rank(*order.Rank.FormatToRankPayload())
+	}
+
 	var affiliation ghcmessages.Affiliation
 	if order.ServiceMember.Affiliation != nil {
 		affiliation = ghcmessages.Affiliation(*order.ServiceMember.Affiliation)
@@ -695,6 +700,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		MoveTaskOrderID:                moveTaskOrderID,
 		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
 		HasDependents:                  order.HasDependents,
+		Rank:                           &rank,
 	}
 
 	return &payload

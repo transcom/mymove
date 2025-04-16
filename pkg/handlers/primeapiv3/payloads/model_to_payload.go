@@ -168,6 +168,11 @@ func Order(order *models.Order) *primev3messages.Order {
 		grade = string(*order.Grade)
 	}
 
+	var rankName = &grade
+	if order.PaygradeRankId != nil {
+		rankName = order.Rank.RankName
+	}
+
 	payload := primev3messages.Order{
 		CustomerID:                     strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                       Customer(&order.ServiceMember),
@@ -179,7 +184,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		OriginDutyLocationGBLOC:        swag.StringValue(order.OriginDutyLocationGBLOC),
 		OrderNumber:                    order.OrdersNumber,
 		LinesOfAccounting:              order.TAC,
-		Rank:                           &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
+		Rank:                           rankName, // Convert prime API "Rank" into our internal tracking of "Grade"
 		ETag:                           etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:                   strfmt.Date(order.ReportByDate),
 		OrdersType:                     primev3messages.OrdersType(order.OrdersType),
