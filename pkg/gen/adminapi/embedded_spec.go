@@ -1845,6 +1845,43 @@ func init() {
           }
         }
       },
+      "delete": {
+        "description": "Deletes a single user in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes a User",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "User cannot be deleted"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
       "patch": {
         "description": "This endpoint updates a single User by ID. This can be used by the Admin User to\nupdate the User's session or the User's active status. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
         "consumes": [
@@ -5657,6 +5694,43 @@ func init() {
           },
           "401": {
             "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single user in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Deletes a User",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "User cannot be deleted"
           },
           "404": {
             "description": "User not found"

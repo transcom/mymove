@@ -30,3 +30,10 @@ type UserUpdater interface {
 type UserSessionRevocation interface {
 	RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdate, sessionManagers auth.AppSessionManagers) (*models.User, *validate.Errors, error)
 }
+
+// UserDeleter is the exported interface for hard deleting a user and its associations (roles, privileges)
+//
+//go:generate mockery --name UserDeleter
+type UserDeleter interface {
+	DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) error
+}
