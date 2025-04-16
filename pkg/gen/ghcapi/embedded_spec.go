@@ -8577,7 +8577,7 @@ func init() {
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean"
         },
         "hasSecondaryDestinationAddress": {
@@ -11559,6 +11559,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -11580,6 +11585,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -11660,11 +11674,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -11886,7 +11912,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -11895,6 +11922,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -13495,6 +13523,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -13575,6 +13609,12 @@ func init() {
         "submittedWeight": {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -15303,6 +15343,11 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the customer is missing the receipt for their expense.",
           "type": "boolean",
@@ -15317,6 +15362,16 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string",
+          "x-nullable": true
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
@@ -15358,6 +15413,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -15527,7 +15594,7 @@ func init() {
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -26826,7 +26893,7 @@ func init() {
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean"
         },
         "hasSecondaryDestinationAddress": {
@@ -29808,6 +29875,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -29829,6 +29901,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -29909,11 +29990,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -30135,7 +30228,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -30144,6 +30238,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -31818,6 +31913,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -31899,6 +32000,12 @@ func init() {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
           "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -33684,6 +33791,11 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the customer is missing the receipt for their expense.",
           "type": "boolean",
@@ -33698,6 +33810,16 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string",
+          "x-nullable": true
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
@@ -33739,6 +33861,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -33909,7 +34043,7 @@ func init() {
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
