@@ -6,6 +6,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio, Label, Tag } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import moment from 'moment';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -27,7 +28,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
-import { Form } from 'components/form/Form';
+import { ErrorMessage, Form } from 'components/form';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
@@ -76,7 +77,7 @@ import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
-import { datePickerFormat, formatDate } from 'shared/dates';
+import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
@@ -141,6 +142,7 @@ const ShipmentForm = (props) => {
   const [isRequestedDeliveryDateAlertVisible, setIsRequestedDeliveryDateAlertVisible] = useState(false);
   const [requestedPickupDateAlertMessage, setRequestedPickupDateAlertMessage] = useState('');
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
+  const [requestedPickupDateErrorMessage, setRequestedPickupDateErrorMessage] = useState('');
   const DEFAULT_COUNTRY_CODE = 'US';
 
   const queryClient = useQueryClient();
@@ -713,6 +715,7 @@ const ShipmentForm = (props) => {
         };
 
         const handlePickupDateChange = (e) => {
+          setRequestedPickupDateErrorMessage('');
           setValues({
             ...values,
             pickup: {
@@ -733,6 +736,22 @@ const ShipmentForm = (props) => {
             setIsRequestedPickupDateAlertVisible,
             onErrorHandler,
           );
+
+          // requestedPickupDate must be in the future for non-PPM shipments
+          const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+          const today = moment().startOf('day');
+
+          if (!isPPM && !pickupDate.isAfter(today)) {
+            setRequestedPickupDateErrorMessage('Requested pickup date must be in the future.');
+          }
+        };
+
+        const validatePickupDate = (e) => {
+          let error = validateDate(e);
+          if (!error && requestedPickupDateErrorMessage) {
+            error = 'Required';
+          }
+          return error;
         };
 
         const handleDeliveryDateChange = (e) => {
@@ -920,7 +939,7 @@ const ShipmentForm = (props) => {
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
-                    <Fieldset>
+                    <Fieldset data-testid="requestedPickupDateFieldSet">
                       {isRequestedPickupDateAlertVisible && (
                         <Alert type="warning" aria-live="polite" headingLevel="h4">
                           {requestedPickupDateAlertMessage}
@@ -930,9 +949,16 @@ const ShipmentForm = (props) => {
                         name="pickup.requestedDate"
                         label="Requested pickup date"
                         id="requestedPickupDate"
-                        validate={validateDate}
+                        validate={validatePickupDate}
                         onChange={handlePickupDateChange}
                       />
+                      {requestedPickupDateErrorMessage && (
+                        <span data-testid="requestedPickupDateErrorAlert">
+                          <ErrorMessage id="requestedPickupDateErrorAlert" display>
+                            {requestedPickupDateErrorMessage}
+                          </ErrorMessage>
+                        </span>
+                      )}
                     </Fieldset>
                     {!isNTSR && (
                       <>
