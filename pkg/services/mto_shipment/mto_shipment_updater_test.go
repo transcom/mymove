@@ -4346,7 +4346,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		true,
 	).Return(1000, nil)
 	mockSender := setUpMockNotificationSender()
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -4385,13 +4384,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-
 		contractYear, _, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				ServiceArea: "321",
@@ -4409,7 +4401,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			true,
 		).Return(500, nil)
 
 		// Approve the shipment to trigger the estimate pricing proc on INPK
@@ -4477,7 +4468,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		// this also tests the calculate_escalation_factor proc
 		// This information was pulled from the migration scripts (Or just run db fresh and perform the lookups
 		// manually, whichever is your cup of tea)
-		suite.Equal(escalationFactor, 1.04082)
+		suite.Equal(escalationFactor, 1.11)
 
 		// Fetch the INPK market factor from the DB
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)

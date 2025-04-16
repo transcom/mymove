@@ -1709,7 +1709,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 				mock.AnythingOfType("*appcontext.appContext"),
 				mock.AnythingOfType("string"),
 				mock.AnythingOfType("string"),
-				true,
 			).Return(500, nil)
 
 			// Aprove the shipment to trigger the estimate pricing proc on INPK
@@ -1733,7 +1732,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 			// this also tests the calculate_escalation_factor proc
 			// This information was pulled from the migration scripts (Or just run db fresh and perform the lookups
 			// manually, whichever is your cup of tea)
-			suite.Equal(escalationFactor, 1.04082)
+			suite.Equal(escalationFactor, 1.11)
 
 			// Fetch the INPK market factor from the DB
 			inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
