@@ -514,7 +514,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&officeuserop.CreateOfficeUserInternalServerError{}, response)
+		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
 	})
 
 	suite.Run("Failed create due to missing transportation office assignments", func() {
@@ -736,6 +736,104 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
 	})
+
+	suite.Run("Failed to create due to Supervisor priveleges not authorized", func() {
+		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
+		supervisorPrivilegeName := "Supervisor"
+		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		primeRoleName := "Prime"
+		primeRoleType := string(roles.RoleTypePrime)
+		params := officeuserop.CreateOfficeUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
+			OfficeUser: &adminmessages.OfficeUserCreate{
+				FirstName: "Sam",
+				LastName:  "Cook",
+				Telephone: "555-555-5555",
+				Email:     "fakeemail5@gmail.com",
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &primeRoleName,
+						RoleType: &primeRoleType,
+					},
+				},
+				Privileges: []*adminmessages.OfficeUserPrivilege{
+					{
+						Name:          &supervisorPrivilegeName,
+						PrivilegeType: &supervisorPrivilegeType,
+					},
+				},
+				TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+					{
+						TransportationOfficeID: strfmt.UUID(transportationOfficeID.String()),
+						PrimaryOffice:          models.BoolPointer(true),
+					},
+				},
+			},
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := CreateOfficeUserHandler{
+			suite.HandlerConfig(),
+			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
+			query.NewQueryFilter,
+			usersroles.NewUsersRolesCreator(),
+			rolesservice.NewRolesFetcher(),
+			usersprivileges.NewUsersPrivilegesCreator(),
+			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Update fails due to Safety priveleges not authorized", func() {
+		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
+		safetyPrivilegeName := "Safety"
+		safetyPrivilegeType := string(models.PrivilegeSearchTypeSafety)
+		contractingOfficerRoleName := "Contracting Officer"
+		contractingOfficerRoleType := string(roles.RoleTypeContractingOfficer)
+		params := officeuserop.CreateOfficeUserParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
+			OfficeUser: &adminmessages.OfficeUserCreate{
+				FirstName: "Sam",
+				LastName:  "Cook",
+				Telephone: "555-555-5555",
+				Email:     "fakeemail5@gmail.com",
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &contractingOfficerRoleName,
+						RoleType: &contractingOfficerRoleType,
+					},
+				},
+				Privileges: []*adminmessages.OfficeUserPrivilege{
+					{
+						Name:          &safetyPrivilegeName,
+						PrivilegeType: &safetyPrivilegeType,
+					},
+				},
+				TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+					{
+						TransportationOfficeID: strfmt.UUID(transportationOfficeID.String()),
+						PrimaryOffice:          models.BoolPointer(true),
+					},
+				},
+			},
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := CreateOfficeUserHandler{
+			suite.HandlerConfig(),
+			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
+			query.NewQueryFilter,
+			usersroles.NewUsersRolesCreator(),
+			rolesservice.NewRolesFetcher(),
+			usersprivileges.NewUsersPrivilegesCreator(),
+			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
+	})
 }
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
@@ -749,6 +847,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			usersprivileges.NewUsersPrivilegesCreator(),
 			revoker,
 			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			rolesservice.NewRolesFetcher(),
 		}
 	}
 
@@ -918,6 +1017,124 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 		mockRevoker.AssertNumberOfCalls(suite.T(), "RevokeUserSession", 1)
+	})
+
+	suite.Run("Update fails due to Supervisor priveleges not authorized", func() {
+		officeUser := setupTestData()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		primaryOffice := true
+		supervisorPrivilegeName := "Supervisor"
+		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		primeRoleName := "Prime"
+		primeRoleType := string(roles.RoleTypePrime)
+
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
+			Privileges: []*adminmessages.OfficeUserPrivilege{
+				{
+					Name:          &supervisorPrivilegeName,
+					PrivilegeType: &supervisorPrivilegeType,
+				},
+			},
+			Roles: []*adminmessages.OfficeUserRole{
+				{
+					Name:     &primeRoleName,
+					RoleType: &primeRoleType,
+				},
+			},
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
+		}
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		expectedInput := *officeUserUpdates
+		mockUpdater := mocks.OfficeUserUpdater{}
+		mockUpdater.On("UpdateOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID,
+			&expectedInput,
+			uuid.FromStringOrNil(officeUserUpdates.TransportationOfficeAssignments[0].TransportationOfficeID.String()),
+		).Return(nil, nil, sql.ErrNoRows)
+
+		expectedSessionUpdate := &adminmessages.UserUpdate{
+			RevokeOfficeSession: models.BoolPointer(true),
+		}
+		mockRevoker := mocks.UserSessionRevocation{}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
+		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Update fails due to Safety priveleges not authorized", func() {
+		officeUser := setupTestData()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		primaryOffice := true
+		safetyPrivilegeName := "Safety"
+		safetyPrivilegeType := string(models.PrivilegeSearchTypeSafety)
+		contractingOfficerRoleName := "Contracting Officer"
+		contractingOfficerRoleType := string(roles.RoleTypeContractingOfficer)
+
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
+			Privileges: []*adminmessages.OfficeUserPrivilege{
+				{
+					Name:          &safetyPrivilegeName,
+					PrivilegeType: &safetyPrivilegeType,
+				},
+			},
+			Roles: []*adminmessages.OfficeUserRole{
+				{
+					Name:     &contractingOfficerRoleName,
+					RoleType: &contractingOfficerRoleType,
+				},
+			},
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
+		}
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		expectedInput := *officeUserUpdates
+		mockUpdater := mocks.OfficeUserUpdater{}
+		mockUpdater.On("UpdateOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID,
+			&expectedInput,
+			uuid.FromStringOrNil(officeUserUpdates.TransportationOfficeAssignments[0].TransportationOfficeID.String()),
+		).Return(nil, nil, sql.ErrNoRows)
+
+		expectedSessionUpdate := &adminmessages.UserUpdate{
+			RevokeOfficeSession: models.BoolPointer(true),
+		}
+		mockRevoker := mocks.UserSessionRevocation{}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
+		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
 	})
 }
 

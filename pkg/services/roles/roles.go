@@ -39,7 +39,12 @@ func (f rolesFetcher) FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.Role
 
 func (f rolesFetcher) VerifyRolesPrivelegesAllowed(appCtx appcontext.AppContext, roleType *string, privilegeType *string) (bool, error) {
 	var results []models.RolePrivilege
-	query := appCtx.DB().RawQuery("select * from roles_privileges join roles on roles_privileges.role_id = roles.id join privileges on roles_privileges.privilege_id = privileges.id where role_type = $1 and privilege_type = $2", roleType, privilegeType)
+	sql := `SELECT roles_privileges.id, roles_privileges.role_id, roles_privileges.privilege_id, roles_privileges.created_at, roles_privileges.updated_at FROM roles_privileges
+	JOIN roles ON roles_privileges.role_id = roles.id
+	JOIN privileges ON roles_privileges.privilege_id = privileges.id
+	WHERE role_type = $1 AND privilege_type = $2`
+
+	query := appCtx.DB().RawQuery(sql, roleType, privilegeType)
 
 	err := query.All(&results)
 
