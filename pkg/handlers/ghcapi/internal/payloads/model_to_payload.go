@@ -654,7 +654,6 @@ func Order(order *models.Order) *ghcmessages.Order {
 		rank = ghcmessages.Rank(*order.Rank.FormatToRankPayload())
 	}
 
-	//
 	var affiliation ghcmessages.Affiliation
 	if order.ServiceMember.Affiliation != nil {
 		affiliation = ghcmessages.Affiliation(*order.ServiceMember.Affiliation)

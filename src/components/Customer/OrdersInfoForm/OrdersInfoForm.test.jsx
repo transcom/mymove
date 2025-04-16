@@ -551,7 +551,6 @@ describe('OrdersInfoForm component', () => {
         <OrdersInfoForm {...testProps} />
       </Provider>,
     );
-
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.TEMPORARY_DUTY);
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');

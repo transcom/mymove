@@ -202,7 +202,6 @@ describe('EditOrders Page', () => {
               proGearSpouse: 500,
             },
             grade: 'E_7',
-
             has_dependents: false,
             id: 'testOrders1',
             issue_date: '2024-02-29',

@@ -60,9 +60,7 @@ const AddOrdersForm = ({
   const [ordersType, setOrdersType] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
-
   const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
-
   const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({

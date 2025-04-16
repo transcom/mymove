@@ -327,7 +327,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				packingAndShippingInstructions,
 				newDutyLocationGBLOC,
 			)
-
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
@@ -511,9 +510,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.DestinationGBLOC = newDutyLocationGBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
-
 			rank := payload.Rank
-
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err

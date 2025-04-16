@@ -46,11 +46,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
-
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
-
   const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
@@ -510,7 +508,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                     handleChange(e);
                     return;
                   }
-
                   const abbvRank = e.target.value;
                   const gradeForRank = mappedRanks[abbvRank].grade;
                   handleRankChange({ rank: abbvRank, grade: gradeForRank });

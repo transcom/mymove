@@ -255,7 +255,6 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	}
 
 	paygradeRank := &models.PaygradeRank{}
-
 	paygradeRank.ID = *models.UUIDPointer(uuid.UUID([]byte("61c647fa-5325-45b9-8d6f-30a2aaa06308")))
 	paygradeRank.PaygradeId = *models.UUIDPointer(uuid.UUID([]byte("6cb785d0-cabf-479a-a36d-a6aec294a4d0")))
 	affiliation := "SPACE_FORCE"
