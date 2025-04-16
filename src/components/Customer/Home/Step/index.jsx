@@ -30,13 +30,7 @@ const Step = ({
   secondaryBtnClassName,
   step,
 }) => {
-  const actionBtnClassName = classnames(
-    styles['action-btn'],
-    {
-      [styles['action-button--secondary']]: secondaryBtn,
-    },
-    secondaryBtnClassName,
-  );
+  const actionBtnClassName = classnames(styles['action-btn'], secondaryBtnClassName);
 
   const containerCN = classnames(styles['step-container'], styles[containerClassName]);
 
