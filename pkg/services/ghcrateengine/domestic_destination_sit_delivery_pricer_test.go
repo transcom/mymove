@@ -120,7 +120,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	expectedPrice := unit.Cents(1812386)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
 		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -137,7 +137,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
 		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.NoError(err)
@@ -145,7 +145,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("error from linehaul pricer", func() {
-		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.Error(err)
