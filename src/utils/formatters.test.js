@@ -492,6 +492,40 @@ describe('formatAssignedOfficeUserFromContext', () => {
       re_assigned_tio: 'Robinson, Brian',
     });
   });
+  it('properly formats a TOOs name for assignment when H&A accessed from destination request queue', () => {
+    const values = {
+      changedValues: {
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TOOs name for reassignment when H&A accessed from destination request queue', () => {
+    const values = {
+      changedValues: {
+        too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_too: 'McLaurin, Terry',
+    });
+  });
 });
 
 describe('constructSCOrderOconusFields', () => {
