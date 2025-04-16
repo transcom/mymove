@@ -326,12 +326,6 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - returns perUnitCent value for UBP", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
