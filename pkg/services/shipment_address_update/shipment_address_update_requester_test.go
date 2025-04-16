@@ -1571,8 +1571,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
-					City:       "RENO",
-					State:      "NV",
 					IsOconus:   models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.PickupAddress,
@@ -1580,8 +1578,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "90210",
-					City:       "Beverly Hills",
-					State:      "CA",
 					IsOconus:   models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -1644,16 +1640,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
-					City:       "RENO",
-					State:      "NV",
+					// City:       "RENO",
+					// State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
-					City:       "Beverly Hills",
-					State:      "CA",
+					// City:       "Beverly Hills",
+					// State:      "CA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -1758,18 +1754,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
-					City:       "RENO",
-					State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-					City:       "Beverly Hills",
-					State:      "CA",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
 		//Generate a couple of service items to test their status changes upon approval
