@@ -177,10 +177,6 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 			BasePointCity: pickupAddress.City,
 			State:         pickupAddress.State,
 		},
-		ReContractYear: models.ReContractYear{
-			StartDate: time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC),
-			EndDate:   time.Date(2026, time.December, 31, 0, 0, 0, 0, time.UTC),
-		},
 	})
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
