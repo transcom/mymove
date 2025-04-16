@@ -1043,8 +1043,7 @@ integration_tests:
     - integration_test_devseed
   before_script: *setup_milmove_env
   script:
-    - echo "TODO Add steps"
-    - echo "integration_tests"
+    - echo "NoOp combine state of integration tests"
   after_script:
     - *announce_failure
   rules:
