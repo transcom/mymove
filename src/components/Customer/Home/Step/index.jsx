@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, node, string, oneOfType, number, func, shape } from 'prop-types';
+import { bool, node, string, oneOfType, number, func } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
@@ -28,7 +28,6 @@ const Step = ({
   onEditBtnClick,
   secondaryBtn,
   secondaryBtnClassName,
-  secondaryBtnStyle,
   step,
 }) => {
   const actionBtnClassName = classnames(
@@ -69,7 +68,6 @@ const Step = ({
           onClick={onActionBtnClick}
           type="button"
           secondary={secondaryBtn}
-          style={secondaryBtnStyle}
         >
           {actionBtnLabel}
         </Button>
@@ -93,7 +91,6 @@ Step.propTypes = {
   onEditBtnClick: func,
   secondaryBtn: bool,
   secondaryBtnClassName: string,
-  secondaryBtnStyle: shape({}),
   step: oneOfType([string, number]).isRequired,
 };
 
@@ -111,7 +108,6 @@ Step.defaultProps = {
   onEditBtnClick: () => {},
   secondaryBtn: false,
   secondaryBtnClassName: '',
-  secondaryBtnStyle: {},
 };
 
 export default Step;
