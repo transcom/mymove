@@ -63,8 +63,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
-    actualPickupPostalCode: '',
-    actualDestinationPostalCode: '',
     pickupAddress,
     secondaryPickupAddress: hasSecondaryPickupAddress ? secondaryPickupAddress : {},
     destinationAddress,

@@ -107,8 +107,6 @@ describe('shipments utils', () => {
       hasRequestedAdvance: true,
       advanceAmountRequested: 30000,
       actualMoveDate: null,
-      actualPickupPostalCode: null,
-      actualDestinationPostalCode: null,
       hasReceivedAdvance: null,
       advanceAmountReceived: null,
       approvedAt: approvedDate.toISOString(),
@@ -120,8 +118,6 @@ describe('shipments utils', () => {
     const ppmShipmentWithAboutInfo = {
       ...approvedPPMShipment,
       actualMoveDate: approvedPPMShipment.expectedDepartureDate,
-      actualPickupPostalCode: approvedPPMShipment.pickupPostalCode,
-      actualDestinationPostalCode: approvedPPMShipment.destinationPostalCode,
       hasReceivedAdvance: approvedPPMShipment.hasRequestedAdvance,
       advanceAmountReceived: approvedPPMShipment.advanceAmountRequested,
       updatedAt: secondUpdatedDate.toISOString(),
@@ -139,12 +135,6 @@ describe('shipments utils', () => {
     it.each([
       [false, 'all about your ppm info is null', approvedPPMShipment],
       [false, 'actual move date is null', { ...ppmShipmentWithAboutInfo, actualMoveDate: null }],
-      [false, 'actual pickup postal code is null', { ...ppmShipmentWithAboutInfo, actualPickupPostalCode: null }],
-      [
-        false,
-        'actual destination postal code is null',
-        { ...ppmShipmentWithAboutInfo, actualDestinationPostalCode: null },
-      ],
       [false, 'has received advance is null', { ...ppmShipmentWithAboutInfo, hasReceivedAdvance: null }],
       [false, 'advance amount received is too low', { ...ppmShipmentWithAboutInfo, advanceAmountReceived: 0 }],
       [true, 'all about your ppm info is filled in (no advance)', ppmShipmentWithAboutInfoWithoutAdvance],

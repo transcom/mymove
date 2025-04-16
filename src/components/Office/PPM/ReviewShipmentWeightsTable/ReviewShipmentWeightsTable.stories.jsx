@@ -32,8 +32,6 @@ PPMShipments.args = {
       shipmentType: 'PPM',
       ppmShipment: {
         actualMoveDate: '02-Dec-22',
-        actualPickupPostalCode: '90210',
-        actualDestinationPostalCode: '94611',
         hasReceivedAdvance: true,
         advanceAmountReceived: 60000,
         proGearWeight: 1000,
@@ -52,8 +50,6 @@ PPMShipments.args = {
       shipmentType: 'PPM',
       ppmShipment: {
         actualMoveDate: '02-Dec-22',
-        actualPickupPostalCode: '90210',
-        actualDestinationPostalCode: '94611',
         hasReceivedAdvance: true,
         advanceAmountReceived: 60000,
         proGearWeight: 500,
@@ -72,8 +68,6 @@ PPMShipments.args = {
       shipmentType: 'PPM',
       ppmShipment: {
         actualMoveDate: '02-Dec-22',
-        actualPickupPostalCode: '90210',
-        actualDestinationPostalCode: '94611',
         hasReceivedAdvance: true,
         advanceAmountReceived: 2000,
         proGearWeight: 600,
