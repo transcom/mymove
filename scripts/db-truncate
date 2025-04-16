@@ -40,6 +40,8 @@ BEGIN
                                     're_us_post_regions',
                                     're_zip3s',
                                     'roles',
+                                    'privileges',
+                                    'roles_privileges',
                                     're_contracts',
                                     're_contract_years',
                                     'service_params',

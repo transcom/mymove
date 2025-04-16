@@ -543,15 +543,15 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
-		suite.Equal(unit.Cents(43384128), linehaul)
-		suite.Equal(unit.Cents(3004), fuel)
-		suite.Equal(unit.Cents(21760), origin)
-		suite.Equal(unit.Cents(33280), dest)
-		suite.Equal(unit.Cents(290000), packing)
-		suite.Equal(unit.Cents(23880), unpacking)
+		suite.Equal(unit.Cents(48155648), linehaul)
+		suite.Equal(unit.Cents(-641), fuel)
+		suite.Equal(unit.Cents(24160), origin)
+		suite.Equal(unit.Cents(36960), dest)
+		suite.Equal(unit.Cents(321920), packing)
+		suite.Equal(unit.Cents(26520), unpacking)
 
 		total := linehaul + fuel + origin + dest + packing + unpacking
-		suite.Equal(unit.Cents(43756052), total)
+		suite.Equal(unit.Cents(48564567), total)
 	})
 
 	suite.Run("Estimated Incentive", func() {
