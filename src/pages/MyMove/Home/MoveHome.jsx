@@ -464,6 +464,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
               </dd>
             </div>
           )}
+          {orders?.entitlement?.ub_weight_restriction > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>UB weight restriction</dt>
+              <dd>{formatWeight(orders?.entitlement?.ub_weight_restriction)}</dd>
+            </div>
+          )}
           {move.moveCode && (
             <div className={styles.subheaderSubsection}>
               <dt>Move code</dt>
@@ -592,7 +598,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
                   actionBtnLabel={
-                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Non-Orders Documentation' : null
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Additional Documentation' : null
                   }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >

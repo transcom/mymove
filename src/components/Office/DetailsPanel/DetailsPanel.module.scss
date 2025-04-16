@@ -14,6 +14,17 @@
       }
     }
 
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      div:only-child {
+        margin-left: auto;
+      }
+      width: 50%;
+      margin-top: 0.5333333333rem;
+      margin-bottom: 0.5333333333rem;
+    }
+
     a.usa-button--secondary {
       @include u-margin-right(0);
 
@@ -25,6 +36,10 @@
         color: #1a4480;
         text-decoration: none;
       }
+    }
+
+    .usa-button {
+      margin-top: .5333333333rem;
     }
   }
 
