@@ -48,10 +48,10 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 					"Cannot update the destination address of an NTS shipment directly, please update the storage facility address instead", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
 			}
 
-			if dbShipment.Status == models.MTOShipmentStatusApproved &&
+			if (dbShipment.Status == models.MTOShipmentStatusApproved || dbShipment.Status == models.MTOShipmentStatusApprovalsRequested) &&
 				(dbShipment.DestinationAddressID != nil && *dbShipment.DestinationAddressID == addressID) {
 				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"This shipment is approved, please use the updateShipmentDestinationAddress endpoint to update the destination address of an approved shipment", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
+					"This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint to update the destination address of an approved shipment", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
 			}
 
 			if dbShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&

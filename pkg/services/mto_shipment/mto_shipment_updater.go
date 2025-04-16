@@ -1454,7 +1454,7 @@ func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOSh
 	}
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
-			if mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
+			if (mtoShipment.Status == models.MTOShipmentStatusApproved || mtoShipment.Status == models.MTOShipmentStatusApprovalsRequested) && mtoShipment.ID != shipment.ID {
 				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
 					//uses PrimeEstimatedWeight for HHG and NTS shipments
 					if mtoShipment.PrimeEstimatedWeight != nil {
