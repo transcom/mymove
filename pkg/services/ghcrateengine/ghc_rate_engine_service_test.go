@@ -172,7 +172,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 	}, nil)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, contractYearName string, escalationCompounded float64) {
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, contractYearName string, escalationCompounded float64) {
 	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{

@@ -305,7 +305,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Plu
 	dlhContractName := testdatagen.DefaultContractYearName
 
 	suite.Run("destination golden path for > 50 miles with different zip3s", func() {
-		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dlhContractName, dddsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dlhContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dlhZipDest, dlhZipSITDest, dlhDistance)
 		suite.NoError(err)
 		expectedPrice := unit.Cents(1812386)
