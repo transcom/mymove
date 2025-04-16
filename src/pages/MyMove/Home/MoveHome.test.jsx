@@ -1323,12 +1323,12 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
-      // shipment step button should now be "Add another shipment"
+      // shipment step button should now be "Add Shipment"
       const shipmentStep = wrapper.find('Step[step="3"]');
 
       // confirm move request step should now be enabled
       const actionBtnWrapper = shallow(shipmentStep.prop('actionBtnLabel'));
-      expect(actionBtnWrapper.text()).toContain('Add another shipment');
+      expect(actionBtnWrapper.text()).toContain('Add Shipment');
     });
 
     it('cancel move button is visible', async () => {

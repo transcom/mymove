@@ -429,7 +429,7 @@ describe('Review page', () => {
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
-    const addShipmentButton = screen.getByRole('button', { name: 'Add another shipment' });
+    const addShipmentButton = screen.getByRole('button', { name: 'Add Shipment' });
 
     expect(addShipmentButton).toBeInTheDocument();
 
