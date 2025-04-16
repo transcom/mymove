@@ -1,6 +1,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { generatePath } from 'react-router-dom';
 
 import ConnectedReview from 'pages/MyMove/Review/Review';
 import { renderWithProviders } from 'testUtils';
@@ -401,6 +402,10 @@ describe('Review page', () => {
   const mockRoutingOptionsNoShipments = { path: mockPath, params: mockParamsNoShipments };
   const mockRoutingOptionsSubmitted = { path: mockPath, params: mockParamsSubmitted };
 
+  const addShipmentPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
+    moveId: mockParams.moveId,
+  });
+
   const testFlashState = {
     flash: {
       flashMessage: {
@@ -435,7 +440,7 @@ describe('Review page', () => {
 
     await userEvent.click(addShipmentButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/moves/testPreviousMove/shipment-type');
+    expect(mockNavigate).toHaveBeenCalledWith(addShipmentPath);
   });
 
   it('Finish Later button goes back to the home page', async () => {
