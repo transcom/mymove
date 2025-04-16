@@ -144,13 +144,13 @@ func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, old
 	// If oldPPMShipment field value is nil we know that the value has been updated and we should return false - the adjusted net weight is accounted for in the
 	// SumWeightTickets function and the change in weight is then checked with `newTotalWeight == originalTotalWeight`
 	return (oldPPMShipment.ActualMoveDate != nil && newPPMShipment.ActualMoveDate.Equal(*oldPPMShipment.ActualMoveDate)) &&
-		(oldPPMShipment.ActualPickupPostalCode != nil && *newPPMShipment.ActualPickupPostalCode == *oldPPMShipment.ActualPickupPostalCode) &&
-		(oldPPMShipment.ActualDestinationPostalCode != nil && *newPPMShipment.ActualDestinationPostalCode == *oldPPMShipment.ActualDestinationPostalCode) &&
+		(oldPPMShipment.PickupAddress.PostalCode != "" && newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode) &&
+		(oldPPMShipment.DestinationAddress.PostalCode != "" && newPPMShipment.DestinationAddress.PostalCode == oldPPMShipment.DestinationAddress.PostalCode) &&
 		newTotalWeight == originalTotalWeight
 }
 
 func shouldSetFinalIncentiveToNil(newPPMShipment *models.PPMShipment, newTotalWeight unit.Pound) bool {
-	if newPPMShipment.ActualMoveDate == nil || newPPMShipment.ActualPickupPostalCode == nil || newPPMShipment.ActualDestinationPostalCode == nil || newTotalWeight <= 0 {
+	if newPPMShipment.ActualMoveDate == nil || newPPMShipment.PickupAddress.PostalCode == "" || newPPMShipment.DestinationAddress.PostalCode == "" || newTotalWeight <= 0 {
 		return true
 	}
 
@@ -476,15 +476,11 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for destination duty location on orders when comparing postal codes")
 		}
 	} else {
-		if ppmShipment.ActualPickupPostalCode != nil {
-			pickupPostal = *ppmShipment.ActualPickupPostalCode
-		} else if ppmShipment.PickupAddress.PostalCode != "" {
+		if ppmShipment.PickupAddress.PostalCode != "" {
 			pickupPostal = ppmShipment.PickupAddress.PostalCode
 		}
 
-		if ppmShipment.ActualDestinationPostalCode != nil {
-			destPostal = *ppmShipment.ActualDestinationPostalCode
-		} else if ppmShipment.DestinationAddress.PostalCode != "" {
+		if ppmShipment.DestinationAddress.PostalCode != "" {
 			destPostal = ppmShipment.DestinationAddress.PostalCode
 		}
 	}
@@ -625,16 +621,12 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	var pickupPostal, destPostal string
 
 	// Check different address values for a postal code
-	if ppmShipment.ActualPickupPostalCode != nil {
-		pickupPostal = *ppmShipment.ActualPickupPostalCode
-	} else if ppmShipment.PickupAddress.PostalCode != "" {
+	if ppmShipment.PickupAddress.PostalCode != "" {
 		pickupPostal = ppmShipment.PickupAddress.PostalCode
 	}
 
 	// Same for destination
-	if ppmShipment.ActualDestinationPostalCode != nil {
-		destPostal = *ppmShipment.ActualDestinationPostalCode
-	} else if ppmShipment.DestinationAddress.PostalCode != "" {
+	if ppmShipment.DestinationAddress.PostalCode != "" {
 		destPostal = ppmShipment.DestinationAddress.PostalCode
 	}
 
@@ -1294,9 +1286,7 @@ func MapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.
 	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.PickupAddress = ppmShipment.PickupAddress
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
 	ppmShipment.Shipment.DestinationAddress = ppmShipment.DestinationAddress
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
 	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
 
 	return ppmShipment.Shipment

@@ -1953,9 +1953,7 @@ export const reviewWeightsQuery = {
       id: '93ec03fc-219d-46ad-9227-9cbd3b465e47',
       moveTaskOrderID: '02fea335-2a72-43e7-a456-b5ce74f9018f',
       ppmShipment: {
-        actualDestinationPostalCode: '30813',
         actualMoveDate: '2020-03-16',
-        actualPickupPostalCode: '42444',
         advanceAmountReceived: 340000,
         advanceAmountRequested: 598700,
         advanceStatus: 'APPROVED',
@@ -2403,9 +2401,7 @@ export const reviewWeightsNoProGearQuery = {
       id: '93ec03fc-219d-46ad-9227-9cbd3b465e47',
       moveTaskOrderID: '02fea335-2a72-43e7-a456-b5ce74f9018f',
       ppmShipment: {
-        actualDestinationPostalCode: '30813',
         actualMoveDate: '2020-03-16',
-        actualPickupPostalCode: '42444',
         advanceAmountReceived: 340000,
         advanceAmountRequested: 598700,
         advanceStatus: 'APPROVED',

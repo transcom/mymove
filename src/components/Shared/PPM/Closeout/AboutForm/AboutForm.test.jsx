@@ -30,8 +30,6 @@ const shipmentProps = {
   mtoShipment: {
     ppmShipment: {
       actualMoveDate: '31 May 2022',
-      actualPickupPostalCode: '',
-      actualDestinationPostalCode: '',
       pickupAddress: {
         streetAddress1: '812 S 129th St',
         streetAddress2: '#123',
@@ -331,8 +329,6 @@ describe('AboutForm component', () => {
           expect(shipmentProps.onSubmit).toHaveBeenCalledWith(
             {
               actualMoveDate: '31 May 2022',
-              actualPickupPostalCode: '',
-              actualDestinationPostalCode: '',
               pickupAddress: {
                 streetAddress1: '812 S 129th St',
                 streetAddress2: '#123',

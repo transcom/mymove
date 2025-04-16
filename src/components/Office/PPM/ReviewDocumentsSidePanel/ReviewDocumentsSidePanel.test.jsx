@@ -33,8 +33,6 @@ const mockPPMShipment = {
   id: '2ecb311-edbe-4fd4-96ee-bd693113f3f3',
   expectedDepartureDate: new Date(yesterday.getDate() - 1),
   actualMoveDate: yesterday,
-  actualPickupPostalCode: '90210',
-  actualDestinationPostalCode: '94611',
   miles: 300,
   estimatedWeight: 3000,
   actualWeight: 3500,

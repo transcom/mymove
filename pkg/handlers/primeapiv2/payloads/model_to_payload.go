@@ -482,8 +482,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                  ppmShipment.SITExpected,
 		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
 		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
