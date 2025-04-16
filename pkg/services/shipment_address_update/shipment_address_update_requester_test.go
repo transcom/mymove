@@ -530,8 +530,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			{
 				Model: models.Address{
 					PostalCode: "90210",
-					City:       "Beverly Hills",
-					State:      "CA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},

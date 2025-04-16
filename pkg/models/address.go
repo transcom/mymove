@@ -114,22 +114,20 @@ func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, erro
 
 func ValidPostalCode(db *pop.Connection, postalCode string) (bool, error) {
 
-	valid := true
-
 	zipCount, err := db.Where("uspr_zip_id = $1", postalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
 	if err != nil {
 		return false, err
 	}
 
 	if zipCount == 0 {
-		valid = false
+		return false, nil
 	}
 
 	if len(strings.TrimSpace(postalCode)) != 5 {
-		valid = false
+		return false, nil
 	}
 
-	return valid, nil
+	return true, nil
 }
 
 // MarshalLogObject is required to be able to zap.Object log TDLs

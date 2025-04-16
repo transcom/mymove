@@ -2177,12 +2177,6 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 
 	suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for CONUS -> OCONUS", func() {
-			usprcTulsa, err := models.FindByZipCodeAndCity(suite.DB(), "74133", "Tulsa")
-			suite.NoError(err)
-
-			usprcJBER, err := models.FindByZipCodeAndCity(suite.DB(), "99505", "JBER")
-			suite.NoError(err)
-
 			ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
 					Model: models.MTOShipment{
@@ -2191,22 +2185,20 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 				},
 				{
 					Model: models.Address{
-						StreetAddress1:     "Tester Address",
-						City:               "Tulsa",
-						State:              "OK",
-						PostalCode:         "74133",
-						UsPostRegionCityID: &usprcTulsa.ID,
+						StreetAddress1: "Tester Address",
+						City:           "Tulsa",
+						State:          "OK",
+						PostalCode:     "74133",
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
 				{
 					Model: models.Address{
-						StreetAddress1:     "JBER",
-						City:               "JBER",
-						State:              "AK",
-						PostalCode:         "99505",
-						IsOconus:           models.BoolPointer(true),
-						UsPostRegionCityID: &usprcJBER.ID,
+						StreetAddress1: "JBER",
+						City:           "JBER",
+						State:          "AK",
+						PostalCode:     "99505",
+						IsOconus:       models.BoolPointer(true),
 					},
 					Type: &factory.Addresses.DeliveryAddress,
 				},
