@@ -244,6 +244,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
+        {generateDetailText({
+          'Estimated Price':
+            details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+        })}
       </dl>
     </div>
   );
@@ -271,6 +275,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -321,6 +329,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -357,6 +369,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateDetailText({
+              'Estimated Price':
+                details.estimatedPrice !== null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
