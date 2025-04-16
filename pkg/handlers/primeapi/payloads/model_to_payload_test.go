@@ -1545,7 +1545,6 @@ func (suite *PayloadsSuite) TestListMoves() {
 			{
 				Model: models.Address{
 					PostalCode: "90210",
-					City:       "BEVERLY HILLS",
 				},
 			},
 		}, nil)
@@ -1578,7 +1577,6 @@ func (suite *PayloadsSuite) TestListMoves() {
 			{
 				Model: models.Address{
 					PostalCode: "62225",
-					City:       "SCOTT AFB",
 				},
 			},
 		}, nil)

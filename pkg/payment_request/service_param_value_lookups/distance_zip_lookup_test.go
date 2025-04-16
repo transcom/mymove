@@ -25,27 +25,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		})
 
-		usprc1, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "33607", "ROCKY POINT")
-		suite.NoError(err)
-		usprc2, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-		suite.NoError(err)
-
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: usprc1.UsprZipID,
-					City:       usprc1.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: usprc2.UsprZipID,
-					City:       usprc2.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
@@ -202,22 +182,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		}, nil)
 
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "33607",
-					City:       "ROCKY POINT",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-					City:       "BEVERLY HILLS",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
@@ -332,22 +297,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "90211",
-					City:       "BEVERLY HILLS",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-					City:       "BEVERLY HILLS",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
@@ -380,22 +330,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "33607",
-					City:       "ROCKY POINT",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-					City:       "BEVERLY HILLS",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 

@@ -611,9 +611,6 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		{
 			Model: models.Address{
 				StreetAddress1: "7 Q St",
-				City:           "BEVERLY HILLS",
-				State:          "AL",
-				PostalCode:     "90210",
 			},
 		},
 	}, nil)
@@ -621,7 +618,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		{
 			Model: models.Address{
 				StreetAddress1: "148 S East St",
-				City:           "FAIRFIELD",
+				City:           "Miami",
 				State:          "FL",
 				PostalCode:     "94535",
 			},

@@ -101,19 +101,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		updatedDestinationDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
-		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-
-		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode:         usprc.UsprZipID,
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-				},
-			},
-		}, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 		updatedGbloc := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), updatedOriginDutyLocation.Address.PostalCode, "UUUU")
 		ordersType := ghcmessages.OrdersTypeSEPARATION
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
