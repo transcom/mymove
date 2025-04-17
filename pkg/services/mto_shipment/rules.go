@@ -224,9 +224,15 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate() validator {
 func MTOShipmentHasRequestedPickupDateTodayOrEarlier() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-		if newer == nil || newer.IsPPMShipment() || (newer.RequestedPickupDate == nil && (older == nil || older.RequestedPickupDate == nil)) {
+
+		if newer == nil || newer.IsPPMShipment() || older == nil || older.IsPPMShipment() {
 			return nil
 		}
+
+		if newer.RequestedPickupDate == nil && older.RequestedPickupDate == nil {
+			return nil
+		}
+
 		isDateUpdated := older == nil || older.RequestedPickupDate == nil || (newer.RequestedPickupDate != nil && older.RequestedPickupDate != nil && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate))
 		if newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero() && isDateUpdated {
 			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
