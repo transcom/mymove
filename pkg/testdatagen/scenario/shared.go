@@ -383,30 +383,6 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 				SubmittedAt: models.TimePointer(time.Now()),
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
@@ -545,30 +521,6 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 				ID: uuid.FromStringOrNil("d733fe2f-b08d-434a-ad8d-551f4d597b03"),
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
@@ -619,22 +571,6 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 				PersonalEmail: models.StringPointer(moveInfo.Email),
 				CacValidated:  true,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.BackupMailingAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.ResidentialAddress,
 		},
 	}, nil)
 
@@ -713,22 +649,6 @@ func CreateGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo Mov
 				UserUploader: userUploader,
 				AppContext:   appCtx,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
 		},
 	}
 
@@ -1367,30 +1287,6 @@ func createApprovedMoveWith2PPMShipmentsAndExcessWeights(appCtx appcontext.AppCo
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
@@ -2785,22 +2681,6 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 				SubmittedAt: models.TimePointer(time.Now()),
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
@@ -2909,22 +2789,6 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -2940,30 +2804,6 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 			Model: models.PPMShipment{
 				Status: models.PPMShipmentStatusWaitingOnCustomer,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -3073,30 +2913,6 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -3112,30 +2928,6 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 			Model: models.PPMShipment{
 				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -3245,30 +3037,6 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
@@ -3370,30 +3138,6 @@ func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCre
 			Model: models.PPMShipment{
 				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -3507,30 +3251,6 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 				Status: models.PPMShipmentStatusSubmitted,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
@@ -3635,30 +3355,6 @@ func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext
 				SITLocation:               &sitLocationType,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
@@ -3699,30 +3395,6 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 		{
 			Model:    move,
 			LinkOnly: true,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 }
@@ -3843,30 +3515,6 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 			Model: models.PPMShipment{
 				Status: models.PPMShipmentStatusSubmitted,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -4528,15 +4176,7 @@ func createHHGWithOriginSITServiceItems(
 			},
 		},
 		{
-			Model: factory.BuildAddress(db, []factory.Customization{
-				{
-					Model: models.Address{
-						City:       "GROVETOWN",
-						State:      "GA",
-						PostalCode: "30813",
-					},
-				},
-			}, nil),
+			Model:    factory.BuildAddress(db, nil, nil),
 			LinkOnly: true,
 			Type:     &factory.Addresses.DeliveryAddress,
 		},
@@ -4801,15 +4441,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 			},
 		},
 		{
-			Model: factory.BuildAddress(db, []factory.Customization{
-				{
-					Model: models.Address{
-						City:       "GROVETOWN",
-						State:      "GA",
-						PostalCode: "30813",
-					},
-				},
-			}, nil),
+			Model:    factory.BuildAddress(db, nil, nil),
 			LinkOnly: true,
 			Type:     &factory.Addresses.DeliveryAddress,
 		},
@@ -5818,12 +5450,6 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		{
 			Model: serviceMember,
 		},
-		{
-			Model: models.Address{
-				PostalCode: "30813",
-				City:       "GROVETOWN",
-			},
-		},
 	}, nil)
 
 	orders := factory.BuildOrder(db, []factory.Customization{
@@ -5838,12 +5464,6 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 				AppContext:   appCtx,
 			},
 		},
-		{
-			Model: models.Address{
-				PostalCode: "30813",
-				City:       "GROVETOWN",
-			},
-		},
 	}, nil)
 
 	moveTemplate.Status = models.MoveStatusAPPROVED
@@ -5855,12 +5475,6 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		{
 			Model:    orders,
 			LinkOnly: true,
-		},
-		{
-			Model: models.Address{
-				PostalCode: "30813",
-				City:       "GROVETOWN",
-			},
 		},
 	}, nil)
 
@@ -13354,30 +12968,6 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -13390,30 +12980,6 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 				ShipmentType: models.MTOShipmentTypePPM,
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -13666,30 +13232,6 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -13702,30 +13244,6 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 				ShipmentType: models.MTOShipmentTypePPM,
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -14236,30 +13754,6 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -14272,30 +13766,6 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 				ShipmentType: models.MTOShipmentTypePPM,
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -14364,30 +13834,6 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -14400,30 +13846,6 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 				ShipmentType: models.MTOShipmentTypePPM,
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 
@@ -14515,30 +13937,6 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -14551,30 +13949,6 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 				ShipmentType: models.MTOShipmentTypePPM,
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
 		},
 	}, nil)
 }
