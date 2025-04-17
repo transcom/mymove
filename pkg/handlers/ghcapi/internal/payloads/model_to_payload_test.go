@@ -1946,3 +1946,151 @@ func (suite *PayloadsSuite) TestCounselingOffices() {
 		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
 }
+
+func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
+	// Create mock users and IDs
+	userTOO := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
+	userTOODestination := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
+	userSC := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
+	idTOO := uuid.Must(uuid.NewV4())
+	idTOODestination := uuid.Must(uuid.NewV4())
+	idSC := uuid.Must(uuid.NewV4())
+
+	// Create a mock move with assigned users
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				ID:                         uuid.Must(uuid.NewV4()),
+				TOOAssignedUser:            userTOO,
+				TOOAssignedID:              &idTOO,
+				TOODestinationAssignedUser: userTOODestination,
+				TOODestinationAssignedID:   &idTOODestination,
+				SCAssignedUser:             userSC,
+				SCAssignedID:               &idSC,
+			},
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Define test cases
+	testCases := []struct {
+		name         string
+		role         string
+		queueType    string
+		officeUser   *models.OfficeUser
+		officeUserID *uuid.UUID
+	}{
+		{"TOO assigned user for TaskOrder queue", string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), userTOO, &idTOO},
+		{"TOO assigned user for DestinationRequest queue", string(roles.RoleTypeTOO), string(models.QueueTypeDestinationRequest), userTOODestination, &idTOODestination},
+		{"SC assigned user", string(roles.RoleTypeServicesCounselor), "", userSC, &idSC},
+		{"Unknown role should return nil", "UnknownRole", "", nil, nil},
+		{"TOO with unknown queue should return nil", string(roles.RoleTypeTOO), "UnknownQueue", nil, nil},
+	}
+
+	// Run test cases
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			expectedOfficeUser, expectedOfficeUserID := getAssignedUserAndID(tc.role, tc.queueType, move)
+			suite.Equal(tc.officeUser, expectedOfficeUser)
+			suite.Equal(tc.officeUserID, expectedOfficeUserID)
+		})
+	}
+}
+
+func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				Roles: []roles.Role{
+					{
+						RoleType: roles.RoleTypeTOO,
+					},
+				},
+			},
+		},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVALSREQUESTED,
+				Show:   models.BoolPointer(true),
+			},
+		}}, nil)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+		},
+	}, nil)
+	approvedServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDCRT,
+			},
+		},
+	}, nil)
+
+	suite.Run("successfully attaches approvalRequestTypes to move", func() {
+		moves := models.Moves{}
+		moves = append(moves, move)
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+
+		var empty []string
+		suite.Len(queueMoves, 1)
+		suite.Nil(queueMoves[0].ApprovalRequestTypes)
+		suite.Equal(empty, queueMoves[0].ApprovalRequestTypes)
+	})
+	suite.Run("successfully attaches submitted service item request to move", func() {
+		serviceItems := models.MTOServiceItems{}
+		serviceItems = append(serviceItems, originSITServiceItem)
+		move.MTOServiceItems = serviceItems
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+	suite.Run("does not attach a service item if it is not in submitted status", func() {
+		serviceItems := models.MTOServiceItems{}
+		serviceItems = append(serviceItems, originSITServiceItem, approvedServiceItem)
+		move.MTOServiceItems = serviceItems
+
+		moves := models.Moves{}
+		moves = append(moves, move)
+
+		suite.Len(moves[0].MTOServiceItems, 2)
+
+		queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+
+		suite.Len(queueMoves, 1)
+		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+	})
+}

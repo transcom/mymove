@@ -34,7 +34,7 @@ describe('TextField component', () => {
       <TextField name="firstName" label="First Name" type="text" id="firstName" />,
     );
 
-    expect(queryByText('First Name')).toBeInstanceOf(HTMLLabelElement);
+    expect(queryByText('First Name').parentElement).toBeInstanceOf(HTMLLabelElement);
     expect(queryByLabelText('First Name')).toBeInstanceOf(HTMLInputElement);
     expect(queryByLabelText('First Name')).toHaveAttribute('name', 'firstName');
     expect(queryByLabelText('First Name')).toHaveAttribute('id', 'firstName');
@@ -153,7 +153,7 @@ describe('TextField component', () => {
 
       const { queryByText } = render(<TextField name="firstName" label="First Name" type="text" id="firstName" />);
 
-      expect(queryByText('First Name')).toHaveClass('usa-label--error');
+      expect(queryByText('First Name').parentElement).toHaveClass('usa-label--error');
       expect(queryByText('This field is required')).toBeInTheDocument();
     });
 
