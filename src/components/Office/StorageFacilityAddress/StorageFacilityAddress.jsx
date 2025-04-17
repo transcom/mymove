@@ -15,7 +15,6 @@ const StorageFacilityAddress = ({ formikProps }) => {
         <h2 className={styles.SectionHeader}>Storage facility address</h2>
         <AddressFields
           name="storageFacility.address"
-          locationLookup
           formikProps={formikProps}
           render={(fields) => (
             <>

@@ -76,6 +76,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
       const data = await getBulkAssignmentData(queueType);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
+
       if (!data.bulkAssignmentMoveIDs) {
         setIsDisabled(true);
         setNumberOfMoves(0);

@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
@@ -32,6 +33,18 @@ type ListMovesParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.
+	  In: query
+	*/
+	Acknowledged *bool
+	/*Only return moves where the move or any one (or more) of its shipments was acknowledged after this time. Formatted like "2021-07-23T18:30:47.116Z"
+	  In: query
+	*/
+	AcknowledgedAfter *strfmt.DateTime
+	/*Only return moves where the move or any one (or more) of its shipments was acknowledged before this time. Formatted like "2021-07-23T18:30:47.116Z"
+	  In: query
+	*/
+	AcknowledgedBefore *strfmt.DateTime
 	/*Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
 	  In: query
 	*/
@@ -49,12 +62,124 @@ func (o *ListMovesParams) BindRequest(r *http.Request, route *middleware.Matched
 
 	qs := runtime.Values(r.URL.Query())
 
+	qAcknowledged, qhkAcknowledged, _ := qs.GetOK("acknowledged")
+	if err := o.bindAcknowledged(qAcknowledged, qhkAcknowledged, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qAcknowledgedAfter, qhkAcknowledgedAfter, _ := qs.GetOK("acknowledgedAfter")
+	if err := o.bindAcknowledgedAfter(qAcknowledgedAfter, qhkAcknowledgedAfter, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qAcknowledgedBefore, qhkAcknowledgedBefore, _ := qs.GetOK("acknowledgedBefore")
+	if err := o.bindAcknowledgedBefore(qAcknowledgedBefore, qhkAcknowledgedBefore, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qSince, qhkSince, _ := qs.GetOK("since")
 	if err := o.bindSince(qSince, qhkSince, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// bindAcknowledged binds and validates parameter Acknowledged from query.
+func (o *ListMovesParams) bindAcknowledged(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("acknowledged", "query", "bool", raw)
+	}
+	o.Acknowledged = &value
+
+	return nil
+}
+
+// bindAcknowledgedAfter binds and validates parameter AcknowledgedAfter from query.
+func (o *ListMovesParams) bindAcknowledgedAfter(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("acknowledgedAfter", "query", "strfmt.DateTime", raw)
+	}
+	o.AcknowledgedAfter = (value.(*strfmt.DateTime))
+
+	if err := o.validateAcknowledgedAfter(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateAcknowledgedAfter carries on validations for parameter AcknowledgedAfter
+func (o *ListMovesParams) validateAcknowledgedAfter(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("acknowledgedAfter", "query", "date-time", o.AcknowledgedAfter.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindAcknowledgedBefore binds and validates parameter AcknowledgedBefore from query.
+func (o *ListMovesParams) bindAcknowledgedBefore(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("acknowledgedBefore", "query", "strfmt.DateTime", raw)
+	}
+	o.AcknowledgedBefore = (value.(*strfmt.DateTime))
+
+	if err := o.validateAcknowledgedBefore(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateAcknowledgedBefore carries on validations for parameter AcknowledgedBefore
+func (o *ListMovesParams) validateAcknowledgedBefore(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("acknowledgedBefore", "query", "date-time", o.AcknowledgedBefore.String(), formats); err != nil {
+		return err
 	}
 	return nil
 }

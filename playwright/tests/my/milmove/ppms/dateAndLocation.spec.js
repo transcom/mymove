@@ -30,26 +30,27 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     await page.locator('input[name="expectedDepartureDate"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
-    // missing pickup address
+    const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
+    const secondaryPickupLocation = 'YUMA, AZ 85364 (YUMA)';
+
     await page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
     await page.locator('input[name="pickupAddress.address.streetAddress1"]').clear();
     await page.locator('input[name="pickupAddress.address.streetAddress1"]').blur();
     await expect(errorMessage).toContainText('Required');
     await page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
+    await page.locator('input[id="pickupAddress.address-input"]').fill('90210');
+    await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
     await expect(errorMessage).not.toBeVisible();
 
-    // missing secondary pickup address
+    // missing secondary pickup street address
     await page.locator('label[for="yes-secondary-pickup-address"]').click();
     await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').fill('123 Street');
     await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').clear();
     await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').blur();
-    await expect(errorMessage).not.toBeVisible();
-
-    // missing secondary destination address
-    await page.locator('label[for="hasSecondaryDestinationAddressYes"]').click();
-    await page.locator('input[name="secondaryDestinationAddress.address.streetAddress1"]').fill('123 Street');
-    await page.locator('input[name="secondaryDestinationAddress.address.streetAddress1"]').clear();
-    await page.locator('input[name="secondaryDestinationAddress.address.streetAddress1"]').blur();
+    await page.locator('input[id="secondaryPickupAddress.address-input"]').fill('85364');
+    await expect(page.getByText(secondaryPickupLocation, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
 
     await expect(page.getByText('Save & Continue')).toBeDisabled();
   });

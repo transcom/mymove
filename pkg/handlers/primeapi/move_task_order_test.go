@@ -40,6 +40,8 @@ import (
 
 func (suite *HandlerSuite) TestListMovesHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+	falseValue := false
+	trueValue := true
 
 	suite.Run("Test returns updated with no amendments count", func() {
 		now := time.Now()
@@ -150,6 +152,145 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 		suite.Equal(move.ID.String(), movesList[0].ID.String())
 		suite.Equal(1, int(*movesList[0].Amendments.Total))
 		suite.Equal(1, int(*movesList[0].Amendments.AvailableSince))
+	})
+
+	suite.Run("Test returns acknowledged moves", func() {
+		now := time.Now()
+
+		factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: nil,
+				},
+			},
+		}, nil)
+
+		acknowledgedMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &now,
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves?acknowledged=%v", true), nil)
+		params := movetaskorderops.ListMovesParams{HTTPRequest: request, Acknowledged: &trueValue}
+		handlerConfig := suite.HandlerConfig()
+
+		// make the request
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		listMovesResponse := response.(*movetaskorderops.ListMovesOK)
+		movesList := listMovesResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movesList.Validate(strfmt.Default))
+
+		suite.Equal(1, len(movesList))
+		suite.Equal(acknowledgedMove.ID.String(), movesList[0].ID.String())
+	})
+
+	suite.Run("Test returns unacknowledged moves", func() {
+		now := time.Now()
+
+		unacknowledgedMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: nil,
+				},
+			},
+		}, nil)
+
+		factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &now,
+				},
+			},
+		}, nil)
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves?acknowledged=%v", false), nil)
+		params := movetaskorderops.ListMovesParams{HTTPRequest: request, Acknowledged: &falseValue}
+		handlerConfig := suite.HandlerConfig()
+
+		// make the request
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		listMovesResponse := response.(*movetaskorderops.ListMovesOK)
+		movesList := listMovesResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movesList.Validate(strfmt.Default))
+
+		suite.Equal(1, len(movesList))
+		suite.Equal(unacknowledgedMove.ID.String(), movesList[0].ID.String())
+	})
+
+	suite.Run("Test returns moves acknowledged before/after dates", func() {
+		now := time.Now()
+		yesterday := now.AddDate(0, 0, -1)
+		tomorrow := now.AddDate(0, 0, 1)
+
+		move1 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &yesterday,
+				},
+			},
+		}, nil)
+
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &tomorrow,
+				},
+			},
+		}, nil)
+
+		acknowledgedBefore := handlers.FmtDateTime(now)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves?acknowledgedBefore=%s", acknowledgedBefore.String()), nil)
+
+		params := movetaskorderops.ListMovesParams{HTTPRequest: request, AcknowledgedBefore: acknowledgedBefore}
+		handlerConfig := suite.HandlerConfig()
+
+		// make the request
+		handler := ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		listMovesResponse := response.(*movetaskorderops.ListMovesOK)
+		movesList := listMovesResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movesList.Validate(strfmt.Default))
+
+		suite.Equal(1, len(movesList))
+		suite.Equal(move1.ID.String(), movesList[0].ID.String())
+		suite.Equal(move1.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), handlers.FmtDateTimePtrToPop(movesList[0].PrimeAcknowledgedAt).UTC().Truncate(time.Millisecond))
+
+		acknowledgedAfter := handlers.FmtDateTime(now)
+		request = httptest.NewRequest("GET", fmt.Sprintf("/moves?acknowledgedAfter=%s", acknowledgedAfter.String()), nil)
+
+		params = movetaskorderops.ListMovesParams{HTTPRequest: request, AcknowledgedAfter: acknowledgedAfter}
+
+		// make the request
+		handler = ListMovesHandler{HandlerConfig: handlerConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(waf)}
+		response = handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		listMovesResponse = response.(*movetaskorderops.ListMovesOK)
+		movesList = listMovesResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(movesList.Validate(strfmt.Default))
+
+		suite.Equal(1, len(movesList))
+		suite.Equal(move2.ID.String(), movesList[0].ID.String())
+		suite.Equal(move2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), handlers.FmtDateTimePtrToPop(movesList[0].PrimeAcknowledgedAt).UTC().Truncate(time.Millisecond))
 	})
 }
 

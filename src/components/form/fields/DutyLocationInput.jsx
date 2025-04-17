@@ -73,6 +73,7 @@ DutyLocationInput.propTypes = {
   searchLocations: PropTypes.func,
   metaOverride: PropTypes.string,
   onDutyLocationChange: PropTypes.func,
+  showRequiredAsterisk: PropTypes.bool,
 };
 
 DutyLocationInput.defaultProps = {
@@ -83,6 +84,7 @@ DutyLocationInput.defaultProps = {
   searchLocations: undefined,
   metaOverride: '',
   onDutyLocationChange: undefined,
+  showRequiredAsterisk: false,
 };
 
 export default DutyLocationInput;

@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
@@ -56,7 +55,7 @@ type OfficeUserCreator interface {
 //
 //go:generate mockery --name OfficeUserUpdater
 type OfficeUserUpdater interface {
-	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error)
+	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *models.OfficeUser, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error)
 }
 
 // OfficeUserDeleter is the exported interface for hard deleting an office user and its associations (roles, privileges)
