@@ -445,7 +445,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 			})
 		}
 	})
-	suite.Run("successfully assigns multiple task order moves to a TOO destination user", func() {
+	suite.Run("returns Audit History with assignment information", func() {
 		transportationOffice, move1, move2, move3 := setupTestData()
 
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
@@ -486,9 +486,20 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 
 			params := services.FetchMoveHistoryParams{Locator: move1.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
 			moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
+
+			hasAssignment := false
+			for _, history := range moveHistoryData.AuditHistories {
+				if history.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(history.ChangedData)
+					if changedData["too_destination_assigned_id"] != officeUser.ID {
+						hasAssignment = true
+					}
+				}
+			}
 			suite.NotNil(moveHistoryData)
 			suite.NoError(err)
 			suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
+			suite.Equal(true, hasAssignment)
 		}
 	})
 }
