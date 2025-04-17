@@ -1,6 +1,6 @@
 -- B-22911 Beth introduced a move history sql refactor for us to swapnout with the pop query to be more efficient
 -- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
-
+-- B 22696 Jon added too destination assignments to history / Audit log
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
 
