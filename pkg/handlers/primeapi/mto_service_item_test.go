@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -103,17 +102,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// Do not create Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		if err != nil {
-			log.Panic(err)
-		}
-		actualPickupAddress := factory.BuildAddress(nil, []factory.Customization{
-			{
-				Model: models.Address{
-					UsPostRegionCityID: &usprcFairfield.ID,
-				},
-			},
-		}, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
 		serviceCode := models.ReService{Code: models.ReServiceCodeDOFSIT}
 

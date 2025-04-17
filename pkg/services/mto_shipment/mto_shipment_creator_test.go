@@ -840,9 +840,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
-
 		for _, tt := range testCases {
 			tt := tt
 
@@ -858,13 +855,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					{
 						Model: models.MTOShipment{
 							ShipmentType: tt.shipmentType,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)
@@ -898,9 +888,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
-
 		for _, tt := range testCases {
 			tt := tt
 			var err error
@@ -917,13 +904,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					{
 						Model: models.MTOShipment{
 							ShipmentType: tt.shipmentType,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)
@@ -962,13 +942,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 							DivertedFromShipmentID: &createdParentShipment.ID,
 						},
 					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
 				}, nil)
 			}
 
@@ -998,9 +971,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
-		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
-		suite.NoError(err)
-
 		for _, tt := range testCases {
 			tt := tt
 			var err error
@@ -1017,13 +987,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					{
 						Model: models.MTOShipment{
 							ShipmentType: tt.shipmentType,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)
@@ -1062,13 +1025,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
 						},
 					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
-						},
-					},
 				}, nil)
 			}
 
@@ -1104,13 +1060,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 							ShipmentType:           tt.shipmentType,
 							Diversion:              true,
 							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
-						},
-					},
-					{
-						Model: models.Address{
-							UsPostRegionCityID: &usprcFairfield.ID,
-							PostalCode:         usprcFairfield.UsprZipID,
-							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)

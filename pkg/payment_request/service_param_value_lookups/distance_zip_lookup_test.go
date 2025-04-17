@@ -421,19 +421,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode:         "33",
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
+					PostalCode: "33",
 				},
 				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode:         usprc.UsprZipID,
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
@@ -463,24 +453,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		})
 
-		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "90210", "BEVERLY HILLS")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode:         usprc.UsprZipID,
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode:         "901",
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
+					PostalCode: "901",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -527,7 +503,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 					{
 						Model: models.Address{
 							PostalCode: "90211",
-							City:       "BEVERLY HILLS",
 						},
 					},
 				}, nil),
@@ -539,7 +514,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 					{
 						Model: models.Address{
 							PostalCode: "90211",
-							City:       "BEVERLY HILLS",
 						},
 					},
 				}, nil),

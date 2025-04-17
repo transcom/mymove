@@ -18,14 +18,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
-		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "35007", "ALABASTER")
-		suite.NotNil(usprc)
-		suite.NoError(err)
-
-		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "45011", "FAIRFIELD")
-		suite.NotNil(destUSPRC)
-		suite.NoError(err)
-
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -35,18 +27,14 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode:         usprc.UsprZipID,
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
+					PostalCode: "35007",
 				},
 			},
 		}, nil)
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode:         destUSPRC.UsprZipID,
-					UsPostRegionCityID: &destUSPRC.ID,
-					City:               destUSPRC.USPostRegionCityNm,
+					PostalCode: "45011",
 				},
 			},
 		}, nil)

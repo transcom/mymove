@@ -1,9 +1,8 @@
 package factory
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -28,8 +27,6 @@ func (suite *FactorySuite) TestFetchOrBuildUsPostRegionCity() {
 		// CALL FUNCTION UNDER TEST
 		usPostRegionCity := FetchOrBuildUsPostRegionCity(suite.DB(), nil, nil)
 
-		fmt.Println(usPostRegionCity)
-
 		// VALIDATE RESULTS
 		suite.Equal(defaultUsPostRegionCity.UsprZipID, usPostRegionCity.UsprZipID)
 		suite.Equal(defaultUsPostRegionCity.USPostRegionCityNm, usPostRegionCity.USPostRegionCityNm)
@@ -41,7 +38,7 @@ func (suite *FactorySuite) TestFetchOrBuildUsPostRegionCity() {
 
 	})
 
-	suite.Run("Successful creation of customized TransportationOffice", func() {
+	suite.Run("Successful creation of customized UsPostRegionCity", func() {
 		// Under test:      FetchOrBuildUsPostRegionCity
 		// Set up:          Create or fetch a UsPostRegionCity and pass custom fields
 		// Expected outcome:UsPostRegionCity should be created with custom fields

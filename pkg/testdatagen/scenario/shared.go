@@ -3774,30 +3774,6 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 			Model:    move,
 			LinkOnly: true,
 		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.PickupAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.DeliveryAddress,
-		},
-		{
-			Model: models.Address{
-				City:       "GROVETOWN",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			Type: &factory.Addresses.W2Address,
-		},
 	}, nil)
 }
 
