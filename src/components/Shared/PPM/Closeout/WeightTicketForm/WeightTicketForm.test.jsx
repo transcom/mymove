@@ -200,7 +200,7 @@ describe('WeightTicketForm component', () => {
       );
       expect(screen.getByLabelText('No')).toBeChecked();
 
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -326,7 +326,7 @@ describe('WeightTicketForm component', () => {
       expect(screen.getByText('200KB')).toBeInTheDocument();
       expect(screen.getByText('Uploaded 24 Jun 2022 11:25 PM')).toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
   });
@@ -475,10 +475,10 @@ describe('WeightTicketForm component', () => {
         );
       });
     });
-    it('calls the onBack prop when the Return To Homepage button is clicked - Customer page', async () => {
+    it('calls the onBack prop when the Cancel button is clicked - Customer page', async () => {
       render(<WeightTicketForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();
