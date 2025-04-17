@@ -22,7 +22,16 @@ set -eu -o pipefail
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-readarray -t package_list < <(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/cmd|mocks|/pkg/testdatagen)')
+if ((BASH_VERSINFO[0] >= 4)); then
+  echo "Bash version is 4.0 or later"
+  readarray -t package_list < <(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/cmd|mocks|/pkg/testdatagen)')
+else
+  echo "Bash version is earlier than 4.0"
+  package_list=()
+  while IFS= read -r line; do
+    package_list+=("$line")
+  done < <(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/cmd|mocks|/pkg/testdatagen)')
+fi
 
 gotest_args=("-count" "1")
 if [ -z "${NO_RACE+x}" ]; then
