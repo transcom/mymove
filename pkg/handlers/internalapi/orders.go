@@ -666,7 +666,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 
 			order.Grade = payload.Grade
-			order.PayGradeRankID = payGradeRank.ID
+			order.PayGradeRankID = &payGradeRank.ID
 			order.PayGradeRank = payGradeRank
 
 			if payload.DepartmentIndicator != nil {

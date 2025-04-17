@@ -104,8 +104,8 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
-	PayGradeRankID                 uuid.UUID                          `db:"-" json:"payGradeRankId,omitempty"`
-	PayGradeRank                   *PayGradeRank                      `db:"-" json:"payGradeRank,omitempty"`
+	PayGradeRankID                 *uuid.UUID                         `db:"pay_grade_rank_id" json:"payGradeRankId,omitempty"`
+	PayGradeRank                   *PayGradeRank                      `belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id" rw:"r" json:"payGradeRank,omitempty"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -309,7 +309,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	// 	err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Where("pay_grade_id = ?", "6cb785d0-cabf-479a-a36d-a6aec294a4d0").First(order.Rank)
 
 	// stub for now
-	var rankIdToFind = &order.PayGradeRankID
+	var rankIdToFind = order.PayGradeRankID
 	var rankRecord PayGradeRank
 	if uuid.UUID.IsNil(*rankIdToFind) {
 		var rankOrder = int64(22)
@@ -334,7 +334,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	order.PayGradeRank = &rankRecord
-	order.PayGradeRankID = rankRecord.ID
+	order.PayGradeRankID = &rankRecord.ID
 
 	return order, nil
 }

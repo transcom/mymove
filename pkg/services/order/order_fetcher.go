@@ -642,7 +642,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 			RankShortName: models.StringPointer("AB"),
 		}
 		order.PayGradeRank = &rankRecord
-		order.PayGradeRankID = rankRecord.ID
+		order.PayGradeRankID = &rankRecord.ID
 	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
