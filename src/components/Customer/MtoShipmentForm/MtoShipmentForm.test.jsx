@@ -563,6 +563,35 @@ describe('MtoShipmentForm component', () => {
       expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
     });
 
+    it('disables the continue button when the move is locked by an office user', async () => {
+      const mockMtoShipmentHHG = {
+        id: uuidv4(),
+        eTag: window.btoa(updatedAt),
+        createdAt: '2021-06-11T18:12:11.918Z',
+        updatedAt,
+        moveTaskOrderId: moveId,
+        requestedPickupDate: '2021-06-07',
+        requestedDeliveryDate: '2021-06-14',
+        pickupAddress: {
+          streetAddress1: '812 S 129th St',
+          streetAddress2: '#123',
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+        },
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDeliveryAddress: false,
+        hasTertiaryPickupAddress: false,
+        hasTertiaryDeliveryAddress: false,
+      };
+
+      renderMtoShipmentForm({ mtoShipment: mockMtoShipmentHHG, isMoveLocked: true });
+
+      const nextButton = await screen.findByRole('button', { name: 'Next' });
+      expect(nextButton).toBeDisabled();
+    });
+
     it('shows an error when there is an error with the submission', async () => {
       const shipmentInfo = {
         requestedPickupDate: '07 Jun 2021',
@@ -774,6 +803,32 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(saveButton).toBeDisabled();
       });
+    });
+
+    it('disables the save button if the move has been locked by an office user', async () => {
+      const shipment = {
+        ...mockMtoShipment,
+        secondaryPickupAddress: {
+          streetAddress1: '142 E Barrel Hoop Circle',
+          streetAddress2: '#4A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+        secondaryDeliveryAddress: {
+          streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+          streetAddress2: '',
+          city: mockMtoShipment.destinationAddress.city,
+          state: mockMtoShipment.destinationAddress.state,
+          postalCode: mockMtoShipment.destinationAddress.postalCode,
+        },
+      };
+
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: shipment, isMoveLocked: true });
+
+      // Verify that the form is good to submit by checking that the save button is not disabled.
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      expect(saveButton).toBeDisabled();
     });
 
     it('allow the user to save the form if the secondary address1 field is cleared but the toggle is switched to No', async () => {

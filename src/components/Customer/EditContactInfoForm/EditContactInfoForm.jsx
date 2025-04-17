@@ -26,7 +26,7 @@ export const residentialAddressName = 'residential_address';
 export const backupAddressName = 'backup_mailing_address';
 export const backupContactName = 'backup_contact';
 
-const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
+const EditContactInfoForm = ({ initialValues, onSubmit, onCancel, isMoveLocked }) => {
   const validationSchema = Yup.object()
     .shape({
       ...contactInfoSchema.fields,
@@ -83,6 +83,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 disableNext={!isValid || isSubmitting}
                 onNextClick={handleSubmit}
                 onCancelClick={onCancel}
+                readOnly={isMoveLocked}
               />
             </div>
           </Form>

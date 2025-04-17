@@ -1,5 +1,6 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
+import { cloneDeep } from 'lodash';
 
 import ContactInfoDisplay from './ContactInfoDisplay';
 
@@ -13,6 +14,7 @@ jest.mock('react-router-dom', () => ({
 
 describe('ContactInfoDisplay component', () => {
   const testProps = {
+    isEditable: true,
     telephone: '703-555-4578',
     personalEmail: 'test@example.com',
     emailIsPreferred: true,
@@ -120,7 +122,7 @@ describe('ContactInfoDisplay component', () => {
   ])(
     'Shows preferred contact (Phone: %s | Email: %s) as expected: %s',
     async (phoneIsPreferred, emailIsPreferred, expectedDisplay) => {
-      const contactProps = { ...testProps, phoneIsPreferred, emailIsPreferred };
+      const contactProps = { ...testProps, phoneIsPreferred, emailIsPreferred, isEditable: true };
 
       renderWithRouter(<ContactInfoDisplay {...contactProps} />);
 
@@ -140,5 +142,15 @@ describe('ContactInfoDisplay component', () => {
     expect(editLink).toBeInTheDocument();
 
     expect(editLink.href).toContain(testProps.editURL);
+  });
+
+  it('Disables edit link when isEditable prop is false', async () => {
+    const testPropsNotEditable = cloneDeep(testProps);
+    testPropsNotEditable.isEditable = false;
+    renderWithRouter(<ContactInfoDisplay {...testPropsNotEditable} />, { path: '/moves/review/edit-profile' });
+
+    const editLink = await screen.queryByRole('link');
+
+    expect(editLink).toBeNull();
   });
 });

@@ -166,6 +166,7 @@ class MtoShipmentForm extends Component {
       currentResidence,
       router: { params, navigate },
       handleBack,
+      isMoveLocked,
     } = this.props;
 
     const { moveId } = params;
@@ -751,7 +752,7 @@ class MtoShipmentForm extends Component {
                             className={boatShipmentstyles.saveButton}
                             type="button"
                             onClick={handleSubmit}
-                            disabled={!isValid || isSubmitting}
+                            disabled={!isValid || isSubmitting || isMoveLocked}
                           >
                             Save & Continue
                           </Button>
@@ -759,7 +760,7 @@ class MtoShipmentForm extends Component {
                       ) : (
                         <div className={formStyles.formActions}>
                           <WizardNavigation
-                            disableNext={isSubmitting || !isValid}
+                            disableNext={isSubmitting || !isValid || isMoveLocked}
                             editMode={!isCreatePage}
                             onNextClick={handleSubmit}
                             onBackClick={() => {

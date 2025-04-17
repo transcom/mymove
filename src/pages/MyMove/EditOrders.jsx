@@ -43,6 +43,7 @@ const EditOrders = ({
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState('');
   const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
   const { entitlement: allowances } = currentOrder;
@@ -59,6 +60,13 @@ const EditOrders = ({
     move = currentMove || previousMoves;
     isMoveApproved = checkIfMoveStatusIsApproved(move.status);
   }
+
+  useEffect(() => {
+    const now = new Date();
+    if (now < new Date(move?.lockExpiresAt)) {
+      setIsMoveLocked(true);
+    }
+  }, [move]);
 
   useEffect(() => {
     const checkAlaskaFeatureFlag = async () => {
@@ -286,6 +294,7 @@ const EditOrders = ({
                 ordersTypeOptions={ordersTypeOptions}
                 currentDutyLocation={currentOrder?.origin_duty_location}
                 onCancel={handleCancel}
+                isMoveLocked={isMoveLocked}
               />
             </div>
           )}
