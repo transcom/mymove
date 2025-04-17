@@ -82,6 +82,9 @@ type ServiceMemberPayload struct {
 	// orders
 	Orders []*Orders `json:"orders"`
 
+	// Pay Grade Rank
+	PayGradeRank *PayGradeRank `json:"payGradeRank,omitempty"`
+
 	// Personal Email Address
 	// Example: john_bob@example.com
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
@@ -163,6 +166,10 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrders(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePayGradeRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -375,6 +382,25 @@ func (m *ServiceMemberPayload) validateOrders(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *ServiceMemberPayload) validatePayGradeRank(formats strfmt.Registry) error {
+	if swag.IsZero(m.PayGradeRank) { // not required
+		return nil
+	}
+
+	if m.PayGradeRank != nil {
+		if err := m.PayGradeRank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("payGradeRank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("payGradeRank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *ServiceMemberPayload) validatePersonalEmail(formats strfmt.Registry) error {
 	if swag.IsZero(m.PersonalEmail) { // not required
 		return nil
@@ -499,6 +525,10 @@ func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePayGradeRank(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateResidentialAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -610,6 +640,27 @@ func (m *ServiceMemberPayload) contextValidateOrders(ctx context.Context, format
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidatePayGradeRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PayGradeRank != nil {
+
+		if swag.IsZero(m.PayGradeRank) { // not required
+			return nil
+		}
+
+		if err := m.PayGradeRank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("payGradeRank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("payGradeRank")
+			}
+			return err
+		}
 	}
 
 	return nil

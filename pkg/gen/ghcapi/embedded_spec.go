@@ -7890,6 +7890,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -8420,6 +8423,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -11938,6 +11944,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "payGradeRank": {
+          "$ref": "#/definitions/PayGradeRank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -13023,6 +13032,36 @@ func init() {
         }
       }
     },
+    "PayGradeRank": {
+      "type": "object",
+      "title": "Pay Grade Rank",
+      "properties": {
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "payGradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankName": {
+          "$ref": "#/definitions/RankNames"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
+        }
+      },
+      "x-nullable": true
+    },
     "PaymentRequest": {
       "type": "object",
       "properties": {
@@ -13753,6 +13792,176 @@ func init() {
           "type": "integer"
         }
       }
+    },
+    "RankNames": {
+      "description": "Rank of Servicemember",
+      "type": "string",
+      "title": "Rank Abbreviation",
+      "enum": [
+        "1st Sergeant",
+        "Admiral",
+        "Air Force Academy Cadet",
+        "Airman",
+        "Airman Basic",
+        "Airman First Class",
+        "Aviation Cadet",
+        "Brigadier General",
+        "Cadet",
+        "Captain",
+        "Chief Master Sergeant",
+        "Chief Master Sergeant of the Air Force",
+        "Chief Master Sergeant of the Space Force",
+        "Chief Petty Officer",
+        "Chief Warrant Officer 2",
+        "Chief Warrant Officer 3",
+        "Chief Warrant Officer 4",
+        "Chief Warrant Officer 5",
+        "Civiian",
+        "Civilian",
+        "Colonel",
+        "Command Sergeant Major",
+        "Commander",
+        "Corporal",
+        "Ensign",
+        "First Lieutenant",
+        "General",
+        "Gunnery Sergeant",
+        "Lance Corporal",
+        "Lieutenant",
+        "Lieutenant Colonel",
+        "Lieutenant Commander",
+        "Lieutenant General",
+        "Lieutenant JG",
+        "Major",
+        "Major General",
+        "Master Chief Petty Officer",
+        "Master Chief Petty Officer of the Coast Guard",
+        "Master Chief Petty Officer of the Navy",
+        "Master Gunnery Sergeant",
+        "Master Sergeant",
+        "Midshipman",
+        "Officer Candidate",
+        "Petty Officer First Class",
+        "Petty Officer Second Class",
+        "Petty Officer Third Class",
+        "Platoon Sergeant",
+        "Private",
+        "Private First Class",
+        "Rear Admiral (Lower Half)",
+        "Rear Admiral (Upper Half)",
+        "Seaman",
+        "Seaman Apprentice",
+        "Seaman Recruit",
+        "Second Lieutenant",
+        "Senior Airman",
+        "Senior Chief Petty Officer",
+        "Senior Master Sergeant",
+        "Sergeant",
+        "Sergeant First Class",
+        "Sergeant Major",
+        "Sergeant Major of the Army",
+        "Sergeant Major of the Marine Corps",
+        "Specialist",
+        "Specialist 1",
+        "Specialist 2",
+        "Specialist 3",
+        "Specialist 4",
+        "Staff Sergeant",
+        "Technical Sergeant",
+        "Vice Admiral",
+        "Warrant Officer 1"
+      ],
+      "x-nullable": true
+    },
+    "RankShortNames": {
+      "description": "Rank of Servicemember",
+      "type": "string",
+      "title": "Rank Abbreviation",
+      "enum": [
+        "1LT",
+        "1ST",
+        "2LT",
+        "A1C",
+        "AB",
+        "ADM",
+        "AFC",
+        "AMN",
+        "AVC",
+        "BG",
+        "CAPT",
+        "CDR",
+        "CDT",
+        "CIV",
+        "CMA",
+        "CMS",
+        "COL",
+        "CPL",
+        "CPM",
+        "CPN",
+        "CPO",
+        "CPS",
+        "CPT",
+        "CSM",
+        "CW2",
+        "CW3",
+        "CW4",
+        "CW5",
+        "CWO2",
+        "CWO3",
+        "CWO4",
+        "ENS",
+        "GEN",
+        "GYS",
+        "LCD",
+        "LCP",
+        "LT",
+        "LTC",
+        "LTG",
+        "LTJG",
+        "MAJ",
+        "MCPG",
+        "MCPN",
+        "MG",
+        "MGS",
+        "MID",
+        "MSG",
+        "OC",
+        "PFC",
+        "PO1",
+        "PO2",
+        "PO3",
+        "PSG",
+        "PV1",
+        "PV2",
+        "PVT",
+        "RADL",
+        "RADU",
+        "SA",
+        "SFC",
+        "SGM",
+        "SGT",
+        "SMA",
+        "SMG",
+        "SMM",
+        "SMS",
+        "SN",
+        "SP1",
+        "SP2",
+        "SP3",
+        "SP4",
+        "SPC",
+        "SR",
+        "SRA",
+        "SSG",
+        "TSG",
+        "VAD",
+        "WO1",
+        "WO2",
+        "WO3",
+        "WO4",
+        "WO5"
+      ],
+      "x-nullable": true
     },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
@@ -15331,6 +15540,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -25981,6 +26193,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -26511,6 +26726,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -30029,6 +30247,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "payGradeRank": {
+          "$ref": "#/definitions/PayGradeRank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -31188,6 +31409,36 @@ func init() {
         }
       }
     },
+    "PayGradeRank": {
+      "type": "object",
+      "title": "Pay Grade Rank",
+      "properties": {
+        "affiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "payGradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankName": {
+          "$ref": "#/definitions/RankNames"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
+        }
+      },
+      "x-nullable": true
+    },
     "PaymentRequest": {
       "type": "object",
       "properties": {
@@ -31920,6 +32171,176 @@ func init() {
           "type": "integer"
         }
       }
+    },
+    "RankNames": {
+      "description": "Rank of Servicemember",
+      "type": "string",
+      "title": "Rank Abbreviation",
+      "enum": [
+        "1st Sergeant",
+        "Admiral",
+        "Air Force Academy Cadet",
+        "Airman",
+        "Airman Basic",
+        "Airman First Class",
+        "Aviation Cadet",
+        "Brigadier General",
+        "Cadet",
+        "Captain",
+        "Chief Master Sergeant",
+        "Chief Master Sergeant of the Air Force",
+        "Chief Master Sergeant of the Space Force",
+        "Chief Petty Officer",
+        "Chief Warrant Officer 2",
+        "Chief Warrant Officer 3",
+        "Chief Warrant Officer 4",
+        "Chief Warrant Officer 5",
+        "Civiian",
+        "Civilian",
+        "Colonel",
+        "Command Sergeant Major",
+        "Commander",
+        "Corporal",
+        "Ensign",
+        "First Lieutenant",
+        "General",
+        "Gunnery Sergeant",
+        "Lance Corporal",
+        "Lieutenant",
+        "Lieutenant Colonel",
+        "Lieutenant Commander",
+        "Lieutenant General",
+        "Lieutenant JG",
+        "Major",
+        "Major General",
+        "Master Chief Petty Officer",
+        "Master Chief Petty Officer of the Coast Guard",
+        "Master Chief Petty Officer of the Navy",
+        "Master Gunnery Sergeant",
+        "Master Sergeant",
+        "Midshipman",
+        "Officer Candidate",
+        "Petty Officer First Class",
+        "Petty Officer Second Class",
+        "Petty Officer Third Class",
+        "Platoon Sergeant",
+        "Private",
+        "Private First Class",
+        "Rear Admiral (Lower Half)",
+        "Rear Admiral (Upper Half)",
+        "Seaman",
+        "Seaman Apprentice",
+        "Seaman Recruit",
+        "Second Lieutenant",
+        "Senior Airman",
+        "Senior Chief Petty Officer",
+        "Senior Master Sergeant",
+        "Sergeant",
+        "Sergeant First Class",
+        "Sergeant Major",
+        "Sergeant Major of the Army",
+        "Sergeant Major of the Marine Corps",
+        "Specialist",
+        "Specialist 1",
+        "Specialist 2",
+        "Specialist 3",
+        "Specialist 4",
+        "Staff Sergeant",
+        "Technical Sergeant",
+        "Vice Admiral",
+        "Warrant Officer 1"
+      ],
+      "x-nullable": true
+    },
+    "RankShortNames": {
+      "description": "Rank of Servicemember",
+      "type": "string",
+      "title": "Rank Abbreviation",
+      "enum": [
+        "1LT",
+        "1ST",
+        "2LT",
+        "A1C",
+        "AB",
+        "ADM",
+        "AFC",
+        "AMN",
+        "AVC",
+        "BG",
+        "CAPT",
+        "CDR",
+        "CDT",
+        "CIV",
+        "CMA",
+        "CMS",
+        "COL",
+        "CPL",
+        "CPM",
+        "CPN",
+        "CPO",
+        "CPS",
+        "CPT",
+        "CSM",
+        "CW2",
+        "CW3",
+        "CW4",
+        "CW5",
+        "CWO2",
+        "CWO3",
+        "CWO4",
+        "ENS",
+        "GEN",
+        "GYS",
+        "LCD",
+        "LCP",
+        "LT",
+        "LTC",
+        "LTG",
+        "LTJG",
+        "MAJ",
+        "MCPG",
+        "MCPN",
+        "MG",
+        "MGS",
+        "MID",
+        "MSG",
+        "OC",
+        "PFC",
+        "PO1",
+        "PO2",
+        "PO3",
+        "PSG",
+        "PV1",
+        "PV2",
+        "PVT",
+        "RADL",
+        "RADU",
+        "SA",
+        "SFC",
+        "SGM",
+        "SGT",
+        "SMA",
+        "SMG",
+        "SMM",
+        "SMS",
+        "SN",
+        "SP1",
+        "SP2",
+        "SP3",
+        "SP4",
+        "SPC",
+        "SR",
+        "SRA",
+        "SSG",
+        "TSG",
+        "VAD",
+        "WO1",
+        "WO2",
+        "WO3",
+        "WO4",
+        "WO5"
+      ],
+      "x-nullable": true
     },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
@@ -33554,6 +33975,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankShortName": {
+          "$ref": "#/definitions/RankShortNames"
         },
         "reportByDate": {
           "description": "Report By Date",

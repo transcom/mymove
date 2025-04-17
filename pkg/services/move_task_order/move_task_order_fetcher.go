@@ -190,6 +190,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	setMTOQueryFilters(query, searchParams)
 
 	err = query.First(mto)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -197,6 +198,19 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		default:
 			return &models.Move{}, apperror.NewQueryError("Move", err, "")
 		}
+	}
+
+	// stub
+	// this would be a part of the eager parameters but for now, place the stub.
+
+	var rankOrder = int64(22)
+	mto.Orders.PayGradeRank = &models.PayGradeRank{
+		ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+		PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+		RankOrder:     &rankOrder,
+		Affiliation:   models.StringPointer(models.AffiliationAIRFORCE.String()),
+		RankName:      models.StringPointer("Airman Basic"),
+		RankShortName: models.StringPointer("AB"),
 	}
 
 	for i := range mto.MTOShipments {

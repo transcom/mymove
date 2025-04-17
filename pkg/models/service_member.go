@@ -374,6 +374,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	departmentIndicator *string,
 	originDutyLocation *DutyLocation,
 	grade *internalmessages.OrderPayGrade,
+	rankShortName *internalmessages.RankShortNames,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string,
@@ -394,6 +395,26 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			responseVErrors.Append(verrs)
 			responseError = err
 			return transactionError
+		}
+
+		var rankRecord PayGradeRank
+		if rankShortName != nil {
+			// err = txnAppCtx.DB().Where("affiliation = ?", s.Affiliation).Where("rank_short_name = ?", rankShortName).First(&rankRecord)
+			// stub
+			var rankOrder = int64(22)
+			rankRecord = PayGradeRank{
+				ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+				PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+				RankOrder:     &rankOrder,
+				Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
+				RankName:      StringPointer("Airman Basic"),
+				RankShortName: StringPointer("AB"),
+			}
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
 		}
 
 		newOrders = Order{
@@ -422,6 +443,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			MethodOfPayment:                MethodOfPayment,
 			NAICS:                          NAICS,
 			PackingAndShippingInstructions: packingAndShippingInstructions,
+			PayGradeRankID:                 newOrders.PayGradeRankID,
+			PayGradeRank:                   &rankRecord,
 		}
 
 		verrs, err = txnAppCtx.DB().ValidateAndCreate(&newOrders)

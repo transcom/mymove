@@ -104,6 +104,8 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	PayGradeRankID                 uuid.UUID                          `db:"-" json:"payGradeRankId,omitempty"`
+	PayGradeRank                   *PayGradeRank                      `db:"-" json:"payGradeRank,omitempty"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -300,6 +302,40 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
 	}
 
+	// https://github.com/transcom/mymove/pull/15207/files#r2047718799
+	// var rankIdToFind = &order.PaygradeRankId
+	// if rankIdToFind == nil || len((*rankIdToFind).Bytes()) == 0 || len(order.PaygradeRankId) == 0 {
+	// use join and locate the rank by grade
+	// 	err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Where("pay_grade_id = ?", "6cb785d0-cabf-479a-a36d-a6aec294a4d0").First(order.Rank)
+
+	// stub for now
+	var rankIdToFind = &order.PayGradeRankID
+	var rankRecord PayGradeRank
+	if uuid.UUID.IsNil(*rankIdToFind) {
+		var rankOrder = int64(22)
+		rankRecord = PayGradeRank{
+			ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+			PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+			RankOrder:     &rankOrder,
+			Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
+			RankName:      StringPointer("Airman Basic"),
+			RankShortName: StringPointer("AB"),
+		}
+	} else {
+		var rankOrder = int64(22)
+		rankRecord = PayGradeRank{
+			ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+			PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+			RankOrder:     &rankOrder,
+			Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
+			RankName:      StringPointer("Airman Basic"),
+			RankShortName: StringPointer("AB"),
+		}
+	}
+
+	order.PayGradeRank = &rankRecord
+	order.PayGradeRankID = rankRecord.ID
+
 	return order, nil
 }
 
@@ -347,6 +383,19 @@ func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
 	}
+
+	// stub
+	var rankOrder = int64(22)
+	var rankRecord = PayGradeRank{
+		ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+		PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+		RankOrder:     &rankOrder,
+		Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
+		RankName:      StringPointer("Airman Basic"),
+		RankShortName: StringPointer("AB"),
+	}
+
+	order.PayGradeRank = &rankRecord
 
 	return order, nil
 }

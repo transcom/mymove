@@ -103,6 +103,20 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
+	// stub
+	// https://github.com/transcom/mymove/pull/15207/files#r2047309435
+	var payGradeRank internalmessages.PayGradeRank
+	if order.PayGradeRank != nil {
+		payGradeRank = internalmessages.PayGradeRank{
+			ID:            strfmt.UUID(order.PayGradeRank.ID.String()),
+			PayGradeID:    strfmt.UUID(order.PayGradeRank.PayGradeID.String()),
+			RankOrder:     order.PayGradeRank.RankOrder,
+			RankName:      (*internalmessages.RankNames)(order.PayGradeRank.RankName),
+			RankShortName: (*internalmessages.RankShortNames)(order.PayGradeRank.RankShortName),
+			Affiliation:   (*internalmessages.Affiliation)(order.PayGradeRank.Affiliation),
+		}
+	}
+
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                         handlers.FmtUUID(order.ID),
@@ -130,6 +144,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		AuthorizedWeight:           dBAuthorizedWeight,
 		Entitlement:                &entitlement,
 		ProvidesServicesCounseling: originDutyLocation.ProvidesServicesCounseling,
+		PayGradeRank:               &payGradeRank,
 	}
 
 	return payload, nil
@@ -315,6 +330,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				deptIndicator,
 				&originDutyLocation,
 				grade,
+				payload.RankShortName,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
@@ -514,6 +530,22 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			// stub
+			var rankOrder = int64(22)
+			payGradeRank := &models.PayGradeRank{
+				ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+				PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+				RankOrder:     &rankOrder,
+				Affiliation:   models.StringPointer(models.AffiliationAIRFORCE.String()),
+				RankName:      models.StringPointer("Airman Basic"),
+				RankShortName: models.StringPointer("AB"),
+			}
+
+			// err = appCtx.DB().Where("affiliation = ?", serviceMember.Affiliation).Where("rank_short_name = ?", payload.RankShortName).First(paygradeRank)
+			// if err != nil {
+			// 	return handlers.ResponseForError(appCtx.Logger(), err), err
+			// }
+
 			// Check if the grade or dependents are receiving an update
 			if hasEntitlementChanged(order, payload.OrdersType, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
 				waf := entitlements.NewWeightAllotmentFetcher()
@@ -632,7 +664,10 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				}
 
 			}
+
 			order.Grade = payload.Grade
+			order.PayGradeRankID = payGradeRank.ID
+			order.PayGradeRank = payGradeRank
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))

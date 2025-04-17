@@ -648,6 +648,21 @@ func Order(order *models.Order) *ghcmessages.Order {
 	if order.Grade != nil {
 		grade = ghcmessages.Grade(*order.Grade)
 	}
+
+	// stub
+	var payGradeRank ghcmessages.PayGradeRank
+	if order.PayGradeRank != nil {
+		var rankOrder = int64(22)
+		payGradeRank = ghcmessages.PayGradeRank{
+			ID:            strfmt.UUID("f6dbd496-8f71-487b-a432-55b60967f474"),
+			PayGradeID:    strfmt.UUID("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+			RankOrder:     &rankOrder,
+			Affiliation:   (*ghcmessages.Affiliation)(models.StringPointer(models.AffiliationAIRFORCE.String())),
+			RankName:      (*ghcmessages.RankNames)(models.StringPointer("Airman Basic")),
+			RankShortName: (*ghcmessages.RankShortNames)(models.StringPointer("AB")),
+		}
+	}
+
 	//
 	var affiliation ghcmessages.Affiliation
 	if order.ServiceMember.Affiliation != nil {
@@ -695,6 +710,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		MoveTaskOrderID:                moveTaskOrderID,
 		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
 		HasDependents:                  order.HasDependents,
+		PayGradeRank:                   &payGradeRank,
 	}
 
 	return &payload

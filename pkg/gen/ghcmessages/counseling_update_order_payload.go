@@ -75,6 +75,9 @@ type CounselingUpdateOrderPayload struct {
 	// Format: uuid
 	OriginDutyLocationID *strfmt.UUID `json:"originDutyLocationId"`
 
+	// rank short name
+	RankShortName *RankShortNames `json:"rankShortName,omitempty"`
+
 	// Report-by date
 	//
 	// Report By Date
@@ -131,6 +134,10 @@ func (m *CounselingUpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginDutyLocationID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRankShortName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -306,6 +313,25 @@ func (m *CounselingUpdateOrderPayload) validateOriginDutyLocationID(formats strf
 	return nil
 }
 
+func (m *CounselingUpdateOrderPayload) validateRankShortName(formats strfmt.Registry) error {
+	if swag.IsZero(m.RankShortName) { // not required
+		return nil
+	}
+
+	if m.RankShortName != nil {
+		if err := m.RankShortName.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rankShortName")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rankShortName")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CounselingUpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("reportByDate", "body", m.ReportByDate); err != nil {
@@ -377,6 +403,10 @@ func (m *CounselingUpdateOrderPayload) ContextValidate(ctx context.Context, form
 	}
 
 	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRankShortName(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -498,6 +528,27 @@ func (m *CounselingUpdateOrderPayload) contextValidateOrdersTypeDetail(ctx conte
 				return ve.ValidateName("ordersTypeDetail")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("ordersTypeDetail")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CounselingUpdateOrderPayload) contextValidateRankShortName(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.RankShortName != nil {
+
+		if swag.IsZero(m.RankShortName) { // not required
+			return nil
+		}
+
+		if err := m.RankShortName.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rankShortName")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rankShortName")
 			}
 			return err
 		}
