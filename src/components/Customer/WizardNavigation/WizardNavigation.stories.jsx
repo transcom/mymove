@@ -11,6 +11,8 @@ export const stepStartPages = () => <WizardNavigation isFirstPage />;
 
 export const stepStartPagesWithFinishLater = () => <WizardNavigation isFirstPage showFinishLater />;
 
+export const stepStartPagesWithAddShipment = () => <WizardNavigation isReviewPage />;
+
 export const midStepPages = () => <WizardNavigation />;
 
 export const midStepPagesWithFinishLater = () => <WizardNavigation showFinishLater />;
