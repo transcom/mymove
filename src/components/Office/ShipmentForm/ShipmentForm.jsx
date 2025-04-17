@@ -77,7 +77,10 @@ import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
-import { isPreceedingAddressComplete } from 'shared/utils';
+import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import { getResponseError } from 'services/internalApi';
 
 const ShipmentForm = (props) => {
   const {
@@ -198,15 +201,15 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSetError = (error, defaultError) => {
-    if (error?.response?.body?.message !== null && error?.response?.body?.message !== undefined) {
-      if (error?.statusCode !== null && error?.statusCode !== undefined) {
-        setErrorCode(error.statusCode);
-      }
-      setErrorMessage(`${error?.response?.body?.message}`);
-    } else {
-      setErrorMessage(defaultError);
+  const handleSetError = (error, defaultErrorMessage) => {
+    const { response } = error;
+
+    if (setErrorCode && (response?.statusCode || response?.status)) {
+      setErrorCode(response?.statusCode || response?.status);
     }
+
+    const message = getResponseError(response, defaultErrorMessage);
+    setErrorMessage(message);
   };
 
   const handleSubmitShipmentAddressUpdateReview = async (
@@ -503,7 +506,6 @@ const ShipmentForm = (props) => {
 
     const {
       pickup,
-      hasDeliveryAddress,
       delivery,
       customerRemarks,
       counselorRemarks,
@@ -524,11 +526,6 @@ const ShipmentForm = (props) => {
       destinationType,
     } = formValues;
 
-    const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no' && shipmentType !== SHIPMENT_OPTIONS.NTSR) {
-      delete deliveryDetails.address;
-    }
-
     let nullableTacType = tacType;
     let nullableSacType = sacType;
     if (showAccountingCodes && !isCreatePage) {
@@ -542,7 +539,7 @@ const ShipmentForm = (props) => {
       customerRemarks,
       counselorRemarks,
       pickup,
-      delivery: deliveryDetails,
+      delivery,
       ntsRecordedWeight,
       tacType: nullableTacType,
       sacType: nullableSacType,
@@ -636,7 +633,17 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
+      {({
+        values,
+        isValid,
+        isSubmitting,
+        setValues,
+        handleSubmit,
+        setFieldError,
+        validateForm,
+        setFieldTouched,
+        ...formikProps
+      }) => {
         const {
           ppmType,
           hasSecondaryDestination,
@@ -648,7 +655,7 @@ const ShipmentForm = (props) => {
           hasTertiaryDelivery,
         } = values;
 
-        const isCivilian = serviceMember?.grade === 'CIVILIAN_EMPLOYEE';
+        const isCivilian = serviceMember?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
         if (!ppmType) {
           const type = isCivilian ? PPM_TYPES.ACTUAL_EXPENSE : PPM_TYPES.INCENTIVE_BASED;
           setValues({
@@ -686,6 +693,11 @@ const ShipmentForm = (props) => {
           setFieldError('year', null);
         }
 
+        const updateAddressTouched = (e, fieldName, address) => {
+          handleAddressToggleChange(e, values, setValues, address);
+          setFieldTouched(`${fieldName}.usPostRegionCitiesID`, true);
+        };
+
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -707,15 +719,7 @@ const ShipmentForm = (props) => {
                 ...values,
                 pickup: {
                   ...values.pickup,
-                  address: {
-                    streetAddress1: '',
-                    streetAddress2: '',
-                    streetAddress3: '',
-                    city: '',
-                    state: '',
-                    postalCode: '',
-                    county: '',
-                  },
+                  blankAddress,
                 },
               },
               { shouldValidate: true },
@@ -874,7 +878,15 @@ const ShipmentForm = (props) => {
                   </Button>
                 )}
               </div>
-
+              {isPPM && !isAdvancePage && isServiceCounselor && isCreatePage && (
+                <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                  <Alert type="warning" aria-live="polite" headingLevel="h4" data-testid="scPPMCreateWarning">
+                    Creating a PPM as a Service Counselor will automatically approve the PPM shipment and send it to the
+                    customer. Please ensure all information is correct. After creation you will not be able to edit the
+                    shipment.
+                  </Alert>
+                </SectionWrapper>
+              )}
               <SectionWrapper className={styles.weightAllowance}>
                 {isUB ? (
                   <p data-testid="ubWeightAllowance">
@@ -942,7 +954,6 @@ const ShipmentForm = (props) => {
                         <AddressFields
                           name="pickup.address"
                           legend="Pickup Address"
-                          locationLookup
                           formikProps={formikProps}
                           render={(fields) => (
                             <>
@@ -969,6 +980,7 @@ const ShipmentForm = (props) => {
                                     title="Yes, I have a second pickup address"
                                     checked={hasSecondaryPickup === 'true'}
                                     disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                    onChange={(e) => updateAddressTouched(e, 'secondaryPickup.address', blankAddress)}
                                   />
                                   <Field
                                     as={Radio}
@@ -980,16 +992,13 @@ const ShipmentForm = (props) => {
                                     title="No, I do not have a second pickup address"
                                     checked={hasSecondaryPickup !== 'true'}
                                     disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                   />
                                 </div>
                               </FormGroup>
                               {hasSecondaryPickup === 'true' && (
                                 <>
-                                  <AddressFields
-                                    name="secondaryPickup.address"
-                                    locationLookup
-                                    formikProps={formikProps}
-                                  />
+                                  <AddressFields name="secondaryPickup.address" formikProps={formikProps} />
                                   {isTertiaryAddressEnabled && (
                                     <>
                                       <h4>Third Pickup Address</h4>
@@ -1011,6 +1020,9 @@ const ShipmentForm = (props) => {
                                                 values.secondaryPickup.address,
                                               )
                                             }
+                                            onChange={(e) =>
+                                              updateAddressTouched(e, 'tertiaryPickup.address', blankAddress)
+                                            }
                                           />
                                           <Field
                                             as={Radio}
@@ -1027,15 +1039,14 @@ const ShipmentForm = (props) => {
                                                 values.secondaryPickup.address,
                                               )
                                             }
+                                            onChange={(e) =>
+                                              handleAddressToggleChange(e, values, setValues, blankAddress)
+                                            }
                                           />
                                         </div>
                                       </FormGroup>
                                       {hasTertiaryPickup === 'true' && (
-                                        <AddressFields
-                                          name="tertiaryPickup.address"
-                                          locationLookup
-                                          formikProps={formikProps}
-                                        />
+                                        <AddressFields name="tertiaryPickup.address" formikProps={formikProps} />
                                       )}
                                     </>
                                   )}
@@ -1114,7 +1125,6 @@ const ShipmentForm = (props) => {
                         >
                           <AddressFields
                             name="delivery.address"
-                            locationLookup
                             formikProps={formikProps}
                             render={(fields) => {
                               return fields;
@@ -1134,6 +1144,7 @@ const ShipmentForm = (props) => {
                                 title="Yes, I have a second destination location"
                                 checked={hasSecondaryDelivery === 'true'}
                                 disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                onChange={(e) => updateAddressTouched(e, 'secondaryDelivery.address', blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -1145,16 +1156,13 @@ const ShipmentForm = (props) => {
                                 title="No, I do not have a second destination location"
                                 checked={hasSecondaryDelivery !== 'true'}
                                 disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                             </div>
                           </FormGroup>
                           {hasSecondaryDelivery === 'true' && (
                             <>
-                              <AddressFields
-                                name="secondaryDelivery.address"
-                                locationLookup
-                                formikProps={formikProps}
-                              />
+                              <AddressFields name="secondaryDelivery.address" formikProps={formikProps} />
                               {isTertiaryAddressEnabled && (
                                 <>
                                   <h4>Third Delivery Address</h4>
@@ -1176,6 +1184,9 @@ const ShipmentForm = (props) => {
                                             values.secondaryDelivery.address,
                                           )
                                         }
+                                        onChange={(e) =>
+                                          updateAddressTouched(e, 'tertiaryDelivery.address', blankAddress)
+                                        }
                                       />
                                       <Field
                                         as={Radio}
@@ -1192,15 +1203,12 @@ const ShipmentForm = (props) => {
                                             values.secondaryDelivery.address,
                                           )
                                         }
+                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                       />
                                     </div>
                                   </FormGroup>
                                   {hasTertiaryDelivery === 'true' && (
-                                    <AddressFields
-                                      name="tertiaryDelivery.address"
-                                      locationLookup
-                                      formikProps={formikProps}
-                                    />
+                                    <AddressFields name="tertiaryDelivery.address" formikProps={formikProps} />
                                   )}
                                 </>
                               )}
@@ -1263,6 +1271,7 @@ const ShipmentForm = (props) => {
                                 value="true"
                                 title="Yes, I know my delivery address"
                                 checked={hasDeliveryAddress === 'true'}
+                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                               />
                               <Field
                                 as={Radio}
@@ -1272,13 +1281,13 @@ const ShipmentForm = (props) => {
                                 value="false"
                                 title="No, I do not know my delivery address"
                                 checked={hasDeliveryAddress === 'false'}
+                                onChange={(e) => updateAddressTouched(e, 'delivery.address', newDutyLocationAddress)}
                               />
                             </div>
                           </FormGroup>
                           {hasDeliveryAddress === 'true' ? (
                             <AddressFields
                               name="delivery.address"
-                              locationLookup
                               formikProps={formikProps}
                               render={(fields) => (
                                 <>
@@ -1307,6 +1316,9 @@ const ShipmentForm = (props) => {
                                         disabled={
                                           !isPreceedingAddressComplete(hasDeliveryAddress, values.delivery.address)
                                         }
+                                        onChange={(e) =>
+                                          updateAddressTouched(e, 'secondaryDelivery.address', blankAddress)
+                                        }
                                       />
                                       <Field
                                         as={Radio}
@@ -1320,16 +1332,13 @@ const ShipmentForm = (props) => {
                                         disabled={
                                           !isPreceedingAddressComplete(hasDeliveryAddress, values.delivery.address)
                                         }
+                                        onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                       />
                                     </div>
                                   </FormGroup>
                                   {hasSecondaryDelivery === 'true' && (
                                     <>
-                                      <AddressFields
-                                        name="secondaryDelivery.address"
-                                        locationLookup
-                                        formikProps={formikProps}
-                                      />
+                                      <AddressFields name="secondaryDelivery.address" formikProps={formikProps} />
                                       {isTertiaryAddressEnabled && (
                                         <>
                                           <h4>Third Delivery Address</h4>
@@ -1351,6 +1360,9 @@ const ShipmentForm = (props) => {
                                                     values.secondaryDelivery.address,
                                                   )
                                                 }
+                                                onChange={(e) =>
+                                                  updateAddressTouched(e, 'tertiaryDelivery.address', blankAddress)
+                                                }
                                               />
                                               <Field
                                                 as={Radio}
@@ -1367,15 +1379,14 @@ const ShipmentForm = (props) => {
                                                     values.secondaryDelivery.address,
                                                   )
                                                 }
+                                                onChange={(e) =>
+                                                  handleAddressToggleChange(e, values, setValues, blankAddress)
+                                                }
                                               />
                                             </div>
                                           </FormGroup>
                                           {hasTertiaryDelivery === 'true' && (
-                                            <AddressFields
-                                              name="tertiaryDelivery.address"
-                                              locationLookup
-                                              formikProps={formikProps}
-                                            />
+                                            <AddressFields name="tertiaryDelivery.address" formikProps={formikProps} />
                                           )}
                                         </>
                                       )}
@@ -1485,7 +1496,7 @@ const ShipmentForm = (props) => {
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <AddressFields
                         name="pickup.address"
-                        legend="Pickup Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                         locationLookup
                         formikProps={formikProps}
                         render={(fields) => (
@@ -1516,6 +1527,7 @@ const ShipmentForm = (props) => {
                                   title="Yes, there is a second pickup address"
                                   checked={hasSecondaryPickup === 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                  onChange={(e) => updateAddressTouched(e, 'secondaryPickup.address', blankAddress)}
                                 />
                                 <Field
                                   as={Radio}
@@ -1527,16 +1539,13 @@ const ShipmentForm = (props) => {
                                   title="No, there is not a second pickup address"
                                   checked={hasSecondaryPickup !== 'true'}
                                   disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                               </div>
                             </FormGroup>
                             {hasSecondaryPickup === 'true' && (
                               <>
-                                <AddressFields
-                                  name="secondaryPickup.address"
-                                  locationLookup
-                                  formikProps={formikProps}
-                                />
+                                <AddressFields name="secondaryPickup.address" formikProps={formikProps} />
                                 {isTertiaryAddressEnabled && (
                                   <>
                                     <h4>Third Pickup Address</h4>
@@ -1561,6 +1570,9 @@ const ShipmentForm = (props) => {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={(e) =>
+                                            updateAddressTouched(e, 'tertiaryPickup.address', blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -1577,15 +1589,14 @@ const ShipmentForm = (props) => {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>
                                     {hasTertiaryPickup === 'true' && (
-                                      <AddressFields
-                                        name="tertiaryPickup.address"
-                                        locationLookup
-                                        formikProps={formikProps}
-                                      />
+                                      <AddressFields name="tertiaryPickup.address" formikProps={formikProps} />
                                     )}
                                   </>
                                 )}
@@ -1596,18 +1607,19 @@ const ShipmentForm = (props) => {
                       />
                       <AddressFields
                         name="destination.address"
-                        legend="Delivery Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         locationLookup
                         formikProps={formikProps}
                         address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second Delivery Address</h4>
+                            <h4>Second {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address</h4>
                             <FormGroup>
                               <p>
-                                Will you move any belongings to a second address? (Must be near the delivery address.
-                                Subject to approval.)
+                                Will you move any belongings to a second address? (Must be near the{' '}
+                                {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'destination' : 'delivery'} address. Subject to
+                                approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1619,7 +1631,12 @@ const ShipmentForm = (props) => {
                                   value="true"
                                   title="Yes, there is a second destination location"
                                   checked={hasSecondaryDestination === 'true'}
-                                  disabled={!isPreceedingAddressComplete('true', values.destination.address)}
+                                  disabled={
+                                    !isPreceedingAddressPPMPrimaryDestinationComplete(values.destination.address)
+                                  }
+                                  onChange={(e) =>
+                                    updateAddressTouched(e, 'secondaryDestination.address', blankAddress)
+                                  }
                                 />
                                 <Field
                                   as={Radio}
@@ -1630,24 +1647,26 @@ const ShipmentForm = (props) => {
                                   value="false"
                                   title="No, there is not a second destination location"
                                   checked={hasSecondaryDestination !== 'true'}
-                                  disabled={!isPreceedingAddressComplete('true', values.destination.address)}
+                                  disabled={
+                                    !isPreceedingAddressPPMPrimaryDestinationComplete(values.destination.address)
+                                  }
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                 />
                               </div>
                             </FormGroup>
                             {hasSecondaryDestination === 'true' && (
                               <>
-                                <AddressFields
-                                  name="secondaryDestination.address"
-                                  locationLookup
-                                  formikProps={formikProps}
-                                />
+                                <AddressFields name="secondaryDestination.address" formikProps={formikProps} />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third Delivery Address</h4>
+                                    <h4>
+                                      Third {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address
+                                    </h4>
                                     <FormGroup>
                                       <p>
-                                        Will you move any belongings to a third address? (Must be near the delivery
-                                        address. Subject to approval.)
+                                        Will you move any belongings to a third address? (Must be near the{' '}
+                                        {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'destination' : 'delivery'} address.
+                                        Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
@@ -1665,6 +1684,9 @@ const ShipmentForm = (props) => {
                                               values.secondaryDestination.address,
                                             )
                                           }
+                                          onChange={(e) =>
+                                            updateAddressTouched(e, 'tertiaryDestination.address', blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -1681,15 +1703,14 @@ const ShipmentForm = (props) => {
                                               values.secondaryDestination.address,
                                             )
                                           }
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>
                                     {hasTertiaryDestination === 'true' && (
-                                      <AddressFields
-                                        name="tertiaryDestination.address"
-                                        locationLookup
-                                        formikProps={formikProps}
-                                      />
+                                      <AddressFields name="tertiaryDestination.address" formikProps={formikProps} />
                                     )}
                                   </>
                                 )}

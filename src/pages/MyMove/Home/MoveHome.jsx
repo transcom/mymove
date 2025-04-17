@@ -41,7 +41,7 @@ import {
   cancelMove,
 } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -336,6 +336,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   const handlePPMUploadClick = (shipmentId) => {
     const shipment = mtoShipments.find((mtoShipment) => mtoShipment.id === shipmentId);
+    const ppmShipment = shipment?.ppmShipment || {};
+    const { ppmType } = ppmShipment;
 
     const aboutInfoComplete = isPPMAboutInfoComplete(shipment.ppmShipment);
 
@@ -345,7 +347,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     });
 
     if (aboutInfoComplete) {
-      if (shipment.ppmShipment.weightTickets.length === 0) {
+      if (ppmType === PPM_TYPES.SMALL_PACKAGE) {
+        // PPM-SPRs skip the weight ticket part of closeout
+        path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+          moveId: move.id,
+          mtoShipmentId: shipmentId,
+        });
+      } else if (shipment.ppmShipment.weightTickets.length === 0) {
         path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
           moveId: move.id,
           mtoShipmentId: shipmentId,
@@ -454,6 +462,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   data-testid="ubAllowanceToolTip"
                 />
               </dd>
+            </div>
+          )}
+          {orders?.entitlement?.ub_weight_restriction > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>UB weight restriction</dt>
+              <dd>{formatWeight(orders?.entitlement?.ub_weight_restriction)}</dd>
             </div>
           )}
           {move.moveCode && (
@@ -584,7 +598,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
                   actionBtnLabel={
-                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Non-Orders Documentation' : null
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Additional Documentation' : null
                   }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
@@ -734,6 +748,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
                                       onFailure={togglePPMPacketErrorModal}
+                                      loadingMessage="Downloading AOA Paperwork (PDF)..."
                                     />
                                   </p>
                                 )}
@@ -802,6 +817,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                       label="Download AOA Paperwork (PDF)"
                                       asyncRetrieval={downloadPPMAOAPacket}
                                       onFailure={togglePPMPacketErrorModal}
+                                      loadingMessage="Downloading AOA Paperwork (PDF)..."
                                     />
                                   </p>
                                 )}

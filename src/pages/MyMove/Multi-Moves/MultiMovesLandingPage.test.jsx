@@ -766,7 +766,7 @@ describe('MultiMovesLandingPage', () => {
 
     // Check for specific elements
     expect(screen.getByTestId('customerHeader')).toBeInTheDocument();
-    expect(screen.getByTestId('welcomeHeaderPrevMoves')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
     expect(screen.getByText('Welcome to MilMove!')).toBeInTheDocument();
     expect(screen.getByText('Create a Move')).toBeInTheDocument();
 
@@ -784,11 +784,11 @@ describe('MultiMovesLandingPage', () => {
 
     expect(screen.getByText('Jim Bean')).toBeInTheDocument();
     expect(screen.getByText('#YJ9M34')).toBeInTheDocument();
-    expect(screen.getByTestId('welcomeHeaderPrevMoves')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
     expect(screen.getByTestId('createMoveBtn')).toBeInTheDocument();
     expect(screen.getByTestId('currentMoveHeader')).toBeInTheDocument();
     expect(screen.getByTestId('currentMoveContainer')).toBeInTheDocument();
-    expect(screen.getByTestId('prevMovesHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
     expect(screen.getByText('You have no previous moves.')).toBeInTheDocument();
   });
 
@@ -801,11 +801,11 @@ describe('MultiMovesLandingPage', () => {
 
     expect(screen.getByText('Jim Bean')).toBeInTheDocument();
     expect(screen.getByText('#YJ9M34')).toBeInTheDocument();
-    expect(screen.getByTestId('welcomeHeaderPrevMoves')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
     expect(screen.getByTestId('createMoveBtn')).toBeInTheDocument();
     expect(screen.getByTestId('currentMoveHeader')).toBeInTheDocument();
     expect(screen.getByTestId('currentMoveContainer')).toBeInTheDocument();
-    expect(screen.getByTestId('prevMovesHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
     expect(screen.getByText('#ABC123')).toBeInTheDocument();
     expect(screen.getByText('#DEF456')).toBeInTheDocument();
   });

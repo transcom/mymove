@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 import selectEvent from 'react-select-event';
@@ -77,14 +77,17 @@ describe('RequestAccount page', () => {
     searchTransportationOfficesOpen.mockImplementation(mockSearchTransportationOfficesOpen);
     createOfficeAccountRequest.mockImplementation(() => Promise.resolve(mockResponse));
 
-    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
-    await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@us.af.mil');
-    await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
+    await userEvent.type(screen.getByTestId('officeAccountRequestFirstName'), 'Bob');
+    await userEvent.type(screen.getByTestId('officeAccountRequestLastName'), 'Banks');
+    await userEvent.type(screen.getByTestId('officeAccountRequestEmail'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('emailConfirmation'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('officeAccountRequestTelephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
-    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
+    await userEvent.type(screen.getByTestId('edipiConfirmation'), '1111111111');
+    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), 'uniqueID123');
+    await userEvent.type(screen.getByTestId('otherUniqueIdConfirmation'), 'uniqueID123');
 
-    const transportationOfficeInput = screen.getByLabelText('Transportation Office');
+    const transportationOfficeInput = screen.getByLabelText(/^Transportation Office/i);
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 
@@ -94,6 +97,15 @@ describe('RequestAccount page', () => {
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(saveBtn);
 
+    await waitFor(() => {
+      expect(props.setFlashMessage).toHaveBeenCalledWith(
+        'OFFICE_ACCOUNT_REQUEST_SUCCESS',
+        'success',
+        'You have successfully requested access to MilMove. This request must be processed by an administrator prior to login. Once this process is completed, an approval or rejection email will be sent notifying you of the status of your account request.',
+        '',
+        true,
+      );
+    });
     expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.SIGN_IN_PATH);
   });
 
@@ -119,14 +131,17 @@ describe('RequestAccount page', () => {
     searchTransportationOfficesOpen.mockImplementation(mockSearchTransportationOfficesOpen);
     createOfficeAccountRequest.mockImplementation(() => Promise.reject(mockResponse));
 
-    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
-    await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@test.edu');
-    await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
+    await userEvent.type(screen.getByTestId('officeAccountRequestFirstName'), 'Bob');
+    await userEvent.type(screen.getByTestId('officeAccountRequestLastName'), 'Banks');
+    await userEvent.type(screen.getByTestId('officeAccountRequestEmail'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('emailConfirmation'), 'banks@us.navy.mil');
+    await userEvent.type(screen.getByTestId('officeAccountRequestTelephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
-    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
+    await userEvent.type(screen.getByTestId('edipiConfirmation'), '1111111111');
+    await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), 'uniqueID123');
+    await userEvent.type(screen.getByTestId('otherUniqueIdConfirmation'), 'uniqueID123');
 
-    const transportationOfficeInput = screen.getByLabelText('Transportation Office');
+    const transportationOfficeInput = screen.getByLabelText(/^Transportation Office/i);
     await fireEvent.change(transportationOfficeInput, { target: { value: 'Tester' } });
     await act(() => selectEvent.select(transportationOfficeInput, /Tester/));
 

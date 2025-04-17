@@ -52,16 +52,8 @@ import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { isPreceedingAddressComplete } from 'shared/utils';
-
-const blankAddress = {
-  address: {
-    streetAddress1: '',
-    streetAddress2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-  },
-};
+import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -83,7 +75,6 @@ class MtoShipmentForm extends Component {
 
   submitMTOShipment = ({
     pickup,
-    hasDeliveryAddress,
     delivery,
     customerRemarks,
     hasSecondaryPickup,
@@ -105,18 +96,12 @@ class MtoShipmentForm extends Component {
 
     const { moveId } = params;
 
-    const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
-    const saveDeliveryAddress = hasDeliveryAddress === 'true' || isNTSR;
-
     const preformattedMtoShipment = {
       shipmentType,
       moveId,
       customerRemarks,
       pickup,
-      delivery: {
-        ...delivery,
-        address: saveDeliveryAddress ? delivery.address : undefined,
-      },
+      delivery,
       hasSecondaryPickup: hasSecondaryPickup === 'true',
       secondaryPickup: hasSecondaryPickup === 'true' ? secondaryPickup : {},
       hasSecondaryDelivery: hasSecondaryDelivery === 'true',
@@ -303,6 +288,7 @@ class MtoShipmentForm extends Component {
 
           return (
             <GridContainer>
+              <NotificationScrollToTop dependency={errorMessage} />
               <Grid row>
                 <Grid col desktop={{ col: 8, offset: 2 }}>
                   {errorMessage && (
@@ -354,7 +340,6 @@ class MtoShipmentForm extends Component {
                             name="pickup.address"
                             legend="Pickup Address"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                             render={(fields) => (
                               <>
@@ -383,6 +368,7 @@ class MtoShipmentForm extends Component {
                                       title="Yes, I have a second pickup address"
                                       checked={hasSecondaryPickup === 'true'}
                                       disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                      onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                     />
                                     <Field
                                       as={Radio}
@@ -394,6 +380,7 @@ class MtoShipmentForm extends Component {
                                       title="No, I do not have a second pickup address"
                                       checked={hasSecondaryPickup !== 'true'}
                                       disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                      onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                     />
                                   </div>
                                 </FormGroup>
@@ -403,7 +390,6 @@ class MtoShipmentForm extends Component {
                                     <AddressFields
                                       name="secondaryPickup.address"
                                       labelHint="Required"
-                                      locationLookup
                                       formikProps={formikProps}
                                     />
                                   </>
@@ -428,6 +414,9 @@ class MtoShipmentForm extends Component {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -444,6 +433,9 @@ class MtoShipmentForm extends Component {
                                               values.secondaryPickup.address,
                                             )
                                           }
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>
@@ -457,7 +449,6 @@ class MtoShipmentForm extends Component {
                                       <AddressFields
                                         name="tertiaryPickup.address"
                                         labelHint="Required"
-                                        locationLookup
                                         formikProps={formikProps}
                                       />
                                     </>
@@ -516,6 +507,7 @@ class MtoShipmentForm extends Component {
                                     value="true"
                                     title="Yes, I know my delivery address"
                                     checked={hasDeliveryAddress === 'true'}
+                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
                                   />
                                   <Field
                                     as={Radio}
@@ -525,6 +517,9 @@ class MtoShipmentForm extends Component {
                                     value="false"
                                     title="No, I do not know my delivery address"
                                     checked={hasDeliveryAddress === 'false'}
+                                    onChange={(e) =>
+                                      handleAddressToggleChange(e, values, setValues, newDutyLocationAddress)
+                                    }
                                   />
                                 </div>
                               </FormGroup>
@@ -533,7 +528,6 @@ class MtoShipmentForm extends Component {
                               <AddressFields
                                 name="delivery.address"
                                 labelHint="Required"
-                                locationLookup
                                 formikProps={formikProps}
                                 render={(fields) => (
                                   <>
@@ -554,6 +548,9 @@ class MtoShipmentForm extends Component {
                                           title="Yes, I have a second delivery address"
                                           checked={hasSecondaryDelivery === 'true'}
                                           disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                         <Field
                                           as={Radio}
@@ -565,16 +562,18 @@ class MtoShipmentForm extends Component {
                                           title="No, I do not have a second delivery address"
                                           checked={hasSecondaryDelivery === 'false'}
                                           disabled={!isPreceedingAddressComplete('true', values.delivery.address)}
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
                                         />
                                       </div>
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'true' && (
                                       <>
-                                        <h4 data-testid="oogabooga">Second Delivery Address</h4>
+                                        <h4>Second Delivery Address</h4>
                                         <AddressFields
                                           name="secondaryDelivery.address"
                                           labelHint="Required"
-                                          locationLookup
                                           formikProps={formikProps}
                                         />
                                       </>
@@ -599,6 +598,9 @@ class MtoShipmentForm extends Component {
                                                   values.secondaryDelivery.address,
                                                 )
                                               }
+                                              onChange={(e) =>
+                                                handleAddressToggleChange(e, values, setValues, blankAddress)
+                                              }
                                             />
                                             <Field
                                               as={Radio}
@@ -615,6 +617,9 @@ class MtoShipmentForm extends Component {
                                                   values.secondaryDelivery.address,
                                                 )
                                               }
+                                              onChange={(e) =>
+                                                handleAddressToggleChange(e, values, setValues, blankAddress)
+                                              }
                                             />
                                           </div>
                                         </FormGroup>
@@ -628,7 +633,6 @@ class MtoShipmentForm extends Component {
                                           <AddressFields
                                             name="tertiaryDelivery.address"
                                             labelHint="Required"
-                                            locationLookup
                                             formikProps={formikProps}
                                           />
                                         </>

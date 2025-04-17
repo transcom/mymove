@@ -3,6 +3,7 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -58,41 +59,81 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		suite.True(user2ExistsInResponse)
 	})
 
-	suite.Run("able to search by name & email", func() {
-		requestedStatus := models.OfficeUserStatusREQUESTED
-		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+	suite.Run("able to search by name and filter", func() {
+		status := models.OfficeUserStatusREQUESTED
+		createdAt := time.Date(2007, 03, 05, 1, 1, 1, 1, time.Local)
+		createdAt2 := time.Date(2006, 03, 07, 1, 1, 1, 1, time.Local)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "JPPO Test Office",
+				},
+			},
+		}, nil)
+		transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "PPO Rome Test Office",
+				},
+			},
+		}, nil)
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Angelina",
-					LastName:  "Jolie",
-					Email:     "laraCroft@mail.mil",
-					Status:    &requestedStatus,
+					FirstName:              "Angelina",
+					LastName:               "Jolie",
+					Email:                  "laraCroft@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice2.ID,
+					CreatedAt:              createdAt2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
-		officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Billy",
-					LastName:  "Bob",
-					Email:     "bigBob@mail.mil",
-					Status:    &requestedStatus,
+					FirstName:              "Billy",
+					LastName:               "Bob",
+					Email:                  "bigBob@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice2.ID,
+					CreatedAt:              createdAt2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
-		officeUser3 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Nick",
-					LastName:  "Cage",
-					Email:     "conAirKilluh@mail.mil",
-					Status:    &requestedStatus,
+					FirstName:              "Nick",
+					LastName:               "Cage",
+					Email:                  "conAirKilluh@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice2.ID,
+					CreatedAt:              createdAt2,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName:              "Nick",
+					LastName:               "Cage",
+					Email:                  "conAirKilluh2@mail.mil",
+					Status:                 &status,
+					TransportationOfficeID: transportationOffice.ID,
+					CreatedAt:              createdAt,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// partial first name search
-		filterJSON := "{\"search\":\"Angel\"}"
+		// partial search
+		nameSearch := "ic"
+		filterJSON := fmt.Sprintf("{\"search\":\"%s\"}", nameSearch)
 		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
 			Filter:      &filterJSON,
@@ -110,24 +151,13 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 
 		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
 		okResponse := response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(officeUser1.ID.String(), okResponse.Payload[0].ID.String())
-
-		// search by first name
-		filterJSON = "{\"search\":\"Bill\"}"
-		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
-			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
-			Filter:      &filterJSON,
-		}
-		response = handler.Handle(params)
-
-		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
-		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(officeUser2.ID.String(), okResponse.Payload[0].ID.String())
+		suite.Len(okResponse.Payload, 2)
+		suite.Contains(*okResponse.Payload[0].FirstName, nameSearch)
+		suite.Contains(*okResponse.Payload[1].FirstName, nameSearch)
 
 		// email search
-		filterJSON = "{\"search\":\"conAir\"}"
+		emailSearch := "AirKilluh2"
+		filterJSON = fmt.Sprintf("{\"email\":\"%s\"}", emailSearch)
 		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
 			Filter:      &filterJSON,
@@ -137,7 +167,78 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
 		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(officeUser3.ID.String(), okResponse.Payload[0].ID.String())
+		suite.Contains(*okResponse.Payload[0].Email, emailSearch)
+
+		// firstName search
+		firstSearch := "Angel"
+		filterJSON = fmt.Sprintf("{\"firstName\":\"%s\"}", firstSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Contains(*okResponse.Payload[0].FirstName, firstSearch)
+
+		// lastName search
+		lastSearch := "Jo"
+		filterJSON = fmt.Sprintf("{\"lastName\":\"%s\"}", lastSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Contains(*okResponse.Payload[0].LastName, lastSearch)
+
+		// transportation office search
+		filterJSON = "{\"office\":\"JP\"}"
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(strfmt.UUID(transportationOffice.ID.String()), *okResponse.Payload[0].TransportationOfficeID)
+
+		// requestedOn search
+		requestedOnSearch := "5"
+		filterJSON = fmt.Sprintf("{\"requestedOn\":\"%s\"}", requestedOnSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Equal(1, len(okResponse.Payload))
+		suite.Contains(okResponse.Payload[0].CreatedAt.String(), requestedOnSearch)
+
+		// roles search
+		roleSearch := "Counselor"
+		filterJSON = fmt.Sprintf("{\"roles\":\"%s\"}", roleSearch)
+		params = requestedofficeuserop.IndexRequestedOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
+			Filter:      &filterJSON,
+		}
+		response = handler.Handle(params)
+
+		suite.IsType(&requestedofficeuserop.IndexRequestedOfficeUsersOK{}, response)
+		okResponse = response.(*requestedofficeuserop.IndexRequestedOfficeUsersOK)
+		suite.Len(okResponse.Payload, 2)
+		suite.Contains(*okResponse.Payload[0].Roles[0].RoleName, roleSearch)
+		suite.Contains(*okResponse.Payload[1].Roles[0].RoleName, roleSearch)
+
 	})
 
 	suite.Run("test the return of sorted requested office users in asc order", func() {
@@ -288,7 +389,7 @@ func (suite *HandlerSuite) TestIndexRequestedOfficeUsersHandler() {
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitRequestedOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 
-		filterJSON := "{\"offices\":\"Tinker\"}"
+		filterJSON := "{\"office\":\"Tinker\"}"
 		params := requestedofficeuserop.IndexRequestedOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/requested_office_users"),
 			Filter:      &filterJSON,
@@ -638,7 +739,15 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		provider, err := factory.BuildOktaProvider("adminProvider")
 		suite.NoError(err)
 
+		// mocking the okta customer group id env variable
+		originalGroupID := os.Getenv("OKTA_OFFICE_GROUP_ID")
+		os.Setenv("OKTA_OFFICE_GROUP_ID", "notrealofficegroupId")
+		defer os.Setenv("OKTA_OFFICE_GROUP_ID", originalGroupID)
+
+		mockAndActivateOktaGETEndpointNoUserNoError(provider)
 		mockAndActivateOktaEndpoints(provider, 200)
+		mockAndActivateOktaGroupGETEndpointNoError(provider)
+		mockAndActivateOktaGroupAddEndpointNoError(provider)
 
 		user := factory.BuildDefaultUser(suite.DB())
 		tooRoleName := "Task Ordering Officer"
@@ -685,7 +794,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 					},
 				},
 				Status:        status,
-				Email:         email,
+				Email:         &email,
 				Telephone:     &telephone,
 				OtherUniqueID: "0000000000",
 				Edipi:         "0000000000",
@@ -745,6 +854,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		provider, err := factory.BuildOktaProvider("adminProvider")
 		suite.NoError(err)
 
+		mockAndActivateOktaGETEndpointNoUserNoError(provider)
 		mockAndActivateOktaEndpoints(provider, 500)
 
 		user := factory.BuildDefaultUser(suite.DB())
@@ -792,7 +902,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 					},
 				},
 				Status:        status,
-				Email:         email,
+				Email:         &email,
 				Telephone:     &telephone,
 				OtherUniqueID: "0000000000",
 				Edipi:         "0000000000",
@@ -841,7 +951,7 @@ func (suite *HandlerSuite) TestUpdateRequestedOfficeUserHandlerWithOktaAccountCr
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(requestedofficeuserop.NewGetRequestedOfficeUserInternalServerError(), response)
+		suite.IsType(requestedofficeuserop.NewUpdateRequestedOfficeUserInternalServerError(), response)
 	})
 }
 
@@ -867,6 +977,38 @@ func mockAndActivateOktaEndpoints(provider *okta.Provider, responseCode int) {
 		httpmock.RegisterResponder("POST", createAccountEndpoint,
 			httpmock.NewStringResponder(500, ""))
 	}
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGETEndpointNoUserNoError(provider *okta.Provider) {
+	getUsersEndpoint := provider.GetUsersURL()
+	response := "[]"
+
+	httpmock.RegisterResponder("GET", getUsersEndpoint,
+		httpmock.NewStringResponder(200, response))
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupGETEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	getGroupsEndpoint := provider.GetUserGroupsURL(oktaID)
+
+	httpmock.RegisterResponder("GET", getGroupsEndpoint,
+		httpmock.NewStringResponder(200, `[]`))
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupAddEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	groupID := "notrealofficegroupId"
+	addGroupEndpoint := provider.AddUserToGroupURL(groupID, oktaID)
+
+	httpmock.RegisterResponder("PUT", addGroupEndpoint,
+		httpmock.NewStringResponder(204, ""))
 
 	httpmock.Activate()
 }

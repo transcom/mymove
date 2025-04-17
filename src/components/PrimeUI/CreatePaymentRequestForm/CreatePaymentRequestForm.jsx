@@ -89,7 +89,10 @@ const CreatePaymentRequestForm = ({
                             />
                           </div>
                           <ServiceItem serviceItem={mtoServiceItem} mtoShipment={mtoShipment} />
-                          {(mtoServiceItem.reServiceCode === 'DDASIT' || mtoServiceItem.reServiceCode === 'DOASIT') && (
+                          {(mtoServiceItem.reServiceCode === 'DDASIT' ||
+                            mtoServiceItem.reServiceCode === 'DOASIT' ||
+                            mtoServiceItem.reServiceCode === 'IDASIT' ||
+                            mtoServiceItem.reServiceCode === 'IOASIT') && (
                             <>
                               <TextField
                                 id={`${mtoServiceItem.id}-billedWeight`}
@@ -150,7 +153,10 @@ const CreatePaymentRequestForm = ({
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.INPK ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.ISLH ||
                             mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.POEFSC ||
-                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.PODFSC) && (
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.PODFSC ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IUBPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.IUBUPK ||
+                            mtoServiceItem.reServiceCode === SERVICE_ITEM_CODES.UBP) && (
                             <TextField
                               id={`${mtoServiceItem.id}-billedWeight`}
                               label="Weight Billed (if different from shipment weight)"

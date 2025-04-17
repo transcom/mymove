@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
@@ -23,6 +24,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	ordersID, _ := uuid.NewV4()
 	referenceID := "testID"
 	primeTime := time.Now()
+	primeAcknowledgedAt := time.Now().AddDate(0, 0, -3)
 	submittedAt := time.Now()
 	excessWeightQualifiedAt := time.Now()
 	excessUnaccompaniedBaggageWeightQualifiedAt := time.Now()
@@ -67,6 +69,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		ShipmentGBLOC: models.MoveToGBLOCs{
 			models.MoveToGBLOC{GBLOC: &shipmentGBLOC},
 		},
+		PrimeAcknowledgedAt: &primeAcknowledgedAt,
 	}
 
 	suite.Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func() {
@@ -93,6 +96,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Name, returnedModel.Order.Customer.BackupContact.Name)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Phone, returnedModel.Order.Customer.BackupContact.Phone)
 		suite.Equal(basicMove.Orders.ServiceMember.BackupContacts[0].Email, returnedModel.Order.Customer.BackupContact.Email)
+		suite.Equal(handlers.FmtDateTimePtr(basicMove.PrimeAcknowledgedAt), returnedModel.PrimeAcknowledgedAt)
 	})
 }
 
@@ -448,17 +452,33 @@ func (suite *PayloadsSuite) TestValidationError() {
 }
 
 func (suite *PayloadsSuite) TestMTOShipment() {
-	mtoShipment := &models.MTOShipment{}
-
-	mtoShipment.MTOServiceItems = nil
-	payload := MTOShipment(mtoShipment)
+	primeAcknowledgeAt := time.Now().AddDate(0, 0, -5)
+	mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeAcknowledgedAt: &primeAcknowledgeAt,
+				Status:              models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
+	payload := MTOShipment(&mtoShipment)
 	suite.NotNil(payload)
 	suite.Empty(payload.MtoServiceItems())
+	suite.Equal(strfmt.UUID(mtoShipment.ID.String()), payload.ID)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.ActualPickupDate), payload.ActualPickupDate)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate), payload.RequestedDeliveryDate)
+	suite.Equal(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate), payload.RequestedPickupDate)
+	suite.Equal(string(mtoShipment.Status), payload.Status)
+	suite.Equal(strfmt.DateTime(mtoShipment.UpdatedAt), payload.UpdatedAt)
+	suite.Equal(strfmt.DateTime(mtoShipment.CreatedAt), payload.CreatedAt)
+	suite.Equal(etag.GenerateEtag(mtoShipment.UpdatedAt), payload.ETag)
+	suite.Equal(handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt), payload.PrimeAcknowledgedAt)
 
+	mtoShipment = models.MTOShipment{}
 	mtoShipment.MTOServiceItems = models.MTOServiceItems{
 		models.MTOServiceItem{},
 	}
-	payload = MTOShipment(mtoShipment)
+	payload = MTOShipment(&mtoShipment)
 	suite.NotNil(payload)
 	suite.NotEmpty(payload.MtoServiceItems())
 }
@@ -556,6 +576,7 @@ func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
 	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 	dlhTestWeight := unit.Pound(4000)
+	now := time.Now()
 
 	// Create the MTOShipment with populated PickupAddress and DestinationAddress
 	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -569,11 +590,15 @@ func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
 				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
 				PrimeActualWeight:          &dlhTestWeight,
 				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+				TerminatedAt:               &now,
+				TerminationComments:        models.StringPointer("get in the choppuh"),
 			},
 		},
 	}, nil)
 	shipmentWithoutServiceItem := MTOShipmentWithoutServiceItems(&mtoShipment)
 	suite.NotNil(shipmentWithoutServiceItem)
+	suite.NotNil(shipmentWithoutServiceItem.TerminatedAt)
+	suite.NotNil(shipmentWithoutServiceItem.TerminationComments)
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentsWithoutServiceItems() {
@@ -1515,5 +1540,113 @@ func (suite *PayloadsSuite) TestVLocation() {
 		suite.Equal(state, payload.State, "Expected State to match")
 		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
 		suite.Equal(county, *(payload.County), "Expected County to match")
+	})
+}
+
+func (suite *PayloadsSuite) TestListMoves() {
+	suite.Run("Correctly maps Move Prime Acknowledge At date", func() {
+		yesterday := time.Now().AddDate(0, 1, -1)
+		address1 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "90210",
+				},
+			},
+		}, nil)
+		dutyLocation1 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address1,
+				LinkOnly: true,
+			},
+		}, nil)
+		orders1 := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    dutyLocation1,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
+			},
+		}, nil)
+		move1 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PrimeAcknowledgedAt: &yesterday,
+				},
+			},
+			{
+				Model:    orders1,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		address2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "62225",
+				},
+			},
+		}, nil)
+		dutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address2,
+				LinkOnly: true,
+			},
+		}, nil)
+		orders2 := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    dutyLocation2,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
+			},
+		}, nil)
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model:    orders2,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		moves := models.Moves{
+			move1,
+			move2,
+		}
+		moveOrderAmendmentAvailableSinceCounts := make(services.MoveOrderAmendmentAvailableSinceCounts, 0)
+
+		payload := ListMoves(&moves, suite.AppContextForTest(), moveOrderAmendmentAvailableSinceCounts)
+		suite.NotNil(payload)
+		suite.Equal(2, len(payload))
+
+		// Move 1
+		suite.Equal(strfmt.UUID(move1.ID.String()), payload[0].ID)
+		suite.Equal(move1.Locator, payload[0].MoveCode)
+		suite.Equal(strfmt.DateTime(move1.CreatedAt), payload[0].CreatedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move1.AvailableToPrimeAt), payload[0].AvailableToPrimeAt)
+		suite.Equal(handlers.FmtDateTimePtr(move1.ApprovedAt), payload[0].ApprovedAt)
+		gbloc, err := move1.GetDestinationGBLOC(suite.DB())
+		suite.NotNil(gbloc)
+		suite.NoError(err)
+		suite.Equal(gbloc, payload[0].DestinationGBLOC)
+		suite.Equal(move1.Orders.NewDutyLocation.Address.PostalCode, payload[0].DestinationPostalCode)
+		suite.Equal(strfmt.UUID(move1.Orders.ID.String()), payload[0].OrderID)
+		suite.Equal(*move1.ReferenceID, payload[0].ReferenceID)
+		suite.Equal(strfmt.DateTime(move1.UpdatedAt), payload[0].UpdatedAt)
+		suite.Equal(etag.GenerateEtag(move1.UpdatedAt), payload[0].ETag)
+		suite.Equal(handlers.FmtDateTimePtr(move1.PrimeAcknowledgedAt), payload[0].PrimeAcknowledgedAt)
+
+		// Move 2
+		suite.Equal(move2.Locator, payload[1].MoveCode)
+		suite.Equal(strfmt.UUID(move2.ID.String()), payload[1].ID)
+		suite.Equal(strfmt.DateTime(move2.CreatedAt), payload[1].CreatedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move2.AvailableToPrimeAt), payload[1].AvailableToPrimeAt)
+		suite.Equal(handlers.FmtDateTimePtr(move2.ApprovedAt), payload[1].ApprovedAt)
+		gbloc, err = move2.GetDestinationGBLOC(suite.DB())
+		suite.NotNil(gbloc)
+		suite.NoError(err)
+		suite.Equal(gbloc, payload[1].DestinationGBLOC)
+		suite.Equal(move2.Orders.NewDutyLocation.Address.PostalCode, payload[1].DestinationPostalCode)
+		suite.Equal(strfmt.UUID(move2.Orders.ID.String()), payload[1].OrderID)
+		suite.Equal(*move2.ReferenceID, payload[1].ReferenceID)
+		suite.Equal(strfmt.DateTime(move2.UpdatedAt), payload[1].UpdatedAt)
+		suite.Equal(etag.GenerateEtag(move2.UpdatedAt), payload[1].ETag)
+		suite.Nil(payload[1].PrimeAcknowledgedAt)
 	})
 }

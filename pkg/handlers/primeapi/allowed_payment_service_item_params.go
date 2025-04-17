@@ -19,6 +19,16 @@ var (
 			models.ServiceItemParamNameSITPaymentRequestEnd,
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeIOASIT: {
+			models.ServiceItemParamNameSITPaymentRequestStart,
+			models.ServiceItemParamNameSITPaymentRequestEnd,
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIDASIT: {
+			models.ServiceItemParamNameSITPaymentRequestStart,
+			models.ServiceItemParamNameSITPaymentRequestEnd,
+			models.ServiceItemParamNameWeightBilled,
+		},
 		models.ReServiceCodeDOFSIT: {
 			models.ServiceItemParamNameWeightBilled,
 		},
@@ -83,6 +93,15 @@ var (
 			models.ServiceItemParamNameWeightBilled,
 		},
 		models.ReServiceCodePODFSC: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIUBPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIUBUPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeUBP: {
 			models.ServiceItemParamNameWeightBilled,
 		},
 	}

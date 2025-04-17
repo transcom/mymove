@@ -13,7 +13,7 @@ import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectMTOShipmentById, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
+import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
   formatAboutYourPPMItem,
@@ -36,9 +36,10 @@ import {
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
+import { PPM_TYPES } from 'shared/constants';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -89,6 +90,8 @@ const Review = () => {
   const [alert, setAlert] = useState(null);
   const { moveId, mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
@@ -157,7 +160,12 @@ const Review = () => {
   const weightTicketsTotal = getTotalNetWeightForWeightTickets(weightTickets);
 
   const canAdvance =
-    hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses) && hasCompletedAllProGear(proGear);
+    hasCompletedAllWeightTickets(weightTickets, ppmType) &&
+    hasCompletedAllExpenses(expenses) &&
+    hasCompletedAllProGear(proGear);
+
+  // PPM-SPRs must have at least one moving expense to advance
+  const ppmSmalLPackageCanAdvance = ppmType === PPM_TYPES.SMALL_PACKAGE && expenses && expenses.length < 1;
 
   const proGearContents = formatProGearItems(
     proGear,
@@ -213,39 +221,43 @@ const Review = () => {
               <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
             </SectionWrapper>
             <SectionWrapper>
-              <h2>Documents</h2>
-              <ReviewItems
-                className={classnames(styles.reviewItems, 'reviewWeightTickets')}
-                heading={
-                  <>
-                    <h3>Weight moved</h3>
-                    <span>({formatWeight(weightTicketsTotal)})</span>
-                  </>
-                }
-                contents={weightTicketContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
-                    Add More Weight
-                  </Link>
-                )}
-                emptyMessage="No weight moved documented. At least one trip is required to continue."
-              />
-              <ReviewItems
-                className={classnames(styles.reviewItems, 'progearSection')}
-                heading={
-                  <>
-                    <h3>Pro-gear</h3>
-                    <span>({formatWeight(proGearTotal)})</span>
-                  </>
-                }
-                contents={proGearContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
-                    Add Pro-gear Weight
-                  </Link>
-                )}
-                emptyMessage="No pro-gear weight documented."
-              />
+              <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Small Package Expenses' : 'Documents'}</h2>
+              {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                <ReviewItems
+                  className={classnames(styles.reviewItems, 'reviewWeightTickets')}
+                  heading={
+                    <>
+                      <h3>Weight moved</h3>
+                      <span>({formatWeight(weightTicketsTotal)})</span>
+                    </>
+                  }
+                  contents={weightTicketContents}
+                  renderAddButton={() => (
+                    <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
+                      Add More Weight
+                    </Link>
+                  )}
+                  emptyMessage="No weight moved documented. At least one trip is required to continue."
+                />
+              )}
+              {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                <ReviewItems
+                  className={classnames(styles.reviewItems, 'progearSection')}
+                  heading={
+                    <>
+                      <h3>Pro-gear</h3>
+                      <span>({formatWeight(proGearTotal)})</span>
+                    </>
+                  }
+                  contents={proGearContents}
+                  renderAddButton={() => (
+                    <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                      Add Pro-gear Weight
+                    </Link>
+                  )}
+                  emptyMessage="No pro-gear weight documented."
+                />
+              )}
               <ReviewItems
                 className={classnames(styles.reviewItems, 'reviewExpenses')}
                 heading={
@@ -273,9 +285,9 @@ const Review = () => {
               </Link>
               <Link
                 className={classnames(ppmStyles.saveButton, 'usa-button', {
-                  'usa-button--disabled': !canAdvance,
+                  'usa-button--disabled': !canAdvance || ppmSmalLPackageCanAdvance,
                 })}
-                aria-disabled={!canAdvance}
+                aria-disabled={!canAdvance || ppmSmalLPackageCanAdvance}
                 to={completePath}
               >
                 Save & Continue
