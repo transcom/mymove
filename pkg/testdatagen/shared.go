@@ -73,10 +73,12 @@ type Assertions struct {
 	ProofOfServiceDoc                        models.ProofOfServiceDoc
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
+	ReDomesticAccessorialPrice               models.ReDomesticAccessorialPrice
 	ReDomesticLinehaulPrice                  models.ReDomesticLinehaulPrice
 	ReDomesticOtherPrice                     models.ReDomesticOtherPrice
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	ReDomesticServiceAreaPrice               models.ReDomesticServiceAreaPrice
+	ReTaskOrderFee                           models.ReTaskOrderFee
 	Reimbursement                            models.Reimbursement
 	Report                                   models.EvaluationReport
 	ReportViolation                          models.ReportViolation
