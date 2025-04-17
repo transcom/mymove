@@ -13,14 +13,14 @@ import (
 )
 
 const (
-	dnpkTestEscalationCompounded   = 1.0407
+	dnpkTestEscalationCompounded   = 1.11000
 	dnpkTestIsPeakPeriod           = true
 	dnpkTestWeight                 = unit.Pound(2100)
 	dnpkTestServicesScheduleOrigin = 1
-	dnpkTestContractYearName       = "DNPK Test Year"
+	dnpkTestContractYearName       = testdatagen.DefaultContractYearName
 	dnpkTestBasePriceCents         = unit.Cents(6544)
-	dnpkTestFactor                 = 1.35
-	dnpkTestPriceCents             = unit.Cents(193064)
+	dnpkTestFactor                 = 1.11000
+	dnpkTestPriceCents             = unit.Cents(169324)
 )
 
 var dnpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 5, 5, 5, 5, time.UTC)
@@ -107,11 +107,13 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackServiceItem() models
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int, isPeakPeriod bool, priceCents unit.Cents, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
 				EscalationCompounded: escalationCompounded,
+				StartDate:            testdatagen.ContractStartDate,
+				EndDate:              testdatagen.ContractEndDate,
 			},
 		})
 
