@@ -126,7 +126,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
           <Formik
             onSubmit={(values) => {
               const totalAssignment = values?.userData?.reduce((sum, item) => sum + item.moveAssignments, 0);
-
               const totalAssignedMovesGreaterThanMovesAvailableReassignment = totalAssignment > numberOfMoves;
               if (totalAssignedMovesGreaterThanMovesAvailableReassignment) {
                 setIsError(true);
