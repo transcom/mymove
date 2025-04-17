@@ -19,11 +19,32 @@ INSERT INTO service_params (id, service_id, service_item_param_key_id, created_a
 VALUES
 	('43bb49b0-92ad-4313-832e-fb47e324edae', (SELECT id FROM re_services WHERE code = 'IOASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITRateAreaOrigin'), now(), now(), false);
 
+-- Associate SITPaymentRequestStart to service lookup for IOASIT.
+INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
+VALUES
+	('cf7cb008-6c66-4fe1-82ab-b33961dce75d', (SELECT id FROM re_services WHERE code = 'IOASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITPaymentRequestStart'), now(), now(), false);
+
+
+-- Associate SITPaymentRequestEnd to service lookup for IOASIT.
+INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
+VALUES
+	('8681c6bf-40af-41f6-9847-ded1c93653f2', (SELECT id FROM re_services WHERE code = 'IOASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITPaymentRequestEnd'), now(), now(), false);
+
 
 -- Associate SITRateAreaDest to service lookup for IDASIT.
 INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
 VALUES
 	('c3efc93b-c412-4f8a-a4d0-0a37a999bb49', (SELECT id FROM re_services WHERE code = 'IDASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITRateAreaDest'), now(), now(), false);
+
+-- Associate SITPaymentRequestStart to service lookup for IDASIT.
+INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
+VALUES
+	('c2db5730-ece9-4b7f-9c8d-c4ada1300cfb', (SELECT id FROM re_services WHERE code = 'IDASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITPaymentRequestStart'), now(), now(), false);
+
+-- Associate SITPaymentRequestEnd to service lookup for IDASIT.
+INSERT INTO service_params (id, service_id, service_item_param_key_id, created_at, updated_at, is_optional)
+VALUES
+	('3e5d143e-ccde-477f-bf49-1f73df480e16', (SELECT id FROM re_services WHERE code = 'IDASIT'), (SELECT id FROM service_item_param_keys WHERE key = 'SITPaymentRequestEnd'), now(), now(), false);
 
 
 -- Associate DistanceZipSITDest to service lookup for IDDSIT.
