@@ -730,23 +730,8 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 
-	usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99506")
-	suite.NotNil(usprc)
-	suite.FatalNoError(err)
-
 	suite.Run("Can update CONUS orders", func() {
-		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "35023")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-		address := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					IsOconus:   models.BoolPointer(false),
-					PostalCode: usprc.UsprZipID,
-					City:       "BESSEMER",
-				},
-			},
-		}, nil)
+		address := factory.BuildAddress(suite.DB(), nil, nil)
 
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
@@ -854,17 +839,12 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	})
 
 	suite.Run("Can update OCONUS orders", func() {
-		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-					PostalCode:         usprc.UsprZipID,
+					IsOconus:   models.BoolPointer(true),
+					City:       "JUNEAU",
+					PostalCode: "99801",
 				},
 			},
 		}, nil)
@@ -906,11 +886,14 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			},
 		})
 		suite.NotNil(rateArea)
-		suite.Nil(err)
 
 		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
 		suite.NotNil(us_country)
 		suite.Nil(err)
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
 
 		oconusRateArea, err := models.FetchOconusRateAreaByCityId(suite.DB(), usprc.ID.String())
 		suite.NotNil(oconusRateArea)
@@ -1171,14 +1154,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 		},
 	}, nil)
 
-	firstAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				PostalCode: "90210",
-				City:       "BEVERLY HILLS",
-			},
-		},
-	}, nil)
+	firstAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	updatedAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{

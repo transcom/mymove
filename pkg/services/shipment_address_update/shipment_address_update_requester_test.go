@@ -1640,16 +1640,12 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
-					// City:       "RENO",
-					// State:      "NV",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
-					// City:       "Beverly Hills",
-					// State:      "CA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},

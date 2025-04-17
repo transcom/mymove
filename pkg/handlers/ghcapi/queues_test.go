@@ -2598,11 +2598,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 				},
 			},
 		}, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{PostalCode: postalCode, City: "BEVERLY HILLS"},
-			},
-		}, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -2730,11 +2726,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
-		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{PostalCode: postalCode, City: "BEVERLY HILLS"},
-			},
-		}, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{

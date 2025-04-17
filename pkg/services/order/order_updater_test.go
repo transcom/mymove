@@ -746,14 +746,12 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 
-		usprc, _ := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &usprc.ID,
-					PostalCode:         usprc.UsprZipID,
-					City:               usprc.USPostRegionCityNm,
+					IsOconus:   models.BoolPointer(true),
+					PostalCode: "99801",
+					City:       "JUNEAU",
 				},
 			},
 		}, nil)
@@ -1184,14 +1182,12 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 
-		usprc, _ := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus:           models.BoolPointer(true),
-					UsPostRegionCityID: &usprc.ID,
-					PostalCode:         usprc.UsprZipID,
-					City:               usprc.USPostRegionCityNm,
+					IsOconus:   models.BoolPointer(true),
+					PostalCode: "99801",
+					City:       "JUNEAU",
 				},
 			},
 		}, nil)
