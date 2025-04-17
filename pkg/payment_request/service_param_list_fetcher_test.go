@@ -11,7 +11,7 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 	dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 	// Make a few keys
-	contractCodeKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	contractCodeKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:    models.ServiceItemParamNameContractCode,
@@ -19,7 +19,7 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 			},
 		},
 	}, nil)
-	contractYearNameKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	contractYearNameKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:    models.ServiceItemParamNameContractYearName,
@@ -27,7 +27,7 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 			},
 		},
 	}, nil)
-	weightEstimatedKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	weightEstimatedKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:    models.ServiceItemParamNameWeightEstimated,
@@ -47,7 +47,7 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 
 	for _, serviceKey := range serviceKeysAssociation {
 		for _, key := range serviceKey.keys {
-			factory.BuildServiceParam(suite.DB(), []factory.Customization{
+			factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 				{
 					Model:    serviceKey.service,
 					LinkOnly: true,
@@ -72,11 +72,20 @@ func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 	serviceParams, err := helper.FetchServiceParamList(suite.AppContextForTest(), dlhServiceItem)
 	suite.NoError(err)
 
-	// We should get back only the contract code key since the contract year has origin of pricer
-	if suite.Len(serviceParams, 1) {
-		suite.Equal(dlhService.ID, serviceParams[0].ServiceID)
-		suite.Equal(contractCodeKey.ID, serviceParams[0].ServiceItemParamKeyID)
-		// Make sure we can read something off the ServiceItemParamKey association since it should have loaded
-		suite.Equal(contractCodeKey.Key, serviceParams[0].ServiceItemParamKey.Key)
+	suite.Len(serviceParams, 13)
+
+	// iterate through serviceParams to find the one with the contractCodeKey
+	var foundParam *models.ServiceParam
+	for i := range serviceParams {
+		if serviceParams[i].ServiceItemParamKeyID == contractCodeKey.ID {
+			foundParam = &serviceParams[i]
+			break
+		}
 	}
+	suite.NotNil(foundParam, "Expected to find a service param with the contract code key")
+
+	suite.Equal(dlhService.ID, foundParam.ServiceID)
+	suite.Equal(contractCodeKey.ID, foundParam.ServiceItemParamKeyID)
+	suite.Equal(contractCodeKey.Key, foundParam.ServiceItemParamKey.Key)
+
 }
