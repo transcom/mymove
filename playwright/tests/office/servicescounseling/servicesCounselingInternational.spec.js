@@ -68,9 +68,9 @@ test.describe('Services counselor user', () => {
       await page.keyboard.press('Enter');
       const counselingOffice = page.locator('#counselingOfficeId');
       await counselingOffice.selectOption('PPPO Tinker AFB - USAF');
-      const pickupLocation = 'Elmendorf AFB, AK 99506';
-      await page.getByLabel('New duty location').fill('JBER');
-      await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
+      const dutyLocation = 'Elmendorf AFB, AK 99506';
+      await page.getByLabel('New duty location').fill('ELMENDORF AFB');
+      await expect(page.getByText(dutyLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('label[for="hasDependentsNo"]').click();
       await page.getByLabel('Pay grade').selectOption({ label: 'E-7' });

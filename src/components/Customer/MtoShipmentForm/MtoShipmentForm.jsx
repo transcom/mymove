@@ -209,32 +209,41 @@ class MtoShipmentForm extends Component {
             const { checked } = e.target;
             if (checked) {
               // use current residence
-              setValues({
-                ...values,
-                pickup: {
-                  ...values.pickup,
-                  address: currentResidence,
+              setValues(
+                {
+                  ...values,
+                  pickup: {
+                    ...values.pickup,
+                    address: currentResidence,
+                  },
                 },
-              });
+                { shouldValidate: true },
+              );
             } else if (moveId === mtoShipment?.moveTaskOrderId) {
               // TODO - what is the purpose of this check?
               // Revert address
-              setValues({
-                ...values,
-                pickup: {
-                  ...values.pickup,
-                  address: mtoShipment.pickupAddress,
+              setValues(
+                {
+                  ...values,
+                  pickup: {
+                    ...values.pickup,
+                    address: mtoShipment.pickupAddress,
+                  },
                 },
-              });
+                { shouldValidate: true },
+              );
             } else {
               // Revert address
-              setValues({
-                ...values,
-                pickup: {
-                  ...values.pickup,
-                  ...blankAddress,
+              setValues(
+                {
+                  ...values,
+                  pickup: {
+                    ...values.pickup,
+                    address: blankAddress.address,
+                  },
                 },
-              });
+                { shouldValidate: true },
+              );
             }
           };
 
