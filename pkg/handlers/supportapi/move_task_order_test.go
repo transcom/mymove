@@ -203,25 +203,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		return mockUpdater
 	}
 
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
-		planner,
-		queryBuilder,
-		moveRouter,
-		ghcrateengine.NewDomesticUnpackPricer(),
-		ghcrateengine.NewDomesticPackPricer(),
-		ghcrateengine.NewDomesticLinehaulPricer(),
-		ghcrateengine.NewDomesticShorthaulPricer(),
-		ghcrateengine.NewDomesticOriginPricer(),
-		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer(),
-		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-		ghcrateengine.NewDomesticOriginSITPickupPricer(),
-		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	ppmEstimator := &mocks.PPMEstimator{}
 	// make the request
@@ -437,25 +419,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			return mockUpdater
 		}
 
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(
-			planner,
-			queryBuilder,
-			moveRouter,
-			ghcrateengine.NewDomesticUnpackPricer(),
-			ghcrateengine.NewDomesticPackPricer(),
-			ghcrateengine.NewDomesticLinehaulPricer(),
-			ghcrateengine.NewDomesticShorthaulPricer(),
-			ghcrateengine.NewDomesticOriginPricer(),
-			ghcrateengine.NewDomesticDestinationPricer(),
-			ghcrateengine.NewFuelSurchargePricer(),
-			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-			ghcrateengine.NewDomesticOriginSITPickupPricer(),
-			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		ppmEstimator := &mocks.PPMEstimator{}
 		// Submit the request to approve the MTO

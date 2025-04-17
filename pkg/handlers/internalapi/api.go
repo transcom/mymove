@@ -205,15 +205,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		ghcrateengine.NewDomesticShorthaulPricer(),
 		ghcrateengine.NewDomesticOriginPricer(),
 		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer(),
-		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-		ghcrateengine.NewDomesticOriginSITPickupPricer(),
-		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+		ghcrateengine.NewFuelSurchargePricer())
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()

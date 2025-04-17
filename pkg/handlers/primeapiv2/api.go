@@ -57,7 +57,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 
 	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
 		handlerConfig.HHGPlanner(),
-		builder,
+		queryBuilder,
 		moveRouter,
 		ghcrateengine.NewDomesticUnpackPricer(),
 		ghcrateengine.NewDomesticPackPricer(),
@@ -65,15 +65,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 		ghcrateengine.NewDomesticShorthaulPricer(),
 		ghcrateengine.NewDomesticOriginPricer(),
 		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer(),
-		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-		ghcrateengine.NewDomesticOriginSITPickupPricer(),
-		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+		ghcrateengine.NewFuelSurchargePricer())
 
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,

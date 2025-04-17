@@ -545,11 +545,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 				Model:    move,
 				LinkOnly: true,
 			},
-			{
-				Model: models.MTOShipment{
-					PrimeEstimatedWeight: models.PoundPointer(1000),
-				},
-			},
 		}, nil)
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -559,25 +554,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(
-			planner,
-			builder,
-			moveRouter,
-			ghcrateengine.NewDomesticUnpackPricer(),
-			ghcrateengine.NewDomesticPackPricer(),
-			ghcrateengine.NewDomesticLinehaulPricer(),
-			ghcrateengine.NewDomesticShorthaulPricer(),
-			ghcrateengine.NewDomesticOriginPricer(),
-			ghcrateengine.NewDomesticDestinationPricer(),
-			ghcrateengine.NewFuelSurchargePricer(),
-			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-			ghcrateengine.NewDomesticOriginSITPickupPricer(),
-			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dimension := models.MTOServiceItemDimension{
 			Type:      models.DimensionTypeItem,
@@ -588,19 +565,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			UpdatedAt: time.Now(),
 		}
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(10, 1, 1)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
 
 		serviceItem := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -663,25 +627,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(
-			planner,
-			builder,
-			moveRouter,
-			ghcrateengine.NewDomesticUnpackPricer(),
-			ghcrateengine.NewDomesticPackPricer(),
-			ghcrateengine.NewDomesticLinehaulPricer(),
-			ghcrateengine.NewDomesticShorthaulPricer(),
-			ghcrateengine.NewDomesticOriginPricer(),
-			ghcrateengine.NewDomesticDestinationPricer(),
-			ghcrateengine.NewFuelSurchargePricer(),
-			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-			ghcrateengine.NewDomesticOriginSITPickupPricer(),
-			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 

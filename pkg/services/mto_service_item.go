@@ -25,7 +25,6 @@ type MTOServiceItemFetcher interface {
 type MTOServiceItemCreator interface {
 	CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
 	FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error)
-	FindSITEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error)
 }
 
 // MTOServiceItemUpdater is the exported interface for updating an mto service item

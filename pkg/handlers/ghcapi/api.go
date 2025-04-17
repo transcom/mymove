@@ -96,15 +96,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ghcrateengine.NewDomesticShorthaulPricer(),
 		ghcrateengine.NewDomesticOriginPricer(),
 		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer(),
-		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
-		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
-		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
-		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
-		ghcrateengine.NewDomesticOriginSITPickupPricer(),
-		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
-		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+		ghcrateengine.NewFuelSurchargePricer())
 
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
@@ -445,7 +437,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
-			mtoServiceItemCreator,
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			handlerConfig.HHGPlanner(),
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()),
 			moveTaskOrderUpdater,
