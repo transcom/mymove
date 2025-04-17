@@ -633,6 +633,19 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for service item dimensions", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
+				startDate := time.Now().AddDate(-10, 0, 0)
+				endDate := startDate.AddDate(10, 1, 1)
+
+				testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+				testdatagen.MakeReContractYear(suite.DB(),
+					testdatagen.Assertions{
+						ReContractYear: models.ReContractYear{
+							Name:                 "Test Contract Year",
+							EscalationCompounded: 1.125,
+							StartDate:            startDate,
+							EndDate:              endDate,
+						},
+					})
 
 				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
