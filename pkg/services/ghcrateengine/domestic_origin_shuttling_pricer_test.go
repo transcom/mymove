@@ -14,10 +14,10 @@ import (
 
 const (
 	doshutTestServiceSchedule      = 2
-	doshutTestBasePriceCents       = unit.Cents(353)
-	doshutTestEscalationCompounded = 1.125
+	doshutTestBasePriceCents       = unit.Cents(541)
+	doshutTestEscalationCompounded = 1.11000
 	doshutTestWeight               = unit.Pound(4000)
-	doshutTestPriceCents           = unit.Cents(15880)
+	doshutTestPriceCents           = unit.Cents(24040)
 )
 
 var doshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -34,7 +34,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 		suite.Equal(doshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(doshutTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(doshutTestBasePriceCents)},
 		}
@@ -72,7 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
-		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.Error(err)
 
