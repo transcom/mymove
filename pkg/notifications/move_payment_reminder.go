@@ -93,6 +93,7 @@ FROM ppm_shipments ps
 	AND ms.status = 'APPROVED'::public."mto_shipment_status"
 	AND ps.expected_departure_date <= now() - ($1)::interval
 	AND ps.expected_departure_date  >= $2
+	AND o.orders_type != 'SAFETY'
 	AND NOT EXISTS (
         SELECT 1 FROM notifications n
         WHERE sm.id = n.service_member_id
