@@ -629,8 +629,8 @@ export const userName = (user) => {
 export const formatServiceMemberNameToString = (serviceMember) => {
   let formattedUser = '';
   if (serviceMember.first_name && serviceMember.last_name) {
-    formattedUser += `${serviceMember.last_name}`;
-    formattedUser += ` ${serviceMember.first_name}`;
+    formattedUser += `${serviceMember.first_name}`;
+    formattedUser += ` ${serviceMember.last_name}`;
   } else {
     if (serviceMember.first_name) {
       formattedUser += `${serviceMember.first_name}`;

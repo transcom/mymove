@@ -79,7 +79,7 @@ describe('Agreement page', () => {
     expect(checkbox.checked).toEqual(true);
 
     expect(signatureInput).toBeEnabled();
-    await userEvent.type(signatureInput, 'Clark-Nuñez Sofia');
+    await userEvent.type(signatureInput, 'Sofia Clark-Nuñez');
 
     // eslint-disable-next-line no-restricted-globals
     print(signatureInput.value);
@@ -87,6 +87,9 @@ describe('Agreement page', () => {
     await waitFor(() => {
       expect(completeButton).toBeEnabled();
     });
+
+    await userEvent.click(completeButton);
+
     await waitFor(() => {
       expect(submitMoveForApproval).toHaveBeenCalledWith(testProps.moveId, {
         certification_text: completeCertificationText,
