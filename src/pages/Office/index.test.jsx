@@ -67,7 +67,7 @@ mockPage(
 );
 mockPage('pages/PrimeUI/CreateServiceItem/CreateServiceItem', 'Prime Simulator Create Service Item');
 mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh', 'Prime Simulator Shipment Update Reweigh');
-mockPage('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch', 'QAE CSR Move Search');
+mockPage('pages/Office/MoveSearch/MoveSearch', 'Move Search');
 mockPage('pages/Office/TXOMoveInfo/TXOMoveInfo', 'TXO Move Info');
 mockPage('pages/PrimeUI/AvailableMoves/AvailableMovesQueue', 'Prime Simulator Available Moves Queue');
 mockPage('components/NotFound/NotFound');
@@ -339,10 +339,10 @@ describe('Office App', () => {
         '/simulator/moves/test123/shipments/ship123/reweigh/req123/update',
         roleTypes.PRIME_SIMULATOR,
       ],
-      ['QAE CSR Move Search', '/', roleTypes.QAE],
-      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.QAE],
-      ['QAE CSR Move Search', '/', roleTypes.GSR, true],
-      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.GSR, true],
+      ['Move Search', '/', roleTypes.QAE],
+      ['Move Search', '/qaecsr/search', roleTypes.QAE],
+      ['Move Search', '/', roleTypes.GSR, true],
+      ['Move Search', '/qaecsr/search', roleTypes.GSR, true],
       ['TXO Move Info', '/moves/move123', roleTypes.TIO],
       ['Payment Request Queue', '/', roleTypes.TIO],
       ['Move Queue', '/', roleTypes.TOO],
@@ -435,7 +435,7 @@ describe('Office App', () => {
         '/simulator/moves/test123/shipments/ship123/reweigh/re123/update',
         roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
       ],
-      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.TIO],
+      ['Move Search', '/qaecsr/search', roleTypes.TIO],
       ['TXO Move Info', '/moves/move123', roleTypes.PRIME_SIMULATOR],
     ])('denies access to %s when user has insufficient permission', async (component, path, role) => {
       renderOfficeApp({ path, role });
