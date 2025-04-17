@@ -13,13 +13,16 @@ export const DeleteCustomerSupportRemarkConfirmationModal = ({
   submitText,
   closeText,
 }) => (
-  <Modal>
+  <Modal onClose={onClose}>
     <ModalClose handleClick={() => onClose()} />
     <ModalTitle>
       <h3>{title}</h3>
     </ModalTitle>
     <p>{content}</p>
-    <ModalActions autofocus="true">
+    <ModalActions>
+      <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
+        {closeText}
+      </Button>
       <Button
         data-focus="true"
         className="usa-button--destructive"
@@ -27,9 +30,6 @@ export const DeleteCustomerSupportRemarkConfirmationModal = ({
         onClick={() => onSubmit(customerSupportRemarkID)}
       >
         {submitText}
-      </Button>
-      <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
-        {closeText}
       </Button>
     </ModalActions>
   </Modal>

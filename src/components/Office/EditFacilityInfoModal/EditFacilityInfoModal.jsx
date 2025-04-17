@@ -33,7 +33,7 @@ export const EditFacilityInfoModal = ({
   });
 
   return (
-    <Modal className={styles.EditFacilityInfoModal}>
+    <Modal className={styles.EditFacilityInfoModal} onClose={onClose}>
       <ShipmentTag shipmentType={shipmentType} />
       <ModalClose handleClick={onClose} />
       <ModalTitle>
@@ -117,9 +117,6 @@ export const EditFacilityInfoModal = ({
                 />
               </Fieldset>
               <ModalActions>
-                <Button type="submit" disabled={!isValid}>
-                  Save
-                </Button>
                 <Button
                   type="button"
                   onClick={() => onClose()}
@@ -128,6 +125,9 @@ export const EditFacilityInfoModal = ({
                   className={styles.CancelButton}
                 >
                   Cancel
+                </Button>
+                <Button type="submit" disabled={!isValid}>
+                  Save
                 </Button>
               </ModalActions>
             </Form>

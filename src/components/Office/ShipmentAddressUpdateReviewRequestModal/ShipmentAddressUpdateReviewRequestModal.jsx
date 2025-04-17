@@ -39,7 +39,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
     </Button>
   );
   return (
-    <Modal>
+    <Modal onClose={() => onClose()}>
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
         <ShipmentTag shipmentType={shipment.shipmentType} />
@@ -95,11 +95,11 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
                 />
               </div>
               <ModalActions>
-                <Button type="submit" disabled={!isValid}>
-                  Save
-                </Button>
                 <Button type="button" secondary onClick={onClose}>
                   Cancel
+                </Button>
+                <Button type="submit" disabled={!isValid}>
+                  Save
                 </Button>
               </ModalActions>
             </Form>

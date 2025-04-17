@@ -7,7 +7,7 @@ import Modal, { ModalClose, ModalActions, connectModal } from 'components/Modal/
 import SystemError from 'components/SystemError';
 
 export const ErrorModal = ({ closeModal, errorMessage, displayHelpDeskLink = true }) => (
-  <Modal className={styles.Modal}>
+  <Modal className={styles.Modal} onClose={closeModal}>
     <ModalClose handleClick={closeModal} />
     <SystemError>
       {errorMessage}

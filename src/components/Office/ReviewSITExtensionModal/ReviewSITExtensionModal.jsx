@@ -172,7 +172,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.ReviewSITExtensionModal}>
+        <Modal className={styles.ReviewSITExtensionModal} onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Review SIT Extension Request</h2>
@@ -284,9 +284,6 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                         id="officeRemarks"
                       />
                       <ModalActions>
-                        <Button type="submit" disabled={!isValid}>
-                          Save
-                        </Button>
                         <Button
                           type="button"
                           onClick={() => onClose()}
@@ -295,6 +292,9 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                           className={styles.CancelButton}
                         >
                           Cancel
+                        </Button>
+                        <Button type="submit" disabled={!isValid}>
+                          Save
                         </Button>
                       </ModalActions>
                       {showConfirmCustomerExpenseModal && (

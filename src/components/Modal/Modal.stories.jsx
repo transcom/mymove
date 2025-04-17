@@ -14,7 +14,7 @@ export default {
 };
 
 export const withContent = () => (
-  <Modal>
+  <Modal onClose={action('Close modal')}>
     <ModalClose handleClick={action('Close modal')} />
     <ModalTitle>
       <h4>Are you sure you want to reject this request?</h4>
@@ -30,10 +30,10 @@ export const withContent = () => (
       <Form>
         <TextField name="rejectionReason" label="Reason for rejection" type="text" />
         <ModalActions>
-          <Button type="submit">Confirm</Button>
           <Button secondary type="reset">
             Cancel
           </Button>
+          <Button type="submit">Confirm</Button>
         </ModalActions>
       </Form>
     </Formik>
@@ -41,22 +41,22 @@ export const withContent = () => (
 );
 
 export const empty = () => (
-  <Modal>
+  <Modal onClose={action('Close modal')}>
     <ModalClose handleClick={action('Close modal')} />
     <ModalTitle>
       <h4>Modal title</h4>
     </ModalTitle>
     <ModalActions>
-      <Button type="button">Submit</Button>
       <Button secondary type="button">
         Back
       </Button>
+      <Button type="button">Submit</Button>
     </ModalActions>
   </Modal>
 );
 
 export const contentNoTitle = () => (
-  <Modal>
+  <Modal onClose={action('Close modal')}>
     <ModalClose handleClick={action('Close modal')} />
     <h4>
       <strong>Long-term storage (NTS)</strong>
@@ -76,10 +76,10 @@ export const contentNoTitle = () => (
       can retrieve them during a future move.
     </p>
     <ModalActions>
-      <Button type="button">Submit</Button>
       <Button secondary type="button">
         Back
       </Button>
+      <Button type="button">Submit</Button>
     </ModalActions>
   </Modal>
 );

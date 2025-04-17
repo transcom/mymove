@@ -9,16 +9,13 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
   <div data-testid="SubmitMoveConfirmationModal">
     <Overlay />
     <ModalContainer>
-      <Modal>
+      <Modal onClose={() => onClose()}>
         <ModalClose handleClick={() => onClose()} />
         <ModalTitle>
           <h2>Are you sure?</h2>
         </ModalTitle>
         <p>You can’t make changes after you submit the move.</p>
         <ModalActions>
-          <Button className="usa-button--submit" type="submit" onClick={() => onSubmit()}>
-            Yes, submit
-          </Button>
           <Button
             className="usa-button--tertiary"
             type="button"
@@ -26,6 +23,9 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
             data-testid="modalCancelButton"
           >
             Cancel
+          </Button>
+          <Button className="usa-button--submit" type="submit" onClick={() => onSubmit()}>
+            Yes, submit
           </Button>
         </ModalActions>
       </Modal>
