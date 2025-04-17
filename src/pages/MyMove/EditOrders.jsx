@@ -83,7 +83,7 @@ const EditOrders = ({
       });
     };
     fetchData();
-  }, [updateOrders, serviceMemberId, updateAllMoves, orderId]);
+  }, [updateOrders, serviceMemberId, updateAllMoves, orderId, currentOrder?.payGradeRank?.rankShortName]);
 
   const initialValues = {
     orders_type: currentOrder?.orders_type || '',
@@ -94,6 +94,7 @@ const EditOrders = ({
     uploaded_orders: currentOrder?.uploaded_orders?.uploads || [],
     move_status: move?.status,
     grade: currentOrder?.grade || null,
+    rank: currentOrder?.payGradeRank?.rankShortName || null,
     origin_duty_location: currentOrder?.origin_duty_location || {},
     counseling_office_id: move?.counselingOffice?.id || undefined,
     accompanied_tour: formatYesNoInputValue(allowances.accompanied_tour) || '',
@@ -157,6 +158,7 @@ const EditOrders = ({
       hasDependents !== currentOrder.has_dependents || fieldValues.grade !== currentOrder.grade;
     const newDutyLocationId = fieldValues.new_duty_location.id;
     const newPayGrade = fieldValues.grade;
+    const pendingRank = fieldValues.rank;
     const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
     const constructOconusFields = () => {
       const isOconus =
@@ -211,6 +213,7 @@ const EditOrders = ({
       issue_date: formatDateForSwagger(fieldValues.issue_date),
       report_by_date: formatDateForSwagger(fieldValues.report_by_date),
       grade: newPayGrade,
+      rankShortName: pendingRank,
       origin_duty_location_id: newOriginDutyLocationId,
       counseling_office_id: fieldValues.counseling_office_id,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the

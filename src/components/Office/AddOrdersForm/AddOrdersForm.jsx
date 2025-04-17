@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useLocation, useParams } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
@@ -10,20 +11,22 @@ import { civilianTDYUBAllowanceWeightWarningOfficeUser, FEATURE_FLAG_KEYS } from
 
 import styles from './AddOrdersForm.module.scss';
 
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
-import { dropdownInputOptions } from 'utils/formatters';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { usePaygradeRankDropdownOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { showCounselingOffices } from 'services/ghcApi';
 import Hint from 'components/Hint';
+import { useCustomerQuery } from 'hooks/queries';
 
 let originMeta;
 let newDutyMeta = '';
@@ -35,7 +38,14 @@ const AddOrdersForm = ({
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
 }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+  const { customerId: serviceMemberId } = useParams();
+  const { customerData: { agency = '' } = {} } = useCustomerQuery(serviceMemberId);
+  const loggedInAffiliation = useSelector((state) => selectServiceMemberAffiliation(state));
+  const locationResult = useLocation();
+  if (locationResult.state === null) {
+    locationResult.state = {};
+  }
+  const { state: { affiliation = loggedInAffiliation || agency } = { affiliation: null } } = { state: {} };
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -48,10 +58,12 @@ const AddOrdersForm = ({
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
   const [ordersType, setOrdersType] = useState('');
-  const [grade, setGrade] = useState('');
+
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
-  const { customerId: serviceMemberId } = useParams();
+  const [grade, setGrade] = useState('');
+  const [, setRank] = useState('');
+  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     ordersType: Yup.mixed()
@@ -69,7 +81,7 @@ const AddOrdersForm = ({
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
     newDutyLocation: Yup.object().nullable().required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    rank: Yup.mixed().oneOf(Object.keys(mappedRanks)).required('Required'),
     accompaniedTour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
@@ -172,7 +184,14 @@ const AddOrdersForm = ({
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
-
+        const handleRankGradeChange = (rankGrade = { rank: null, grade: null }) => {
+          setRank(rankGrade.rank);
+          setGrade(rankGrade.grade);
+          setValues({
+            ...values,
+            ...rankGrade,
+          });
+        };
         const handleCounselingOfficeChange = () => {
           setValues({
             ...values,
@@ -452,20 +471,26 @@ const AddOrdersForm = ({
                   />
                 </FormGroup>
               )}
-
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
-                required
-                options={payGradeOptions}
                 showRequiredAsterisk
+                label="Rank"
+                name="rank"
+                id="rank"
+                required
+                options={paygradeRankOptionValues}
                 onChange={(e) => {
-                  setGrade(e.target.value);
+                  if (e.target.value === '') {
+                    handleRankGradeChange({ rank: null, grade: null });
+                    handleChange(e);
+                    return;
+                  }
+
+                  const rankValue = e.target.value;
+                  const gradeForRank = mappedRanks[rankValue].grade;
+                  handleRankGradeChange({ rank: rankValue, grade: gradeForRank });
                   handleChange(e);
                 }}
               />
-
               {isCivilianTDYMove && showcivilianTDYUBAllowanceWarning ? (
                 <FormGroup className={styles.civilianUBAllowanceWarning}>
                   <MaskedTextField

@@ -1,11 +1,18 @@
 import path from 'path';
 
+import { useMemo } from 'react';
 import moment from 'moment';
 import numeral from 'numeral';
 
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
+import {
+  ORDERS_TYPE_OPTIONS,
+  ORDERS_TYPE_DETAILS_OPTIONS,
+  ORDERS_TYPE,
+  ORDERS_PAY_GRADE_TYPE,
+  rankOptionValuesByAffiliation,
+} from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 
@@ -304,6 +311,39 @@ export const formatMoveHistoryMaxBillableWeight = (historyRecord) => {
 
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
+};
+
+export const makeRankAffiliationMappings = (affiliation) => {
+  const affiliatedValues = rankOptionValuesByAffiliation(affiliation);
+  const paygradeRankOptions = Object.fromEntries(
+    Object.values(affiliatedValues).map((pgr) => {
+      return [pgr.abbv_rank, pgr.value];
+    }),
+  );
+
+  const paygradeRankDropdownOptions = dropdownInputOptions(paygradeRankOptions);
+  const sortedResult = paygradeRankDropdownOptions.sort((a, b) => {
+    const theGradeA = affiliatedValues[a.key].grade;
+    const [typeA] = theGradeA.split('_');
+    const theGradeB = affiliatedValues[b.key].grade;
+    const [typeB] = theGradeB.split('_');
+    const typeCompare = typeB.localeCompare(typeA);
+    return typeCompare;
+  });
+  sortedResult.reverse();
+  return [affiliatedValues, sortedResult];
+};
+
+export const usePaygradeRankDropdownOptions = (affiliation) => {
+  const paygradeRankOptionValues = useMemo(() => makeRankAffiliationMappings(affiliation), [affiliation]);
+  switch (affiliation) {
+    case '':
+    case undefined:
+    case null:
+      return [{}, []];
+    default:
+      return paygradeRankOptionValues;
+  }
 };
 
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
