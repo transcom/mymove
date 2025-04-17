@@ -62,25 +62,24 @@ func MakeDefaultReDomesticLinehaulPrice(db *pop.Connection) models.ReDomesticLin
 }
 
 func FetchOrMakeReDomesticLinehaulPrice(db *pop.Connection, assertions Assertions) models.ReDomesticLinehaulPrice {
-	reDomesticLinehaulPrice := assertions.ReDomesticLinehaulPrice
-	var existingReDomesticLinehaulPrice models.ReDomesticLinehaulPrice
-	if reDomesticLinehaulPrice.ContractID != uuid.Nil &&
-		reDomesticLinehaulPrice.DomesticServiceAreaID != uuid.Nil &&
+
+	var reDomesticLinehaulPrice models.ReDomesticLinehaulPrice
+	if reDomesticLinehaulPrice.DomesticServiceAreaID != uuid.Nil &&
 		reDomesticLinehaulPrice.MilesLower > 0 &&
 		reDomesticLinehaulPrice.MilesUpper > 0 &&
 		reDomesticLinehaulPrice.WeightLower.Int() > 0 &&
 		reDomesticLinehaulPrice.WeightUpper.Int() > 0 {
 
-		err := db.Where("contract_id = ? AND domestic_service_area_id = ? AND miles_lower = ? AND miles_upper = ? AND weight_lower = ? and weight_upper = ? and is_peak_period = ?",
-			reDomesticLinehaulPrice.ContractID, reDomesticLinehaulPrice.DomesticServiceAreaID, reDomesticLinehaulPrice.MilesLower, reDomesticLinehaulPrice.MilesUpper, reDomesticLinehaulPrice.WeightLower, reDomesticLinehaulPrice.WeightUpper, reDomesticLinehaulPrice.IsPeakPeriod).First(&existingReDomesticLinehaulPrice)
+		err := db.Where("domestic_service_area_id = ? AND miles_lower = ? AND miles_upper = ? AND weight_lower = ? and weight_upper = ? and is_peak_period = ?",
+			reDomesticLinehaulPrice.DomesticServiceAreaID, reDomesticLinehaulPrice.MilesLower, reDomesticLinehaulPrice.MilesUpper, reDomesticLinehaulPrice.WeightLower, reDomesticLinehaulPrice.WeightUpper, reDomesticLinehaulPrice.IsPeakPeriod).First(&reDomesticLinehaulPrice)
 		if err != nil && err != sql.ErrNoRows {
 			log.Panic("unexpected query error looking for existing ReDomesticLinehaulPrice", err)
 		}
 
-		if existingReDomesticLinehaulPrice.ID != uuid.Nil {
-			return reDomesticLinehaulPrice
+		if reDomesticLinehaulPrice.ID == uuid.Nil {
+			return MakeReDomesticLinehaulPrice(db, assertions)
 		}
 	}
 
-	return MakeReDomesticLinehaulPrice(db, assertions)
+	return reDomesticLinehaulPrice
 }

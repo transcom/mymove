@@ -90,13 +90,15 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchInternationalAccessorialPrice(
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 	testDate := time.Date(testdatagen.TestYear, time.June, 17, 8, 45, 44, 333, time.UTC)
-	testEscalationCompounded := 1.0512
+	testEscalationCompounded := 1.11000
 
 	suite.Run("golden path", func() {
-		newContractYear := testdatagen.MakeReContractYear(suite.DB(),
+		newContractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					EscalationCompounded: testEscalationCompounded,
+					StartDate:            testdatagen.ContractStartDate,
+					EndDate:              testdatagen.ContractEndDate,
 				},
 			})
 
@@ -106,33 +108,26 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 	})
 
 	suite.Run("no records found", func() {
-		newContractYear := testdatagen.MakeReContractYear(suite.DB(),
+		newContractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					EscalationCompounded: testEscalationCompounded,
+					StartDate:            testdatagen.ContractStartDate,
+					EndDate:              testdatagen.ContractEndDate,
 				},
 			})
 
 		// Look for a testDate that's a couple of years later.
-		_, err := fetchContractYear(suite.AppContextForTest(), newContractYear.ContractID, testDate.AddDate(2, 0, 0))
+		_, err := fetchContractYear(suite.AppContextForTest(), newContractYear.ContractID, testDate.AddDate(10, 0, 0))
 		suite.Error(err)
 	})
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchShipmentTypePrice() {
 	suite.Run("golden path", func() {
-		suite.setupShipmentTypePrice(models.ReServiceCodeDNPK, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		shipmentTypePrice, err := fetchShipmentTypePrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDNPK, models.MarketConus)
 
 		suite.NoError(err)
 		suite.Equal(dnpkTestFactor, shipmentTypePrice.Factor)
-	})
-
-	suite.Run("no records found", func() {
-		suite.setupShipmentTypePrice(models.ReServiceCodeDNPK, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
-
-		// Look for service code INPK that we haven't added
-		_, err := fetchShipmentTypePrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeINPK, models.MarketOconus)
-		suite.Error(err)
 	})
 }

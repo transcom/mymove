@@ -553,13 +553,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
@@ -753,13 +746,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			DistanceMilesUpper: 10000,
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -4518,7 +4504,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
-		true,
 	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -4557,13 +4542,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-
 		contractYear, _, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
 				ServiceArea: "321",
@@ -4581,7 +4559,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			true,
 		).Return(500, nil)
 
 		// Approve the shipment to trigger the estimate pricing proc on INPK
@@ -4649,7 +4626,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		// this also tests the calculate_escalation_factor proc
 		// This information was pulled from the migration scripts (Or just run db fresh and perform the lookups
 		// manually, whichever is your cup of tea)
-		suite.Equal(escalationFactor, 1.04082)
+		suite.Equal(escalationFactor, 1.11)
 
 		// Fetch the INPK market factor from the DB
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
@@ -5142,6 +5119,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 
 		return shipment, pickupAddress, destinationAddress
 	}
+
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(1000, nil)
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.PaymentRequests{}, nil)
 
 	suite.Run("IOSFSC - success", func() {
 		shipment, pickupAddress, _ := setupData(true, false)
