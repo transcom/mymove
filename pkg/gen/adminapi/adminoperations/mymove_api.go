@@ -21,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/e_d_i_errors"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
@@ -30,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_files"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/rejected_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/single_e_d_i_error"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
@@ -74,11 +76,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersDeleteOfficeUserHandler: office_users.DeleteOfficeUserHandlerFunc(func(params office_users.DeleteOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
 		}),
+		EdiErrorsFetchEdiErrorsHandler: e_d_i_errors.FetchEdiErrorsHandlerFunc(func(params e_d_i_errors.FetchEdiErrorsParams) middleware.Responder {
+			return middleware.NotImplemented("operation e_d_i_errors.FetchEdiErrors has not yet been implemented")
+		}),
 		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
 		}),
 		ClientCertificatesGetClientCertificateHandler: client_certificates.GetClientCertificateHandlerFunc(func(params client_certificates.GetClientCertificateParams) middleware.Responder {
 			return middleware.NotImplemented("operation client_certificates.GetClientCertificate has not yet been implemented")
+		}),
+		SingleediErrorGetEdiErrorHandler: single_e_d_i_error.GetEdiErrorHandlerFunc(func(params single_e_d_i_error.GetEdiErrorParams) middleware.Responder {
+			return middleware.NotImplemented("operation single_e_d_i_error.GetEdiError has not yet been implemented")
 		}),
 		ElectronicOrdersGetElectronicOrdersTotalsHandler: electronic_orders.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_orders.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_orders.GetElectronicOrdersTotals has not yet been implemented")
@@ -229,10 +237,14 @@ type MymoveAPI struct {
 	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
 	// OfficeUsersDeleteOfficeUserHandler sets the operation handler for the delete office user operation
 	OfficeUsersDeleteOfficeUserHandler office_users.DeleteOfficeUserHandler
+	// EdiErrorsFetchEdiErrorsHandler sets the operation handler for the fetch edi errors operation
+	EdiErrorsFetchEdiErrorsHandler e_d_i_errors.FetchEdiErrorsHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
 	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ClientCertificatesGetClientCertificateHandler sets the operation handler for the get client certificate operation
 	ClientCertificatesGetClientCertificateHandler client_certificates.GetClientCertificateHandler
+	// SingleediErrorGetEdiErrorHandler sets the operation handler for the get edi error operation
+	SingleediErrorGetEdiErrorHandler single_e_d_i_error.GetEdiErrorHandler
 	// ElectronicOrdersGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrdersGetElectronicOrdersTotalsHandler electronic_orders.GetElectronicOrdersTotalsHandler
 	// UserGetLoggedInAdminUserHandler sets the operation handler for the get logged in admin user operation
@@ -391,11 +403,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeUsersDeleteOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.DeleteOfficeUserHandler")
 	}
+	if o.EdiErrorsFetchEdiErrorsHandler == nil {
+		unregistered = append(unregistered, "e_d_i_errors.FetchEdiErrorsHandler")
+	}
 	if o.AdminUsersGetAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
 	}
 	if o.ClientCertificatesGetClientCertificateHandler == nil {
 		unregistered = append(unregistered, "client_certificates.GetClientCertificateHandler")
+	}
+	if o.SingleediErrorGetEdiErrorHandler == nil {
+		unregistered = append(unregistered, "single_e_d_i_error.GetEdiErrorHandler")
 	}
 	if o.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_orders.GetElectronicOrdersTotalsHandler")
@@ -607,11 +625,19 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/edi-errors"] = e_d_i_errors.NewFetchEdiErrors(o.context, o.EdiErrorsFetchEdiErrorsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/admin-users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/client-certificates/{clientCertificateId}"] = client_certificates.NewGetClientCertificate(o.context, o.ClientCertificatesGetClientCertificateHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/edi-errors/{ediErrorId}"] = single_e_d_i_error.NewGetEdiError(o.context, o.SingleediErrorGetEdiErrorHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
