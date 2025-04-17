@@ -7,6 +7,9 @@ const sitStatus = {
   currentSIT: {
     sitAuthorizedEndDate: '2024-03-17',
   },
+  totalSITDaysUsed: 15,
+  totalDaysRemaining: 15,
+  calculatedTotalDaysInSIT: 15,
 };
 
 const shipment = {

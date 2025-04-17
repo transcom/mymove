@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Checkbox, Tag, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
 
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { EditButton, ReviewButton } from 'components/form/IconButtons';
@@ -71,10 +72,10 @@ const ShipmentDisplay = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
       setEnableCompletePPMCloseoutForCustomer(
         await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER),
       );
+      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
     };
     fetchData();
   }, []);
@@ -110,6 +111,11 @@ const ShipmentDisplay = ({
                 </label>
               </h3>
               <div className={styles.tagWrapper}>
+                {displayInfo.shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE && (
+                  <Tag data-testid="terminatedTag" className="usa-tag--cancellation">
+                    terminated for cause
+                  </Tag>
+                )}
                 {ppmSprFF && displayInfo.ppmShipment?.ppmType === PPM_TYPES.SMALL_PACKAGE && (
                   <Tag data-testid="smallPackageTag">{getPPMTypeLabel(displayInfo.ppmShipment.ppmType)}</Tag>
                 )}
@@ -307,4 +313,4 @@ ShipmentDisplay.defaultProps = {
   neverShow: [],
 };
 
-export default ShipmentDisplay;
+export default connect(() => ({}))(ShipmentDisplay);

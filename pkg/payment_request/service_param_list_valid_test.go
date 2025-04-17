@@ -43,7 +43,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	serviceItemParamKey1 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameWeightEstimated,
@@ -53,7 +53,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 			},
 		},
 	}, nil)
-	serviceItemParamKey2 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	serviceItemParamKey2 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameRequestedPickupDate,
@@ -63,7 +63,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 			},
 		},
 	}, nil)
-	serviceItemParamKey3 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	serviceItemParamKey3 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameZipPickupAddress,
@@ -74,7 +74,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	serviceItemParamKey4 := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	serviceItemParamKey4 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameDistanceZip,
@@ -85,7 +85,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	mtoServiceItem1Param1 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	mtoServiceItem1Param1 := factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.mtoServiceItem1.ReService,
 			LinkOnly: true,
@@ -101,7 +101,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	mtoServiceItem1Param2 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	mtoServiceItem1Param2 := factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.mtoServiceItem1.ReService,
 			LinkOnly: true,
@@ -112,7 +112,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	mtoServiceItem1Param3 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	mtoServiceItem1Param3 := factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.mtoServiceItem1.ReService,
 			LinkOnly: true,
@@ -123,7 +123,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	mtoServiceItem1Param4 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	mtoServiceItem1Param4 := factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.mtoServiceItem1.ReService,
 			LinkOnly: true,
@@ -134,7 +134,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 		},
 	}, nil)
 
-	mtoServiceItem2Param1 := factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	mtoServiceItem2Param1 := factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.mtoServiceItem2.ReService,
 			LinkOnly: true,
@@ -216,39 +216,54 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 
 	suite.Run("Validate Service Items Params is FALSE (Params are missing)", func() {
 		subtestData := suite.makeServiceParamTestData()
+
+		// for service item 1, deliberately supply NO payment parameters
+		paymentServiceItemParams1 := models.PaymentServiceItemParams{}
+
+		var paymentServiceItemParams2 models.PaymentServiceItemParams
+		for _, p := range subtestData.mtoService2ServiceParams {
+			paymentServiceItemParams2 = append(paymentServiceItemParams2, models.PaymentServiceItemParam{
+				ServiceItemParamKeyID: p.ServiceItemParamKeyID,
+				ServiceItemParamKey:   p.ServiceItemParamKey,
+				Value:                 "1000",
+			})
+		}
+
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: subtestData.move.ID,
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					MTOServiceItemID: subtestData.mtoServiceItem1.ID,
-					MTOServiceItem:   subtestData.mtoServiceItem1,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{
-						{
-							ServiceItemParamKeyID: subtestData.mtoService1ServiceParams[0].ServiceItemParamKeyID,
-							ServiceItemParamKey:   subtestData.mtoService1ServiceParams[0].ServiceItemParamKey,
-						},
-					},
+					MTOServiceItemID:         subtestData.mtoServiceItem1.ID,
+					MTOServiceItem:           subtestData.mtoServiceItem1,
+					PaymentServiceItemParams: paymentServiceItemParams1,
 				},
 				{
-					MTOServiceItemID: subtestData.mtoServiceItem2.ID,
-					MTOServiceItem:   subtestData.mtoServiceItem2,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{
-						{
-							ServiceItemParamKeyID: subtestData.mtoService2ServiceParams[0].ServiceItemParamKeyID,
-							ServiceItemParamKey:   subtestData.mtoService2ServiceParams[0].ServiceItemParamKey,
-						},
-					},
+					MTOServiceItemID:         subtestData.mtoServiceItem2.ID,
+					MTOServiceItem:           subtestData.mtoServiceItem2,
+					PaymentServiceItemParams: paymentServiceItemParams2,
 				},
 			},
 		}
 
 		paymentHelper := RequestPaymentHelper{}
-		validParamList1, validateMessage1 := paymentHelper.ValidServiceParamList(suite.AppContextForTest(), subtestData.mtoServiceItem1, subtestData.mtoService1ServiceParams, paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams)
-		suite.Equal(false, validParamList1, "All params for service item should be present")
-		suite.NotEmpty(validateMessage1, "Error message with list of missing param keys")
-		validParamList2, validateMessage2 := paymentHelper.ValidServiceParamList(suite.AppContextForTest(), subtestData.mtoServiceItem2, subtestData.mtoService2ServiceParams, paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams)
-		suite.Equal(true, validParamList2, "All params for service item should be present")
-		suite.Empty(validateMessage2, "No error message returned")
+		validParamList1, validateMessage1 := paymentHelper.ValidServiceParamList(
+			suite.AppContextForTest(),
+			subtestData.mtoServiceItem1,
+			subtestData.mtoService1ServiceParams,
+			paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams,
+		)
+		suite.Equal(false, validParamList1, "Expected validation to fail for service item 1 since required params are missing")
+		suite.NotEmpty(validateMessage1, "Expected error message listing missing param keys")
+
+		validParamList2, validateMessage2 := paymentHelper.ValidServiceParamList(
+			suite.AppContextForTest(),
+			subtestData.mtoServiceItem2,
+			subtestData.mtoService2ServiceParams,
+			paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams,
+		)
+		suite.Equal(true, validParamList2, "Expected validation to succeed for service item 2")
+		suite.Empty(validateMessage2, "No error message should be returned for a complete set")
 	})
+
 }

@@ -9,13 +9,13 @@ import (
 func (suite *FactorySuite) TestBuildServiceParam() {
 
 	suite.Run("Successful creation of default service item param key", func() {
-		// Under test:      BuildServiceParam
+		// Under test:      FetchOrBuildServiceParam
 		// Mocked:          None
 		// Set up:          Create a Service Paramwith no customizations or traits
 		// Expected outcome:Service Paramshould be created with default values
 
 		// CALL FUNCTION UNDER TEST
-		serviceParam := BuildServiceParam(suite.DB(), nil, nil)
+		serviceParam := FetchOrBuildServiceParam(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
 		suite.True(serviceParam.IsOptional)
@@ -24,7 +24,7 @@ func (suite *FactorySuite) TestBuildServiceParam() {
 	})
 
 	suite.Run("Successful creation of customized ServiceParam", func() {
-		// Under test:      BuildServiceParam
+		// Under test:      FetchOrBuildServiceParam
 		// Set up:          Create a Service Param and pass custom fields
 		// Expected outcome:serviceParam should be created with custom fields
 		// SETUP
@@ -34,7 +34,7 @@ func (suite *FactorySuite) TestBuildServiceParam() {
 
 		reService := FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
-		serviceItemParamKey := BuildServiceItemParamKey(suite.DB(), []Customization{
+		serviceItemParamKey := FetchOrBuildServiceItemParamKey(suite.DB(), []Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameIsPeak,
@@ -44,7 +44,7 @@ func (suite *FactorySuite) TestBuildServiceParam() {
 		}, nil)
 
 		// CALL FUNCTION UNDER TEST
-		serviceParam := BuildServiceParam(suite.DB(), []Customization{
+		serviceParam := FetchOrBuildServiceParam(suite.DB(), []Customization{
 			{
 				Model:    reService,
 				LinkOnly: true,
@@ -74,7 +74,7 @@ func (suite *FactorySuite) TestBuildServiceParam() {
 		suite.NoError(err)
 
 		id := uuid.Must(uuid.NewV4())
-		serviceParam := BuildServiceParam(suite.DB(), []Customization{
+		serviceParam := FetchOrBuildServiceParam(suite.DB(), []Customization{
 			{
 				Model: models.ServiceParam{
 					ID: id,
@@ -101,7 +101,7 @@ func (suite *FactorySuite) TestBuildServiceParam() {
 		}
 
 		// Nil passed in as db
-		serviceParam := BuildServiceParam(nil, []Customization{
+		serviceParam := FetchOrBuildServiceParam(nil, []Customization{
 			{
 				Model: customServiceParam,
 			},
@@ -114,24 +114,5 @@ func (suite *FactorySuite) TestBuildServiceParam() {
 		suite.True(serviceParam.ID.IsNil())
 		suite.Equal(customServiceParam.ServiceID, serviceParam.ServiceID)
 		suite.Equal(customServiceParam.ServiceItemParamKeyID, serviceParam.ServiceItemParamKeyID)
-	})
-
-	suite.Run("Two service params should not be created", func() {
-		// Under test:      FetchOrBuildServiceParam
-		// Set up:          Create a service paramwith no customized state or traits
-		// Expected outcome:Only 1 service item param key should be created
-		count, potentialErr := suite.DB().Count(&models.ServiceParams{})
-		suite.NoError(potentialErr)
-		suite.Zero(count)
-
-		firstServiceParam := FetchOrBuildServiceParam(suite.DB(), nil, nil)
-
-		secondServiceParam := FetchOrBuildServiceParam(suite.DB(), nil, nil)
-
-		suite.Equal(firstServiceParam.ID, secondServiceParam.ID)
-
-		existingServiceParamCount, err := suite.DB().Count(&models.ServiceParams{})
-		suite.NoError(err)
-		suite.Equal(1, existingServiceParamCount)
 	})
 }

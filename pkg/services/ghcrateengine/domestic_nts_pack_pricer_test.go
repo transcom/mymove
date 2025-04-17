@@ -13,14 +13,14 @@ import (
 )
 
 const (
-	dnpkTestEscalationCompounded   = 1.0407
+	dnpkTestEscalationCompounded   = 1.11000
 	dnpkTestIsPeakPeriod           = true
 	dnpkTestWeight                 = unit.Pound(2100)
 	dnpkTestServicesScheduleOrigin = 1
-	dnpkTestContractYearName       = "DNPK Test Year"
+	dnpkTestContractYearName       = testdatagen.DefaultContractYearName
 	dnpkTestBasePriceCents         = unit.Cents(6544)
-	dnpkTestFactor                 = 1.32 // CONUS default db value
-	dnpkTestPriceCents             = unit.Cents(188773)
+	dnpkTestFactor                 = 1.32000
+	dnpkTestPriceCents             = unit.Cents(201358)
 )
 
 var dnpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 5, 5, 5, 5, time.UTC)
@@ -29,7 +29,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticNTSPackPricer() {
 	pricer := NewDomesticNTSPackPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticNTSPackServiceItem()
 
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -104,28 +103,4 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackServiceItem() models
 			},
 		}, nil, nil,
 	)
-}
-
-func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int, isPeakPeriod bool, priceCents unit.Cents, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Name:                 contractYearName,
-				EscalationCompounded: escalationCompounded,
-			},
-		})
-
-	packService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
-
-	factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
-		{
-			Model: models.ReDomesticOtherPrice{
-				ContractID:   contractYear.Contract.ID,
-				ServiceID:    packService.ID,
-				IsPeakPeriod: isPeakPeriod,
-				Schedule:     schedule,
-				PriceCents:   priceCents,
-			},
-		},
-	}, nil)
 }

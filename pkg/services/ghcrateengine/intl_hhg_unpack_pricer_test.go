@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	ihupkTestContractYearName     = "Base Period Year 1"
+	ihupkTestContractYearName     = testdatagen.DefaultContractYearName
 	ihupkTestPerUnitCents         = unit.Cents(1200)
-	ihupkTestTotalCost            = unit.Cents(25200)
+	ihupkTestTotalCost            = unit.Cents(27972)
 	ihupkTestIsPeakPeriod         = true
-	ihupkTestEscalationCompounded = 1.0000
+	ihupkTestEscalationCompounded = 1.11000
 	ihpukTestWeight               = unit.Pound(2100)
 )
 

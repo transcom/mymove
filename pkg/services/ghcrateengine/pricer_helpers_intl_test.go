@@ -85,7 +85,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 		suite.Equal(ioshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ioshutTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ioshutTestBasePriceCents)},
 		}
@@ -122,8 +122,8 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
+		tenYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(10, 0, 0)
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, tenYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
@@ -282,7 +282,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 		suite.Equal(icrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(icrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(icrtTestBasePriceCents)},
 			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
@@ -320,7 +320,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
 
 		suite.Error(err)

@@ -182,3 +182,13 @@ p + .radioGroup {
 .pBeforeFormGroup {
   @include u-margin-bottom(0);
 }
+
+.requiredAsterisk {
+  color: $color-red;
+  font-weight: bold;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}

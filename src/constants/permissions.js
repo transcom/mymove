@@ -23,4 +23,5 @@ export const permissionTypes = {
   createTxoShipment: 'create.TXOShipment',
   createSupportingDocuments: 'create.supportingDocuments',
   cancelMoveFlag: 'update.cancelMoveFlag',
+  createShipmentTermination: 'create.shipmentTermination',
 };

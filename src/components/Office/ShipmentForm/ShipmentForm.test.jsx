@@ -1181,9 +1181,9 @@ describe('ShipmentForm component', () => {
 
   describe('filling the form', () => {
     it('shows an error if the submitHandler returns an error', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError();
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
 
       renderWithRouter(
@@ -1213,8 +1213,7 @@ describe('ShipmentForm component', () => {
     it('shows a specific error message if the submitHandler returns a specific error message', async () => {
       const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError({ response: { body: { message: mockSpecificMessage, status: 400 } } });
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
 
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
@@ -1244,9 +1243,9 @@ describe('ShipmentForm component', () => {
     });
 
     it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError();
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
 
@@ -1277,9 +1276,9 @@ describe('ShipmentForm component', () => {
     });
 
     it('shows an error if the submitHandler returns an error when creating a PPM', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError();
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
 
       renderWithRouter(
@@ -1592,6 +1591,12 @@ describe('ShipmentForm component', () => {
         expect(smallPackageRadio).toHaveAttribute('value', PPM_TYPES.SMALL_PACKAGE);
         expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).toBeChecked();
       });
+
+      expect(screen.queryByText('Shipped from Address')).toBeInTheDocument();
+      expect(screen.queryByText('Pickup Address')).not.toBeInTheDocument();
+
+      expect(screen.queryByText('Destination Address')).toBeInTheDocument();
+      expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
 
       expect(screen.queryByText('Storage in transit')).not.toBeInTheDocument();
     });
