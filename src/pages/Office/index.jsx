@@ -542,6 +542,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             roleTypes.TOO,
                             roleTypes.TIO,
                             roleTypes.QAE,
+                            roleTypes.CONTRACTING_OFFICER,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
                             roleTypes.GSR,
                             hqRoleFlag ? roleTypes.HQ : undefined,
