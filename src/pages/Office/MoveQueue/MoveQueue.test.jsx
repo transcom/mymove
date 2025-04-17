@@ -10,6 +10,7 @@ import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS, BRANCH_OPTIONS } from 'constants/queues';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { APPROVAL_REQUEST_TYPES } from 'constants/approvalRequestTypes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -66,7 +67,6 @@ const moveData = [
         lastName: 'Denver',
       },
     ],
-    approvalRequestTypes: ['EXCESS_WEIGHT', 'IBHF', 'IOASIT'],
   },
   {
     id: 'move2',
@@ -105,7 +105,6 @@ const moveData = [
         lastName: 'Denver',
       },
     ],
-    approvalRequestTypes: ['IOASIT', 'AMENDED_ORDERS'],
   },
   {
     id: 'move3',
@@ -145,7 +144,6 @@ const moveData = [
         lastName: 'Denver',
       },
     ],
-    approvalRequestTypes: ['IOASIT', 'NEW_SHIPMENT'],
   },
 ];
 
@@ -215,6 +213,15 @@ const GetMountedComponent = (queueTypeToMount) => {
   );
   return wrapper;
 };
+
+moveData[0].approvalRequestTypes = [
+  APPROVAL_REQUEST_TYPES.EXCESS_WEIGHT,
+  APPROVAL_REQUEST_TYPES.IBHF,
+  APPROVAL_REQUEST_TYPES.IOASIT,
+];
+moveData[1].approvalRequestTypes = [APPROVAL_REQUEST_TYPES.IOASIT, APPROVAL_REQUEST_TYPES.AMENDED_ORDERS];
+moveData[2].approvalRequestTypes = [APPROVAL_REQUEST_TYPES.IOASIT, APPROVAL_REQUEST_TYPES.NEW_SHIPMENT];
+
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
 describe('MoveQueue & DestinationRequestsQueue', () => {
   afterEach(() => {
