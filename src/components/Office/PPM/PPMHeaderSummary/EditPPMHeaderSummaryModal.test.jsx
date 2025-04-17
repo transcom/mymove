@@ -7,6 +7,7 @@ import EditPPMHeaderSummaryModal from './EditPPMHeaderSummaryModal';
 
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { PPM_TYPES } from 'shared/constants';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -98,6 +99,35 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
   });
 
+  it('renders pickup address - small package PPM', async () => {
+    const mockStore = configureStore({});
+
+    const ppmSmallPackage = {
+      ...sectionInfo,
+      ppmType: PPM_TYPES.SMALL_PACKAGE,
+    };
+
+    await act(async () => {
+      render(
+        <Provider store={mockStore.store}>
+          <EditPPMHeaderSummaryModal
+            sectionType="shipmentInfo"
+            sectionInfo={ppmSmallPackage}
+            onClose={onClose}
+            onSubmit={onSubmit}
+            editItemName="pickupAddress"
+          />
+        </Provider>,
+      );
+    });
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
+    expect(screen.getByText('Shipped from Address')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+  });
+
   it('renders delivery address', async () => {
     const mockStore = configureStore({});
 
@@ -117,6 +147,35 @@ describe('EditPPMHeaderSummaryModal', () => {
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
     expect(screen.getByText('Delivery Address')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('renders delivery address - small package PPM', async () => {
+    const mockStore = configureStore({});
+
+    const ppmSmallPackage = {
+      ...sectionInfo,
+      ppmType: PPM_TYPES.SMALL_PACKAGE,
+    };
+
+    await act(async () => {
+      render(
+        <Provider store={mockStore.store}>
+          <EditPPMHeaderSummaryModal
+            sectionType="shipmentInfo"
+            sectionInfo={ppmSmallPackage}
+            onClose={onClose}
+            onSubmit={onSubmit}
+            editItemName="destinationAddress"
+          />
+        </Provider>,
+      );
+    });
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
+    expect(screen.getByText('Destination Address')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
