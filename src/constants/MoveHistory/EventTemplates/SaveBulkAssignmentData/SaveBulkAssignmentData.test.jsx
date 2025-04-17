@@ -27,7 +27,7 @@ describe('When given a move that has been assigned', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getEventNameDisplay(historyRecord));
-    expect(screen.getByText('Updated move')).toBeInTheDocument();
+    expect(screen.getByText('Move assignment updated')).toBeInTheDocument();
   });
 
   describe('displays the proper details for', () => {

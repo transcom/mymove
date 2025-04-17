@@ -18,6 +18,6 @@ export default {
   action: a.UPDATE,
   eventName: o.saveBulkAssignmentData,
   tableName: t.moves,
-  getEventNameDisplay: () => 'Updated move',
+  getEventNameDisplay: () => 'Move assignment updated',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };

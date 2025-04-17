@@ -16,9 +16,9 @@ type MoveHistoryFetcher struct {
 	mock.Mock
 }
 
-// FetchMoveHistory provides a mock function with given fields: appCtx, params
-func (_m *MoveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error) {
-	ret := _m.Called(appCtx, params)
+// FetchMoveHistory provides a mock function with given fields: appCtx, params, useDatabaseProcInstead
+func (_m *MoveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams, useDatabaseProcInstead bool) (*models.MoveHistory, int64, error) {
+	ret := _m.Called(appCtx, params, useDatabaseProcInstead)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchMoveHistory")
@@ -27,25 +27,25 @@ func (_m *MoveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, par
 	var r0 *models.MoveHistory
 	var r1 int64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error)); ok {
-		return rf(appCtx, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.FetchMoveHistoryParams, bool) (*models.MoveHistory, int64, error)); ok {
+		return rf(appCtx, params, useDatabaseProcInstead)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) *models.MoveHistory); ok {
-		r0 = rf(appCtx, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.FetchMoveHistoryParams, bool) *models.MoveHistory); ok {
+		r0 = rf(appCtx, params, useDatabaseProcInstead)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MoveHistory)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) int64); ok {
-		r1 = rf(appCtx, params)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.FetchMoveHistoryParams, bool) int64); ok {
+		r1 = rf(appCtx, params, useDatabaseProcInstead)
 	} else {
 		r1 = ret.Get(1).(int64)
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *services.FetchMoveHistoryParams) error); ok {
-		r2 = rf(appCtx, params)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *services.FetchMoveHistoryParams, bool) error); ok {
+		r2 = rf(appCtx, params, useDatabaseProcInstead)
 	} else {
 		r2 = ret.Error(2)
 	}
