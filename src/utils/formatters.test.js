@@ -472,7 +472,7 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      assigned_too_dest: 'McLaurin, Terry',
+      assigned_too: 'McLaurin, Terry',
     });
   });
   it('properly formats a TOOs name for reassignment', () => {
@@ -489,7 +489,7 @@ describe('formatAssignedOfficeUserFromContext', () => {
     const result = formatters.formatAssignedOfficeUserFromContext(values);
 
     expect(result).toEqual({
-      re_assigned_too_dest: 'McLaurin, Terry',
+      re_assigned_too: 'McLaurin, Terry',
     });
   });
   it('properly formats a TIOs name for assignment', () => {
