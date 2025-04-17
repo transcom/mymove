@@ -2766,3 +2766,32 @@ paths:
           description: Must be authenticated to use this end point
         '500':
           description: Server error
+  /edi-errors/{ediErrorId}:
+    get:
+      produces:
+        - application/json
+      summary: Get information on a specific EDI Error by the ID of the EDI Error
+      description: Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.
+      operationId: getEdiError
+      tags:
+        - Single EDI Error
+      parameters:
+        - name: ediErrorId
+          in: path
+          description: EDI Error ID
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/EdiError'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: EDI error not found
+        '500':
+          description: server error

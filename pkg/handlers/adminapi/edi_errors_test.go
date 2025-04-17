@@ -2,14 +2,17 @@ package adminapi
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	edierrorsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/e_d_i_errors"
+	singleedierrorop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/single_e_d_i_error"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -118,4 +121,79 @@ func (suite *HandlerSuite) TestFetchEdiErrorsHandlerFailure() {
 	errResponse := response.(*handlers.ErrResponse)
 	suite.Equal(http.StatusInternalServerError, errResponse.Code)
 	suite.Contains(errResponse.Err.Error(), "Could not find payment requests with EDI_ERROR status")
+}
+
+func (suite *HandlerSuite) TestGetEdiErrorHandler() {
+	suite.Run("Successfully fetches a single EDI error by ID", func() {
+		createdAt := time.Date(2023, 10, 5, 14, 30, 0, 0, time.UTC)
+		ediCode := "FailureFor858"
+		ediDescription := "Description for 858"
+		paymentRequestID := uuid.Must(uuid.NewV4())
+		ediErrorID := uuid.Must(uuid.NewV4())
+
+		paymentRequestNumber := "1234-4567-8"
+		expected := models.EdiError{
+			ID:               ediErrorID,
+			EDIType:          models.EDIType858,
+			Code:             &ediCode,
+			Description:      &ediDescription,
+			PaymentRequestID: paymentRequestID,
+			CreatedAt:        createdAt,
+			PaymentRequest: models.PaymentRequest{
+				PaymentRequestNumber: paymentRequestNumber,
+			},
+		}
+
+		mockFetcher := &mocks.EDIErrorFetcher{}
+		mockFetcher.On("FetchEdiErrorByID", mock.Anything, ediErrorID).Return(expected, nil)
+
+		handler := GetEdiErrorHandler{
+			HandlerConfig:   suite.HandlerConfig(),
+			ediErrorFetcher: mockFetcher,
+		}
+
+		req := suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/edi-errors/%s", ediErrorID.String()))
+		params := singleedierrorop.GetEdiErrorParams{
+			HTTPRequest: req,
+			EdiErrorID:  strfmt.UUID(ediErrorID.String()),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&singleedierrorop.GetEdiErrorOK{}, response)
+		okResp := response.(*singleedierrorop.GetEdiErrorOK)
+		suite.Equal(expected.ID.String(), okResp.Payload.ID.String())
+		suite.Equal(*expected.Code, *okResp.Payload.Code)
+		suite.Equal(*expected.Description, *okResp.Payload.Description)
+		suite.Equal(expected.PaymentRequestID.String(), okResp.Payload.PaymentRequestID.String())
+		suite.Equal(paymentRequestNumber, okResp.Payload.PaymentRequestNumber)
+		suite.Equal(expected.EDIType.String(), *okResp.Payload.EdiType)
+	})
+
+	suite.Run("unsuccessful response when fetch fails", func() {
+		missingID := uuid.Must(uuid.NewV4())
+
+		mockFetcher := &mocks.EDIErrorFetcher{}
+		mockFetcher.On("FetchEdiErrorByID", mock.Anything, mock.MatchedBy(func(id uuid.UUID) bool {
+			return id.String() == missingID.String()
+		})).Return(models.EdiError{}, apperror.NewNotFoundError(missingID, "EDIError not found"))
+
+		handler := GetEdiErrorHandler{
+			HandlerConfig:   suite.HandlerConfig(),
+			ediErrorFetcher: mockFetcher,
+		}
+
+		req := suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/edi-errors/%s", missingID.String()))
+		params := singleedierrorop.GetEdiErrorParams{
+			HTTPRequest: req,
+			EdiErrorID:  strfmt.UUID(missingID.String()),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&handlers.ErrResponse{}, response)
+		errResp := response.(*handlers.ErrResponse)
+		suite.Contains(errResp.Err.Error(), "EDIError not found")
+	})
+
 }

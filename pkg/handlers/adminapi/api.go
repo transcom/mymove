@@ -327,5 +327,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 		edierrors.NewEDIErrorFetcher(),
 	}
+
+	adminAPI.SingleediErrorGetEdiErrorHandler = GetEdiErrorHandler{
+		handlerConfig,
+		edierrors.NewEDIErrorFetcher(),
+	}
+
 	return adminAPI
 }

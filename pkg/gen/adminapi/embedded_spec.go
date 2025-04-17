@@ -532,6 +532,49 @@ func init() {
         }
       }
     },
+    "/edi-errors/{ediErrorId}": {
+      "get": {
+        "description": "Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Single EDI Error"
+        ],
+        "summary": "Get information on a specific EDI Error by the ID of the EDI Error",
+        "operationId": "getEdiError",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "EDI Error ID",
+            "name": "ediErrorId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiError"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "EDI error not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -4429,6 +4472,49 @@ func init() {
           },
           "500": {
             "description": "Server error"
+          }
+        }
+      }
+    },
+    "/edi-errors/{ediErrorId}": {
+      "get": {
+        "description": "Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Single EDI Error"
+        ],
+        "summary": "Get information on a specific EDI Error by the ID of the EDI Error",
+        "operationId": "getEdiError",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "EDI Error ID",
+            "name": "ediErrorId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiError"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "EDI error not found"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }

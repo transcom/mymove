@@ -49,3 +49,19 @@ func (f *ediErrorFetcher) FetchEdiErrors(appCtx appcontext.AppContext) (models.E
 
 	return ediErrors, nil
 }
+
+// FetchEdiErrorByID returns a single edi_error the edi_error ID for a payment_request with status EDI_ERROR
+func (f *ediErrorFetcher) FetchEdiErrorByID(appCtx appcontext.AppContext, id uuid.UUID) (models.EdiError, error) {
+	var ediError models.EdiError
+
+	err := appCtx.DB().Q().
+		Eager("PaymentRequest").
+		Where("id = ?", id).
+		First(&ediError)
+
+	if err != nil {
+		return models.EdiError{}, apperror.NewNotFoundError(id, "EDIError not found")
+	}
+
+	return ediError, nil
+}

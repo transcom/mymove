@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -10,4 +12,5 @@ import (
 //go:generate mockery --name EDIErrorFetcher
 type EDIErrorFetcher interface {
 	FetchEdiErrors(appCtx appcontext.AppContext) (models.EdiErrors, error)
+	FetchEdiErrorByID(appCtx appcontext.AppContext, id uuid.UUID) (models.EdiError, error)
 }
