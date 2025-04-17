@@ -34,6 +34,11 @@ type GetDestinationRequestsQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*user's actively logged in role.
+
+	  In: query
+	*/
+	ActiveRole *string
 	/*
 	  In: query
 	*/
@@ -75,6 +80,10 @@ type GetDestinationRequestsQueueParams struct {
 	  In: query
 	*/
 	Order *string
+	/*order type
+	  In: query
+	*/
+	OrderType *string
 	/*
 	  Unique: true
 	  In: query
@@ -102,6 +111,11 @@ type GetDestinationRequestsQueueParams struct {
 	  In: query
 	*/
 	Status []string
+	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
+
+	  In: query
+	*/
+	ViewAsGBLOC *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -114,6 +128,11 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
+
+	qActiveRole, qhkActiveRole, _ := qs.GetOK("activeRole")
+	if err := o.bindActiveRole(qActiveRole, qhkActiveRole, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	qAppearedInTooAt, qhkAppearedInTooAt, _ := qs.GetOK("appearedInTooAt")
 	if err := o.bindAppearedInTooAt(qAppearedInTooAt, qhkAppearedInTooAt, route.Formats); err != nil {
@@ -165,6 +184,11 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 		res = append(res, err)
 	}
 
+	qOrderType, qhkOrderType, _ := qs.GetOK("orderType")
+	if err := o.bindOrderType(qOrderType, qhkOrderType, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qOriginDutyLocation, qhkOriginDutyLocation, _ := qs.GetOK("originDutyLocation")
 	if err := o.bindOriginDutyLocation(qOriginDutyLocation, qhkOriginDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
@@ -194,9 +218,32 @@ func (o *GetDestinationRequestsQueueParams) BindRequest(r *http.Request, route *
 	if err := o.bindStatus(qStatus, qhkStatus, route.Formats); err != nil {
 		res = append(res, err)
 	}
+
+	qViewAsGBLOC, qhkViewAsGBLOC, _ := qs.GetOK("viewAsGBLOC")
+	if err := o.bindViewAsGBLOC(qViewAsGBLOC, qhkViewAsGBLOC, route.Formats); err != nil {
+		res = append(res, err)
+	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindActiveRole binds and validates parameter ActiveRole from query.
+func (o *GetDestinationRequestsQueueParams) bindActiveRole(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ActiveRole = &raw
+
 	return nil
 }
 
@@ -413,6 +460,24 @@ func (o *GetDestinationRequestsQueueParams) validateOrder(formats strfmt.Registr
 	return nil
 }
 
+// bindOrderType binds and validates parameter OrderType from query.
+func (o *GetDestinationRequestsQueueParams) bindOrderType(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.OrderType = &raw
+
+	return nil
+}
+
 // bindOriginDutyLocation binds and validates array parameter OriginDutyLocation from query.
 //
 // Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
@@ -585,5 +650,23 @@ func (o *GetDestinationRequestsQueueParams) validateStatus(formats strfmt.Regist
 	if err := validate.UniqueItems("status", "query", o.Status); err != nil {
 		return err
 	}
+	return nil
+}
+
+// bindViewAsGBLOC binds and validates parameter ViewAsGBLOC from query.
+func (o *GetDestinationRequestsQueueParams) bindViewAsGBLOC(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ViewAsGBLOC = &raw
+
 	return nil
 }

@@ -105,7 +105,7 @@ type Move struct {
 	TOODestinationAssignedUser                     *OfficeUser           `json:"too_destination_assigned" belongs_to:"office_users" fk_id:"too_destination_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	CounselingOffice                               *TransportationOffice `json:"counseling_transportation_office" belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
-	PrimeAcknowledgedAt							   *time.Time            `db:"prime_acknowledged_at"`
+	PrimeAcknowledgedAt                            *time.Time            `db:"prime_acknowledged_at"`
 }
 
 type MoveWithEarliestDate struct {
@@ -496,7 +496,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 // the move service item's status.
 func FetchMoveByMoveIDWithServiceItems(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
-	err := db.Q().Eager().Where("show = TRUE").Find(&move, moveID)
+	err := db.Q().Eager("MTOServiceItems.ReService").Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

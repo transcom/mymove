@@ -881,7 +881,6 @@ func MTOServiceItemModel(mtoServiceItem primev3messages.MTOServiceItem) (*models
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
-
 	case primev3messages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primev3messages.MTOServiceItemShuttle)
 		// values to get from payload
@@ -1090,6 +1089,12 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		shuttle := mtoServiceItem.(*primev3messages.UpdateMTOServiceItemShuttle)
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
 		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
+
+		if shuttle.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *shuttle.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+			model.Status = models.MTOServiceItemStatusSubmitted
+		}
 
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs

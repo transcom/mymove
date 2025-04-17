@@ -54,16 +54,16 @@ WITH move AS (
 					'counseling_office_name',
 					(SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
 					'assigned_office_user_first_name',
-					(SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id))),
+					(SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
 					'assigned_office_user_last_name',
-					(SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id)))
+					(SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
 				))
 			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN move ON audit_history.object_id = move.id
-		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT, counseling_transportation_office_id TEXT, sc_assigned_id TEXT, too_assigned_id TEXT, tio_assigned_id TEXT) ON TRUE
+		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT, counseling_transportation_office_id TEXT, sc_assigned_id TEXT, too_assigned_id TEXT, tio_assigned_id TEXT, too_destination_assigned_id TEXT) ON TRUE
 		WHERE audit_history.table_name = 'moves'
 			-- Remove log for when shipment_seq_num updates
 			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_seq_num%' AND LENGTH(audit_history.changed_data::TEXT) < 25)
@@ -380,6 +380,45 @@ WITH move AS (
 		WHERE audit_history.table_name = 'service_members'
 		GROUP BY audit_history.id
 	),
+	ppms (ppm_id, shipment_type, shipment_id, w2_address_id) AS (
+		SELECT
+			audit_history.object_id,
+			move_shipments.shipment_type,
+			move_shipments.id,
+			ppm_shipments.w2_address_id,
+			move_shipments.shipment_locator,
+			ppm_shipments.destination_postal_address_id,
+			ppm_shipments.secondary_destination_postal_address_id,
+			ppm_shipments.tertiary_destination_postal_address_id,
+			ppm_shipments.pickup_postal_address_id,
+			ppm_shipments.secondary_pickup_postal_address_id,
+			ppm_shipments.tertiary_pickup_postal_address_id
+		FROM
+			audit_history
+		JOIN ppm_shipments ON audit_history.object_id = ppm_shipments.id
+		JOIN move_shipments ON move_shipments.id = ppm_shipments.shipment_id
+	),
+	ppm_logs AS (
+		SELECT
+			audit_history.*,
+			jsonb_agg(
+				jsonb_strip_nulls(
+					jsonb_build_object(
+						'shipment_type', ppms.shipment_type,
+						'shipment_id_abbr', (CASE WHEN ppms.shipment_id IS NOT NULL THEN LEFT(ppms.shipment_id::TEXT, 5) ELSE NULL END),
+						'w2_address', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = CAST(ppms.w2_address_id AS UUID)) x)::TEXT,
+						'shipment_locator', ppms.shipment_locator
+					)
+				)
+			)::TEXT AS context,
+			COALESCE(ppms.shipment_id::TEXT, NULL)::TEXT AS context_id
+		FROM
+			audit_history
+		JOIN ppms ON ppms.ppm_id = audit_history.object_id
+		WHERE audit_history.table_name = 'ppm_shipments'
+		GROUP BY
+			ppms.shipment_id, audit_history.id
+	),
 	move_addresses (address_id, address_type, shipment_type, shipment_id, service_member_id, shipment_locator)  AS (
 		SELECT
 			audit_history.object_id,
@@ -424,6 +463,72 @@ WITH move AS (
 		FROM audit_history
 			JOIN shipment_logs ON (shipment_logs.changed_data->>'pickup_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
 			JOIN move_shipments ON shipment_logs.object_id = move_shipments.id
+			UNION
+		SELECT
+			audit_history.object_id,
+			'pickupAddress',
+			'PPM',
+			ppm_shipments.id::TEXT,
+			null,
+			(select shipment_locator from mto_shipments where mto_shipments.id = ppm_shipments.shipment_id)
+		FROM audit_history
+			JOIN ppm_logs ON (ppm_logs.changed_data->>'pickup_postal_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN ppm_shipments ON ppm_logs.object_id = ppm_shipments.id
+			UNION
+		SELECT
+			audit_history.object_id,
+			'secondaryPickupAddress',
+			'PPM',
+			ppm_shipments.id::TEXT,
+			null,
+			(select shipment_locator from mto_shipments where mto_shipments.id = ppm_shipments.shipment_id)
+		FROM audit_history
+			JOIN ppm_logs ON (ppm_logs.changed_data->>'secondary_pickup_postal_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN ppm_shipments ON ppm_logs.object_id = ppm_shipments.id
+			UNION
+		SELECT
+			audit_history.object_id,
+			'tertiaryPickupAddress',
+			'PPM',
+			ppm_shipments.id::TEXT,
+			null,
+			(select shipment_locator from mto_shipments where mto_shipments.id = ppm_shipments.shipment_id)
+		FROM audit_history
+			JOIN ppm_logs ON (ppm_logs.changed_data->>'tertiary_pickup_postal_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN ppm_shipments ON ppm_logs.object_id = ppm_shipments.id
+			UNION
+		SELECT
+			audit_history.object_id,
+			'destinationAddress',
+			'PPM',
+			ppm_shipments.id::TEXT,
+			null,
+			(select shipment_locator from mto_shipments where mto_shipments.id = ppm_shipments.shipment_id)
+		FROM audit_history
+			JOIN ppm_logs ON (ppm_logs.changed_data->>'destination_postal_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN ppm_shipments ON ppm_logs.object_id = ppm_shipments.id
+			UNION
+		SELECT
+			audit_history.object_id,
+			'secondaryDestinationAddress',
+			'PPM',
+			ppm_shipments.id::TEXT,
+			null,
+			(select shipment_locator from mto_shipments where mto_shipments.id = ppm_shipments.shipment_id)
+		FROM audit_history
+			JOIN ppm_logs ON (ppm_logs.changed_data->>'secondary_destination_postal_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN ppm_shipments ON ppm_logs.object_id = ppm_shipments.id
+			UNION
+		SELECT
+			audit_history.object_id,
+			'tertiaryDestinationAddress',
+			'PPM',
+			ppm_shipments.id::TEXT,
+			null,
+			(select shipment_locator from mto_shipments where mto_shipments.id = ppm_shipments.shipment_id)
+		FROM audit_history
+			JOIN ppm_logs ON (ppm_logs.changed_data->>'tertiary_destination_postal_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN ppm_shipments ON ppm_logs.object_id = ppm_shipments.id
 			UNION
 		SELECT
 			audit_history.object_id,
@@ -487,39 +592,6 @@ WITH move AS (
 		WHERE audit_history.table_name = 'addresses'
 		GROUP BY
 			move_addresses.shipment_id, move_addresses.service_member_id, audit_history.id
-	),
-	ppms (ppm_id, shipment_type, shipment_id, w2_address_id) AS (
-		SELECT
-			audit_history.object_id,
-			move_shipments.shipment_type,
-			move_shipments.id,
-			ppm_shipments.w2_address_id,
-			move_shipments.shipment_locator
-		FROM
-			audit_history
-		JOIN ppm_shipments ON audit_history.object_id = ppm_shipments.id
-		JOIN move_shipments ON move_shipments.id = ppm_shipments.shipment_id
-	),
-	ppm_logs AS (
-		SELECT
-			audit_history.*,
-			jsonb_agg(
-				jsonb_strip_nulls(
-					jsonb_build_object(
-						'shipment_type', ppms.shipment_type,
-						'shipment_id_abbr', (CASE WHEN ppms.shipment_id IS NOT NULL THEN LEFT(ppms.shipment_id::TEXT, 5) ELSE NULL END),
-						'w2_address', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = CAST(ppms.w2_address_id AS UUID)) x)::TEXT,
-						'shipment_locator', ppms.shipment_locator
-					)
-				)
-			)::TEXT AS context,
-			COALESCE(ppms.shipment_id::TEXT, NULL)::TEXT AS context_id
-		FROM
-			audit_history
-		JOIN ppms ON ppms.ppm_id = audit_history.object_id
-		WHERE audit_history.table_name = 'ppm_shipments'
-		GROUP BY
-			ppms.shipment_id, audit_history.id
 	),
 	file_uploads (user_upload_id, filename, upload_type, shipment_type, shipment_id_abbr, expense_type, shipment_locator) AS (
 		-- orders uploads have the document id the uploaded orders id column
@@ -646,7 +718,7 @@ WITH move AS (
 	    GROUP BY
 	        document_review_items.doc_id, document_review_items.shipment_id, audit_history.id
 	),
-		gsr_appeals AS (
+	gsr_appeals AS (
 		SELECT
 			gsr_appeals.id,
 			gsr_appeals.remarks,
@@ -701,6 +773,31 @@ WITH move AS (
 			audit_history
 		JOIN shipment_address_updates ON shipment_address_updates.id = audit_history.object_id
 		WHERE audit_history.table_name = 'shipment_address_updates'
+	),
+	sit_extensions AS (
+		SELECT
+			sit_extensions.id,
+			jsonb_agg(jsonb_build_object(
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', move_shipments.shipment_id_abbr,
+				'shipment_locator', move_shipments.shipment_locator
+				)
+			)::TEXT AS context
+		FROM
+			sit_extensions
+			JOIN move_shipments ON sit_extensions.mto_shipment_id = move_shipments.id
+		GROUP BY
+			sit_extensions.id
+	),
+	sit_extensions_logs AS (
+		SELECT
+			audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN sit_extensions ON sit_extensions.id = audit_history.object_id
+		WHERE audit_history.table_name = 'sit_extensions'
 	),
 	combined_logs AS (
 		SELECT
@@ -802,8 +899,11 @@ WITH move AS (
         	*
     	FROM
 			shipment_address_updates_logs
-
-
+		UNION
+		SELECT
+        	*
+    	FROM
+			sit_extensions_logs
 	)
 SELECT DISTINCT
 		combined_logs.*,

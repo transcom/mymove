@@ -12,6 +12,7 @@ import { OptionalTag } from 'components/form/OptionalTag';
 import { ErrorMessage } from 'components/form/index';
 import Hint from 'components/Hint';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const MaskedTextField = ({
   containerClassName,
@@ -40,6 +41,8 @@ const MaskedTextField = ({
   suffix,
   prefix,
   isDisabled,
+  showRequiredAsterisk,
+  allowNegative,
   ...props
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
@@ -61,7 +64,9 @@ const MaskedTextField = ({
         })}
       >
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
-          {label}
+          <span>
+            {label} {showRequiredAsterisk && <RequiredAsterisk />}
+          </span>
         </Label>
         {description && (
           <div className={styles.description} id={`description_${descriptionRef.current}`}>
@@ -95,12 +100,12 @@ const MaskedTextField = ({
             blocks={blocks}
             lazy={lazy}
             onAccept={(val, masked) => {
-              if (props.scale === 0) {
-                helpers.setValue(masked.unmaskedValue);
-              } else {
-                helpers.setValue(val);
+              let newValue = props.scale === 0 ? masked.unmaskedValue : val;
+              // if the only value is a negative sign, reset it to an empty string
+              if (!allowNegative && (newValue === '-' || newValue === '-0')) {
+                newValue = '';
               }
-              // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+              helpers.setValue(newValue);
               helpers.setTouched(true, false);
             }}
             onBlur={field.onBlur}
@@ -164,6 +169,8 @@ MaskedTextField.propTypes = {
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   isDisabled: PropTypes.bool,
+  showRequiredAsterisk: PropTypes.bool,
+  allowNegative: PropTypes.bool,
 };
 
 MaskedTextField.defaultProps = {
@@ -191,6 +198,8 @@ MaskedTextField.defaultProps = {
   error: false,
   errorMessage: '',
   isDisabled: false,
+  showRequiredAsterisk: false,
+  allowNegative: false,
 };
 
 export default MaskedTextField;

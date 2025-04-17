@@ -946,7 +946,6 @@ commands:
             FEATURE_FLAG_UNACCOMPANIED_BAGGAGE: 'false'
             FEATURE_FLAG_ENABLE_ALASKA: 'false'
             FEATURE_FLAG_BULK_ASSIGNMENT: 'false'
-
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -1671,25 +1670,25 @@ jobs:
             equal: [integrationTesting, << pipeline.git.branch >>]
           steps:
             - restore_cache:
-            #
-          # https://circleci.com/docs/caching/#restoring-cache
-          #
-          # restore the latest version of the test coverage in the
-          # cache
-          #
-          # To manually reset test coverage (e.g. a refactor or
-          # deleting code means coverage has gone down and we are ok
-          # with it), increment the version number of the cache
-          # e.g. go from v1-client-tests-coverage- to
-          # v2-client-tests-coverage-
-          #
-          # ##### NOTE: Make sure you also update the key in the
-          # ##### save_cache below
-          #
-          # The trailing hyphen in restore_cache seems important
-          # according to the page linked above
-               keys:
-               - v1-client-tests-coverage-integration
+                #
+                # https://circleci.com/docs/caching/#restoring-cache
+                #
+                # restore the latest version of the test coverage in the
+                # cache
+                #
+                # To manually reset test coverage (e.g. a refactor or
+                # deleting code means coverage has gone down and we are ok
+                # with it), increment the version number of the cache
+                # e.g. go from v1-client-tests-coverage- to
+                # v2-client-tests-coverage-
+                #
+                # ##### NOTE: Make sure you also update the key in the
+                # ##### save_cache below
+                #
+                # The trailing hyphen in restore_cache seems important
+                # according to the page linked above
+                keys:
+                  - v1-client-tests-coverage-integration
       - run:
           name: Ensure Test Coverage Increasing
           command: |

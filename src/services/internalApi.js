@@ -18,9 +18,26 @@ export async function getInternalClient() {
 }
 
 // Attempt at catch-all error handling
-// TODO improve this function when we have better standardized errors
 export function getResponseError(response, defaultErrorMessage) {
-  return response?.body?.detail || response?.statusText || defaultErrorMessage;
+  if (!response) return defaultErrorMessage;
+
+  const detail = response.body?.detail || response.statusText || defaultErrorMessage;
+  const invalidFields = response.body?.invalidFields || response.body?.invalid_fields;
+
+  if (invalidFields && typeof invalidFields === 'object') {
+    const fieldErrors = Object.entries(invalidFields)
+      .map(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          return `${field}: ${messages.join(', ')}`;
+        }
+        return `${field}: ${messages}`;
+      })
+      .join('\n');
+
+    return `${detail}\n${fieldErrors}`;
+  }
+
+  return detail;
 }
 
 export async function makeInternalRequest(operationPath, params = {}, options = {}) {
@@ -34,7 +51,11 @@ export async function makeInternalRequestRaw(operationPath, params = {}) {
 }
 
 export async function validateCode(body) {
-  return makeInternalRequestRaw('application_parameters.validate', { body });
+  return makeInternalRequestRaw('validation_code.validateCode', {
+    body: {
+      validationCode: body.parameterValue,
+    },
+  });
 }
 
 export async function getLoggedInUser(normalize = true) {
@@ -48,6 +69,11 @@ export async function getLoggedInUserQueries(key, normalize = false) {
 export async function getBooleanFeatureFlagForUser(key, flagContext) {
   const normalize = false;
   return makeInternalRequest('featureFlags.booleanFeatureFlagForUser', { key, flagContext }, { normalize });
+}
+
+export async function getBooleanFeatureFlagUnauthenticated(key, flagContext) {
+  const normalize = false;
+  return makeInternalRequest('featureFlags.booleanFeatureFlagUnauthenticated', { key, flagContext }, { normalize });
 }
 
 export async function getVariantFeatureFlagForUser(key, flagContext) {
@@ -66,6 +92,10 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
 /** BELOW API CALLS ARE NOT NORMALIZED BY DEFAULT */
 
 /** SERVICE MEMBERS */
+export async function registerUser(payload) {
+  return makeInternalRequest('registration.customerRegistration', { registration: payload }, { normalize: false });
+}
+
 export async function createServiceMember(serviceMember = {}) {
   return makeInternalRequest(
     'service_members.createServiceMember',

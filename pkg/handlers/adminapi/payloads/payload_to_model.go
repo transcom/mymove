@@ -13,10 +13,14 @@ import (
 // This does not copy over session IDs to the model
 func UserModel(user *adminmessages.UserUpdate, id uuid.UUID, userOriginalActive bool) (*models.User, error) {
 	if user == nil {
-		return nil, fmt.Errorf("User payload is nil")
+		return nil, fmt.Errorf("user payload is nil")
 	}
 	model := &models.User{
 		ID: uuid.FromStringOrNil(id.String()),
+	}
+
+	if user.OktaEmail != nil {
+		model.OktaEmail = *user.OktaEmail
 	}
 
 	if user.Active == nil { // active status was nil in payload
@@ -70,4 +74,34 @@ func WebhookSubscriptionModelFromCreate(sub *adminmessages.CreateWebhookSubscrip
 		model.Status = models.WebhookSubscriptionStatus(*sub.Status)
 	}
 	return model
+}
+
+func OfficeUserModelFromUpdate(payload *adminmessages.OfficeUserUpdate, officeUser *models.OfficeUser) *models.OfficeUser {
+	if payload == nil || officeUser == nil {
+		return officeUser
+	}
+	if payload.Email != nil {
+		officeUser.Email = *payload.Email
+	}
+
+	if payload.FirstName != nil {
+		officeUser.FirstName = *payload.FirstName
+	}
+
+	if payload.MiddleInitials != nil {
+		officeUser.MiddleInitials = payload.MiddleInitials
+	}
+
+	if payload.LastName != nil {
+		officeUser.LastName = *payload.LastName
+	}
+
+	if payload.Telephone != nil {
+		officeUser.Telephone = *payload.Telephone
+	}
+
+	if payload.Active != nil {
+		officeUser.Active = *payload.Active
+	}
+	return officeUser
 }

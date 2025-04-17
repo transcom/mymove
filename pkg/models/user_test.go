@@ -137,13 +137,8 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(len(identity.Roles), 1)
 	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 
-	rs2 := []models.Privilege{{
-		ID:            uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
-		PrivilegeType: models.PrivilegeTypeSupervisor,
-	},
-	}
-	suite.NoError(suite.DB().Create(&rs2))
-	supervisorPrivilege := rs2[0]
+	supervisorPrivilege := factory.FetchOrBuildPrivilegeByPrivilegeType(suite.DB(), m.PrivilegeTypeSupervisor)
+
 	sueOktaID := factory.MakeRandomString(20)
 	sue := factory.BuildUser(suite.DB(), []factory.Customization{
 		{
@@ -311,5 +306,17 @@ func (suite *ModelSuite) TestGetUser() {
 	suite.NotNil(user2)
 	if err == nil && user2 != nil {
 		suite.Equal(alice.ID, user2.ID)
+	}
+}
+
+func (suite *ModelSuite) TestGetUserFromOktaID() {
+	user := factory.BuildDefaultUser(suite.DB())
+
+	foundUser, err := m.GetUserFromOktaID(suite.DB(), user.OktaID)
+	suite.Nil(err)
+	suite.NotNil(foundUser)
+	if err == nil && foundUser != nil {
+		suite.Equal(user.ID, foundUser.ID)
+		suite.Equal(user.OktaEmail, foundUser.OktaEmail)
 	}
 }

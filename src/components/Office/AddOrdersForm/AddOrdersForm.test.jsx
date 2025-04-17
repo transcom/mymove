@@ -162,6 +162,19 @@ describe('CreateMoveCustomerInfo Component', () => {
       expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
       expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
   });
 
@@ -197,6 +210,11 @@ describe('CreateMoveCustomerInfo Component', () => {
 
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
+
+    // Saftey option should not be available for non safety moves
+    const options = ordersTypeDropdown.querySelectorAll('option');
+    const isSafetyOptionPresent = Array.from(options).some((option) => option.value === ORDERS_TYPE.SAFETY);
+    expect(isSafetyOptionPresent).toBe(false);
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {

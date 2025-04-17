@@ -11,6 +11,7 @@ import { updateMTOShipment, updateMove } from 'store/entities/actions';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { MockProviders } from 'testUtils';
+import { PPM_TYPES } from 'shared/constants';
 
 const mockNavigate = jest.fn();
 
@@ -241,6 +242,7 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
+            ppmType: PPM_TYPES.INCENTIVE_BASED,
             destinationAddress: {
               city: 'Richmond',
               postalCode: '10002',
@@ -297,6 +299,7 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
+            ppmType: PPM_TYPES.INCENTIVE_BASED,
             destinationAddress: {
               city: 'Richmond',
               postalCode: '10002',
@@ -355,6 +358,7 @@ describe('DateAndLocation component', () => {
           moveTaskOrderID: mockMoveId,
           shipmentType: 'PPM',
           ppmShipment: {
+            ppmType: PPM_TYPES.INCENTIVE_BASED,
             destinationAddress: {
               city: 'Richmond',
               postalCode: '10002',
@@ -652,8 +656,6 @@ describe('DateAndLocation component', () => {
       await userEvent.click(YesButtonSelectors[2]);
       await userEvent.click(YesButtonSelectors[3]);
 
-      const postalCodes = screen.getAllByTestId('ZIP');
-
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
       expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
@@ -663,12 +665,12 @@ describe('DateAndLocation component', () => {
         expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveValue('31 Dec 2022');
       });
 
-      expect(postalCodes[0]).toHaveTextContent('20002');
-      expect(postalCodes[1]).toHaveTextContent('20004');
-      expect(postalCodes[2]).toHaveTextContent('20006');
-      expect(postalCodes[3]).toHaveTextContent('20003');
-      expect(postalCodes[4]).toHaveTextContent('20005');
-      expect(postalCodes[5]).toHaveTextContent('20007');
+      expect(screen.getByText('Richmond, VA 20002 ()')).toBeInTheDocument();
+      expect(screen.getByText('Richmond, VA 20004 ()')).toBeInTheDocument();
+      expect(screen.getByText('Richmond, VA 20006 ()')).toBeInTheDocument();
+      expect(screen.getByText('Richmond, VA 20003 ()')).toBeInTheDocument();
+      expect(screen.getByText('Richmond, VA 20005 ()')).toBeInTheDocument();
+      expect(screen.getByText('Richmond, VA 20007 ()')).toBeInTheDocument();
     });
 
     describe('editing an existing PPM shipment', () => {
@@ -683,8 +685,6 @@ describe('DateAndLocation component', () => {
         await userEvent.click(YesButtonSelectors[2]);
         await userEvent.click(YesButtonSelectors[3]);
 
-        const postalCodes = screen.getAllByTestId('ZIP');
-
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
         expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
@@ -694,12 +694,12 @@ describe('DateAndLocation component', () => {
           expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveValue('31 Dec 2022');
         });
 
-        expect(postalCodes[0]).toHaveTextContent('20002');
-        expect(postalCodes[1]).toHaveTextContent('20004');
-        expect(postalCodes[2]).toHaveTextContent('20006');
-        expect(postalCodes[3]).toHaveTextContent('20003');
-        expect(postalCodes[4]).toHaveTextContent('20005');
-        expect(postalCodes[5]).toHaveTextContent('20007');
+        expect(screen.getByText('Richmond, VA 20002 ()')).toBeInTheDocument();
+        expect(screen.getByText('Richmond, VA 20004 ()')).toBeInTheDocument();
+        expect(screen.getByText('Richmond, VA 20006 ()')).toBeInTheDocument();
+        expect(screen.getByText('Richmond, VA 20003 ()')).toBeInTheDocument();
+        expect(screen.getByText('Richmond, VA 20005 ()')).toBeInTheDocument();
+        expect(screen.getByText('Richmond, VA 20007 ()')).toBeInTheDocument();
       });
 
       it('routes back to the home page screen when back is clicked', async () => {
@@ -728,6 +728,7 @@ describe('DateAndLocation component', () => {
               moveTaskOrderID: mockMoveId,
               shipmentType: 'PPM',
               ppmShipment: {
+                ppmType: PPM_TYPES.INCENTIVE_BASED,
                 id: fullShipmentProps.mtoShipment.ppmShipment.id,
                 pickupAddress: {
                   streetAddress1: '234 Any St',
@@ -803,6 +804,7 @@ describe('DateAndLocation component', () => {
               moveTaskOrderID: mockMoveId,
               shipmentType: 'PPM',
               ppmShipment: {
+                ppmType: PPM_TYPES.INCENTIVE_BASED,
                 id: fullShipmentProps.mtoShipment.ppmShipment.id,
                 pickupAddress: {
                   streetAddress1: '234 Any St',
@@ -881,6 +883,7 @@ describe('DateAndLocation component', () => {
               moveTaskOrderID: mockMoveId,
               shipmentType: 'PPM',
               ppmShipment: {
+                ppmType: PPM_TYPES.INCENTIVE_BASED,
                 id: fullShipmentProps.mtoShipment.ppmShipment.id,
                 pickupAddress: {
                   streetAddress1: '234 Any St',

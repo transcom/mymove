@@ -74,6 +74,46 @@ func init() {
         }
       }
     },
+    "/move-task-orders/acknowledge": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint **updates** the Moves and Shipments to indicate that the Prime has acknowledged the Moves and Shipments have been received.\nThe Move and Shipment data is expected to be sent in the request body.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "acknowledgeMovesAndShipments",
+        "operationId": "acknowledgeMovesAndShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMoves"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Move and Shipment Acknowledgements.",
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMovesShipmentsSuccessResponse"
+            }
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -248,6 +288,27 @@ func init() {
             "format": "date-time",
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.",
+            "name": "acknowledged",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged after this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedAfter",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedBefore",
             "in": "query"
           }
         ],
@@ -1101,7 +1162,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**NOTE**: Diversions have a unique calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n\nIf you created a payment request for a diversion and ` + "`" + `WeightBilled` + "`" + ` is not provided, then the following will be used in the calculation:\n- The lowest shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) found in the diverted shipment chain.\n- The lowest reweigh weight found in the diverted shipment chain.\n\nThe diverted shipment chain is created by referencing the ` + "`" + `diversion` + "`" + ` boolean, ` + "`" + `divertedFromShipmentId` + "`" + ` UUID, and matching destination to pickup addresses.\nIf the chain cannot be established it will fall back to the ` + "`" + `PrimeActualWeight` + "`" + ` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.\nThe lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DLH - Domestic Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DSH - Domestic Shorthaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**FSC - Fuel Surcharge**\n**NOTE**: FSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DUPK - Domestic Unpacking**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DNPK - Domestic NTS Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOP - Domestic Origin Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDP - Domestic Destination Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic SIT Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\nJust like domestic shipments \u0026 service items, if ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n**NOTE**: ` + "`" + `POEFSC` + "`" + ` \u0026 ` + "`" + `PODFSC` + "`" + ` service items must have a port associated on the service item in order to successfully add it to a payment request. To update the port of a service item, you must use the (#operation/updateMTOServiceItem) endpoint.\n\n**ISLH - International Shipping \u0026 Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHPK - International HHG Pack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHUPK - International HHG Unpack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**POEFSC - International Port of Embarkation Fuel Surcharge**\n **NOTE**: POEFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `POELocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**PODFSC - International Port of Debarkation Fuel Surcharge**\n**NOTE**: PODFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `PODLocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n**IOSHUT - International origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IDSHUT - International destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
+        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**NOTE**: Diversions have a unique calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n\nIf you created a payment request for a diversion and ` + "`" + `WeightBilled` + "`" + ` is not provided, then the following will be used in the calculation:\n- The lowest shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) found in the diverted shipment chain.\n- The lowest reweigh weight found in the diverted shipment chain.\n\nThe diverted shipment chain is created by referencing the ` + "`" + `diversion` + "`" + ` boolean, ` + "`" + `divertedFromShipmentId` + "`" + ` UUID, and matching destination to pickup addresses.\nIf the chain cannot be established it will fall back to the ` + "`" + `PrimeActualWeight` + "`" + ` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.\nThe lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DLH - Domestic Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DSH - Domestic Shorthaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**FSC - Fuel Surcharge**\n**NOTE**: FSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DUPK - Domestic Unpacking**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DNPK - Domestic NTS Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOP - Domestic Origin Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDP - Domestic Destination Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic SIT Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\nJust like domestic shipments \u0026 service items, if ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n**NOTE**: ` + "`" + `POEFSC` + "`" + ` \u0026 ` + "`" + `PODFSC` + "`" + ` service items must have a port associated on the service item in order to successfully add it to a payment request. To update the port of a service item, you must use the (#operation/updateMTOServiceItem) endpoint.\n\n**ISLH - International Shipping \u0026 Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHPK - International HHG Pack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHUPK - International HHG Unpack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**POEFSC - International Port of Embarkation Fuel Surcharge**\n **NOTE**: POEFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `POELocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**PODFSC - International Port of Debarkation Fuel Surcharge**\n**NOTE**: PODFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `PODLocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IUBPK - International UB Pack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IUBUPK - International UB Unpack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**UBP - International UB**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n**IOSHUT - International origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IDSHUT - International destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
         "consumes": [
           "application/json"
         ],
@@ -1222,6 +1283,57 @@ func init() {
     }
   },
   "definitions": {
+    "AcknowledgeMove": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "mtoShipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcknowledgeShipment"
+          }
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:22Z"
+        }
+      }
+    },
+    "AcknowledgeMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AcknowledgeMove"
+      }
+    },
+    "AcknowledgeMovesShipmentsSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "example": "Moves/Shipments acknowledgement successfully completed"
+        }
+      }
+    },
+    "AcknowledgeShipment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:33Z"
+        }
+      }
+    },
     "Address": {
       "description": "A postal address",
       "type": "object",
@@ -2014,6 +2126,12 @@ func init() {
             "PARTIAL"
           ]
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "referenceId": {
           "type": "string",
           "example": "1001-3456"
@@ -2413,6 +2531,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -3075,6 +3198,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -3169,7 +3298,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -3182,6 +3312,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -3310,6 +3450,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
@@ -3892,7 +4038,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {
@@ -4612,6 +4761,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -5263,6 +5417,52 @@ func init() {
         }
       }
     },
+    "/move-task-orders/acknowledge": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint **updates** the Moves and Shipments to indicate that the Prime has acknowledged the Moves and Shipments have been received.\nThe Move and Shipment data is expected to be sent in the request body.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "acknowledgeMovesAndShipments",
+        "operationId": "acknowledgeMovesAndShipments",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMoves"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Move and Shipment Acknowledgements.",
+            "schema": {
+              "$ref": "#/definitions/AcknowledgeMovesShipmentsSuccessResponse"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -5489,6 +5689,27 @@ func init() {
             "format": "date-time",
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.",
+            "name": "acknowledged",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged after this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedAfter",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedBefore",
             "in": "query"
           }
         ],
@@ -6626,7 +6847,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**NOTE**: Diversions have a unique calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n\nIf you created a payment request for a diversion and ` + "`" + `WeightBilled` + "`" + ` is not provided, then the following will be used in the calculation:\n- The lowest shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) found in the diverted shipment chain.\n- The lowest reweigh weight found in the diverted shipment chain.\n\nThe diverted shipment chain is created by referencing the ` + "`" + `diversion` + "`" + ` boolean, ` + "`" + `divertedFromShipmentId` + "`" + ` UUID, and matching destination to pickup addresses.\nIf the chain cannot be established it will fall back to the ` + "`" + `PrimeActualWeight` + "`" + ` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.\nThe lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DLH - Domestic Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DSH - Domestic Shorthaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**FSC - Fuel Surcharge**\n**NOTE**: FSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DUPK - Domestic Unpacking**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DNPK - Domestic NTS Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOP - Domestic Origin Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDP - Domestic Destination Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic SIT Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\nJust like domestic shipments \u0026 service items, if ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n**NOTE**: ` + "`" + `POEFSC` + "`" + ` \u0026 ` + "`" + `PODFSC` + "`" + ` service items must have a port associated on the service item in order to successfully add it to a payment request. To update the port of a service item, you must use the (#operation/updateMTOServiceItem) endpoint.\n\n**ISLH - International Shipping \u0026 Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHPK - International HHG Pack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHUPK - International HHG Unpack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**POEFSC - International Port of Embarkation Fuel Surcharge**\n **NOTE**: POEFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `POELocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**PODFSC - International Port of Debarkation Fuel Surcharge**\n**NOTE**: PODFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `PODLocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n**IOSHUT - International origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IDSHUT - International destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
+        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**NOTE**: Diversions have a unique calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n\nIf you created a payment request for a diversion and ` + "`" + `WeightBilled` + "`" + ` is not provided, then the following will be used in the calculation:\n- The lowest shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) found in the diverted shipment chain.\n- The lowest reweigh weight found in the diverted shipment chain.\n\nThe diverted shipment chain is created by referencing the ` + "`" + `diversion` + "`" + ` boolean, ` + "`" + `divertedFromShipmentId` + "`" + ` UUID, and matching destination to pickup addresses.\nIf the chain cannot be established it will fall back to the ` + "`" + `PrimeActualWeight` + "`" + ` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.\nThe lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DLH - Domestic Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DSH - Domestic Shorthaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**FSC - Fuel Surcharge**\n**NOTE**: FSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DUPK - Domestic Unpacking**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DNPK - Domestic NTS Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DPK - Domestic Packing**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOP - Domestic Origin Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDP - Domestic Destination Price**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\nDomestic SIT Service Items \u0026 Accepted Payment Request Parameters:\n---\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\nJust like domestic shipments \u0026 service items, if ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n**NOTE**: ` + "`" + `POEFSC` + "`" + ` \u0026 ` + "`" + `PODFSC` + "`" + ` service items must have a port associated on the service item in order to successfully add it to a payment request. To update the port of a service item, you must use the (#operation/updateMTOServiceItem) endpoint.\n\n**ISLH - International Shipping \u0026 Linehaul**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHPK - International HHG Pack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IHUPK - International HHG Unpack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**POEFSC - International Port of Embarkation Fuel Surcharge**\n **NOTE**: POEFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `POELocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**PODFSC - International Port of Debarkation Fuel Surcharge**\n**NOTE**: PODFSC requires ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment \u0026 ` + "`" + `PODLocation` + "`" + ` on the service item.\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IUBPK - International UB Pack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IUBUPK - International UB Unpack**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**UBP - International UB**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n---\n\nInternational Basic Service Items \u0026 Accepted Payment Request Parameters:\n---\n**IOSHUT - International origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**IDSHUT - International destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
         "consumes": [
           "application/json"
         ],
@@ -6783,6 +7004,57 @@ func init() {
     }
   },
   "definitions": {
+    "AcknowledgeMove": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "mtoShipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcknowledgeShipment"
+          }
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:22Z"
+        }
+      }
+    },
+    "AcknowledgeMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AcknowledgeMove"
+      }
+    },
+    "AcknowledgeMovesShipmentsSuccessResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "example": "Moves/Shipments acknowledgement successfully completed"
+        }
+      }
+    },
+    "AcknowledgeShipment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-04-13T14:15:33Z"
+        }
+      }
+    },
     "Address": {
       "description": "A postal address",
       "type": "object",
@@ -7575,6 +7847,12 @@ func init() {
             "PARTIAL"
           ]
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "referenceId": {
           "type": "string",
           "example": "1001-3456"
@@ -7974,6 +8252,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -8636,6 +8919,12 @@ func init() {
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
@@ -8730,7 +9019,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -8743,6 +9033,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -8871,6 +9171,12 @@ func init() {
             "PARTIAL",
             "FULL"
           ]
+        },
+        "primeAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "primeCounselingCompletedAt": {
           "type": "string",
@@ -9453,7 +9759,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {
@@ -10178,6 +10487,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/move"
@@ -485,7 +486,14 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		orderUpdater := NewOrderUpdater(moveRouter)
 
-		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					PPMType: models.PPMTypeIncentiveBased,
+					Status:  models.PPMShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		move := ppmShipment.Shipment.MoveTaskOrder
 
 		order := move.Orders
@@ -540,6 +548,41 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.EqualError(err, fmt.Sprintf("Invalid input for ID: %s. TransportationAccountingCode cannot be blank.", order.ID))
 		suite.Nil(updatedOrder)
 		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.Run("Updating order grade to civilian changes submitted PPMs to PPM type ACTUAL_EXPENSE", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					PPMType: models.PPMTypeIncentiveBased,
+					Status:  models.PPMShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+		move := ppmShipment.Shipment.MoveTaskOrder
+		order := move.Orders
+
+		grade := ghcmessages.GradeCIVILIANEMPLOYEE
+		body := ghcmessages.CounselingUpdateOrderPayload{
+			Grade: &grade,
+		}
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		var moved models.Move
+		err := suite.DB().Find(&moved, move.ID)
+		suite.NoError(err)
+
+		_, _, errs := orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), order.ID, body, eTag)
+		suite.NoError(errs)
+
+		var updatedPPMShipment models.PPMShipment
+		err = suite.DB().Find(&updatedPPMShipment, ppmShipment.ID)
+
+		suite.NoError(err)
+		suite.EqualValues(true, *updatedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(updatedPPMShipment.PPMType, models.PPMTypeActualExpense)
 	})
 }
 
@@ -702,6 +745,61 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		err = suite.DB().Find(&orderInDB, order.ID)
 		suite.NoError(err)
 		suite.Nil(updatedOrder.Entitlement.UBWeightRestriction)
+	})
+
+	suite.Run("Updates the UB allowance when ubAllowance is specified by TOO for civilian TDY moves", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+
+		usprc, _ := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc.ID,
+				},
+			},
+		}, nil)
+
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name:      factory.MakeRandomString(8),
+					AddressID: address.ID,
+				},
+			},
+		}, nil)
+
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					UBAllowance: models.IntPointer(134),
+				},
+			},
+			{Model: models.Order{
+				OrdersType:        internalmessages.OrdersTypeTEMPORARYDUTY,
+				Grade:             internalmessages.OrderPayGradeCIVILIANEMPLOYEE.Pointer(),
+				NewDutyLocationID: originDutyLocation.ID,
+			}},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		civilianTDYUBAllowance := 351
+		payload := ghcmessages.UpdateAllowancePayload{
+			UbAllowance: models.Int64Pointer(351),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Equal(internalmessages.OrderPayGradeCIVILIANEMPLOYEE, *updatedOrder.Grade)
+		suite.Equal(true, *updatedOrder.NewDutyLocation.Address.IsOconus)
+		suite.Equal(internalmessages.OrdersTypeTEMPORARYDUTY, updatedOrder.OrdersType)
+		suite.Equal(civilianTDYUBAllowance, *updatedOrder.Entitlement.UBAllowance)
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents", func() {
@@ -1083,6 +1181,61 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.NoError(err)
 		suite.NotEqual(payload.ProGearWeightSpouse, orderInDB.Entitlement.ProGearWeightSpouse)
 		suite.Nil(updatedOrder)
+	})
+
+	suite.Run("Updates the UB allowance when ubAllowance is specified by SC for civilian TDY moves", func() {
+		moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		orderUpdater := NewOrderUpdater(moveRouter)
+
+		usprc, _ := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &usprc.ID,
+				},
+			},
+		}, nil)
+
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name:      factory.MakeRandomString(8),
+					AddressID: address.ID,
+				},
+			},
+		}, nil)
+
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					UBAllowance: models.IntPointer(134),
+				},
+			},
+			{Model: models.Order{
+				OrdersType:        internalmessages.OrdersTypeTEMPORARYDUTY,
+				Grade:             internalmessages.OrderPayGradeCIVILIANEMPLOYEE.Pointer(),
+				NewDutyLocationID: originDutyLocation.ID,
+			}},
+		}, nil).Orders
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		civilianTDYUBAllowance := 351
+		payload := ghcmessages.UpdateAllowancePayload{
+			UbAllowance: models.Int64Pointer(351),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		suite.Equal(internalmessages.OrderPayGradeCIVILIANEMPLOYEE, *updatedOrder.Grade)
+		suite.Equal(true, *updatedOrder.NewDutyLocation.Address.IsOconus)
+		suite.Equal(internalmessages.OrdersTypeTEMPORARYDUTY, updatedOrder.OrdersType)
+		suite.Equal(civilianTDYUBAllowance, *updatedOrder.Entitlement.UBAllowance)
 	})
 }
 

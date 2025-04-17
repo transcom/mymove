@@ -3,6 +3,7 @@ package officeuser
 import (
 	"errors"
 	"reflect"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -14,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type testOfficeUserQueryBuilder struct {
@@ -127,7 +129,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 			},
 		}, nil)
 
-		fetchedUsers, err := fetcher.FetchOfficeUsersWithWorkloadByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeServicesCounselor, officeUser.TransportationOfficeID)
+		fetchedUsers, err := fetcher.FetchOfficeUsersWithWorkloadByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeServicesCounselor, officeUser.TransportationOfficeID, string(models.QueueTypeCounseling))
 		suite.NoError(err)
 		fetchedOfficeUser := fetchedUsers[0]
 		suite.Equal(officeUser.ID, fetchedOfficeUser.ID)
@@ -159,4 +161,34 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Equal(uuid.Nil, officeUser.ID)
 	})
+
+	suite.Run("does not return office users with deleted role", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		tooRole := factory.FetchOrBuildRoleByRoleType(suite.DB(), roles.RoleTypeTOO)
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
+			},
+		}, nil)
+		deletedAt := time.Now()
+		_ = testdatagen.MakeUsersRoles(suite.DB(), testdatagen.Assertions{
+			User: officeUser.User,
+			UsersRoles: models.UsersRoles{
+				RoleID:    tooRole.ID,
+				DeletedAt: &deletedAt,
+			},
+		})
+
+		fetchedUsers, err := fetcher.FetchOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
+		suite.NoError(err)
+		suite.Len(fetchedUsers, 0)
+	})
+
 }

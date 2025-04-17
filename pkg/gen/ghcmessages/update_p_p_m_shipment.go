@@ -69,7 +69,7 @@ type UpdatePPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
 
-	// Indicates whether PPM shipment has pro gear.
+	// Indicates whether PPM shipment has pro-gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
 
@@ -101,6 +101,9 @@ type UpdatePPMShipment struct {
 	PickupAddress struct {
 		Address
 	} `json:"pickupAddress,omitempty"`
+
+	// ppm type
+	PpmType PPMType `json:"ppmType,omitempty"`
 
 	// pro gear weight
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
@@ -183,6 +186,10 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -319,6 +326,23 @@ func (m *UpdatePPMShipment) validatePickupAddress(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *UpdatePPMShipment) validatePpmType(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	if err := m.PpmType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmType")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdatePPMShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
 		return nil
@@ -429,6 +453,10 @@ func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePpmType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -486,6 +514,24 @@ func (m *UpdatePPMShipment) contextValidateDestinationAddress(ctx context.Contex
 }
 
 func (m *UpdatePPMShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidatePpmType(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	if err := m.PpmType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmType")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmType")
+		}
+		return err
+	}
 
 	return nil
 }

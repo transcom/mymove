@@ -35,7 +35,9 @@ import {
   SHIPMENT_OPTIONS,
   FEATURE_FLAG_KEYS,
   technicalHelpDeskURL,
+  SHIPMENT_TYPES,
 } from 'shared/constants';
+import { isPPMAboutInfoComplete } from 'utils/shipments';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -89,6 +91,7 @@ const ServicesCounselingMoveDetails = ({
   const hasOrderDocuments = validOrdersDocuments?.length > 0;
 
   const { customer, entitlement: allowances, originDutyLocation, destinationDutyLocation } = order;
+  const isLocalMove = order?.order_type === ORDERS_TYPE.LOCAL_MOVE;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
 
@@ -97,6 +100,7 @@ const ServicesCounselingMoveDetails = ({
   let counselorCanEdit;
   let counselorCanCancelMove;
   let counselorCanEditNonPPM;
+  let isMoveCancelled;
 
   const sections = useMemo(() => {
     return ['shipments', 'orders', 'allowances', 'customer-info'];
@@ -204,7 +208,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
-    const submittedShipmentsNonPPM = submittedShipments.filter(
+    const submittedShipmentsNonPPMNeedsCloseout = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
@@ -284,26 +288,61 @@ const ServicesCounselingMoveDetails = ({
 
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
-    counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
+    counselorCanEdit =
+      move.status === (MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || MOVE_STATUSES.DRAFT) &&
+      ppmShipmentsOtherStatuses.length > 0;
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
-      move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
+      (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || move.status === MOVE_STATUSES.DRAFT) &&
+      shipmentsInfo.shipmentType !== SHIPMENT_TYPES.PPM;
+    isMoveCancelled = move.status === MOVE_STATUSES.CANCELED;
 
-    shipmentsInfo = submittedShipmentsNonPPM.map((shipment) => {
+    shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
       const editURL =
-        counselorCanEdit || counselorCanEditNonPPM
+        // This ternary checks if the shipment is a PPM. If so, PPM Shipments are editable at any time based on their ppm status.
+        // If the shipment is not a PPM, it uses the existing counselorCanEdit checks for move status
+        (shipment.shipmentType !== 'PPM' && (counselorCanEdit || counselorCanEditNonPPM)) ||
+        (shipment.shipmentType === 'PPM' &&
+          (shipment.ppmShipment.status === ppmShipmentStatuses.DRAFT ||
+            shipment.ppmShipment.status === ppmShipmentStatuses.SUBMITTED ||
+            shipment.ppmShipment.status === ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL)) ||
+        (shipment.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER &&
+          move.status === MOVE_STATUSES.DRAFT)
           ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
               shipmentId: shipment.id,
             })}`
           : '';
-      const viewURL = // Read only view of approved documents
-        shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
-        (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
-          ? `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
+      let viewURL = '';
+      let completePpmForCustomerURL = '';
+
+      if (shipment?.shipmentType === 'PPM') {
+        // Read only view of approved documents
+        if (
+          shipment?.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
+          (shipment?.ppmShipment?.weightTickets && shipment?.ppmShipment?.weightTickets[0]?.status)
+        ) {
+          viewURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_VIEW_DOCUMENT_PATH, {
+            moveCode,
+            shipmentId: shipment.id,
+          })}`;
+        }
+        // Complete PPM for Customer URL
+        if (shipment?.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) {
+          const aboutInfoComplete = isPPMAboutInfoComplete(shipment.ppmShipment);
+          if (!aboutInfoComplete) {
+            completePpmForCustomerURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_PPM_ABOUT_PATH, {
               moveCode,
               shipmentId: shipment.id,
-            })}`
-          : '';
+            })}`;
+          } else {
+            completePpmForCustomerURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+              moveCode,
+              shipmentId: shipment.id,
+            })}`;
+          }
+        }
+      }
+
       const displayInfo = {
         heading: getShipmentTypeLabel(shipment.shipmentType),
         destinationAddress: shipment.destinationAddress || {
@@ -358,6 +397,7 @@ const ServicesCounselingMoveDetails = ({
         displayInfo,
         editURL,
         viewURL,
+        completePpmForCustomerURL,
         shipmentType: shipment.shipmentType,
       };
     });
@@ -618,6 +658,7 @@ const ServicesCounselingMoveDetails = ({
   const counselorCanEditOrdersAndAllowances = () => {
     if (counselorCanEdit || counselorCanEditNonPPM) return true;
     if (
+      move.status === MOVE_STATUSES.DRAFT ||
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
       move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
       (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt) // status is set to 'Approval Requested' if customer uploads amended orders.
@@ -632,19 +673,24 @@ const ServicesCounselingMoveDetails = ({
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
 
   const allowedShipmentOptions = () => {
-    return (
-      <>
-        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-          HHG
-        </option>
-        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
-        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
-        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
-        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
-      </>
-    );
+    if (counselorCanEdit || counselorCanEditNonPPM) {
+      return (
+        <>
+          <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+            HHG
+          </option>
+          <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+          {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+          {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
+          {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+          {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+          {!isLocalMove && enableUB && isOconusMove && (
+            <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>
+          )}
+        </>
+      );
+    }
+    return <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>;
   };
 
   return (
@@ -737,10 +783,10 @@ const ServicesCounselingMoveDetails = ({
               </Grid>
             )}
             <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
-              <h1>Move details</h1>
+              <h1>Move Details</h1>
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
                 <div>
-                  {(counselorCanEdit || counselorCanEditNonPPM) && (
+                  {(counselorCanEdit || (counselorCanEditNonPPM && move.status !== MOVE_STATUSES.DRAFT)) && (
                     <Button
                       disabled={
                         !mtoShipments.length ||
@@ -792,8 +838,8 @@ const ServicesCounselingMoveDetails = ({
           <div className={styles.section} id="shipments">
             <DetailsPanel
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
-                !isMoveLocked && (
+                !isMoveLocked &&
+                !isMoveCancelled && (
                   <ButtonDropdown
                     ariaLabel="Add a new shipment"
                     data-testid="addShipmentButton"
@@ -827,6 +873,7 @@ const ServicesCounselingMoveDetails = ({
                     displayInfo={shipment.displayInfo}
                     editURL={shipment.editURL}
                     viewURL={shipment.viewURL}
+                    completePpmForCustomerURL={shipment.completePpmForCustomerURL}
                     isSubmitted={false}
                     key={shipment.id}
                     shipmentId={shipment.id}
@@ -867,14 +914,13 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Orders"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="view-edit-orders"
                     to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
-                    View and edit orders
+                    View {counselorCanEditOrdersAndAllowances() && 'and edit'} orders
                   </Link>
                 )
               }
@@ -887,14 +933,13 @@ const ServicesCounselingMoveDetails = ({
             <DetailsPanel
               title="Allowances"
               editButton={
-                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
                     to={`../${servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}`}
                   >
-                    Edit allowances
+                    {counselorCanEditOrdersAndAllowances() ? 'Edit ' : 'View'} allowances
                   </Link>
                 )
               }

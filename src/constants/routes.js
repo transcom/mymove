@@ -1,6 +1,7 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
+  CREATE_ACCOUNT_PATH: '/create-account',
   REQUEST_ACCOUNT: '/request-account',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
@@ -11,7 +12,6 @@ export const generalRoutes = {
 export const customerRoutes = {
   MOVE_HOME_PAGE: '/move',
   MOVE_HOME_PATH: '/move/:moveId',
-  VALIDATION_CODE_PATH: '/service-member/validation-code',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
   CONTACT_INFO_PATH: '/service-member/contact-info',
@@ -100,6 +100,24 @@ export const servicesCounselingRoutes = {
   BASE_CUSTOMERS_ORDERS_ADD_PATH: `${BASE_COUNSELING_CUSTOMER_PATH}/new-orders`,
   CUSTOMERS_ORDERS_ADD_PATH: 'new-orders',
   CREATE_MOVE_CUSTOMER_INFO_PATH: '/create-move/customer-info',
+  BASE_SHIPMENT_PPM_ABOUT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/about`,
+  SHIPMENT_PPM_ABOUT_PATH: `shipments/:shipmentId/about`,
+  BASE_SHIPMENT_PPM_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/review`,
+  SHIPMENT_PPM_REVIEW_PATH: `shipments/:shipmentId/review`,
+  BASE_SHIPMENT_PPM_WEIGHT_TICKETS_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/weight-tickets`,
+  SHIPMENT_PPM_WEIGHT_TICKETS_PATH: `shipments/:shipmentId/weight-tickets`,
+  BASE_SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/weight-tickets/:weightTicketId`,
+  SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH: `shipments/:shipmentId/weight-tickets/:weightTicketId`,
+  BASE_SHIPMENT_PPM_PRO_GEAR_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/pro-gear`,
+  SHIPMENT_PPM_PRO_GEAR_PATH: `shipments/:shipmentId/pro-gear`,
+  BASE_SHIPMENT_PPM_PRO_GEAR_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/pro-gear/:proGearId`,
+  SHIPMENT_PPM_PRO_GEAR_EDIT_PATH: `shipments/:shipmentId/pro-gear/:proGearId`,
+  BASE_SHIPMENT_PPM_EXPENSES_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/expenses`,
+  SHIPMENT_PPM_EXPENSES_PATH: `shipments/:shipmentId/expenses`,
+  BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/expenses/:expenseId`,
+  SHIPMENT_PPM_EXPENSES_EDIT_PATH: `shipments/:shipmentId/expenses/:expenseId`,
+  BASE_SHIPMENT_PPM_COMPLETE_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/complete`,
+  SHIPMENT_PPM_COMPLETE_PATH: `shipments/:shipmentId/complete`,
 };
 
 const BASE_MOVES_PATH = '/moves/:moveCode';
@@ -147,6 +165,10 @@ export const qaeCSRRoutes = {
   CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
 };
 
+export const contractingOfficerRoutes = {
+  MOVE_SEARCH_PATH: '/cor/search',
+};
+
 export const hqRoutes = {
   BASE_MOVE_QUEUE: `/move-queue`,
   MOVE_QUEUE: `move-queue`,
@@ -177,8 +199,16 @@ export const primeSimulatorRoutes = {
   SHIPMENT_UPDATE_REWEIGH_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/reweigh/:reweighId/update`,
   CREATE_SIT_EXTENSION_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/sit-extension-requests/new`,
   SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/updateDestinationAddress`,
+  ACKNOWLEDGE_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/acknowledge`,
+  ACKNOWLEDGE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/acknowledge`,
 };
 
 export const adminRoutes = {
   HOME_PATH: '/',
+  REJECTED_OFFICE_USERS: '/system/rejected-office-users',
+};
+
+export const officeRoutes = {
+  PROFILE_PATH: '/profile',
+  CONTACT_INFO_EDIT_PATH: '/profile/edit/contact-info',
 };

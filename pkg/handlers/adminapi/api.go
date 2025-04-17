@@ -97,7 +97,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		handlerConfig,
-		fetch.NewListFetcher(queryBuilder),
+		officeuser.NewOfficeUsersListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
@@ -133,6 +133,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserDeleter(queryBuilder),
+	}
+
+	adminAPI.OfficeUsersGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
+		handlerConfig,
+		roles.NewRolesFetcher(),
 	}
 
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{

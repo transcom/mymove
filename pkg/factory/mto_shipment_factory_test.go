@@ -502,6 +502,21 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Nil(ntsrShipment.ActualDeliveryDate)
 	})
 
+	suite.Run("Successful creation of UB shipment", func() {
+		ubShipment := BuildUBShipment(suite.DB(), nil, nil)
+
+		suite.Equal(models.MTOShipmentTypeUnaccompaniedBaggage, ubShipment.ShipmentType)
+		suite.False(ubShipment.MoveTaskOrderID.IsNil())
+		suite.False(ubShipment.MoveTaskOrder.ID.IsNil())
+		suite.NotNil(ubShipment.DestinationAddressID)
+		suite.NotNil(ubShipment.DestinationAddress)
+		suite.True(*ubShipment.DestinationAddress.IsOconus)
+
+		suite.NotNil(ubShipment.PickupAddressID)
+		suite.NotNil(ubShipment.PickupAddress)
+		suite.False(*ubShipment.PickupAddress.IsOconus)
+	})
+
 	suite.Run("Successful creation of NTSRShipment with storage facility", func() {
 		storageFacility := BuildStorageFacility(suite.DB(), nil, nil)
 		ntsrShipment := BuildNTSRShipment(suite.DB(), []Customization{

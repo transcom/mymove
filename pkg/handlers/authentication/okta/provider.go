@@ -277,6 +277,9 @@ func (op *Provider) GetJWKSURL() string {
 func (op *Provider) GetOpenIDConfigURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/openid-configuration"
 }
+func (op *Provider) GetUsersURL() string {
+	return op.orgURL + "/api/v1/users/"
+}
 func (op *Provider) GetUserURL(oktaUserID string) string {
 	return op.orgURL + "/api/v1/users/" + oktaUserID
 }
@@ -285,6 +288,12 @@ func (op *Provider) GetCreateUserURL(activate string) string {
 }
 func (op *Provider) GetCreateAccountURL(activate string) string {
 	return op.orgURL + "/api/v1/users/?activate=" + url.QueryEscape(activate)
+}
+func (op *Provider) GetUserGroupsURL(userID string) string {
+	return op.orgURL + "/api/v1/users/" + userID + "/groups"
+}
+func (op *Provider) AddUserToGroupURL(groupID string, userID string) string {
+	return op.orgURL + "/api/v1/groups/" + groupID + "/users/" + userID
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

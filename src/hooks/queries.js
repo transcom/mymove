@@ -316,6 +316,36 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
   };
 };
 
+export const usePPMShipmentAndDocsOnlyQueries = (shipmentId) => {
+  const {
+    data: mtoShipment,
+    refetch: refetchMTOShipment,
+    ...mtoShipmentQuery
+  } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) => getMTOShipmentByID(...queryKey), {
+    refetchOnMount: true,
+    staleTime: 0,
+  });
+
+  const { data: documents, ...documentsQuery } = useQuery(
+    [DOCUMENTS, shipmentId],
+    ({ queryKey }) => getPPMDocuments(...queryKey),
+    {
+      enabled: !!shipmentId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  return {
+    mtoShipment,
+    documents,
+    refetchMTOShipment,
+    isLoading,
+    isError,
+    isSuccess,
+    isFetching,
+  };
+};
+
 export const usePPMCloseoutQuery = (ppmShipmentId) => {
   const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery([PPMCLOSEOUT, ppmShipmentId], ({ queryKey }) =>
     getPPMCloseout(...queryKey),
@@ -600,9 +630,14 @@ export const useDestinationRequestsQueueQueries = ({
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
   viewAsGBLOC,
+  activeRole,
 }) => {
-  const { data = {}, ...movesQueueQuery } = useQuery(
-    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
+  const {
+    refetch,
+    data = {},
+    ...movesQueueQuery
+  } = useQuery(
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC, activeRole }],
     ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
@@ -612,6 +647,7 @@ export const useDestinationRequestsQueueQueries = ({
     isLoading,
     isError,
     isSuccess,
+    refetch,
   };
 };
 
@@ -1012,6 +1048,7 @@ export const useGHCGetMoveHistory = ({
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([getGHCMoveHistoryQuery]);
   const { historyRecords, ...dataProps } = data;
+
   return {
     queueResult: { data: historyRecords, ...dataProps },
     isLoading,

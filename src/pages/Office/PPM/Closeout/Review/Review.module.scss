@@ -1,0 +1,48 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.PPMReview {
+  @include at-media-max(mobile-lg) {
+    .aboutSection {
+      @include u-padding-bottom(4);
+      @include u-margin-bottom(4);
+      @include u-border-bottom(1px, solid);
+      border-color: $base-lighter;
+    }
+  }
+  .reviewItems:first-of-type {
+    @include u-margin-top(2);
+  }
+
+  @include at-media(mobile-lg) {
+    .reviewItems {
+      @include u-margin-top(3);
+    }
+  }
+
+  @include at-media-max(mobile-lg) {
+    .reviewItems {
+      @include u-margin-top(4);
+    }
+
+    .navigationButtons {
+      @include u-margin-top(4);
+    }
+  }
+
+  :global(.usa-button.usa-button--secondary) {
+    &:visited {
+      color: $primary;
+    }
+
+    &:hover {
+      color: $primary-dark;
+    }
+  }
+
+  :global(.usa-button--disabled) {
+    pointer-events: none;
+    background-color: $disabled;
+  }
+}
