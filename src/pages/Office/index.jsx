@@ -512,7 +512,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
 
                     {/* QAE/CSR/GSR */}
                     <Route
-                      key="qaeCSRMoveSearchPath"
+                      key="moveSearchPath"
                       path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                       element={
                         <PrivateRoute
