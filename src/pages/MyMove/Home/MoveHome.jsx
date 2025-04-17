@@ -92,8 +92,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const { moveId } = useParams();
   const navigate = useNavigate();
   let { state } = useLocation();
-  const [serviceMemberName, setServiceMemberName] = useState('');
-  state = { ...state, moveId, serviceMemberName };
+  state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCancelMoveModal, setShowCancelMoveModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
@@ -128,9 +127,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
   useEffect(() => {
-    if (serviceMember) {
-      setServiceMemberName(`${serviceMember.first_name} ${serviceMember.last_name}`);
-    }
     getAllMoves(serviceMember.id).then((response) => {
       updateAllMoves(response);
     });

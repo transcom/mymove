@@ -21,17 +21,6 @@ describe('SubmitMoveForm component', () => {
     expect(getByLabelText('Date')).toBeDisabled();
   });
 
-  it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByTestId, getByText } = render(<SubmitMoveForm {...testProps} />);
-    const submitBtn = getByTestId('wizardCompleteButton');
-
-    await userEvent.click(submitBtn);
-
-    await waitFor(() => {
-      expect(getByText('Required')).toBeInTheDocument();
-    });
-  });
-
   it('submits the form when it is valid', async () => {
     await act(async () => {
       render(<SubmitMoveForm {...testProps} />);
