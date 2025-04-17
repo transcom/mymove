@@ -50,14 +50,13 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 	})
 
 	reZip3 := models.ReZip3{
-		ContractID:            contractYear.Contract.ID,
+		ContractID:            contractYear.ContractID,
 		Zip3:                  "940",
 		BasePointCity:         "San Francisco",
 		State:                 "CA",
 		DomesticServiceAreaID: serviceArea.ID,
 		RateAreaID:            &rateArea.ID,
 		HasMultipleRateAreas:  false,
-		Contract:              contractYear.Contract,
 		DomesticServiceArea:   serviceArea,
 		RateArea:              &rateArea,
 	}
