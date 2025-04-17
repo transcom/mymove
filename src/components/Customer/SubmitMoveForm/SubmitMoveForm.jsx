@@ -22,7 +22,7 @@ const SubmitMoveForm = (props) => {
     signature: Yup.string()
       .required('Required')
       .test('matches-user-name', 'Typed signature must match your exact user name', (signature) => {
-        return signature === currentUser;
+        return signature.toLowerCase() === currentUser.toLowerCase();
       }),
     date: Yup.date().required(),
   });
