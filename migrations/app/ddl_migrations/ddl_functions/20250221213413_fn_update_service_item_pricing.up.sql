@@ -1,5 +1,6 @@
 --B-22462  M.Inthavongsay Adding initial migration file for update_service_item_pricing stored procedure using new migration process.
 --Also updating to allow IOSFSC and IDSFSC SIT service items.
+--B-22742  C. Kleinjan  Add pricing calculation for ICRT and IUCRT service items
 --B-22463  M.Inthavongsay updating to allow IOASIT and IDASIT SIT service items.
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
@@ -23,6 +24,9 @@ DECLARE
     cents_above_baseline NUMERIC;
     price_difference NUMERIC;
     days_in_sit INTEGER;
+    length NUMERIC;
+    width NUMERIC;
+    height NUMERIC;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
     INTO shipment
@@ -83,7 +87,39 @@ BEGIN
 			        SET pricing_estimate = estimated_price
 			        WHERE id = service_item.id;
                 END IF;
+            WHEN service_code IN (''ICRT'') THEN
+                contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
+                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
 
+                SELECT INTO length, height, width length_thousandth_inches, height_thousandth_inches, width_thousandth_inches
+                FROM mto_service_item_dimensions
+                WHERE mto_service_item_id = service_item.id;
+
+                IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
+                    estimated_price := ROUND((escalated_price * (((length/1000) * (width/1000) * (height/1000)) / 100)), 2) * 100;
+					RAISE NOTICE ''%: Received estimated price of % (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, length/1000, width/1000, height/1000;
+			        -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
+                END IF;
+            WHEN service_code IN (''IUCRT'') THEN
+                contract_id := get_contract_id(shipment.requested_pickup_date);
+                d_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
+                escalated_price := calculate_escalated_price(d_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+
+                SELECT INTO length, height, width length_thousandth_inches, height_thousandth_inches, width_thousandth_inches
+                FROM mto_service_item_dimensions
+                WHERE mto_service_item_id = service_item.id;
+
+                IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
+                    estimated_price := ROUND((escalated_price * (((length/1000) * (width/1000) * (height/1000)) / 100)), 2) * 100;
+			        -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
+                END IF;
             WHEN service_code IN (''IHUPK'', ''IUBUPK'', ''IDSHUT'') THEN
                 -- perform IHUPK/IUBUPK-specific logic (no origin rate area)
                 contract_id := get_contract_id(shipment.requested_pickup_date);
