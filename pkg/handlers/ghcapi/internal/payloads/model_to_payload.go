@@ -2309,6 +2309,21 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	return officeUsers
 }
 
+func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
+	switch activeRole {
+	case string(roles.RoleTypeTOO):
+		switch queueType {
+		case string(models.QueueTypeTaskOrder):
+			return move.TOOAssignedUser, move.TOOAssignedID
+		case string(models.QueueTypeDestinationRequest):
+			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
+		}
+	case string(roles.RoleTypeServicesCounselor):
+		return move.SCAssignedUser, move.SCAssignedID
+	}
+	return nil, nil
+}
+
 func attachApprovalRequestTypes(move models.Move) []string {
 	var requestTypes []string
 	for _, item := range move.MTOServiceItems {
@@ -2337,21 +2352,6 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	}
 
 	return requestTypes
-}
-
-func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
-	switch activeRole {
-	case string(roles.RoleTypeTOO):
-		switch queueType {
-		case string(models.QueueTypeTaskOrder):
-			return move.TOOAssignedUser, move.TOOAssignedID
-		case string(models.QueueTypeDestinationRequest):
-			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
-		}
-	case string(roles.RoleTypeServicesCounselor):
-		return move.SCAssignedUser, move.SCAssignedID
-	}
-	return nil, nil
 }
 
 // QueueMoves payload
