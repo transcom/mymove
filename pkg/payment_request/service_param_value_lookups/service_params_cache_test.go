@@ -11,26 +11,26 @@ import (
 )
 
 type paramsCacheSubtestData struct {
-	paymentRequest                models.PaymentRequest
-	move                          models.Move
-	mtoShipment1                  models.MTOShipment
-	mtoShipment2                  models.MTOShipment
-	mtoServiceItemShip1DLH        models.MTOServiceItem
-	mtoServiceItemShip2DLH        models.MTOServiceItem
-	mtoServiceItemMS              models.MTOServiceItem
-	mtoServiceItemCrate1          models.MTOServiceItem
-	mtoServiceItemCrate2          models.MTOServiceItem
-	mtoServiceItemDomesticShuttle models.MTOServiceItem
-	paramKeyWeightEstimated       models.ServiceItemParamKey
-	paramKeyRequestedPickupDate   models.ServiceItemParamKey
-	paramKeyMTOAvailableToPrimeAt models.ServiceItemParamKey
-	paramKeyCubicFeetBilled       models.ServiceItemParamKey
-	paramKeyDimensionHeight       models.ServiceItemParamKey
-	paramKeyDimensionWidth        models.ServiceItemParamKey
-	paramKeyDimensionLength       models.ServiceItemParamKey
-	estimatedWeight               unit.Pound
-	shuttleEstimatedWeight        unit.Pound
-	shuttleActualWeight           unit.Pound
+	paymentRequest                     models.PaymentRequest
+	move                               models.Move
+	mtoShipment1                       models.MTOShipment
+	mtoShipment2                       models.MTOShipment
+	mtoServiceItemShip1DLH             models.MTOServiceItem
+	mtoServiceItemShip2DLH             models.MTOServiceItem
+	mtoServiceItemMS                   models.MTOServiceItem
+	mtoServiceItemCrate1               models.MTOServiceItem
+	mtoServiceItemCrate2               models.MTOServiceItem
+	mtoServiceItemDomesticShuttle      models.MTOServiceItem
+	paramKeyWeightEstimated            models.ServiceItemParamKey
+	paramKeyRequestedPickupDate        models.ServiceItemParamKey
+	paramKeyMTOEarliestRequestedPickup models.ServiceItemParamKey
+	paramKeyCubicFeetBilled            models.ServiceItemParamKey
+	paramKeyDimensionHeight            models.ServiceItemParamKey
+	paramKeyDimensionWidth             models.ServiceItemParamKey
+	paramKeyDimensionLength            models.ServiceItemParamKey
+	estimatedWeight                    unit.Pound
+	shuttleEstimatedWeight             unit.Pound
+	shuttleActualWeight                unit.Pound
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *paramsCacheSubtestData) {
@@ -54,6 +54,11 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		{
 			Model:    subtestData.move,
 			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate: models.TimePointer(time.Now().Add(24 * time.Hour)),
+			},
 		}}, nil)
 	subtestData.mtoShipment1.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment1)
@@ -200,10 +205,10 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	}, nil)
 
-	subtestData.paramKeyMTOAvailableToPrimeAt = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	subtestData.paramKeyMTOEarliestRequestedPickup = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
-				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Key:         models.ServiceItemParamNameMTOEarliestRequestedPickup,
 				Description: "prime mto made available date",
 				Type:        models.ServiceItemParamTypeDate,
 				Origin:      models.ServiceItemParamOriginSystem,
@@ -217,7 +222,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			LinkOnly: true,
 		},
 		{
-			Model:    subtestData.paramKeyMTOAvailableToPrimeAt,
+			Model:    subtestData.paramKeyMTOEarliestRequestedPickup,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -600,7 +605,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		suite.MustSave(&subtestData.move)
 		expectedAvailToPrimeDate := subtestData.move.AvailableToPrimeAt.String()[:10]
 		var availToPrimeDateStr string
-		availToPrimeDateStr, err = paramLookupService3.ServiceParamValue(suite.AppContextForTest(), subtestData.paramKeyMTOAvailableToPrimeAt.Key)
+		availToPrimeDateStr, err = paramLookupService3.ServiceParamValue(suite.AppContextForTest(), subtestData.paramKeyMTOEarliestRequestedPickup.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedAvailToPrimeDate, availToPrimeDateStr[:10])
 	})

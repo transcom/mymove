@@ -788,7 +788,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Value:   "TEST",
 			},
 			{
-				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Key:     models.ServiceItemParamNameMTOEarliestRequestedPickup,
 				KeyType: models.ServiceItemParamTypeTimestamp,
 				Value:   "2023-05-03T14:38:30Z",
 			},

@@ -222,7 +222,7 @@ var (
 		Origin:      models.ServiceItemParamOriginPricer,
 	}
 	paramMTOAvailableAToPrimeAt = models.ServiceItemParamKey{
-		Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+		Key:         models.ServiceItemParamNameMTOEarliestRequestedPickup,
 		Description: "mto available to prime at",
 		Type:        models.ServiceItemParamTypeTimestamp,
 		Origin:      models.ServiceItemParamOriginSystem,
