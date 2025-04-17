@@ -6788,6 +6788,72 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/terminate": {
+      "post": {
+        "description": "Terminates a shipment",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Terminates a shipment",
+        "operationId": "createTermination",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "required": [
+                "terminationReason"
+              ],
+              "properties": {
+                "terminationReason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully terminated the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "create.shipmentTermination"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -10842,6 +10908,16 @@ func init() {
             }
           ]
         },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "tertiaryDeliveryAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -10869,7 +10945,8 @@ func init() {
         "APPROVED",
         "CANCELLATION_REQUESTED",
         "CANCELED",
-        "DIVERSION_REQUESTED"
+        "DIVERSION_REQUESTED",
+        "TERMINATED_FOR_CAUSE"
       ],
       "example": "SUBMITTED"
     },
@@ -13665,6 +13742,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "assignable": {
           "type": "boolean"
@@ -25027,6 +25110,84 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/terminate": {
+      "post": {
+        "description": "Terminates a shipment",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Terminates a shipment",
+        "operationId": "createTermination",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "required": [
+                "terminationReason"
+              ],
+              "properties": {
+                "terminationReason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully terminated the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "create.shipmentTermination"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -29158,6 +29319,16 @@ func init() {
             }
           ]
         },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "tertiaryDeliveryAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -29185,7 +29356,8 @@ func init() {
         "APPROVED",
         "CANCELLATION_REQUESTED",
         "CANCELED",
-        "DIVERSION_REQUESTED"
+        "DIVERSION_REQUESTED",
+        "TERMINATED_FOR_CAUSE"
       ],
       "example": "SUBMITTED"
     },
@@ -32057,6 +32229,12 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "approvalRequestTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "assignable": {
           "type": "boolean"

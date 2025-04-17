@@ -1422,6 +1422,49 @@ paths:
       summary: Requests a shipment cancellation
       x-permissions:
         - create.shipmentCancellation
+  /shipments/{shipmentID}/terminate:
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              terminationReason:
+                type: string
+            required:
+              - terminationReason
+      responses:
+        '200':
+          description: Successfully terminated the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Terminates a shipment
+      operationId: createTermination
+      summary: Terminates a shipment
+      x-permissions:
+        - create.shipmentTermination
   /shipments/{shipmentID}/request-reweigh:
     parameters:
       - description: ID of the shipment
@@ -8266,6 +8309,10 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
+      approvalRequestTypes:
+        type: array
+        items:
+          type: string
   QueueMovesResult:
     type: object
     properties:
@@ -9954,6 +10001,7 @@ definitions:
       - CANCELLATION_REQUESTED
       - CANCELED
       - DIVERSION_REQUESTED
+      - TERMINATED_FOR_CAUSE
   ReweighRequester:
     type: string
     enum:
@@ -11647,6 +11695,14 @@ definitions:
         $ref: '#/definitions/Port'
       poeLocation:
         $ref: '#/definitions/Port'
+      terminationComments:
+        type: string
+        x-nullable: true
+        readOnly: true
+      terminatedAt:
+        format: date-time
+        type: string
+        x-nullable: true
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
