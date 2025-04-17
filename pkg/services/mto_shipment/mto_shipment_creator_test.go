@@ -805,6 +805,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+
 		for _, tt := range testCases {
 			tt := tt
 
@@ -820,6 +823,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					{
 						Model: models.MTOShipment{
 							ShipmentType: tt.shipmentType,
+						},
+					},
+					{
+						Model: models.Address{
+							UsPostRegionCityID: &usprcFairfield.ID,
+							PostalCode:         usprcFairfield.UsprZipID,
+							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)
@@ -853,6 +863,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+
 		for _, tt := range testCases {
 			tt := tt
 			var err error
@@ -869,6 +882,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					{
 						Model: models.MTOShipment{
 							ShipmentType: tt.shipmentType,
+						},
+					},
+					{
+						Model: models.Address{
+							UsPostRegionCityID: &usprcFairfield.ID,
+							PostalCode:         usprcFairfield.UsprZipID,
+							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)
@@ -907,6 +927,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 							DivertedFromShipmentID: &createdParentShipment.ID,
 						},
 					},
+					{
+						Model: models.Address{
+							UsPostRegionCityID: &usprcFairfield.ID,
+							PostalCode:         usprcFairfield.UsprZipID,
+							City:               usprcFairfield.USPostRegionCityNm,
+						},
+					},
 				}, nil)
 			}
 
@@ -936,6 +963,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
+		usprcFairfield, err := models.FindByZipCodeAndCity(suite.DB(), "94535", "Fairfield")
+		suite.NoError(err)
+
 		for _, tt := range testCases {
 			tt := tt
 			var err error
@@ -952,6 +982,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					{
 						Model: models.MTOShipment{
 							ShipmentType: tt.shipmentType,
+						},
+					},
+					{
+						Model: models.Address{
+							UsPostRegionCityID: &usprcFairfield.ID,
+							PostalCode:         usprcFairfield.UsprZipID,
+							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)
@@ -990,6 +1027,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 							DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
 						},
 					},
+					{
+						Model: models.Address{
+							UsPostRegionCityID: &usprcFairfield.ID,
+							PostalCode:         usprcFairfield.UsprZipID,
+							City:               usprcFairfield.USPostRegionCityNm,
+						},
+					},
 				}, nil)
 			}
 
@@ -1025,6 +1069,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 							ShipmentType:           tt.shipmentType,
 							Diversion:              true,
 							DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+						},
+					},
+					{
+						Model: models.Address{
+							UsPostRegionCityID: &usprcFairfield.ID,
+							PostalCode:         usprcFairfield.UsprZipID,
+							City:               usprcFairfield.USPostRegionCityNm,
 						},
 					},
 				}, nil)
@@ -1407,28 +1458,40 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 	if shipment.PickupAddress != nil {
 		shipment.PickupAddressID = nil
 		shipment.PickupAddress.ID = uuid.Nil
+		shipment.PickupAddress.UsPostRegionCity = nil
+		shipment.PickupAddress.UsPostRegionCityID = nil
 	}
 	if shipment.DestinationAddress != nil {
 		shipment.DestinationAddressID = nil
 		shipment.DestinationAddress.ID = uuid.Nil
+		shipment.DestinationAddress.UsPostRegionCity = nil
+		shipment.DestinationAddress.UsPostRegionCityID = nil
 	}
 	if shipment.SecondaryPickupAddress != nil {
 		shipment.SecondaryPickupAddressID = nil
 		shipment.SecondaryPickupAddress.ID = uuid.Nil
+		shipment.SecondaryPickupAddress.UsPostRegionCity = nil
+		shipment.SecondaryPickupAddress.UsPostRegionCityID = nil
 	}
 
 	if shipment.SecondaryDeliveryAddress != nil {
 		shipment.SecondaryDeliveryAddressID = nil
 		shipment.SecondaryDeliveryAddress.ID = uuid.Nil
+		shipment.SecondaryDeliveryAddress.UsPostRegionCity = nil
+		shipment.SecondaryDeliveryAddress.UsPostRegionCityID = nil
 	}
 	if shipment.HasTertiaryPickupAddress != nil {
 		shipment.TertiaryPickupAddressID = nil
 		shipment.TertiaryPickupAddress.ID = uuid.Nil
+		shipment.TertiaryPickupAddress.UsPostRegionCity = nil
+		shipment.TertiaryPickupAddress.UsPostRegionCityID = nil
 	}
 
 	if shipment.HasTertiaryDeliveryAddress != nil {
 		shipment.TertiaryDeliveryAddressID = nil
 		shipment.TertiaryDeliveryAddress.ID = uuid.Nil
+		shipment.TertiaryDeliveryAddress.UsPostRegionCity = nil
+		shipment.TertiaryDeliveryAddress.UsPostRegionCityID = nil
 	}
 
 	if shipment.StorageFacility != nil {
