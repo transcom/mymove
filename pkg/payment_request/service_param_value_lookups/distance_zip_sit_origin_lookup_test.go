@@ -3,14 +3,12 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
-	"time"
 
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
@@ -29,12 +27,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 	setupTestData := func() {
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress = factory.BuildAddress(suite.DB(),
