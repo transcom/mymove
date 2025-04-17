@@ -507,6 +507,18 @@ func init() {
         ],
         "summary": "List of EDI Errors",
         "operationId": "fetchEdiErrors",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "success",
@@ -4451,6 +4463,18 @@ func init() {
         ],
         "summary": "List of EDI Errors",
         "operationId": "fetchEdiErrors",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "success",

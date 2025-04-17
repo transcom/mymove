@@ -9,11 +9,18 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/swag"
 )
 
 // FetchEdiErrorsURL generates an URL for the fetch edi errors operation
 type FetchEdiErrorsURL struct {
+	Page    *int64
+	PerPage *int64
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +49,26 @@ func (o *FetchEdiErrorsURL) Build() (*url.URL, error) {
 		_basePath = "/admin/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var pageQ string
+	if o.Page != nil {
+		pageQ = swag.FormatInt64(*o.Page)
+	}
+	if pageQ != "" {
+		qs.Set("page", pageQ)
+	}
+
+	var perPageQ string
+	if o.PerPage != nil {
+		perPageQ = swag.FormatInt64(*o.PerPage)
+	}
+	if perPageQ != "" {
+		qs.Set("perPage", perPageQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

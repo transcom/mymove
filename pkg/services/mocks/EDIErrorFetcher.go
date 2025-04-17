@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -44,34 +46,41 @@ func (_m *EDIErrorFetcher) FetchEdiErrorByID(appCtx appcontext.AppContext, id uu
 	return r0, r1
 }
 
-// FetchEdiErrors provides a mock function with given fields: appCtx
-func (_m *EDIErrorFetcher) FetchEdiErrors(appCtx appcontext.AppContext) (models.EdiErrors, error) {
-	ret := _m.Called(appCtx)
+// FetchEdiErrors provides a mock function with given fields: appCtx, pagination
+func (_m *EDIErrorFetcher) FetchEdiErrors(appCtx appcontext.AppContext, pagination services.Pagination) (models.EdiErrors, int, error) {
+	ret := _m.Called(appCtx, pagination)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchEdiErrors")
 	}
 
 	var r0 models.EdiErrors
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (models.EdiErrors, error)); ok {
-		return rf(appCtx)
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.Pagination) (models.EdiErrors, int, error)); ok {
+		return rf(appCtx, pagination)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext) models.EdiErrors); ok {
-		r0 = rf(appCtx)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.Pagination) models.EdiErrors); ok {
+		r0 = rf(appCtx, pagination)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.EdiErrors)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
-		r1 = rf(appCtx)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, services.Pagination) int); ok {
+		r1 = rf(appCtx, pagination)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, services.Pagination) error); ok {
+		r2 = rf(appCtx, pagination)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // NewEDIErrorFetcher creates a new instance of EDIErrorFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

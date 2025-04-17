@@ -324,13 +324,14 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	adminAPI.EdiErrorsFetchEdiErrorsHandler = FetchEdiErrorsHandler{
-		handlerConfig,
-		edierrors.NewEDIErrorFetcher(),
+		HandlerConfig:   handlerConfig,
+		ediErrorFetcher: edierrors.NewEDIErrorFetcher(),
+		NewPagination:   pagination.NewPagination,
 	}
 
 	adminAPI.SingleediErrorGetEdiErrorHandler = GetEdiErrorHandler{
-		handlerConfig,
-		edierrors.NewEDIErrorFetcher(),
+		HandlerConfig:   handlerConfig,
+		ediErrorFetcher: edierrors.NewEDIErrorFetcher(),
 	}
 
 	return adminAPI

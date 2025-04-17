@@ -11,6 +11,6 @@ import (
 //
 //go:generate mockery --name EDIErrorFetcher
 type EDIErrorFetcher interface {
-	FetchEdiErrors(appCtx appcontext.AppContext) (models.EdiErrors, error)
+	FetchEdiErrors(appCtx appcontext.AppContext, pagination Pagination) (models.EdiErrors, int, error)
 	FetchEdiErrorByID(appCtx appcontext.AppContext, id uuid.UUID) (models.EdiError, error)
 }

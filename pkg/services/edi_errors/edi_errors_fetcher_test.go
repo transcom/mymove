@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -63,17 +64,18 @@ func (suite *EdiErrorsSuite) TestFetchEdiErrors() {
 		suite.NotNil(ediError858)
 
 		fetcher := NewEDIErrorFetcher()
-		results, err := fetcher.FetchEdiErrors(appCtx)
+		pagination := pagination.NewPagination(models.Int64Pointer(pagination.DefaultPage()), models.Int64Pointer(pagination.DefaultPerPage()))
+		results, _, err := fetcher.FetchEdiErrors(appCtx, pagination)
 
 		suite.NoError(err)
 		suite.NotEmpty(results)
 		suite.Equal(2, len(results))
-		suite.Equal(ediCode824, *results[0].Code)
-		suite.Equal(ediCode858, *results[1].Code)
-		suite.Equal(models.EDIType824, results[0].EDIType)
-		suite.Equal(models.EDIType858, results[1].EDIType)
-		suite.Equal(ediDescription824, *results[0].Description)
-		suite.Equal(ediDescription858, *results[1].Description)
+		suite.Equal(ediCode858, *results[0].Code)
+		suite.Equal(ediCode824, *results[1].Code)
+		suite.Equal(models.EDIType858, results[0].EDIType)
+		suite.Equal(models.EDIType824, results[1].EDIType)
+		suite.Equal(ediDescription858, *results[0].Description)
+		suite.Equal(ediDescription824, *results[1].Description)
 	})
 
 	suite.Run("does not return anything if no payment requests found in EDI_ERROR status", func() {
@@ -81,7 +83,8 @@ func (suite *EdiErrorsSuite) TestFetchEdiErrors() {
 		appCtx := suite.AppContextForTest()
 
 		fetcher := NewEDIErrorFetcher()
-		results, err := fetcher.FetchEdiErrors(appCtx)
+		pagination := pagination.NewPagination(models.Int64Pointer(pagination.DefaultPage()), models.Int64Pointer(pagination.DefaultPerPage()))
+		results, _, err := fetcher.FetchEdiErrors(appCtx, pagination)
 
 		suite.NoError(err)
 		suite.Empty(results)

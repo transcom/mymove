@@ -17,37 +17,23 @@ func NewEDIErrorFetcher() services.EDIErrorFetcher {
 }
 
 // FetchEdiErrors returns all edi_errors related to payment requests with status EDI_ERROR
-func (f *ediErrorFetcher) FetchEdiErrors(appCtx appcontext.AppContext) (models.EdiErrors, error) {
-	var ediErrorPaymentRequests models.PaymentRequests
-
-	err := appCtx.DB().Q().
-		Where("status = ?", models.PaymentRequestStatusEDIError).
-		All(&ediErrorPaymentRequests)
-
-	if err != nil {
-		return models.EdiErrors{}, apperror.NewQueryError("payment_requests", err, "Could not find payment requests with EDI_ERROR status")
-	}
-
-	var ediErrorPaymentRequestIds []uuid.UUID
-	for _, pr := range ediErrorPaymentRequests {
-		ediErrorPaymentRequestIds = append(ediErrorPaymentRequestIds, pr.ID)
-	}
-
-	if len(ediErrorPaymentRequestIds) == 0 {
-		return models.EdiErrors{}, nil
-	}
-
+func (f *ediErrorFetcher) FetchEdiErrors(appCtx appcontext.AppContext, pagination services.Pagination) (models.EdiErrors, int, error) {
 	var ediErrors models.EdiErrors
-	err = appCtx.DB().Q().
-		Where("payment_request_id IN (?)", ediErrorPaymentRequestIds).
-		Eager("PaymentRequest").
-		All(&ediErrors)
 
+	query := appCtx.DB().Q().
+		Join("payment_requests", "payment_requests.id = edi_errors.payment_request_id").
+		Where("payment_requests.status = ?", models.PaymentRequestStatusEDIError).
+		Eager("PaymentRequest").
+		Order("edi_errors.created_at DESC")
+
+	paginator := query.Paginate(pagination.Page(), pagination.PerPage())
+	err := paginator.All(&ediErrors)
 	if err != nil {
-		return models.EdiErrors{}, apperror.NewQueryError("edi_errors", err, "Could not find EDI error details for payment requests in EDI_ERROR status")
+		return nil, 0, apperror.NewQueryError("edi_errors", err, "Could not fetch paginated EDI errors")
 	}
 
-	return ediErrors, nil
+	count := paginator.Paginator.TotalEntriesSize
+	return ediErrors, count, nil
 }
 
 // FetchEdiErrorByID returns a single edi_error the edi_error ID for a payment_request with status EDI_ERROR

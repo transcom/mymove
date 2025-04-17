@@ -31,26 +31,33 @@ func payloadForEdiErrorModel(e models.EdiError) *adminmessages.EdiError {
 type FetchEdiErrorsHandler struct {
 	handlers.HandlerConfig
 	ediErrorFetcher services.EDIErrorFetcher
+	services.NewPagination
 }
 
 // Handle retrieves a list of edi errors
 func (h FetchEdiErrorsHandler) Handle(params edierrorsop.FetchEdiErrorsParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			ediErrorPaymentRequests, err := h.ediErrorFetcher.FetchEdiErrors(appCtx)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest, func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+		pagination := h.NewPagination(params.Page, params.PerPage)
 
-			payload := make(adminmessages.EdiErrors, len(ediErrorPaymentRequests))
-			for i, r := range ediErrorPaymentRequests {
-				payload[i] = payloadForEdiErrorModel(r)
-			}
+		ediErrors, totalCount, err := h.ediErrorFetcher.FetchEdiErrors(appCtx, pagination)
+		if err != nil {
+			return handlers.ResponseForError(appCtx.Logger(), err), err
+		}
 
-			return edierrorsop.NewFetchEdiErrorsOK().
-				WithContentRange(fmt.Sprintf("edi_errors %d-%d/%d", 0, len(ediErrorPaymentRequests), len(ediErrorPaymentRequests))).
-				WithPayload(payload), nil
-		})
+		payload := make(adminmessages.EdiErrors, len(ediErrors))
+		for i, e := range ediErrors {
+			payload[i] = payloadForEdiErrorModel(e)
+		}
+
+		start := pagination.Offset()
+		end := start + len(payload)
+
+		contentRange := fmt.Sprintf("edi_errors %d-%d/%d", start, end, totalCount)
+
+		return edierrorsop.NewFetchEdiErrorsOK().
+			WithContentRange(contentRange).
+			WithPayload(payload), nil
+	})
 }
 
 // GetEdiErrorHandler returns a single EDI error by ID via GET /edi-errors/{id}

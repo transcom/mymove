@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/pagination"
 )
 
 func (suite *HandlerSuite) TestFetchEdiErrorsHandler() {
@@ -62,11 +63,12 @@ func (suite *HandlerSuite) TestFetchEdiErrorsHandler() {
 		}
 
 		mockFetcher := &mocks.EDIErrorFetcher{}
-		mockFetcher.On("FetchEdiErrors", mock.Anything).Return(expectedEdiErrors, nil)
+		mockFetcher.On("FetchEdiErrors", mock.Anything, mock.Anything).Return(expectedEdiErrors, len(expectedEdiErrors), nil)
 
 		handler := FetchEdiErrorsHandler{
 			HandlerConfig:   suite.HandlerConfig(),
 			ediErrorFetcher: mockFetcher,
+			NewPagination:   pagination.NewPagination,
 		}
 
 		params := edierrorsop.FetchEdiErrorsParams{
@@ -103,11 +105,12 @@ func (suite *HandlerSuite) TestFetchEdiErrorsHandlerFailure() {
 	mockFetcher := &mocks.EDIErrorFetcher{}
 	expectedErr := apperror.NewQueryError("payment_requests", errors.New("DB failure"), "Could not find payment requests with EDI_ERROR status")
 
-	mockFetcher.On("FetchEdiErrors", mock.AnythingOfType("*appcontext.appContext")).Return(models.EdiErrors{}, expectedErr)
+	mockFetcher.On("FetchEdiErrors", mock.Anything, mock.Anything).Return(models.EdiErrors{}, 0, expectedErr)
 
 	handler := FetchEdiErrorsHandler{
 		HandlerConfig:   suite.HandlerConfig(),
 		ediErrorFetcher: mockFetcher,
+		NewPagination:   pagination.NewPagination,
 	}
 
 	req := suite.setupAuthenticatedRequest("GET", "/edi-errors")

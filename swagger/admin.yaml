@@ -2899,6 +2899,13 @@ paths:
       operationId: fetchEdiErrors
       tags:
         - EDI Errors
+      parameters:
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       produces:
         - application/json
       responses:
