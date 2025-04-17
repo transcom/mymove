@@ -33,7 +33,7 @@ const SubmitMoveForm = (props) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur onSubmit={onSubmit}>
-      {({ isValid, errors, touched, handleSubmit, isSubmitting }) => {
+      {({ isValid, errors, touched, handleSubmit, isSubmitting, dirty }) => {
         const showSignatureError = !!(errors.signature && touched.signature);
 
         return (
@@ -121,7 +121,7 @@ const SubmitMoveForm = (props) => {
               <WizardNavigation
                 isLastPage
                 onBackClick={onBack}
-                disableNext={!isValid || isSubmitting}
+                disableNext={!isValid || isSubmitting || !dirty || !hasAcknowledgedTerms}
                 onNextClick={handleSubmit}
               />
             </div>

@@ -14,7 +14,7 @@ import { submitMoveForApproval } from 'services/internalApi';
 import { selectCurrentMove, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { formatSwaggerDate } from 'utils/formatters';
+import { formatServiceMemberNameToString, formatSwaggerDate } from 'utils/formatters';
 
 export const Agreement = ({ updateMove, setFlashMessage, serviceMember }) => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export const Agreement = ({ updateMove, setFlashMessage, serviceMember }) => {
 
   const getServiceMemberName = (loggedInUser) => {
     if (loggedInUser) {
-      return `${loggedInUser.first_name} ${loggedInUser.last_name}`;
+      return formatServiceMemberNameToString(serviceMember);
     }
     return '';
   };

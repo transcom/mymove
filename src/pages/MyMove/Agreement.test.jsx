@@ -51,7 +51,16 @@ describe('Agreement page', () => {
     );
 
     const scrollBox = screen.getByTestId('certificationTextBox');
+    const checkbox = await screen.findByRole('checkbox', {
+      name: /I have read and understand the agreement as shown above/i,
+    });
+    const signatureInput = screen.getByLabelText('SIGNATURE');
+    const completeButton = screen.getByRole('button', { name: 'Complete' });
 
+    // all controls should start of disabled
+    expect(checkbox).toBeDisabled();
+    expect(signatureInput).toBeDisabled();
+    expect(completeButton).toBeDisabled();
     Object.defineProperty(scrollBox, 'scrollHeight', { configurable: true, value: 300 });
     Object.defineProperty(scrollBox, 'clientHeight', { configurable: true, value: 100 });
     Object.defineProperty(scrollBox, 'scrollTop', {
@@ -62,13 +71,22 @@ describe('Agreement page', () => {
     await act(async () => {
       fireEvent.scroll(scrollBox);
     });
-    const checkbox = await screen.findByRole('checkbox', { name: /i have read and understand/i });
+
+    // scroll to bottom should enable the checkbox, but not signature (yet)
     expect(checkbox).toBeEnabled();
+    expect(signatureInput).toBeDisabled();
     await userEvent.click(checkbox);
+    expect(checkbox.checked).toEqual(true);
 
-    await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
-    await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
+    expect(signatureInput).toBeEnabled();
+    await userEvent.type(signatureInput, 'Clark-Nuñez Sofia');
 
+    // eslint-disable-next-line no-restricted-globals
+    print(signatureInput.value);
+
+    await waitFor(() => {
+      expect(completeButton).toBeEnabled();
+    });
     await waitFor(() => {
       expect(submitMoveForApproval).toHaveBeenCalledWith(testProps.moveId, {
         certification_text: completeCertificationText,
