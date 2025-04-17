@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -23,6 +24,8 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalDestinationSITeliveryPr
 		cy := testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
+					StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+					EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
 					EscalationCompounded: iddsitTestEscalationCompounded,
 				},
 			})
@@ -137,6 +140,8 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalDestinationSITeliveryPr
 		cy := testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
+					StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+					EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
 					EscalationCompounded: iddsitTestEscalationCompounded,
 				},
 			})
