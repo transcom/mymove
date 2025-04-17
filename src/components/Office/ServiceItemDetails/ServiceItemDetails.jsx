@@ -25,6 +25,13 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
+function generateEstimatedPriceText(details) {
+  return generateDetailText({
+    'Estimated Price':
+      details.estimatedPrice !== undefined || null ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+  });
+}
+
 const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code, shipment, sitStatus) => {
   const { customerContacts } = details;
   // Below we are using the sortBy func in lodash to sort the customer contacts
@@ -103,6 +110,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -117,8 +125,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === SERVICE_ITEM_CODES.DDSFSC || code === SERVICE_ITEM_CODES.IDSFSC
-          ? generateDetailText(
+        {(code === SERVICE_ITEM_CODES.DDSFSC || code === SERVICE_ITEM_CODES.IDSFSC) && (
+          <>
+            {generateDetailText(
               {
                 'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
@@ -130,8 +139,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
-            )
-          : null}
+            )}
+            {generateEstimatedPriceText(details)}
+          </>
+        )}
         {code === SERVICE_ITEM_CODES.DDDSIT && (
           <>
             {generateDetailText(
@@ -194,6 +205,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               },
               id,
             )}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -230,6 +242,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 ))
               : defaultDetailText}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -271,6 +284,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -321,6 +335,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
@@ -357,6 +372,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               },
               id,
             )}
+            {generateEstimatedPriceText(details)}
             {!isEmpty(serviceRequestDocUploads) ? (
               <div className={styles.uploads}>
                 <p className={styles.detailType}>Download service item documentation:</p>
