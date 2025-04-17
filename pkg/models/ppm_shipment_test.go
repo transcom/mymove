@@ -163,12 +163,6 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		moveDate := time.Now()
 		mileage := 1000
 		weight := 2000
@@ -215,7 +209,8 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		moveDate := time.Now()
+		// no contract for this date
+		moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 		mileage := 1000
 		weight := 2000
 
@@ -243,12 +238,6 @@ func (suite *ModelSuite) TestCalculatePPMSITCost() {
 			},
 		}, nil)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		moveDate := time.Now()
 		sitDays := 7
 		weight := 2000
@@ -278,7 +267,8 @@ func (suite *ModelSuite) TestCalculatePPMSITCost() {
 			},
 		}, nil)
 
-		moveDate := time.Now()
+		// no contract for this date
+		moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
 		sitDays := 7
 		weight := 2000
 
