@@ -1054,6 +1054,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					ProvidesServicesCounseling: true,
 				},
 			},
+			{
+				Model: models.TransportationOffice{
+					Name:  "PPPO Jacksonville - USN",
+					Gbloc: "CNNQ",
+				},
+			},
 		}, nil)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
@@ -1077,6 +1083,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 
 		move.MTOShipments = models.MTOShipments{shipment}
 		move.MTOShipments[0].PPMShipment = &ppmShipment
+
+		move.Orders.OriginDutyLocationID = &ppmDutyLocation.ID
+		move.Orders.OriginDutyLocation = &ppmDutyLocation
 
 		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 			{
