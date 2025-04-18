@@ -145,6 +145,31 @@ describe('Shipment Container', () => {
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeDisabled();
     });
+    it('does not render a disabled button when shipment is not terminated', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted editURL="/" />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('shipment-display-checkbox')).toBeEnabled();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeEnabled();
+    });
+    it('renders a disabled button when shipment is terminated', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={{ ...hhgInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE }}
+            onChange={jest.fn()}
+            isSubmitted
+            editURL="/"
+          />
+        </MockProviders>,
+      );
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeDisabled();
+    });
     it('renders the terminated for cause tag when shipment status allows', async () => {
       const hhgInfoTerminated = { ...hhgInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE };
 

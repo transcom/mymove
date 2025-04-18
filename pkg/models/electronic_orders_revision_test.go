@@ -118,7 +118,7 @@ func (suite *ModelSuite) TestElectronicOrdersRevisionValidations() {
 		"ub_sdn":                   {"UbSDN can not be blank."},
 	}
 
-	suite.verifyValidationErrors(revision, expErrors)
+	suite.verifyValidationErrors(revision, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
