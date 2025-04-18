@@ -270,7 +270,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -377,7 +377,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -504,7 +504,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -646,7 +646,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -758,7 +758,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -925,7 +925,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
