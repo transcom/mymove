@@ -28,7 +28,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
-import { ErrorMessage, Form } from 'components/form';
+import { Form } from 'components/form';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
@@ -142,7 +142,7 @@ const ShipmentForm = (props) => {
   const [isRequestedDeliveryDateAlertVisible, setIsRequestedDeliveryDateAlertVisible] = useState(false);
   const [requestedPickupDateAlertMessage, setRequestedPickupDateAlertMessage] = useState('');
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
-  const [requestedPickupDateErrorMessage, setRequestedPickupDateErrorMessage] = useState('');
+  const [isRequestedPickupDateInvalid, setIsRequestedPickupDateInvalid] = useState(false);
   const DEFAULT_COUNTRY_CODE = 'US';
 
   const queryClient = useQueryClient();
@@ -720,7 +720,6 @@ const ShipmentForm = (props) => {
         };
 
         const handlePickupDateChange = (e) => {
-          setRequestedPickupDateErrorMessage('');
           setValues({
             ...values,
             pickup: {
@@ -741,21 +740,22 @@ const ShipmentForm = (props) => {
             setIsRequestedPickupDateAlertVisible,
             onErrorHandler,
           );
+        };
+
+        const validatePickupDate = (e) => {
+          let error = validateDate(e);
 
           // requestedPickupDate must be in the future for non-PPM shipments
           const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
           const today = moment().startOf('day');
 
-          if (!isPPM && !pickupDate.isAfter(today)) {
-            setRequestedPickupDateErrorMessage('Requested pickup date must be in the future.');
+          if (!error && !isPPM && !pickupDate.isAfter(today)) {
+            setIsRequestedPickupDateInvalid(true);
+            error = 'Requested pickup date must be in the future.';
+          } else {
+            setIsRequestedPickupDateInvalid(false);
           }
-        };
 
-        const validatePickupDate = (e) => {
-          let error = validateDate(e);
-          if (!error && requestedPickupDateErrorMessage) {
-            error = 'Required';
-          }
           return error;
         };
 
@@ -945,7 +945,7 @@ const ShipmentForm = (props) => {
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
                     <Fieldset data-testid="requestedPickupDateFieldSet">
-                      {isRequestedPickupDateAlertVisible && !requestedPickupDateErrorMessage && (
+                      {isRequestedPickupDateAlertVisible && !isRequestedPickupDateInvalid && (
                         <Alert
                           type="warning"
                           aria-live="polite"
@@ -961,14 +961,8 @@ const ShipmentForm = (props) => {
                         id="requestedPickupDate"
                         validate={validatePickupDate}
                         onChange={handlePickupDateChange}
+                        forceError={isRequestedPickupDateInvalid}
                       />
-                      {requestedPickupDateErrorMessage && (
-                        <span data-testid="requestedPickupDateErrorAlert">
-                          <ErrorMessage id="requestedPickupDateErrorAlert" display>
-                            {requestedPickupDateErrorMessage}
-                          </ErrorMessage>
-                        </span>
-                      )}
                     </Fieldset>
                     {!isNTSR && (
                       <>
