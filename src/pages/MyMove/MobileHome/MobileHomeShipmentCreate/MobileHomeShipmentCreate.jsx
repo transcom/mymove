@@ -25,6 +25,7 @@ const MobileHomeShipmentCreate = ({
   destinationDutyLocation,
   move,
   serviceMemberMoves,
+  isMoveLocked,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
@@ -166,6 +167,7 @@ const MobileHomeShipmentCreate = ({
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}
               isEditPage={isEditPage}
+              isMoveLocked={isMoveLocked}
             />
           </Grid>
         </Grid>

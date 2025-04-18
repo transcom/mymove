@@ -55,7 +55,15 @@ let validationShape = {
   }),
 };
 
-const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
+const DateAndLocationForm = ({
+  mtoShipment,
+  destinationDutyLocation,
+  serviceMember,
+  move,
+  onBack,
+  onSubmit,
+  isMoveLocked,
+}) => {
   const initialValues = {
     useCurrentResidence: false,
     pickupAddress: {},
@@ -571,7 +579,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
+                  disabled={!isValid || isSubmitting || isMoveLocked}
+                  data-testid="saveAndContinueButton"
                 >
                   Save & Continue
                 </Button>

@@ -62,7 +62,7 @@ const NTSRShipmentCard = ({
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
-              <Button onClick={() => onDeleteClick(shipmentId)} unstyled>
+              <Button data-testid="delete-ntsr-shipment-btn" onClick={() => onDeleteClick(shipmentId)} unstyled>
                 Delete
               </Button>
               |

@@ -23,7 +23,7 @@ import { validatePostalCode } from 'utils/validation';
 import { formatAddressForAPI } from 'utils/formatMtoShipment';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
-const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
+const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move, isMoveLocked }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [errorCode, setErrorCode] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
@@ -224,6 +224,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
               onSubmit={handleSubmit}
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}
+              isMoveLocked={isMoveLocked}
             />
           </Grid>
         </Grid>

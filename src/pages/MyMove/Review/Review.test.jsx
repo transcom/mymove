@@ -1,6 +1,8 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { cloneDeep } from 'lodash';
+import { act } from 'react-dom/test-utils';
 
 import ConnectedReview from 'pages/MyMove/Review/Review';
 import { renderWithProviders } from 'testUtils';
@@ -417,7 +419,9 @@ describe('Review page', () => {
   it('renders the Review Page', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
   });
@@ -427,7 +431,9 @@ describe('Review page', () => {
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     const backButton = screen.getByRole('button', { name: 'Finish later' });
 
@@ -443,7 +449,9 @@ describe('Review page', () => {
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -459,7 +467,9 @@ describe('Review page', () => {
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -470,12 +480,28 @@ describe('Review page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(`/moves/${mockParams.moveId}/agreement`);
   });
 
+  it('return home button is shown when move is locked by an office user', async () => {
+    const testServiceMemberMovesWithLock = cloneDeep(testServiceMemberMoves);
+    testServiceMemberMovesWithLock.previousMoves[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+    selectAllMoves.mockImplementation(() => testServiceMemberMovesWithLock);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMovesWithLock);
+
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
+
+    expect(screen.getByRole('button', { name: 'Return home' })).toBeInTheDocument();
+  });
+
   it('next button is disabled when a PPM shipment is in an incomplete state', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -487,7 +513,9 @@ describe('Review page', () => {
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
+    });
 
     const submitButton = await screen.findByRole('button', { name: 'Next' });
 
@@ -499,7 +527,9 @@ describe('Review page', () => {
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, mockRoutingOptionsSubmitted);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptionsSubmitted);
+    });
 
     expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
 
@@ -511,7 +541,9 @@ describe('Review page', () => {
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
-    renderWithProviders(<ConnectedReview />, { ...mockRoutingOptions, initialState: testFlashState });
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, { ...mockRoutingOptions, initialState: testFlashState });
+    });
 
     expect(screen.getByRole('heading', { level: 4 })).toHaveTextContent('Details saved');
     expect(

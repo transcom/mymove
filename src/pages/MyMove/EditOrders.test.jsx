@@ -2,6 +2,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
+import { cloneDeep } from 'lodash';
 
 import EditOrders from './EditOrders';
 
@@ -332,6 +333,23 @@ describe('EditOrders Page', () => {
     });
     const deleteBtn = await screen.findByRole('button', { name: 'Delete' });
     expect(deleteBtn).toBeInTheDocument();
+  });
+
+  it('save button disabled for orders when move is locked by office user', async () => {
+    const movesWithLock = cloneDeep(testProps.serviceMemberMoves);
+    movesWithLock.currentMove[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+    selectAllMoves.mockImplementation(() => movesWithLock);
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+
+    await waitFor(() => {
+      expect(setShowLoadingSpinner).toHaveBeenCalled();
+    });
+    const saveBtn = await screen.getByTestId('wizardNextButton');
+    expect(saveBtn).toBeDisabled();
+    selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
   });
 
   it('no option to delete uploaded orders when move is submitted', async () => {

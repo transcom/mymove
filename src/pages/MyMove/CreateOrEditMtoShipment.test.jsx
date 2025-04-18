@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { screen } from '@testing-library/react';
+import { cloneDeep } from 'lodash';
 
 import { CreateOrEditMtoShipment } from './CreateOrEditMtoShipment';
 
@@ -263,11 +264,20 @@ const mockHHGShipment = {
   shipmentType: 'HHG',
 };
 
+const testMoveWithLock = cloneDeep(testMove);
+testMoveWithLock.lockExpiresAt = '2099-04-07T17:21:30.450Z';
+
+const mockHHGShipmentWithLock = cloneDeep(mockHHGShipment);
+mockHHGShipmentWithLock.lockExpiresAt = '2099-04-07T17:21:30.450Z';
+
 const mockPPMShipment = {
   id: 'mock id',
   moveTaskOrderId: 'move123',
   shipmentType: 'PPM',
 };
+
+const mockPPMShipmentWithLock = cloneDeep(mockPPMShipment);
+mockPPMShipmentWithLock.lockExpiresAt = '2099-04-07T17:21:30.450Z';
 
 const renderComponent = (props, options) =>
   renderWithRouterProp(<CreateOrEditMtoShipment {...defaultProps} {...props} />, options);
@@ -327,6 +337,21 @@ describe('CreateOrEditMtoShipment component', () => {
       expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument();
     });
 
+    it('disables the submit button for an HHG shipment if the move has been locked', async () => {
+      selectCurrentShipmentFromMove.mockImplementation(() => mockHHGShipmentWithLock);
+      selectCurrentMoveFromAllMoves.mockImplementation(() => testMoveWithLock);
+      renderComponent(
+        { mtoShipment: mockHHGShipmentWithLock },
+        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams, includeProviders: true },
+      );
+
+      expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
+        'Movers pack and transport this shipment',
+      );
+      expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument();
+      expect(screen.getByTestId('wizardNextButton')).toBeDisabled();
+    });
+
     it('renders the PPM date and location page after a PPM shipment has loaded', async () => {
       selectCurrentShipmentFromMove.mockImplementation(() => mockPPMShipment);
       renderComponent(
@@ -335,6 +360,19 @@ describe('CreateOrEditMtoShipment component', () => {
       );
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
+    });
+
+    it('disables the submit button for an PPM shipment if the move has been locked', async () => {
+      selectCurrentShipmentFromMove.mockImplementation(() => mockPPMShipmentWithLock);
+      selectCurrentMoveFromAllMoves.mockImplementation(() => testMoveWithLock);
+      renderComponent(
+        { mtoShipment: mockPPMShipmentWithLock },
+        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams, includeProviders: true },
+      );
+
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
+      expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument();
+      expect(screen.getByTestId('saveAndContinueButton')).toBeDisabled();
     });
   });
 });

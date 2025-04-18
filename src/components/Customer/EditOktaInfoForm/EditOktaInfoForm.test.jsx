@@ -25,6 +25,19 @@ describe('EditOktaInfoForm component', () => {
     onCancel: jest.fn(),
   };
 
+  const testPropsWithLock = {
+    initialValues: {
+      oktaUsername: 'user@okta.mil',
+      oktaEmail: 'user@okta.mil',
+      oktaFirstName: 'Lucky',
+      oktaLastName: 'Shamrock',
+      oktaEdipi: '1112223334',
+    },
+    onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+    onCancel: jest.fn(),
+    isMoveLocked: true,
+  };
+
   it('renders the form inputs', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
@@ -95,6 +108,11 @@ describe('EditOktaInfoForm component', () => {
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(expectedParams, expect.anything());
     });
+  });
+
+  it('converts the "Submit" button into the "Return to Home" button when the move has been locked by an office user', async () => {
+    renderWithRouter(<EditOktaInfoForm {...testPropsWithLock} />);
+    expect(screen.getByRole('button', { name: 'Return home' })).toBeInTheDocument();
   });
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {

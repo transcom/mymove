@@ -83,6 +83,27 @@ describe('DateAndLocationForm component', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
       expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toBeInstanceOf(HTMLInputElement);
     });
+
+    it('disables the save button if the move has been locked by an office user', async () => {
+      await act(async () => {
+        const defaultPropsWithLock = {
+          ...defaultProps,
+          mtoShipment: {
+            ppmShipment: {},
+          },
+          isMoveLocked: true,
+        };
+
+        render(
+          <Provider store={mockStore.store}>
+            <DateAndLocationForm {...defaultPropsWithLock} />
+          </Provider>,
+        );
+
+        await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      });
+    });
   });
 
   describe('displays conditional inputs', () => {

@@ -22,7 +22,14 @@ import { validatePostalCode } from 'utils/validation';
 import { toTotalInches } from 'utils/formatMtoShipment';
 import BoatShipmentConfirmationModal from 'components/Customer/BoatShipment/BoatShipmentConfirmationModal/BoatShipmentConfirmationModal';
 
-const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocation, move, serviceMemberMoves }) => {
+const BoatShipmentCreate = ({
+  mtoShipment,
+  serviceMember,
+  destinationDutyLocation,
+  move,
+  serviceMemberMoves,
+  isMoveLocked,
+}) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
   const [showBoatConfirmationModal, setShowBoatConfirmationModal] = useState(false);
@@ -244,6 +251,7 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
                 onSubmit={handleSubmit}
                 onBack={handleBack}
                 postalCodeValidator={validatePostalCode}
+                isMoveLocked={isMoveLocked}
               />
             </Grid>
           </Grid>

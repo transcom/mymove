@@ -89,7 +89,7 @@ const paymentReviewed = (approvedAt, submittedAt, reviewedAt, pickupAddress, des
   );
 };
 
-const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick) => {
+const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, onFeedbackClick, isMoveLocked) => {
   const {
     ppmShipment: { status, approvedAt, submittedAt, reviewedAt, pickupAddress, destinationAddress },
   } = shipment;
@@ -111,7 +111,9 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
         [
           <div>
             <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
-            <Button onClick={onButtonClick}>Upload PPM Documents</Button>
+            <Button onClick={onButtonClick} disabled={isMoveLocked}>
+              Upload PPM Documents
+            </Button>
           </div>,
         ]
       ) : (
@@ -164,7 +166,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
   );
 };
 
-const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick }) => {
+const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackClick, isMoveLocked }) => {
   const { length } = shipments;
   return shipments.map((shipment, i) => {
     return (
@@ -176,14 +178,23 @@ const PPMSummaryList = ({ shipments, onUploadClick, onDownloadError, onFeedbackC
         onUploadClick={() => onUploadClick(shipment.id)}
         onDownloadError={onDownloadError}
         onFeedbackClick={() => onFeedbackClick(shipment.id)}
+        isMoveLocked={isMoveLocked}
       />
     );
   });
 };
 
-const PPMSummaryListItem = ({ shipment, hasMany, index, onUploadClick, onDownloadError, onFeedbackClick }) => {
+const PPMSummaryListItem = ({
+  shipment,
+  hasMany,
+  index,
+  onUploadClick,
+  onDownloadError,
+  onFeedbackClick,
+  isMoveLocked,
+}) => {
   const orderLabel = hasMany ? `PPM ${index + 1}` : 'PPM';
-  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick);
+  return PPMSummaryStatus(shipment, orderLabel, onUploadClick, onDownloadError, onFeedbackClick, isMoveLocked);
 };
 
 PPMSummaryList.propTypes = {

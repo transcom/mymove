@@ -105,6 +105,11 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
 		}
 
+		var lockExpiresAt strfmt.DateTime
+		if move.LockExpiresAt != nil {
+			lockExpiresAt = *handlers.FmtDateTime(*move.LockExpiresAt)
+		}
+
 		currentMove := &internalmessages.InternalMove{
 			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
 			ETag:           eTag,
@@ -115,6 +120,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
 			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
+			LockExpiresAt:  lockExpiresAt,
 		}
 
 		if move.PrimeCounselingCompletedAt != nil {

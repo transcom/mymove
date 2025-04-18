@@ -18,6 +18,7 @@ const ContactInfoDisplay = ({
   backupMailingAddress,
   backupContact,
   editURL,
+  isEditable,
 }) => {
   let preferredContactMethod = 'Unknown';
   if (phoneIsPreferred && emailIsPreferred) {
@@ -34,9 +35,11 @@ const ContactInfoDisplay = ({
     <div className={styles.contactInfoContainer}>
       <div className={styles.contactInfoHeader}>
         <h2>Contact info</h2>
-        <Link to={editURL} state={state}>
-          Edit
-        </Link>
+        {isEditable && (
+          <Link to={editURL} state={state}>
+            Edit
+          </Link>
+        )}
       </div>
 
       <div className={styles.contactInfoSection}>

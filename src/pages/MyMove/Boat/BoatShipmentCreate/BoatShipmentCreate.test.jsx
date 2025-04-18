@@ -203,6 +203,25 @@ describe('BoatShipmentCreate component', () => {
         expect(screen.getByText('Some error message')).toBeInTheDocument();
       });
     });
+
+    it('disables the continue button when the move is locked by an office user', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
+
+      await renderBoatShipmentCreate({ isMoveLocked: true });
+
+      await act(async () => {
+        await userEvent.type(screen.getByTestId('year'), '2022');
+        await userEvent.type(screen.getByTestId('make'), 'Yamaha');
+        await userEvent.type(screen.getByTestId('model'), 'SX210');
+        await userEvent.type(screen.getByTestId('lengthFeet'), '21');
+        await userEvent.type(screen.getByTestId('widthFeet'), '8');
+        await userEvent.type(screen.getByTestId('heightFeet'), '7');
+        await userEvent.click(screen.getByTestId('hasTrailerNo'));
+      });
+
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+    });
   });
 
   describe('editing an existing Boat shipment', () => {
