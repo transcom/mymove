@@ -63,7 +63,6 @@ import {
   isPPMShipmentComplete,
   isBoatShipmentComplete,
   isMobileHomeShipmentComplete,
-  isWeightTicketComplete,
 } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -345,23 +344,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     });
 
     if (aboutInfoComplete) {
-      if (shipment.ppmShipment.weightTickets.length === 0) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      } else if (!shipment.ppmShipment.weightTickets.some(isWeightTicketComplete)) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-          weightTicketId: shipment.ppmShipment.weightTickets[0].id,
-        });
-      } else {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      }
+      path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      });
     }
 
     navigate(path);

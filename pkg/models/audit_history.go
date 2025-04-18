@@ -50,7 +50,10 @@ type AuditHistory struct {
 	// Statement start timestamp for tx in which audited event occurred
 	ActionTstampStm time.Time `json:"action_tstamp_stm" db:"action_tstamp_stm"`
 	// Wall clock time at which audited event's trigger call occurred
-	ActionTstampClk time.Time `json:"action_tstamp_clk" db:"action_tstamp_clk"`
+	ActionTstampClk time.Time  `json:"action_tstamp_clk" db:"action_tstamp_clk"`
+	SeqNum          *int       `json:"seq_num" db:"seq_num" rw:"r"`
+	MoveID          *uuid.UUID `json:"move_id" db:"move_id"`
+	ShipmentID      *uuid.UUID `json:"shipment_id" db:"shipment_id"`
 }
 
 // TableName overrides the table name used by Pop.

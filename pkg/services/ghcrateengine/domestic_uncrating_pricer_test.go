@@ -15,10 +15,10 @@ import (
 const (
 	ducrtTestServiceSchedule      = 3
 	ducrtTestBasePriceCents       = unit.Cents(595)
-	ducrtTestEscalationCompounded = 1.125
+	ducrtTestEscalationCompounded = 1.11000
 	ducrtTestBilledCubicFeet      = 10
-	ducrtTestPriceCents           = unit.Cents(6690)
-	ducrtTestUncappedRequestTotal = unit.Cents(6690)
+	ducrtTestPriceCents           = unit.Cents(6600)
+	ducrtTestUncappedRequestTotal = unit.Cents(6600)
 )
 
 var ducrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -35,7 +35,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 		suite.Equal(ducrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ducrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ducrtTestBasePriceCents)},
 			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(ducrtTestUncappedRequestTotal)},
@@ -74,7 +74,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDUCRT, ducrtTestServiceSchedule, ducrtTestBasePriceCents, testdatagen.DefaultContractCode, ducrtTestEscalationCompounded)
-		twoYearsLaterPickupDate := ducrtTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ducrtTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")

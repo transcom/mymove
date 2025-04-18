@@ -6,6 +6,8 @@ import PPMHeaderSummary from './PPMHeaderSummary';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
 import { renderWithProviders } from 'testUtils';
 import { tooRoutes } from 'constants/routes';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
+import { formatWeight } from 'utils/formatters';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -165,6 +167,42 @@ const defaultProps = {
   readOnly: false,
 };
 
+const smallPackagePPMInfo = {
+  id: 'eyedee',
+  ppmType: PPM_TYPES.SMALL_PACKAGE,
+  expectedDepartureDate: '2022-12-02',
+  actualMoveDate: '2022-12-06',
+  pickupAddress: {
+    streetAddress1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
+  destinationAddress: {
+    streetAddress1: '456 Oak Ln.',
+    city: 'Oakland',
+    state: 'CA',
+    postalCode: '94611',
+  },
+  miles: 300,
+  estimatedWeight: 3000,
+  actualWeight: 3500,
+  allowableWeight: 4000,
+  isActualExpenseReimbursement: false,
+  movingExpenses: [
+    { weightShipped: 2000, isProGear: false },
+    { weightShipped: 500, isProGear: true, proGearBelongsToSelf: false },
+  ],
+};
+
+const smallPackageProps = {
+  ppmShipmentInfo: smallPackagePPMInfo,
+  order: { grade: 'ARMY' },
+  ppmNumber: '1',
+  showAllFields: false,
+  readOnly: false,
+};
+
 describe('PPMHeaderSummary component', () => {
   describe('displays form', () => {
     it('renders default values', async () => {
@@ -177,7 +215,7 @@ describe('PPMHeaderSummary component', () => {
       });
       expect(screen.getByTestId('tag', { name: 'actual expense reimbursement' })).toBeInTheDocument();
 
-      expect(screen.getByText('Actual Expense Reimbursement')).toBeInTheDocument();
+      expect(screen.getByText('Expense Type')).toBeInTheDocument();
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('02-Dec-2022')).toBeInTheDocument();
       expect(screen.getByText('Actual Move Start Date')).toBeInTheDocument();
@@ -197,6 +235,25 @@ describe('PPMHeaderSummary component', () => {
       await waitFor(() => {
         expect(screen.getByText('Show Details', { exact: false })).toBeInTheDocument();
       });
+    });
+
+    it('renders small package tag and small package details', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      renderWithProviders(<PPMHeaderSummary {...smallPackageProps} />, mockRoutingConfig);
+
+      // verify that the header shows the small package tag.
+      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
+      const smallPackageTag = screen.getByTestId('smallPackageTag');
+      expect(smallPackageTag).toBeInTheDocument();
+      expect(smallPackageTag).toHaveTextContent(getPPMTypeLabel(PPM_TYPES.SMALL_PACKAGE));
+
+      expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
+      expect(screen.getByText(formatWeight(2500))).toBeInTheDocument();
+      expect(screen.getByText('Pro-gear')).toBeInTheDocument();
+      // should be two because we have pro gear (one yes) and one spouse pro-gear (yes)
+      expect(screen.getAllByText('Yes')).toHaveLength(2);
+      expect(screen.getByText('Spouse Pro-gear')).toBeInTheDocument();
     });
   });
 });

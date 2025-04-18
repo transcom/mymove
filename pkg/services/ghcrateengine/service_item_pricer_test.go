@@ -2,6 +2,9 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
@@ -91,7 +94,13 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
-	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
+			},
+		})
 
 	counselingService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
@@ -100,12 +109,21 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 		ServiceID:      counselingService.ID,
 		PriceCents:     msPriceCents,
 	}
+
+	date := time.Date(testdatagen.TestYear, time.December, 31, 0, 0, 0, 0, time.UTC)
+
+	taskOrderFeeFound, _ := models.FetchTaskOrderFee(suite.AppContextForTest(), contractYear.Contract.Code, counselingService.Code, date)
+
+	if taskOrderFeeFound.ID == uuid.Nil {
+		suite.MustSave(&taskOrderFee)
+	}
+
 	suite.MustSave(&taskOrderFee)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentServiceItem {
 	// This ParamKey doesn't need to be connected to the PaymentServiceItem yet, so we'll create it separately
-	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:    models.ServiceItemParamNamePriceRateOrFactor,

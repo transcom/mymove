@@ -890,6 +890,12 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	model.SITEstimatedCost = handlers.FmtInt64PtrToPopPtr(movingExpense.SitEstimatedCost)
 	model.SITReimburseableAmount = handlers.FmtInt64PtrToPopPtr(movingExpense.SitReimburseableAmount)
 
+	model.TrackingNumber = handlers.FmtStringPtr(movingExpense.TrackingNumber)
+	model.WeightShipped = handlers.PoundPtrFromInt64Ptr(movingExpense.WeightShipped)
+	model.IsProGear = handlers.FmtBoolPtr(movingExpense.IsProGear)
+	model.ProGearBelongsToSelf = handlers.FmtBoolPtr(movingExpense.ProGearBelongsToSelf)
+	model.ProGearDescription = handlers.FmtStringPtr(movingExpense.ProGearDescription)
+
 	return &model
 }
 
@@ -990,4 +996,15 @@ func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
 		UsprcCountyNm:        *vLocation.County,
 		UsPostRegionCitiesID: &usPostRegionCitiesID,
 	}
+}
+
+func OfficeUserModelFromUpdate(payload *ghcmessages.OfficeUserUpdate, officeUser *models.OfficeUser) *models.OfficeUser {
+	if payload == nil || officeUser == nil {
+		return officeUser
+	}
+
+	if payload.Telephone != nil {
+		officeUser.Telephone = *payload.Telephone
+	}
+	return officeUser
 }

@@ -518,6 +518,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move.SearchMoves has not yet been implemented")
 		})
 	}
+	if api.PpmSendPPMToCustomerHandler == nil {
+		api.PpmSendPPMToCustomerHandler = ppm.SendPPMToCustomerHandlerFunc(func(params ppm.SendPPMToCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.SendPPMToCustomer has not yet been implemented")
+		})
+	}
 	if api.MoveSetFinancialReviewFlagHandler == nil {
 		api.MoveSetFinancialReviewFlagHandler = move.SetFinancialReviewFlagHandlerFunc(func(params move.SetFinancialReviewFlagParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.SetFinancialReviewFlag has not yet been implemented")
@@ -616,6 +621,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PpmUpdateMovingExpenseHandler == nil {
 		api.PpmUpdateMovingExpenseHandler = ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
+		})
+	}
+	if api.OfficeUsersUpdateOfficeUserHandler == nil {
+		api.OfficeUsersUpdateOfficeUserHandler = office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
 		})
 	}
 	if api.OrderUpdateOrderHandler == nil {

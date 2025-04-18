@@ -34,11 +34,6 @@ type paramsCacheSubtestData struct {
 }
 
 func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *paramsCacheSubtestData) {
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			EndDate: time.Now().Add(24 * time.Hour),
-		},
-	})
 	subtestData = &paramsCacheSubtestData{}
 	subtestData.move = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -246,7 +241,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	}, nil)
 
 	// DOSHUT estimated weight
-	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    subtestData.mtoServiceItemDomesticShuttle.ReService,
 			LinkOnly: true,
@@ -357,7 +352,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			LinkOnly: true,
 		},
 	}, nil)
-	subtestData.paramKeyDimensionHeight = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	subtestData.paramKeyDimensionHeight = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameDimensionHeight,
@@ -367,7 +362,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			},
 		},
 	}, nil)
-	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    reServiceDCRT,
 			LinkOnly: true,
@@ -377,7 +372,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			LinkOnly: true,
 		},
 	}, nil)
-	subtestData.paramKeyDimensionWidth = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	subtestData.paramKeyDimensionWidth = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameDimensionWidth,
@@ -387,7 +382,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			},
 		},
 	}, nil)
-	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    reServiceDCRT,
 			LinkOnly: true,
@@ -397,7 +392,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			LinkOnly: true,
 		},
 	}, nil)
-	subtestData.paramKeyDimensionLength = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	subtestData.paramKeyDimensionLength = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameDimensionLength,
@@ -407,7 +402,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			},
 		},
 	}, nil)
-	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    reServiceDCRT,
 			LinkOnly: true,
@@ -417,7 +412,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			LinkOnly: true,
 		},
 	}, nil)
-	subtestData.paramKeyCubicFeetBilled = factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	subtestData.paramKeyCubicFeetBilled = factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameCubicFeetBilled,
@@ -428,7 +423,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 	}, nil)
 
-	factory.BuildServiceParam(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceParam(suite.DB(), []factory.Customization{
 		{
 			Model:    reServiceDCRT,
 			LinkOnly: true,

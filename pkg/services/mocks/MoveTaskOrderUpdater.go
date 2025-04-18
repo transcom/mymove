@@ -251,6 +251,36 @@ func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx ap
 	return r0, r1
 }
 
+// UpdateStatusServiceCounselingSendPPMToCustomer provides a mock function with given fields: appCtx, ppmShipment, eTag, move
+func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingSendPPMToCustomer(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, eTag string, move *models.Move) (*models.PPMShipment, error) {
+	ret := _m.Called(appCtx, ppmShipment, eTag, move)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateStatusServiceCounselingSendPPMToCustomer")
+	}
+
+	var r0 *models.PPMShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, string, *models.Move) (*models.PPMShipment, error)); ok {
+		return rf(appCtx, ppmShipment, eTag, move)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, string, *models.Move) *models.PPMShipment); ok {
+		r0 = rf(appCtx, ppmShipment, eTag, move)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.PPMShipment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PPMShipment, string, *models.Move) error); ok {
+		r1 = rf(appCtx, ppmShipment, eTag, move)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdateTIORemarks provides a mock function with given fields: appCtx, moveTaskOrderID, eTag, remarks
 func (_m *MoveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, remarks string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag, remarks)

@@ -525,6 +525,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 	setupTestData := func() (services.MoveFetcherBulkAssignment, models.TransportationOffice, models.OfficeUser) {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
@@ -533,18 +535,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
-		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-				},
-			},
-			{
-				Model:    transportationOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CounselingOffice,
-			},
-		}, nil)
+
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -557,7 +548,112 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
+		originMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+		// setting up a move with an origin service item
+		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		originShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    originMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		//origin service item
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+			{
+				Model:    originMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    originShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
 
+		// setting up a move with an destination service item
+		destinationMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		destinationShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    destinationMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    destinationMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
 		return moveFetcher, transportationOffice, officeUser
 	}
 
@@ -565,7 +661,14 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 		moveFetcher, _, officeUser := setupTestData()
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(3, len(moves))
+	})
+
+	suite.Run("DESTINATION_REQUEST: Returns moves that fulfill the query's criteria", func() {
+		moveFetcher, _, officeUser := setupTestData()
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentDestination(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
 	})
 
 	suite.Run("TOO: Does not return moves with safety, bluebark, or wounded warrior order types", func() {
@@ -624,7 +727,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(3, len(moves))
 	})
 
 	suite.Run("TOO: Does not return moves that are already assigned", func() {
@@ -676,6 +779,99 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
+	suite.Run("Destination: Does not return moves that are already assigned", func() {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		postalCode := "90210"
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		assignedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.TOODestinationAssignedUser,
+			},
+		}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		destinationShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    assignedMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    assignedMove,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentDestination(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+
+		// confirm that the assigned move isn't returned
+		for _, move := range moves {
+			suite.NotEqual(move.ID, assignedMove.ID)
+		}
+
+		// confirm that the rest of the details are correct
+		// move is APPROVAL REQUESTED
+		suite.Equal(assignedMove.Status, models.MoveStatusAPPROVALSREQUESTED)
+		// GBLOC is the same
+		suite.Equal(*assignedMove.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		// Show is true
+		suite.Equal(assignedMove.Show, models.BoolPointer(true))
+		// Orders type isn't WW, BB, or Safety
+		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+	})
+
 	suite.Run("TOO: Does not return payment requests with Marines if GBLOC not USMC", func() {
 		moveFetcher, transportationOffice, officeUser := setupTestData()
 
@@ -697,9 +893,10 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 				},
 			},
 		}, nil)
+
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentTaskOrder(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(3, len(moves))
 	})
 
 	suite.Run("TOO: Only return payment requests with Marines if GBLOC is USMC", func() {

@@ -111,7 +111,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
           </div>
         )}
         <Grid row>
-          <h1>Quality assurance reports</h1>
+          <h1>Quality Assurance Reports</h1>
         </Grid>
         <GridContainer className={evaluationReportsStyles.evaluationReportSection}>
           <Grid row>

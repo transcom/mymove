@@ -27,7 +27,7 @@ func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid
 		return nil, nil, err
 	}
 
-	if payload.Email != nil {
+	if payload.Email != nil && payload.Email != &foundUser.Email {
 		foundUser.Email = *payload.Email
 		updateUserAndOkta = true
 	}
@@ -71,7 +71,7 @@ func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid
 				return verrs
 			}
 
-			if existingUser.OktaID != "" {
+			if existingUser.OktaID != "" && appCtx.Session().IDToken != "devlocal" {
 				apiKey := models.GetOktaAPIKey()
 				oktaID := existingUser.OktaID
 				req := appCtx.HTTPRequest()

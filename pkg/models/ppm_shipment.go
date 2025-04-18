@@ -321,6 +321,22 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
 	totalNetWeight := unit.Pound(0)
+
+	// small package PPMs do not have weight tickets so we will add up approved moving expenses
+	if ppm.PPMType == PPMTypeSmallPackage {
+		if len(ppm.MovingExpenses) >= 1 {
+			for _, movingExpense := range ppm.MovingExpenses {
+				if movingExpense.WeightShipped != nil && movingExpense.Status != nil && *movingExpense.Status != PPMDocumentStatusRejected {
+					totalNetWeight += *movingExpense.WeightShipped
+				}
+			}
+			return totalNetWeight
+		} else {
+			return unit.Pound(0)
+		}
+	}
+
+	// incentive-based and actual expense PPMs have weight tickets
 	weightTickets := ppm.WeightTickets.FilterRejected()
 	for _, weightTicket := range weightTickets {
 		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {

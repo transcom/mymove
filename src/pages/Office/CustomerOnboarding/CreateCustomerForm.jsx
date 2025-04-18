@@ -435,21 +435,11 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Pickup Address</h3>
-                    <AddressFields
-                      name={residentialAddressName}
-                      labelHint="Required"
-                      locationLookup
-                      formikProps={formikProps}
-                    />
+                    <AddressFields name={residentialAddressName} labelHint="Required" formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Backup Address</h3>
-                    <AddressFields
-                      name={backupAddressName}
-                      labelHint="Required"
-                      locationLookup
-                      formikProps={formikProps}
-                    />
+                    <AddressFields name={backupAddressName} labelHint="Required" formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Backup Contact</h3>

@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -448,6 +449,158 @@ func (suite *PayloadsSuite) TestWeightTicketModelFromUpdate() {
 		suite.Nil(result.VehicleDescription)
 		suite.Nil(result.MissingEmptyWeightTicket)
 		suite.Nil(result.MissingFullWeightTicket)
+	})
+}
+
+func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		description := "Test moving expense"
+		reason := "Just testing"
+		trackingNumber := "TRACK123"
+		movingExpenseStatus := ghcmessages.PPMDocumentStatusAPPROVED
+		amount := int64(1000)
+		weightStored := int64(1500)
+		weightShipped := int64(1200)
+		sitEstimatedCost := int64(2000)
+		sitReimburseableAmount := int64(2500)
+		sitStartDate := strfmt.Date(time.Now())
+		sitEndDate := strfmt.Date(time.Now().Add(24 * time.Hour))
+		isProGear := true
+		proGearBelongsToSelf := false
+		proGearDescription := "Pro gear details"
+
+		expenseType := ghcmessages.OmittableMovingExpenseTypeSMALLPACKAGE
+		sitLocation := ghcmessages.SITLocationTypeORIGIN
+
+		updateMovingExpense := &ghcmessages.UpdateMovingExpense{
+			MovingExpenseType:      &expenseType,
+			Description:            &description,
+			SitLocation:            &sitLocation,
+			Amount:                 amount,
+			SitStartDate:           sitStartDate,
+			SitEndDate:             sitEndDate,
+			Status:                 movingExpenseStatus,
+			Reason:                 reason,
+			WeightStored:           weightStored,
+			SitEstimatedCost:       &sitEstimatedCost,
+			SitReimburseableAmount: &sitReimburseableAmount,
+			TrackingNumber:         &trackingNumber,
+			WeightShipped:          &weightShipped,
+			IsProGear:              &isProGear,
+			ProGearBelongsToSelf:   &proGearBelongsToSelf,
+			ProGearDescription:     &proGearDescription,
+		}
+
+		result := MovingExpenseModelFromUpdate(updateMovingExpense)
+		suite.IsType(&models.MovingExpense{}, result)
+
+		suite.Equal(models.MovingExpenseReceiptTypeSmallPackage, *result.MovingExpenseType, "MovingExpenseType should match")
+		suite.Equal(&description, result.Description, "Description should match")
+		suite.Equal(models.SITLocationTypeOrigin, *result.SITLocation, "SITLocation should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&amount), result.Amount, "Amount should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitStartDate), result.SITStartDate, "SITStartDate should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitEndDate), result.SITEndDate, "SITEndDate should match")
+		suite.Equal(models.PPMDocumentStatusApproved, *result.Status, "Status should match")
+		suite.Equal(handlers.FmtString(reason), result.Reason, "Reason should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightStored), result.WeightStored, "WeightStored should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&sitEstimatedCost), result.SITEstimatedCost, "SITEstimatedCost should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&sitReimburseableAmount), result.SITReimburseableAmount, "SITReimburseableAmount should match")
+		suite.Equal(handlers.FmtStringPtr(&trackingNumber), result.TrackingNumber, "TrackingNumber should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightShipped), result.WeightShipped, "WeightShipped should match")
+		suite.Equal(handlers.FmtBoolPtr(&isProGear), result.IsProGear, "IsProGear should match")
+		suite.Equal(handlers.FmtBoolPtr(&proGearBelongsToSelf), result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
+		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
+	})
+}
+
+func (suite *PayloadsSuite) TestOfficeUserModelFromUpdate() {
+	suite.Run("success - complete input", func() {
+		telephone := "111-111-1111"
+
+		payload := &ghcmessages.OfficeUserUpdate{
+			Telephone: &telephone,
+		}
+
+		oldMiddleInitials := "H"
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName:      "John",
+					LastName:       "Doe",
+					MiddleInitials: &oldMiddleInitials,
+					Telephone:      "555-555-5555",
+					Email:          "johndoe@example.com",
+					Active:         true,
+				},
+			},
+		}, nil)
+
+		returnedOfficeUser := OfficeUserModelFromUpdate(payload, &oldOfficeUser)
+
+		suite.NotNil(returnedOfficeUser)
+		suite.Equal(*payload.Telephone, returnedOfficeUser.Telephone)
+	})
+
+	suite.Run("success - only update Telephone", func() {
+		telephone := "111-111-1111"
+		payload := &ghcmessages.OfficeUserUpdate{
+			Telephone: &telephone,
+		}
+
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Telephone: "555-555-5555",
+				},
+			},
+		}, nil)
+
+		returnedOfficeUser := OfficeUserModelFromUpdate(payload, &oldOfficeUser)
+
+		suite.NotNil(returnedOfficeUser)
+		suite.Equal(oldOfficeUser.ID, returnedOfficeUser.ID)
+		suite.Equal(oldOfficeUser.UserID, returnedOfficeUser.UserID)
+		suite.Equal(oldOfficeUser.Email, returnedOfficeUser.Email)
+		suite.Equal(oldOfficeUser.FirstName, returnedOfficeUser.FirstName)
+		suite.Equal(oldOfficeUser.MiddleInitials, returnedOfficeUser.MiddleInitials)
+		suite.Equal(oldOfficeUser.LastName, returnedOfficeUser.LastName)
+		suite.Equal(*payload.Telephone, returnedOfficeUser.Telephone)
+		suite.Equal(oldOfficeUser.Active, returnedOfficeUser.Active)
+	})
+
+	suite.Run("Fields do not update if payload is empty", func() {
+		payload := &ghcmessages.OfficeUserUpdate{}
+
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+
+		returnedOfficeUser := OfficeUserModelFromUpdate(payload, &oldOfficeUser)
+
+		suite.NotNil(returnedOfficeUser)
+		suite.Equal(oldOfficeUser.ID, returnedOfficeUser.ID)
+		suite.Equal(oldOfficeUser.UserID, returnedOfficeUser.UserID)
+		suite.Equal(oldOfficeUser.Email, returnedOfficeUser.Email)
+		suite.Equal(oldOfficeUser.FirstName, returnedOfficeUser.FirstName)
+		suite.Equal(oldOfficeUser.MiddleInitials, returnedOfficeUser.MiddleInitials)
+		suite.Equal(oldOfficeUser.LastName, returnedOfficeUser.LastName)
+		suite.Equal(oldOfficeUser.Telephone, returnedOfficeUser.Telephone)
+		suite.Equal(oldOfficeUser.Active, returnedOfficeUser.Active)
+	})
+
+	suite.Run("Error - Return Office User if payload is nil", func() {
+		oldOfficeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+		returnedUser := OfficeUserModelFromUpdate(nil, &oldOfficeUser)
+
+		suite.Equal(&oldOfficeUser, returnedUser)
+	})
+
+	suite.Run("Error - Return nil if Office User is nil", func() {
+		telephone := "111-111-1111"
+		payload := &ghcmessages.OfficeUserUpdate{
+			Telephone: &telephone,
+		}
+		returnedUser := OfficeUserModelFromUpdate(payload, nil)
+
+		suite.Nil(returnedUser)
 	})
 }
 

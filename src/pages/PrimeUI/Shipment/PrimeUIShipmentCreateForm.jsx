@@ -105,7 +105,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
           <AddressFields
             name="ppmShipment.pickupAddress"
             legend="Pickup Address"
-            locationLookup
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -148,7 +147,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                     <AddressFields
                       name="ppmShipment.secondaryPickupAddress"
-                      locationLookup
                       formikProps={{
                         setFieldTouched,
                         setFieldValue,
@@ -191,7 +189,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                     <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
                     <AddressFields
                       name="ppmShipment.tertiaryPickupAddress"
-                      locationLookup
                       formikProps={{
                         setFieldTouched,
                         setFieldValue,
@@ -207,7 +204,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
             name="ppmShipment.destinationAddress"
             legend="Delivery Address"
             address1LabelHint="Optional"
-            locationLookup
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -249,7 +245,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                     <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields
                       name="ppmShipment.secondaryDestinationAddress"
-                      locationLookup
                       formikProps={{
                         setFieldTouched,
                         setFieldValue,
@@ -292,7 +287,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                     <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
                     <AddressFields
                       name="ppmShipment.tertiaryDestinationAddress"
-                      locationLookup
                       formikProps={{
                         setFieldTouched,
                         setFieldValue,
@@ -418,7 +412,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
           <h5 className={styles.sectionHeader}>Pickup Address</h5>
           <AddressFields
             name="pickupAddress"
-            locationLookup
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -462,7 +455,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                         <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                         <AddressFields
                           name="secondaryPickupAddress"
-                          locationLookup
                           formikProps={{
                             setFieldTouched,
                             setFieldValue,
@@ -505,7 +497,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                         <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
                         <AddressFields
                           name="tertiaryPickupAddress"
-                          locationLookup
                           formikProps={{
                             setFieldTouched,
                             setFieldValue,
@@ -523,7 +514,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
           <AddressFields
             name="destinationAddress"
             legend="Delivery Address"
-            locationLookup
             formikProps={{
               setFieldTouched,
               setFieldValue,
@@ -569,7 +559,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                         <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                         <AddressFields
                           name="secondaryDestinationAddress"
-                          locationLookup
                           formikProps={{
                             setFieldTouched,
                             setFieldValue,
@@ -612,7 +601,6 @@ const PrimeUIShipmentCreateForm = ({ enableBoat, enableMobileHome }) => {
                         <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
                         <AddressFields
                           name="tertiaryDestinationAddress"
-                          locationLookup
                           formikProps={{
                             setFieldTouched,
                             setFieldValue,

@@ -52,7 +52,7 @@ describe('ResidentialAddressForm component', () => {
 
   it('renders the form inputs and help text', async () => {
     const mockStore = configureStore({});
-    const { getByLabelText, getByText, getByTestId } = render(
+    const { getByLabelText, getByText } = render(
       <Provider store={mockStore.store}>
         <ResidentialAddressForm {...testProps} />
       </Provider>,
@@ -63,11 +63,7 @@ describe('ResidentialAddressForm component', () => {
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
-
-      expect(getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
-
-      expect(getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
+      expect(getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByText('Must be a physical address.')).toBeInTheDocument();
     });

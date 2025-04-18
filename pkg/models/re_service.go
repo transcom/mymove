@@ -136,6 +136,90 @@ const (
 	ReServiceCodePODFSC ReServiceCode = "PODFSC"
 )
 
+// destinationServiceItemCodesMap is a map of ReServiceCodes that represent destination service items.
+// It is used for fast lookups to determine if a service item is destination-related.
+// This map is immutable and should not be modified after initialization.
+var DestinationServiceItemCodesMap = map[ReServiceCode]struct{}{
+	ReServiceCodeDDFSIT: {},
+	ReServiceCodeDDASIT: {},
+	ReServiceCodeDDDSIT: {},
+	ReServiceCodeDDSFSC: {},
+	ReServiceCodeDDSHUT: {},
+	ReServiceCodeIDFSIT: {},
+	ReServiceCodeIDASIT: {},
+	ReServiceCodeIDDSIT: {},
+	ReServiceCodeIDSFSC: {},
+	ReServiceCodeIDSHUT: {},
+}
+
+// originServiceItemCodesMap is a map of ReServiceCodes that do not represent destination SIT service items.
+// It includes all other ReServiceCodes, such as origin  codes , for fast lookups.
+// This map is immutable and should not be modified after initialization.
+var OriginServiceItemCodesMap = map[ReServiceCode]struct{}{
+	// Counseling and management
+	ReServiceCodeCS: {},
+	ReServiceCodeMS: {},
+	// Domestic boat and mobile home factors
+	ReServiceCodeDBHF: {},
+	ReServiceCodeDBTF: {},
+	ReServiceCodeDMHF: {},
+	// Domestic crating and uncrating
+	ReServiceCodeDCRT:   {},
+	ReServiceCodeDCRTSA: {},
+	ReServiceCodeDUCRT:  {},
+	// Domestic pricing and transportation
+	ReServiceCodeDDP: {},
+	ReServiceCodeDOP: {},
+	ReServiceCodeDLH: {},
+	ReServiceCodeDSH: {},
+	// Domestic packing and unpacking
+	ReServiceCodeDNPK: {},
+	ReServiceCodeDPK:  {},
+	ReServiceCodeDUPK: {},
+	// Domestic origin SIT codes
+	ReServiceCodeDOASIT: {},
+	ReServiceCodeDOFSIT: {},
+	ReServiceCodeDOPSIT: {},
+	ReServiceCodeDOSFSC: {},
+	ReServiceCodeDOSHUT: {},
+	// Fuel surcharge
+	ReServiceCodeFSC: {},
+	// International boat factors
+	ReServiceCodeIBHF: {},
+	ReServiceCodeIBTF: {},
+	// International shipping and linehaul
+	ReServiceCodeICOLH: {},
+	ReServiceCodeICOUB: {},
+	ReServiceCodeIOCLH: {},
+	ReServiceCodeIOCUB: {},
+	ReServiceCodeIOOLH: {},
+	ReServiceCodeIOOUB: {},
+	ReServiceCodeISLH:  {},
+	// International crating and uncrating
+	ReServiceCodeICRT:  {},
+	ReServiceCodeIUCRT: {},
+	// International packing and unpacking
+	ReServiceCodeIHPK:   {},
+	ReServiceCodeIHUPK:  {},
+	ReServiceCodeINPK:   {},
+	ReServiceCodeIUBPK:  {},
+	ReServiceCodeIUBUPK: {},
+	// International origin SIT codes
+	ReServiceCodeIOASIT: {},
+	ReServiceCodeIOFSIT: {},
+	ReServiceCodeIOPSIT: {},
+	ReServiceCodeIOSFSC: {},
+	ReServiceCodeIOSHUT: {},
+	// International pricing
+	ReServiceCodeUBP: {},
+	// International fuel surcharges
+	ReServiceCodePOEFSC: {},
+	ReServiceCodePODFSC: {},
+	// Nonstandard items
+	ReServiceCodeNSTH:  {},
+	ReServiceCodeNSTUB: {},
+}
+
 type ServiceLocationType string
 
 const (
@@ -145,6 +229,19 @@ const (
 	ServiceLocationD ServiceLocationType = "D"
 	// ServiceLocationB Both
 	ServiceLocationB ServiceLocationType = "B"
+)
+
+type ApprovalRequestType string
+
+// ApprovalRequestTypes are actions that will trigger a move appearing in the TOO queue
+// and also include all of the above ReServiceCodes
+const (
+	ApprovalRequestAmendedOrders            ApprovalRequestType = "AMENDED_ORDERS"
+	ApprovalRequestExcessWeight             ApprovalRequestType = "EXCESS_WEIGHT"
+	ApprovalRequestSITExtension             ApprovalRequestType = "SIT_EXTENSION"
+	ApprovalRequestDestinationAddressUpdate ApprovalRequestType = "DESTINATION_ADDRESS_UPDATE"
+	ApprovalRequestDiversion                ApprovalRequestType = "DIVERSION"
+	ApprovalRequestNewShipment              ApprovalRequestType = "NEW_SHIPMENT"
 )
 
 // ReService model struct

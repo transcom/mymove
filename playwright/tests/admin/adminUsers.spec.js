@@ -123,7 +123,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   // Potentially flaky if there are multiple pages of admin users
   expect(page.url()).toContain(adminUserId);
 
-  const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
+  const disabledFields = ['id', 'userId', 'createdAt', 'updatedAt'];
   for (const field of disabledFields) {
     await expect(page.locator(`#${field}`)).toBeDisabled();
   }

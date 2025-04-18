@@ -19,6 +19,18 @@ describe('SubmitMoveConfirmationModal', () => {
     expect(wrapper.find('ModalClose').exists()).toBe(true);
     expect(wrapper.find('button[data-testid="modalCancelButton"]').exists()).toBe(true);
     expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
+    expect(wrapper.containsMatchingElement(<p>You can’t make changes after you submit the move.</p>)).toEqual(true);
+  });
+
+  it('renders the component with shipment text', () => {
+    const wrapper = mount(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} isShipment />);
+    expect(wrapper.find('SubmitMoveConfirmationModal').exists()).toBe(true);
+    expect(wrapper.find('ModalTitle').exists()).toBe(true);
+    expect(wrapper.find('ModalActions').exists()).toBe(true);
+    expect(wrapper.find('ModalClose').exists()).toBe(true);
+    expect(wrapper.find('button[data-testid="modalCancelButton"]').exists()).toBe(true);
+    expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
+    expect(wrapper.containsMatchingElement(<p>You can’t make changes after you submit the shipment.</p>)).toEqual(true);
   });
 
   it('closes the modal when close icon is clicked', () => {

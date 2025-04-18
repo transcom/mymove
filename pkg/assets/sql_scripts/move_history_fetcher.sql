@@ -54,16 +54,16 @@ WITH move AS (
 					'counseling_office_name',
 					(SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
 					'assigned_office_user_first_name',
-					(SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id))),
+					(SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
 					'assigned_office_user_last_name',
-					(SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id)))
+					(SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
 				))
 			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN move ON audit_history.object_id = move.id
-		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT, counseling_transportation_office_id TEXT, sc_assigned_id TEXT, too_assigned_id TEXT, tio_assigned_id TEXT) ON TRUE
+		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT, counseling_transportation_office_id TEXT, sc_assigned_id TEXT, too_assigned_id TEXT, tio_assigned_id TEXT, too_destination_assigned_id TEXT) ON TRUE
 		WHERE audit_history.table_name = 'moves'
 			-- Remove log for when shipment_seq_num updates
 			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_seq_num%' AND LENGTH(audit_history.changed_data::TEXT) < 25)
@@ -718,7 +718,7 @@ WITH move AS (
 	    GROUP BY
 	        document_review_items.doc_id, document_review_items.shipment_id, audit_history.id
 	),
-		gsr_appeals AS (
+	gsr_appeals AS (
 		SELECT
 			gsr_appeals.id,
 			gsr_appeals.remarks,
@@ -773,6 +773,31 @@ WITH move AS (
 			audit_history
 		JOIN shipment_address_updates ON shipment_address_updates.id = audit_history.object_id
 		WHERE audit_history.table_name = 'shipment_address_updates'
+	),
+	sit_extensions AS (
+		SELECT
+			sit_extensions.id,
+			jsonb_agg(jsonb_build_object(
+				'shipment_type', move_shipments.shipment_type,
+				'shipment_id_abbr', move_shipments.shipment_id_abbr,
+				'shipment_locator', move_shipments.shipment_locator
+				)
+			)::TEXT AS context
+		FROM
+			sit_extensions
+			JOIN move_shipments ON sit_extensions.mto_shipment_id = move_shipments.id
+		GROUP BY
+			sit_extensions.id
+	),
+	sit_extensions_logs AS (
+		SELECT
+			audit_history.*,
+			context,
+			NULL AS context_id
+		FROM
+			audit_history
+			JOIN sit_extensions ON sit_extensions.id = audit_history.object_id
+		WHERE audit_history.table_name = 'sit_extensions'
 	),
 	combined_logs AS (
 		SELECT
@@ -874,6 +899,11 @@ WITH move AS (
         	*
     	FROM
 			shipment_address_updates_logs
+		UNION
+		SELECT
+        	*
+    	FROM
+			sit_extensions_logs
 	)
 SELECT DISTINCT
 		combined_logs.*,

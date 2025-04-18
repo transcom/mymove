@@ -45,6 +45,9 @@ const (
 	// MovingExpenseTypePACKINGMATERIALS captures enum value "PACKING_MATERIALS"
 	MovingExpenseTypePACKINGMATERIALS MovingExpenseType = "PACKING_MATERIALS"
 
+	// MovingExpenseTypeSMALLPACKAGE captures enum value "SMALL_PACKAGE"
+	MovingExpenseTypeSMALLPACKAGE MovingExpenseType = "SMALL_PACKAGE"
+
 	// MovingExpenseTypeRENTALEQUIPMENT captures enum value "RENTAL_EQUIPMENT"
 	MovingExpenseTypeRENTALEQUIPMENT MovingExpenseType = "RENTAL_EQUIPMENT"
 
@@ -63,7 +66,7 @@ var movingExpenseTypeEnum []interface{}
 
 func init() {
 	var res []MovingExpenseType
-	if err := json.Unmarshal([]byte(`["CONTRACTED_EXPENSE","GAS","OIL","OTHER","PACKING_MATERIALS","RENTAL_EQUIPMENT","STORAGE","TOLLS","WEIGHING_FEE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CONTRACTED_EXPENSE","GAS","OIL","OTHER","PACKING_MATERIALS","SMALL_PACKAGE","RENTAL_EQUIPMENT","STORAGE","TOLLS","WEIGHING_FEE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

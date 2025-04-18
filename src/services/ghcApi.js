@@ -913,8 +913,35 @@ export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
 
+export async function sendPPMToCustomer(params) {
+  const operationPath = 'ppm.sendPPMToCustomer';
+  return makeGHCRequest(
+    operationPath,
+    {
+      ppmShipmentId: params.ppmShipmentId,
+      'If-Match': params.eTag,
+    },
+    { normalize: false },
+  );
+}
+
 export async function createOfficeAccountRequest({ body }) {
   return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
+}
+
+export async function patchOfficeUser(officeUserId, body) {
+  const operationPath = 'officeUsers.updateOfficeUser';
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      officeUserId,
+      officeUser: body,
+    },
+    {
+      normalize: false,
+    },
+  );
 }
 
 export async function createUploadForDocument(file, documentId) {
@@ -1044,8 +1071,8 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, qu
   });
 }
 
-export async function checkForLockedMovesAndUnlock(key, officeUserID) {
-  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+export async function checkForLockedMovesAndUnlock(officeUserID) {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }

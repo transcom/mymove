@@ -567,3 +567,92 @@ func (o moveTaskOrderUpdater) SignCertificationPPMCounselingCompleted(appCtx app
 
 	return nil
 }
+
+// UpdateStatusServiceCounselingSendPPMToCustomer updates the status on a PPM Shipment and creates required certs
+func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingSendPPMToCustomer(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, eTag string, move *models.Move) (*models.PPMShipment, error) {
+	// Check the If-Match header against existing eTag before updating.
+	encodedUpdatedAt := etag.GenerateEtag(ppmShipment.UpdatedAt)
+	if encodedUpdatedAt != eTag {
+		return &models.PPMShipment{}, apperror.NewPreconditionFailedError(move.ID, nil)
+	}
+
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
+		if ppmShipment.Shipment.Status != models.MTOShipmentStatusApproved {
+			ppmShipment.Shipment.Status = models.MTOShipmentStatusApproved
+			verrs, err := appCtx.DB().ValidateAndSave(&ppmShipment.Shipment)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(ppmShipment.Shipment.ID, nil, verrs, "")
+			}
+			if err != nil {
+				return err
+			}
+		}
+
+		// Pull old ppmshipment for estimator update
+		var ppm models.PPMShipment
+		err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+			EagerPreload(
+				"Shipment",
+				"WeightTickets",
+				"MovingExpenses",
+				"ProgearWeightTickets",
+				"W2Address.Country",
+				"PickupAddress.Country",
+				"SecondaryPickupAddress.Country",
+				"TertiaryPickupAddress.Country",
+				"DestinationAddress.Country",
+				"SecondaryDestinationAddress.Country",
+				"TertiaryDestinationAddress.Country",
+			).
+			Where("shipment_id = ?", ppmShipment.ShipmentID).First(&ppm)
+
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment by MTO ShipmentID")
+			default:
+				return apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+			}
+		}
+		// if the customer has their max incentive empty in the db, we need to update this value before proceeding
+		if ppmShipment.MaxIncentive == nil {
+			estimatedIncentive, estimatedSITCost, err := o.estimator.EstimateIncentiveWithDefaultChecks(appCtx, ppm, &ppmShipment)
+			if err != nil {
+				return err
+			}
+			ppmShipment.EstimatedIncentive = estimatedIncentive
+			ppmShipment.SITEstimatedCost = estimatedSITCost
+
+			maxIncentive, err := o.estimator.MaxIncentive(appCtx, ppm, &ppmShipment)
+			if err != nil {
+				return err
+			}
+			ppmShipment.MaxIncentive = maxIncentive
+		}
+
+		ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+		now := time.Now()
+		ppmShipment.ApprovedAt = &now
+
+		verrs, err := appCtx.DB().ValidateAndSave(&ppmShipment)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(ppmShipment.ID, nil, verrs, "")
+		}
+		if err != nil {
+			return err
+		}
+
+		err = o.SignCertificationPPMCounselingCompleted(appCtx, move.ID, ppmShipment.ID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return &models.PPMShipment{}, transactionError
+	}
+
+	return &ppmShipment, nil
+}

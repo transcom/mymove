@@ -19,7 +19,7 @@ type PPMCloseoutFetcher struct {
 }
 
 // GetActualWeight provides a mock function with given fields: ppmShipment
-func (_m *PPMCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error) {
+func (_m *PPMCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) unit.Pound {
 	ret := _m.Called(ppmShipment)
 
 	if len(ret) == 0 {
@@ -27,23 +27,13 @@ func (_m *PPMCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (
 	}
 
 	var r0 unit.Pound
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*models.PPMShipment) (unit.Pound, error)); ok {
-		return rf(ppmShipment)
-	}
 	if rf, ok := ret.Get(0).(func(*models.PPMShipment) unit.Pound); ok {
 		r0 = rf(ppmShipment)
 	} else {
 		r0 = ret.Get(0).(unit.Pound)
 	}
 
-	if rf, ok := ret.Get(1).(func(*models.PPMShipment) error); ok {
-		r1 = rf(ppmShipment)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // GetPPMCloseout provides a mock function with given fields: appCtx, ppmShipmentID

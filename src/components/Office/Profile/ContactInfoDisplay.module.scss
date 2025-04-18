@@ -1,0 +1,50 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.contactInfoContainer {
+  .contactInfoHeader {
+    h2 {
+      flex-shrink: 0;
+      @include u-margin(0);
+      @include at-media('desktop') {
+        @include u-padding-bottom(1);
+      }
+    }
+
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .contactInfoSection {
+    h3 {
+      @include u-margin-top(3);
+    }
+
+    dl {
+      dt {
+        @include u-width(33%);
+      }
+
+      dd {
+        @include u-width(67%);
+      }
+      @include u-margin-bottom(0);
+    }
+  }
+}
+
+a {
+  color: $link;
+  text-decoration: none;
+
+  &:visited {
+    color: $link;
+  }
+
+  &:hover,
+  &:focus {
+    color: $link;
+    @include u-text('no-underline');
+  }
+}

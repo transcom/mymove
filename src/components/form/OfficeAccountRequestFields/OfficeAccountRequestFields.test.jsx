@@ -1,63 +1,115 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
 import OfficeAccountRequestFields from './OfficeAccountRequestFields';
 
+import { officeAccountRequestSchema } from 'utils/validation';
+
+const initialValues = {
+  officeAccountRequestEdipi: '',
+  edipiConfirmation: '',
+  officeAccountRequestOtherUniqueId: '',
+  otherUniqueIdConfirmation: '',
+  officeAccountRequestEmail: '',
+  emailConfirmation: '',
+};
+
 describe('OfficeAccountRequestFields component', () => {
   it('renders the form inputs', async () => {
     render(
-      <Formik>
+      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
         <OfficeAccountRequestFields />
       </Formik>,
     );
 
-    const firstName = await screen.findByLabelText('First Name');
-    expect(firstName).toBeInstanceOf(HTMLInputElement);
+    expect(screen.getByTestId('officeAccountRequestFirstName')).toBeInTheDocument();
+    expect(screen.getByTestId('officeAccountRequestMiddleInitial')).toBeInTheDocument();
+    expect(screen.getByTestId('officeAccountRequestLastName')).toBeInTheDocument();
+    expect(screen.getByTestId('officeAccountRequestEmail')).toBeInTheDocument();
+    expect(screen.getByTestId('emailConfirmation')).toBeInTheDocument();
+    expect(screen.getByTestId('officeAccountRequestTelephone')).toBeInTheDocument();
+    expect(screen.getByTestId('officeAccountRequestEdipi')).toBeInTheDocument();
+    expect(screen.getByTestId('edipiConfirmation')).toBeInTheDocument();
+    expect(screen.getByTestId('officeAccountRequestOtherUniqueId')).toBeInTheDocument();
+    expect(screen.getByTestId('otherUniqueIdConfirmation')).toBeInTheDocument();
+    expect(screen.getByTestId('headquartersCheckBox')).toBeInTheDocument();
+    expect(screen.getByTestId('taskOrderingOfficerCheckBox')).toBeInTheDocument();
+    expect(screen.getByTestId('taskInvoicingOfficerCheckBox')).toBeInTheDocument();
+    expect(screen.getByTestId('transportationContractingOfficerCheckBox')).toBeInTheDocument();
+    expect(screen.getByTestId('servicesCounselorCheckBox')).toBeInTheDocument();
+    expect(screen.getByTestId('qualityAssuranceEvaluatorCheckBox')).toBeInTheDocument();
+    expect(screen.getByTestId('customerSupportRepresentativeCheckBox')).toBeInTheDocument();
+    expect(screen.getByTestId('governmentSurveillanceRepresentativeCheckbox')).toBeInTheDocument();
+  });
 
-    const middleInitial = await screen.findByLabelText('First Name');
-    expect(middleInitial).toBeInstanceOf(HTMLInputElement);
+  it('validates that EDIPI and EDIPI confirmation match', async () => {
+    render(
+      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+        <OfficeAccountRequestFields />
+      </Formik>,
+    );
 
-    const lastName = await screen.findByLabelText('Last Name');
-    expect(lastName).toBeInstanceOf(HTMLInputElement);
+    const edipiInput = screen.getByTestId('officeAccountRequestEdipi');
+    const edipiConfirmInput = screen.getByTestId('edipiConfirmation');
 
-    const email = await screen.findByLabelText('Email');
-    expect(email).toBeInstanceOf(HTMLInputElement);
+    await userEvent.type(edipiInput, '1234567890');
+    await userEvent.type(edipiConfirmInput, '0987654321');
+    await userEvent.tab();
 
-    const telephone = await screen.findByLabelText('Telephone');
-    expect(telephone).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByText('DODID#s must match')).toBeInTheDocument();
 
-    const edipi = await screen.getByTestId('officeAccountRequestEdipi');
-    expect(edipi).toBeInstanceOf(HTMLInputElement);
+    await userEvent.clear(edipiConfirmInput);
+    await userEvent.type(edipiConfirmInput, '1234567890');
+    await userEvent.tab();
 
-    const uniqueId = await screen.getByTestId('officeAccountRequestOtherUniqueId');
-    expect(uniqueId).toBeInstanceOf(HTMLInputElement);
+    expect(screen.queryByText('DODID#s must match')).not.toBeInTheDocument();
+  });
 
-    const transportationOffice = await screen.getByLabelText('Transportation Office');
-    expect(transportationOffice).toBeInstanceOf(HTMLInputElement);
+  it('validates that Other Unique ID and its confirmation match', async () => {
+    render(
+      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+        <OfficeAccountRequestFields />
+      </Formik>,
+    );
 
-    const hqCheckbox = await screen.getByTestId('headquartersCheckBox');
-    expect(hqCheckbox).toBeInstanceOf(HTMLInputElement);
+    const uniqueIdInput = screen.getByTestId('officeAccountRequestOtherUniqueId');
+    const uniqueIdConfirmInput = screen.getByTestId('otherUniqueIdConfirmation');
 
-    const tooCheckbox = await screen.getByTestId('taskOrderingOfficerCheckBox');
-    expect(tooCheckbox).toBeInstanceOf(HTMLInputElement);
+    await userEvent.type(uniqueIdInput, 'ABCD1234');
+    await userEvent.type(uniqueIdConfirmInput, 'XYZ9876');
+    await userEvent.tab();
 
-    const tioCheckbox = await screen.getByTestId('taskInvoicingOfficerCheckBox');
-    expect(tioCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByText('Unique IDs must match')).toBeInTheDocument();
 
-    const tcoCheckbox = await screen.getByTestId('transportationContractingOfficerCheckBox');
-    expect(tcoCheckbox).toBeInstanceOf(HTMLInputElement);
+    await userEvent.clear(uniqueIdConfirmInput);
+    await userEvent.type(uniqueIdConfirmInput, 'ABCD1234');
+    await userEvent.tab();
 
-    const scCheckbox = await screen.getByTestId('servicesCounselorCheckBox');
-    expect(scCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(screen.queryByText('Unique IDs must match')).not.toBeInTheDocument();
+  });
 
-    const qaeCheckbox = await screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
-    expect(qaeCheckbox).toBeInstanceOf(HTMLInputElement);
+  it('validates that email and email confirmation match', async () => {
+    render(
+      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+        <OfficeAccountRequestFields />
+      </Formik>,
+    );
 
-    const csrCheckbox = await screen.getByTestId('customerSupportRepresentativeCheckBox');
-    expect(csrCheckbox).toBeInstanceOf(HTMLInputElement);
+    const emailInput = screen.getByTestId('officeAccountRequestEmail');
+    const emailConfirmInput = screen.getByTestId('emailConfirmation');
 
-    const gsrCheckbox = await screen.getByTestId('governmentSurveillanceRepresentativeCheckbox');
-    expect(gsrCheckbox).toBeInstanceOf(HTMLInputElement);
+    await userEvent.type(emailInput, 'test@example.com');
+    await userEvent.type(emailConfirmInput, 'wrong@example.com');
+    await userEvent.tab();
+
+    expect(await screen.findByText('Emails must match')).toBeInTheDocument();
+
+    await userEvent.clear(emailConfirmInput);
+    await userEvent.type(emailConfirmInput, 'test@example.com');
+    await userEvent.tab();
+
+    expect(screen.queryByText('Emails must match')).not.toBeInTheDocument();
   });
 });

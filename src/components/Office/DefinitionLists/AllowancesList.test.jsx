@@ -150,12 +150,30 @@ describe('AllowancesList', () => {
     expect(screen.queryByText('Unaccompanied baggage allowance')).not.toBeInTheDocument();
   });
 
+  it('does not render ub allowance field if not oconous move', async () => {
+    render(<AllowancesList info={info} showVisualCues isOconusMove={false} />);
+    expect(screen.queryByText('Unaccompanied baggage allowance')).not.toBeInTheDocument();
+  });
+
+  it('does render ub allowance field if oconous move', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await act(async () => {
+      render(
+        <Formik initialValues={initialValuesOconusAdditions}>
+          <AllowancesList info={{ ...oconusInfo }} showVisualCues isOconusMove />
+        </Formik>,
+      );
+    });
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
+  });
+
   it('does render oconus fields when present', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     await act(async () => {
       render(
         <Formik initialValues={initialValuesOconusAdditions}>
-          <AllowancesList info={{ ...oconusInfo }} showVisualCues />
+          <AllowancesList info={{ ...oconusInfo }} showVisualCues isOconusMove />
         </Formik>,
       );
     });
@@ -163,8 +181,6 @@ describe('AllowancesList', () => {
     await waitFor(() => expect(screen.getByTestId('ordersAccompaniedTour')).toBeInTheDocument());
     expect(screen.getByTestId('ordersDependentsUnderTwelve')).toBeInTheDocument();
     expect(screen.getByTestId('ordersDependentsTwelveAndOver')).toBeInTheDocument();
-    expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
-    expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
   });
   it('renders weight restriction', () => {
     const adminRestrictedWtLoc = { ...info, adminRestrictedWeightLocation: true };

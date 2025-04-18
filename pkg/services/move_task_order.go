@@ -66,6 +66,7 @@ type MoveTaskOrderUpdater interface {
 	UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error)
 	MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, bool, error)
 	SignCertificationPPMCounselingCompleted(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error
+	UpdateStatusServiceCounselingSendPPMToCustomer(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, eTag string, move *models.Move) (*models.PPMShipment, error)
 }
 
 // MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
@@ -88,4 +89,7 @@ type MoveTaskOrderFetcherParams struct {
 	ExcludeExternalShipments bool       // indicates if external vendor shipments should be returned
 	Page                     *int64
 	PerPage                  *int64
+	Acknowledged             *bool      // indicates if the move and all its shipments must be acknowledged by the prime
+	AcknowledgedAfter        *time.Time // indicates if the move or one of its shipments must be acknowledged after this timestamp
+	AcknowledgedBefore       *time.Time // indicates if the move or one of its shipments must be acknowledged before this timestamp
 }

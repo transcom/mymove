@@ -42,6 +42,7 @@ const MaskedTextField = ({
   prefix,
   isDisabled,
   showRequiredAsterisk,
+  allowNegative,
   ...props
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
@@ -99,12 +100,12 @@ const MaskedTextField = ({
             blocks={blocks}
             lazy={lazy}
             onAccept={(val, masked) => {
-              if (props.scale === 0) {
-                helpers.setValue(masked.unmaskedValue);
-              } else {
-                helpers.setValue(val);
+              let newValue = props.scale === 0 ? masked.unmaskedValue : val;
+              // if the only value is a negative sign, reset it to an empty string
+              if (!allowNegative && (newValue === '-' || newValue === '-0')) {
+                newValue = '';
               }
-              // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+              helpers.setValue(newValue);
               helpers.setTouched(true, false);
             }}
             onBlur={field.onBlur}
@@ -169,6 +170,7 @@ MaskedTextField.propTypes = {
   errorMessage: PropTypes.string,
   isDisabled: PropTypes.bool,
   showRequiredAsterisk: PropTypes.bool,
+  allowNegative: PropTypes.bool,
 };
 
 MaskedTextField.defaultProps = {
@@ -197,6 +199,7 @@ MaskedTextField.defaultProps = {
   errorMessage: '',
   isDisabled: false,
   showRequiredAsterisk: false,
+  allowNegative: false,
 };
 
 export default MaskedTextField;

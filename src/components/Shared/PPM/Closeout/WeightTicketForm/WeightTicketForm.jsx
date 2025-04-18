@@ -309,7 +309,7 @@ const WeightTicketForm = ({
                   }`}
                 >
                   <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                    {`${isCustomerPage ? 'Return To Homepage' : 'Cancel'}`}
+                    Cancel
                   </Button>
                   <Button
                     className={ppmStyles.saveButton}

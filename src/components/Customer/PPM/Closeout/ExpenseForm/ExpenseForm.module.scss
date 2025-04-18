@@ -9,6 +9,10 @@
     @include u-margin-bottom(2);
   }
 
+  :global(.usa-label) {
+    justify-content: flex-start;
+  }
+
   .labelWrapper {
     @include u-margin-top(3);
   }

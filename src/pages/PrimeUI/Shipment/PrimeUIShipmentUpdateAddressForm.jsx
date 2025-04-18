@@ -35,7 +35,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
             <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
               <SectionWrapper className={formStyles.formSection}>
                 <h2>{addressLocation}</h2>
-                <AddressFields name={name} locationLookup formikProps={formikProps} />
+                <AddressFields name={name} formikProps={formikProps} />
               </SectionWrapper>
               <WizardNavigation
                 editMode

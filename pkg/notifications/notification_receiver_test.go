@@ -3,6 +3,7 @@ package notifications
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -75,6 +76,8 @@ func (suite *notificationReceiverSuite) TestSuccessPath() {
 		mockedViper.On("GetString", cli.SNSRegionFlag).Return("us-gov-west-1")
 		mockedViper.On("GetString", cli.SNSAccountId).Return("12345")
 		mockedViper.On("GetString", cli.SNSTagsUpdatedTopicFlag).Return("fake_sns_topic")
+
+		os.Unsetenv("AWS_PROFILE")
 
 		receiver, err := InitReceiver(&mockedViper, suite.Logger(), false)
 

@@ -133,6 +133,31 @@ func (o *UpdateOfficeUserForbidden) WriteResponse(rw http.ResponseWriter, produc
 	rw.WriteHeader(403)
 }
 
+// UpdateOfficeUserNotFoundCode is the HTTP code returned for type UpdateOfficeUserNotFound
+const UpdateOfficeUserNotFoundCode int = 404
+
+/*
+UpdateOfficeUserNotFound Office User not found
+
+swagger:response updateOfficeUserNotFound
+*/
+type UpdateOfficeUserNotFound struct {
+}
+
+// NewUpdateOfficeUserNotFound creates UpdateOfficeUserNotFound with default headers values
+func NewUpdateOfficeUserNotFound() *UpdateOfficeUserNotFound {
+
+	return &UpdateOfficeUserNotFound{}
+}
+
+// WriteResponse to the client
+func (o *UpdateOfficeUserNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(404)
+}
+
 // UpdateOfficeUserInternalServerErrorCode is the HTTP code returned for type UpdateOfficeUserInternalServerError
 const UpdateOfficeUserInternalServerErrorCode int = 500
 

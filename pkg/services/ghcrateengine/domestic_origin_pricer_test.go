@@ -63,14 +63,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 
 		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(5472)
+		expectedCost := unit.Cents(5832)
 
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
 		}
@@ -121,13 +121,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestServiceArea,
 			isPPM,
 		)
-		expectedCost := unit.Cents(5472)
+		expectedCost := unit.Cents(5832)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
 		}
@@ -148,13 +148,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			isPPM,
 		)
 
-		expectedCost := unit.Cents(4752)
+		expectedCost := unit.Cents(5076)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "false"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.27"},
 		}
@@ -185,7 +185,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		_, _, err := pricer.Price(
 			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
-			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+			time.Date(testdatagen.TestYear+10, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dopTestWeight,
 			dopTestServiceArea,
 			isPPM,
@@ -287,7 +287,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.11000"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
 		}
@@ -325,11 +325,13 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models
 }
 
 func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData() {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Escalation:           1.0197,
 				EscalationCompounded: 1.0407,
+				StartDate:            testdatagen.ContractStartDate,
+				EndDate:              testdatagen.ContractEndDate,
 			},
 		})
 
@@ -345,7 +347,6 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData() {
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDOP,
-				Name: "Dom. Origin Price",
 			},
 		},
 	}, nil)

@@ -12,8 +12,10 @@ export default {
   getDetails: ({ changedValues }) => {
     return (
       <>
-        <div> Created Move Task Order (MTO) </div>
-        {changedValues?.too_assigned_id !== undefined ? <div> Task Ordering Officer Unassigned </div> : null}
+        <div>Created Move Task Order (MTO)</div>
+        {(changedValues?.too_assigned_id !== undefined || changedValues?.too_destination_assigned_id !== undefined) && (
+          <div>Task Ordering Officer Unassigned</div>
+        )}
       </>
     );
   },

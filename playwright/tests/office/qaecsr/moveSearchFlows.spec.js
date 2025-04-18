@@ -16,13 +16,13 @@ test.describe('QAE Move Search', () => {
 
     // Type move code into search bar (move code is default search type)
     await officePage.qaeSearchForAndNavigateToMove(moveLocator);
-    await expect(page.locator('h1').getByText('Move details', { exact: true })).toBeVisible();
+    await expect(page.locator('h1').getByText('Move Details', { exact: true })).toBeVisible();
   });
 
   test('is able to search by DOD ID', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     const moveLocator = move.locator;
-    const { edipi } = move.Orders.ServiceMember;
+    const { edipi } = move.Orders.service_member;
 
     await officePage.signInAsNewQAEUser();
 
@@ -53,13 +53,13 @@ test.describe('QAE Move Search', () => {
     await officePage.waitForLoading();
 
     expect(page.url()).toContain(`/moves/${moveLocator}/details`);
-    await expect(page.locator('h1').getByText('Move details', { exact: true })).toBeVisible();
+    await expect(page.locator('h1').getByText('Move Details', { exact: true })).toBeVisible();
   });
 
   test('is able to search by customer name', async ({ page, officePage }) => {
     const move = await officePage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     const moveLocator = move.locator;
-    const lastName = move.Orders.ServiceMember.last_name;
+    const lastName = move.Orders.service_member.last_name;
 
     await officePage.signInAsNewQAEUser();
 
@@ -90,7 +90,7 @@ test.describe('QAE Move Search', () => {
 
     // Verify results table contents
     expect(page.url()).toContain(`/moves/${moveLocator}/details`);
-    await expect(page.locator('h1').getByText('Move details', { exact: true })).toBeVisible();
+    await expect(page.locator('h1').getByText('Move Details', { exact: true })).toBeVisible();
   });
 
   test('handles searches that do not return results', async ({ page, officePage }) => {

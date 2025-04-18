@@ -23,8 +23,16 @@ const pickupAddress = {
   County: 'CAMDEN',
 };
 
+const secondPickupAddress = {
+  Address1: '7 Q St',
+  City: 'BARNEGAT',
+  State: 'NJ',
+  ZIP: '08005',
+  County: 'OCEAN',
+};
+
 const secondaryPickupAddress = {
-  ...pickupAddress,
+  ...secondPickupAddress,
 };
 secondaryPickupAddress.Address1 = '8 Q St';
 
@@ -45,10 +53,10 @@ const deliveryAddress = {
 
 const secondaryDeliveryAddress = {
   Address1: '9 Q St',
-  City: 'ATCO',
-  State: 'NJ',
-  ZIP: '08004',
-  County: 'CAMDEN',
+  City: 'GREAT MILLS',
+  State: 'MD',
+  ZIP: '20634',
+  County: 'SAINT MARYS',
 };
 
 const releasingAgent = {
@@ -180,23 +188,24 @@ test.describe('TOO user', () => {
     await page.locator('#requestedDeliveryDate').blur();
 
     // Update form (adding pickup and delivery address)
-    const location = 'ATCO, NJ 08004 (CAMDEN)';
+    const pickupLocation = 'ATCO, NJ 08004 (CAMDEN)';
     const pickupAddressGroup = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddressGroup.getByText('Yes').click();
     await pickupAddressGroup.getByLabel('Address 1').nth(0).fill(pickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(0).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(0).clear();
-    await page.locator('input[id="pickup.address-location-input"]').fill(pickupAddress.ZIP);
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.locator('input[id="pickup.address-input"]').fill(pickupAddress.ZIP);
+    await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Secondary pickup address
+    const secondPickupLocation = 'BARNEGAT, NJ 08005 (OCEAN)';
     await pickupAddressGroup.getByText('Yes').click();
     await pickupAddressGroup.getByLabel('Address 1').nth(1).fill(secondaryPickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(1).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(1).clear();
-    await page.locator('input[id="secondaryPickup.address-location-input"]').fill(secondaryPickupAddress.ZIP);
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.locator('input[id="secondaryPickup.address-input"]').fill(secondaryPickupAddress.ZIP);
+    await expect(page.getByText(secondPickupLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Releasing agent
@@ -211,17 +220,18 @@ test.describe('TOO user', () => {
     await deliveryAddressGroup.getByLabel('Address 1').nth(0).fill(deliveryAddress.Address1);
     await deliveryAddressGroup.getByLabel('Address 2').nth(0).fill(deliveryAddress.Address2);
     await deliveryAddressGroup.getByLabel('Address 3').nth(0).clear();
-    await page.locator('input[id="delivery.address-location-input"]').fill(deliveryAddress.ZIP);
+    await page.locator('input[id="delivery.address-input"]').fill(deliveryAddress.ZIP);
     await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Secondary delivery address
+    const secondDeliveryLocation = 'GREAT MILLS, MD 20634 (SAINT MARYS)';
     await deliveryAddressGroup.getByText('Yes').nth(1).click();
     await deliveryAddressGroup.getByLabel('Address 1').nth(1).fill(secondaryDeliveryAddress.Address1);
     await deliveryAddressGroup.getByLabel('Address 2').nth(1).clear();
     await deliveryAddressGroup.getByLabel('Address 3').nth(1).clear();
-    await page.locator('input[id="secondaryDelivery.address-location-input"]').fill(secondaryDeliveryAddress.ZIP);
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.locator('input[id="secondaryDelivery.address-input"]').fill(secondaryDeliveryAddress.ZIP);
+    await expect(page.getByText(secondDeliveryLocation, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Receiving agent

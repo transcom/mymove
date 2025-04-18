@@ -27,8 +27,8 @@ import { fieldValidationShape } from 'utils/displayFlags';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { updateMTOShipment } from 'services/ghcApi';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_TYPE } from 'constants/orders';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed

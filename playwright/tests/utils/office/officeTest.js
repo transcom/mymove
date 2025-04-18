@@ -243,7 +243,7 @@ export class OfficePage extends BaseTestPage {
   async tooNavigateToMove(moveLocator) {
     await this.page.goto(`/moves/${moveLocator}/details/`);
     await this.page.waitForLoadState('networkidle', { timeout: 30000 });
-    await this.page.getByRole('heading', { name: 'Move details' }).waitFor();
+    await this.page.getByRole('heading', { name: 'Move Details' }).waitFor();
   }
 }
 

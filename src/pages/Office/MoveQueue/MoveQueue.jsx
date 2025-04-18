@@ -398,6 +398,7 @@ const MoveQueue = ({
           sessionStorageKey={queueType}
           key={queueType}
           isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.DESTINATION_REQUESTS}
           activeRole={activeRole}
         />

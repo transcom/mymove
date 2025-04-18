@@ -182,7 +182,6 @@ const editMoveStatuses = [
 ];
 
 const disabledMoveStatuses = [
-  MOVE_STATUSES.DRAFT,
   MOVE_STATUSES.SUBMITTED,
   MOVE_STATUSES.APPROVED,
   MOVE_STATUSES.CANCELED,
@@ -339,7 +338,7 @@ describe('MoveAllowances page', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByLabelText(/If the customer's orders specify a specific UB weight allowance, enter it here./i),
+          screen.queryByLabelText(/If the customer's orders specify a UB weight allowance, enter it here./i),
         ).not.toBeInTheDocument();
       });
     });
@@ -356,7 +355,7 @@ describe('MoveAllowances page', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByLabelText(/If the customer's orders specify a specific UB weight allowance, enter it here./i),
+          screen.queryByLabelText(/If the customer's orders specify a UB weight allowance, enter it here./i),
         ).toBeInTheDocument();
       });
     });

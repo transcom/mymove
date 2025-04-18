@@ -157,14 +157,6 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		},
 	}, nil)
 
-	//ContractCode
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			StartDate: time.Now().Add(-24 * time.Hour),
-			EndDate:   time.Now().Add(24 * time.Hour),
-		},
-	})
-
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReDomesticServiceArea: models.ReDomesticServiceArea{
 			ServiceArea: dopTestServiceArea,
@@ -181,7 +173,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-			ContractID:            contractYear.Contract.ID,
+			ContractID:            contractYear.ContractID,
 			Contract:              contractYear.Contract,
 			DomesticServiceAreaID: serviceArea.ID,
 			DomesticServiceArea:   serviceArea,
@@ -319,13 +311,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
-
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 
 		shipmentRouter := NewShipmentRouter()
 		waf := entitlements.NewWeightAllotmentFetcher()
@@ -758,10 +743,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(subtestData.reServiceCodes[i], serviceItems[i].ReService.Code)
-			if serviceItems[i].ReService.Code == models.ReServiceCodeDOP {
-				// pricing estimate will be nil for invalid service area
-				suite.Nil(serviceItems[i].PricingEstimate)
-			}
 		}
 	})
 

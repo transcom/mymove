@@ -58,7 +58,9 @@ test.describe('TOO user', () => {
 
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
-      await page.locator('input[id="delivery.address-location-input"]').fill('99505');
+      await page.locator('input[id="delivery.address-input"]').fill('99505');
+      await expect(page.getByText('ANCHORAGE, AK 99505 (ANCHORAGE)', { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
 
       await page.getByRole('button', { name: 'Save' }).click();
       await tooFlowPage.waitForPage.moveDetails();
@@ -175,7 +177,9 @@ test.describe('TOO user', () => {
 
       // Edit the shipment address to AK
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
-      await page.locator('input[id="delivery.address-location-input"]').fill('99505');
+      await page.locator('input[id="delivery.address-input"]').fill('99505');
+      await expect(page.getByText('ANCHORAGE, AK 99505 (ANCHORAGE)', { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
 
       await page.getByRole('button', { name: 'Save' }).click();
       await tooFlowPage.waitForPage.moveDetails();
@@ -283,9 +287,7 @@ test.describe('TOO user', () => {
     ).toBeVisible();
     const originalDeliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
     await expect(originalDeliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue(originalStreet);
-    await expect(originalDeliveryAddress.getByTestId('City')).toHaveText(originalCity);
-    await expect(originalDeliveryAddress.getByTestId('State')).toHaveText('AK');
-    await expect(originalDeliveryAddress.getByTestId('ZIP')).toHaveText(originalZip);
+    await expect(page.getByText('North Pole, AK 99705 (FAIRBANKS NORTH STAR)', { exact: true })).toBeVisible();
 
     // Click to trigger review modal
     await page.getByRole('button', { name: 'Review request' }).click();
@@ -312,9 +314,7 @@ test.describe('TOO user', () => {
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
     const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
     await expect(deliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue(updatedStreet);
-    await expect(deliveryAddress.getByTestId('City')).toHaveText(updatedCity);
-    await expect(deliveryAddress.getByTestId('State')).toHaveText('AK');
-    await expect(deliveryAddress.getByTestId('ZIP')).toHaveText(updatedZip);
+    await expect(page.getByText('Juneau, AK 99811 (JUNEAU)', { exact: true })).toBeVisible();
 
     // Click cancel on the Edit Shipment page
     await page.getByRole('button', { name: 'Cancel' }).click();
@@ -324,8 +324,6 @@ test.describe('TOO user', () => {
     await expect(page.getByTestId('destinationAddress')).toContainText(updatedStreet);
     await expect(page.getByTestId('destinationAddress')).toContainText(updatedCity);
     await expect(page.getByTestId('destinationAddress')).toContainText(updatedZip);
-    await expect(page.getByText(originalStreet)).not.toBeVisible();
-    await expect(page.getByText(originalCity)).not.toBeVisible();
-    await expect(page.getByText(originalZip)).not.toBeVisible();
+    await expect(page.getByText('North Pole, AK 99705 (FAIRBANKS NORTH STAR)', { exact: true })).not.toBeVisible();
   });
 });

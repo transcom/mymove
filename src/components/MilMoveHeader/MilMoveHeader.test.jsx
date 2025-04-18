@@ -1,4 +1,5 @@
 import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -9,6 +10,7 @@ import OfficeUserInfo from './OfficeUserInfo';
 import MilMoveHeader from './index';
 
 import { MockProviders } from 'testUtils';
+import { officeRoutes } from 'constants/routes';
 
 describe('MilMoveHeader and User Infos', () => {
   it('renders the base header with nothing in it', () => {
@@ -86,9 +88,11 @@ describe('MilMoveHeader and User Infos', () => {
     };
 
     render(
-      <MilMoveHeader>
-        <OfficeUserInfo {...testProps} />
-      </MilMoveHeader>,
+      <MemoryRouter>
+        <MilMoveHeader>
+          <OfficeUserInfo {...testProps} />
+        </MilMoveHeader>
+      </MemoryRouter>,
     );
 
     const signOutButton = screen.getByRole('button', { name: 'Sign out' });
@@ -101,5 +105,9 @@ describe('MilMoveHeader and User Infos', () => {
     });
 
     expect(screen.getByText('Baker, Riley'));
+
+    const linkElement = screen.getByTitle('profile-link');
+    expect(linkElement).toBeInTheDocument();
+    expect(linkElement).toHaveAttribute('href', officeRoutes.PROFILE_PATH);
   });
 });

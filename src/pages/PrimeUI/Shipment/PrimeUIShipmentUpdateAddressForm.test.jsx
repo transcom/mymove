@@ -82,15 +82,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     expect(screen.getByLabelText(/Address 1/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
-    expect(screen.getByText('City')).toBeInTheDocument();
-    expect(screen.getByText(shipmentAddress.city)).toBeInTheDocument();
-    expect(screen.getByText('State')).toBeInTheDocument();
-    expect(screen.getByText(shipmentAddress.state)).toBeInTheDocument();
-    expect(screen.getByText('County')).toBeInTheDocument();
-    expect(screen.getByText(shipmentAddress.county)).toBeInTheDocument();
-    expect(screen.getByText('ZIP')).toBeInTheDocument();
-    expect(screen.getByText(shipmentAddress.postalCode)).toBeInTheDocument();
-
+    expect(
+      screen.getAllByText(
+        `${shipmentAddress.city}, ${shipmentAddress.state} ${shipmentAddress.postalCode} (${shipmentAddress.county})`,
+      ),
+    );
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
@@ -154,7 +150,9 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     (await screen.getByLabelText(/Address 1/)).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
+      const alerts = document.getElementsByClassName('usa-error-message');
+      expect(alerts.length).toBe(1);
+      expect(alerts[0]).toHaveTextContent('Required');
     });
   });
 

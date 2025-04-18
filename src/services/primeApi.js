@@ -278,3 +278,14 @@ export async function downloadMoveOrder({ locator, type }) {
   const client = await getPrimeSimulatorClient();
   return makeSwaggerRequestRaw(client, 'moveTaskOrder.downloadMoveOrder', { locator, type });
 }
+
+export async function acknowledgeMovesAndShipments({ normalize = false, body }) {
+  const operationPath = 'moveTaskOrder.acknowledgeMovesAndShipments';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      body,
+    },
+    { normalize },
+  );
+}

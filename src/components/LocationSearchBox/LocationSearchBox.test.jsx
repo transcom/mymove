@@ -75,6 +75,18 @@ describe('LocationSearchBoxContainer', () => {
       expect(screen.getByText('Start typing a duty location...')).toBeInTheDocument();
     });
 
+    it('renders the required asterisk when prop is provided', () => {
+      render(
+        <LocationSearchBox
+          input={{ name: 'test_component' }}
+          name="test_component"
+          searchLocations={mockLocationSearch}
+          showRequiredAsterisk
+        />,
+      );
+      expect(screen.getByTestId('requiredAsterisk')).toBeInTheDocument();
+    });
+
     it('renders an error message', () => {
       render(
         <LocationSearchBox

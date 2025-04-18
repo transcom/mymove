@@ -197,7 +197,6 @@ const initialValues = {
   report_by_date: '2020-11-26',
   has_dependents: 'no',
   origin_duty_location: {
-    provides_services_counseling: true,
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -214,6 +213,7 @@ const initialValues = {
     id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
+    provides_services_counseling: true,
   },
   counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
   new_duty_location: {
@@ -405,7 +405,6 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(submitButton).not.toBeDisabled();
     });
-
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
@@ -924,9 +923,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText(/If your orders specify a specific UB weight allowance, enter it here./),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/If your orders specify a UB weight allowance, enter it here./)).toBeInTheDocument();
     });
   });
 
@@ -951,7 +948,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
@@ -976,7 +973,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });

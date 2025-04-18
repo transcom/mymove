@@ -477,3 +477,55 @@ func (suite *PayloadsSuite) TestVLocationModel() {
 	suite.Equal(postalCode, payload.UsprZipID, "Expected PostalCode to match")
 	suite.Equal(county, payload.UsprcCountyNm, "Expected County to match")
 }
+
+func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		description := "Test moving expense"
+		trackingNumber := "TRACK123"
+		amount := int64(1000)
+		weightStored := int64(1500)
+		weightShipped := int64(1200)
+		sitReimburseableAmount := int64(2500)
+		sitStartDate := strfmt.Date(time.Now())
+		sitEndDate := strfmt.Date(time.Now().Add(24 * time.Hour))
+		isProGear := true
+		proGearBelongsToSelf := false
+		proGearDescription := "Pro gear details"
+
+		expenseType := internalmessages.MovingExpenseTypeSMALLPACKAGE
+		sitLocation := internalmessages.SITLocationTypeORIGIN
+
+		updateMovingExpense := &internalmessages.UpdateMovingExpense{
+			MovingExpenseType:      &expenseType,
+			Description:            &description,
+			SitLocation:            &sitLocation,
+			Amount:                 &amount,
+			SitStartDate:           sitStartDate,
+			SitEndDate:             sitEndDate,
+			WeightStored:           weightStored,
+			SitReimburseableAmount: &sitReimburseableAmount,
+			TrackingNumber:         &trackingNumber,
+			WeightShipped:          weightShipped,
+			IsProGear:              &isProGear,
+			ProGearBelongsToSelf:   &proGearBelongsToSelf,
+			ProGearDescription:     proGearDescription,
+		}
+
+		result := MovingExpenseModelFromUpdate(updateMovingExpense)
+		suite.IsType(&models.MovingExpense{}, result)
+
+		suite.Equal(models.MovingExpenseReceiptTypeSmallPackage, *result.MovingExpenseType, "MovingExpenseType should match")
+		suite.Equal(&description, result.Description, "Description should match")
+		suite.Equal(models.SITLocationTypeOrigin, *result.SITLocation, "SITLocation should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&amount), result.Amount, "Amount should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitStartDate), result.SITStartDate, "SITStartDate should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitEndDate), result.SITEndDate, "SITEndDate should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightStored), result.WeightStored, "WeightStored should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&sitReimburseableAmount), result.SITReimburseableAmount, "SITReimburseableAmount should match")
+		suite.Equal(handlers.FmtStringPtr(&trackingNumber), result.TrackingNumber, "TrackingNumber should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightShipped), result.WeightShipped, "WeightShipped should match")
+		suite.Equal(handlers.FmtBoolPtr(&isProGear), result.IsProGear, "IsProGear should match")
+		suite.Equal(handlers.FmtBoolPtr(&proGearBelongsToSelf), result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
+		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
+	})
+}

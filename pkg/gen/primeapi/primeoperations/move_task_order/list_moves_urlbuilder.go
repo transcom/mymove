@@ -11,11 +11,15 @@ import (
 	golangswaggerpaths "path"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // ListMovesURL generates an URL for the list moves operation
 type ListMovesURL struct {
-	Since *strfmt.DateTime
+	Acknowledged       *bool
+	AcknowledgedAfter  *strfmt.DateTime
+	AcknowledgedBefore *strfmt.DateTime
+	Since              *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage
@@ -50,6 +54,30 @@ func (o *ListMovesURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var acknowledgedQ string
+	if o.Acknowledged != nil {
+		acknowledgedQ = swag.FormatBool(*o.Acknowledged)
+	}
+	if acknowledgedQ != "" {
+		qs.Set("acknowledged", acknowledgedQ)
+	}
+
+	var acknowledgedAfterQ string
+	if o.AcknowledgedAfter != nil {
+		acknowledgedAfterQ = o.AcknowledgedAfter.String()
+	}
+	if acknowledgedAfterQ != "" {
+		qs.Set("acknowledgedAfter", acknowledgedAfterQ)
+	}
+
+	var acknowledgedBeforeQ string
+	if o.AcknowledgedBefore != nil {
+		acknowledgedBeforeQ = o.AcknowledgedBefore.String()
+	}
+	if acknowledgedBeforeQ != "" {
+		qs.Set("acknowledgedBefore", acknowledgedBeforeQ)
+	}
 
 	var sinceQ string
 	if o.Since != nil {
