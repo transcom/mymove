@@ -574,6 +574,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.Entitlement",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.User",
+		"Orders.PayGradeRank",
 		"Orders.OriginDutyLocation.Address.Country",
 		"Orders.OriginDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation.TransportationOffice.Address.Country",
@@ -588,16 +589,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		return moves, err
 	}
 
-	// stub
-	var rankOrder = int64(22)
-	moves[0].Orders.PayGradeRank = &PayGradeRank{
-		ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
-		PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
-		RankOrder:     &rankOrder,
-		Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
-		RankName:      StringPointer("Airman Basic"),
-		RankShortName: StringPointer("AB"),
-	}
+	// stub | complete
 
 	order := moves[0].Orders
 

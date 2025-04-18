@@ -649,17 +649,27 @@ func Order(order *models.Order) *ghcmessages.Order {
 		grade = ghcmessages.Grade(*order.Grade)
 	}
 
-	// stub
+	// stub | completed
 	var payGradeRank ghcmessages.PayGradeRank
 	if order.PayGradeRank != nil {
-		var rankOrder = int64(22)
-		payGradeRank = ghcmessages.PayGradeRank{
-			ID:            strfmt.UUID("f6dbd496-8f71-487b-a432-55b60967f474"),
-			PayGradeID:    strfmt.UUID("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
-			RankOrder:     &rankOrder,
-			Affiliation:   (*ghcmessages.Affiliation)(models.StringPointer(models.AffiliationAIRFORCE.String())),
-			RankName:      (*ghcmessages.RankNames)(models.StringPointer("Airman Basic")),
-			RankShortName: (*ghcmessages.RankShortNames)(models.StringPointer("AB")),
+		payGradeRank = ghcmessages.PayGradeRank{}
+		if order.PayGradeRank.ID != uuid.Nil {
+			payGradeRank.ID = strfmt.UUID(order.PayGradeRank.ID.String())
+		}
+		if order.PayGradeRank.PayGradeID != uuid.Nil {
+			payGradeRank.PayGradeID = strfmt.UUID(order.PayGradeRank.PayGradeID.String())
+		}
+		if order.PayGradeRank.RankOrder != nil {
+			payGradeRank.RankOrder = order.PayGradeRank.RankOrder
+		}
+		if order.PayGradeRank.Affiliation != nil {
+			payGradeRank.Affiliation = (*ghcmessages.Affiliation)(order.PayGradeRank.Affiliation)
+		}
+		if order.PayGradeRank.RankName != nil {
+			payGradeRank.RankName = (*ghcmessages.RankNames)(order.PayGradeRank.RankName)
+		}
+		if order.PayGradeRank.RankShortName != nil {
+			payGradeRank.RankShortName = (*ghcmessages.RankShortNames)(order.PayGradeRank.RankShortName)
 		}
 	}
 

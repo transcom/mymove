@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -107,6 +108,25 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	contractor := fetchOrMakeContractor(db, Assertions{})
 	defaultPackingAndShippingInstructions := models.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + models.InstructionsAfterContractNumber
 
+	var payGradeRank models.PayGradeRank
+	var hasDb = db == nil
+	err = nil
+	if hasDb {
+		err = db.Q().Where("affiliation = ?", sm.Affiliation.String()).Join("pay_grades", "pay_grades.id = pay_grade_ranks.pay_grade_id").Where("pay_grades.grade = ?", grade).Order("rank_order desc").First(payGradeRank)
+	}
+
+	if !hasDb || err != nil {
+		var rankOrder = int64(22)
+		payGradeRank = models.PayGradeRank{
+			ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+			PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+			RankOrder:     &rankOrder,
+			Affiliation:   models.StringPointer(models.AffiliationAIRFORCE.String()),
+			RankName:      models.StringPointer("Airman Basic"),
+			RankShortName: models.StringPointer("AB"),
+		}
+	}
+
 	order := models.Order{
 		ServiceMember:                  sm,
 		ServiceMemberID:                sm.ID,
@@ -136,6 +156,8 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		MethodOfPayment:                defaultMethodOfPayment,
 		NAICS:                          defaultNAICS,
 		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
+		PayGradeRankID:                 &payGradeRank.PayGradeID,
+		PayGradeRank:                   &payGradeRank,
 	}
 
 	// Overwrite values with those from assertions
