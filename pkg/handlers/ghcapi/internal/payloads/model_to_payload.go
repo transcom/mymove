@@ -654,10 +654,10 @@ func Order(order *models.Order) *ghcmessages.Order {
 	if order.PayGradeRank != nil {
 		payGradeRank = ghcmessages.PayGradeRank{}
 		if order.PayGradeRank.ID != uuid.Nil {
-			payGradeRank.ID = strfmt.UUID(order.PayGradeRank.ID.Bytes())
+			payGradeRank.ID = strfmt.UUID(order.PayGradeRank.ID.String())
 		}
 		if order.PayGradeRank.PayGradeID != uuid.Nil {
-			payGradeRank.PayGradeID = strfmt.UUID(order.PayGradeRank.PayGradeID.Bytes())
+			payGradeRank.PayGradeID = strfmt.UUID(order.PayGradeRank.PayGradeID.String())
 		}
 		if order.PayGradeRank.RankOrder != nil {
 			payGradeRank.RankOrder = order.PayGradeRank.RankOrder

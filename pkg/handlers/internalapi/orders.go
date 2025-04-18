@@ -109,10 +109,10 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.PayGradeRank != nil {
 		payGradeRank = internalmessages.PayGradeRank{}
 		if order.PayGradeRank.ID != uuid.Nil {
-			payGradeRank.ID = strfmt.UUID(order.PayGradeRank.ID.Bytes())
+			payGradeRank.ID = strfmt.UUID(order.PayGradeRank.ID.String())
 		}
 		if order.PayGradeRank.PayGradeID != uuid.Nil {
-			payGradeRank.PayGradeID = strfmt.UUID(order.PayGradeRank.PayGradeID.Bytes())
+			payGradeRank.PayGradeID = strfmt.UUID(order.PayGradeRank.PayGradeID.String())
 		}
 		if order.PayGradeRank.RankOrder != nil {
 			payGradeRank.RankOrder = order.PayGradeRank.RankOrder
@@ -542,7 +542,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 
 			// stub | completed
-			var payGradeRank = models.PayGradeRank{}
+			var payGradeRank = &models.PayGradeRank{}
 			err = appCtx.DB().Where("affiliation = ?", serviceMember.Affiliation).Where("rank_short_name = ?", payload.RankShortName).First(payGradeRank)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -669,7 +669,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			order.Grade = payload.Grade
 			order.PayGradeRankID = &payGradeRank.ID
-			order.PayGradeRank = &payGradeRank
+			order.PayGradeRank = payGradeRank
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))

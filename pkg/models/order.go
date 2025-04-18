@@ -105,7 +105,7 @@ type Order struct {
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 	PayGradeRankID                 *uuid.UUID                         `db:"pay_grade_rank_id" json:"payGradeRankId,omitempty"`
-	PayGradeRank                   *PayGradeRank                      `fk_id:"pay_grade_rank_id" json:"payGradeRank,omitempty"`
+	PayGradeRank                   *PayGradeRank                      `belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id" json:"payGradeRank,omitempty"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -204,9 +204,7 @@ func strictUnmarshal(data []byte, v interface{}) error {
 
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
-	var order = Order{
-		PayGradeRank: &PayGradeRank{},
-	}
+	var order = Order{}
 	err := db.Q().EagerPreload("ServiceMember.User",
 		"OriginDutyLocation.Address",
 		"OriginDutyLocation.TransportationOffice",
@@ -219,7 +217,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Entitlement",
 		"OriginDutyLocation",
 		"OriginDutyLocation.ProvidesServicesCounseling",
-		"PayGradeRankId").
+		"PayGradeRank").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -313,22 +311,21 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 
 	// stub | complete
 	var rankIdToFind = order.PayGradeRankID
-	var rankRecord PayGradeRank
-	if uuid.UUID.IsNil(*rankIdToFind) {
-		err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Join("pay_grades", "pay_grades.id = pay_grade_ranks.pay_grade_id").Where("pay_grades.grade = ?", "E_1").Order("pay_grade_ranks.rank_order").First(order.PayGradeRank)
-		order.PayGradeRankID = &order.PayGradeRank.ID
+	var rankRecord = &PayGradeRank{}
+	if rankIdToFind == nil {
+		err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Join("pay_grades", "pay_grades.id = pay_grade_ranks.pay_grade_id").Where("pay_grades.grade = ?", "E_1").Order("pay_grade_ranks.rank_order").First(rankRecord)
 		order.Grade = internalmessages.NewOrderPayGrade(ServiceMemberGradeE1)
 		if err != nil {
 			return Order{}, err
 		}
 	} else {
-		err = db.Find(rankRecord, &order.PayGradeRankID)
+		err = db.Find(rankRecord, *order.PayGradeRankID)
 		if err != nil {
 			return Order{}, err
 		}
 	}
 
-	order.PayGradeRank = &rankRecord
+	order.PayGradeRank = rankRecord
 	order.PayGradeRankID = &rankRecord.ID
 
 	return order, nil
