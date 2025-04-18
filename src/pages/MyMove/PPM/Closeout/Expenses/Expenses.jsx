@@ -12,7 +12,7 @@ import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
+import ExpenseForm from 'components/Shared/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -25,6 +25,7 @@ import {
 import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
+import { APP_NAME } from 'constants/apps';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -41,6 +42,8 @@ const Expenses = () => {
 
   const ppmShipment = mtoShipment?.ppmShipment || {};
   const { ppmType } = ppmShipment;
+
+  const appName = APP_NAME.MYMOVE;
 
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
@@ -210,6 +213,7 @@ const Expenses = () => {
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
+              appName={appName}
             />
           </Grid>
         </Grid>
