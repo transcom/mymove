@@ -12,6 +12,7 @@ import (
 //go:generate mockery --name MoveLocker
 type MoveLocker interface {
 	LockMove(appCtx appcontext.AppContext, move *models.Move, officeUserID uuid.UUID) (*models.Move, error)
+	LockMoves(appCtx appcontext.AppContext, moveIds []uuid.UUID, officeUserID uuid.UUID) error
 }
 
 // MoveUnlocker is the exported interface for unlocking moves
