@@ -19,7 +19,7 @@ const ServiceOrderNumberModal = ({ onClose, onSubmit, serviceOrderNumber }) => {
 
   return (
     <div data-testid="ServiceOrderNumber">
-      <Modal>
+      <Modal onClose={onClose}>
         <ModalClose handleClick={onClose} />
 
         <ModalTitle>
@@ -31,10 +31,10 @@ const ServiceOrderNumberModal = ({ onClose, onSubmit, serviceOrderNumber }) => {
             <TextField label="Service order number" id="facilityServiceOrderNumber" name="serviceOrderNumber" />
 
             <ModalActions>
-              <Button type="submit">Save</Button>
               <Button type="button" secondary onClick={onClose}>
                 Cancel
               </Button>
+              <Button type="submit">Save</Button>
             </ModalActions>
           </Form>
         </Formik>

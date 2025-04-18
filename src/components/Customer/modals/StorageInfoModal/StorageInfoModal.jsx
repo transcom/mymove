@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const StorageInfoModal = ({ closeModal, enableNTS, enableNTSR }) => (
-  <Modal>
+  <Modal onClose={closeModal}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>Long-term storage info</h3>

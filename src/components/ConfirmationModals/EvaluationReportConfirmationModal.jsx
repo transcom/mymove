@@ -44,7 +44,7 @@ export const EvaluationReportConfirmationModal = ({
   bordered,
   destinationDutyLocationPostalCode,
 }) => (
-  <Modal className={classnames(styles.evaluationReportModal, className)}>
+  <Modal className={classnames(styles.evaluationReportModal, className)} onClose={() => modalTopRightClose()}>
     {modalTopRightClose && <ModalClose handleClick={() => modalTopRightClose()} data-testid="modalCloseButtonTop" />}
     {modalTitle && <ModalTitle className={styles.titleSection}>{modalTitle}</ModalTitle>}
     <EvaluationReportPreview

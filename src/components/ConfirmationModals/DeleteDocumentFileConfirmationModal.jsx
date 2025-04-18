@@ -9,7 +9,7 @@ import styles from './DeleteDocumentFileConfirmationModal.module.scss';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const DeleteDocumentFileConfirmationModal = ({ closeModal, submitModal, fileInfo }) => (
-  <Modal>
+  <Modal onClose={closeModal}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>Are you sure you want to delete this file?</h3>
@@ -21,8 +21,12 @@ export const DeleteDocumentFileConfirmationModal = ({ closeModal, submitModal, f
         <span>Uploaded {moment(fileInfo.createdAt).format('DD MMM YYYY h:mm A')}</span>
       </p>
     </div>
-    <ModalActions autofocus="true">
+    <ModalActions>
+      <Button className="usa-button--secondary" type="button" onClick={closeModal} data-testid="cancel-delete">
+        No, keep it
+      </Button>
       <Button
+        autoFocus
         data-testid="confirm-delete"
         data-focus="true"
         className="usa-button--destructive"
@@ -30,9 +34,6 @@ export const DeleteDocumentFileConfirmationModal = ({ closeModal, submitModal, f
         onClick={submitModal}
       >
         Yes, delete
-      </Button>
-      <Button className="usa-button--secondary" type="button" onClick={closeModal} data-testid="cancel-delete">
-        No, keep it
       </Button>
     </ModalActions>
   </Modal>

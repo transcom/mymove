@@ -17,7 +17,7 @@ const maxBillableWeightSchema = Yup.object().shape({
 
 export const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => {
   return (
-    <Modal className={styles.EditMaxBillableWeightModal}>
+    <Modal className={styles.EditMaxBillableWeightModal} onClose={() => onClose()}>
       <ModalClose className={styles.weightModalClose} handleClick={() => onClose()} />
       <ModalTitle>
         <h4>Edit max billable weight</h4>
@@ -52,11 +52,11 @@ export const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, m
                 lazy={false}
               />
               <ModalActions>
-                <Button type="submit" disabled={!isValid}>
-                  Save
-                </Button>
                 <Button type="button" secondary onClick={() => onClose()} data-testid="modalBackButton" outline>
                   Back
+                </Button>
+                <Button type="submit" disabled={!isValid}>
+                  Save
                 </Button>
               </ModalActions>
             </Form>
