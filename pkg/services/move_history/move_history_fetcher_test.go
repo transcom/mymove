@@ -448,18 +448,9 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for service item", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
-
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 				shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 				addressCreator := address.NewAddressCreator()
 				portLocationFetcher := portlocation.NewPortLocationFetcher()
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
 				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 				move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 				serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -633,19 +624,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for service item dimensions", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
-				startDate := time.Now().AddDate(-10, 0, 0)
-				endDate := startDate.AddDate(10, 1, 1)
-
 				testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-				testdatagen.MakeReContractYear(suite.DB(),
-					testdatagen.Assertions{
-						ReContractYear: models.ReContractYear{
-							Name:                 "Test Contract Year",
-							EscalationCompounded: 1.125,
-							StartDate:            startDate,
-							EndDate:              endDate,
-						},
-					})
 
 				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 

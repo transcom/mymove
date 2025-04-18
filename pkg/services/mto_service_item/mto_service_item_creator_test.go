@@ -306,26 +306,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
 		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
-	makeSubtestData := func() {
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(10, 1, 1)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
-	}
-
 	// Happy path: If the service item is created successfully it should be returned
 	suite.Run("200 Success - Destination SIT Service Item Creation", func() {
-		makeSubtestData()
-
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
 		// Set up:     We create an approved move and attempt to create DDFSIT service item on it. Includes Dimensions
@@ -1109,8 +1091,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 
 	suite.Run("timeMilitary=HHMMZ success", func() {
-		makeSubtestData()
-
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
 		// Set up:     Create DDFSIT service item with a correctly formatted time"
@@ -1155,19 +1135,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		reServiceDOPSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
 		reServiceDOSFSC = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
 
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(10, 1, 1)
-
 		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
 
 		return mtoShipment
 	}
@@ -1843,19 +1811,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(10, 1, 1)
 
 		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
 
 		return shipment, creator, reServiceDDFSIT
 
@@ -3279,19 +3236,7 @@ func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
 			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(10, 1, 1)
-
 		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
 
 		return shipment, creator, reServiceDDFSIT
 
