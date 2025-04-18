@@ -85,6 +85,24 @@ describe('TableQueue - react table', () => {
     );
     expect(wrapper.find(TableCSVExportButton).length).toBe(1);
   });
+
+  const bulkAssignmentProps = {
+    title: 'TableQueue With Bulk Assignment',
+    useQueries: jest.fn(() => ({ queueResult: {} })),
+    handleClick: jest.fn(),
+    columns: [],
+    isSupervisor: true,
+    isBulkAssignmentFFEnabled: true,
+  };
+
+  it('renders the bulk assignment button', () => {
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...bulkAssignmentProps} />
+      </MockProviders>,
+    );
+    expect(wrapper.find('[data-testid="bulk-assignment-button"]')).toBeTruthy();
+  });
 });
 
 describe('SessionStorage TableQueue - react table', () => {
