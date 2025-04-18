@@ -425,7 +425,10 @@ describe('EditContactInfo page', () => {
         </MockProviders>,
       );
     });
-    expect(screen.getByRole('button', { name: 'Return home' })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Return home' })).toBeInTheDocument();
+    });
   });
 
   it('routes to the profile page when the cancel button is clicked', async () => {
