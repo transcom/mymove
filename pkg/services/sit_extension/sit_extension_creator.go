@@ -91,6 +91,12 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 				return nil, err
 			}
 		}
+
+		shipment.Status = models.MTOShipmentStatusApprovalsRequested
+		err = appCtx.DB().Update(&shipment)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return sitExtension, nil
