@@ -178,7 +178,7 @@ const ExpenseForm = ({
                     <FormGroup>
                       {values.expenseType !== expenseTypes.SMALL_PACKAGE && (
                         <>
-                          <h3>DescriptionJEH</h3>
+                          <h3>Description</h3>
                           <TextField label="What did you buy or rent?" id="description" name="description" />
                           <Hint>Add a brief description of the expense.</Hint>
                         </>

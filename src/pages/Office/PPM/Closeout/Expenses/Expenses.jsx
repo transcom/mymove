@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import classnames from 'classnames';
 
 import styles from './Expenses.module.scss';
 
-import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
+import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
@@ -37,6 +36,7 @@ const Expenses = () => {
   const appName = APP_NAME.OFFICE;
   const ppmShipment = mtoShipment?.ppmShipment;
   const expenses = documents?.MovingExpenses ?? [];
+  const { ppmType } = ppmShipment;
 
   const currentExpense = expenses?.find((item) => item.id === expenseId) ?? null;
   const currentIndex = Array.isArray(expenses) ? expenses.findIndex((ele) => ele.id === expenseId) : -1;
@@ -147,6 +147,13 @@ const Expenses = () => {
       SITStartDate: formatDateForSwagger(values.sitStartDate),
       WeightStored: parseInt(values.sitWeight, 10),
       SITLocation: values.sitLocation,
+      weightShipped: parseInt(values.weightShipped, 10),
+      trackingNumber: values.trackingNumber,
+      isProGear: values.isProGear === 'true',
+      ...(values.isProGear === 'true' && {
+        proGearBelongsToSelf: values.proGearBelongsToSelf === 'true',
+        proGearDescription: values.proGearDescription,
+      }),
     };
 
     mutatePatchMovingExpense({
@@ -178,38 +185,41 @@ const Expenses = () => {
   }
 
   return (
-    <div className={classnames(styles.Expenses, ppmStyles.ppmPageStyle)}>
-      <NotificationScrollToTop dependency={errorMessage} />
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <ShipmentTag shipmentType={shipmentTypes.PPM} />
-            <h1>Expenses</h1>
-            {renderError()}
-            <div className={styles.introSection}>
-              <p>
-                Document your qualified expenses by uploading receipts. They should include a description of the item,
-                the price you paid, the date of purchase, and the business name. All documents must be legible and
-                unaltered.
-              </p>
-              <p>
-                Your finance office will make the final decision about which expenses are deductible or reimbursable.
-              </p>
-              <p>Upload one receipt at a time. Please do not put multiple receipts in one image.</p>
-            </div>
-            <ExpenseForm
-              expense={currentExpense}
-              receiptNumber={currentIndex + 1}
-              onBack={handleBack}
-              onSubmit={handleSubmit}
-              onCreateUpload={handleCreateUpload}
-              onUploadComplete={handleUploadComplete}
-              onUploadDelete={handleUploadDelete}
-              appName={appName}
-            />
+    <div className={ppmPageStyles.tabContent}>
+      <div className={ppmPageStyles.container}>
+        <NotificationScrollToTop dependency={errorMessage} />
+        <GridContainer className={ppmPageStyles.gridContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentTag shipmentType={shipmentTypes.PPM} />
+              <h1>Expenses</h1>
+              {renderError()}
+              <div className={styles.introSection}>
+                <p>
+                  Document your qualified expenses by uploading receipts. They should include a description of the item,
+                  the price you paid, the date of purchase, and the business name. All documents must be legible and
+                  unaltered.
+                </p>
+                <p>
+                  Your finance office will make the final decision about which expenses are deductible or reimbursable.
+                </p>
+                <p>Upload one receipt at a time. Please do not put multiple receipts in one image.</p>
+              </div>
+              <ExpenseForm
+                ppmType={ppmType}
+                expense={currentExpense}
+                receiptNumber={currentIndex + 1}
+                onBack={handleBack}
+                onSubmit={handleSubmit}
+                onCreateUpload={handleCreateUpload}
+                onUploadComplete={handleUploadComplete}
+                onUploadDelete={handleUploadDelete}
+                appName={appName}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </div>
     </div>
   );
 };
