@@ -144,9 +144,7 @@ const approvedMoveTaskOrder = {
           streetAddress1: null,
         },
         ppmShipment: {
-          actualDestinationPostalCode: '30814',
           actualMoveDate: '2022-07-13',
-          actualPickupPostalCode: '90212',
           advanceAmountReceived: 598600,
           advanceAmountRequested: 598700,
           approvedAt: '2022-07-03T14:20:21.620Z',
@@ -332,9 +330,7 @@ const approvedPPMMoveTaskOrder = {
           streetAddress1: null,
         },
         ppmShipment: {
-          actualDestinationPostalCode: '30814',
           actualMoveDate: '2022-07-13',
-          actualPickupPostalCode: '90212',
           advanceAmountReceived: 598600,
           advanceAmountRequested: 598700,
           approvedAt: '2022-07-03T14:20:21.620Z',

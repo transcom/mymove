@@ -25,8 +25,6 @@ const defaultProps = {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     expectedDepartureDate: '2022-12-02',
     actualMoveDate: '2022-12-06',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
     miles: 300,
     estimatedWeight: 3000,
     actualWeight: 3500,
@@ -156,9 +154,7 @@ const fullShipmentProps = {
     id: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
     moveTaskOrderID: '0536abcf-15c3-4935-bcd8-353ecb03a385',
     ppmShipment: {
-      actualDestinationPostalCode: '30813',
       actualMoveDate: '2020-03-16',
-      actualPickupPostalCode: '42444',
       advanceAmountReceived: 340000,
       advanceAmountRequested: 598700,
       advanceStatus: 'APPROVED',
@@ -290,9 +286,7 @@ const fullShipmentProps = {
       id: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
       moveTaskOrderID: '0536abcf-15c3-4935-bcd8-353ecb03a385',
       ppmShipment: {
-        actualDestinationPostalCode: '30813',
         actualMoveDate: '2020-03-16',
-        actualPickupPostalCode: '42444',
         advanceAmountReceived: 340000,
         advanceAmountRequested: 598700,
         advanceStatus: 'APPROVED',
