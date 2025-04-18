@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	dlhTestServiceArea = "042"
+	dlhTestServiceArea = "056"
 	dlhTestWeight      = unit.Pound(4000)
 )
 
@@ -630,42 +630,33 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	testEstWeight := dlhTestWeight
 	testActualWeight := testEstWeight
 
-	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			Escalation:           1.0197,
-			EscalationCompounded: 1.04071,
-		},
-		ReDomesticServiceArea: models.ReDomesticServiceArea{
-			ServiceArea: dlhTestServiceArea,
-		},
-		ReRateArea: models.ReRateArea{
-			Name: "Alabama",
-		},
-		ReZip3: models.ReZip3{
-			Zip3:          pickupAddress.PostalCode[0:3],
-			BasePointCity: pickupAddress.City,
-			State:         pickupAddress.State,
-		},
+	contractYear := models.ReContractYear{
+		StartDate: testdatagen.ContractStartDate,
+		EndDate:   testdatagen.ContractEndDate,
+	}
+
+	contractYear = testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{ReContractYear: contractYear})
+
+	serviceArea := models.ReDomesticServiceArea{
+		ServiceArea: dlhTestServiceArea,
+	}
+
+	serviceArea = testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+		ReContractYear:        contractYear,
+		ReDomesticServiceArea: serviceArea,
 	})
 
-	baseLinehaulPrice := testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
 			Contract:              contractYear.Contract,
 			DomesticServiceAreaID: serviceArea.ID,
 			DomesticServiceArea:   serviceArea,
 			IsPeakPeriod:          false,
-		},
-	})
-
-	_ = testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
-		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-			ContractID:            contractYear.Contract.ID,
-			Contract:              contractYear.Contract,
-			DomesticServiceAreaID: serviceArea.ID,
-			DomesticServiceArea:   serviceArea,
-			IsPeakPeriod:          true,
-			PriceMillicents:       baseLinehaulPrice.PriceMillicents - 2500, // minus $0.025
+			MilesLower:            251,
+			MilesUpper:            500,
+			WeightLower:           500,
+			WeightUpper:           4999,
 		},
 	})
 
@@ -905,6 +896,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
 		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
@@ -963,6 +955,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
+			false,
 		).Return(defaultZipDistance, nil)
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
