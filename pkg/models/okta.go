@@ -76,6 +76,15 @@ type OktaError struct {
 	} `json:"errorCauses"`
 }
 
+type Status string
+
+const (
+	OktaStatusActive        Status = "ACTIVE"
+	OktaStatusDeprovisioned Status = "DEPROVISIONED"
+	OktaStatusProvisioned   Status = "PROVISIONED"
+	OktaStatusSuspended     Status = "SUSPENDED"
+)
+
 // ensures a valid email address
 func isValidEmail(email string) bool {
 	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
@@ -299,4 +308,68 @@ func UpdateOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaI
 		return nil, err
 	}
 	return &createdUser, nil
+}
+
+func DeleteOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaID string, apiKey string) error {
+	if oktaID == "" {
+		appCtx.Logger().Error(fmt.Sprintf("DeleteOktaUser was called with an invalid oktaID: %s", oktaID))
+	}
+
+	baseURL := provider.GetUserURL(oktaID)
+
+	// verify the okta user exists before we attempt to delete the account
+	existingOktaUser, err := GetOktaUser(appCtx, provider, oktaID, apiKey)
+	if err != nil {
+		return fmt.Errorf("error getting Okta user prior to deletion: %w", err)
+	}
+	if existingOktaUser == nil {
+		return fmt.Errorf("okta user cannot be nil when preparing to delete the account")
+	}
+
+	/* Okta is weird and will only let you delete a user that is in DEPROVISIONED status.
+	   Calling delete on a user that is in any status other than DEPROVISIONED will result in the account being deactivated (DEPROVISIONED).
+	   Therefore in order to actually delete an ACTIVE user (or any status other than DEPROVISIONED), we will need to call delete twice.
+	*/
+	var deleteAttempts int
+	if Status(existingOktaUser.Status) == OktaStatusDeprovisioned {
+		deleteAttempts = 1
+	} else {
+		deleteAttempts = 2
+	}
+
+	client := &http.Client{}
+
+	for i := 1; i <= deleteAttempts; i++ {
+
+		// making HTTP request to Okta Users API to delete a user
+		// https://developer.okta.com/docs/api/openapi/okta-management/management/tag/User/#tag/User/operation/deleteUser
+		req, err := http.NewRequest("DELETE", baseURL, nil)
+
+		if err != nil {
+			appCtx.Logger().Error(fmt.Sprintf("could not create DELETE request on delete attempt #%d", i), zap.Error(err))
+			return err
+		}
+		req.Header.Add("Authorization", "SSWS "+apiKey)
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Content-Type", "application/json")
+
+		resp, err := client.Do(req)
+		if err != nil {
+			appCtx.Logger().Error(fmt.Sprintf("could not execute the request when attempting to delete existing okta user on delete attempt #%d", i), zap.Error(err))
+			return err
+		}
+		defer resp.Body.Close()
+
+		responseBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			appCtx.Logger().Error(fmt.Sprintf("could not read the response when attempting deleting existing okta user on delete attempt #%d", i), zap.Error(err))
+			return err
+		}
+
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+			return fmt.Errorf("API error (status %d): %s  on delete attempt #%d", resp.StatusCode, string(responseBody), i)
+		}
+	}
+	appCtx.Logger().Info(fmt.Sprintf("Successfully deleted Okta Account for oktaID %s", oktaID))
+	return nil
 }
