@@ -25,6 +25,12 @@ DECLARE
     cents_above_baseline NUMERIC;
     price_difference NUMERIC;
     days_in_sit INTEGER;
+    declared_contract_id UUID;
+    declared_base_price NUMERIC;
+    declared_escalation_factor NUMERIC;
+    declared_oconus_factor NUMERIC;
+    declared_market_code TEXT;
+    declared_is_oconus BOOLEAN;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
     INTO shipment
@@ -190,6 +196,9 @@ BEGIN
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
 			        WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
+                END IF;
             WHEN service_code = ''INPK'' THEN
                 -- INPK requires the base price for an origin rate area and a requested pickup date
                 -- get the base price for the origin rate area from IHPK (iHHG into iNTS means use IHPK base price)
