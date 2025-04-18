@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestPaymentServiceItemParamValidation() {
 			Value:                 "Value",
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validPaymentServiceItemParam, expErrors)
+		suite.verifyValidationErrors(&validPaymentServiceItemParam, expErrors, nil)
 	})
 
 	suite.Run("test empty PaymentServiceItemParam", func() {
@@ -26,6 +26,6 @@ func (suite *ModelSuite) TestPaymentServiceItemParamValidation() {
 			"value":                     {"Value can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidPaymentServiceItemParam, expErrors)
+		suite.verifyValidationErrors(&invalidPaymentServiceItemParam, expErrors, nil)
 	})
 }

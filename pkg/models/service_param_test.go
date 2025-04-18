@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestServiceParamValidation() {
 			IsOptional:            false,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validServiceParam, expErrors)
+		suite.verifyValidationErrors(&validServiceParam, expErrors, nil)
 	})
 
 	suite.Run("test empty ServiceParam", func() {
@@ -25,6 +25,6 @@ func (suite *ModelSuite) TestServiceParamValidation() {
 			"service_item_param_key_id": {"ServiceItemParamKeyID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidServiceParam, expErrors)
+		suite.verifyValidationErrors(&invalidServiceParam, expErrors, nil)
 	})
 }

@@ -9,7 +9,7 @@ func (suite *ModelSuite) Test_OfficePhoneLineInstantiation() {
 		"type":                     {"Type is not in the list [voice, fax]."},
 		"transportation_office_id": {"TransportationOfficeID can not be blank."},
 	}
-	suite.verifyValidationErrors(phoneLine, expErrors)
+	suite.verifyValidationErrors(phoneLine, expErrors, nil)
 }
 
 func (suite *ModelSuite) Test_BasicOfficePhoneLine() {
