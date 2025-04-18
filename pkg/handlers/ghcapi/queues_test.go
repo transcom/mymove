@@ -1693,6 +1693,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1754,6 +1755,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1762,6 +1764,15 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+
+		moveFetcher := movefetcher.NewMoveFetcher()
+		ids := []ghcmessages.BulkAssignmentMoveData{ghcmessages.BulkAssignmentMoveData(payload.BulkAssignmentMoveIDs[0])}
+		moves, err := moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.NotNil(moves[0].LockedByOfficeUserID)
+		suite.NotNil(moves[0].LockExpiresAt)
 	})
 	suite.Run("Destination Request: returns properly formatted bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
@@ -1870,6 +1881,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1878,6 +1890,16 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+
+		moveFetcher := movefetcher.NewMoveFetcher()
+		ids := make([]ghcmessages.BulkAssignmentMoveData, 1)
+		ids[0] = ghcmessages.BulkAssignmentMoveData(payload.BulkAssignmentMoveIDs[0])
+		moves, err := moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.NotNil(moves[0].LockedByOfficeUserID)
+		suite.NotNil(moves[0].LockExpiresAt)
 	})
 
 	suite.Run("TOO: returns properly formatted bulk assignment data", func() {
@@ -1936,6 +1958,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1944,6 +1967,16 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+
+		moveFetcher := movefetcher.NewMoveFetcher()
+		ids := make([]ghcmessages.BulkAssignmentMoveData, 1)
+		ids[0] = ghcmessages.BulkAssignmentMoveData(payload.BulkAssignmentMoveIDs[0])
+		moves, err := moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.NotNil(moves[0].LockedByOfficeUserID)
+		suite.NotNil(moves[0].LockExpiresAt)
 	})
 	suite.Run("returns properly formatted closeout bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
@@ -2009,6 +2042,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2017,6 +2051,16 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+
+		moveFetcher := movefetcher.NewMoveFetcher()
+		ids := make([]ghcmessages.BulkAssignmentMoveData, 1)
+		ids[0] = ghcmessages.BulkAssignmentMoveData(payload.BulkAssignmentMoveIDs[0])
+		moves, err := moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.NotNil(moves[0].LockedByOfficeUserID)
+		suite.NotNil(moves[0].LockExpiresAt)
 	})
 
 	suite.Run("TIO - returns an unauthorized error when an attempt is made by a non supervisor", func() {
@@ -2048,6 +2092,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2123,6 +2168,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2131,6 +2177,16 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 		suite.Len(payload.AvailableOfficeUsers, 1)
 		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+
+		moveFetcher := movefetcher.NewMoveFetcher()
+		ids := make([]ghcmessages.BulkAssignmentMoveData, 1)
+		ids[0] = ghcmessages.BulkAssignmentMoveData(payload.BulkAssignmentMoveIDs[0])
+		moves, err := moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.NotNil(moves[0].LockedByOfficeUserID)
+		suite.NotNil(moves[0].LockExpiresAt)
 	})
 }
 
@@ -2429,6 +2485,7 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcher(),
 			movefetcher.NewMoveAssignerBulkAssignment(),
+			movelocker.NewMoveUnlocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -2500,10 +2557,138 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 			officeusercreator.NewOfficeUserFetcherPop(),
 			movefetcher.NewMoveFetcher(),
 			movefetcher.NewMoveAssignerBulkAssignment(),
+			movelocker.NewMoveUnlocker(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&queues.SaveBulkAssignmentDataNoContent{}, response)
+
+		// Ensure moves are unlocked after bulk assignment save
+		moveFetcher := movefetcher.NewMoveFetcher()
+		ids := make([]ghcmessages.BulkAssignmentMoveData, 1)
+		ids[0] = ghcmessages.BulkAssignmentMoveData(move.ID.String())
+		moves, err := moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Nil(moves[0].LockedByOfficeUserID)
+		suite.Nil(moves[0].LockExpiresAt)
+	})
+}
+
+func (suite *HandlerSuite) TestLockAndUnlockBulkAssignmentMoves() {
+	suite.Run("successfully assigns bulk assignments", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		// Get bulk assignment data and lock move
+		getRequest := httptest.NewRequest("GET", "/queues/bulk-assignment", nil)
+		getRequest = suite.AuthenticateOfficeRequest(getRequest, officeUser)
+		getParams := queues.GetBulkAssignmentDataParams{
+			HTTPRequest: getRequest,
+			QueueType:   models.StringPointer("COUNSELING"),
+		}
+		handlerConfig := suite.HandlerConfig()
+		getHandler := GetBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcherBulkAssignment(),
+			movelocker.NewMoveLocker(),
+		}
+		getResponse := getHandler.Handle(getParams)
+		suite.IsNotErrResponse(getResponse)
+		suite.IsType(&queues.GetBulkAssignmentDataOK{}, getResponse)
+		payload := getResponse.(*queues.GetBulkAssignmentDataOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+		suite.Len(payload.AvailableOfficeUsers, 1)
+		suite.Len(payload.BulkAssignmentMoveIDs, 1)
+
+		moveFetcher := movefetcher.NewMoveFetcher()
+		ids := make([]ghcmessages.BulkAssignmentMoveData, 1)
+		ids[0] = ghcmessages.BulkAssignmentMoveData(payload.BulkAssignmentMoveIDs[0])
+		moves, err := moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.NotNil(moves[0].LockedByOfficeUserID)
+		suite.NotNil(moves[0].LockExpiresAt)
+
+		// Save bulk assignment data and unlock move
+		userData := []*ghcmessages.BulkAssignmentForUser{
+			{ID: strfmt.UUID(officeUser.ID.String()), MoveAssignments: 1},
+		}
+		moveData := []ghcmessages.BulkAssignmentMoveData{ghcmessages.BulkAssignmentMoveData(move.ID.String())}
+
+		saveRequest := httptest.NewRequest("POST", "/queues/bulk-assignment/assign", nil)
+		saveRequest = suite.AuthenticateOfficeRequest(saveRequest, officeUser)
+		saveParams := queues.SaveBulkAssignmentDataParams{
+			HTTPRequest: saveRequest,
+			BulkAssignmentSavePayload: &ghcmessages.BulkAssignmentSavePayload{
+				QueueType: "COUNSELING",
+				MoveData:  moveData,
+				UserData:  userData,
+			},
+		}
+		saveHandler := SaveBulkAssignmentDataHandler{
+			handlerConfig,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			movefetcher.NewMoveFetcher(),
+			movefetcher.NewMoveAssignerBulkAssignment(),
+			movelocker.NewMoveUnlocker(),
+		}
+		saveResponse := saveHandler.Handle(saveParams)
+		suite.IsNotErrResponse(saveResponse)
+		suite.IsType(&queues.SaveBulkAssignmentDataNoContent{}, saveResponse)
+
+		// Ensure moves are unlocked after bulk assignment save
+		ids = make([]ghcmessages.BulkAssignmentMoveData, 1)
+		ids[0] = ghcmessages.BulkAssignmentMoveData(move.ID.String())
+		moves, err = moveFetcher.FetchMovesByIdArray(suite.AppContextForTest(), ids)
+
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Nil(moves[0].LockedByOfficeUserID)
+		suite.Nil(moves[0].LockExpiresAt)
 	})
 }
 
