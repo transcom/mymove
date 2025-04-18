@@ -370,9 +370,9 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                             <Button
                               onClick={handleEqualAssignClick}
                               type="button"
-                              outline
                               data-testid="modalEqualAssignButton"
-                              disabled={!Object.values(selectedUsers).some(Boolean) || isDisabled}
+                              hidden={isBulkReAssignmentMode}
+                              disabled={!Object.values(selectedUsers).some(Boolean)}
                             >
                               Equal Assign
                             </Button>
