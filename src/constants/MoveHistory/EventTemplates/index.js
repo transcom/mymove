@@ -129,3 +129,4 @@ export { default as updatePaymentServiceItemStatus } from './UpdatePaymentServic
 export { default as approveShipmentsUpdateAllowances } from './ApproveShipments/approveShipmentsUpdateAllowances';
 export { default as approveShipmentsApproveMove } from './ApproveShipments/approveShipmentsApproveMove';
 export { default as approveShipmentsServiceItem } from './ApproveShipments/approveShipmentsServiceItem';
+export { default as createTermination } from './CreateTermination/createTermination';
