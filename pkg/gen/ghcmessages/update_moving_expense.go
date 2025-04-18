@@ -25,8 +25,17 @@ type UpdateMovingExpense struct {
 	// A brief description of the expense.
 	Description *string `json:"description"`
 
+	// Indicates if the customer is claiming an expense as pro-gear or not
+	IsProGear *bool `json:"isProGear,omitempty"`
+
 	// moving expense type
 	MovingExpenseType *OmittableMovingExpenseType `json:"movingExpenseType"`
+
+	// Indicates if the pro-gear belongs to the customer or their spouse
+	ProGearBelongsToSelf *bool `json:"proGearBelongsToSelf,omitempty"`
+
+	// A brief description of the pro-gear
+	ProGearDescription *string `json:"proGearDescription,omitempty"`
 
 	// The reason the services counselor has excluded or rejected the item.
 	Reason string `json:"reason,omitempty"`
@@ -50,6 +59,12 @@ type UpdateMovingExpense struct {
 
 	// status
 	Status PPMDocumentStatus `json:"status,omitempty"`
+
+	// Tracking number for a small package expense
+	TrackingNumber *string `json:"trackingNumber"`
+
+	// The total weight shipped for a small package
+	WeightShipped *int64 `json:"weightShipped"`
 
 	// The total weight stored in PPM SIT
 	WeightStored int64 `json:"weightStored,omitempty"`
