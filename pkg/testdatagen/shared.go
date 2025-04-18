@@ -322,9 +322,13 @@ func CurrentDateWithoutTime() *time.Time {
 // none exists. Several of the document functions need a service member, but they don't always share assertions, look
 // at the same assertion, or create the service members in the same ways. We'll check now to see if we already have one
 // created, and if not, create one that we can place in the assertions for all the rest.
-func EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db *pop.Connection, assertions Assertions) Assertions {
+func EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db *pop.Connection, assertions Assertions) (Assertions, error) {
 	if !assertions.Stub && assertions.ServiceMember.CreatedAt.IsZero() || assertions.ServiceMember.ID.IsNil() {
-		serviceMember := makeExtendedServiceMember(db, assertions)
+		var err error
+		serviceMember, err := makeExtendedServiceMember(db, assertions)
+		if err != nil {
+			return Assertions{}, err
+		}
 
 		assertions.ServiceMember = serviceMember
 		assertions.Order.ServiceMemberID = serviceMember.ID
@@ -338,11 +342,11 @@ func EnsureServiceMemberIsSetUpInAssertionsForDocumentCreation(db *pop.Connectio
 		assertions.Document.ServiceMember = assertions.ServiceMember
 	}
 
-	return assertions
+	return assertions, nil
 }
 
 // GetOrCreateDocument checks if a document exists. If it does, it returns it, otherwise, it creates it
-func GetOrCreateDocument(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
+func GetOrCreateDocument(db *pop.Connection, document models.Document, assertions Assertions) (models.Document, error) {
 	if assertions.Stub && document.CreatedAt.IsZero() || document.ID.IsNil() {
 		// Ensure our doc is associated with the expected ServiceMember
 		document.ServiceMemberID = assertions.ServiceMember.ID
@@ -353,11 +357,11 @@ func GetOrCreateDocument(db *pop.Connection, document models.Document, assertion
 		return makeDocument(db, assertions)
 	}
 
-	return document
+	return document, nil
 }
 
 // getOrCreateUpload checks if an upload exists. If it does, it returns it, otherwise, it creates it.
-func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions Assertions) models.UserUpload {
+func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions Assertions) (models.UserUpload, error) {
 	if assertions.Stub && upload.CreatedAt.IsZero() || upload.ID.IsNil() {
 		// Set generic UserUpload to have the specific assertions that were passed in
 		assertions.UserUpload = upload
@@ -365,7 +369,7 @@ func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions 
 		return makeUserUpload(db, assertions)
 	}
 
-	return upload
+	return upload, nil
 }
 
 // GetOrCreateDocumentWithUploads checks if a document exists. If it doesn't, it creates it. Then checks if the document
@@ -376,7 +380,7 @@ func getOrCreateUpload(db *pop.Connection, upload models.UserUpload, assertions 
 // Usage example:
 //
 //	emptyDocument := GetOrCreateDocumentWithUploads(db, assertions.WeightTicket.EmptyDocument, assertions)
-func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document, assertions Assertions) models.Document {
+func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document, assertions Assertions) (models.Document, error) {
 	// hang on to UserUploads, if any, for later
 	userUploads := document.UserUploads
 
@@ -384,7 +388,11 @@ func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document
 	document.ServiceMemberID = assertions.ServiceMember.ID
 	document.ServiceMember = assertions.ServiceMember
 
-	doc := GetOrCreateDocument(db, document, assertions)
+	var err error
+	doc, err := GetOrCreateDocument(db, document, assertions)
+	if err != nil {
+		return models.Document{}, err
+	}
 
 	// Clear out doc.UserUploads because we'll be looping over the assertions that were passed in and potentially
 	// creating data from those. It's easier to start with a clean slate than to track which ones were already created
@@ -397,7 +405,11 @@ func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document
 		userUpload.DocumentID = &doc.ID
 		userUpload.Document = doc
 
-		upload := getOrCreateUpload(db, userUpload, assertions)
+		var err error
+		upload, err := getOrCreateUpload(db, userUpload, assertions)
+		if err != nil {
+			return models.Document{}, err
+		}
 
 		doc.UserUploads = append(doc.UserUploads, upload)
 	}
@@ -408,10 +420,14 @@ func GetOrCreateDocumentWithUploads(db *pop.Connection, document models.Document
 		assertions.UserUpload.DocumentID = &doc.ID
 		assertions.UserUpload.Document = doc
 
-		upload := makeUserUpload(db, assertions)
+		var err error
+		upload, err := makeUserUpload(db, assertions)
+		if err != nil {
+			return models.Document{}, err
+		}
 
 		doc.UserUploads = append(doc.UserUploads, upload)
 	}
 
-	return doc
+	return doc, nil
 }
