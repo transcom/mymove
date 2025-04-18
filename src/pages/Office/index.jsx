@@ -545,7 +545,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                         </PrivateRoute>
                       }
                     />
-
                     {/* COR */}
                     <Route
                       key="corMoveSearchPath"

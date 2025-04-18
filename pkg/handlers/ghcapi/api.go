@@ -600,6 +600,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		officeuser.NewOfficeUserFetcherPop(),
 		move.NewMoveFetcherBulkAssignment(),
+		moveLocker,
 	}
 
 	ghcAPI.QueuesSaveBulkAssignmentDataHandler = SaveBulkAssignmentDataHandler{
@@ -607,6 +608,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		officeuser.NewOfficeUserFetcherPop(),
 		move.NewMoveFetcher(),
 		move.NewMoveAssignerBulkAssignment(),
+		movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
