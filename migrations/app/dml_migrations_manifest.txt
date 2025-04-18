@@ -22,3 +22,4 @@
 20250325190721_B-22914_upd_pobox_zips.up.sql
 20250328155348_B-22466_update_data_re_intl_other_prices_and_service_params.up.sql
 20250402213810_B-22761_add_cron_schedule.up.sql
+20250418132629_B-22761_add_flagSentToGexStaleInterval_to_application_parameters.up.sql
