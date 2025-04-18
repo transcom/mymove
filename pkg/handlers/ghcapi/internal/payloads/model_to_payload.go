@@ -1550,6 +1550,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
 		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
+		TerminationComments:         handlers.FmtStringPtr(mtoShipment.TerminationComments),
+		TerminatedAt:                handlers.FmtDateTimePtr(mtoShipment.TerminatedAt),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2197,7 +2199,8 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
 		status == models.MTOShipmentStatusDiversionRequested ||
-		status == models.MTOShipmentStatusCancellationRequested
+		status == models.MTOShipmentStatusCancellationRequested ||
+		status == models.MTOShipmentStatusTerminatedForCause
 }
 
 func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.AvailableOfficeUsers {
