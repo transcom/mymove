@@ -300,8 +300,8 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	isInternationalShipment := ppmShipment.Shipment.MarketCode == models.MarketCodeInternational
 	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment)
 
-	actualPickupPostal := *ppmShipment.ActualPickupPostalCode
-	actualDestPostal := *ppmShipment.ActualDestinationPostalCode
+	actualPickupPostal := ppmShipment.PickupAddress.PostalCode
+	actualDestPostal := ppmShipment.DestinationAddress.PostalCode
 	// Change DLH to DSH if move within same Zip3 (only for domestic shipments - intl uses ISLH)
 	if !isInternationalShipment && actualPickupPostal[0:3] == actualDestPostal[0:3] {
 		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}

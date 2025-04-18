@@ -476,13 +476,11 @@ export default function HeaderSection({
       case 'pickupAddress':
         body = {
           pickupAddress: values.pickupAddress,
-          actualPickupPostalCode: values.pickupAddress?.postalCode,
         };
         break;
       case 'destinationAddress':
         body = {
           destinationAddress: values.destinationAddress,
-          actualDestinationPostalCode: values.destinationAddress?.postalCode,
         };
         break;
       case 'isActualExpenseReimbursement':
