@@ -72,16 +72,6 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		mergedAddress.CountryId = &country.ID
 	}
 
-	if strings.TrimSpace(mergedAddress.City) != "" && strings.TrimSpace(mergedAddress.PostalCode) != "" {
-		usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), mergedAddress.PostalCode, strings.ToUpper(mergedAddress.City))
-		if err != nil {
-			return nil, err
-		}
-
-		mergedAddress.UsPostRegionCity = usprc
-		mergedAddress.UsPostRegionCityID = &usprc.ID
-	}
-
 	// Evaluate address and populate addresses isOconus value
 	isOconus, err := models.IsAddressOconus(appCtx.DB(), mergedAddress)
 	if err != nil {
