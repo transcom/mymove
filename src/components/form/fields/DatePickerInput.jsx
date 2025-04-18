@@ -24,10 +24,10 @@ export const DatePickerInput = (props) => {
     hint,
     disableErrorLabel,
     onChange,
+    forceError,
   } = props;
   const [field, meta, helpers] = useField(props);
-  const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
-
+  const hasError = disableErrorLabel ? false : (meta.touched && !!meta.error) || forceError;
   const defaultOnChange = (value, _, dayPickerInput) => {
     if (value === undefined && dayPickerInput.getInput().value === '') {
       // The user cleared the date input, so we shouldn't bother attempting to format it.
@@ -83,6 +83,7 @@ DatePickerInput.propTypes = {
   required: PropTypes.bool,
   disableErrorLabel: PropTypes.bool,
   onChange: PropTypes.func,
+  forceError: PropTypes.bool,
 };
 
 DatePickerInput.defaultProps = {
@@ -94,6 +95,7 @@ DatePickerInput.defaultProps = {
   hint: undefined,
   disableErrorLabel: false,
   onChange: undefined,
+  forceError: false,
 };
 
 export default DatePickerInput;

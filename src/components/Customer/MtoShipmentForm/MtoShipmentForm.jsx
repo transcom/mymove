@@ -28,7 +28,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput } from 'components/form/fields';
-import { ErrorMessage, Form } from 'components/form';
+import { Form } from 'components/form';
 import Hint from 'components/Hint/index';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes } from 'constants/routes';
@@ -241,7 +241,7 @@ class MtoShipmentForm extends Component {
           const [isPreferredPickupDateAlertVisible, setIsPreferredPickupDateAlertVisible] = useState(false);
           const [isPreferredDeliveryDateAlertVisible, setIsPreferredDeliveryDateAlertVisible] = useState(false);
           const [preferredPickupDateAlertMessage, setPreferredPickupDateAlertMessage] = useState('');
-          const [preferredPickupDateErrorMessage, setPreferredPickupDateErrorMessage] = useState('');
+          const [isPreferredPickupDateInvalid, setIsPreferredPickupDateInvalid] = useState(false);
           const [preferredDeliveryDateAlertMessage, setPreferredDeliveryDateAlertMessage] = useState('');
           const DEFAULT_COUNTRY_CODE = 'US';
 
@@ -252,7 +252,6 @@ class MtoShipmentForm extends Component {
           };
 
           const handlePickupDateChange = (e) => {
-            setPreferredPickupDateErrorMessage('');
             setValues({
               ...values,
               pickup: {
@@ -269,13 +268,6 @@ class MtoShipmentForm extends Component {
               setIsPreferredPickupDateAlertVisible,
               onDateSelectionErrorHandler,
             );
-            // preferredPickupDate must be in the future for non-PPM shipments
-            const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
-            const today = moment().startOf('day');
-
-            if (!pickupDate.isAfter(today)) {
-              setPreferredPickupDateErrorMessage('Preferred pickup date must be in the future.');
-            }
           };
 
           useEffect(() => {
@@ -316,9 +308,18 @@ class MtoShipmentForm extends Component {
 
           const validatePickupDate = (e) => {
             let error = validateDate(e);
-            if (!error && preferredPickupDateErrorMessage) {
-              error = 'Required';
+
+            // preferredPickupDate must be in the future for non-PPM shipments
+            const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+            const today = moment().startOf('day');
+
+            if (!error && !pickupDate.isAfter(today)) {
+              setIsPreferredPickupDateInvalid(true);
+              error = 'Preferred pickup date must be in the future.';
+            } else {
+              setIsPreferredPickupDateInvalid(false);
             }
+
             return error;
           };
 
@@ -357,7 +358,7 @@ class MtoShipmentForm extends Component {
                               pickup/load date should be your latest preferred pickup/load date, or the date you need to
                               be out of your origin residence.
                             </Hint>
-                            {isPreferredPickupDateAlertVisible && !preferredPickupDateErrorMessage && (
+                            {isPreferredPickupDateAlertVisible && !isPreferredPickupDateInvalid && (
                               <Alert
                                 type="warning"
                                 aria-live="polite"
@@ -374,14 +375,8 @@ class MtoShipmentForm extends Component {
                               hint="Required"
                               validate={validatePickupDate}
                               onChange={handlePickupDateChange}
+                              forceError={isPreferredPickupDateInvalid}
                             />
-                            {preferredPickupDateErrorMessage && (
-                              <span data-testid="preferredPickupDateErrorAlert">
-                                <ErrorMessage id="preferredPickupDateErrorAlert" display>
-                                  {preferredPickupDateErrorMessage}
-                                </ErrorMessage>
-                              </span>
-                            )}
                           </Fieldset>
                           <AddressFields
                             name="pickup.address"
