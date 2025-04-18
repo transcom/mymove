@@ -198,7 +198,7 @@ INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_na
 	('0be75ca3-5226-447b-ad5f-d73205946bcb'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civilian',null,now(),now()),
 	('4af7df34-a5a3-448e-93eb-7bed05704cd0'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civilian',null,now(),now()),
 	('676ae8f9-0ca6-4919-b502-ef46c1cfaa48'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civilian',null,now(),now()),
-	('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civiian',null,now(),now()),
+	('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civilian',null,now(),now()),
 	('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civilian',null,now(),now())
 	 on conflict (id) do nothing;
 
