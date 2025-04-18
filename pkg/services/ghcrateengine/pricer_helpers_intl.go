@@ -1,17 +1,67 @@
 package ghcrateengine
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+func fetchContractFromParams(
+	appCtx appcontext.AppContext,
+	params models.PaymentServiceItemParams,
+) (models.ReContract, error) {
+	if len(params) == 0 {
+		return models.ReContract{}, fmt.Errorf("no payment service item params provided")
+	}
+
+	// All params in this slice should have the same PaymentServiceItemID, so we just take the first
+	paymentServiceItemID := params[0].PaymentServiceItemID
+
+	// We only need the move ID and prime timestamp
+	var move struct {
+		ID                 uuid.UUID  `db:"id"`
+		AvailableToPrimeAt *time.Time `db:"available_to_prime_at"`
+	}
+
+	// Chain PaymentServiceItem -> PaymentRequest -> Move into our struct
+	err := appCtx.DB().RawQuery(`
+        SELECT m.id, m.available_to_prime_at
+        FROM payment_service_items psi
+        JOIN payment_requests pr ON psi.payment_request_id = pr.id
+        JOIN moves m           ON pr.move_id = m.id
+        WHERE psi.id = $1
+        LIMIT 1
+    `, paymentServiceItemID).First(&move)
+	if err != nil {
+		return models.ReContract{}, err
+	}
+
+	if move.AvailableToPrimeAt == nil {
+		return models.ReContract{}, apperror.NewConflictError(move.ID, "unable to fetch contract for ghcrateengine pricing because move is not available to prime")
+	}
+
+	var contractYear models.ReContractYear
+	err = appCtx.DB().EagerPreload("Contract").Where("? between start_date and end_date", move.AvailableToPrimeAt).
+		First(&contractYear)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.ReContract{}, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("no contract year found for %s", move.AvailableToPrimeAt.String()))
+		}
+		return models.ReContract{}, err
+	}
+
+	return contractYear.Contract, nil
+}
 
 func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, services.PricingDisplayParams, error) {
 	if shuttlingCode != models.ReServiceCodeIOSHUT && shuttlingCode != models.ReServiceCodeIDSHUT {
