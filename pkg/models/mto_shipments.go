@@ -97,6 +97,8 @@ const (
 	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
 	// MTOShipmentStatusDiversionRequested indicates that the TOO has requested that the Prime divert a shipment
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
+	// MTOShipmentTerminatedForCause indicates that a shipment has been terminated for cause by a COR
+	MTOShipmentStatusTerminatedForCause MTOShipmentStatus = "TERMINATED_FOR_CAUSE"
 	// MoveStatusAPPROVALSREQUESTED is the approvals requested status type for MTO Shipments
 	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS_REQUESTED"
 )
@@ -191,6 +193,8 @@ type MTOShipment struct {
 	MobileHome                       *MobileHome            `json:"mobile_home" has_one:"mobile_home" fk_id:"shipment_id"`
 	MarketCode                       MarketCode             `json:"market_code" db:"market_code"`
 	PrimeAcknowledgedAt              *time.Time             `db:"prime_acknowledged_at"`
+	TerminationComments              *string                `json:"termination_comments" db:"termination_comments"`
+	TerminatedAt                     *time.Time             `json:"terminated_at" db:"terminated_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -212,6 +216,7 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusCancellationRequested),
 		string(MTOShipmentStatusCanceled),
 		string(MTOShipmentStatusDiversionRequested),
+		string(MTOShipmentStatusTerminatedForCause),
 		string(MTOShipmentStatusApprovalsRequested),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
