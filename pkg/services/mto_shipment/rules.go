@@ -225,11 +225,11 @@ func MTOShipmentHasRequestedPickupDateTodayOrEarlier() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
-		if newer == nil || newer.IsPPMShipment() || older == nil || older.IsPPMShipment() {
+		if newer == nil || newer.IsPPMShipment() || (older != nil && older.IsPPMShipment()) {
 			return nil
 		}
 
-		if newer.RequestedPickupDate == nil && older.RequestedPickupDate == nil {
+		if older != nil && (newer.RequestedPickupDate == nil && older.RequestedPickupDate == nil) {
 			return nil
 		}
 
