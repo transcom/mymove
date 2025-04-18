@@ -1,4 +1,4 @@
--- Cam B-22662 initial fetch the escalation factor given a contract ID and date
+-- B-22662 C.Jewell initial fetch the escalation factor given a contract ID and date
 CREATE OR REPLACE FUNCTION calculate_escalation_factor(in_contract_id UUID, in_date DATE) RETURNS NUMERIC(6, 5) AS $$
 DECLARE declared_factor NUMERIC(6, 5);
 BEGIN
