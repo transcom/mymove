@@ -362,30 +362,6 @@ func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 				Model:    move,
 				LinkOnly: true,
 			},
-			{
-				Model: models.Address{
-					City:       "GROVETOWN",
-					State:      "GA",
-					PostalCode: "30813",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					City:       "GROVETOWN",
-					State:      "GA",
-					PostalCode: "30813",
-				},
-				Type: &factory.Addresses.W2Address,
-			},
-			{
-				Model: models.Address{
-					City:       "GROVETOWN",
-					State:      "GA",
-					PostalCode: "30813",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
 		}, nil)
 		storageFacility := factory.BuildStorageFacility(appCtx.DB(), nil, nil)
 		ntsShipment := factory.BuildNTSShipment(appCtx.DB(), []factory.Customization{
