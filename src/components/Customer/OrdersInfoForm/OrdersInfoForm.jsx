@@ -13,7 +13,7 @@ import styles from './OrdersInfoForm.module.scss';
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -593,7 +593,7 @@ OrdersInfoForm.propTypes = {
 
 const mapStateToProps = (state) => {
   return {
-    affiliation: selectServiceMemberAffiliation(state) || ORDERS_BRANCH_OPTIONS.OTHER,
+    affiliation: selectServiceMemberAffiliation(state) || '',
   };
 };
 

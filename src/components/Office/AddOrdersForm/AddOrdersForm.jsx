@@ -17,7 +17,7 @@ import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { usePaygradeRankDropdownOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -578,7 +578,7 @@ const AddOrdersForm = ({
 };
 
 const mapStateToProps = (state) => {
-  return { customerAffiliation: selectServiceMemberAffiliation(state) || ORDERS_BRANCH_OPTIONS.OTHER };
+  return { customerAffiliation: selectServiceMemberAffiliation(state) || '' };
 };
 
 export default connect(mapStateToProps, {})(AddOrdersForm);

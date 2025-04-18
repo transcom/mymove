@@ -11,7 +11,7 @@ import styles from './EditOrdersForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import {
   civilianTDYUBAllowanceWeightWarning,
   FEATURE_FLAG_KEYS,
@@ -669,7 +669,7 @@ EditOrdersForm.defaultProps = {
 
 const mapStateToProps = (state) => {
   return {
-    affiliation: selectServiceMemberAffiliation(state) || ORDERS_BRANCH_OPTIONS.OTHER,
+    affiliation: selectServiceMemberAffiliation(state) || '',
   };
 };
 

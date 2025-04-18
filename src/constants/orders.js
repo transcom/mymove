@@ -137,6 +137,13 @@ export const ORDERS_DEPARTMENT_INDICATOR = {
 };
 
 export const RANK_GRADE_ASSOCIATIONS = {
+  OTHER: [
+    {
+      abbv_rank: 'CIV',
+      rank: 'Civilian',
+      grade: 'CIVILIAN_EMPLOYEE',
+    },
+  ],
   NAVY: [
     {
       abbv_rank: 'ADM',
