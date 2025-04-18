@@ -32,6 +32,7 @@ export const hhgInfo = {
   destinationAddress,
   shipmentLocator: 'EVLRPT-01',
   marketCode: 'd',
+  shipmentStatus: shipmentStatuses.APPROVED,
 };
 
 export const ntsInfo = {
