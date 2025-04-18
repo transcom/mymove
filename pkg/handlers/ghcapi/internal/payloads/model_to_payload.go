@@ -1550,6 +1550,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
 		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
+		TerminationComments:         handlers.FmtStringPtr(mtoShipment.TerminationComments),
+		TerminatedAt:                handlers.FmtDateTimePtr(mtoShipment.TerminatedAt),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2197,7 +2199,8 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
 		status == models.MTOShipmentStatusDiversionRequested ||
-		status == models.MTOShipmentStatusCancellationRequested
+		status == models.MTOShipmentStatusCancellationRequested ||
+		status == models.MTOShipmentStatusTerminatedForCause
 }
 
 func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.AvailableOfficeUsers {
@@ -2309,6 +2312,21 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	return officeUsers
 }
 
+func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
+	switch activeRole {
+	case string(roles.RoleTypeTOO):
+		switch queueType {
+		case string(models.QueueTypeTaskOrder):
+			return move.TOOAssignedUser, move.TOOAssignedID
+		case string(models.QueueTypeDestinationRequest):
+			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
+		}
+	case string(roles.RoleTypeServicesCounselor):
+		return move.SCAssignedUser, move.SCAssignedID
+	}
+	return nil, nil
+}
+
 func attachApprovalRequestTypes(move models.Move) []string {
 	var requestTypes []string
 	for _, item := range move.MTOServiceItems {
@@ -2337,21 +2355,6 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	}
 
 	return requestTypes
-}
-
-func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
-	switch activeRole {
-	case string(roles.RoleTypeTOO):
-		switch queueType {
-		case string(models.QueueTypeTaskOrder):
-			return move.TOOAssignedUser, move.TOOAssignedID
-		case string(models.QueueTypeDestinationRequest):
-			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
-		}
-	case string(roles.RoleTypeServicesCounselor):
-		return move.SCAssignedUser, move.SCAssignedID
-	}
-	return nil, nil
 }
 
 // QueueMoves payload
