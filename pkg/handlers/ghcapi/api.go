@@ -441,6 +441,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater, moveRouter),
 	}
 
+	ghcAPI.ShipmentCreateTerminationHandler = TerminateShipmentHandler{
+		handlerConfig,
+		mtoshipment.NewShipmentTermination(),
+	}
+
 	ghcAPI.ShipmentApproveShipmentsHandler = ApproveShipmentsHandler{
 		handlerConfig,
 		mtoshipment.NewShipmentApprover(
