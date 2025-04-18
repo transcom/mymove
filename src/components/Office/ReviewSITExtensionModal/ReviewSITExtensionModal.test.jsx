@@ -48,7 +48,7 @@ describe('ReviewSITExtensionModal', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Total days of SIT proposed/i)).toBeInTheDocument();
-      expect(screen.getByText(/Approved\s*\(45\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Previously approved\s*\(45\)/i)).toBeInTheDocument();
       expect(screen.getByText(/Requested\s*\(45\)\s*=\s*90/i)).toBeInTheDocument();
       expect(screen.getByText('Total days used')).toBeInTheDocument();
       expect(screen.getByText('Proposed total days remaining (if extension request is approved)')).toBeInTheDocument();
@@ -93,7 +93,6 @@ describe('ReviewSITExtensionModal', () => {
     const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days').subtract(1, 'day'));
 
     await waitFor(() => {
-      // expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'yes',
         convertToCustomerExpense: false,

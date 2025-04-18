@@ -143,7 +143,7 @@ export const SITHistoryItemHeaderDays = ({ title, approved, requested, value }) 
     <div data-happo-hide className={styles.sitHistoryItemHeader}>
       {title}
       <span className={styles.hintText}>
-        Approved ({approved}) + <br />
+        Previously approved ({approved}) + <br />
         Requested ({requested}) = {value}
       </span>
     </div>
