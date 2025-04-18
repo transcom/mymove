@@ -14,12 +14,6 @@ func (suite *ServiceParamValueLookupsSuite) TestPortZipLookup() {
 	key := models.ServiceItemParamNamePortZip
 	var mtoServiceItem models.MTOServiceItem
 	setupTestData := func(serviceCode models.ReServiceCode, portID uuid.UUID) {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		if serviceCode == models.ReServiceCodePOEFSC {
 			mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -94,7 +88,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPortZipLookup() {
 			},
 		}, nil)
 
-		contractYear := testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
 				EndDate:   time.Now().Add(24 * time.Hour),
@@ -155,12 +149,6 @@ func (suite *ServiceParamValueLookupsSuite) TestPortZipLookup() {
 	})
 
 	suite.Run("returns nothing if shipment is HHG and service item does not have port info", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
