@@ -5246,6 +5246,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - TERMINATION_FOR_CAUSE
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:
@@ -5289,6 +5290,14 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      terminationComments:
+        type: string
+        x-nullable: true
+        readOnly: true
+      terminatedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       primeAcknowledgedAt:
         format: date-time
         type: string
