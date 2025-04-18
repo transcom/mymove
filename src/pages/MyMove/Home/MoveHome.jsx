@@ -352,7 +352,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
     navigate(path);
   };
-
   // eslint-disable-next-line class-methods-use-this
   const sortAllShipments = () => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));

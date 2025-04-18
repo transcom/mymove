@@ -27,6 +27,8 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   const navigate = useNavigate();
   const [multiMove, setMultiMove] = useState(false);
   const { moveId } = useParams();
+  const { serviceMemberName } = useParams();
+  const [smNameString, setSmNameString] = useState('');
   const handleCancel = () => {
     if (multiMove) {
       navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
@@ -36,8 +38,9 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   };
 
   // fetching all move data on load since this component is dependent on that data
-  // this will run each time the component is loaded/accessed
+  // this will run each time the component is loaded/access
   useEffect(() => {
+    setSmNameString(serviceMemberName);
     getAllMoves(serviceMemberId).then((response) => {
       updateAllMoves(response);
     });
