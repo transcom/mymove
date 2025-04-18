@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -16,12 +15,6 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		var firstGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var secondGHCDieselFuelPrice models.GHCDieselFuelPrice
 		var thirdGHCDieselFuelPrice models.GHCDieselFuelPrice
@@ -181,12 +174,6 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithInvalidAct
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{

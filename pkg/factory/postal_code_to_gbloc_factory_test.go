@@ -1,9 +1,5 @@
 package factory
 
-import (
-	"github.com/transcom/mymove/pkg/models"
-)
-
 func (suite *FactorySuite) TestBuildPostalCodeToGBLOC() {
 	suite.Run("Successful creation of default BuildPostalCodeToGBLOC", func() {
 		// Under test:      BuildPostalCodeToGBLOC
@@ -14,7 +10,7 @@ func (suite *FactorySuite) TestBuildPostalCodeToGBLOC() {
 		defaultPostalCode := "90210"
 		defaultGBLOC := "KKFA"
 		// CALL FUNCTION UNDER TEST
-		postalCodeToGBLOC := BuildPostalCodeToGBLOC(suite.DB(), nil, nil)
+		postalCodeToGBLOC := FetchOrBuildPostalCodeToGBLOC(suite.DB(), defaultPostalCode, defaultGBLOC)
 
 		// VALIDATE RESULTS
 		suite.False(postalCodeToGBLOC.ID.IsNil())
@@ -22,31 +18,4 @@ func (suite *FactorySuite) TestBuildPostalCodeToGBLOC() {
 		suite.Equal(defaultGBLOC, postalCodeToGBLOC.GBLOC)
 	})
 
-	suite.Run("Successful return of stubbed PostalCodeToGBLOC", func() {
-		// Under test:       BuildPostalCodeToGBLOC
-		// Set up:           Create a PostalCodeToGBLOC with nil DB
-		// Expected outcome: No new PostalCodeToGBLOC should be created.
-
-		// Check num PostalCodeToGBLOC records
-		precount, err := suite.DB().Count(&models.PostalCodeToGBLOC{})
-		suite.NoError(err)
-
-		defaultSettings := models.PostalCodeToGBLOC{
-			PostalCode: "11111",
-			GBLOC:      "ABCD",
-		}
-		// Nil passed in as db
-		postalCodeToGBLOC := BuildPostalCodeToGBLOC(nil, []Customization{
-			{
-				Model: defaultSettings,
-			},
-		}, nil)
-		suite.True(postalCodeToGBLOC.ID.IsNil())
-		suite.Equal(defaultSettings.PostalCode, postalCodeToGBLOC.PostalCode)
-		suite.Equal(defaultSettings.GBLOC, postalCodeToGBLOC.GBLOC)
-
-		count, err := suite.DB().Count(&models.PostalCodeToGBLOC{})
-		suite.Equal(precount, count)
-		suite.NoError(err)
-	})
 }

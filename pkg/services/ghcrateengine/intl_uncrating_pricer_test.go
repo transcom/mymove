@@ -13,11 +13,11 @@ import (
 
 const (
 	iucrtTestMarket               = models.Market("O")
-	iucrtTestBasePriceCents       = unit.Cents(595)
-	iucrtTestEscalationCompounded = 1.125
+	iucrtTestBasePriceCents       = unit.Cents(654)
+	iucrtTestEscalationCompounded = 1.11000
 	iucrtTestBilledCubicFeet      = 10
-	iucrtTestPriceCents           = unit.Cents(6690)
-	iucrtTestUncappedRequestTotal = unit.Cents(6690)
+	iucrtTestPriceCents           = unit.Cents(7260)
+	iucrtTestUncappedRequestTotal = unit.Cents(7260)
 )
 
 var iucrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -34,7 +34,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlUncratingPricer() {
 		suite.Equal(iucrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(iucrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(iucrtTestBasePriceCents)},
 			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(iucrtTestUncappedRequestTotal)},
@@ -65,7 +65,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlUncratingPricer() {
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIUCRT, iucrtTestMarket, iucrtTestBasePriceCents, testdatagen.DefaultContractCode, iucrtTestEscalationCompounded)
-		twoYearsLaterPickupDate := iucrtTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := iucrtTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, iucrtTestBilledCubicFeet, iucrtTestMarket)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")

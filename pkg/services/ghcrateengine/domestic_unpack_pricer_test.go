@@ -13,13 +13,13 @@ import (
 )
 
 const (
-	dupkTestEscalationCompounded = 1.2311
+	dupkTestEscalationCompounded = 1.11000
 	dupkTestIsPeakPeriod         = false
 	dupkTestWeight               = unit.Pound(3600)
 	dupkTestServicesScheduleDest = 1
-	dupkTestContractYearName     = "DUPK Test Year"
+	dupkTestContractYearName     = testdatagen.DefaultContractYearName
 	dupkTestBasePriceCents       = unit.Cents(8334)
-	dupkTestPriceCents           = unit.Cents(369360)
+	dupkTestPriceCents           = unit.Cents(333036)
 )
 
 var dupkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).AddDate(0, 0, -1)

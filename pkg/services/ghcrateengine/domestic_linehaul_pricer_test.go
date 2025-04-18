@@ -19,11 +19,11 @@ const (
 	dlhTestMilesLower           = 1001
 	dlhTestMilesUpper           = 1500
 	dlhTestBasePriceMillicents  = unit.Millicents(388600)
-	dlhTestContractYearName     = "DLH Test Year"
-	dlhTestEscalationCompounded = 1.04071
+	dlhTestContractYearName     = testdatagen.DefaultContractYearName
+	dlhTestEscalationCompounded = 1.11000
 	dlhTestDistance             = unit.Miles(1201)
 	dlhTestWeight               = unit.Pound(4001)
-	dlhPriceCents               = unit.Cents(19432233)
+	dlhPriceCents               = unit.Cents(20724832)
 )
 
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -32,7 +32,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	linehaulServicePricer := NewDomesticLinehaulPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
@@ -48,7 +48,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		isPPM := false
 		//paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
@@ -62,7 +62,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		weightBilledIndex := 4
@@ -78,19 +78,17 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("successfully finds linehaul price for ppm with distance < 50 miles with Price method", func() {
-		lowerDistance := 0
-		upperDistance := 100
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, lowerDistance, upperDistance, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		suite.setupDomesticLinehaulServiceItem()
 		isPPM := true
 		// < 50 mile distance with PPM
 		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea, isPPM)
 		suite.NoError(err)
-		suite.Equal(unit.Cents(526980), priceCents)
+		suite.Equal(unit.Cents(562072), priceCents)
 	})
 
 	suite.Run("successfully finds linehaul price for ppm with distance < 50 miles with PriceUsingParams method", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		params := paymentServiceItem.PaymentServiceItemParams
 		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
@@ -109,7 +107,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("successfully finds linehaul price for ppm with weight < 500 lbs with Price method", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		suite.setupDomesticLinehaulServiceItem()
 		isPPM := true
 		// the PPM price for weights < 500 should be prorated from a base of 500
@@ -126,7 +124,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("successfully finds linehaul price for ppm with weight < 500 lbs with PriceUsingParams method", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		params := paymentServiceItem.PaymentServiceItemParams
 		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM
@@ -156,7 +154,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		weightBilledIndex := 4
@@ -170,7 +168,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.Run("validation errors", func() {
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		weightBilledIndex := 4
@@ -199,7 +197,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 
-		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Date(testdatagen.TestYear+1, 1, 1, 1, 1, 1, 1, time.UTC), dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
+		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Date(testdatagen.TestYear+10, 1, 1, 1, 1, 1, 1, time.UTC), dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
