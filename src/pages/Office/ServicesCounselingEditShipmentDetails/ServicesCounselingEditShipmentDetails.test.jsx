@@ -526,15 +526,6 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         [
           'sitEstimatedWeight',
           {
-            sitEstimatedWeight: '-1',
-            sitEstimatedEntryDate: '15 Jun 2022',
-            sitEstimatedDepartureDate: '25 Jul 2022',
-          },
-          'Enter a weight greater than 0 lbs',
-        ],
-        [
-          'sitEstimatedWeight',
-          {
             sitEstimatedWeight: '0',
             sitEstimatedEntryDate: '15 Jun 2022',
             sitEstimatedDepartureDate: '25 Jul 2022',

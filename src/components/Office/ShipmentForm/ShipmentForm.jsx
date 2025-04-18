@@ -1486,7 +1486,7 @@ const ShipmentForm = (props) => {
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <AddressFields
                         name="pickup.address"
-                        legend="Pickup Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                         formikProps={formikProps}
                         render={(fields) => (
                           <>
@@ -1596,17 +1596,18 @@ const ShipmentForm = (props) => {
                       />
                       <AddressFields
                         name="destination.address"
-                        legend="Delivery Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         formikProps={formikProps}
                         address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second Delivery Address</h4>
+                            <h4>Second {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address</h4>
                             <FormGroup>
                               <p>
-                                Will you move any belongings to a second address? (Must be near the delivery address.
-                                Subject to approval.)
+                                Will you move any belongings to a second address? (Must be near the{' '}
+                                {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'destination' : 'delivery'} address. Subject to
+                                approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1646,11 +1647,14 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" formikProps={formikProps} />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third Delivery Address</h4>
+                                    <h4>
+                                      Third {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address
+                                    </h4>
                                     <FormGroup>
                                       <p>
-                                        Will you move any belongings to a third address? (Must be near the delivery
-                                        address. Subject to approval.)
+                                        Will you move any belongings to a third address? (Must be near the{' '}
+                                        {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'destination' : 'delivery'} address.
+                                        Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
