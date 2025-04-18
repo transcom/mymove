@@ -136,7 +136,10 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
+const reviewPath = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
 
 const proGearWeightTicketsEditPath = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH, {
   moveId: mockMoveId,
@@ -213,17 +216,17 @@ describe('Pro-gear page', () => {
     });
   });
 
-  it('routes back to home when return to homepage is clicked', async () => {
+  it('routes back to review when cancel is clicked', async () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);
     selectProGearWeightTicketAndIndexById.mockReturnValue({ proGearWeightTicket: mockProGearWeightTicket, index: 0 });
 
     renderProGearPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockNavigate).toHaveBeenCalledWith(movePath);
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls patchProGearWeightTicket with the appropriate payload', async () => {
