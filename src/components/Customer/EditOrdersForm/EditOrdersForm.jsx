@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
-import { connect, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
@@ -11,7 +11,7 @@ import styles from './EditOrdersForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import {
   civilianTDYUBAllowanceWeightWarning,
   FEATURE_FLAG_KEYS,
@@ -49,8 +49,8 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  affiliation,
 }) => {
-  const affiliation = useSelector((state) => selectServiceMemberAffiliation(state)) ?? '';
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
   const [newDutyLocation, setNewDutyLocation] = useState(initialValues.new_duty_location);
@@ -667,8 +667,14 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || ORDERS_BRANCH_OPTIONS.OTHER,
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(EditOrdersForm);
+export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);

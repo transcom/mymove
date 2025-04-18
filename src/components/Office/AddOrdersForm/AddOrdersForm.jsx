@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
@@ -17,7 +17,7 @@ import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { usePaygradeRankDropdownOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
@@ -37,15 +37,15 @@ const AddOrdersForm = ({
   onBack,
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
+  customerAffiliation,
 }) => {
   const { customerId: serviceMemberId } = useParams();
   const { customerData: { agency = '' } = {} } = useCustomerQuery(serviceMemberId);
-  const loggedInAffiliation = useSelector((state) => selectServiceMemberAffiliation(state));
   const locationResult = useLocation();
   if (locationResult.state === null) {
     locationResult.state = {};
   }
-  const { state: { affiliation = loggedInAffiliation || agency } = { affiliation: null } } = { state: {} };
+  const { state: { affiliation = customerAffiliation || agency } = { affiliation: null } } = { state: {} };
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -577,4 +577,8 @@ const AddOrdersForm = ({
   );
 };
 
-export default AddOrdersForm;
+const mapStateToProps = (state) => {
+  return { customerAffiliation: selectServiceMemberAffiliation(state) || ORDERS_BRANCH_OPTIONS.OTHER };
+};
+
+export default connect(mapStateToProps, {})(AddOrdersForm);

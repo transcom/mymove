@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
-import { connect, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -13,7 +13,7 @@ import styles from './OrdersInfoForm.module.scss';
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -32,8 +32,7 @@ import { usePaygradeRankDropdownOptions, formatLabelReportByDate } from 'utils/f
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
-  const affiliation = useSelector((state) => selectServiceMemberAffiliation(state)) ?? '';
+const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner, affiliation }) => {
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -592,8 +591,14 @@ OrdersInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || ORDERS_BRANCH_OPTIONS.OTHER,
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfoForm);
