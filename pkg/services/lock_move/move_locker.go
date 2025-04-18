@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -80,4 +81,38 @@ func (m moveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, of
 	}
 
 	return move, nil
+}
+
+// BulkLockMove updates a multiple moves with relevant values of who has a move locked and the expiration of the lock pending it isn't unlocked before then
+func (m moveLocker) LockMoves(appCtx appcontext.AppContext, moveIds []uuid.UUID, officeUserID uuid.UUID) error {
+
+	if officeUserID == uuid.Nil {
+		return apperror.NewQueryError("OfficeUserID", nil, "No office user provided in request to lock move")
+	}
+
+	// fetching office user
+	officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+	expirationTime := now.Add(30 * time.Minute)
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := appCtx.DB().RawQuery(
+			"UPDATE moves SET locked_by=?, lock_expires_at=? WHERE id=ANY(?)",
+			officeUser.ID, expirationTime, pq.Array(moveIds),
+		).Exec(); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+
+	return nil
 }
