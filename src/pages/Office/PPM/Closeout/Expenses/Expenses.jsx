@@ -10,7 +10,7 @@ import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import ExpenseForm from 'components/Office/PPM/Closeout/ExpenseForm/ExpenseForm';
+import ExpenseForm from 'components/Shared/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { servicesCounselingRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
@@ -24,6 +24,7 @@ import { convertDollarsToCents } from 'shared/utils';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import { DOCUMENTS } from 'constants/queryKeys';
+import { APP_NAME } from 'constants/apps';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -33,6 +34,7 @@ const Expenses = () => {
   const { moveCode, shipmentId, expenseId } = useParams();
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const appName = APP_NAME.OFFICE;
   const ppmShipment = mtoShipment?.ppmShipment;
   const expenses = documents?.MovingExpenses ?? [];
 
@@ -203,6 +205,7 @@ const Expenses = () => {
               onCreateUpload={handleCreateUpload}
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
+              appName={appName}
             />
           </Grid>
         </Grid>
