@@ -120,6 +120,7 @@ export const withOverlay = () => (
 const TestModal = (closeModal) => (
   <Modal
     title={<h2>Test Modal</h2>}
+    onClose={closeModal}
     actions={
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button type="button" secondary onClick={closeModal}>
