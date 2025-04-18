@@ -1,4 +1,4 @@
--- cam B-22662 initial shipment type table market factor escalation lookup
+-- B-22662 C.Jewell initial shipment type table market factor escalation lookup
 CREATE OR REPLACE FUNCTION get_market_code_factor_escalation(
         in_rate_area_id UUID,
         in_contract_id UUID,
