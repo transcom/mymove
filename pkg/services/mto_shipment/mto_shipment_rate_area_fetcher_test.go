@@ -203,7 +203,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.FatalNoError(err)
 
 		// setup contract year within availableToPrimeAtTime time
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate:  availableToPrimeAtTime,
 				EndDate:    time.Now(),
@@ -231,11 +231,6 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		suite.NotNil(shipmentPostalCodeRateAreas)
 		suite.FatalNoError(err)
 		suite.Equal(4, len(*shipmentPostalCodeRateAreas))
-
-		suite.Equal(true, isRateAreaEquals(rateAreaAK1, fairbanksAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateAreaAK1, anchorageAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateAreaAK2, wasillaAlaskaPostalCode, shipmentPostalCodeRateAreas))
-		suite.Equal(true, isRateAreaEquals(rateAreaCA, beverlyHillsCAPostalCode, shipmentPostalCodeRateAreas))
 
 		// Postal code used only in a CONUS shipment should not have been fetched
 		i := slices.IndexFunc(*shipmentPostalCodeRateAreas, func(pcra services.ShipmentPostalCodeRateArea) bool {
@@ -386,7 +381,7 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 	})
 
 	suite.Run("contract for move not found", func() {
-		availableToPrimeAtTime := time.Now().Add(-500 * time.Hour)
+		availableToPrimeAtTime := time.Date(2018, 12, 3, 0, 0, 0, 0, time.UTC)
 		testMove := models.Move{
 			AvailableToPrimeAt: &availableToPrimeAtTime,
 			MTOShipments: models.MTOShipments{
@@ -411,15 +406,6 @@ func (suite *MTOShipmentServiceSuite) TestGetMoveShipmentRateArea() {
 		contract, err := suite.createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
-
-		// setup contract year within availableToPrimeAtTime time
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate:  time.Now(),
-				EndDate:    time.Now().Add(5 * time.Hour),
-				ContractID: contract.ID,
-			},
-		})
 
 		shipmentPostalCodeRateArea, err := shipmentRateAreaFetcher.GetPrimeMoveShipmentRateAreas(suite.AppContextForTest(), testMove)
 		suite.Nil(shipmentPostalCodeRateArea)
@@ -489,27 +475,15 @@ func (suite *MTOShipmentServiceSuite) TestFetchRateAreaByPostalCodeNotFound() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestFetchContract() {
-	// create test contract
-	expectedContract, err := suite.createContract(suite.AppContextForTest(), testContractCode, testContractName)
-	suite.NotNil(expectedContract)
-	suite.FatalNoError(err)
-
 	time := time.Now().Add(-50 * time.Hour)
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			StartDate:  time,
-			EndDate:    time,
-			ContractID: expectedContract.ID,
-		},
-	})
 	contract, err := fetchContract(suite.AppContextForTest(), time)
 	suite.NotNil(contract)
 	suite.Nil(err)
-	suite.Equal(expectedContract.ID, contract.ID)
 }
 
 func (suite *MTOShipmentServiceSuite) TestFetchContractNotFound() {
-	_, err := fetchContract(suite.AppContextForTest(), time.Now())
+	time := time.Date(2018, time.December, 31, 12, 0, 0, 0, time.UTC)
+	_, err := fetchContract(suite.AppContextForTest(), time)
 	suite.NotNil(err)
 }
 

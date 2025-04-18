@@ -15,8 +15,8 @@ const (
 	dopsitTestSchedule                            = 3
 	dopsitTestServiceArea                         = "012"
 	dopsitTestIsPeakPeriod                        = true
-	dopsitTestContractYearName                    = "DOPSIT Test Year"
-	dopsitTestEscalationCompounded                = 1.0445
+	dopsitTestContractYearName                    = testdatagen.DefaultContractYearName
+	dopsitTestEscalationCompounded                = 1.11000
 	dopsitTestWeight                              = unit.Pound(4555)
 	dopsitTestWeightLower                         = unit.Pound(4000)
 	dopsitTestWeightUpper                         = unit.Pound(4999)
@@ -35,7 +35,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricerSameZip
 	distance := unit.Miles(12) // distance will follow pricer logic for moves under 50 miles
 
 	pricer := NewDomesticOriginSITPickupPricer()
-	expectedPrice := unit.Cents(1190859) // dopsitTestDomesticServiceAreaBasePriceCents * (dopsitTestWeight / 100) * distance * dopsitTestEscalationCompounded
+	expectedPrice := unit.Cents(1265516) // dopsitTestDomesticServiceAreaBasePriceCents * (dopsitTestWeight / 100) * distance * dopsitTestEscalationCompounded
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDOPSIT, dopsitTestSchedule, dopsitTestIsPeakPeriod, dopsitTestDomesticServiceAreaBasePriceCents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
@@ -113,10 +113,10 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50PlusM
 	distance := unit.Miles(77) // > 50 miles
 
 	pricer := NewDomesticOriginSITPickupPricer()
-	expectedPrice := unit.Cents(733738)
+	expectedPrice := unit.Cents(779684)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestIsPeakPeriod, dopsitTestWeightLower, dopsitTestWeightUpper, dopsitTestMilesLower, dopsitTestMilesUpper, dopsitTestDomesticLinehaulBasePriceMillicents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestContractYearName, dopsitTestEscalationCompounded)
 
 		paymentServiceItem := suite.setupDomesticOriginSITPickupServiceItem(zipOriginal, zipActual, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -133,7 +133,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50PlusM
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestIsPeakPeriod, dopsitTestWeightLower, dopsitTestWeightUpper, dopsitTestMilesLower, dopsitTestMilesUpper, dopsitTestDomesticLinehaulBasePriceMillicents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestContractYearName, dopsitTestEscalationCompounded)
 
 		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.NoError(err)
@@ -141,7 +141,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50PlusM
 	})
 
 	suite.Run("error from linehaul pricer", func() {
-		suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestIsPeakPeriod, dopsitTestWeightLower, dopsitTestWeightUpper, dopsitTestMilesLower, dopsitTestMilesUpper, dopsitTestDomesticLinehaulBasePriceMillicents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestContractYearName, dopsitTestEscalationCompounded)
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not price linehaul")
@@ -154,7 +154,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50Miles
 	distance := unit.Miles(23) // <= 50 miles
 
 	pricer := NewDomesticOriginSITPickupPricer()
-	expectedPrice := unit.Cents(1190859)
+	expectedPrice := unit.Cents(1265516)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDOPSIT, dopsitTestSchedule, dopsitTestIsPeakPeriod, dopsitTestDomesticOtherBasePriceCents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
@@ -190,8 +190,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50Miles
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDOPSIT, dopsitTestSchedule, dopsitTestIsPeakPeriod, dopsitTestDomesticOtherBasePriceCents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
-		twoYearsLaterPickupDate := dopsitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		tenYearsLaterPickupDate := dopsitTestRequestedPickupDate.AddDate(10, 0, 0)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, tenYearsLaterPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
