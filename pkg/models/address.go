@@ -70,7 +70,10 @@ func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, erro
 	vs = append(vs, &validators.StringIsPresent{Field: a.City, Name: "City"})
 	vs = append(vs, &validators.StringIsPresent{Field: a.State, Name: "State"})
 	vs = append(vs, &validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"})
-	vs = append(vs, &validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"})
+
+	if a.IsOconus != nil && !*a.IsOconus {
+		vs = append(vs, &validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"})
+	}
 
 	var validPostalCode bool
 	if dbConnection != nil {
