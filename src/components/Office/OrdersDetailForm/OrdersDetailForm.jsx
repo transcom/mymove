@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { func, string, bool } from 'prop-types';
 
 import styles from './OrdersDetailForm.module.scss';
 
-import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
+import { dropdownInputOptions, formatLabelReportByDate, usePaygradeRankDropdownOptions } from 'utils/formatters';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -12,6 +12,7 @@ import { DropdownArrayOf } from 'types/form';
 import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const OrdersDetailForm = ({
+  agency,
   deptIndicatorOptions,
   ordersTypeOptions,
   ordersTypeDetailOptions,
@@ -35,13 +36,30 @@ const OrdersDetailForm = ({
   showOrdersAcknowledgement,
   ordersType,
   setFieldValue,
-  payGradeOptions,
   formIsDisabled,
   hhgLongLineOfAccounting,
   ntsLongLineOfAccounting,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
+  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(agency);
+  const handlePaygradeRankChange = useCallback(
+    (e) => {
+      if (e.target.value === '') {
+        setFieldValue('rank', null);
+        setFieldValue('payGrade', null);
+        return;
+      }
+
+      const rankValue = e.target.value;
+      const gradeForRank = mappedRanks[rankValue].grade;
+
+      setFieldValue('rank', rankValue);
+      setFieldValue('payGrade', gradeForRank);
+    },
+    [mappedRanks, setFieldValue],
+  );
+
   // The text/placeholder are different if the customer is retiring or separating.
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(formOrdersType);
   return (
@@ -63,14 +81,15 @@ const OrdersDetailForm = ({
         showRequiredAsterisk
       />
       <DropdownInput
-        data-testid="payGradeInput"
-        name="payGrade"
-        label="Pay grade"
-        id="payGradeInput"
-        options={payGradeOptions}
-        showDropdownPlaceholderText={false}
-        isDisabled={formIsDisabled}
         showRequiredAsterisk
+        label="Rank"
+        name="rank"
+        id="rank"
+        data-testid="payGradeRankInput"
+        required
+        isDisabled={formIsDisabled}
+        options={paygradeRankOptionValues}
+        onChange={handlePaygradeRankChange}
       />
       <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} showRequiredAsterisk disabled={formIsDisabled} />
@@ -247,7 +266,6 @@ OrdersDetailForm.propTypes = {
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
-  payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
   hhgLongLineOfAccounting: string,
   ntsLongLineOfAccounting: string,
@@ -274,7 +292,6 @@ OrdersDetailForm.defaultProps = {
   showNTSLoa: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
-  payGradeOptions: null,
   formIsDisabled: false,
   hhgLongLineOfAccounting: '',
   ntsLongLineOfAccounting: '',

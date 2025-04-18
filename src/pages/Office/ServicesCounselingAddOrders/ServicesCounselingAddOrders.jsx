@@ -29,7 +29,6 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const navigate = useNavigate();
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-
   const handleBack = () => {
     navigate(-1);
   };
@@ -107,6 +106,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
     hasDependents: '',
     newDutyLocation: '',
     grade: '',
+    rank: '',
     originDutyLocation: '',
     accompaniedTour: '',
     dependentsUnderTwelve: '',
@@ -125,6 +125,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
       reportByDate: formatDateForSwagger(values.reportByDate),
       issueDate: formatDateForSwagger(values.issueDate),
       grade: values.grade,
+      rankShortName: values.rank,
       originDutyLocationId: values.originDutyLocation.id,
       spouseHasProGear: false,
       ...oconusFields,

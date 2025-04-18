@@ -4,16 +4,16 @@ import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router';
 
+import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import { patchOrders, getResponseError, getOrders } from 'services/internalApi';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { withContext } from 'shared/AppContext';
 import { formatDateForSwagger } from 'shared/dates';
 import { formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { selectServiceMemberFromLoggedInUser, selectOrdersForLoggedInUser } from 'store/entities/selectors';
 import { generalRoutes } from 'constants/routes';
+import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import withRouter from 'utils/routing';
 
 const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
@@ -39,6 +39,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
       report_by_date: formatDateForSwagger(values.report_by_date),
       issue_date: formatDateForSwagger(values.issue_date),
       grade: values.grade,
+      rankShortName: values.rank,
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
     };
@@ -67,6 +68,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
     new_duty_location: currentOrders?.new_duty_location || null,
     grade: currentOrders?.grade || null,
     origin_duty_location: currentOrders?.origin_duty_location || null,
+    rank: currentOrders?.payGradeRank?.rankShortName || '',
   };
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;

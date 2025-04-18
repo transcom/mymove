@@ -184,6 +184,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const order = Object.values(orders)?.[0];
 
   const counselorCanEdit =
+    move.status === MOVE_STATUSES.DRAFT ||
     move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
     move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
     (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt); // status is set to 'Approval Requested' if customer uploads amended orders.
@@ -311,6 +312,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
+    rank: order?.payGradeRank?.rankShortName,
     dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
@@ -394,6 +396,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                 </div>
                 <div className={styles.body}>
                   <OrdersDetailForm
+                    agency={order?.agency}
                     deptIndicatorOptions={deptIndicatorDropdownOptions}
                     ordersTypeOptions={ordersTypeDropdownOptions}
                     ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
