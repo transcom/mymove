@@ -13,13 +13,13 @@ import (
 
 const (
 	icrtTestMarket               = models.Market("O")
-	icrtTestBasePriceCents       = unit.Cents(2300)
-	icrtTestEscalationCompounded = 1.125
+	icrtTestBasePriceCents       = unit.Cents(2859)
+	icrtTestEscalationCompounded = 1.11000
 	icrtTestBilledCubicFeet      = unit.CubicFeet(10)
-	icrtTestPriceCents           = unit.Cents(25880)
+	icrtTestPriceCents           = unit.Cents(31730)
 	icrtTestStandaloneCrate      = false
 	icrtTestStandaloneCrateCap   = unit.Cents(1000000)
-	icrtTestUncappedRequestTotal = unit.Cents(25880)
+	icrtTestUncappedRequestTotal = unit.Cents(31730)
 	icrtTestExternalCrate        = false
 )
 
@@ -37,7 +37,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlCratingPricer() {
 		suite.Equal(icrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(icrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(icrtTestBasePriceCents)},
 			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(icrtTestUncappedRequestTotal)},
@@ -84,7 +84,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlCratingPricer() {
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
-		twoYearsLaterPickupDate := icrtTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := icrtTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")

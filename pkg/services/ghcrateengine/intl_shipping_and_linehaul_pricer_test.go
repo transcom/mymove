@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	islhTestContractYearName     = "Base Period Year 1"
+	islhTestContractYearName     = testdatagen.DefaultContractYearName
 	islhTestPerUnitCents         = unit.Cents(15000)
-	islhTestTotalCost            = unit.Cents(315000)
+	islhTestTotalCost            = unit.Cents(349650)
 	islhTestIsPeakPeriod         = true
-	islhTestEscalationCompounded = 1.0000
+	islhTestEscalationCompounded = 1.11000
 	islhTestWeight               = unit.Pound(2100)
 	islhTestDistance             = unit.Miles(1201)
 )

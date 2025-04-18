@@ -13,7 +13,7 @@ import (
 )
 
 // GHCTestYear is the default for GHC rate engine testing
-var GHCTestYear = 2020
+var GHCTestYear = 2024
 
 type mtoShipmentBuildType byte
 

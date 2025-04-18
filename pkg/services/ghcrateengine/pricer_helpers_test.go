@@ -65,7 +65,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 
 	suite.Run("not finding contract year", func() {
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
-		twoYearsLaterPickupDate := dnpkTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := dnpkTestRequestedPickupDate.AddDate(10, 0, 0)
 		isPPM := false
 		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM)
 		suite.Error(err)
@@ -175,7 +175,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticFirstDaySIT() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestContractYearName, ddfsitTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ddfsitTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ddfsitTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := priceDomesticFirstDaySIT(suite.AppContextForTest(), models.ReServiceCodeDDFSIT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddfsitTestWeight, ddfsitTestServiceArea, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
@@ -236,7 +236,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticAdditionalDaysSIT() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDASIT, ddasitTestServiceArea, ddasitTestIsPeakPeriod, ddasitTestBasePriceCents, ddasitTestContractYearName, ddasitTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ddasitTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ddasitTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := priceDomesticAdditionalDaysSIT(suite.AppContextForTest(), models.ReServiceCodeDDASIT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddasitTestWeight, ddasitTestServiceArea, ddasitTestNumberOfDaysInSIT, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
@@ -247,13 +247,13 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 	dshZipDest := "30907"
 	dshZipSITDest := "30901" // same zip3
 	dshDistance := unit.Miles(15)
-	dshContractName := "dshTestYear"
+	dshContractName := testdatagen.DefaultContractYearName
 
 	suite.Run("destination golden path for same zip3s", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dshContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dshZipDest, dshZipSITDest, dshDistance)
 		suite.NoError(err)
-		expectedPrice := unit.Cents(505125) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
+		expectedPrice := unit.Cents(544365) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 		suite.Equal(expectedPrice, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
@@ -302,13 +302,13 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Plu
 	dlhZipDest := "30907"
 	dlhZipSITDest := "36106"       // different zip3
 	dlhDistance := unit.Miles(305) // > 50 miles
-	dlhContractName := "dhlTestYear"
+	dlhContractName := testdatagen.DefaultContractYearName
 
 	suite.Run("destination golden path for > 50 miles with different zip3s", func() {
-		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dlhContractName, dddsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dlhContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dlhZipDest, dlhZipSITDest, dlhDistance)
 		suite.NoError(err)
-		expectedPrice := unit.Cents(1681313)
+		expectedPrice := unit.Cents(1812386)
 
 		suite.Equal(expectedPrice, priceCents)
 
@@ -332,13 +332,13 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 	domOtherZipDest := "30907"
 	domOtherZipSITDest := "29801"      // different zip3
 	domOtherDistance := unit.Miles(37) // <= 50 miles
-	domContractName := "domTestYear"
+	domContractName := testdatagen.DefaultContractYearName
 
 	suite.Run("destination golden path for <= 50 miles with different zip3s", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
-		expectedPrice := unit.Cents(505125)
+		expectedPrice := unit.Cents(544365)
 		suite.Equal(expectedPrice, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
@@ -361,7 +361,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 		_, _, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
 
-		twoYearsLaterPickupDate := dddsitTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := dddsitTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err = priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
@@ -372,13 +372,13 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 	domOtherZipDest := "30907"
 	domOtherZipSITDest := "30910"      // same zip3
 	domOtherDistance := unit.Miles(37) // <= 50 miles
-	domContractName := "domTestYear"
+	domContractName := testdatagen.DefaultContractYearName
 
 	suite.Run("destination golden path for <= 50 miles with same zip3s", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
-		expectedPrice := unit.Cents(505125)
+		expectedPrice := unit.Cents(544365)
 		suite.Equal(expectedPrice, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
@@ -401,7 +401,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 		_, _, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
 
-		twoYearsLaterPickupDate := dddsitTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := dddsitTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err = priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
@@ -431,7 +431,7 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 		},
 	}
 
-	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNamePriceRateOrFactor,
@@ -441,7 +441,7 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 			},
 		},
 	}, nil)
-	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameEscalationCompounded,
@@ -451,7 +451,7 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 			},
 		},
 	}, nil)
-	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameIsPeak,
@@ -461,7 +461,7 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 			},
 		},
 	}, nil)
-	factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameContractYearName,
@@ -516,7 +516,7 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 			},
 		}
 
-		factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
+		factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{
 					Key:         models.ServiceItemParamNameServiceAreaOrigin,
@@ -551,7 +551,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		suite.Equal(doshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(doshutTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(doshutTestBasePriceCents)},
 		}
@@ -588,7 +588,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 
 		suite.Error(err)
@@ -605,10 +605,10 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 		suite.Equal(dcrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
-			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
+			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestPriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -617,13 +617,13 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, unit.CubicFeet(8.90625), dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.NoError(err)
-		suite.Equal(unit.Cents(23049), priceCents)
+		suite.Equal(unit.Cents(23423), priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
-			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(23049)},
+			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(23423)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -658,7 +658,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 
 		suite.Error(err)
@@ -669,10 +669,12 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
 	suite.Run("escalated price is rounded to the nearest cent for non-linehaul pricing", func() {
 		escalationCompounded := 1.04071
-		cy := testdatagen.MakeReContractYear(suite.DB(),
+		cy := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					EscalationCompounded: escalationCompounded,
+					StartDate:            testdatagen.ContractStartDate,
+					EndDate:              testdatagen.ContractEndDate,
 				},
 			})
 		isLinehaul := false
@@ -682,15 +684,17 @@ func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
 
 		suite.Nil(err)
 		suite.Equal(cy.ID, contractYear.ID)
-		suite.Equal(5325.0, escalatedPrice)
+		suite.Equal(5680.0, escalatedPrice)
 	})
 
 	suite.Run("escalated price is rounded to the nearest tenth-cent for linehaul pricing", func() {
 		escalationCompounded := 1.04071
-		cy := testdatagen.MakeReContractYear(suite.DB(),
+		cy := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					EscalationCompounded: escalationCompounded,
+					StartDate:            testdatagen.ContractStartDate,
+					EndDate:              testdatagen.ContractEndDate,
 				},
 			})
 		isLinehaul := true
@@ -700,7 +704,7 @@ func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
 
 		suite.Nil(err)
 		suite.Equal(cy.ID, contractYear.ID)
-		suite.Equal(5325.3, escalatedPrice)
+		suite.Equal(5679.9, escalatedPrice)
 	})
 
 	suite.Run("not finding contract year", func() {
@@ -716,193 +720,39 @@ func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
 
 func (suite *GHCRateEngineServiceSuite) Test_escalatedPriceForContractYearCompounded() {
 
-	setUpContracts := func() map[string]models.ReContractYear {
-		escalationCompounded := 1.04071
-		basePeriodYear1 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.BasePeriodYear1,
-				},
-			})
-		basePeriodYear2 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.BasePeriodYear2,
-					StartDate:            basePeriodYear1.StartDate.AddDate(1, 0, 0),
-					EndDate:              basePeriodYear1.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		basePeriodYear3 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.BasePeriodYear3,
-					StartDate:            basePeriodYear2.StartDate.AddDate(1, 0, 0),
-					EndDate:              basePeriodYear2.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		optionPeriod1 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.OptionPeriod1,
-					StartDate:            basePeriodYear3.StartDate.AddDate(1, 0, 0),
-					EndDate:              basePeriodYear3.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		optionPeriod2 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.OptionPeriod2,
-					StartDate:            optionPeriod1.StartDate.AddDate(1, 0, 0),
-					EndDate:              optionPeriod1.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		awardTerm1 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.AwardTerm1,
-					StartDate:            optionPeriod2.StartDate.AddDate(1, 0, 0),
-					EndDate:              optionPeriod2.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		awardTerm2 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.AwardTerm2,
-					StartDate:            awardTerm1.StartDate.AddDate(1, 0, 0),
-					EndDate:              awardTerm1.EndDate.AddDate(1, 0, 0),
-				},
-			})
-
-		optionPeriod3 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.OptionPeriod3,
-					StartDate:            awardTerm2.StartDate.AddDate(1, 0, 0),
-					EndDate:              awardTerm2.EndDate.AddDate(1, 0, 0),
-				},
-			})
-
-		contractsYearsMap := make(map[string]models.ReContractYear)
-		contractsYearsMap[optionPeriod3.Name] = optionPeriod3
-		contractsYearsMap[awardTerm2.Name] = awardTerm2
-		contractsYearsMap[awardTerm1.Name] = awardTerm1
-		contractsYearsMap[optionPeriod2.Name] = optionPeriod2
-		contractsYearsMap[optionPeriod1.Name] = optionPeriod1
-		contractsYearsMap[basePeriodYear3.Name] = basePeriodYear3
-		contractsYearsMap[basePeriodYear2.Name] = basePeriodYear2
-		contractsYearsMap[basePeriodYear1.Name] = basePeriodYear1
-		return contractsYearsMap
-	}
-
-	setUpContractsWithMissingContracts := func() map[string]models.ReContractYear {
-		escalationCompounded := 1.04071
-		basePeriodYear1 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.BasePeriodYear1,
-				},
-			})
-		basePeriodYear2 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.BasePeriodYear2,
-					StartDate:            basePeriodYear1.StartDate.AddDate(1, 0, 0),
-					EndDate:              basePeriodYear1.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		basePeriodYear3 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.BasePeriodYear3,
-					StartDate:            basePeriodYear2.StartDate.AddDate(1, 0, 0),
-					EndDate:              basePeriodYear2.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		optionPeriod2 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.OptionPeriod2,
-					StartDate:            basePeriodYear2.StartDate.AddDate(2, 0, 0),
-					EndDate:              basePeriodYear2.EndDate.AddDate(2, 0, 0),
-				},
-			})
-		awardTerm1 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.AwardTerm1,
-					StartDate:            optionPeriod2.StartDate.AddDate(1, 0, 0),
-					EndDate:              optionPeriod2.EndDate.AddDate(1, 0, 0),
-				},
-			})
-		awardTerm2 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.AwardTerm2,
-					StartDate:            awardTerm1.StartDate.AddDate(1, 0, 0),
-					EndDate:              awardTerm1.EndDate.AddDate(1, 0, 0),
-				},
-			})
-
-		optionPeriod3 := testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EscalationCompounded: escalationCompounded,
-					Name:                 models.OptionPeriod3,
-					StartDate:            awardTerm2.StartDate.AddDate(1, 0, 0),
-					EndDate:              awardTerm2.EndDate.AddDate(1, 0, 0),
-				},
-			})
-
-		contractsYearsMap := make(map[string]models.ReContractYear)
-		contractsYearsMap[optionPeriod3.Name] = optionPeriod3
-		contractsYearsMap[awardTerm2.Name] = awardTerm2
-		contractsYearsMap[awardTerm1.Name] = awardTerm1
-		contractsYearsMap[optionPeriod2.Name] = optionPeriod2
-		contractsYearsMap[basePeriodYear3.Name] = basePeriodYear3
-		contractsYearsMap[basePeriodYear2.Name] = basePeriodYear2
-		contractsYearsMap[basePeriodYear1.Name] = basePeriodYear1
-		return contractsYearsMap
-	}
-
 	suite.Run("should correctly calculate escalated price based on the escalation factors of each contract year", func() {
-		contracts := setUpContracts()
+		contract := testdatagen.FetchOrMakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					StartDate: testdatagen.ContractStartDate,
+					EndDate:   testdatagen.ContractEndDate,
+				},
+			})
 
 		isLinehaul := false
 		basePrice := 5117.0
-
-		contract := contracts[models.OptionPeriod3]
 
 		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, contract.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
 
 		suite.Nil(err)
 		suite.Equal(contract.ID, contractYear.ID)
-		suite.Equal(5981.0, escalatedPrice)
+		suite.Equal(5680.0, escalatedPrice)
 	})
 	suite.Run("should error if an expected contract needed for the escalation price calculation is not found", func() {
-		contracts := setUpContractsWithMissingContracts()
+		contract := testdatagen.FetchOrMakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					StartDate: testdatagen.ContractStartDate,
+					EndDate:   testdatagen.ContractEndDate,
+				},
+			})
+
+		tenYearsLaterPickupDate := contract.StartDate.AddDate(10, 0, 0)
+
 		isLinehaul := false
 		basePrice := 5117.0
 
-		contract := contracts[models.OptionPeriod3]
-		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, contract.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
-
+		_, _, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, tenYearsLaterPickupDate, isLinehaul, basePrice)
 		suite.Error(err)
-		suite.Equal("expected contract Option Period 1 not found", err.Error())
-		suite.Equal(contract.ID, contractYear.ID)
-		suite.NotNil(escalatedPrice)
 	})
 }

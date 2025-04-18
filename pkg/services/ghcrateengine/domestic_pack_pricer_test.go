@@ -13,13 +13,13 @@ import (
 )
 
 const (
-	dpkTestEscalationCompounded   = 1.0407
+	dpkTestEscalationCompounded   = 1.11000
 	dpkTestIsPeakPeriod           = true
 	dpkTestWeight                 = unit.Pound(2100)
 	dpkTestServicesScheduleOrigin = 1
-	dpkTestContractYearName       = "DPK Test Year"
+	dpkTestContractYearName       = testdatagen.DefaultContractYearName
 	dpkTestBasePriceCents         = unit.Cents(6544)
-	dpkTestPriceCents             = unit.Cents(143010)
+	dpkTestPriceCents             = unit.Cents(152544)
 )
 
 var dpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)

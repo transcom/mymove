@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,12 +19,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	var destDomesticServiceArea models.ReDomesticServiceArea
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{

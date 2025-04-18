@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -40,4 +41,22 @@ func (r *ReTaskOrderFee) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.IntIsPresent{Field: r.PriceCents.Int(), Name: "PriceCents"},
 		&validators.IntIsGreaterThan{Field: r.PriceCents.Int(), Name: "PriceCents", Compared: 0},
 	), nil
+}
+
+func FetchTaskOrderFee(appCtx appcontext.AppContext, contractCode string, serviceCode ReServiceCode, date time.Time) (ReTaskOrderFee, error) {
+	var taskOrderFee ReTaskOrderFee
+	err := appCtx.DB().Q().
+		Join("re_contract_years cy", "re_task_order_fees.contract_year_id = cy.id").
+		Join("re_contracts c", "cy.contract_id = c.id").
+		Join("re_services s", "re_task_order_fees.service_id = s.id").
+		Where("c.code = $1", contractCode).
+		Where("s.code = $2", serviceCode).
+		Where("$3 between cy.start_date and cy.end_date", date).
+		First(&taskOrderFee)
+
+	if err != nil {
+		return ReTaskOrderFee{}, err
+	}
+
+	return taskOrderFee, nil
 }
