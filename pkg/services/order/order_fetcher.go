@@ -142,7 +142,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"LockedByOfficeUser",
 			"SCAssignedUser",
 			"CounselingOffice",
-			"Orders.PayGradeRank",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -609,7 +608,6 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
-		"PayGradeRank",
 	).Find(order, orderID)
 
 	if err != nil {
@@ -630,7 +628,22 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		order.Entitlement.WeightAllotted = &allotment
 	}
 
-	// stub | complete
+	// stub
+	// ('f6dbd496-8f71-487b-a432-55b60967f474','6cb785d0-cabf-479a-a36d-a6aec294a4d0'::uuid,'AIR_FORCE','AB','Airman Basic',22
+	//
+	if order.PayGradeRank == nil {
+		var rankOrder = int64(22)
+		rankRecord := models.PayGradeRank{
+			ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+			PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+			RankOrder:     &rankOrder,
+			Affiliation:   models.StringPointer(models.AffiliationAIRFORCE.String()),
+			RankName:      models.StringPointer("Airman Basic"),
+			RankShortName: models.StringPointer("AB"),
+		}
+		order.PayGradeRank = &rankRecord
+		order.PayGradeRankID = rankRecord.ID
+	}
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 	// cannot eager load the address as "OriginDutyLocation.Address" because

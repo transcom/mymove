@@ -104,8 +104,8 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
-	PayGradeRankID                 *uuid.UUID                         `db:"pay_grade_rank_id" json:"payGradeRankId,omitempty"`
-	PayGradeRank                   *PayGradeRank                      `belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id" json:"payGradeRank,omitempty"`
+	PayGradeRankID                 uuid.UUID                          `db:"-" json:"payGradeRankId,omitempty"`
+	PayGradeRank                   *PayGradeRank                      `db:"-" json:"payGradeRank,omitempty"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -204,7 +204,7 @@ func strictUnmarshal(data []byte, v interface{}) error {
 
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
-	var order = Order{}
+	var order Order
 	err := db.Q().EagerPreload("ServiceMember.User",
 		"OriginDutyLocation.Address",
 		"OriginDutyLocation.TransportationOffice",
@@ -216,8 +216,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.CloseoutOffice.Address",
 		"Entitlement",
 		"OriginDutyLocation",
-		"OriginDutyLocation.ProvidesServicesCounseling",
-		"PayGradeRank").
+		"OriginDutyLocation.ProvidesServicesCounseling").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -309,24 +308,33 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	// use join and locate the rank by grade
 	// 	err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Where("pay_grade_id = ?", "6cb785d0-cabf-479a-a36d-a6aec294a4d0").First(order.Rank)
 
-	// stub | complete
-	var rankIdToFind = order.PayGradeRankID
-	var rankRecord = &PayGradeRank{}
-	if rankIdToFind == nil {
-		err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Join("pay_grades", "pay_grades.id = pay_grade_ranks.pay_grade_id").Where("pay_grades.grade = ?", "E_1").Order("pay_grade_ranks.rank_order").First(rankRecord)
-		order.Grade = internalmessages.NewOrderPayGrade(ServiceMemberGradeE1)
-		if err != nil {
-			return Order{}, err
+	// stub for now
+	var rankIdToFind = &order.PayGradeRankID
+	var rankRecord PayGradeRank
+	if uuid.UUID.IsNil(*rankIdToFind) {
+		var rankOrder = int64(22)
+		rankRecord = PayGradeRank{
+			ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+			PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+			RankOrder:     &rankOrder,
+			Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
+			RankName:      StringPointer("Airman Basic"),
+			RankShortName: StringPointer("AB"),
 		}
 	} else {
-		err = db.Find(rankRecord, *order.PayGradeRankID)
-		if err != nil {
-			return Order{}, err
+		var rankOrder = int64(22)
+		rankRecord = PayGradeRank{
+			ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+			PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+			RankOrder:     &rankOrder,
+			Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
+			RankName:      StringPointer("Airman Basic"),
+			RankShortName: StringPointer("AB"),
 		}
 	}
 
-	order.PayGradeRank = rankRecord
-	order.PayGradeRankID = &rankRecord.ID
+	order.PayGradeRank = &rankRecord
+	order.PayGradeRankID = rankRecord.ID
 
 	return order, nil
 }
@@ -367,7 +375,7 @@ func FetchOrderAmendmentsInfo(db *pop.Connection, session *auth.Session, id uuid
 // DO NOT USE IF YOU NEED USER AUTH
 func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("PayGradeRank").Find(&order, id)
+	err := db.Q().Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
@@ -376,7 +384,18 @@ func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 		return Order{}, err
 	}
 
-	// stub | complete
+	// stub
+	var rankOrder = int64(22)
+	var rankRecord = PayGradeRank{
+		ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+		PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+		RankOrder:     &rankOrder,
+		Affiliation:   StringPointer(AffiliationAIRFORCE.String()),
+		RankName:      StringPointer("Airman Basic"),
+		RankShortName: StringPointer("AB"),
+	}
+
+	order.PayGradeRank = &rankRecord
 
 	return order, nil
 }

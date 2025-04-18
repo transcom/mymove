@@ -103,28 +103,17 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
-	// stub | completed
+	// stub
 	// https://github.com/transcom/mymove/pull/15207/files#r2047309435
 	var payGradeRank internalmessages.PayGradeRank
 	if order.PayGradeRank != nil {
-		payGradeRank = internalmessages.PayGradeRank{}
-		if order.PayGradeRank.ID != uuid.Nil {
-			payGradeRank.ID = strfmt.UUID(order.PayGradeRank.ID.String())
-		}
-		if order.PayGradeRank.PayGradeID != uuid.Nil {
-			payGradeRank.PayGradeID = strfmt.UUID(order.PayGradeRank.PayGradeID.String())
-		}
-		if order.PayGradeRank.RankOrder != nil {
-			payGradeRank.RankOrder = order.PayGradeRank.RankOrder
-		}
-		if order.PayGradeRank.Affiliation != nil {
-			payGradeRank.Affiliation = (*internalmessages.Affiliation)(order.PayGradeRank.Affiliation)
-		}
-		if order.PayGradeRank.RankName != nil {
-			payGradeRank.RankName = (*internalmessages.RankNames)(order.PayGradeRank.RankName)
-		}
-		if order.PayGradeRank.RankShortName != nil {
-			payGradeRank.RankShortName = (*internalmessages.RankShortNames)(order.PayGradeRank.RankShortName)
+		payGradeRank = internalmessages.PayGradeRank{
+			ID:            strfmt.UUID(order.PayGradeRank.ID.String()),
+			PayGradeID:    strfmt.UUID(order.PayGradeRank.PayGradeID.String()),
+			RankOrder:     order.PayGradeRank.RankOrder,
+			RankName:      (*internalmessages.RankNames)(order.PayGradeRank.RankName),
+			RankShortName: (*internalmessages.RankShortNames)(order.PayGradeRank.RankShortName),
+			Affiliation:   (*internalmessages.Affiliation)(order.PayGradeRank.Affiliation),
 		}
 	}
 
@@ -541,12 +530,21 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			// stub | completed
-			var payGradeRank = &models.PayGradeRank{}
-			err = appCtx.DB().Where("affiliation = ?", serviceMember.Affiliation).Where("rank_short_name = ?", payload.RankShortName).First(payGradeRank)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+			// stub
+			var rankOrder = int64(22)
+			payGradeRank := &models.PayGradeRank{
+				ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+				PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+				RankOrder:     &rankOrder,
+				Affiliation:   models.StringPointer(models.AffiliationAIRFORCE.String()),
+				RankName:      models.StringPointer("Airman Basic"),
+				RankShortName: models.StringPointer("AB"),
 			}
+
+			// err = appCtx.DB().Where("affiliation = ?", serviceMember.Affiliation).Where("rank_short_name = ?", payload.RankShortName).First(paygradeRank)
+			// if err != nil {
+			// 	return handlers.ResponseForError(appCtx.Logger(), err), err
+			// }
 
 			// Check if the grade or dependents are receiving an update
 			if hasEntitlementChanged(order, payload.OrdersType, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
@@ -668,7 +666,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 
 			order.Grade = payload.Grade
-			order.PayGradeRankID = &payGradeRank.ID
+			order.PayGradeRankID = payGradeRank.ID
 			order.PayGradeRank = payGradeRank
 
 			if payload.DepartmentIndicator != nil {

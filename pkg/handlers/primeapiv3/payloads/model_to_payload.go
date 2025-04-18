@@ -169,7 +169,7 @@ func Order(order *models.Order) *primev3messages.Order {
 	}
 
 	var rankName = &grade
-	if order.PayGradeRankID != &uuid.Nil {
+	if order.PayGradeRankID != uuid.Nil {
 		rankName = order.PayGradeRank.RankName
 	}
 

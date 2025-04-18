@@ -86,6 +86,9 @@ const (
 	// RankNamesChiefWarrantOfficer5 captures enum value "Chief Warrant Officer 5"
 	RankNamesChiefWarrantOfficer5 RankNames = "Chief Warrant Officer 5"
 
+	// RankNamesCiviian captures enum value "Civiian"
+	RankNamesCiviian RankNames = "Civiian"
+
 	// RankNamesCivilian captures enum value "Civilian"
 	RankNamesCivilian RankNames = "Civilian"
 
@@ -251,7 +254,7 @@ var rankNamesEnum []interface{}
 
 func init() {
 	var res []RankNames
-	if err := json.Unmarshal([]byte(`["1st Sergeant","Admiral","Air Force Academy Cadet","Airman","Airman Basic","Airman First Class","Aviation Cadet","Brigadier General","Cadet","Captain","Chief Master Sergeant","Chief Master Sergeant of the Air Force","Chief Master Sergeant of the Space Force","Chief Petty Officer","Chief Warrant Officer 2","Chief Warrant Officer 3","Chief Warrant Officer 4","Chief Warrant Officer 5","Civilian","Colonel","Command Sergeant Major","Commander","Corporal","Ensign","First Lieutenant","General","Gunnery Sergeant","Lance Corporal","Lieutenant","Lieutenant Colonel","Lieutenant Commander","Lieutenant General","Lieutenant JG","Major","Major General","Master Chief Petty Officer","Master Chief Petty Officer of the Coast Guard","Master Chief Petty Officer of the Navy","Master Gunnery Sergeant","Master Sergeant","Midshipman","Officer Candidate","Petty Officer First Class","Petty Officer Second Class","Petty Officer Third Class","Platoon Sergeant","Private","Private First Class","Rear Admiral (Lower Half)","Rear Admiral (Upper Half)","Seaman","Seaman Apprentice","Seaman Recruit","Second Lieutenant","Senior Airman","Senior Chief Petty Officer","Senior Master Sergeant","Sergeant","Sergeant First Class","Sergeant Major","Sergeant Major of the Army","Sergeant Major of the Marine Corps","Specialist","Specialist 1","Specialist 2","Specialist 3","Specialist 4","Staff Sergeant","Technical Sergeant","Vice Admiral","Warrant Officer 1"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["1st Sergeant","Admiral","Air Force Academy Cadet","Airman","Airman Basic","Airman First Class","Aviation Cadet","Brigadier General","Cadet","Captain","Chief Master Sergeant","Chief Master Sergeant of the Air Force","Chief Master Sergeant of the Space Force","Chief Petty Officer","Chief Warrant Officer 2","Chief Warrant Officer 3","Chief Warrant Officer 4","Chief Warrant Officer 5","Civiian","Civilian","Colonel","Command Sergeant Major","Commander","Corporal","Ensign","First Lieutenant","General","Gunnery Sergeant","Lance Corporal","Lieutenant","Lieutenant Colonel","Lieutenant Commander","Lieutenant General","Lieutenant JG","Major","Major General","Master Chief Petty Officer","Master Chief Petty Officer of the Coast Guard","Master Chief Petty Officer of the Navy","Master Gunnery Sergeant","Master Sergeant","Midshipman","Officer Candidate","Petty Officer First Class","Petty Officer Second Class","Petty Officer Third Class","Platoon Sergeant","Private","Private First Class","Rear Admiral (Lower Half)","Rear Admiral (Upper Half)","Seaman","Seaman Apprentice","Seaman Recruit","Second Lieutenant","Senior Airman","Senior Chief Petty Officer","Senior Master Sergeant","Sergeant","Sergeant First Class","Sergeant Major","Sergeant Major of the Army","Sergeant Major of the Marine Corps","Specialist","Specialist 1","Specialist 2","Specialist 3","Specialist 4","Staff Sergeant","Technical Sergeant","Vice Admiral","Warrant Officer 1"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

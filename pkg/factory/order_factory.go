@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -254,26 +253,6 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		}
 	}
 
-	// fetch or produce PayGradeRank
-	var payGradeRank models.PayGradeRank
-	var hasDb = db == nil
-	var err error = nil
-	if hasDb {
-		err = db.Q().Where("affiliation = ?", serviceMember.Affiliation.String()).Join("pay_grades", "pay_grades.id = pay_grade_ranks.pay_grade_id").Where("pay_grades.grade = ?", defaultGrade).Order("rank_order desc").First(payGradeRank)
-	}
-
-	if !hasDb || err != nil {
-		var rankOrder = int64(22)
-		payGradeRank = models.PayGradeRank{
-			ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
-			PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
-			RankOrder:     &rankOrder,
-			Affiliation:   models.StringPointer(models.AffiliationAIRFORCE.String()),
-			RankName:      models.StringPointer("Airman Basic"),
-			RankShortName: models.StringPointer("AB"),
-		}
-	}
-
 	order := models.Order{
 		ServiceMember:                  serviceMember,
 		ServiceMemberID:                serviceMember.ID,
@@ -302,8 +281,6 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		MethodOfPayment:                defaultMethodOfPayment,
 		NAICS:                          defaultNAICS,
 		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
-		PayGradeRankID:                 &payGradeRank.ID,
-		PayGradeRank:                   &payGradeRank,
 	}
 
 	if amendedOrdersDocument != nil {

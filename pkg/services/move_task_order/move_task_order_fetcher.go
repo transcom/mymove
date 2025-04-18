@@ -165,7 +165,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.DeliveryAddressUpdate",
 		"MTOShipments.DeliveryAddressUpdate.OriginalAddress.Country",
 		"MTOShipments.PPMShipment",
-		"Orders.PayGradeRank",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress.Country",
 		"Orders.Entitlement",
@@ -191,6 +190,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	setMTOQueryFilters(query, searchParams)
 
 	err = query.First(mto)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -200,7 +200,18 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
-	// stub | complete
+	// stub
+	// this would be a part of the eager parameters but for now, place the stub.
+
+	var rankOrder = int64(22)
+	mto.Orders.PayGradeRank = &models.PayGradeRank{
+		ID:            uuid.FromStringOrNil("f6dbd496-8f71-487b-a432-55b60967f474"),
+		PayGradeID:    uuid.FromStringOrNil("6cb785d0-cabf-479a-a36d-a6aec294a4d0"),
+		RankOrder:     &rankOrder,
+		Affiliation:   models.StringPointer(models.AffiliationAIRFORCE.String()),
+		RankName:      models.StringPointer("Airman Basic"),
+		RankShortName: models.StringPointer("AB"),
+	}
 
 	for i := range mto.MTOShipments {
 		var nonDeletedAgents models.MTOAgents
@@ -215,6 +226,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 		mto.MTOShipments[i].MTOAgents = nonDeletedAgents
 	}
+
 	// Now that we have the move and order, construct the allotment (hhg allowance)
 	// Only fetch if grade is not nil
 	if mto.Orders.Grade != nil {
