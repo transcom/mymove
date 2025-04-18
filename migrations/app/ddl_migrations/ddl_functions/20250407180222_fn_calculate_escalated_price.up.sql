@@ -1,5 +1,5 @@
 -- B-22742  C. Klienjan  Migrate function to DDL Migrations and adding the ability to get escalated price for ICRT and IUCRT
--- Cam b-22662 Replaced escalation factor select with reusable func
+-- B-22662  C.Jewell Replaced escalation factor select with reusable func
 CREATE OR REPLACE FUNCTION calculate_escalated_price(
     o_rate_area_id UUID,
     d_rate_area_id UUID,
