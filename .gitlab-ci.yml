@@ -323,7 +323,7 @@ stages:
 sast:
   stage: pre_checks
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   interruptible: true
 include:
 - template: Jobs/SAST.gitlab-ci.yml
@@ -333,7 +333,7 @@ include:
 anti_virus:
   stage: pre_checks
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: milmove/clamav-ci # Custom image with ClamAV pre-installed
   script:
     - pwd
@@ -365,7 +365,7 @@ prep_server_hosted_client_deps:
   stage: pre_checks
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -382,7 +382,7 @@ pre_deps_golang:
   stage: pre_checks
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -412,7 +412,7 @@ golang_lint:
   stage: pre_checks
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: harbor.csde.caci.com/docker.io/golangci/golangci-lint:$GOLANGCI_LINT_VERSION # Refer to https://hub.docker.com/r/golangci/golangci-lint
   variables:
   script:
@@ -433,7 +433,7 @@ golang_lint:
 #   stage: pre_checks
 #   interruptible: true
 #   tags:
-#     - $Gitlab_Runner_Tag
+#     - $CDPS_RUNNER_TAG
 #   image: $DOCKER_APP_IMAGE
 #   services:
 #     - name: $postgres
@@ -496,7 +496,7 @@ pre_deps_yarn:
   stage: pre_checks
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_milmove_env
@@ -512,7 +512,7 @@ check_generated_code:
   interruptible: true
   image: $DOCKER_APP_IMAGE # Replace with the appropriate Docker image
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   needs:
    - pre_deps_golang
   before_script:
@@ -530,7 +530,7 @@ check_tls_certificate_dp3:
   stage: pre_checks
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE # Replace with your appropriate Docker image.
   before_script:
     - *setup_aws_vars_dp3
@@ -555,7 +555,7 @@ check_tls_certificate_stg:
   stage: pre_checks
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_aws_vars_stg
@@ -570,7 +570,7 @@ check_tls_certificate_prd:
   stage: pre_checks
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   before_script:
     - *setup_tls_vars_prd
@@ -585,7 +585,7 @@ build_storybook:
   stage: build
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -610,7 +610,7 @@ deploy_storybook_dp3:
   stage: deploy
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -634,7 +634,7 @@ compile_app_client:
   stage: build
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *yarn_cache
@@ -667,7 +667,7 @@ compile_app_server:
   stage: build
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
@@ -716,7 +716,7 @@ pre_test:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   cache:
     - <<: *go_cache
@@ -778,7 +778,7 @@ server_test:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -865,7 +865,7 @@ server_test_coverage:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_golang
@@ -899,7 +899,7 @@ client_test:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   variables:
     KUBERNETES_CPU_REQUEST: "2"
@@ -941,7 +941,7 @@ client_test_coverage:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -969,7 +969,7 @@ integration_test_devseed:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   services:
     - name: $postgres
@@ -1030,7 +1030,7 @@ integration_tests:
   stage: test
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
@@ -1057,7 +1057,7 @@ integration_tests:
 #   stage: test
 #   interruptible: true
 #   tags:
-#     - $Gitlab_Runner_Tag
+#     - $CDPS_RUNNER_TAG
 #   image: $DOCKER_APP_IMAGE
 #   services:
 #     - name: $postgres
@@ -1118,7 +1118,7 @@ integration_tests:
 #   stage: test
 #   interruptible: true
 #   tags:
-#     - $Gitlab_Runner_Tag
+#     - $CDPS_RUNNER_TAG
 #   image: $DOCKER_APP_IMAGE
 #   services:
 #     - name: $postgres
@@ -1184,7 +1184,7 @@ integration_tests:
 #   stage: test
 #   interruptible: true
 #   tags:
-#     - $Gitlab_Runner_Tag
+#     - $CDPS_RUNNER_TAG
 #   image: $DOCKER_APP_IMAGE
 #   services:
 #     - name: $postgres
@@ -1251,7 +1251,7 @@ integration_tests:
 #   stage: test
 #   interruptible: true
 #   tags:
-#     - $Gitlab_Runner_Tag
+#     - $CDPS_RUNNER_TAG
 #   image: $DOCKER_APP_IMAGE
 #   services:
 #     - name: $postgres
@@ -1320,7 +1320,7 @@ build_push_app_dp3:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1344,7 +1344,7 @@ build_push_migrations_dp3:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1368,7 +1368,7 @@ build_push_tasks_dp3:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1392,7 +1392,7 @@ push_otel_collector_image_dp3:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   before_script:
     - *setup_aws_vars_dp3
@@ -1428,7 +1428,7 @@ deploy_migrations_dp3:
   stage: deploy
   resource_group: $DP3_ENV_migration
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1460,7 +1460,7 @@ deploy_tasks_dp3:
   stage: deploy
   resource_group: $DP3_ENV_task
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1497,7 +1497,7 @@ deploy_app_client_tls_dp3:
   stage: deploy
   resource_group: $DP3_ENV_client
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1539,7 +1539,7 @@ deploy_app_dp3:
   stage: deploy
   resource_group: $DP3_ENV_app
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: $DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
@@ -1593,7 +1593,7 @@ build_push_app_stg:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1621,7 +1621,7 @@ build_push_migrations_stg:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1649,7 +1649,7 @@ build_push_tasks_stg:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1677,7 +1677,7 @@ push_otel_collector_image_stg:
   stage: push
   interruptible: true
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_BASE_IMAGE
@@ -1713,7 +1713,7 @@ deploy_migrations_stg:
   stage: deploy
   resource_group: staging_migration
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1745,7 +1745,7 @@ deploy_tasks_stg:
   stage: deploy
   resource_group: staging_task
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1782,7 +1782,7 @@ deploy_app_client_tls_stg:
   stage: deploy
   resource_group: staging_client
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1825,7 +1825,7 @@ deploy_app_stg:
   stage: deploy
   resource_group: staging_app
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: stg
   image:
     name: $DOCKER_APP_IMAGE
@@ -1880,7 +1880,7 @@ prod_approval:
   stage: prod_approval
   resource_group: production
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: prd_approval
   needs:
       - compile_app_client
@@ -1921,7 +1921,7 @@ build_push_migrations_prd:
   stage: push_prd
   resource_group: production_migration
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -1947,7 +1947,7 @@ build_push_tasks_prd:
   resource_group: production_task
   environment: prd
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -1971,7 +1971,7 @@ push_otel_collector_image_prd:
   stage: push_prd
   resource_group: production_otel
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: prd
   image:
     name: $DOCKER_BASE_IMAGE
@@ -2009,7 +2009,7 @@ deploy_migrations_prd:
   resource_group: production_migration
   environment: prd
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -2041,7 +2041,7 @@ deploy_tasks_prd:
   resource_group: production_task
   environment: prd
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -2078,7 +2078,7 @@ deploy_app_client_tls_prd:
   resource_group: production_client
   environment: prd
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -2120,7 +2120,7 @@ deploy_app_prd:
   stage: deploy_prd
   resource_group: production_app
   tags:
-    - $Gitlab_Runner_Tag
+    - $CDPS_RUNNER_TAG
   environment: prd
   image:
     name: $DOCKER_APP_IMAGE
