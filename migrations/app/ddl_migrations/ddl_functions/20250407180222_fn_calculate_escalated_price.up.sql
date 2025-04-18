@@ -1,11 +1,5 @@
+-- B-22742  C. Klienjan  Migrate function to DDL Migrations and adding the ability to get escalated price for ICRT and IUCRT
 -- Cam b-22662 Replaced escalation factor select with reusable func
-
--- function to calculate the escalated price, takes in:
--- origin rate area
--- dest rate area
--- re_services id
--- contract id
--- adding the is_peak_period check to refine the price query further
 CREATE OR REPLACE FUNCTION calculate_escalated_price(
     o_rate_area_id UUID,
     d_rate_area_id UUID,
@@ -37,6 +31,17 @@ BEGIN
         	WHERE ra.id = d_rate_area_id;
 		END IF;
 
+        SELECT rip.per_unit_cents
+        INTO per_unit_cents
+        FROM re_intl_accessorial_prices rip
+        WHERE
+            rip.market = (CASE
+                WHEN is_oconus THEN 'O'
+                ELSE 'C'
+			END)
+          AND rip.service_id = re_service_id
+          AND rip.contract_id = c_id;
+    ELSIF service_code IN ('IUCRT', 'ICRT') THEN
         SELECT rip.per_unit_cents
         INTO per_unit_cents
         FROM re_intl_accessorial_prices rip
