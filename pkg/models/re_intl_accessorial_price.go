@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -71,4 +72,21 @@ func (r *ReIntlAccessorialPrice) Validate(_ *pop.Connection) (*validate.Errors, 
 		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
 		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: -1},
 	), nil
+}
+
+func FetchInternationalAccessorialPrice(appCtx appcontext.AppContext, contractCode string, serviceCode ReServiceCode, market Market) (ReIntlAccessorialPrice, error) {
+	var internationalAccessorialPrice ReIntlAccessorialPrice
+	err := appCtx.DB().Q().
+		Join("re_services", "service_id = re_services.id").
+		Join("re_contracts", "re_contracts.id = re_intl_accessorial_prices.contract_id").
+		Where("re_contracts.code = $1", contractCode).
+		Where("re_services.code = $2", serviceCode).
+		Where("market = $3", market).
+		First(&internationalAccessorialPrice)
+
+	if err != nil {
+		return ReIntlAccessorialPrice{}, err
+	}
+
+	return internationalAccessorialPrice, nil
 }

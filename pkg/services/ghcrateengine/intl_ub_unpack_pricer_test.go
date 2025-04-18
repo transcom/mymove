@@ -15,9 +15,9 @@ import (
 const (
 	iubupkTestContractYearName     = "Base Period Year 1"
 	iubupkTestPerUnitCents         = unit.Cents(1200)
-	iubupkTestTotalCost            = unit.Cents(6000)
+	iubupkTestTotalCost            = unit.Cents(6660)
 	iubupkTestIsPeakPeriod         = true
-	iubupkTestEscalationCompounded = 1.0000
+	iubupkTestEscalationCompounded = 1.11000
 	iubupkTestWeight               = unit.Pound(500)
 )
 

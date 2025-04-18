@@ -11,7 +11,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatWeight } from 'utils/formatters';
 import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
-const AllowancesList = ({ info, showVisualCues }) => {
+const AllowancesList = ({ info, showVisualCues, isOconusMove }) => {
   const [enableUB, setEnableUB] = useState(false);
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
@@ -68,7 +68,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
               </div>
             </>
           )}
-        {enableUB && info?.ubAllowance >= 0 && (
+        {enableUB && isOconusMove && info?.ubAllowance >= 0 && (
           <div className={descriptionListStyles.row}>
             <dt>Unaccompanied baggage allowance</dt>
             <dd data-testid="unaccompaniedBaggageAllowance">
@@ -141,10 +141,12 @@ AllowancesList.propTypes = {
     ubAllowance: PropTypes.number,
   }).isRequired,
   showVisualCues: PropTypes.bool,
+  isOconusMove: PropTypes.bool,
 };
 
 AllowancesList.defaultProps = {
   showVisualCues: false,
+  isOconusMove: false,
 };
 
 export default AllowancesList;
