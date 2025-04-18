@@ -2,6 +2,7 @@
 import React from 'react';
 import { screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
@@ -9,6 +10,7 @@ import { updateMTOShipment, updateMoveCloseoutOffice, searchTransportationOffice
 import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatDateWithUTC } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { renderWithProviders } from 'testUtils';
 
@@ -74,6 +76,8 @@ jest.mock('components/LocationSearchBox/api', () => ({
     }),
   ),
 }));
+
+const tomorrow = formatDateWithUTC(moment().add(1, 'days').toDate(), 'YYYY-MM-DD');
 
 const useEditShipmentQueriesReturnValue = {
   move: {
@@ -175,7 +179,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress3: 'c/o Some Person',
         county: 'LOS ANGELES',
       },
-      requestedPickupDate: '2018-03-15',
+      requestedPickupDate: tomorrow,
       scheduledPickupDate: '2018-03-16',
       requestedDeliveryDate: '2018-04-15',
       scheduledDeliveryDate: '2014-04-16',
