@@ -302,8 +302,8 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		MethodOfPayment:                defaultMethodOfPayment,
 		NAICS:                          defaultNAICS,
 		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
-		// PayGradeRankID:                 &payGradeRank.ID,
-		PayGradeRank: &payGradeRank,
+		PayGradeRankID:                 &payGradeRank.ID,
+		PayGradeRank:                   &payGradeRank,
 	}
 
 	if amendedOrdersDocument != nil {

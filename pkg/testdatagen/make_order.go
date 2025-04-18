@@ -156,8 +156,8 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		MethodOfPayment:                defaultMethodOfPayment,
 		NAICS:                          defaultNAICS,
 		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
-		// PayGradeRankID:                 &payGradeRank.PayGradeID,
-		PayGradeRank: &payGradeRank,
+		PayGradeRankID:                 &payGradeRank.PayGradeID,
+		PayGradeRank:                   &payGradeRank,
 	}
 
 	// Overwrite values with those from assertions

@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS pay_grade_ranks (
 	id 	uuid NOT NULL,
 	pay_grade_id  uuid NOT NULL
-		CONSTRAINT fk_pay_grade_ranks_pay_grade_id REFERENCES pay_grades (id),
+	    CONSTRAINT fk_pay_grade_ranks_pay_grade_id REFERENCES pay_grades (id),
 	affiliation TEXT NOT NULL,
 	rank_short_name  TEXT NOT NULL,
 	rank_name  TEXT,
