@@ -156,11 +156,17 @@ describe('Pickup info page', () => {
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByTestId(/City/)[0]).toHaveTextContent('San Antonio');
+      expect(screen.getAllByTestId(/State/)[0]).toHaveTextContent('TX');
+      expect(screen.getAllByTestId(/ZIP/)[0]).toHaveTextContent('78234');
       expect(screen.getByText('San Antonio, TX 78234 ()'));
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByTestId(/City/)[1]).toHaveTextContent('Tacoma');
+      expect(screen.getAllByTestId(/State/)[1]).toHaveTextContent('WA');
+      expect(screen.getAllByTestId(/ZIP/)[1]).toHaveTextContent('98421');
       expect(screen.getByText('Tacoma, WA 98421 ()'));
     },
   );
