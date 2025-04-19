@@ -649,7 +649,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		grade = ghcmessages.Grade(*order.Grade)
 	}
 
-	// stub | completed
+	//
 	var payGradeRank ghcmessages.PayGradeRank
 	if order.PayGradeRank != nil {
 		payGradeRank = ghcmessages.PayGradeRank{}

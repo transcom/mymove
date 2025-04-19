@@ -200,7 +200,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
-	// stub | complete
+	//
 
 	for i := range mto.MTOShipments {
 		var nonDeletedAgents models.MTOAgents

@@ -400,7 +400,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 		var rankRecord PayGradeRank
 		if rankShortName != nil {
 			err = txnAppCtx.DB().Where("affiliation = ?", s.Affiliation).Where("rank_short_name = ?", rankShortName).First(&rankRecord)
-			// stub | complete
+			//
 
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)

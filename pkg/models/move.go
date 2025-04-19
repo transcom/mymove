@@ -589,7 +589,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		return moves, err
 	}
 
-	// stub | complete
+	//
 
 	order := moves[0].Orders
 

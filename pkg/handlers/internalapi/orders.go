@@ -103,8 +103,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
-	// stub | completed
-	// https://github.com/transcom/mymove/pull/15207/files#r2047309435
+	//
 	var payGradeRank internalmessages.PayGradeRank
 	if order.PayGradeRank != nil {
 		payGradeRank = internalmessages.PayGradeRank{}
@@ -541,7 +540,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			// stub | completed
+			//
 			var payGradeRank = &models.PayGradeRank{}
 			err = appCtx.DB().Where("affiliation = ?", serviceMember.Affiliation).Where("rank_short_name = ?", payload.RankShortName).First(payGradeRank)
 			if err != nil {

@@ -630,7 +630,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		order.Entitlement.WeightAllotted = &allotment
 	}
 
-	// stub | complete
+	//
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 	// cannot eager load the address as "OriginDutyLocation.Address" because

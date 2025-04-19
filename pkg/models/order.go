@@ -303,13 +303,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		order.UploadedAmendedOrders.UserUploads = amendedUserUploads
 	}
 
-	// https://github.com/transcom/mymove/pull/15207/files#r2047718799
-	// var rankIdToFind = &order.PaygradeRankId
-	// if rankIdToFind == nil || len((*rankIdToFind).Bytes()) == 0 || len(order.PaygradeRankId) == 0 {
-	// use join and locate the rank by grade
-	// 	err = db.Where("affiliation = ?", order.ServiceMember.Affiliation).Where("pay_grade_id = ?", "6cb785d0-cabf-479a-a36d-a6aec294a4d0").First(order.Rank)
-
-	// stub | complete
+	//
 	var rankIdToFind = order.PayGradeRankID
 	var rankRecord = &PayGradeRank{}
 	if rankIdToFind == nil {
@@ -376,7 +370,7 @@ func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 		return Order{}, err
 	}
 
-	// stub | complete
+	//
 
 	return order, nil
 }
