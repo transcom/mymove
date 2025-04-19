@@ -2,6 +2,9 @@
 --insert pay_grade_ranks
 
 INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_name,rank_order,created_at,updated_at) VALUES
+('00000000-0000-0000-0000-000000000000'::uuid,null,'','','',0,now(),now());
+
+INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_name,rank_order,created_at,updated_at) VALUES
 	('560ce615-e31d-4800-9273-8344508d18e2'::uuid,'7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'AIR_FORCE','GEN','General',1,now(),now()),
 	('d84742d4-cbbc-48ce-af03-3eada00aa145'::uuid,'1d6e34c3-8c6c-4d4f-8b91-f46bed3f5e80'::uuid,'AIR_FORCE','LTG','Lieutenant General',2,now(),now()),
 	('5db514e4-5808-4211-aea7-866ac6a74dc4'::uuid,'6e50b04a-52dc-45c9-91d9-4a7b4fa1ab20'::uuid,'AIR_FORCE','MG','Major General',3,now(),now()),
