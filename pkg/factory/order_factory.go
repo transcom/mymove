@@ -333,7 +333,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		if err != nil {
 			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", *order.Grade, err))
 		}
-
+		order.PayGradeRank = nil
 		mustCreate(db, &order)
 	}
 
@@ -370,6 +370,15 @@ func GetTraitHasDependents() []Customization {
 			Model: models.Order{
 				HasDependents: true,
 			},
+		},
+	}
+}
+
+func GetPayGradeRankForOrder() []Customization {
+	return []Customization{
+		{
+			Model:    models.Order{},
+			LinkOnly: true,
 		},
 	}
 }

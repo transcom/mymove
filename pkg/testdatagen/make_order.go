@@ -156,13 +156,12 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		MethodOfPayment:                defaultMethodOfPayment,
 		NAICS:                          defaultNAICS,
 		PackingAndShippingInstructions: defaultPackingAndShippingInstructions,
-		PayGradeRankID:                 &payGradeRank.PayGradeID,
+		PayGradeRankID:                 &payGradeRank.ID,
 		PayGradeRank:                   &payGradeRank,
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&order, assertions.Order)
-
 	mustCreate(db, &order, assertions.Stub)
 
 	return order

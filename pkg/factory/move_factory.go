@@ -170,6 +170,7 @@ func BuildStubbedMoveWithStatus(status models.MoveStatus) models.Move {
 			Model: models.Order{
 				ID:               uuid.Must(uuid.NewV4()),
 				UploadedOrdersID: uuid.Must(uuid.NewV4()),
+				PayGradeRankID:   models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 		{
