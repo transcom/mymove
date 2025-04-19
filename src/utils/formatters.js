@@ -314,7 +314,7 @@ export const dropdownInputOptions = (options) => {
 };
 
 export const makeRankAffiliationMappings = (affiliation) => {
-  const affiliatedValues = rankOptionValuesByAffiliation(affiliation);
+  const affiliatedValues = rankOptionValuesByAffiliation(affiliation?.toUpperCase());
   const paygradeRankOptions = Object.fromEntries(
     Object.values(affiliatedValues).map((pgr) => {
       return [pgr.abbv_rank, pgr.value];

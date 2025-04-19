@@ -944,7 +944,7 @@ export const formatRankGradeDisplayValue = ({ rank, grade }) => {
 
 export const rankOptionValuesByAffiliation = (affiliation) => {
   const affiliationPaygradeRankEntries = Object.fromEntries(
-    (RANK_GRADE_ASSOCIATIONS[affiliation] ?? []).map((e) => [
+    (RANK_GRADE_ASSOCIATIONS[affiliation?.toUpperCase()] ?? []).map((e) => [
       e.abbv_rank,
       { value: formatRankGradeDisplayValue({ rank: e.abbv_rank, grade: ORDERS_PAY_GRADE_OPTIONS[e.grade] }), ...e },
     ]),

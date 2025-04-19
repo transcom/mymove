@@ -2,6 +2,9 @@
 --insert pay_grade_ranks
 
 INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_name,rank_order,created_at,updated_at) VALUES
+('00000000-0000-0000-0000-000000000000'::uuid,null,'','','',0,now(),now());
+
+INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_name,rank_order,created_at,updated_at) VALUES
 	('560ce615-e31d-4800-9273-8344508d18e2'::uuid,'7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'AIR_FORCE','GEN','General',1,now(),now()),
 	('d84742d4-cbbc-48ce-af03-3eada00aa145'::uuid,'1d6e34c3-8c6c-4d4f-8b91-f46bed3f5e80'::uuid,'AIR_FORCE','LTG','Lieutenant General',2,now(),now()),
 	('5db514e4-5808-4211-aea7-866ac6a74dc4'::uuid,'6e50b04a-52dc-45c9-91d9-4a7b4fa1ab20'::uuid,'AIR_FORCE','MG','Major General',3,now(),now()),
@@ -177,6 +180,7 @@ INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_na
 	('dc82cc34-8fd1-49ff-8bf7-31793fe93316'::uuid,'5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'SPACE_FORCE','CPT','Captain',8,now(),now()),
 	('103d519d-1b5d-4226-8c71-d34f366a0583'::uuid,'d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'SPACE_FORCE','1LT','First Lieutenant',9,now(),now())
 	 	on conflict (id) do nothing;
+
 INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_name,rank_order,created_at,updated_at) VALUES
 	('aa604956-fc8b-4f97-a66f-16d6d875c564'::uuid,'9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'SPACE_FORCE','2LT','Second Lieutenant',10,now(),now()),
 	('903c8212-19b7-40e4-9f4b-150f6f76b8aa'::uuid,'a5fc8fd2-6f91-492b-abe2-2157d03ec990'::uuid,'SPACE_FORCE','CMS','Chief Master Sergeant',11,now(),now()),
@@ -195,11 +199,12 @@ INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_na
 
 INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_name,rank_order,created_at,updated_at) VALUES
 	('d3aa6931-7858-4123-be0b-f3242a49e9f7'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'AIR_FORCE','CIV','Civilian',null,now(),now()),
+	('085c2d17-7f97-4fad-bac4-00ec42a9736f'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'OTHER','CIV','Civilian',null,now(),now()),
 	('0be75ca3-5226-447b-ad5f-d73205946bcb'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civilian',null,now(),now()),
-	('4af7df34-a5a3-448e-93eb-7bed05704cd0'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civilian',null,now(),now()),
-	('676ae8f9-0ca6-4919-b502-ef46c1cfaa48'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civilian',null,now(),now()),
-	('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civilian',null,now(),now()),
-	('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6'::uuid,'9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civilian',null,now(),now())
+	('4af7df34-a5a3-448e-93eb-7bed05704cd0'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civilian',null,now(),now()),
+	('676ae8f9-0ca6-4919-b502-ef46c1cfaa48'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civilian',null,now(),now()),
+	('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civilian',null,now(),now()),
+	('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6'::uuid, '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civilian',null,now(),now())
 	 on conflict (id) do nothing;
 
 INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_short_name,rank_name,rank_order,created_at,updated_at) VALUES
