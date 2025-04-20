@@ -49,7 +49,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
-  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
+  const [mappedRanks, payGradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -503,7 +503,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 id="rank"
                 required
                 showRequiredAsterisk
-                options={paygradeRankOptionValues}
+                options={payGradeRankOptionValues}
                 onChange={(e) => {
                   if (e.target.value === '') {
                     handleRankGradeChange({ rank: null, grade: null });

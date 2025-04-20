@@ -1,5 +1,7 @@
+import { makeRankAffiliationMappings } from './formatters';
+
 import { matchesOrdersType } from 'utils/orders';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 
 describe('matchesOrdersType', () => {
   const PCSOrders = { orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION };
@@ -41,5 +43,25 @@ describe('matchesOrdersType', () => {
     [PCSOrders, ''],
   ])('returns false when the orders type value is falsey', (orders, ordersType) => {
     expect(matchesOrdersType(matchesOrdersType(orders, ordersType))).toEqual(false);
+  });
+});
+
+describe('payGradeRankValuesAreValid', () => {
+  it.each(Object.entries(ORDERS_BRANCH_OPTIONS))('branch has proper mapped values', (affiliationValue) => {
+    if (affiliationValue === 'OTHER') return;
+
+    const [, options] = makeRankAffiliationMappings(affiliationValue);
+    expect(options.length).toBeGreaterThan(0);
+
+    const allOptionsAreValid = options.every(({ value }) => {
+      switch (value) {
+        case undefined:
+        case null:
+          return false;
+        default:
+          return value && !value?.includes('undefined');
+      }
+    });
+    expect(allOptionsAreValid).toBe(true);
   });
 });

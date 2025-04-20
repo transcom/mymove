@@ -63,7 +63,7 @@ const AddOrdersForm = ({
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
   const [grade, setGrade] = useState('');
   const [, setRank] = useState('');
-  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
+  const [mappedRanks, payGradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     ordersType: Yup.mixed()
@@ -477,7 +477,7 @@ const AddOrdersForm = ({
                 name="rank"
                 id="rank"
                 required
-                options={paygradeRankOptionValues}
+                options={payGradeRankOptionValues}
                 onChange={(e) => {
                   if (e.target.value === '') {
                     handleRankGradeChange({ rank: null, grade: null });
