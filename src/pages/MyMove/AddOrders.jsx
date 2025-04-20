@@ -97,7 +97,7 @@ const AddOrders = ({
       /* eslint-enable no-nested-ternary */
     };
     const oconusFields = constructOconusFields();
-    const pendingValues = {
+    const { rank, ...pendingValues } = {
       ...values,
       service_member_id: serviceMemberId,
       new_duty_location_id: values.new_duty_location.id,

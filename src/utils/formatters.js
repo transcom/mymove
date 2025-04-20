@@ -315,14 +315,14 @@ export const dropdownInputOptions = (options) => {
 
 export const makeRankAffiliationMappings = (affiliation) => {
   const affiliatedValues = rankOptionValuesByAffiliation(affiliation?.toUpperCase());
-  const paygradeRankOptions = Object.fromEntries(
+  const payGradeRankOptions = Object.fromEntries(
     Object.values(affiliatedValues).map((pgr) => {
       return [pgr.abbv_rank, pgr.value];
     }),
   );
 
-  const paygradeRankDropdownOptions = dropdownInputOptions(paygradeRankOptions);
-  const sortedResult = paygradeRankDropdownOptions.sort((a, b) => {
+  const payGradeRankDropdownOptions = dropdownInputOptions(payGradeRankOptions);
+  const sortedResult = payGradeRankDropdownOptions.sort((a, b) => {
     const theGradeA = affiliatedValues[a.key].grade;
     const [typeA] = theGradeA.split('_');
     const theGradeB = affiliatedValues[b.key].grade;
@@ -335,14 +335,14 @@ export const makeRankAffiliationMappings = (affiliation) => {
 };
 
 export const usePaygradeRankDropdownOptions = (affiliation) => {
-  const paygradeRankOptionValues = useMemo(() => makeRankAffiliationMappings(affiliation), [affiliation]);
+  const payGradeRankOptionValues = useMemo(() => makeRankAffiliationMappings(affiliation), [affiliation]);
   switch (affiliation) {
     case '':
     case undefined:
     case null:
       return [{}, []];
     default:
-      return paygradeRankOptionValues;
+      return payGradeRankOptionValues;
   }
 };
 

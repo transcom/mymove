@@ -8,9 +8,9 @@ import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { MockProviders } from 'testUtils';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 jest.setTimeout(60000);
 
@@ -30,6 +30,11 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+}));
+
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectServiceMemberAffiliation: jest.fn().mockImplementation(() => 'ARMY'),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -207,6 +212,7 @@ const civilianTDYTestProps = {
     has_dependents: '',
     uploaded_orders: [],
     grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+    rank: 'CIV',
     origin_duty_location: { name: 'Luke AFB', address: { isOconus: false } },
     new_duty_location: { name: 'Luke AFB', provides_services_counseling: false, address: { isOconus: true } },
   },
@@ -249,7 +255,7 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/New duty location/)).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText(/Pay grade/)).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText(/Rank/)).toBeInstanceOf(HTMLSelectElement);
       expect(getByLabelText(/Current duty location/)).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
@@ -309,15 +315,16 @@ describe('OrdersInfoForm component', () => {
       </Provider>,
     );
 
+    const chosenRank = 'CPL';
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
@@ -346,7 +353,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText(/Orders type/));
     await userEvent.click(screen.getByLabelText(/Orders date/));
     await userEvent.click(screen.getByLabelText(/Report by date/));
-    await userEvent.click(screen.getByLabelText(/Pay grade/));
+    await userEvent.click(screen.getByLabelText(/Rank/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
@@ -358,6 +365,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('renders the counseling office if current duty location provides services counseling', async () => {
+    const chosenRank = 'SGT';
     const testPropsWithCounselingOffice = {
       onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
       initialValues: {
@@ -367,6 +375,7 @@ describe('OrdersInfoForm component', () => {
         has_dependents: '',
         new_duty_location: {},
         grade: '',
+        rank: '',
         origin_duty_location: {},
         counseling_office_id: '',
       },
@@ -392,7 +401,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Scott/);
@@ -408,6 +417,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('does not render the counseling office if current duty location does not provides services counseling', async () => {
+    const [chosenRank] = ['SGT', 'E_5'];
     const testPropsWithCounselingOffice = {
       onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
       initialValues: {
@@ -417,6 +427,7 @@ describe('OrdersInfoForm component', () => {
         has_dependents: '',
         new_duty_location: {},
         grade: '',
+        rank: '',
         origin_duty_location: {},
         counseling_office_id: '',
       },
@@ -435,17 +446,18 @@ describe('OrdersInfoForm component', () => {
         <OrdersInfoForm {...testPropsWithCounselingOffice} />
       </Provider>,
     );
+
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const currentDutyLocationField = screen.getByLabelText(/Current duty location/);
+    await userEvent.type(currentDutyLocationField, 'alt AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
     await userEvent.click(selectedOptionCurrent);
-
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'alt AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 
@@ -453,6 +465,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
+    const [chosenRank, chosenGrade] = ['SGT', 'E_5'];
     render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
@@ -463,11 +476,11 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
     // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.type(screen.getByLabelText(/Current duty location/, { exact: false }), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
@@ -508,7 +521,8 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
-          grade: 'E_5',
+          grade: chosenGrade,
+          rank: chosenRank,
           origin_duty_location: {
             address: {
               city: '',
@@ -531,6 +545,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('submits the form when temporary duty orders type is selected', async () => {
+    const [chosenRank, chosenGrade] = ['SFC', 'E_7'];
     render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
@@ -540,11 +555,11 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_7']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
@@ -578,7 +593,8 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
-          grade: 'E_7',
+          grade: chosenGrade,
+          rank: chosenRank,
           origin_duty_location: {
             address: {
               city: '',
@@ -616,6 +632,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   describe('with initial values', () => {
+    const [initialRank, initialGrade] = ['PVT', 'E_1'];
     const testInitialValues = {
       orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
       issue_date: '2020-11-08',
@@ -639,7 +656,8 @@ describe('OrdersInfoForm component', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E_1',
+      grade: initialGrade,
+      rank: initialRank,
       origin_duty_location: {
         address: {
           city: '',
@@ -676,7 +694,7 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText('Yes')).not.toBeChecked();
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
-        expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
+        expect(getByLabelText(/Rank/)).toHaveValue(initialRank);
         expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
     });
@@ -810,7 +828,7 @@ describe('OrdersInfoForm component', () => {
       expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), civilianTDYTestProps.initialValues.rank);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
@@ -833,9 +851,9 @@ describe('OrdersInfoForm component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Rank/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), 'PVT');
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),

@@ -42,7 +42,7 @@ const OrdersDetailForm = ({
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
-  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(agency);
+  const [mappedRanks, payGradeRankOptionValues] = usePaygradeRankDropdownOptions(agency);
   const handlePaygradeRankChange = useCallback(
     (e) => {
       if (e.target.value === '') {
@@ -88,7 +88,7 @@ const OrdersDetailForm = ({
         data-testid="payGradeRankInput"
         required
         isDisabled={formIsDisabled}
-        options={paygradeRankOptionValues}
+        options={payGradeRankOptionValues}
         onChange={handlePaygradeRankChange}
       />
       <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
@@ -243,6 +243,7 @@ const OrdersDetailForm = ({
 };
 
 OrdersDetailForm.propTypes = {
+  agency: string.isRequired,
   ordersTypeOptions: DropdownArrayOf.isRequired,
   deptIndicatorOptions: DropdownArrayOf,
   ordersTypeDetailOptions: DropdownArrayOf,

@@ -10,6 +10,11 @@ import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
 
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectServiceMemberAffiliation: jest.fn().mockImplementation(() => 'NAVY'),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -365,11 +370,11 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Rank/), 'PO2');
 
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await user.click(selectedOptionCurrent);
 
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
@@ -403,7 +408,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '29 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Rank/), 'PO2');
 
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
@@ -437,10 +442,10 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+    await user.selectOptions(screen.getByLabelText(/Rank/), 'PO2');
 
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText('Altus');
     await user.click(selectedOptionCurrent);
 
     await user.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 500 });

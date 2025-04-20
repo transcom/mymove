@@ -1,18 +1,19 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
 import { getOrders, patchOrders, showCounselingOffices } from 'services/internalApi';
-import { renderWithProviders } from 'testUtils';
+import { MockProviders, renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import {
   selectAllMoves,
   selectOrdersForLoggedInUser,
   selectServiceMemberFromLoggedInUser,
+  selectServiceMemberAffiliation,
 } from 'store/entities/selectors';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -161,6 +162,7 @@ jest.mock('store/entities/selectors', () => ({
   selectServiceMemberFromLoggedInUser: jest.fn(),
   selectOrdersForLoggedInUser: jest.fn(),
   selectAllMoves: jest.fn(),
+  selectServiceMemberAffiliation: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -230,6 +232,7 @@ const testPropsWithUploads = {
     ],
   },
   moves: ['testMoveId'],
+  payGradeRank: { rankShortName: 'SMS' },
 };
 
 const testPropsNoUploads = {
@@ -278,6 +281,7 @@ const testPropsNoUploads = {
     uploads: [],
   },
   moves: ['testMoveId'],
+  payGradeRank: { rankShortName: 'SMS' },
 };
 
 const testOrders = [testPropsWithUploads, testPropsNoUploads];
@@ -432,12 +436,18 @@ describe('Orders page', () => {
   it('renders appropriate order data on load', async () => {
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectServiceMemberAffiliation.mockImplementation(() => 'AIR_FORCE');
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
-    renderWithProviders(<Orders {...testProps} />, {
-      path: customerRoutes.ORDERS_INFO_PATH,
-      params: { orderId: 'testOrderId' },
-    });
+    render(
+      <MockProviders
+        initialState={{ affiliation: ORDERS_BRANCH_OPTIONS.AIR_FORCE }}
+        params={{ orderId: 'testOrderId' }}
+        path={customerRoutes.ORDERS_INFO_PATH}
+      >
+        <Orders {...testProps} />
+      </MockProviders>,
+    );
 
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
     expect(screen.getByLabelText(/Orders type/)).toHaveValue('PERMANENT_CHANGE_OF_STATION');
@@ -446,13 +456,14 @@ describe('Orders page', () => {
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
     expect(screen.getByLabelText('No')).toBeChecked();
     expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E_8');
+    expect(screen.getByLabelText(/Rank/)).toHaveValue('SMS');
     expect(screen.queryByText('Altus AFB')).toBeInTheDocument();
   });
 
   it('next button patches the orders updates state', async () => {
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectServiceMemberAffiliation.mockImplementation(() => 'AIR_FORCE');
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
     const testOrdersValues = {
@@ -503,6 +514,7 @@ describe('Orders page', () => {
   it('shows an error if the API returns an error', async () => {
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectServiceMemberAffiliation.mockImplementation(() => 'AIR_FORCE');
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
     patchOrders.mockImplementation(() =>
