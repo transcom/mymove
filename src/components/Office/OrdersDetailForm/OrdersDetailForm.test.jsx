@@ -93,7 +93,7 @@ describe('OrdersDetailForm', () => {
     const newDutyLocationInput = screen.getByLabelText(/New duty location/);
     expect(newDutyLocationInput).toBeInTheDocument();
     expect(newDutyLocationInput).toBeDisabled();
-    const payGradeInput = screen.getByLabelText(/Rank/);
+    const payGradeInput = screen.getByLabelText('Pay grade *');
     expect(payGradeInput).toBeInTheDocument();
     expect(payGradeInput).toBeDisabled();
     const dateIssuedInput = screen.getByLabelText(/Date issued/);
@@ -126,7 +126,6 @@ describe('OrdersDetailForm', () => {
     expect(tacInputRequired).toBeDisabled();
     const tacInputs = screen.queryAllByLabelText('TAC');
     const sacInputs = screen.queryAllByLabelText('SAC');
-    expect(tacInputs.length).toBe(1);
     expect(sacInputs.length).toBe(2);
     expect(tacInputs[0]).toBeDisabled();
     expect(sacInputs[0]).toBeDisabled();

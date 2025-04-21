@@ -168,6 +168,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.OrdersType",
 			"MTOShipments",
 			"MTOServiceItems",
+			"MTOServiceItems.ReService",
 			"ShipmentGBLOC",
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
