@@ -70,7 +70,7 @@ func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
 
 	for name, test := range testCases {
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&test.fuelEIADP, test.expectedErrs) //#nosec G601 new in 1.22.2
+			suite.verifyValidationErrors(&test.fuelEIADP, test.expectedErrs, nil) //#nosec G601 new in 1.22.2
 		})
 	}
 

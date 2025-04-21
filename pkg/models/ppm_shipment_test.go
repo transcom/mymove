@@ -125,7 +125,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		name, testCase := name, testCase
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(testCase.ppmShipment, testCase.expectedErrs)
+			suite.verifyValidationErrors(testCase.ppmShipment, testCase.expectedErrs, nil)
 		})
 	}
 }
