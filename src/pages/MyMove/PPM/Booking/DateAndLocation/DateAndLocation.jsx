@@ -12,7 +12,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
-import { moveLockedWarning, PPM_TYPES, SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, PPM_TYPES, SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment, updateMove, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
@@ -197,7 +197,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     <>
       {isMoveLocked && (
         <Alert headingLevel="h4" type="warning">
-          {moveLockedWarning}
+          {MOVE_LOCKED_WARNING}
         </Alert>
       )}
       <div className={ppmPageStyles.ppmPageStyle}>

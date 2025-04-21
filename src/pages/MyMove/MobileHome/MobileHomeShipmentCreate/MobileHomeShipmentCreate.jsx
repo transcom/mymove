@@ -11,7 +11,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
-import { moveLockedWarning, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { updateMTOShipment } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
@@ -149,7 +149,7 @@ const MobileHomeShipmentCreate = ({
     <>
       {isMoveLocked && (
         <Alert headingLevel="h4" type="warning">
-          {moveLockedWarning}
+          {MOVE_LOCKED_WARNING}
         </Alert>
       )}
       <div className={pageStyles.ppmPageStyle}>

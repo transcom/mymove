@@ -15,7 +15,7 @@ import { customerRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
 import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
-import { moveLockedWarning, SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, SHIPMENT_TYPES } from 'shared/constants';
 import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
 import { useTitle } from 'hooks/custom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -112,7 +112,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
     <>
       {isMoveLocked && (
         <Alert headingLevel="h4" type="warning">
-          {moveLockedWarning}
+          {MOVE_LOCKED_WARNING}
         </Alert>
       )}
       <GridContainer>

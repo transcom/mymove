@@ -39,7 +39,7 @@ import {
   patchMTOShipment,
   dateSelectionIsWeekendHoliday,
 } from 'services/internalApi';
-import { moveLockedWarning, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { OrdersShape } from 'types/customerShapes';
@@ -191,7 +191,7 @@ class MtoShipmentForm extends Component {
       <>
         {isMoveLocked && (
           <Alert headingLevel="h4" type="warning">
-            {moveLockedWarning}
+            {MOVE_LOCKED_WARNING}
           </Alert>
         )}
         <Formik
