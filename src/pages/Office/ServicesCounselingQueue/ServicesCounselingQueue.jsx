@@ -52,13 +52,14 @@ import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions'
 import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import { milmoveLogger } from 'utils/milmoveLog';
-import handleQueueAssignment from 'utils/queues';
+import { handleQueueAssignment, getQueue } from 'utils/queues';
 import retryPageLoading from 'utils/retryPageLoading';
 
 export const counselingColumns = (
   moveLockFlag,
   originLocationList,
   supervisor,
+  queueType,
   isQueueManagementEnabled,
   setRefetchQueue,
 ) => {
@@ -214,7 +215,7 @@ export const counselingColumns = (
               <Dropdown
                 key={row.id}
                 onChange={(e) => {
-                  handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR);
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
                 }}
                 title="Assigned dropdown"
@@ -250,6 +251,7 @@ export const closeoutColumns = (
   ppmCloseoutGBLOC,
   ppmCloseoutOriginLocationList,
   supervisor,
+  queueType,
   isQueueManagementEnabled,
   setRefetchQueue,
 ) => {
@@ -418,7 +420,7 @@ export const closeoutColumns = (
             <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 onChange={(e) => {
-                  handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR);
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
                 }}
                 title="Assigned dropdown"
@@ -681,6 +683,7 @@ const ServicesCounselingQueue = ({
             inPPMCloseoutGBLOC,
             ppmCloseoutOriginLocationList,
             supervisor,
+            queueType,
             isQueueManagementFFEnabled,
             setRefetchQueue,
           )}
@@ -718,6 +721,7 @@ const ServicesCounselingQueue = ({
             moveLockFlag,
             originLocationList,
             supervisor,
+            queueType,
             isQueueManagementFFEnabled,
             setRefetchQueue,
           )}
