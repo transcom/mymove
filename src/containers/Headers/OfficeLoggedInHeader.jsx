@@ -46,7 +46,7 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   } else if (activeRole === roleTypes.TIO) {
     queueText = 'payment requests';
   } else if (validUnlockingOfficers.includes(activeRole) && location.pathname === '/') {
-    checkForLockedMovesAndUnlock('move', officeUser.id);
+    checkForLockedMovesAndUnlock(officeUser.id);
   }
 
   return (

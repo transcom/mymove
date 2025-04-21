@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,10 +14,10 @@ func (suite *ServiceParamValueLookupsSuite) TestRateAreaLookup() {
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func(code models.ReServiceCode) {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
