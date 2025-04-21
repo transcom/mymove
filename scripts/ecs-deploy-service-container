@@ -131,7 +131,7 @@ green_task_def_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --cpu "${SERVICE_RESERVATION_CPU}" \
   --memory "${SERVICE_RESERVATION_MEM}" \
   --register)
-# shellcheck disable=SC2181
+#  shellcheck disable=SC2181
 if [ "$?" != "0" ]; then echo "$green_task_def_date_arn"; exit 1; fi
 set -e
 
