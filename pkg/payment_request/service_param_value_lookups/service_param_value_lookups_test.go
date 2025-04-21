@@ -306,11 +306,13 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithIntlFSCWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			EndDate: time.Now().Add(24 * time.Hour),
-		},
-	})
+	testdatagen.FetchOrMakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
+			},
+		})
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
