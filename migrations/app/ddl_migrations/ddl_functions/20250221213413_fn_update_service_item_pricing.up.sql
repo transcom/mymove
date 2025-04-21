@@ -28,7 +28,6 @@ DECLARE
     price_difference NUMERIC;
     days_in_sit INTEGER;
     declared_contract_id UUID;
-    declared_base_price NUMERIC;
     declared_escalation_factor NUMERIC;
     declared_oconus_factor NUMERIC;
     declared_market_code TEXT;
@@ -272,8 +271,7 @@ BEGIN
                     2
                 ) * 100;
 
-                RAISE NOTICE ''INPK: base=%, esc=%, factor=%, cwt=%, final=% (service_item id=%)'',
-                    declared_base_price,
+                RAISE NOTICE ''INPK: esc=%, factor=%, cwt=%, final=% (service_item id=%)'',
                     escalated_price,
                     declared_oconus_factor,
                     (shipment.prime_estimated_weight / 100.0),
