@@ -2567,10 +2567,21 @@ describe('ShipmentForm component', () => {
             expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
           });
         } else {
-          // Invalid date error shows without touch
-          expect(
-            within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
-          ).toHaveTextContent('Requested pickup date must be in the future.');
+          // Trigger error with invalid date, field changed
+          await act(async () => {
+            const node = screen.getByLabelText(/Requested pickup date/);
+            await userEvent.clear(node);
+            await userEvent.paste('22 Mar 2022');
+            node.blur();
+          });
+          const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
+            'formGroup',
+          );
+          await waitFor(() => {
+            expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent(
+              'Requested pickup date must be in the future.',
+            );
+          });
         }
 
         // Trigger invalid date error - cannot be today

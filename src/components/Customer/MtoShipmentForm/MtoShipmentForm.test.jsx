@@ -2293,6 +2293,13 @@ describe('MtoShipmentForm component', () => {
             expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
           });
         } else {
+          // Trigger error with invalid date, field touched
+          await act(async () => {
+            const node = screen.getByLabelText(/Preferred pickup date/);
+            await userEvent.clear(node);
+            await userEvent.paste('22 Mar 2022');
+            node.blur();
+          });
           const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
             'formGroup',
           );
@@ -2338,7 +2345,7 @@ describe('MtoShipmentForm component', () => {
         renderMtoShipmentForm({
           shipmentType,
           isCreatePage: isCreate,
-          mtoShipment: isCreate ? undefined : mockShipment,
+          mtoShipment: isCreate ? {} : mockShipment,
         });
 
         // Trigger invalid date error - must be in the future
