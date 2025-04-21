@@ -49,7 +49,7 @@ func (suite *ModelSuite) TestAddressInstantiationWithIncorrectUsPostRegionCityID
 		"us_post_region_city_id": {"UsPostRegionCityID is invalid."},
 	}
 
-	suite.verifyValidationErrorsWithDBConnection(suite.AppContextForTest(), newAddress, expErrors)
+	suite.verifyValidationErrors(newAddress, expErrors, suite.AppContextForTest())
 }
 
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
