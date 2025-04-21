@@ -636,17 +636,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({
-        values,
-        isValid,
-        isSubmitting,
-        setValues,
-        handleSubmit,
-        setFieldError,
-        validateForm,
-        validateField,
-        ...formikProps
-      }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
         const {
           ppmType,
           hasSecondaryDestination,
