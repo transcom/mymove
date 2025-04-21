@@ -43,8 +43,8 @@ variables:
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
-  CDPS_RUNNER_TAG: &cdps_runner_tag eks_cluster_runner
-  #CDPS_RUNNER_TAG: &cdps_runner_tag milmove
+  #CDPS_RUNNER_TAG: &cdps_runner_tag eks_cluster_runner
+  CDPS_RUNNER_TAG: &cdps_runner_tag milmove
   EKS_CLUSTER_RUNNER_TAG: &eks_cluster_runner_tag eks_cluster_runner
 
   postgres: &postgres harbor.csde.caci.com/docker.io/postgres:16.4
