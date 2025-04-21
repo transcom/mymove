@@ -29,6 +29,12 @@ var (
 			models.ServiceItemParamNameSITPaymentRequestEnd,
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeIOFSIT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIDFSIT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 		models.ReServiceCodeDOFSIT: {
 			models.ServiceItemParamNameWeightBilled,
 		},

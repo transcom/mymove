@@ -19,7 +19,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 		suite.Equal(ioshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ioshutTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ioshutTestBasePriceCents)},
 		}
@@ -56,8 +56,8 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
+		tenYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(10, 0, 0)
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, tenYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
@@ -216,7 +216,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 		suite.Equal(icrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(icrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(icrtTestBasePriceCents)},
 			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
@@ -254,7 +254,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
 
 		suite.Error(err)
@@ -324,5 +324,94 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlFuelSurchargeSIT() {
 		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, invalidFuelPrice)
 		suite.Error(err)
 		suite.Contains(err.Error(), "EIAFuelPrice is required")
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) TestPriceIntlPickupDeliverySIT() {
+	suite.Run("invalid service code", func() {
+		invalidCode := models.ReServiceCodeIOSHUT
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), invalidCode, "test", iopsitTestRequestedPickupDate, unit.Pound(1000), 1000)
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported Intl PickupDeliverySIT code")
+
+	})
+
+	suite.Run("success  - valid codes", func() {
+		cy := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+					EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
+					EscalationCompounded: iopsitTestEscalationCompounded,
+				},
+			})
+
+		for _, code := range []models.ReServiceCode{models.ReServiceCodeIOPSIT, models.ReServiceCodeIDDSIT} {
+			priceCents, displayParams, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), code, cy.Contract.Code, cy.StartDate.AddDate(0, 0, 1), iopsitTestWeight, int(iopsitTestPerUnitCents))
+			suite.NoError(err)
+			suite.Equal(expectIOPSITTestTotalCost, priceCents)
+
+			expectedParams := services.PricingDisplayParams{
+				{
+					Key:   models.ServiceItemParamNamePriceRateOrFactor,
+					Value: FormatCents(unit.Cents(iopsitTestPerUnitCents)),
+				},
+				{
+					Key:   models.ServiceItemParamNameContractYearName,
+					Value: cy.Name,
+				},
+				{
+					Key:   models.ServiceItemParamNameIsPeak,
+					Value: FormatBool(false),
+				},
+				{
+					Key:   models.ServiceItemParamNameEscalationCompounded,
+					Value: FormatEscalation(iopsitTestEscalationCompounded),
+				},
+			}
+			suite.validatePricerCreatedParams(expectedParams, displayParams)
+		}
+	})
+
+	suite.Run("failure - unable to retrieve contract by code", func() {
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, "UNKNOWN_CONTRACT_CODE", iopsitTestRequestedPickupDate, iopsitTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not retrieve contract by code")
+	})
+
+	suite.Run("failure - could not calculate escalated price", func() {
+		cy := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+					EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
+					EscalationCompounded: iopsitTestEscalationCompounded,
+				},
+			})
+		outOfBoundRequestTime := time.Date(2010, time.July, 5, 10, 22, 11, 456, time.UTC)
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, cy.Contract.Code, outOfBoundRequestTime, iopsitTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not calculate escalated price")
+	})
+
+	suite.Run("Invalid parameters to Price", func() {
+
+		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, "", iopsitTestRequestedPickupDate, idsfscTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "ContractCode is required")
+
+		invalidActualPickupDate := time.Time{}
+		_, _, err = priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, testdatagen.DefaultContractCode, invalidActualPickupDate, idsfscTestWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), "ReferenceDate is required")
+
+		invalidWeight := unit.Pound(0)
+		_, _, err = priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, testdatagen.DefaultContractCode, idsfscActualPickupDate, invalidWeight, int(iopsitTestPerUnitCents))
+		suite.Error(err)
+		suite.Contains(err.Error(), fmt.Sprintf("weight must be a minimum of %d", minInternationalWeight))
+
+		_, _, err = priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, testdatagen.DefaultContractCode, idsfscActualPickupDate, idsfscTestWeight, 0)
+		suite.Error(err)
+		suite.Contains(err.Error(), "perUnitCents is required")
 	})
 }
