@@ -141,7 +141,7 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 		}
 		_, err := getParamTime(badParams, models.ServiceItemParamNameMTOEarliestRequestedPickup)
 		suite.Error(err)
-		suite.Equal("trying to convert MTOAvailableToPrimeAt to a time, but param is of type STRING", err.Error())
+		suite.Equal("trying to convert MTOEarliestRequestedPickup to a time, but param is of type STRING", err.Error())
 	})
 }
 

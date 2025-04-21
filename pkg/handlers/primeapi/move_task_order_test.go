@@ -962,7 +962,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:              models.MTOShipmentStatusApproved,
+					RequestedPickupDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
