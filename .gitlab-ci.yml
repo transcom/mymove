@@ -1845,7 +1845,7 @@ deploy_app_stg:
     - *setup_release_stg
   script:
     - echo "Comparing against deployed commit"
-    # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    #  - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
     - echo "Creating .go-version file if not already present"
     - |
       if [ -f ".go-version" ]; then
