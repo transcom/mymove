@@ -6,6 +6,7 @@ enum:
   - OIL
   - OTHER
   - PACKING_MATERIALS
+  - SMALL_PACKAGE
   - RENTAL_EQUIPMENT
   - STORAGE
   - TOLLS
@@ -20,3 +21,4 @@ x-display-value:
   RENTAL_EQUIPMENT: Rental equipment
   TOLLS: Tolls
   WEIGHING_FEE: Weighing fee
+  SMALL_PACKAGE: Small package
