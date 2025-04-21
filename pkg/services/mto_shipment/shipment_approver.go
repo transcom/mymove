@@ -54,7 +54,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	// RequestedPickupDate must be in the future if set
-	err = MTOShipmentHasRequestedPickupDateTodayOrEarlier().Validate(appCtx, shipment, nil)
+	err = MTOShipmentHasValidRequestedPickupDate().Validate(appCtx, shipment, nil)
 	if err != nil {
 		return nil, err
 	}

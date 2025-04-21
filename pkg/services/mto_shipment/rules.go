@@ -221,7 +221,7 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate() validator {
 	})
 }
 
-func MTOShipmentHasRequestedPickupDateTodayOrEarlier() validator {
+func MTOShipmentHasValidRequestedPickupDate() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
@@ -229,12 +229,22 @@ func MTOShipmentHasRequestedPickupDateTodayOrEarlier() validator {
 			return nil
 		}
 
-		if older != nil && (newer.RequestedPickupDate == nil && older.RequestedPickupDate == nil) {
-			return nil
+		newerHasDate := newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
+		olderHasDate := older != nil && older.RequestedPickupDate != nil && !older.RequestedPickupDate.IsZero()
+
+		isBoatShipment := newer.ShipmentType == models.MTOShipmentTypeBoatHaulAway || older != nil && older.ShipmentType == models.MTOShipmentTypeBoatHaulAway || newer.ShipmentType == models.MTOShipmentTypeBoatTowAway || older != nil && older.ShipmentType == models.MTOShipmentTypeBoatTowAway
+		isMobileHomeShipment := newer.ShipmentType == models.MTOShipmentTypeMobileHome || older != nil && older.ShipmentType == models.MTOShipmentTypeMobileHome
+		isHHGOutOfNTS := newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS || older != nil && older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS
+		skipValidationShipmentType := isBoatShipment || isMobileHomeShipment || isHHGOutOfNTS
+
+		if !newerHasDate && !olderHasDate && !skipValidationShipmentType {
+			verrs.Add("error validating mto shipment", "RequestedPickupDate is required to create or modify a shipment")
+			return apperror.NewInvalidInputError(newer.ID, nil, validate.NewErrors(),
+				fmt.Sprintf("RequestedPickupDate is required to create or modify a %s shipment", newer.ShipmentType))
 		}
 
-		isDateUpdated := older == nil || older.RequestedPickupDate == nil || (newer.RequestedPickupDate != nil && older.RequestedPickupDate != nil && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate))
-		if newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero() && isDateUpdated {
+		isDateUpdated := (newerHasDate && older != nil && older.RequestedPickupDate != nil && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate))
+		if newerHasDate && !olderHasDate || isDateUpdated {
 			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
 			requestedDate := newer.RequestedPickupDate.Truncate(24 * time.Hour)
 			if !requestedDate.After(today) {

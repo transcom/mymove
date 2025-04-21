@@ -1485,127 +1485,127 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.Error(err)
 	})
 
-	suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
+	// suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
 
-		now := time.Now()
-		yesterday := now.AddDate(0, 0, -1)
-		tomorrow := now.AddDate(0, 0, 1)
+	// 	now := time.Now()
+	// 	yesterday := now.AddDate(0, 0, -1)
+	// 	tomorrow := now.AddDate(0, 0, 1)
 
-		subtestData := suite.createApproveShipmentSubtestData()
-		appCtx := subtestData.appCtx
-		move := subtestData.move
-		approver := subtestData.mockedShipmentApprover
-		shipmentRouter := subtestData.mockedShipmentRouter
+	// 	subtestData := suite.createApproveShipmentSubtestData()
+	// 	appCtx := subtestData.appCtx
+	// 	move := subtestData.move
+	// 	approver := subtestData.mockedShipmentApprover
+	// 	shipmentRouter := subtestData.mockedShipmentRouter
 
-		testCases := []struct {
-			input        *time.Time
-			shipmentType models.MTOShipmentType
-			shouldError  bool
-		}{
-			// HHG
-			{&yesterday, models.MTOShipmentTypeHHG, true},
-			{&now, models.MTOShipmentTypeHHG, true},
-			{&tomorrow, models.MTOShipmentTypeHHG, false},
-			// // NTS
-			// {&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
-			// {&now, models.MTOShipmentTypeHHGIntoNTS, true},
-			// {&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
-			// // NTSR
-			// {&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
-			// {&now, models.MTOShipmentTypeHHGOutOfNTS, true},
-			// {&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
-			// // BOAT HAUL AWAY
-			// {&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
-			// {&now, models.MTOShipmentTypeBoatHaulAway, true},
-			// {&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
-			// // BOAT TOW AWAY
-			// {&yesterday, models.MTOShipmentTypeBoatTowAway, true},
-			// {&now, models.MTOShipmentTypeBoatTowAway, true},
-			// {&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
-			// // MOBILE HOME
-			// {&yesterday, models.MTOShipmentTypeMobileHome, true},
-			// {&now, models.MTOShipmentTypeMobileHome, true},
-			// {&tomorrow, models.MTOShipmentTypeMobileHome, false},
-			// // UB
-			// {&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
-			// {&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
-			// {&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
-			// // PPM - should always pass validation
-			// {&yesterday, models.MTOShipmentTypePPM, false},
-			// {&now, models.MTOShipmentTypePPM, false},
-			// {&tomorrow, models.MTOShipmentTypePPM, false},
-		}
+	// 	testCases := []struct {
+	// 		input        *time.Time
+	// 		shipmentType models.MTOShipmentType
+	// 		shouldError  bool
+	// 	}{
+	// 		// HHG
+	// 		{&yesterday, models.MTOShipmentTypeHHG, true},
+	// 		{&now, models.MTOShipmentTypeHHG, true},
+	// 		{&tomorrow, models.MTOShipmentTypeHHG, false},
+	// 		// // NTS
+	// 		// {&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+	// 		// {&now, models.MTOShipmentTypeHHGIntoNTS, true},
+	// 		// {&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
+	// 		// // NTSR
+	// 		// {&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+	// 		// {&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+	// 		// {&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+	// 		// // BOAT HAUL AWAY
+	// 		// {&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+	// 		// {&now, models.MTOShipmentTypeBoatHaulAway, true},
+	// 		// {&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+	// 		// // BOAT TOW AWAY
+	// 		// {&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+	// 		// {&now, models.MTOShipmentTypeBoatTowAway, true},
+	// 		// {&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+	// 		// // MOBILE HOME
+	// 		// {&yesterday, models.MTOShipmentTypeMobileHome, true},
+	// 		// {&now, models.MTOShipmentTypeMobileHome, true},
+	// 		// {&tomorrow, models.MTOShipmentTypeMobileHome, false},
+	// 		// // UB
+	// 		// {&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+	// 		// {&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+	// 		// {&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+	// 		// // PPM - should always pass validation
+	// 		// {&yesterday, models.MTOShipmentTypePPM, false},
+	// 		// {&now, models.MTOShipmentTypePPM, false},
+	// 		// {&tomorrow, models.MTOShipmentTypePPM, false},
+	// 	}
 
-		for _, testCase := range testCases {
-			// Default is HHG, but we set it explicitly below via the test cases
-			var shipment models.MTOShipment
-			if testCase.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-				ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-					MaxDaysTransitTime: 12,
-					WeightLbsLower:     0,
-					WeightLbsUpper:     10000,
-					DistanceMilesLower: 0,
-					DistanceMilesUpper: 10000,
-				}
-				verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-				suite.Assert().False(verrs.HasAny())
-				suite.NoError(err)
-				moveForPrime := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-				shipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
-					{
-						Model:    moveForPrime,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType:         testCase.shipmentType,
-							RequestedPickupDate:  &tomorrow,
-							ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
-							PrimeEstimatedWeight: models.PoundPointer(unit.Pound(4000)),
-							Status:               models.MTOShipmentStatusSubmitted,
-						},
-					},
-				}, nil)
-			} else {
-				shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-					{
-						Model:    move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType:        testCase.shipmentType,
-							Status:              models.MTOShipmentStatusSubmitted,
-							RequestedPickupDate: testCase.input,
-						},
-					},
-				}, nil)
-			}
+	// 	for _, testCase := range testCases {
+	// 		// Default is HHG, but we set it explicitly below via the test cases
+	// 		var shipment models.MTOShipment
+	// 		if testCase.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+	// 			ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+	// 				MaxDaysTransitTime: 12,
+	// 				WeightLbsLower:     0,
+	// 				WeightLbsUpper:     10000,
+	// 				DistanceMilesLower: 0,
+	// 				DistanceMilesUpper: 10000,
+	// 			}
+	// 			verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+	// 			suite.Assert().False(verrs.HasAny())
+	// 			suite.NoError(err)
+	// 			moveForPrime := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	// 			shipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+	// 				{
+	// 					Model:    moveForPrime,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType:         testCase.shipmentType,
+	// 						RequestedPickupDate:  &tomorrow,
+	// 						ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+	// 						PrimeEstimatedWeight: models.PoundPointer(unit.Pound(4000)),
+	// 						Status:               models.MTOShipmentStatusSubmitted,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		} else {
+	// 			shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+	// 				{
+	// 					Model:    move,
+	// 					LinkOnly: true,
+	// 				},
+	// 				{
+	// 					Model: models.MTOShipment{
+	// 						ShipmentType:        testCase.shipmentType,
+	// 						Status:              models.MTOShipmentStatusSubmitted,
+	// 						RequestedPickupDate: testCase.input,
+	// 					},
+	// 				},
+	// 			}, nil)
+	// 		}
 
-			eTag := etag.GenerateEtag(shipment.UpdatedAt)
+	// 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-			createdShipment := models.MTOShipment{}
-			err := suite.DB().Find(&createdShipment, shipment.ID)
-			suite.FatalNoError(err)
-			err = suite.DB().Load(&createdShipment, "MoveTaskOrder", "PickupAddress", "DestinationAddress")
-			suite.FatalNoError(err)
+	// 		createdShipment := models.MTOShipment{}
+	// 		err := suite.DB().Find(&createdShipment, shipment.ID)
+	// 		suite.FatalNoError(err)
+	// 		err = suite.DB().Load(&createdShipment, "MoveTaskOrder", "PickupAddress", "DestinationAddress")
+	// 		suite.FatalNoError(err)
 
-			shipmentRouter.On("Approve", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
+	// 		shipmentRouter.On("Approve", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-			_, err = approver.ApproveShipment(appCtx, shipment.ID, eTag)
+	// 		_, err = approver.ApproveShipment(appCtx, shipment.ID, eTag)
 
-			suite.NoError(err)
+	// 		suite.NoError(err)
 
-			if testCase.shouldError {
-				suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, *testCase.input)
-				suite.Error(err)
-				suite.Equal("Requested pickup must be greater than or equal to tomorrow's date.", err.Error())
-			} else {
-				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, *testCase.input)
-				suite.NotNil(shipment)
-			}
-		}
-	})
+	// 		if testCase.shouldError {
+	// 			suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, *testCase.input)
+	// 			suite.Error(err)
+	// 			suite.Equal("Requested pickup must be greater than or equal to tomorrow's date.", err.Error())
+	// 		} else {
+	// 			suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, *testCase.input)
+	// 			suite.NotNil(shipment)
+	// 		}
+	// 	}
+	// })
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
@@ -1618,8 +1618,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx
 		move := subtestData.move
-		approver := subtestData.mockedShipmentApprover
-		shipmentRouter := subtestData.mockedShipmentRouter
+		approver := subtestData.shipmentApprover
 
 		testCases := []struct {
 			input        *time.Time
@@ -1627,37 +1626,37 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
 			shouldError  bool
 		}{
 			// HHG
-			// {&yesterday, models.MTOShipmentTypeHHG, true},
-			// {&now, models.MTOShipmentTypeHHG, true},
-			// {&tomorrow, models.MTOShipmentTypeHHG, false},
+			{&yesterday, models.MTOShipmentTypeHHG, true},
+			{&now, models.MTOShipmentTypeHHG, true},
+			{&tomorrow, models.MTOShipmentTypeHHG, false},
 			// NTS
 			{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
 			{&now, models.MTOShipmentTypeHHGIntoNTS, true},
 			{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
-			// // NTSR
-			// {&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
-			// {&now, models.MTOShipmentTypeHHGOutOfNTS, true},
-			// {&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
-			// // BOAT HAUL AWAY
-			// {&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
-			// {&now, models.MTOShipmentTypeBoatHaulAway, true},
-			// {&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
-			// // BOAT TOW AWAY
-			// {&yesterday, models.MTOShipmentTypeBoatTowAway, true},
-			// {&now, models.MTOShipmentTypeBoatTowAway, true},
-			// {&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
-			// // MOBILE HOME
-			// {&yesterday, models.MTOShipmentTypeMobileHome, true},
-			// {&now, models.MTOShipmentTypeMobileHome, true},
-			// {&tomorrow, models.MTOShipmentTypeMobileHome, false},
-			// // UB
-			// {&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
-			// {&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
-			// {&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
-			// // PPM - should always pass validation
-			// {&yesterday, models.MTOShipmentTypePPM, false},
-			// {&now, models.MTOShipmentTypePPM, false},
-			// {&tomorrow, models.MTOShipmentTypePPM, false},
+			// NTSR
+			{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+			// BOAT HAUL AWAY
+			{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+			{&now, models.MTOShipmentTypeBoatHaulAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+			// BOAT TOW AWAY
+			{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+			{&now, models.MTOShipmentTypeBoatTowAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+			// MOBILE HOME
+			{&yesterday, models.MTOShipmentTypeMobileHome, true},
+			{&now, models.MTOShipmentTypeMobileHome, true},
+			{&tomorrow, models.MTOShipmentTypeMobileHome, false},
+			// UB
+			{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+			// PPM - should always pass validation
+			{&yesterday, models.MTOShipmentTypePPM, false},
+			{&now, models.MTOShipmentTypePPM, false},
+			{&tomorrow, models.MTOShipmentTypePPM, false},
 		}
 
 		for _, testCase := range testCases {
@@ -1683,7 +1682,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
 					{
 						Model: models.MTOShipment{
 							ShipmentType:         testCase.shipmentType,
-							RequestedPickupDate:  &tomorrow,
+							RequestedPickupDate:  testCase.input,
 							ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 							PrimeEstimatedWeight: models.PoundPointer(unit.Pound(4000)),
 							Status:               models.MTOShipmentStatusSubmitted,
@@ -1713,8 +1712,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
 			suite.FatalNoError(err)
 			err = suite.DB().Load(&createdShipment, "MoveTaskOrder", "PickupAddress", "DestinationAddress")
 			suite.FatalNoError(err)
-
-			shipmentRouter.On("Approve", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
 			_, err = approver.ApproveShipment(appCtx, shipment.ID, eTag)
 
