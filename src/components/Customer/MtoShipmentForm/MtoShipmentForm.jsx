@@ -242,6 +242,7 @@ class MtoShipmentForm extends Component {
           const [isPreferredDeliveryDateAlertVisible, setIsPreferredDeliveryDateAlertVisible] = useState(false);
           const [preferredPickupDateAlertMessage, setPreferredPickupDateAlertMessage] = useState('');
           const [isPreferredPickupDateInvalid, setIsPreferredPickupDateInvalid] = useState(false);
+          const [isPreferredPickupDateChanged, setIsPreferredPickupDateChanged] = useState(false);
           const [preferredDeliveryDateAlertMessage, setPreferredDeliveryDateAlertMessage] = useState('');
           const DEFAULT_COUNTRY_CODE = 'US';
 
@@ -249,6 +250,23 @@ class MtoShipmentForm extends Component {
             const { response } = e;
             const msg = getResponseError(response, 'failed to retrieve date selection weekend/holiday info');
             this.setState({ errorMessage: msg });
+          };
+
+          const validatePickupDate = (e) => {
+            let error = validateDate(e);
+
+            // preferredPickupDate must be in the future for non-PPM shipments
+            const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+            const today = moment().startOf('day');
+
+            if (!error && isPreferredPickupDateChanged && !pickupDate.isAfter(today)) {
+              setIsPreferredPickupDateInvalid(true);
+              error = 'Preferred pickup date must be in the future.';
+            } else {
+              setIsPreferredPickupDateInvalid(false);
+            }
+
+            return error;
           };
 
           const handlePickupDateChange = (e) => {
@@ -259,15 +277,20 @@ class MtoShipmentForm extends Component {
                 requestedDate: formatDate(e, datePickerFormat),
               },
             });
-            dateSelectionWeekendHolidayCheck(
-              dateSelectionIsWeekendHoliday,
-              DEFAULT_COUNTRY_CODE,
-              new Date(e),
-              'Preferred pickup date',
-              setPreferredPickupDateAlertMessage,
-              setIsPreferredPickupDateAlertVisible,
-              onDateSelectionErrorHandler,
-            );
+
+            setIsPreferredPickupDateChanged(true);
+
+            if (!validatePickupDate(e)) {
+              dateSelectionWeekendHolidayCheck(
+                dateSelectionIsWeekendHoliday,
+                DEFAULT_COUNTRY_CODE,
+                new Date(e),
+                'Preferred pickup date',
+                setPreferredPickupDateAlertMessage,
+                setIsPreferredPickupDateAlertVisible,
+                onDateSelectionErrorHandler,
+              );
+            }
           };
 
           useEffect(() => {
@@ -305,23 +328,6 @@ class MtoShipmentForm extends Component {
               preferredDeliveryDateSelectionHandler(DEFAULT_COUNTRY_CODE, dateSelection);
             }
           }, [delivery.requestedDate]);
-
-          const validatePickupDate = (e) => {
-            let error = validateDate(e);
-
-            // preferredPickupDate must be in the future for non-PPM shipments
-            const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
-            const today = moment().startOf('day');
-
-            if (!error && !pickupDate.isAfter(today)) {
-              setIsPreferredPickupDateInvalid(true);
-              error = 'Preferred pickup date must be in the future.';
-            } else {
-              setIsPreferredPickupDateInvalid(false);
-            }
-
-            return error;
-          };
 
           return (
             <GridContainer>
@@ -375,7 +381,6 @@ class MtoShipmentForm extends Component {
                               hint="Required"
                               validate={validatePickupDate}
                               onChange={handlePickupDateChange}
-                              forceError={isPreferredPickupDateInvalid}
                             />
                           </Fieldset>
                           <AddressFields

@@ -142,6 +142,7 @@ const ShipmentForm = (props) => {
   const [requestedPickupDateAlertMessage, setRequestedPickupDateAlertMessage] = useState('');
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
   const [isRequestedPickupDateInvalid, setIsRequestedPickupDateInvalid] = useState(false);
+  const [isRequestedPickupDateChanged, setIsRequestedPickupDateChanged] = useState(false);
   const DEFAULT_COUNTRY_CODE = 'US';
 
   const queryClient = useQueryClient();
@@ -634,7 +635,17 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
+      {({
+        values,
+        isValid,
+        isSubmitting,
+        setValues,
+        handleSubmit,
+        setFieldError,
+        validateForm,
+        validateField,
+        ...formikProps
+      }) => {
         const {
           ppmType,
           hasSecondaryDestination,
@@ -713,6 +724,22 @@ const ShipmentForm = (props) => {
           }
         };
 
+        const validatePickupDate = (e) => {
+          let error = validateDate(e);
+          // requestedPickupDate must be in the future for non-PPM shipments
+          const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+          const today = moment().startOf('day');
+
+          if (!error && isRequestedPickupDateChanged && !isPPM && !pickupDate.isAfter(today)) {
+            setIsRequestedPickupDateInvalid(true);
+            error = 'Requested pickup date must be in the future.';
+          } else {
+            setIsRequestedPickupDateInvalid(false);
+          }
+
+          return error;
+        };
+
         const handlePickupDateChange = (e) => {
           setValues({
             ...values,
@@ -721,36 +748,24 @@ const ShipmentForm = (props) => {
               requestedDate: formatDate(e, datePickerFormat),
             },
           });
+
+          setIsRequestedPickupDateChanged(true);
+
           const onErrorHandler = (errResponse) => {
             const { response } = errResponse;
             setDatesErrorMessage(response?.body?.detail);
           };
-          dateSelectionWeekendHolidayCheck(
-            dateSelectionIsWeekendHoliday,
-            DEFAULT_COUNTRY_CODE,
-            new Date(e),
-            'Requested pickup date',
-            setRequestedPickupDateAlertMessage,
-            setIsRequestedPickupDateAlertVisible,
-            onErrorHandler,
-          );
-        };
-
-        const validatePickupDate = (e) => {
-          let error = validateDate(e);
-
-          // requestedPickupDate must be in the future for non-PPM shipments
-          const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
-          const today = moment().startOf('day');
-
-          if (!error && !isPPM && !pickupDate.isAfter(today)) {
-            setIsRequestedPickupDateInvalid(true);
-            error = 'Requested pickup date must be in the future.';
-          } else {
-            setIsRequestedPickupDateInvalid(false);
+          if (!validatePickupDate(e)) {
+            dateSelectionWeekendHolidayCheck(
+              dateSelectionIsWeekendHoliday,
+              DEFAULT_COUNTRY_CODE,
+              new Date(e),
+              'Requested pickup date',
+              setRequestedPickupDateAlertMessage,
+              setIsRequestedPickupDateAlertVisible,
+              onErrorHandler,
+            );
           }
-
-          return error;
         };
 
         const handleDeliveryDateChange = (e) => {
@@ -955,7 +970,6 @@ const ShipmentForm = (props) => {
                         id="requestedPickupDate"
                         validate={validatePickupDate}
                         onChange={handlePickupDateChange}
-                        forceError={isRequestedPickupDateInvalid}
                       />
                     </Fieldset>
                     {!isNTSR && (
