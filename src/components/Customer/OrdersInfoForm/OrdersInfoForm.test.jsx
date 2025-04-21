@@ -455,7 +455,7 @@ describe('OrdersInfoForm component', () => {
 
     const currentDutyLocationField = screen.getByLabelText(/Current duty location/);
     await userEvent.type(currentDutyLocationField, 'alt AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
+    const selectedOptionCurrent = await screen.findByText(/Altus AFB$/);
     await userEvent.click(selectedOptionCurrent);
     await userEvent.type(screen.getByLabelText(/New duty location/), 'alt AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
