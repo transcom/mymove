@@ -5,6 +5,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/gobuffalo/pop/v6"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -50,11 +51,15 @@ func (suite *ModelSuite) verifyValidationErrorsWithDBConnection(appCtx appcontex
 	}
 }
 
-func (suite *ModelSuite) verifyValidationErrors(model m.ValidateableModel, exp map[string][]string) {
+func (suite *ModelSuite) verifyValidationErrors(model m.ValidateableModel, exp map[string][]string, appCtx appcontext.AppContext) {
 	t := suite.T()
 	t.Helper()
 
-	verrs, err := model.Validate(nil)
+	var db *pop.Connection
+	if appCtx != nil && appCtx.DB() != nil {
+		db = appCtx.DB()
+	}
+	verrs, err := model.Validate(db)
 	if err != nil {
 		t.Fatal(err)
 	}
