@@ -13,7 +13,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { boatShipmentTypes } from 'constants/shipments';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMTOShipment, deleteMTOShipment, getAllMoves } from 'services/internalApi';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { moveLockedWarning, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
@@ -231,6 +231,11 @@ const BoatShipmentCreate = ({
 
   return (
     <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {moveLockedWarning}
+        </Alert>
+      )}
       <div className={pageStyles.ppmPageStyle}>
         <NotificationScrollToTop dependency={errorMessage} />
         <GridContainer>

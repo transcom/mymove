@@ -14,6 +14,7 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperPPMCloseoutSubmitted,
+  HelperMoveIsLocked,
 } from './HomeHelpers';
 
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
@@ -412,6 +413,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // handles logic of which helper boxes to render
   const renderHelper = () => {
+    if (isMoveLocked) return <HelperMoveIsLocked />;
     if (!hasOrdersAndUpload()) return <HelperNeedsOrders />;
     if (!hasAnyShipments()) return <HelperNeedsShipment />;
     if (!hasSubmittedMove()) return <HelperNeedsSubmitMove />;
@@ -591,7 +593,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   complete={serviceMember.is_profile_complete}
                   completedHeaderText="Profile complete"
                   editBtnLabel="Edit"
-                  editBtnDisabled={isMoveLocked}
                   headerText="Profile complete"
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
@@ -660,7 +661,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                         onShipmentClick={handleShipmentClick}
                         onDeleteClick={handleDeleteClick}
                         moveSubmitted={hasSubmittedMove()}
-                        isMoveLocked
+                        isMoveLocked={isMoveLocked}
                       />
                       {hasSubmittedMove() && (
                         <p className={styles.descriptionExtra}>

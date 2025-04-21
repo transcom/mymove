@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
@@ -8,7 +8,7 @@ import { OktaUserInfoShape } from 'types/user';
 import EditOktaInfoForm from 'components/Customer/EditOktaInfoForm/EditOktaInfoForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
-import { getResponseError, updateOktaUser, getAllMoves } from 'services/internalApi';
+import { getResponseError, updateOktaUser } from 'services/internalApi';
 import { selectServiceMemberFromLoggedInUser, selectOktaUser } from 'store/entities/selectors';
 import { updateOktaUserState as updateOktaUserStateAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
@@ -16,23 +16,8 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateOktaUserState }) => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { moveId } = state;
   const [serverError, setServerError] = useState(null);
   const [noChangeError, setNoChangeError] = useState(null);
-  const [isMoveLocked, setIsMoveLocked] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const moves = await getAllMoves(serviceMember.id);
-      const thisMove =
-        moves?.currentMove?.find((m) => m.id === moveId) || moves?.previousMoves?.find((m) => m.id === moveId);
-      const now = new Date();
-      if (now < new Date(thisMove?.lockExpiresAt)) {
-        setIsMoveLocked(true);
-      }
-    };
-    fetchData();
-  }, [moveId, serviceMember.id]);
 
   const initialValues = {
     oktaUsername: oktaUser?.login || 'Not Provided',
@@ -113,12 +98,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateO
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <EditOktaInfoForm
-            initialValues={initialValues}
-            onCancel={handleCancel}
-            onSubmit={handleSubmit}
-            isMoveLocked={isMoveLocked}
-          />
+          <EditOktaInfoForm initialValues={initialValues} onCancel={handleCancel} onSubmit={handleSubmit} />
         </Grid>
       </Grid>
     </GridContainer>

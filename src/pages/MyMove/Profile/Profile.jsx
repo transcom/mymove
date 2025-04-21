@@ -25,7 +25,6 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OktaUserInfoShape } from 'types/user';
-import { getAllMoves } from 'services/internalApi';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft, oktaUser }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
@@ -41,7 +40,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
   const [profileValidated, setProfileValidated] = useState(false);
   const [multiMove, setMultiMove] = useState(false);
-  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -54,17 +52,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       } else {
         setNeedsToVerifyProfile(false);
       }
-      const moves = await getAllMoves(serviceMember.id);
-      const thisMove =
-        moves?.currentMove?.find((m) => m.id === moveId) || moves?.previousMoves?.find((m) => m.id === moveId);
-      const now = new Date();
-      if (now < new Date(thisMove?.lockExpiresAt)) {
-        setIsMoveLocked(true);
-      }
+
       setMultiMove(await isBooleanFlagEnabled('multi_move'));
     };
     fetchData();
-  }, [state, serviceMember.id, moveId]);
+  }, [state]);
 
   const handleCreateMoveClick = () => {
     navigate(customerRoutes.ORDERS_ADD_PATH);
@@ -114,7 +106,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
               editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
-              isEditable={!isMoveLocked}
             />
           </SectionWrapper>
           {showMessages && (
@@ -134,7 +125,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               edipi={serviceMember?.edipi || ''}
               emplid={serviceMember?.emplid || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
-              isEditable={moveIsInDraft && !isMoveLocked}
+              isEditable={moveIsInDraft}
               showMessage={showMessages}
             />
           </SectionWrapper>
@@ -146,7 +137,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               oktaLastName={oktaUser?.lastName || 'Not Provided'}
               oktaEdipi={oktaUser?.cac_edipi || 'Not Provided'}
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
-              isEditable={!isMoveLocked}
             />
           </SectionWrapper>
           {needsToVerifyProfile && (

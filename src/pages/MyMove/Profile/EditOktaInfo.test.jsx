@@ -2,7 +2,6 @@ import React from 'react';
 import { MemoryRouter } from 'react-router';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useLocation } from 'react-router-dom';
 
 import { EditOktaInfo } from './EditOktaInfo';
 
@@ -13,13 +12,11 @@ const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
-  useLocation: jest.fn(),
 }));
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   updateOktaUser: jest.fn(),
-  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 beforeEach(() => {
@@ -44,7 +41,6 @@ describe('EditOktaInfo page', () => {
   };
 
   it('renders the EditOktaInfo form', async () => {
-    useLocation.mockReturnValue({ state: { moveId: 'testMoveId' } });
     render(
       <MemoryRouter>
         <EditOktaInfo {...testProps} />
@@ -56,7 +52,6 @@ describe('EditOktaInfo page', () => {
   });
 
   it('shows error if no changes were made', async () => {
-    useLocation.mockReturnValue({ state: { moveId: 'testMoveId' } });
     render(
       <MemoryRouter>
         <EditOktaInfo {...testProps} />
@@ -81,7 +76,6 @@ describe('EditOktaInfo page', () => {
   });
 
   it('shows error if no changes were made', async () => {
-    useLocation.mockReturnValue({ state: { moveId: 'testMoveId' } });
     render(
       <MemoryRouter>
         <EditOktaInfo {...testProps} />
@@ -97,7 +91,6 @@ describe('EditOktaInfo page', () => {
   });
 
   it('goes back to the profile page when the cancel button is clicked', async () => {
-    useLocation.mockReturnValue({ state: { moveId: 'testMoveId' } });
     render(
       <MemoryRouter>
         <EditOktaInfo {...testProps} />
@@ -108,7 +101,7 @@ describe('EditOktaInfo page', () => {
 
     await userEvent.click(cancelButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH, { state: { moveId: 'testMoveId' } });
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH, { state: null });
   });
 
   afterEach(jest.resetAllMocks);

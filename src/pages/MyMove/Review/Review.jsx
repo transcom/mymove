@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
@@ -15,7 +15,7 @@ import { customerRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
 import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
-import { SHIPMENT_TYPES } from 'shared/constants';
+import { moveLockedWarning, SHIPMENT_TYPES } from 'shared/constants';
 import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
 import { useTitle } from 'hooks/custom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -109,37 +109,44 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   };
 
   return (
-    <GridContainer>
-      <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
-          <ConnectedFlashMessage />
+    <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {moveLockedWarning}
+        </Alert>
+      )}
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <ConnectedFlashMessage />
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
-          <div className={styles.reviewMoveContainer}>
-            <div className={styles.reviewMoveHeaderContainer}>
-              <h1 data-testid="review-move-header">Review your details</h1>
-              <p>
-                You are almost done setting up your move. Double&#8209;check that your information is accurate, add more
-                shipments if needed, then move on to the final step.
-              </p>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <div className={styles.reviewMoveContainer}>
+              <div className={styles.reviewMoveHeaderContainer}>
+                <h1 data-testid="review-move-header">Review your details</h1>
+                <p>
+                  You are almost done setting up your move. Double&#8209;check that your information is accurate, add
+                  more shipments if needed, then move on to the final step.
+                </p>
+              </div>
+              <ConnectedSummary isMoveLocked={isMoveLocked} />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  onNextClick={handleNext}
+                  disableNext={hasIncompleteShipment() || !mtoShipments?.length}
+                  onCancelClick={handleCancel}
+                  isFirstPage
+                  showFinishLater
+                  readOnly={!inDraftStatus || isMoveLocked}
+                />
+              </div>
             </div>
-            <ConnectedSummary isMoveLocked={isMoveLocked} />
-            <div className={formStyles.formActions}>
-              <WizardNavigation
-                onNextClick={handleNext}
-                disableNext={hasIncompleteShipment() || !mtoShipments?.length}
-                onCancelClick={handleCancel}
-                isFirstPage
-                showFinishLater
-                readOnly={!inDraftStatus || isMoveLocked}
-              />
-            </div>
-          </div>
+          </Grid>
         </Grid>
-      </Grid>
-    </GridContainer>
+      </GridContainer>
+    </>
   );
 };
 

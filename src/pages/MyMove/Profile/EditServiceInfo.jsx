@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
-import { patchServiceMember, getResponseError, getAllMoves } from 'services/internalApi';
+import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -20,26 +20,13 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
   const { state } = useLocation();
-  const { moveId } = state;
-  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   useEffect(() => {
     if (!moveIsInDraft) {
       // Redirect to the home page
       navigate(generalRoutes.HOME_PATH);
     }
-
-    const fetchData = async () => {
-      const moves = await getAllMoves(serviceMember.id);
-      const thisMove =
-        moves?.currentMove?.find((m) => m.id === moveId) || moves?.previousMoves?.find((m) => m.id === moveId);
-      const now = new Date();
-      if (now < new Date(thisMove?.lockExpiresAt)) {
-        setIsMoveLocked(true);
-      }
-    };
-    fetchData();
-  }, [moveIsInDraft, navigate, moveId, serviceMember.id]);
+  }, [moveIsInDraft, navigate]);
 
   const initialValues = {
     first_name: serviceMember?.first_name || '',
@@ -100,7 +87,6 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
         newDutyLocation={currentOrders?.new_duty_location}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        isMoveLocked={isMoveLocked}
       />
     </GridContainer>
   );
