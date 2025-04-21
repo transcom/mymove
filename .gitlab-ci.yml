@@ -403,7 +403,7 @@ pre_deps_golang:
       - /builds/milmove/mymove/bin/
       - /builds/milmove/mymove/swagger/
   #TODO: Optimization potential
-  # cache:
+  #  cache:
   #   key: "$CI_COMMIT_REF_SLUG-go"
   #   paths:
   #     - $GOPATH/pkg/mod
