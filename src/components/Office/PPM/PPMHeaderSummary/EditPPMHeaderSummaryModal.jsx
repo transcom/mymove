@@ -19,7 +19,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName, grade }) => {
   const [ppmSprFF, setPpmSprFF] = useState(false);
-  const { actualMoveDate, advanceAmountReceived, allowableWeight, pickupAddressObj, destinationAddressObj } =
+  const { ppmType, actualMoveDate, advanceAmountReceived, allowableWeight, pickupAddressObj, destinationAddressObj } =
     sectionInfo;
   let title = 'Edit';
   if (sectionType === 'shipmentInfo') {
@@ -122,7 +122,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     {editItemName === 'pickupAddress' && (
                       <AddressFields
                         name="pickupAddress"
-                        legend="Pickup Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                         className={styles.AddressFieldSet}
                         formikProps={formikProps}
                       />
@@ -130,7 +130,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     {editItemName === 'destinationAddress' && (
                       <AddressFields
                         name="destinationAddress"
-                        legend="Delivery Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         className={styles.AddressFieldSet}
                         formikProps={formikProps}
                       />
