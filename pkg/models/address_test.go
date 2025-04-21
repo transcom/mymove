@@ -25,7 +25,6 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		PostalCode:         "90210",
 		County:             m.StringPointer("County"),
 		UsPostRegionCityID: &usprc.ID,
-		IsOconus:           m.BoolPointer(false),
 	}
 
 	verrs, err := newAddress.Validate(suite.DB())
@@ -58,7 +57,6 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 	var usprc models.UsPostRegionCity
 	newAddress := m.Address{
 		UsPostRegionCityID: &usprc.ID,
-		IsOconus:           m.BoolPointer(false),
 	}
 
 	expErrors := map[string][]string{
@@ -213,49 +211,6 @@ func (suite *ModelSuite) TestPartialAddressFormat() {
 	formattedAddress = newAddress.LineDisplayFormat()
 
 	suite.Equal("street 1, BEVERLY HILLS, CA 90210", formattedAddress)
-}
-
-func (suite *ModelSuite) TestOptionalUSPRCForOCONUS() {
-	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-	newAddress := &m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: nil,
-		StreetAddress3: nil,
-		City:           "BEVERLY HILLS",
-		State:          "CA",
-		PostalCode:     "90210",
-		County:         m.StringPointer("County"),
-		Country:        &country,
-		CountryId:      &country.ID,
-		IsOconus:       m.BoolPointer(true),
-	}
-
-	verrs, err := newAddress.Validate(suite.DB())
-
-	suite.NoError(err)
-	suite.False(verrs.HasAny())
-}
-func (suite *ModelSuite) TestOptionalUSPRCForCONUS() {
-	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-	var usprc models.UsPostRegionCity
-	newAddress := &m.Address{
-		StreetAddress1:     "street 1",
-		StreetAddress2:     nil,
-		StreetAddress3:     nil,
-		City:               "BEVERLY HILLS",
-		State:              "CA",
-		PostalCode:         "90210",
-		County:             m.StringPointer("County"),
-		Country:            &country,
-		CountryId:          &country.ID,
-		IsOconus:           m.BoolPointer(false),
-		UsPostRegionCityID: &usprc.ID,
-	}
-
-	verrs, err := newAddress.Validate(suite.DB())
-
-	suite.NoError(err)
-	suite.True(verrs.HasAny(), "UsPostRegionCityID can not be blank.")
 }
 
 func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
