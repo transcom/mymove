@@ -682,6 +682,18 @@ export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shi
   );
 }
 
+export function terminateShipment({ shipmentID, normalize = false, schemaKey = 'shipment', body }) {
+  const operationPath = 'shipment.createTermination';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export async function getMovesQueue(
   key,
   { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
