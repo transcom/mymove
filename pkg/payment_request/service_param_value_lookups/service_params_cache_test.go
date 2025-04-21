@@ -583,7 +583,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	})
 
 	// MS - has no shipment
-	// Prime MTO Made Available Date
+	// Prime MTO Earliest Requested Pickup
 	suite.Run("Task Order Service Earliest Requested Pickup", func() {
 		subtestData := suite.makeSubtestData()
 
