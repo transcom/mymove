@@ -306,7 +306,7 @@ describe('EditOrdersForm component', () => {
       );
 
       waitFor(async () => {
-        await expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+        expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
       });
 
       if (required) {
@@ -341,7 +341,7 @@ describe('EditOrdersForm component', () => {
       );
 
       waitFor(async () => {
-        await expect(screen.getByText(documentSizeLimitMsg)).toBeInTheDocument();
+        expect(screen.getByText(documentSizeLimitMsg)).toBeInTheDocument();
       });
     });
   });

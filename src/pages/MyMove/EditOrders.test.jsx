@@ -377,12 +377,11 @@ describe('EditOrders Page', () => {
       }),
     );
 
-    waitFor(async () => {
-      const submitButton = await screen.findByRole('button', { name: 'Save' });
+    waitFor(() => {
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+      expect(submitButton).toBeEnabled();
 
-      expect(submitButton).not.toBeDisabled();
-
-      await userEvent.click(submitButton);
+      userEvent.click(submitButton);
 
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
