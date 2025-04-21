@@ -132,7 +132,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.Len(okResponse.Payload, 0)
 	})
 
-	suite.Run("able to search and filter", func() {
+	suite.Run("able to search by name and filter", func() {
 		status := models.OfficeUserStatusAPPROVED
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
@@ -141,36 +141,46 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 				},
 			},
 		}, nil)
+		transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "PPO Rome Test Office",
+				},
+			},
+		}, nil)
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Angelina",
-					LastName:  "Jolie",
-					Email:     "laraCroft@mail.mil",
-					Status:    &status,
-					Telephone: "555-555-5555",
+					FirstName:              "Angelina",
+					LastName:               "Jolie",
+					Email:                  "laraCroft@mail.mil",
+					Status:                 &status,
+					Telephone:              "555-555-5555",
+					TransportationOfficeID: transportationOffice.ID,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTOO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Billy",
-					LastName:  "Bob",
-					Email:     "bigBob@mail.mil",
-					Status:    &status,
-					Telephone: "555-555-5555",
+					FirstName:              "Billy",
+					LastName:               "Bob",
+					Email:                  "bigBob@mail.mil",
+					Status:                 &status,
+					Telephone:              "555-555-5555",
+					TransportationOfficeID: transportationOffice.ID,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeTIO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					FirstName: "Nick",
-					LastName:  "Cage",
-					Email:     "conAirKilluh@mail.mil",
-					Status:    &status,
-					Telephone: "555-555-5555",
+					FirstName:              "Nick",
+					LastName:               "Cage",
+					Email:                  "conAirKilluh@mail.mil",
+					Status:                 &status,
+					Telephone:              "555-555-5555",
+					TransportationOfficeID: transportationOffice.ID,
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -181,7 +191,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 					LastName:               "Cage",
 					Email:                  "conAirKilluh2@mail.mil",
 					Status:                 &status,
-					TransportationOfficeID: transportationOffice.ID,
+					TransportationOfficeID: transportationOffice2.ID,
 					Telephone:              "415-555-5555",
 				},
 			},
@@ -192,8 +202,8 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// partial name search
-		nameSearch := "Nick"
+		// partial search
+		nameSearch := "ic"
 		filterJSON := fmt.Sprintf("{\"search\":\"%s\"}", nameSearch)
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
@@ -213,11 +223,11 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(nameSearch, *okResponse.Payload[0].FirstName)
-		suite.Equal(nameSearch, *okResponse.Payload[1].FirstName)
+		suite.Contains(*okResponse.Payload[0].FirstName, nameSearch)
+		suite.Contains(*okResponse.Payload[1].FirstName, nameSearch)
 
 		// email search
-		emailSearch := "conAirKilluh2"
+		emailSearch := "AirKilluh2"
 		filterJSON = fmt.Sprintf("{\"email\":\"%s\"}", emailSearch)
 		params = officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
@@ -228,10 +238,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-
-		respEmail := *okResponse.Payload[0].Email
-		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
-		suite.Equal(emailSearch, respEmail[0:len(emailSearch)])
+		suite.Contains(*okResponse.Payload[0].Email, emailSearch)
 
 		// telephone search
 		phoneSearch := "415-"
@@ -245,12 +252,10 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-
-		respPhone := *okResponse.Payload[0].Telephone
-		suite.Equal(phoneSearch, respPhone[0:len(phoneSearch)])
+		suite.Contains(*okResponse.Payload[0].Telephone, phoneSearch)
 
 		// firstName search
-		firstSearch := "Angelina"
+		firstSearch := "Angel"
 		filterJSON = fmt.Sprintf("{\"firstName\":\"%s\"}", firstSearch)
 		params = officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
@@ -261,10 +266,10 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(firstSearch, *okResponse.Payload[0].FirstName)
+		suite.Contains(*okResponse.Payload[0].FirstName, firstSearch)
 
 		// lastName search
-		lastSearch := "Cage"
+		lastSearch := "Jo"
 		filterJSON = fmt.Sprintf("{\"lastName\":\"%s\"}", lastSearch)
 		params = officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
@@ -274,12 +279,11 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 2)
-		suite.Equal(lastSearch, *okResponse.Payload[0].LastName)
-		suite.Equal(lastSearch, *okResponse.Payload[1].LastName)
+		suite.Len(okResponse.Payload, 1)
+		suite.Contains(*okResponse.Payload[0].LastName, lastSearch)
 
 		// transportation office search
-		filterJSON = "{\"office\":\"JPPO\"}"
+		filterJSON = "{\"office\":\"Ro\"}"
 		params = officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
 			Filter:      &filterJSON,
@@ -289,7 +293,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse = response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
-		suite.Equal(strfmt.UUID(transportationOffice.ID.String()), *okResponse.Payload[0].TransportationOfficeID)
+		suite.Equal(strfmt.UUID(transportationOffice2.ID.String()), *okResponse.Payload[0].TransportationOfficeID)
 
 	})
 }

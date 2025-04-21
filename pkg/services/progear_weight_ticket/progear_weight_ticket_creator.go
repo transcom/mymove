@@ -14,6 +14,13 @@ type progearWeightTicketCreator struct {
 	checks []progearWeightTicketValidator
 }
 
+// NewOfficeProgearWeightTicketCreator creates a new progearWeightTicketCreator struct with the basic checks
+func NewOfficeProgearWeightTicketCreator() services.ProgearWeightTicketCreator {
+	return &progearWeightTicketCreator{
+		checks: basicChecksForCreate(),
+	}
+}
+
 // NewCustomerProgearWeightTicketCreator creates a new progearWeightTicketCreator struct with the basic checks
 func NewCustomerProgearWeightTicketCreator() services.ProgearWeightTicketCreator {
 	return &progearWeightTicketCreator{
@@ -36,7 +43,8 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 
 	// This serves as a way of ensuring that the PPM shipment exists. It also ensures a shipment belongs to the logged
 	//  in user, for customer app requests.
-	ppmShipment, ppmShipmentErr := shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, nil, nil)
+	eagerPreloadAssociations := []string{"Shipment.MoveTaskOrder.Orders.ServiceMember"}
+	ppmShipment, ppmShipmentErr := shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, eagerPreloadAssociations, nil)
 
 	if ppmShipmentErr != nil {
 		return nil, ppmShipmentErr
@@ -47,7 +55,7 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 
 		document := &models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
+			ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID,
 		}
 
 		verrs, err := appCtx.DB().ValidateAndCreate(document)

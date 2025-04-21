@@ -822,6 +822,11 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateP
 		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(progearWeightTicket.Status))),
 		Reason:           handlers.FmtString(progearWeightTicket.Reason),
 	}
+
+	if progearWeightTicket.Description != "" {
+		model.Description = handlers.FmtString(progearWeightTicket.Description)
+	}
+
 	return model
 }
 
@@ -840,6 +845,17 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
 	}
+
+	if weightTicket.VehicleDescription != nil {
+		model.VehicleDescription = handlers.FmtString(*weightTicket.VehicleDescription)
+	}
+	if weightTicket.MissingEmptyWeightTicket != nil {
+		model.MissingEmptyWeightTicket = handlers.FmtBool(*weightTicket.MissingEmptyWeightTicket)
+	}
+	if weightTicket.MissingFullWeightTicket != nil {
+		model.MissingFullWeightTicket = handlers.FmtBool(*weightTicket.MissingFullWeightTicket)
+	}
+
 	return model
 }
 
@@ -873,6 +889,12 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	model.WeightStored = handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored)
 	model.SITEstimatedCost = handlers.FmtInt64PtrToPopPtr(movingExpense.SitEstimatedCost)
 	model.SITReimburseableAmount = handlers.FmtInt64PtrToPopPtr(movingExpense.SitReimburseableAmount)
+
+	model.TrackingNumber = handlers.FmtStringPtr(movingExpense.TrackingNumber)
+	model.WeightShipped = handlers.PoundPtrFromInt64Ptr(movingExpense.WeightShipped)
+	model.IsProGear = handlers.FmtBoolPtr(movingExpense.IsProGear)
+	model.ProGearBelongsToSelf = handlers.FmtBoolPtr(movingExpense.ProGearBelongsToSelf)
+	model.ProGearDescription = handlers.FmtStringPtr(movingExpense.ProGearDescription)
 
 	return &model
 }

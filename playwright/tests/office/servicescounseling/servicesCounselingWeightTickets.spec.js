@@ -16,7 +16,7 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
   await scPage.waitForPage.reviewDocumentsConfirmation();
 
   // Click "Confirm" on confirmation page, returning to move details page
-  await page.getByRole('button', { name: 'Confirm' }).click();
+  await page.getByRole('button', { name: 'PPM Review Complete' }).click();
   await scPage.waitForPage.moveDetails();
 
   // NOTE: Code below is commented out because the feature for the SC to be able to review documents AFTER it has been submitted will be picked up at a future date.

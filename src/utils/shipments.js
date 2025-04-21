@@ -1,7 +1,7 @@
 // The PPM shipment creation is a multi-step flow so it's possible to get in a state with missing
 // information and get to the review screen in an incomplete state from creating another shipment
 
-import { SHIPMENT_OPTIONS } from '../shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS } from '../shared/constants';
 
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 
@@ -56,7 +56,11 @@ export function isWeightTicketComplete(weightTicket) {
 
 // hasCompletedAllWeightTickets - checks if every weight ticket has been completed.
 // Returns false if there are no weight tickets, or if any of them are incomplete.
-export function hasCompletedAllWeightTickets(weightTickets) {
+export function hasCompletedAllWeightTickets(weightTickets, ppmType) {
+  // PPM-SPRs don't have weight tickets
+  if (ppmType === PPM_TYPES.SMALL_PACKAGE) {
+    return true;
+  }
   if (!weightTickets?.length) {
     return false;
   }
@@ -73,8 +77,9 @@ export function isExpenseComplete(expense) {
   const hasADocumentUpload = expense.document.uploads.length > 0;
   const hasValidSITDates =
     expense.movingExpenseType !== expenseTypes.STORAGE || (expense.sitStartDate && expense.sitEndDate);
+  const requiresDescription = expense.movingExpenseType !== expenseTypes.SMALL_PACKAGE;
   return !!(
-    expense.description &&
+    (requiresDescription ? expense.description : true) &&
     expense.movingExpenseType &&
     expense.amount &&
     hasADocumentUpload &&
@@ -130,3 +135,116 @@ export function hasIncompleteWeightTicket(weightTickets) {
 
   return !weightTickets?.every(isWeightTicketComplete);
 }
+
+export const blankAddress = {
+  address: {
+    streetAddress1: '',
+    streetAddress2: '',
+    streetAddress3: '',
+    city: '',
+    state: '',
+    postalCode: '',
+  },
+};
+
+const updateAddressToggle = (setValues, fieldName, value, fieldKey, fieldValue) => {
+  if (fieldName === 'hasSecondaryPickup' && value === 'false') {
+    // HHG
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryPickup: 'false',
+      tertiaryPickup: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasDeliveryAddress' && value === 'false') {
+    // HHG
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasSecondaryDelivery: 'false',
+      secondaryDelivery: {
+        address: blankAddress,
+      },
+      hasTertiaryDelivery: 'false',
+      tertiaryDelivery: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasSecondaryDelivery' && value === 'false') {
+    // HHG
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryDelivery: 'false',
+      tertiaryDelivery: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasSecondaryPickupAddress' && value === 'false') {
+    // PPM
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryPickupAddress: 'false',
+      tertiaryPickupAddress: {
+        address: blankAddress,
+      },
+    }));
+  } else if (fieldName === 'hasSecondaryDestinationAddress' && value === 'false') {
+    // PPM
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: fieldValue,
+      hasTertiaryDestinationAddress: 'false',
+      tertiaryDestinationAddress: {
+        address: blankAddress,
+      },
+    }));
+  } else {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+      [fieldKey]: value === 'false' ? fieldValue : { ...prevValues[fieldKey] },
+    }));
+  }
+};
+
+export const handleAddressToggleChange = (e, values, setValues, newDutyLocationAddress) => {
+  const { name, value } = e.target;
+
+  const fieldMap = {
+    hasSecondaryPickup: { key: 'secondaryPickup', updateValue: { blankAddress } },
+    hasSecondaryPickupAddress: { key: 'secondaryPickupAddress', updateValue: { blankAddress } },
+    hasTertiaryPickup: { key: 'tertiaryPickup', updateValue: { blankAddress } },
+    hasTertiaryPickupAddress: { key: 'tertiaryPickupAddress', updateValue: { blankAddress } },
+    hasDeliveryAddress: {
+      key: 'delivery',
+      updateValue: {
+        ...values.delivery,
+        address: {
+          streetAddress1: 'N/A',
+          city: newDutyLocationAddress.city,
+          state: newDutyLocationAddress.state,
+          postalCode: newDutyLocationAddress.postalCode,
+        },
+      },
+    },
+    hasSecondaryDelivery: { key: 'secondaryDelivery', updateValue: { blankAddress } },
+    hasSecondaryDestination: { key: 'secondaryDestination', updateValue: { blankAddress } },
+    hasSecondaryDestinationAddress: { key: 'secondaryDestinationAddress', updateValue: { blankAddress } },
+    hasTertiaryDelivery: { key: 'tertiaryDelivery', updateValue: { blankAddress } },
+    hasTertiaryDestination: { key: 'tertiaryDestination', updateValue: { blankAddress } },
+    hasTertiaryDestinationAddress: { key: 'tertiaryDestinationAddress', updateValue: { blankAddress } },
+  };
+
+  if (fieldMap[name]) {
+    updateAddressToggle(setValues, name, value, fieldMap[name].key, fieldMap[name].updateValue);
+  }
+};

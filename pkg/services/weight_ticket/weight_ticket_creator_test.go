@@ -9,12 +9,13 @@ import (
 )
 
 func (suite *WeightTicketSuite) TestWeightTicketCreator() {
-	suite.Run("Successfully creates a WeightTicket", func() {
+	suite.Run("Successfully creates a WeightTicket - Customer", func() {
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 
 		session := &auth.Session{
 			ServiceMemberID: serviceMember.ID,
+			ApplicationName: auth.MilApp,
 		}
 
 		weightTicketCreator := NewCustomerWeightTicketCreator()
@@ -31,10 +32,11 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 		suite.Equal(serviceMember.ID, weightTicket.ProofOfTrailerOwnershipDocument.ServiceMemberID)
 	})
 
-	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
+	suite.Run("Fails when an invalid ppmShipmentID is used - Customer", func() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
 			ServiceMemberID: serviceMember.ID,
+			ApplicationName: auth.MilApp,
 		}
 
 		weightTicketCreator := NewCustomerWeightTicketCreator()
@@ -44,9 +46,10 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 		suite.NotNil(err)
 	})
 
-	suite.Run("Fails when session has invalid serviceMemberID", func() {
+	suite.Run("Fails when session has invalid serviceMemberID - Customer", func() {
 		session := &auth.Session{
 			ServiceMemberID: uuid.Nil,
+			ApplicationName: auth.MilApp,
 		}
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
@@ -56,6 +59,42 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 		suite.Nil(weightTicket)
 		suite.NotNil(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), "No such shipment found for this service member")
+		suite.Contains(err.Error(), "not found while looking for PPMShipment")
+	})
+
+	suite.Run("Successfully creates a WeightTicket - Office", func() {
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		officeId, _ := uuid.NewV4()
+		session := &auth.Session{
+			OfficeUserID:    officeId,
+			ApplicationName: auth.OfficeApp,
+		}
+
+		weightTicketCreator := NewOfficeWeightTicketCreator()
+		weightTicket, err := weightTicketCreator.CreateWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
+
+		suite.Nil(err)
+		suite.NotNil(weightTicket)
+		suite.Equal(ppmShipment.ID, weightTicket.PPMShipmentID)
+		suite.NotNil(weightTicket.EmptyDocumentID)
+		suite.Equal(serviceMember.ID, weightTicket.EmptyDocument.ServiceMemberID)
+		suite.NotNil(weightTicket.FullDocumentID)
+		suite.Equal(serviceMember.ID, weightTicket.FullDocument.ServiceMemberID)
+		suite.NotNil(weightTicket.ProofOfTrailerOwnershipDocumentID)
+		suite.Equal(serviceMember.ID, weightTicket.ProofOfTrailerOwnershipDocument.ServiceMemberID)
+	})
+
+	suite.Run("Fails when an invalid ppmShipmentID is used - Office", func() {
+		officeId, _ := uuid.NewV4()
+		session := &auth.Session{
+			OfficeUserID:    officeId,
+			ApplicationName: auth.OfficeApp,
+		}
+		weightTicketCreator := NewOfficeWeightTicketCreator()
+		weightTicket, err := weightTicketCreator.CreateWeightTicket(suite.AppContextWithSessionForTest(session), uuid.Nil)
+
+		suite.Nil(weightTicket)
+		suite.NotNil(err)
 	})
 }

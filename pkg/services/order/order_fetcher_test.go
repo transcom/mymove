@@ -775,6 +775,67 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 	})
 
+	suite.Run("task order queue returns a move with service item names", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// build a move with only origin service items
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(shipment)
+		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		cratingServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+				},
+			},
+		}, nil)
+		suite.NotNil(originSITServiceItem)
+		suite.NotNil(cratingServiceItem)
+
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Equal(1, len(moves))
+		suite.Equal(2, len(moves[0].MTOServiceItems))
+		suite.Equal(models.ReServiceCode("DOFSIT"), moves[0].MTOServiceItems[0].ReService.Code)
+		suite.Equal(models.ReServiceCode("DCRT"), moves[0].MTOServiceItems[1].ReService.Code)
+	})
+
 	suite.Run("task order queue returns a move with origin requested SIT service items", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
@@ -1321,7 +1382,7 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	createdMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 	createdMove.SCAssignedID = &scUser.ID
 	createdMove.SCAssignedUser = &scUser
-	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, roles.RoleTypeServicesCounselor)
+	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, models.QueueTypeCounseling)
 
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
 		SCAssignedUser: &scUser.LastName,
@@ -1849,6 +1910,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			{
 				Model: models.Move{
 					Locator: "TTZ123",
+					Status:  models.MoveStatusServiceCounselingCompleted,
 				},
 			},
 			{
@@ -1992,11 +2054,11 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(moves[2].ID, move3.ID)
 	})
 
-	// MUST BE LAST, ADDS EXTRA MOVE
+	// ADDS EXTRA MOVE
 	suite.Run("Sort by service member last name", func() {
 		_, _, session := setupTestData()
 
-		// Last name sort is the only one that needs 3 moves for a complete test, so add that here at the end
+		// Last name sort is the only one that needs 3 moves for a complete test, so add that here after all tests that require 2 moves
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{ // Leo Zephyer
@@ -2021,6 +2083,79 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal("Zephyer, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
 		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 		suite.Equal("Spacemen, Lea", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
+	})
+
+	// ADDS EXTRA MOVES
+	suite.Run("Listed orders are alphabetical by move code within a non-unique sort column", func() {
+		_, _, session := setupTestData()
+
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "BB1234",
+				},
+			},
+		}, nil)
+
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusServiceCounselingCompleted,
+					Locator: "AA5678",
+				},
+			},
+		}, nil)
+
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "UU1234",
+				},
+			},
+		}, nil)
+
+		// Check at multiple page sizes becuase without a secondary sort the order within statuses is inconsistent at different page sizes
+		params := services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc"), PerPage: models.Int64Pointer(1)}
+		moves, count, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(5, count)
+
+		suite.Equal("AA1234", moves[0].Locator)
+
+		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc"), PerPage: models.Int64Pointer(3)}
+		moves, count, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+
+		suite.NoError(err)
+		suite.Equal(3, len(moves))
+		suite.Equal(5, count)
+
+		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("BB1234", moves[1].Locator)
+		suite.Equal("UU1234", moves[2].Locator)
+
+		// Sorting by a column with non-unique values
+		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
+		moves, count, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+
+		suite.NoError(err)
+		suite.Equal(5, len(moves))
+		suite.Equal(5, count)
+
+		suite.Equal(models.MoveStatusAPPROVED, moves[0].Status)
+		suite.Equal(models.MoveStatusAPPROVED, moves[1].Status)
+		suite.Equal(models.MoveStatusAPPROVED, moves[2].Status)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[3].Status)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[4].Status)
+
+		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("BB1234", moves[1].Locator)
+		suite.Equal("UU1234", moves[2].Locator)
+		suite.Equal("AA5678", moves[3].Locator)
+		suite.Equal("TTZ123", moves[4].Locator)
 	})
 }
 
@@ -3063,7 +3198,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		return officeUser, session
 	}
 
-	buildMoveKKFA := func() (models.Move, models.MTOShipment) {
+	buildMoveKKFA := func(moveCode string, lastName string) (models.Move, models.MTOShipment) {
 		postalCode := "90210"
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
 
@@ -3077,8 +3212,14 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					Status: models.MoveStatusAPPROVALSREQUESTED,
-					Show:   models.BoolPointer(true),
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+					Show:    models.BoolPointer(true),
+					Locator: moveCode,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					LastName: &lastName,
 				},
 			}}, nil)
 
@@ -3241,10 +3382,10 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	orderFetcher := NewOrderFetcher(waf)
 
-	suite.Run("returns moves for KKFA GBLOC when destination address is in KKFA GBLOC", func() {
+	suite.Run("returns moves for KKFA GBLOC when destination address is in KKFA GBLOC, and uses secondary sort column", func() {
 		officeUser, session := setupTestData("KKFA")
 		// setting up two moves, each with requested destination SIT service items
-		move, shipment := buildMoveKKFA()
+		move, shipment := buildMoveKKFA("CC1234", "Spaceman")
 
 		// destination service item in SUBMITTED status
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -3268,7 +3409,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
-		move2, shipment2 := buildMoveKKFA()
+		move2, shipment2 := buildMoveKKFA("BB1234", "Spaceman")
 
 		// destination shuttle
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -3292,7 +3433,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
-		move3, shipment3 := buildMoveKKFA()
+		move3, shipment3 := buildMoveKKFA("AA6789", "Landman")
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -3324,7 +3465,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
-		move4, shipment4 := buildMoveKKFA()
+		move4, shipment4 := buildMoveKKFA("AA1234", "Spaceman")
 		// build the destination SIT service items and update their status to SUBMITTED
 		oneMonthLater := time.Now().AddDate(0, 1, 0)
 		factory.BuildDestSITServiceItems(suite.DB(), move4, shipment4, &oneMonthLater, nil)
@@ -3347,13 +3488,49 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
+		// Sort by a column with non-unique values
+		params := services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
 		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
-			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params,
 		)
 
 		suite.FatalNoError(err)
 		suite.Equal(4, moveCount)
 		suite.Len(moves, 4)
+
+		// Verify primary sort
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moves[0].Status)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moves[1].Status)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moves[2].Status)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moves[3].Status)
+
+		// Verify secondary sort
+		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("AA6789", moves[1].Locator)
+		suite.Equal("BB1234", moves[2].Locator)
+		suite.Equal("CC1234", moves[3].Locator)
+
+		// Sort by a column with non-unique values
+		params = services.ListOrderParams{Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, moveCount, err = orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params,
+		)
+
+		suite.FatalNoError(err)
+		suite.Equal(4, moveCount)
+		suite.Len(moves, 4)
+
+		// Verify primary sort
+		suite.Equal("Landman", *moves[0].Orders.ServiceMember.LastName)
+		suite.Equal("Spaceman", *moves[1].Orders.ServiceMember.LastName)
+		suite.Equal("Spaceman", *moves[2].Orders.ServiceMember.LastName)
+		suite.Equal("Spaceman", *moves[3].Orders.ServiceMember.LastName)
+
+		// Verify secondary sort
+		suite.Equal("AA6789", moves[0].Locator)
+		suite.Equal("AA1234", moves[1].Locator)
+		suite.Equal("BB1234", moves[2].Locator)
+		suite.Equal("CC1234", moves[3].Locator)
 	})
 
 	suite.Run("returns moves for MBFL GBLOC including USAF/SF in Alaska Zone II", func() {
@@ -3586,7 +3763,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		}
 
 		// setting up four moves in KKFA, each with destination requests
-		move, shipment := buildMoveKKFA()
+		move, shipment := buildMoveKKFA("CC1234", "Spaceman")
 		// destination service item in SUBMITTED status
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -3609,7 +3786,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
-		move2, shipment2 := buildMoveKKFA()
+		move2, shipment2 := buildMoveKKFA("BB1234", "Spaceman")
 		// destination shuttle
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -3632,7 +3809,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, nil)
 
-		move3, shipment3 := buildMoveKKFA()
+		move3, shipment3 := buildMoveKKFA("AA6789", "Landman")
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -3664,7 +3841,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 			},
 		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
 
-		move4, shipment4 := buildMoveKKFA()
+		move4, shipment4 := buildMoveKKFA("AA1234", "Spaceman")
 		// build the destination SIT service items and update their status to SUBMITTED
 		oneMonthLater := time.Now().AddDate(0, 1, 0)
 		factory.BuildDestSITServiceItems(suite.DB(), move4, shipment4, &oneMonthLater, nil)

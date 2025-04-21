@@ -367,3 +367,176 @@ func (suite *PayloadsSuite) TestVLocationModel() {
 	suite.Equal(postalCode, payload.UsprZipID, "Expected PostalCode to match")
 	suite.Equal(county, payload.UsprcCountyNm, "Expected County to match")
 }
+
+func (suite *PayloadsSuite) TestWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		emptyWeight := int64(5000)
+		fullWeight := int64(8000)
+		ownsTrailer := true
+		trailerMeetsCriteria := false
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		adjustedNetWeight := int64(2900)
+		netWeightRemarks := "Adjusted for fuel weight"
+		vehicleDescription := "Ford F-150"
+		missingEmptyWeightTicket := true
+		missingFullWeightTicket := false
+
+		input := &ghcmessages.UpdateWeightTicket{
+			EmptyWeight:              &emptyWeight,
+			FullWeight:               &fullWeight,
+			OwnsTrailer:              ownsTrailer,
+			TrailerMeetsCriteria:     trailerMeetsCriteria,
+			Status:                   status,
+			Reason:                   reason,
+			AdjustedNetWeight:        &adjustedNetWeight,
+			NetWeightRemarks:         netWeightRemarks,
+			VehicleDescription:       &vehicleDescription,
+			MissingEmptyWeightTicket: &missingEmptyWeightTicket,
+			MissingFullWeightTicket:  &missingFullWeightTicket,
+		}
+
+		result := WeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.WeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&emptyWeight), result.EmptyWeight)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&fullWeight), result.FullWeight)
+		suite.Equal(handlers.FmtBool(ownsTrailer), result.OwnsTrailer)
+		suite.Equal(handlers.FmtBool(trailerMeetsCriteria), result.TrailerMeetsCriteria)
+		suite.Equal(handlers.FmtString(reason), result.Reason)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&adjustedNetWeight), result.AdjustedNetWeight)
+		suite.Equal(handlers.FmtString(netWeightRemarks), result.NetWeightRemarks)
+		suite.Equal(handlers.FmtString(vehicleDescription), result.VehicleDescription)
+		suite.Equal(handlers.FmtBool(missingEmptyWeightTicket), result.MissingEmptyWeightTicket)
+		suite.Equal(handlers.FmtBool(missingFullWeightTicket), result.MissingFullWeightTicket)
+	})
+
+	suite.Run("Success - Missing optional fields", func() {
+		emptyWeight := int64(5000)
+		fullWeight := int64(8000)
+		ownsTrailer := true
+		trailerMeetsCriteria := false
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		adjustedNetWeight := int64(2900)
+		netWeightRemarks := "Adjusted for fuel weight"
+
+		input := &ghcmessages.UpdateWeightTicket{
+			EmptyWeight:          &emptyWeight,
+			FullWeight:           &fullWeight,
+			OwnsTrailer:          ownsTrailer,
+			TrailerMeetsCriteria: trailerMeetsCriteria,
+			Status:               status,
+			Reason:               reason,
+			AdjustedNetWeight:    &adjustedNetWeight,
+			NetWeightRemarks:     netWeightRemarks,
+		}
+
+		result := WeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.WeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&emptyWeight), result.EmptyWeight)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&fullWeight), result.FullWeight)
+		suite.Equal(handlers.FmtBool(ownsTrailer), result.OwnsTrailer)
+		suite.Equal(handlers.FmtBool(trailerMeetsCriteria), result.TrailerMeetsCriteria)
+		suite.Equal(handlers.FmtString(reason), result.Reason)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&adjustedNetWeight), result.AdjustedNetWeight)
+		suite.Equal(handlers.FmtString(netWeightRemarks), result.NetWeightRemarks)
+
+		suite.Nil(result.VehicleDescription)
+		suite.Nil(result.MissingEmptyWeightTicket)
+		suite.Nil(result.MissingFullWeightTicket)
+	})
+}
+
+func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		description := "Test moving expense"
+		reason := "Just testing"
+		trackingNumber := "TRACK123"
+		movingExpenseStatus := ghcmessages.PPMDocumentStatusAPPROVED
+		amount := int64(1000)
+		weightStored := int64(1500)
+		weightShipped := int64(1200)
+		sitEstimatedCost := int64(2000)
+		sitReimburseableAmount := int64(2500)
+		sitStartDate := strfmt.Date(time.Now())
+		sitEndDate := strfmt.Date(time.Now().Add(24 * time.Hour))
+		isProGear := true
+		proGearBelongsToSelf := false
+		proGearDescription := "Pro gear details"
+
+		expenseType := ghcmessages.OmittableMovingExpenseTypeSMALLPACKAGE
+		sitLocation := ghcmessages.SITLocationTypeORIGIN
+
+		updateMovingExpense := &ghcmessages.UpdateMovingExpense{
+			MovingExpenseType:      &expenseType,
+			Description:            &description,
+			SitLocation:            &sitLocation,
+			Amount:                 amount,
+			SitStartDate:           sitStartDate,
+			SitEndDate:             sitEndDate,
+			Status:                 movingExpenseStatus,
+			Reason:                 reason,
+			WeightStored:           weightStored,
+			SitEstimatedCost:       &sitEstimatedCost,
+			SitReimburseableAmount: &sitReimburseableAmount,
+			TrackingNumber:         &trackingNumber,
+			WeightShipped:          &weightShipped,
+			IsProGear:              &isProGear,
+			ProGearBelongsToSelf:   &proGearBelongsToSelf,
+			ProGearDescription:     &proGearDescription,
+		}
+
+		result := MovingExpenseModelFromUpdate(updateMovingExpense)
+		suite.IsType(&models.MovingExpense{}, result)
+
+		suite.Equal(models.MovingExpenseReceiptTypeSmallPackage, *result.MovingExpenseType, "MovingExpenseType should match")
+		suite.Equal(&description, result.Description, "Description should match")
+		suite.Equal(models.SITLocationTypeOrigin, *result.SITLocation, "SITLocation should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&amount), result.Amount, "Amount should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitStartDate), result.SITStartDate, "SITStartDate should match")
+		suite.Equal(handlers.FmtDatePtrToPopPtr(&sitEndDate), result.SITEndDate, "SITEndDate should match")
+		suite.Equal(models.PPMDocumentStatusApproved, *result.Status, "Status should match")
+		suite.Equal(handlers.FmtString(reason), result.Reason, "Reason should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightStored), result.WeightStored, "WeightStored should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&sitEstimatedCost), result.SITEstimatedCost, "SITEstimatedCost should match")
+		suite.Equal(handlers.FmtInt64PtrToPopPtr(&sitReimburseableAmount), result.SITReimburseableAmount, "SITReimburseableAmount should match")
+		suite.Equal(handlers.FmtStringPtr(&trackingNumber), result.TrackingNumber, "TrackingNumber should match")
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weightShipped), result.WeightShipped, "WeightShipped should match")
+		suite.Equal(handlers.FmtBoolPtr(&isProGear), result.IsProGear, "IsProGear should match")
+		suite.Equal(handlers.FmtBoolPtr(&proGearBelongsToSelf), result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
+		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
+	})
+}
+
+func (suite *PayloadsSuite) TestProGearWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		status := ghcmessages.PPMDocumentStatusAPPROVED
+		reason := "Valid reason"
+		description := "test description"
+		hasWeightTickets, belongsToSelf := true, true
+
+		input := &ghcmessages.UpdateProGearWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			BelongsToSelf:    belongsToSelf,
+			Status:           status,
+			Reason:           reason,
+			Description:      description,
+		}
+
+		result := ProgearWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.ProgearWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
+		suite.Equal(belongsToSelf, *result.BelongsToSelf)
+		suite.Equal(reason, *result.Reason)
+		suite.Equal(description, *result.Description)
+		suite.Equal((*models.PPMDocumentStatus)(handlers.FmtString(string(status))), result.Status)
+	})
+}

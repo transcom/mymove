@@ -51,23 +51,32 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 		err = suite.DB().EagerPreload("MTOShipments").Find(&dbMove1, move1.ID)
 		suite.NoError(err)
 		suite.Equal(move1.ID, dbMove1.ID)
-		suite.Equal(move1.PrimeAcknowledgedAt.UTC(), dbMove1.PrimeAcknowledgedAt.UTC())
+		suite.Equal(move1.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove1.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
 		// Move 1 shipment 1
 		suite.Equal(move1.MTOShipments[0].ID, dbMove1.MTOShipments[0].ID)
-		suite.Equal(move1.MTOShipments[0].PrimeAcknowledgedAt.UTC(), dbMove1.MTOShipments[0].PrimeAcknowledgedAt.UTC())
+		suite.Equal(move1.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove1.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
 
 		dbMove2 := models.Move{}
 		// Validate move 2
 		err = suite.DB().EagerPreload("MTOShipments").Find(&dbMove2, move2.ID)
 		suite.NoError(err)
 		suite.Equal(move2.ID, dbMove2.ID)
-		suite.Equal(move2.PrimeAcknowledgedAt.UTC(), dbMove2.PrimeAcknowledgedAt.UTC())
-		// Move 2 shipment 1
-		suite.Equal(move2.MTOShipments[0].ID, dbMove2.MTOShipments[0].ID)
-		suite.Equal(move2.MTOShipments[0].PrimeAcknowledgedAt.UTC(), dbMove2.MTOShipments[0].PrimeAcknowledgedAt.UTC())
-		// Move 2 shipment 2
-		suite.Equal(move2.MTOShipments[1].ID, dbMove2.MTOShipments[1].ID)
-		suite.Equal(move2.MTOShipments[1].PrimeAcknowledgedAt.UTC(), dbMove2.MTOShipments[1].PrimeAcknowledgedAt.UTC())
+		suite.Equal(move2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove2.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
+
+		suite.Equal(len(move2.MTOShipments), len(dbMove2.MTOShipments))
+
+		// Verify that both the shipments match
+		matchingShipments := 0
+		for _, shipment := range move2.MTOShipments {
+			for _, dbShipment := range dbMove2.MTOShipments {
+				if shipment.ID == dbShipment.ID {
+					suite.Equal(shipment.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbShipment.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond))
+					matchingShipments++
+					break
+				}
+			}
+		}
+		suite.Equal(matchingShipments, len(move2.MTOShipments))
 	})
 
 	suite.Run("Move and Shipment acknowledgement date are not updated when they are not provided", func() {
@@ -119,10 +128,10 @@ func (suite *AcknowledgeMovesAndShipmentsServiceSuite) TestUpdateMoveAcknowledge
 		err = suite.DB().EagerPreload("MTOShipments").Find(&dbMove, move.ID)
 		suite.NoError(err)
 		suite.Equal(move.ID, dbMove.ID)
-		suite.NotEqual(move.PrimeAcknowledgedAt.UTC(), dbMove.PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date was not updated")
-		suite.Equal(fourDaysAgo.UTC(), dbMove.PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date remained 4 days ago")
+		suite.NotEqual(move.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), "Prime acknowledged at date was not updated")
+		suite.Equal(fourDaysAgo.UTC().Truncate(time.Millisecond), dbMove.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), "Prime acknowledged at date remained 4 days ago")
 		suite.Equal(move.MTOShipments[0].ID, dbMove.MTOShipments[0].ID)
-		suite.NotEqual(move.MTOShipments[0].PrimeAcknowledgedAt.UTC(), dbMove.MTOShipments[0].PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date was not updated")
-		suite.Equal(fourDaysAgo.UTC(), dbMove.PrimeAcknowledgedAt.UTC(), "Prime acknowledged at date remained 4 days ago")
+		suite.NotEqual(move.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), dbMove.MTOShipments[0].PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), "Prime acknowledged at date was not updated")
+		suite.Equal(fourDaysAgo.UTC().Truncate(time.Millisecond), dbMove.PrimeAcknowledgedAt.UTC().Truncate(time.Millisecond), "Prime acknowledged at date remained 4 days ago")
 	})
 }

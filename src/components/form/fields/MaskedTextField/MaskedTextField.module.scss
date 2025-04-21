@@ -3,7 +3,6 @@
 .hasSuffix {
   display: inline-block;
   position: relative;
-  margin-top: 0.53rem;
 
   div {
     position: absolute;
@@ -47,9 +46,4 @@ input:disabled {
 :global(.usa-form-group.usa-form-group--error) {
   text-wrap: balance;
   margin-top: 1.6rem;
-}
-
-.requiredAsterisk {
-  color: $color-red;
-  font-weight: bold;
 }

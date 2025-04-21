@@ -2,16 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-import classnames from 'classnames';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
-import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
+import AboutForm from 'components/Shared/PPM/Closeout/AboutForm/AboutForm';
 import { customerRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { formatDateForSwagger } from 'shared/dates';
@@ -19,6 +17,9 @@ import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'serv
 import { updateMTOShipment } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isWeightTicketComplete } from 'utils/shipments';
+import { PPM_TYPES } from 'shared/constants';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
+import { APP_NAME } from 'constants/apps';
 
 const About = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -30,6 +31,10 @@ const About = () => {
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const [multiMove, setMultiMove] = useState(false);
+
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
+  const appName = APP_NAME.MYMOVE;
 
   useEffect(() => {
     getMTOShipmentsForMove(moveId)
@@ -83,13 +88,26 @@ const About = () => {
       },
     };
 
+    const handleErrorMessage = (error) => {
+      if (error?.response?.status === 412) {
+        setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+      } else {
+        setErrorMessage(getResponseError(error.response, 'Failed to update PPM shipment due to server error.'));
+      }
+    };
+
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
         setSubmitting(false);
         dispatch(updateMTOShipment(response));
 
         let path;
-        if (response.ppmShipment.weightTickets.length === 0) {
+        if (ppmType === PPM_TYPES.SMALL_PACKAGE) {
+          path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+            moveId,
+            mtoShipmentId,
+          });
+        } else if (response.ppmShipment.weightTickets.length === 0) {
           path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
             moveId,
             mtoShipmentId,
@@ -111,7 +129,7 @@ const About = () => {
       })
       .catch((err) => {
         setSubmitting(false);
-        setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
+        handleErrorMessage(err);
       });
   };
 
@@ -132,32 +150,7 @@ const About = () => {
                 {errorMessage}
               </Alert>
             )}
-            <div className={classnames(closingPageStyles['closing-section'], closingPageStyles['about-ppm'])}>
-              <p>Finish moving this PPM before you start documenting it.</p>
-              <h2>How to complete your PPM</h2>
-              <p>To complete your PPM, you will:</p>
-              <ul>
-                <li>Upload weight tickets for each trip</li>
-                <li>Upload receipts to document any expenses</li>
-                <li>Upload receipts if you used short-term storage, so you can request reimbursement</li>
-                <li>Upload any other documentation (such as proof of ownership for a trailer, if you used your own)</li>
-                <li>Complete your PPM to send it to a counselor for review</li>
-              </ul>
-              <h2>About your final payment</h2>
-              <p>Your final payment will be:</p>
-              <ul>
-                <li>based on your final incentive</li>
-                <li>modified by expenses submitted (authorized expenses reduce your tax burden)</li>
-                <li>minus any taxes withheld (the IRS considers your incentive to be taxable income)</li>
-                <li>plus any reimbursements you receive</li>
-              </ul>
-              <p>
-                Verified expenses reduce the taxable income you report to the IRS on form W-2. They may not be claimed
-                again as moving expenses. Federal tax withholding will be deducted from the profit (entitlement less
-                eligible operating expenses.)
-              </p>
-            </div>
-            <AboutForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} />
+            <AboutForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} appName={appName} />
           </Grid>
         </Grid>
       </GridContainer>

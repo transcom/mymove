@@ -33,6 +33,9 @@ type UpdateMTOServiceItemShuttle struct {
 	// Service code allowed for this model type.
 	// Enum: [DDSHUT DOSHUT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
+
+	// Indicates if "Approvals Requested" status is being requested.
+	RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 }
 
 // ID gets the id of this subtype
@@ -69,6 +72,9 @@ func (m *UpdateMTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Service code allowed for this model type.
 		// Enum: [DDSHUT DOSHUT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
+
+		// Indicates if "Approvals Requested" status is being requested.
+		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -105,6 +111,7 @@ func (m *UpdateMTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	result.ActualWeight = data.ActualWeight
 	result.EstimatedWeight = data.EstimatedWeight
 	result.ReServiceCode = data.ReServiceCode
+	result.RequestApprovalsRequestedStatus = data.RequestApprovalsRequestedStatus
 
 	*m = result
 
@@ -128,6 +135,9 @@ func (m UpdateMTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Service code allowed for this model type.
 		// Enum: [DDSHUT DOSHUT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
+
+		// Indicates if "Approvals Requested" status is being requested.
+		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 	}{
 
 		ActualWeight: m.ActualWeight,
@@ -135,6 +145,8 @@ func (m UpdateMTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		EstimatedWeight: m.EstimatedWeight,
 
 		ReServiceCode: m.ReServiceCode,
+
+		RequestApprovalsRequestedStatus: m.RequestApprovalsRequestedStatus,
 	})
 	if err != nil {
 		return nil, err

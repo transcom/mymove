@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"strings"
 	"time"
 
@@ -22,6 +23,8 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -334,32 +337,58 @@ func (suite *HandlerSuite) TestGetPPMDocumentsHandlerIntegration() {
 
 	suite.Run("Returns 200 when weight tickets are found", func() {
 		params, handler := setUpParamsAndHandler()
-
 		response := handler.Handle(params)
 
-		if suite.IsType(&ppmdocumentops.GetPPMDocumentsOK{}, response) {
-			okResponse := response.(*ppmdocumentops.GetPPMDocumentsOK)
-			returnedPPMDocuments := okResponse.Payload
+		suite.IsType(&ppmdocumentops.GetPPMDocumentsOK{}, response)
+		okResponse := response.(*ppmdocumentops.GetPPMDocumentsOK)
+		returnedPPMDocuments := okResponse.Payload
 
-			suite.NoError(returnedPPMDocuments.Validate(strfmt.Default))
+		suite.NoError(returnedPPMDocuments.Validate(strfmt.Default))
 
-			suite.Equal(len(ppmShipment.WeightTickets), len(returnedPPMDocuments.WeightTickets))
-			suite.Equal(len(ppmShipment.ProgearWeightTickets), len(returnedPPMDocuments.ProGearWeightTickets))
-			suite.Equal(len(ppmShipment.MovingExpenses), len(returnedPPMDocuments.MovingExpenses))
+		suite.Equal(len(ppmShipment.WeightTickets), len(returnedPPMDocuments.WeightTickets))
+		suite.Equal(len(ppmShipment.ProgearWeightTickets), len(returnedPPMDocuments.ProGearWeightTickets))
+		suite.Equal(len(ppmShipment.MovingExpenses), len(returnedPPMDocuments.MovingExpenses))
 
-			for i, returnedWeightTicket := range returnedPPMDocuments.WeightTickets {
-				suite.Equal(ppmShipment.WeightTickets[i].ID.String(), returnedWeightTicket.ID.String())
-			}
-
-			for i, returnedMovingExpense := range returnedPPMDocuments.MovingExpenses {
-				suite.Equal(ppmShipment.MovingExpenses[i].ID.String(), returnedMovingExpense.ID.String())
-			}
-
-			for i, returnedProGearWeightTicket := range returnedPPMDocuments.ProGearWeightTickets {
-				suite.Equal(ppmShipment.ProgearWeightTickets[i].ID.String(), returnedProGearWeightTicket.ID.String())
-			}
+		// extract and sort IDs for WeightTickets to avoid flaky failures
+		expectedWeightTicketIDs := make([]string, len(ppmShipment.WeightTickets))
+		for i, wt := range ppmShipment.WeightTickets {
+			expectedWeightTicketIDs[i] = wt.ID.String()
 		}
+		actualWeightTicketIDs := make([]string, len(returnedPPMDocuments.WeightTickets))
+		for i, wt := range returnedPPMDocuments.WeightTickets {
+			actualWeightTicketIDs[i] = wt.ID.String()
+		}
+		sort.Strings(expectedWeightTicketIDs)
+		sort.Strings(actualWeightTicketIDs)
+		suite.Equal(expectedWeightTicketIDs, actualWeightTicketIDs, "WeightTicket IDs should match")
+
+		// extract and sort IDs for ProGearWeightTickets to avoid flaky failures
+		expectedProGearIDs := make([]string, len(ppmShipment.ProgearWeightTickets))
+		for i, pt := range ppmShipment.ProgearWeightTickets {
+			expectedProGearIDs[i] = pt.ID.String()
+		}
+		actualProGearIDs := make([]string, len(returnedPPMDocuments.ProGearWeightTickets))
+		for i, pt := range returnedPPMDocuments.ProGearWeightTickets {
+			actualProGearIDs[i] = pt.ID.String()
+		}
+		sort.Strings(expectedProGearIDs)
+		sort.Strings(actualProGearIDs)
+		suite.Equal(expectedProGearIDs, actualProGearIDs, "ProGearWeightTicket IDs should match")
+
+		// extract and sort IDs for MovingExpenses to avoid flaky failures
+		expectedMovingExpenseIDs := make([]string, len(ppmShipment.MovingExpenses))
+		for i, me := range ppmShipment.MovingExpenses {
+			expectedMovingExpenseIDs[i] = me.ID.String()
+		}
+		actualMovingExpenseIDs := make([]string, len(returnedPPMDocuments.MovingExpenses))
+		for i, me := range returnedPPMDocuments.MovingExpenses {
+			actualMovingExpenseIDs[i] = me.ID.String()
+		}
+		sort.Strings(expectedMovingExpenseIDs)
+		sort.Strings(actualMovingExpenseIDs)
+		suite.Equal(expectedMovingExpenseIDs, actualMovingExpenseIDs, "MovingExpense IDs should match")
 	})
+
 }
 
 func (suite *HandlerSuite) TestFinishPPMDocumentsReviewHandlerUnit() {
@@ -481,19 +510,19 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+	setUpSignedCertificationCreatorMock := func(signedCert models.SignedCertification) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
 
 		mockCreator.On(
 			"CreateSignedCertification",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.SignedCertification"),
-		).Return(returnValue...)
+		).Return(&signedCert, nil)
 
 		return mockCreator
 	}
 
-	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+	setUpSignedCertificationUpdaterMock := func(signedCert models.SignedCertification) services.SignedCertificationUpdater {
 		mockUpdater := &mocks.SignedCertificationUpdater{}
 
 		mockUpdater.On(
@@ -501,14 +530,17 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.SignedCertification"),
 			mock.AnythingOfType("string"),
-		).Return(returnValue...)
+		).Return(&signedCert, nil)
 
 		return mockUpdater
 	}
 
-	reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	mockPPMCloseoutFetcher.On("GetActualWeight", mock.AnythingOfType("*models.PPMShipment")).Return(unit.Pound(1000))
 
-	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
+	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser, signedCert models.SignedCertification) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
+		reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(signedCert), setUpSignedCertificationUpdaterMock(signedCert), SSWPPMComputer)
 		endpoint := fmt.Sprintf(
 			"/ppm-shipments/%s/finish-document-review",
 			ppmShipment.ID.String(),
@@ -536,7 +568,15 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			ID: uuid.Must(uuid.NewV4()),
 		}
 
-		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, officeUser)
+		certType := models.SignedCertificationTypePPMPAYMENT
+		signedCert := models.SignedCertification{
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			Date:              time.Now(),
+		}
+
+		params, handler := setUpParamsAndHandler(shipmentWithUnknownID, officeUser, signedCert)
 
 		response := handler.Handle(params)
 
@@ -547,8 +587,14 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 		draftPpmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		draftPpmShipment.Status = models.PPMShipmentStatusDraft
 		suite.NoError(suite.DB().Save(&draftPpmShipment))
-
-		params, handler := setUpParamsAndHandler(draftPpmShipment, officeUser)
+		certType := models.SignedCertificationTypePPMPAYMENT
+		signedCert := models.SignedCertification{
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			Date:              time.Now(),
+		}
+		params, handler := setUpParamsAndHandler(draftPpmShipment, officeUser, signedCert)
 
 		response := handler.Handle(params)
 
@@ -557,8 +603,33 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	suite.Run("Can successfully submit a PPM shipment for close out", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		certType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
 
-		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
+		signedCert := models.SignedCertification{
+			PpmID:             &ppmShipment.ID,
+			MoveID:            ppmShipment.Shipment.MoveTaskOrderID,
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			CreatedAt:         time.Now(),
+			UpdatedAt:         time.Now(),
+			Date:              time.Now(),
+		}
+		shipmentCert := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment.Shipment.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SignedCertification{
+					PpmID:             &ppmShipment.ID,
+					CertificationType: &certType,
+				},
+			},
+		}, nil)
+		ppmShipment.SignedCertification = &shipmentCert
+		suite.NoError(suite.DB().Save(&ppmShipment))
+		params, handler := setUpParamsAndHandler(ppmShipment, officeUser, signedCert)
 
 		response := handler.Handle(params)
 
@@ -575,10 +646,33 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	suite.Run("Sets PPM to CLOSEOUT COMPLETE if there are rejected documents", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil, nil)
+		certType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+		signedCert := models.SignedCertification{
+			PpmID:             &ppmShipment.ID,
+			MoveID:            ppmShipment.Shipment.MoveTaskOrderID,
+			CertificationType: &certType,
+			CertificationText: "LEGAL",
+			Signature:         "ACCEPT",
+			CreatedAt:         time.Now(),
+			UpdatedAt:         time.Now(),
+			Date:              time.Now(),
+		}
+		shipmentCert := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+			{
+				Model:    ppmShipment.Shipment.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SignedCertification{
+					PpmID:             &ppmShipment.ID,
+					CertificationType: &certType,
+				},
+			},
+		}, nil)
+		ppmShipment.SignedCertification = &shipmentCert
 		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		suite.NoError(suite.DB().Save(&ppmShipment))
-
-		params, handler := setUpParamsAndHandler(ppmShipment, officeUser)
+		params, handler := setUpParamsAndHandler(ppmShipment, officeUser, signedCert)
 
 		response := handler.Handle(params)
 

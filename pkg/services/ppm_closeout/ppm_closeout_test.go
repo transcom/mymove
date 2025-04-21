@@ -330,7 +330,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 		})
 	})
 
-	suite.Run("Can successfully GET a PPMCloseout Object", func() {
+	suite.Run("Can successfully GET a PPMCloseout Object for incentive based PPMs", func() {
 		// Under test:	GetPPMCloseout
 		// Set up:		Established ZIPs, ReServices, and all pricing data
 		// Expected:	PPMCloseout Object successfully retrieved
@@ -363,6 +363,46 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 		suite.NotEmpty(ppmCloseoutObj)
 	})
 
+	suite.Run("Can successfully GET a PPMCloseout Object for small package PPMs and final incentive updates", func() {
+		appCtx := suite.AppContextForTest()
+
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813").Return(2294, nil)
+
+		mockedPaymentRequestHelper.On(
+			"FetchServiceParamsForServiceItems",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		mockIncentiveValue := unit.Cents(0)
+		mockPpmEstimator.On(
+			"FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentiveValue, nil)
+
+		ppmShipment := suite.mockPPMSPRShipmentForCloseoutTest()
+
+		// making sure final incentive is nil
+		ppmShipment.FinalIncentive = nil
+		suite.MustSave(&ppmShipment)
+
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
+		if err != nil {
+			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
+		}
+
+		suite.Nil(err)
+		suite.NotNil(ppmCloseoutObj)
+		suite.NotEmpty(ppmCloseoutObj)
+
+		// final incentive is updated
+		var updatedPPM models.PPMShipment
+		err = suite.DB().Find(&updatedPPM, ppmShipment.ID)
+		suite.NoError(err)
+		suite.NotNil(updatedPPM.FinalIncentive)
+	})
+
 	suite.Run("Returns a \"NotFoundError\" if the PPM Shipment was not found using the given ID", func() {
 		appCtx := suite.AppContextForTest()
 		missingPpmID := uuid.Must(uuid.NewV4())
@@ -376,7 +416,6 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCloseout() {
 	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_CLOSEOUT\" or \"APPROVED\"", func() {
 		appCtx := suite.AppContextForTest()
 		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildWaitingOnCustomer)
-		ppmShipment.Status = models.PPMShipmentStatusSubmitted
 
 		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
 
@@ -625,6 +664,104 @@ func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest(buildType ppmBuild
 	} else if buildType == ppmBuildWaitingOnCustomer {
 		ppmShipment = factory.BuildPPMShipment(suite.AppContextForTest().DB(), ppmShipmentCustomization, nil)
 	}
+
+	return ppmShipment
+}
+
+func (suite *PPMCloseoutSuite) mockPPMSPRShipmentForCloseoutTest() models.PPMShipment {
+	estWeight := unit.Pound(2000)
+	actualMoveDate := time.Now()
+	expectedDepartureDate := &actualMoveDate
+	miles := unit.Miles(200)
+	trackingNumber := "TRK1234"
+	isProGear := true
+	proGearBelongsToSelf := true
+	proGearDescription := "Pro gear updated description"
+	weightShipped := 1000
+	spr := models.MovingExpenseReceiptTypeSmallPackage
+	status := models.PPMDocumentStatusApproved
+
+	ppmShipmentCustomization := []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Distance: &miles,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				PPMType:               models.PPMTypeSmallPackage,
+				ExpectedDepartureDate: *expectedDepartureDate,
+				ActualMoveDate:        &actualMoveDate,
+				EstimatedWeight:       &estWeight,
+				WeightTickets:         nil,
+			},
+		},
+	}
+
+	ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
+
+	factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType:    &spr,
+				Status:               &status,
+				PaidWithGTCC:         models.BoolPointer(false),
+				MissingReceipt:       models.BoolPointer(false),
+				Amount:               models.CentPointer(unit.Cents(8675309)),
+				TrackingNumber:       &trackingNumber,
+				IsProGear:            &isProGear,
+				ProGearBelongsToSelf: &proGearBelongsToSelf,
+				ProGearDescription:   &proGearDescription,
+				WeightShipped:        (*unit.Pound)(&weightShipped),
+			},
+		},
+	}, nil)
+
+	factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType:    &spr,
+				Status:               &status,
+				PaidWithGTCC:         models.BoolPointer(false),
+				MissingReceipt:       models.BoolPointer(false),
+				Amount:               models.CentPointer(unit.Cents(8675309)),
+				TrackingNumber:       &trackingNumber,
+				IsProGear:            &isProGear,
+				ProGearBelongsToSelf: &proGearBelongsToSelf,
+				ProGearDescription:   &proGearDescription,
+				WeightShipped:        (*unit.Pound)(&weightShipped),
+			},
+		},
+	}, nil)
+
+	factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+		{
+			Model:    ppmShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				MovingExpenseType:    &spr,
+				Status:               &status,
+				PaidWithGTCC:         models.BoolPointer(false),
+				MissingReceipt:       models.BoolPointer(false),
+				Amount:               models.CentPointer(unit.Cents(8675309)),
+				TrackingNumber:       &trackingNumber,
+				IsProGear:            &isProGear,
+				ProGearBelongsToSelf: &proGearBelongsToSelf,
+				ProGearDescription:   &proGearDescription,
+				WeightShipped:        (*unit.Pound)(&weightShipped),
+			},
+		},
+	}, nil)
 
 	return ppmShipment
 }

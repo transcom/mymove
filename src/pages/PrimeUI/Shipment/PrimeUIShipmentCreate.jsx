@@ -20,7 +20,7 @@ import { formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
-import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 

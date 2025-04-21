@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import PPMSummaryList from './PPMSummaryList';
 
-import { MockProviders } from 'testUtils';
+import { MockProviders, renderWithProviders } from 'testUtils';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 
@@ -140,9 +140,11 @@ const shipments = [
   },
 ];
 const onUploadClick = jest.fn();
+const onDownloadError = jest.fn();
 
 const defaultProps = {
   shipments,
+  onDownloadError,
   onUploadClick,
 };
 
@@ -199,12 +201,12 @@ describe('PPMSummaryList component', () => {
 
   describe('payment docs reviewed', () => {
     it('should display reviewed date and enabled button with copy', () => {
-      render(<PPMSummaryList shipments={[shipments[3]]} />);
+      renderWithProviders(<PPMSummaryList shipments={[shipments[3]]} />);
       expect(screen.getByRole('button', { name: 'Download Payment Packet' })).toBeEnabled();
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`PPM documentation submitted: 19 Apr 2022`)).toBeInTheDocument();
-      expect(screen.queryByText(`Documentation accepted and verified: 23 Apr 2022`)).toBeInTheDocument();
+      expect(screen.queryByText(`PPM closeout completed: 23 Apr 2022`)).toBeInTheDocument();
 
       expect(screen.getByText(/From:/, { selector: 'span' })).toBeInTheDocument();
       expect(screen.getByText(/Pickup Test City, NY 10001/, { selector: 'p' })).toBeInTheDocument();
@@ -219,7 +221,7 @@ describe('PPMSummaryList component', () => {
     });
 
     it('should display button for feedback if any document is not approved', () => {
-      render(<PPMSummaryList shipments={[shipments[3]]} />);
+      renderWithProviders(<PPMSummaryList shipments={[shipments[3]]} />);
 
       expect(screen.getByRole('button', { name: 'View Closeout Feedback' })).toBeEnabled();
     });
@@ -239,7 +241,7 @@ describe('PPMSummaryList component', () => {
   });
   describe('there are multiple shipments', () => {
     it('should render numbers next to PPM', () => {
-      render(<PPMSummaryList {...defaultProps} />);
+      renderWithProviders(<PPMSummaryList {...defaultProps} />);
       expect(screen.queryByText('PPM 1')).toBeInTheDocument();
       expect(screen.queryByText('PPM 2')).toBeInTheDocument();
     });
@@ -255,10 +257,9 @@ describe('PPMSummaryList component', () => {
       data: null,
     };
     downloadPPMPaymentPacket.mockImplementation(() => Promise.resolve(mockResponse));
-
     render(
       <MockProviders>
-        <PPMSummaryList shipments={[shipments[3]]} />
+        <PPMSummaryList onDownloadError={onDownloadError} shipments={[shipments[3]]} />
       </MockProviders>,
     );
 
@@ -300,11 +301,10 @@ describe('PPMSummaryList component', () => {
         },
       },
     };
-    const onErrorHandler = jest.fn();
 
     render(
       <MockProviders>
-        <PPMSummaryList shipments={[shipment]} onDownloadError={onErrorHandler} />
+        <PPMSummaryList shipments={[shipment]} onDownloadError={onDownloadError} />
       </MockProviders>,
     );
 
@@ -316,7 +316,7 @@ describe('PPMSummaryList component', () => {
 
     await waitFor(() => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
-      expect(onErrorHandler).toHaveBeenCalledTimes(1);
+      expect(onDownloadError).toHaveBeenCalledTimes(1);
     });
   });
 });

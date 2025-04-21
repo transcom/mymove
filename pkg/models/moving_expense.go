@@ -40,6 +40,7 @@ var AllowedExpenseTypes = []string{
 	string(MovingExpenseReceiptTypeOil),
 	string(MovingExpenseReceiptTypePackingMaterials),
 	string(MovingExpenseReceiptTypeRentalEquipment),
+	string(MovingExpenseReceiptTypeSmallPackage),
 	string(MovingExpenseReceiptTypeStorage),
 	string(MovingExpenseReceiptTypeTolls),
 	string(MovingExpenseReceiptTypeWeighingFee),
@@ -73,6 +74,11 @@ type MovingExpense struct {
 	SITLocation                *SITLocationType          `json:"sit_location" db:"sit_location"`
 	SITEstimatedCost           *unit.Cents               `json:"sit_estimated_cost" db:"sit_estimated_cost"`
 	SITReimburseableAmount     *unit.Cents               `json:"sit_reimburseable_amount" db:"sit_reimburseable_amount"`
+	TrackingNumber             *string                   `json:"tracking_number" db:"tracking_number"`
+	WeightShipped              *unit.Pound               `json:"weight_shipped" db:"weight_shipped"`
+	IsProGear                  *bool                     `json:"is_pro_gear" db:"is_pro_gear"`
+	ProGearBelongsToSelf       *bool                     `json:"pro_gear_belongs_to_self" db:"pro_gear_belongs_to_self"`
+	ProGearDescription         *string                   `json:"pro_gear_description" db:"pro_gear_description"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -97,6 +103,22 @@ func (e MovingExpenses) FilterDeleted() MovingExpenses {
 	return nonDeletedExpenses
 }
 
+func (e MovingExpenses) FilterRejected() MovingExpenses {
+	if len(e) == 0 {
+		return e
+	}
+
+	validExpense := MovingExpenses{}
+	for _, expense := range e {
+		if expense.Status == nil || *expense.Status != PPMDocumentStatusRejected {
+			validExpense = append(validExpense, expense)
+		}
+	}
+
+	return validExpense
+
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,
 // pop.ValidateAndUpdate) method. This should contain validation that is for data integrity. Business validation should
 // occur in service objects.
@@ -110,5 +132,8 @@ func (m *MovingExpense) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&StringIsNilOrNotBlank{Name: "Reason", Field: m.Reason},
 		&OptionalTimeIsPresent{Name: "SITStartDate", Field: m.SITStartDate},
 		&OptionalTimeIsPresent{Name: "SITEndDate", Field: m.SITEndDate},
+		&StringIsNilOrNotBlank{Name: "TrackingNumber", Field: m.TrackingNumber},
+		&OptionalPoundIsNonNegative{Name: "WeightShipped", Field: m.WeightShipped},
+		&StringIsNilOrNotBlank{Name: "ProGearDescription", Field: m.ProGearDescription},
 	), nil
 }

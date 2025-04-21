@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
-import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { OptionalAddressSchema } from 'components/Shared/MtoShipmentForm/validationSchemas';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { PPM_TYPES } from 'shared/constants';
 

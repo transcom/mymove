@@ -19,6 +19,7 @@ const serviceMember = {
       postalCode: '90210',
       streetAddress1: '123 Main',
       streetAddress2: '',
+      county: 'Muscogee',
     },
     affiliation: SERVICE_MEMBER_AGENCIES.ARMY,
   },
@@ -32,8 +33,9 @@ const defaultProps = {
       city: 'Fort Benning',
       state: 'GA',
       postalCode: '94611',
-      streetAddress1: '123 Main',
+      streetAddress1: '658 West Ave',
       streetAddress2: '',
+      county: 'Muscogee',
     },
   },
   postalCodeValidator: jest.fn(),
@@ -407,6 +409,136 @@ describe('validates form fields and displays error messages', () => {
         expect(city[1]).toBeInstanceOf(HTMLLabelElement);
         expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
       });
+    });
+  });
+
+  it('remove Required alert when secondary pickup/delivery streetAddress1 is cleared but the toggle is switched to No', async () => {
+    await act(async () => {
+      const newPPM = {
+        ...defaultProps,
+        mtoShipment: {
+          ppmShipment: {
+            secondaryPickupAddress: {
+              streetAddress1: '777 Test Street',
+              city: 'ELIZABETHTOWN',
+              state: 'KY',
+              postalCode: '42702',
+              county: 'Hardin',
+            },
+            secondaryDestinationAddress: {
+              streetAddress1: '68 West Elm',
+              city: 'Fort Benning',
+              state: 'GA',
+              postalCode: '94611',
+              county: 'Muscogee',
+            },
+            expectedDepartureDate: '2025-03-08',
+          },
+        },
+      };
+      const navyServiceMember = {
+        ...defaultProps.serviceMember,
+        affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
+      };
+      render(
+        <Provider store={mockStore.store}>
+          <DateAndLocationForm {...newPPM} serviceMember={navyServiceMember} />
+        </Provider>,
+      );
+      await act(async () => {
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
+      });
+
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+      await act(async () => {
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
+      });
+      await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
+
+      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
+      const state = screen.getAllByTestId(/State/);
+      const city = screen.getAllByTestId(/City/);
+      const postalCodes = screen.getAllByTestId(/ZIP/);
+      const county = screen.getAllByTestId(/County/);
+
+      // verify pickup address is populated
+      expect(address1[0]).toHaveValue('123 Main');
+      expect(city[0]).toHaveTextContent('Fort Benning');
+      expect(state[0]).toHaveTextContent('GA');
+      expect(postalCodes[0]).toHaveTextContent('90210');
+      expect(county[0]).toHaveTextContent('Muscogee');
+
+      await waitFor(() => {
+        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+        expect(city[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(state[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
+        expect(county[1]).toBeInstanceOf(HTMLLabelElement);
+      });
+
+      // verify 2nd pickup is populated
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
+      expect(address1[1]).toHaveValue('777 Test Street');
+      expect(city[1]).toHaveTextContent('ELIZABETHTOWN');
+      expect(state[1]).toHaveTextContent('KY');
+      expect(postalCodes[1]).toHaveTextContent('42702');
+      expect(county[1]).toHaveTextContent('Hardin');
+
+      // verify delivery address is populated
+      expect(address1[2]).toHaveValue('658 West Ave');
+      expect(city[2]).toHaveTextContent('Fort Benning');
+      expect(state[2]).toHaveTextContent('GA');
+      expect(postalCodes[2]).toHaveTextContent('94611');
+
+      await waitFor(() => {
+        expect(address1[3]).toBeInstanceOf(HTMLInputElement);
+        expect(city[3]).toBeInstanceOf(HTMLLabelElement);
+        expect(state[3]).toBeInstanceOf(HTMLLabelElement);
+        expect(postalCodes[3]).toBeInstanceOf(HTMLLabelElement);
+        expect(county[3]).toBeInstanceOf(HTMLLabelElement);
+      });
+      // verify 2nd delivery address is populated
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
+      expect(address1[3]).toHaveValue('68 West Elm');
+      expect(city[3]).toHaveTextContent('Fort Benning');
+      expect(state[3]).toHaveTextContent('GA');
+      expect(postalCodes[3]).toHaveTextContent('94611');
+
+      // now clear out 2nd pickup address1 text, should raise required alert
+      await userEvent.clear(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'));
+      await userEvent.keyboard('[Tab]');
+
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
+      });
+
+      // toggle second pickup address to No, should get rid of Required error
+      await userEvent.click(screen.getByTitle('No, I do not have a second pickup address'));
+
+      const alerts = screen.queryAllByRole('alert');
+      expect(alerts.length).toBe(0);
+
+      // now clear out 2nd delivery address1 text, should raise required alert
+      await userEvent.clear(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'));
+      await userEvent.keyboard('[Tab]');
+
+      await waitFor(() => {
+        const requiredAlerts = screen.queryAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+        requiredAlerts.forEach((alert) => {
+          expect(alert).toHaveTextContent('Required');
+        });
+      });
+
+      // toggle second delivery address to No, should get rid of Required error
+      await userEvent.click(screen.getByTitle('No, I do not have a second delivery address'));
+
+      const newAlerts = screen.queryAllByRole('alert');
+      expect(newAlerts.length).toBe(0);
     });
   });
 });

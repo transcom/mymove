@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -17,10 +18,11 @@ type shipmentCreator struct {
 	mobileHomeShipmentCreator services.MobileHomeShipmentCreator
 	shipmentRouter            services.ShipmentRouter
 	moveTaskOrderUpdater      services.MoveTaskOrderUpdater
+	moveWeights               services.MoveWeights
 }
 
 // NewShipmentCreator creates a new shipmentCreator struct with the basic checks and service dependencies.
-func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, boatShipmentCreator services.BoatShipmentCreator, mobileHomeShipmentCreator services.MobileHomeShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentCreator {
+func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, boatShipmentCreator services.BoatShipmentCreator, mobileHomeShipmentCreator services.MobileHomeShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater, moveWeights services.MoveWeights) services.ShipmentCreator {
 	return &shipmentCreator{
 		checks:                    basicShipmentChecks(),
 		mtoShipmentCreator:        mtoShipmentCreator,
@@ -29,6 +31,7 @@ func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipm
 		mobileHomeShipmentCreator: mobileHomeShipmentCreator,
 		shipmentRouter:            shipmentRouter,
 		moveTaskOrderUpdater:      moveTaskOrderUpdater,
+		moveWeights:               moveWeights,
 	}
 }
 
@@ -87,6 +90,13 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
 			if err != nil {
 				return err
+			}
+
+			if txnAppCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				err = s.moveTaskOrderUpdater.SignCertificationPPMCounselingCompleted(txnAppCtx, mtoShipment.MoveTaskOrderID, mtoShipment.PPMShipment.ID)
+				if err != nil {
+					return err
+				}
 			}
 
 			// Update PPMType once shipment gets created.

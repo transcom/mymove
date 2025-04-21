@@ -35,7 +35,6 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
         expect(pages).toEqual([
-          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -77,7 +76,6 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
         expect(pages).toEqual([
-          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -100,7 +98,6 @@ describe('when getting the routes for the current workflow', () => {
         const pages = getPagesInFlow(props);
         it('getPagesInFlow returns service member, order and move pages', () => {
           expect(pages).toEqual([
-            '/service-member/validation-code',
             '/service-member/dod-info',
             '/service-member/name',
             '/service-member/contact-info',
@@ -125,7 +122,6 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and PPM-specific move pages', () => {
         expect(pages).toEqual([
-          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -147,7 +143,6 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
-          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -169,7 +164,6 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
-          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -191,7 +185,6 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
-          '/service-member/validation-code',
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
@@ -217,7 +210,7 @@ describe('when getting the next incomplete page', () => {
         serviceMember,
         context: ppmContext,
       });
-      expect(result).toEqual('/service-member/validation-code');
+      expect(result).toEqual('/service-member/dod-info');
     });
     describe('when dod info is complete', () => {
       it('returns the next page of the user profile', () => {

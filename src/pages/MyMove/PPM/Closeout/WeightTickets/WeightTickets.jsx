@@ -23,10 +23,11 @@ import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
-import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
+import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
+import { APP_NAME } from 'constants/apps';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -48,6 +49,7 @@ const WeightTickets = () => {
   const toggleErrorModal = () => {
     setIsErrorModalVisible((prev) => !prev);
   };
+  const appName = APP_NAME.MYMOVE;
 
   const errorModalMessage =
     "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
@@ -86,6 +88,14 @@ const WeightTickets = () => {
     const moves = getAllMoves(serviceMemberId);
     dispatch(updateAllMoves(moves));
   }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
+
+  const handleErrorMessage = (error) => {
+    if (error?.response?.status === 412) {
+      setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else {
+      setErrorMessage('Failed to save updated trip record');
+    }
+  };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
@@ -173,9 +183,9 @@ const WeightTickets = () => {
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
-      .catch(() => {
+      .catch((error) => {
         setSubmitting(false);
-        setErrorMessage('Failed to save updated trip record');
+        handleErrorMessage(error);
       });
   };
 
@@ -204,14 +214,6 @@ const WeightTickets = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Weight Tickets</h1>
             {renderError()}
-            <div className={closingPageStyles['closing-section']}>
-              <p>
-                Weight tickets should include both an empty or full weight ticket for each segment or trip. If you’re
-                missing a weight ticket, you’ll be able to use a government-created spreadsheet to estimate the weight.
-              </p>
-              <p>Weight tickets must be certified, legible, and unaltered. Files must be 25MB or smaller.</p>
-              <p>You must upload at least one set of weight tickets to get paid for your PPM.</p>
-            </div>
             <WeightTicketForm
               weightTicket={currentWeightTicket}
               tripNumber={currentIndex + 1}
@@ -220,6 +222,7 @@ const WeightTickets = () => {
               onUploadDelete={handleUploadDelete}
               onSubmit={handleSubmit}
               onBack={handleBack}
+              appName={appName}
             />
             <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
           </Grid>

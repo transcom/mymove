@@ -113,6 +113,24 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 	return r0, r1
 }
 
+// SignCertificationPPMCounselingCompleted provides a mock function with given fields: appCtx, moveID, ppmShipmentID
+func (_m *MoveTaskOrderUpdater) SignCertificationPPMCounselingCompleted(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error {
+	ret := _m.Called(appCtx, moveID, ppmShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignCertificationPPMCounselingCompleted")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r0 = rf(appCtx, moveID, ppmShipmentID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdatePPMType provides a mock function with given fields: appCtx, moveTaskOrderID
 func (_m *MoveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID)

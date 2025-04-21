@@ -209,15 +209,6 @@ describe('Weight Tickets page', () => {
     });
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Weight Tickets');
-    expect(
-      screen.getByText(
-        'Weight tickets should include both an empty or full weight ticket for each segment or trip. If you’re missing a weight ticket, you’ll be able to use a government-created spreadsheet to estimate the weight.',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Weight tickets must be certified, legible, and unaltered. Files must be 25MB or smaller.'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
 
     // renders form content
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 1');
