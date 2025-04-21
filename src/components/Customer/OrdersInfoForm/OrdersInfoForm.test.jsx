@@ -831,7 +831,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), civilianTDYTestProps.initialValues.rank);
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
@@ -856,7 +856,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), 'PVT');
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });

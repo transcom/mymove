@@ -507,7 +507,7 @@ const AddOrdersForm = ({
                     labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                     label={
                       <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                        If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                        If the customer&apos;s orders specify a UB weight allowance, enter it here.
                         <ToolTip
                           text={
                             <span className={styles.toolTipText}>
@@ -541,7 +541,7 @@ const AddOrdersForm = ({
                       labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                          If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                          If the customer&apos;s orders specify a UB weight allowance, enter it here.
                           <ToolTip
                             text={
                               <span className={styles.toolTipText}>

@@ -1830,7 +1830,7 @@ func (suite *PayloadsSuite) TestPaymentServiceItems() {
 
 func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
 	suite.Run("transforms PaymentServiceItemParam", func() {
-		paramKey := factory.BuildServiceItemParamKey(suite.DB(), nil, nil)
+		paramKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), nil, nil)
 		param := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
 			{Model: paramKey},
 		}, nil)

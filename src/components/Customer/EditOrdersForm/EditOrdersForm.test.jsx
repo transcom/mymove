@@ -932,9 +932,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), civilianTDYTestProps.initialValues.rank);
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText(/If your orders specify a specific UB weight allowance, enter it here./),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/If your orders specify a UB weight allowance, enter it here./)).toBeInTheDocument();
     });
   });
 
@@ -959,7 +957,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), civilianTDYTestProps.initialValues.rank);
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
@@ -984,7 +982,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), 'CPL');
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });

@@ -534,7 +534,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                       labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                          If your orders specify a specific UB weight allowance, enter it here.
+                          If your orders specify a UB weight allowance, enter it here.
                           <ToolTip
                             text={
                               <span className={styles.toolTipText}>
