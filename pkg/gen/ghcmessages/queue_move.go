@@ -24,6 +24,9 @@ type QueueMove struct {
 	// Format: date-time
 	AppearedInTooAt *strfmt.DateTime `json:"appearedInTooAt,omitempty"`
 
+	// approval request types
+	ApprovalRequestTypes []string `json:"approvalRequestTypes"`
+
 	// assignable
 	Assignable bool `json:"assignable,omitempty"`
 

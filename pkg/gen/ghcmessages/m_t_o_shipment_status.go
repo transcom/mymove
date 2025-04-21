@@ -48,6 +48,9 @@ const (
 
 	// MTOShipmentStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
 	MTOShipmentStatusDIVERSIONREQUESTED MTOShipmentStatus = "DIVERSION_REQUESTED"
+
+	// MTOShipmentStatusTERMINATEDFORCAUSE captures enum value "TERMINATED_FOR_CAUSE"
+	MTOShipmentStatusTERMINATEDFORCAUSE MTOShipmentStatus = "TERMINATED_FOR_CAUSE"
 )
 
 // for schema
@@ -55,7 +58,7 @@ var mTOShipmentStatusEnum []interface{}
 
 func init() {
 	var res []MTOShipmentStatus
-	if err := json.Unmarshal([]byte(`["SUBMITTED","REJECTED","APPROVED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","REJECTED","APPROVED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED","TERMINATED_FOR_CAUSE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -2510,6 +2510,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -3272,7 +3277,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -3285,6 +3291,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -4721,6 +4737,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -8186,6 +8207,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -8948,7 +8974,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -8961,6 +8988,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -10402,6 +10439,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

@@ -331,6 +331,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler, move := setupTestData(true, true)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "International St.",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		oconusDestAddress := primev3messages.Address{
+			City:           &oconusAddress.City,
+			PostalCode:     &oconusAddress.PostalCode,
+			State:          &oconusAddress.State,
+			StreetAddress1: &oconusAddress.StreetAddress1,
+			StreetAddress2: oconusAddress.StreetAddress2,
+			StreetAddress3: oconusAddress.StreetAddress3,
+		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -342,7 +364,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
 				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE),
 				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
+				DestinationAddress:   struct{ primev3messages.Address }{oconusDestAddress},
 			},
 		}
 
