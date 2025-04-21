@@ -137,6 +137,13 @@ export const ORDERS_DEPARTMENT_INDICATOR = {
 };
 
 export const RANK_GRADE_ASSOCIATIONS = {
+  OTHER: [
+    {
+      abbv_rank: 'CIV',
+      rank: 'Civilian',
+      grade: 'CIVILIAN_EMPLOYEE',
+    },
+  ],
   NAVY: [
     {
       abbv_rank: 'ADM',
@@ -270,7 +277,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -377,7 +384,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -504,7 +511,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -646,7 +653,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -758,7 +765,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -925,7 +932,7 @@ export const RANK_GRADE_ASSOCIATIONS = {
     },
     {
       abbv_rank: 'CIV',
-      rank: 'Civiian',
+      rank: 'Civilian',
       grade: 'CIVILIAN_EMPLOYEE',
     },
   ],
@@ -937,7 +944,7 @@ export const formatRankGradeDisplayValue = ({ rank, grade }) => {
 
 export const rankOptionValuesByAffiliation = (affiliation) => {
   const affiliationPaygradeRankEntries = Object.fromEntries(
-    (RANK_GRADE_ASSOCIATIONS[affiliation] ?? []).map((e) => [
+    (RANK_GRADE_ASSOCIATIONS[affiliation?.toUpperCase()] ?? []).map((e) => [
       e.abbv_rank,
       { value: formatRankGradeDisplayValue({ rank: e.abbv_rank, grade: ORDERS_PAY_GRADE_OPTIONS[e.grade] }), ...e },
     ]),

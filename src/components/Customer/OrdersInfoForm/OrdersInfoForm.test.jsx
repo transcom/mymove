@@ -8,9 +8,9 @@ import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { MockProviders } from 'testUtils';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 jest.setTimeout(60000);
 
@@ -453,11 +453,11 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
+    const currentDutyLocationField = screen.getByLabelText(/Current duty location/);
+    await userEvent.type(currentDutyLocationField, 'alt AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus AFB$/);
     await userEvent.click(selectedOptionCurrent);
-
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'alt AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 

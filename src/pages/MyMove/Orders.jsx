@@ -39,6 +39,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
       report_by_date: formatDateForSwagger(values.report_by_date),
       issue_date: formatDateForSwagger(values.issue_date),
       grade: values.grade,
+      rankShortName: values.rank,
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
     };
@@ -67,7 +68,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
     new_duty_location: currentOrders?.new_duty_location || null,
     grade: currentOrders?.grade || null,
     origin_duty_location: currentOrders?.origin_duty_location || null,
-    rank: currentOrders?.rank?.rankShortName || '',
+    rank: currentOrders?.payGradeRank?.rankShortName || '',
   };
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;

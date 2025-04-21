@@ -232,7 +232,7 @@ const testPropsWithUploads = {
     ],
   },
   moves: ['testMoveId'],
-  rank: { rankShortName: 'SMS' },
+  payGradeRank: { rankShortName: 'SMS' },
 };
 
 const testPropsNoUploads = {
@@ -281,7 +281,7 @@ const testPropsNoUploads = {
     uploads: [],
   },
   moves: ['testMoveId'],
-  rank: { rankShortName: 'SMS' },
+  payGradeRank: { rankShortName: 'SMS' },
 };
 
 const testOrders = [testPropsWithUploads, testPropsNoUploads];

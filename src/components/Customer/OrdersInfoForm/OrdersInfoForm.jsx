@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
-import { connect, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import { civilianTDYUBAllowanceWeightWarning, FEATURE_FLAG_KEYS } from '../../../shared/constants';
@@ -32,8 +32,7 @@ import { usePaygradeRankDropdownOptions, formatLabelReportByDate } from 'utils/f
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
-  const { affiliation } = { affiliation: useSelector((state) => selectServiceMemberAffiliation(state)) ?? '' };
+const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner, affiliation }) => {
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -43,13 +42,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
   const [ordersType, setOrdersType] = useState('');
-  const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
+  const [grade, setGrade] = useState('');
+  const [rank, setrank] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
-  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
+  const [mappedRanks, payGradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -63,6 +63,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
+    // grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     rank: Yup.mixed().oneOf(Object.keys(mappedRanks)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
@@ -191,8 +192,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       {({ isValid, isSubmitting, handleSubmit, handleChange, setValues, values, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
-        const handleRankChange = (rankGrade = {}) => {
-          setRank({ rank: rankGrade.rank, grade: rankGrade.grade });
+        const handleRankGradeChange = (rankGrade = { rank: null, grade: null }) => {
+          setrank(rankGrade.rank);
+          setGrade(rankGrade.grade);
           setValues({
             ...values,
             ...rankGrade,
@@ -501,16 +503,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                 id="rank"
                 required
                 showRequiredAsterisk
-                options={paygradeRankOptionValues}
+                options={payGradeRankOptionValues}
                 onChange={(e) => {
                   if (e.target.value === '') {
-                    handleRankChange({ rank: null, grade: null });
+                    handleRankGradeChange({ rank: null, grade: null });
                     handleChange(e);
                     return;
                   }
-                  const abbvRank = e.target.value;
-                  const gradeForRank = mappedRanks[abbvRank].grade;
-                  handleRankChange({ rank: abbvRank, grade: gradeForRank });
+                  const rankValue = e.target.value;
+                  const gradeForRank = mappedRanks[rankValue].grade;
+                  handleRankGradeChange({ rank: rankValue, grade: gradeForRank });
                   handleChange(e);
                 }}
               />
@@ -589,8 +591,14 @@ OrdersInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfoForm);

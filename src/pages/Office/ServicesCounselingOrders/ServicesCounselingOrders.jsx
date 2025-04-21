@@ -312,7 +312,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
-    rank: order?.rank?.rankShortName,
+    rank: order?.payGradeRank?.rankShortName,
     dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 

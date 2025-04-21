@@ -516,7 +516,7 @@ describe('Add Orders page', () => {
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
       grade: chosenGrade,
-      rank: chosenRank,
+      rankShortName: chosenRank,
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -618,7 +618,7 @@ describe('Add Orders page', () => {
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
       },
       grade: chosenGrade,
-      rank: chosenRank,
+      rankShortName: chosenRank,
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -643,7 +643,6 @@ describe('Add Orders page', () => {
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-
       const selectedOptionCurrent = await screen.findByText('Altus');
       await userEvent.click(selectedOptionCurrent);
       // Select an CONUS new duty location

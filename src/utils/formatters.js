@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import moment from 'moment';
 import numeral from 'numeral';
 
+import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import {
   ORDERS_TYPE_OPTIONS,
@@ -14,7 +15,6 @@ import {
 } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
-import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -314,15 +314,15 @@ export const dropdownInputOptions = (options) => {
 };
 
 export const makeRankAffiliationMappings = (affiliation) => {
-  const affiliatedValues = rankOptionValuesByAffiliation(affiliation);
-  const paygradeRankOptions = Object.fromEntries(
+  const affiliatedValues = rankOptionValuesByAffiliation(affiliation?.toUpperCase());
+  const payGradeRankOptions = Object.fromEntries(
     Object.values(affiliatedValues).map((pgr) => {
       return [pgr.abbv_rank, pgr.value];
     }),
   );
 
-  const paygradeRankDropdownOptions = dropdownInputOptions(paygradeRankOptions);
-  const sortedResult = paygradeRankDropdownOptions.sort((a, b) => {
+  const payGradeRankDropdownOptions = dropdownInputOptions(payGradeRankOptions);
+  const sortedResult = payGradeRankDropdownOptions.sort((a, b) => {
     const theGradeA = affiliatedValues[a.key].grade;
     const [typeA] = theGradeA.split('_');
     const theGradeB = affiliatedValues[b.key].grade;
@@ -335,15 +335,14 @@ export const makeRankAffiliationMappings = (affiliation) => {
 };
 
 export const usePaygradeRankDropdownOptions = (affiliation) => {
-  const paygradeRankOptionValues = useMemo(() => makeRankAffiliationMappings(affiliation), [affiliation]);
-
+  const payGradeRankOptionValues = useMemo(() => makeRankAffiliationMappings(affiliation), [affiliation]);
   switch (affiliation) {
     case '':
     case undefined:
     case null:
       return [{}, []];
     default:
-      return paygradeRankOptionValues;
+      return payGradeRankOptionValues;
   }
 };
 
@@ -651,22 +650,6 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
-export const userName = (user) => {
-  let formattedUser = '';
-  if (user.firstName && user.lastName) {
-    formattedUser += `${user.lastName}, `;
-    formattedUser += ` ${user.firstName}`;
-  } else {
-    if (user.firstName) {
-      formattedUser += ` ${user.firstName}`;
-    }
-    if (user.lastName) {
-      formattedUser += ` ${user.lastName}`;
-    }
-  }
-  return formattedUser;
-};
-
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
   const newValues = {};
@@ -693,6 +676,23 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   }
   return newValues;
 };
+
+export const userName = (user) => {
+  let formattedUser = '';
+  if (user.firstName && user.lastName) {
+    formattedUser += `${user.lastName}, `;
+    formattedUser += ` ${user.firstName}`;
+  } else {
+    if (user.firstName) {
+      formattedUser += ` ${user.firstName}`;
+    }
+    if (user.lastName) {
+      formattedUser += ` ${user.lastName}`;
+    }
+  }
+  return formattedUser;
+};
+
 /**
  * @description Converts a string to title case (capitalizes the first letter of each word)
  * @param {string} str - The input string to format.
@@ -719,8 +719,4 @@ export function formatPortInfo(port) {
     return `${port.portCode} - ${port.portName}\n${formattedCity}, ${formattedState} ${port.zip}`;
   }
   return '-';
-}
-
-export function formatFullName(firstName, middleName, lastName) {
-  return [firstName, middleName, lastName].filter(Boolean).join(' ');
 }

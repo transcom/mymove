@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
-import { connect, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
@@ -49,8 +49,8 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  affiliation,
 }) => {
-  const { affiliation } = { affiliation: useSelector((state) => selectServiceMemberAffiliation(state)) ?? '' };
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
   const [newDutyLocation, setNewDutyLocation] = useState(initialValues.new_duty_location);
@@ -67,10 +67,11 @@ const EditOrdersForm = ({
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
   const [prevOrderType, setPrevOrderType] = useState(initialValues.orders_type);
   const [ordersType, setOrdersType] = useState(initialValues.orders_type);
-  const [{ rank, grade }, setRank] = useState({ rank: initialValues.rank, grade: initialValues.grade });
+  const [grade, setGrade] = useState(initialValues.grade || '');
+  const [, setRank] = useState(initialValues.rank || '');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
-  const [mappedRanks, paygradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
+  const [mappedRanks, payGradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -130,9 +131,9 @@ const EditOrdersForm = ({
     const checkUBFeatureFlag = async () => {
       const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
       if (enabled) {
-        setEnableUB(() => true);
+        setEnableUB(true);
       }
-      setFinishedFetchingFF(() => () => true);
+      setFinishedFetchingFF(true);
     };
     checkUBFeatureFlag();
   }, []);
@@ -148,7 +149,7 @@ const EditOrdersForm = ({
               key: item.id,
               value: item.name,
             }));
-            setOfficeOptions(() => counselingOffices);
+            setOfficeOptions(counselingOffices);
           }
         } catch (error) {
           const { message } = error;
@@ -164,25 +165,25 @@ const EditOrdersForm = ({
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
-      setIsOconusMove(() => true);
+      setIsOconusMove(true);
     } else {
-      setIsOconusMove(() => false);
+      setIsOconusMove(false);
     }
 
     if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
       if (isOconusMove && hasDependents) {
-        setShowAccompaniedTourField(() => true);
-        setShowDependentAgeFields(() => true);
+        setShowAccompaniedTourField(true);
+        setShowDependentAgeFields(true);
       } else {
-        setShowAccompaniedTourField(() => false);
-        setShowDependentAgeFields(() => false);
+        setShowAccompaniedTourField(false);
+        setShowDependentAgeFields(false);
       }
     }
 
     if (isLoading && finishedFetchingFF) {
       // If the form is still loading and the FF has finished fetching,
       // then the form is done loading
-      setIsLoading(() => false);
+      setIsLoading(false);
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, isLoading, finishedFetchingFF]);
 
@@ -193,9 +194,9 @@ const EditOrdersForm = ({
         ordersType === ORDERS_TYPE.TEMPORARY_DUTY &&
         grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE
       ) {
-        setIsCivilianTDYMove(() => true);
+        setIsCivilianTDYMove(true);
       } else {
-        setIsCivilianTDYMove(() => false);
+        setIsCivilianTDYMove(false);
       }
     }
   }, [
@@ -207,7 +208,6 @@ const EditOrdersForm = ({
     ordersType,
     grade,
     isCivilianTDYMove,
-    rank,
   ]);
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -240,8 +240,9 @@ const EditOrdersForm = ({
       {({ isValid, isSubmitting, handleSubmit, handleChange, setValues, values, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
-        const handleRankChange = (rankGrade = {}) => {
-          setRank({ rank: rankGrade.rank, grade: rankGrade.grade });
+        const handleRankGradeChange = (rankGrade = { rank: null, grade: null }) => {
+          setRank(rankGrade.rank);
+          setGrade(rankGrade.grade);
           setValues({
             ...values,
             ...rankGrade,
@@ -547,17 +548,17 @@ const EditOrdersForm = ({
                 name="rank"
                 id="rank"
                 required
-                options={paygradeRankOptionValues}
+                options={payGradeRankOptionValues}
                 onChange={(e) => {
                   if (e.target.value === '') {
-                    handleRankChange({ rank: null, grade: null });
+                    handleRankGradeChange({ rank: null, grade: null });
                     handleChange(e);
                     return;
                   }
 
-                  const abbvRank = e.target.value;
-                  const gradeForRank = mappedRanks[abbvRank].grade;
-                  handleRankChange({ rank: abbvRank, grade: gradeForRank });
+                  const rankValue = e.target.value;
+                  const gradeForRank = mappedRanks[rankValue].grade;
+                  handleRankGradeChange({ rank: rankValue, grade: gradeForRank });
                   handleChange(e);
                 }}
               />
@@ -666,8 +667,14 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(EditOrdersForm);
+export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);

@@ -46,6 +46,7 @@ const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS
 const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
 const defaultProps = {
+  agency: 'ARMY',
   deptIndicatorOptions: deptOptions,
   ordersTypeOptions,
   ordersTypeDetailOptions,

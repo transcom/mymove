@@ -201,6 +201,7 @@ const initialValues = {
   report_by_date: '2020-11-26',
   has_dependents: 'no',
   origin_duty_location: {
+    provides_services_counseling: true,
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -217,7 +218,6 @@ const initialValues = {
     id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
-    provides_services_counseling: true,
   },
   counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
   new_duty_location: {
@@ -593,7 +593,7 @@ describe('EditOrdersForm component', () => {
           contentType: 'application/pdf',
         },
       ],
-      grade: 'E_1',
+      grade: 'E_4',
       rank: 'CPL',
       origin_duty_location: {
         address: {

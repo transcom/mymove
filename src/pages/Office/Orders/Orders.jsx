@@ -311,8 +311,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
     ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
     payGrade: order?.grade,
+    rank: order?.payGradeRank?.rankShortName,
     dependentsAuthorized,
-    rank: order?.rank?.rankShortName,
   };
 
   return (
@@ -341,6 +341,30 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
           } else if (!loaValidationState[LOA_TYPE.NTS].isValid) {
             ntsLoaWarning = loaInvalidWarningMsg;
           }
+
+          const getOrdersDetailForm = ({ formIsDisabled } = {}) => (
+            <OrdersDetailForm
+              agency={order?.agency}
+              deptIndicatorOptions={deptIndicatorDropdownOptions}
+              ordersTypeOptions={ordersTypeDropdownOptions}
+              ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+              hhgTacWarning={hhgTacWarning}
+              ntsTacWarning={ntsTacWarning}
+              validateHHGTac={handleHHGTacValidation}
+              validateNTSTac={handleNTSTacValidation}
+              hhgLoaWarning={hhgLoaWarning}
+              ntsLoaWarning={ntsLoaWarning}
+              validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
+              validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
+              hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
+              ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
+              showOrdersAcknowledgement={hasAmendedOrders}
+              ordersType={order.order_type}
+              setFieldValue={formik.setFieldValue}
+              payGradeOptions={payGradeDropdownOptions}
+              formIsDisabled={formIsDisabled}
+            />
+          );
 
           return (
             <form onSubmit={formik.handleSubmit}>
@@ -393,51 +417,9 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
                 <div className={styles.body}>
                   <Restricted
                     to={permissionTypes.updateOrders}
-                    fallback={
-                      <OrdersDetailForm
-                        agency={order?.agency}
-                        departmentIndicator={order?.department_indicator}
-                        deptIndicatorOptions={deptIndicatorDropdownOptions}
-                        ordersTypeOptions={ordersTypeDropdownOptions}
-                        ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
-                        hhgTacWarning={hhgTacWarning}
-                        ntsTacWarning={ntsTacWarning}
-                        validateHHGTac={handleHHGTacValidation}
-                        validateNTSTac={handleNTSTacValidation}
-                        hhgLoaWarning={hhgLoaWarning}
-                        ntsLoaWarning={ntsLoaWarning}
-                        validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
-                        validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
-                        hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
-                        ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
-                        showOrdersAcknowledgement={hasAmendedOrders}
-                        ordersType={order.order_type}
-                        setFieldValue={formik.setFieldValue}
-                        formIsDisabled
-                      />
-                    }
+                    fallback={getOrdersDetailForm({ formIsDisabled: true })}
                   >
-                    <OrdersDetailForm
-                      agency={order?.agency}
-                      deptIndicatorOptions={deptIndicatorDropdownOptions}
-                      departmentIndicator={order?.department_indicator}
-                      ordersTypeOptions={ordersTypeDropdownOptions}
-                      ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
-                      hhgTacWarning={hhgTacWarning}
-                      ntsTacWarning={ntsTacWarning}
-                      validateHHGTac={handleHHGTacValidation}
-                      validateNTSTac={handleNTSTacValidation}
-                      hhgLoaWarning={hhgLoaWarning}
-                      ntsLoaWarning={ntsLoaWarning}
-                      validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
-                      validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
-                      hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
-                      ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
-                      showOrdersAcknowledgement={hasAmendedOrders}
-                      ordersType={order.order_type}
-                      setFieldValue={formik.setFieldValue}
-                      payGradeOptions={payGradeDropdownOptions}
-                    />
+                    {getOrdersDetailForm()}
                   </Restricted>
                 </div>
                 <Restricted to={permissionTypes.updateOrders}>

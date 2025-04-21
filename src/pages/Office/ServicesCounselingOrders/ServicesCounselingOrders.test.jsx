@@ -149,7 +149,7 @@ const useOrdersDocumentQueriesReturnValue = {
       },
       first_name: 'Leo',
       grade: 'E_1',
-      rank: {
+      payGradeRank: {
         rankShortName: 'PVT',
       },
       id: '1',
@@ -222,11 +222,10 @@ describe('Orders page', () => {
 
   describe('Basic rendering', () => {
     const {
-      rank: { rankShortName },
+      payGradeRank: { rankShortName },
       grade,
     } = useOrdersDocumentQueriesReturnValue.orders[1];
     const displayValue = formatRankGradeDisplayValue({ rank: rankShortName, grade: ORDERS_PAY_GRADE_OPTIONS[grade] });
-
     it('renders the sidebar orders detail form', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 

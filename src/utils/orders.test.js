@@ -46,7 +46,7 @@ describe('matchesOrdersType', () => {
   });
 });
 
-describe('paygradeRankValuesAreValid', () => {
+describe('payGradeRankValuesAreValid', () => {
   it.each(Object.entries(ORDERS_BRANCH_OPTIONS))('branch has proper mapped values', (affiliationValue) => {
     if (affiliationValue === 'OTHER') return;
 
