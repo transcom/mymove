@@ -510,6 +510,12 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		suite.Equal(unit.Cents(36960), dest)
 		suite.Equal(unit.Cents(321920), packing)
 		suite.Equal(unit.Cents(26520), unpacking)
+		suite.Equal(unit.Cents(48155648), linehaul)
+		suite.Equal(unit.Cents(-641), fuel)
+		suite.Equal(unit.Cents(24160), origin)
+		suite.Equal(unit.Cents(36960), dest)
+		suite.Equal(unit.Cents(321920), packing)
+		suite.Equal(unit.Cents(26520), unpacking)
 
 		total := linehaul + fuel + origin + dest + packing + unpacking
 		suite.Equal(unit.Cents(48564567), total)
