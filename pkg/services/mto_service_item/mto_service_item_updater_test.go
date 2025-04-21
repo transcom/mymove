@@ -1399,13 +1399,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
