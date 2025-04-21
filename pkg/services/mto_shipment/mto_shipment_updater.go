@@ -757,6 +757,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					if err != nil {
 						return err
 					}
+
+					newShipment.Status = models.MTOShipmentStatusApprovalsRequested
 				}
 
 				if existingMoveStatus != move.Status {
