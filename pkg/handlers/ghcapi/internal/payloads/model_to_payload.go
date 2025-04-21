@@ -2362,8 +2362,13 @@ func attachApprovalRequestTypes(move models.Move) []string {
 		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
 	}
 	for _, shipment := range move.MTOShipments {
-		if shipment.Status == models.MTOShipmentStatusSubmitted && shipment.Diversion {
-			requestTypes = append(requestTypes, string(models.ApprovalRequestDiversion))
+		if shipment.Status == models.MTOShipmentStatusSubmitted {
+			if shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestDiversion))
+			}
+			if !shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestNewShipment))
+			}
 		}
 		if shipment.DeliveryAddressUpdate != nil && shipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
 			requestTypes = append(requestTypes, string(models.ApprovalRequestDestinationAddressUpdate))

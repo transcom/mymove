@@ -2409,4 +2409,32 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
 		suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
 	})
+
+	// new shipment
+	suite.Run("only attaches 'NEW_SHIPMENT' request type if a shipment is in SUBMITTED status", func() {
+		statuses := [8]models.MTOShipmentStatus{models.MTOShipmentStatusApproved, models.MTOShipmentStatusDraft, models.MTOShipmentStatusApproved, models.MTOShipmentStatusRejected, models.MTOShipmentStatusCancellationRequested, models.MTOShipmentStatusCanceled, models.MTOShipmentStatusDiversionRequested, models.MTOShipmentStatusTerminatedForCause}
+
+		for _, status := range statuses {
+			shipment.Status = status
+			shipments := models.MTOShipments{}
+			shipments = append(shipments, shipment)
+			move.MTOShipments = shipments
+
+			moves := models.Moves{}
+			moves = append(moves, move)
+
+			queueMoves := *QueueMoves(moves, nil, nil, officeUser, nil, string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder))
+			if status == models.MTOShipmentStatusSubmitted {
+				suite.Len(queueMoves, 1)
+				suite.Len(queueMoves[0].ApprovalRequestTypes, 2)
+				suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+				suite.Equal(string(models.ApprovalRequestNewShipment), queueMoves[0].ApprovalRequestTypes[1])
+			}
+			if status != models.MTOShipmentStatusSubmitted {
+				suite.Len(queueMoves, 1)
+				suite.Len(queueMoves[0].ApprovalRequestTypes, 1)
+				suite.Equal(string(models.ReServiceCodeDOFSIT), queueMoves[0].ApprovalRequestTypes[0])
+			}
+		}
+	})
 }
