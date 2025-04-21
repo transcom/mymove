@@ -76,13 +76,13 @@ type OktaError struct {
 	} `json:"errorCauses"`
 }
 
-type Status string
+type OktaStatus string
 
 const (
-	OktaStatusActive        Status = "ACTIVE"
-	OktaStatusDeprovisioned Status = "DEPROVISIONED"
-	OktaStatusProvisioned   Status = "PROVISIONED"
-	OktaStatusSuspended     Status = "SUSPENDED"
+	OktaStatusActive        OktaStatus = "ACTIVE"
+	OktaStatusDeprovisioned OktaStatus = "DEPROVISIONED"
+	OktaStatusProvisioned   OktaStatus = "PROVISIONED"
+	OktaStatusSuspended     OktaStatus = "SUSPENDED"
 )
 
 // ensures a valid email address
@@ -310,9 +310,10 @@ func UpdateOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaI
 	return &createdUser, nil
 }
 
+// Deletes the Okta account tied to the provided oktaID
 func DeleteOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaID string, apiKey string) error {
-	if oktaID == "" {
-		appCtx.Logger().Error(fmt.Sprintf("DeleteOktaUser was called with an invalid oktaID: %s", oktaID))
+	if len(oktaID) == 0 {
+		return fmt.Errorf("DeleteOktaUser was called with an empty oktaID")
 	}
 
 	baseURL := provider.GetUserURL(oktaID)
@@ -331,7 +332,7 @@ func DeleteOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaI
 	   Therefore in order to actually delete an ACTIVE user (or any status other than DEPROVISIONED), we will need to call delete twice.
 	*/
 	var deleteAttempts int
-	if Status(existingOktaUser.Status) == OktaStatusDeprovisioned {
+	if OktaStatus(existingOktaUser.Status) == OktaStatusDeprovisioned {
 		deleteAttempts = 1
 	} else {
 		deleteAttempts = 2

@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"fmt"
-
 	"net/http"
 
 	"github.com/jarcoal/httpmock"
