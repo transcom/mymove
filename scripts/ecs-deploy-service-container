@@ -27,6 +27,8 @@ readonly entrypoint=$4
 # assign the default values, but allow them to be overridden
 : "${SERVICE_RESERVATION_CPU:=1024}"
 : "${SERVICE_RESERVATION_MEM:=2048}"
+: "${SERVICE_RESERVATION_APP_MEM=2048}"
+: "${SERVICE_RESERVATION_CLIENT_MEM=2048}"
 
 # The cluster name is always `app-ENV`
 # Needs to support `app` and `app-client-tls` on the same cluster.
@@ -41,6 +43,16 @@ check_arn() {
 update_service() {
     local arn="$1"
     echo "* Updating service ${name} with ARN ${arn}"
+    
+    if [[$name == "app"]]; then 
+        UNSET "${SERVICE_RESERVATION_MEM}"
+        EXPORT "${SERVICE_RESERVATION_MEM}" = "${SERVICE_RESERVATION_APP_MEM}"
+    fi 
+
+    if [[$name == "app-client-tls"]]; then 
+        UNSET "${SERVICE_RESERVATION_MEM}"
+        EXPORT "${SERVICE_RESERVATION_MEM}" = "${SERVICE_RESERVATION_CLIENT_MEM}"
+    fi 
 
     # read the currently running tasks into an array so later on we
     # can query to ensure they have been stopped

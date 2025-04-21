@@ -30,16 +30,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env demo
 
   # Specify the branch to deploy TODO: this might be not needed. So far useless
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  DP3_BRANCH: &dp3_branch B-23046-update-ecs-memory-prd-new
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-23046-update-ecs-memory-prd-new
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-23046-update-ecs-memory-prd-new
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-23046-update-ecs-memory-prd-new
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-23046-update-ecs-memory-prd-new
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
@@ -87,7 +87,8 @@ stages:
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
-  - export SERVICE_RESERVATION_CLITENT_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
+
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -123,7 +124,7 @@ stages:
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
-  - export SERVICE_RESERVATION_CLITENT_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 .setup_tls_vars_stg: &setup_tls_vars_stg
   - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
@@ -138,7 +139,7 @@ stages:
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
-  - export SERVICE_RESERVATION_CLITENT_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 
 
