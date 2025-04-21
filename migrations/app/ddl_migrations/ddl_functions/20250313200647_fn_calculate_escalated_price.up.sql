@@ -1,5 +1,5 @@
 --B-22466  M.Inthavongsay Adding initial migration file for calculate_escalated_price stored procedure using new migration process.
---B-22662  C.Jewell Replaced escalation factor select with reusable func\
+--B-22662  C.Jewell Replaced escalation factor select with reusable func.
 --Also updating to allow IOPSIT and IDDSIT SIT service items.
 
 -- function to calculate the escalated price, takes in:
