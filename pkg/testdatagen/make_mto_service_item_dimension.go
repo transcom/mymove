@@ -9,10 +9,14 @@ import (
 )
 
 // MakeMTOServiceItemDimension creates a single MTOServiceItemDimension and associated set relationships
-func MakeMTOServiceItemDimension(db *pop.Connection, assertions Assertions) models.MTOServiceItemDimension {
+func MakeMTOServiceItemDimension(db *pop.Connection, assertions Assertions) (models.MTOServiceItemDimension, error) {
 	MTOServiceItem := assertions.MTOServiceItem
 	if isZeroUUID(MTOServiceItem.ID) {
-		MTOServiceItem = MakeMTOServiceItem(db, assertions)
+		var err error
+		MTOServiceItem, err = MakeMTOServiceItem(db, assertions)
+		if err != nil {
+			return models.MTOServiceItemDimension{}, err
+		}
 	}
 
 	MTOServiceItemDimension := models.MTOServiceItemDimension{
@@ -30,10 +34,10 @@ func MakeMTOServiceItemDimension(db *pop.Connection, assertions Assertions) mode
 
 	mustCreate(db, &MTOServiceItemDimension, assertions.Stub)
 
-	return MTOServiceItemDimension
+	return MTOServiceItemDimension, nil
 }
 
 // MakeDefaultMTOServiceItemDimension returns a MTOServiceItemDimension with default values
-func MakeDefaultMTOServiceItemDimension(db *pop.Connection) models.MTOServiceItemDimension {
+func MakeDefaultMTOServiceItemDimension(db *pop.Connection) (models.MTOServiceItemDimension, error) {
 	return MakeMTOServiceItemDimension(db, Assertions{})
 }
