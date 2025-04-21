@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
 			PriceMillicents:       unit.Millicents(535000),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReDomesticLinehaulPrice, expErrors)
+		suite.verifyValidationErrors(&validReDomesticLinehaulPrice, expErrors, nil)
 	})
 
 	suite.Run("test empty ReDomesticLinehaulPrice", func() {
@@ -33,7 +33,7 @@ func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
 			"price_millicents":         {"-1 is not greater than -1."},
 		}
-		suite.verifyValidationErrors(&emptyReDomesticLinehaulPrice, expErrors)
+		suite.verifyValidationErrors(&emptyReDomesticLinehaulPrice, expErrors, nil)
 	})
 
 	suite.Run("test negative weight lower for ReDomesticLinehaulPrice", func() {
@@ -50,6 +50,6 @@ func (suite *ModelSuite) TestReDomesticLinehaulPriceValidations() {
 		expErrors := map[string][]string{
 			"miles_lower": {"-5 is not greater than -1."},
 		}
-		suite.verifyValidationErrors(&validReDomesticLinehaulPrice, expErrors)
+		suite.verifyValidationErrors(&validReDomesticLinehaulPrice, expErrors, nil)
 	})
 }
