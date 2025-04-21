@@ -31,7 +31,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
   };
 
   const submitOrders = async (values) => {
-    const pendingValues = {
+    const { rank, ...pendingValues } = {
       ...values,
       service_member_id: serviceMemberId,
       new_duty_location_id: values.new_duty_location.id,

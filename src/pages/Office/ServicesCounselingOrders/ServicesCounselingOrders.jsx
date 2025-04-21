@@ -282,7 +282,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     if (orderResponse) {
       newOrderEtag = orderResponse.orders[orderId].eTag;
     }
-    const orderBody = {
+    const { rank, ...orderBody } = {
       ...values,
       originDutyLocationId: values.originDutyLocation.id,
       newDutyLocationId: values.newDutyLocation.id,
@@ -290,6 +290,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
       grade: values.payGrade,
+      rankShortName: values.rank,
       hasDependents:
         values.ordersType === ORDERS_TYPE.STUDENT_TRAVEL || values.ordersType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
           ? formatYesNoAPIValue('yes')

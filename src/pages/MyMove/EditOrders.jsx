@@ -204,7 +204,7 @@ const EditOrders = ({
     };
     const oconusFields = constructOconusFields();
 
-    const pendingValues = {
+    const { rank, ...pendingValues } = {
       ...fieldValues,
       id: currentOrder.id,
       service_member_id: serviceMemberId,

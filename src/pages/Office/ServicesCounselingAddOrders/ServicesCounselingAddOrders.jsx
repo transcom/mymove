@@ -117,7 +117,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const handleSubmit = (values) => {
     setHasSubmitted(true);
     const oconusFields = constructSCOrderOconusFields(values);
-    const body = {
+    const { rank, ...body } = {
       ...values,
       serviceMemberId: customerId,
       newDutyLocationId: values.newDutyLocation.id,
