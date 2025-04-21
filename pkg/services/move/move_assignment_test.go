@@ -387,7 +387,7 @@ func (suite *MoveServiceSuite) TestBulkMoveAssignment() {
 		suite.Nil(move3.TIOAssignedID)
 	})
 
-	suite.Run("successfully assigns multiple task order moves to a TOO destination user", func() {
+	suite.Run("successfully assigns multiple destination requests moves to a TOO destination user", func() {
 		transportationOffice, move1, move2, move3 := setupTestData()
 
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
