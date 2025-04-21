@@ -12,18 +12,26 @@ import (
 // makeOrder creates a single Order and associated data.
 //
 // Deprecated: use factory.BuildOrder
-func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
+func makeOrder(db *pop.Connection, assertions Assertions) (models.Order, error) {
 	// Create new relational data if not provided
 	sm := assertions.Order.ServiceMember
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Order.ServiceMemberID) {
-		sm = makeExtendedServiceMember(db, assertions)
+		var err error
+		sm, err = makeExtendedServiceMember(db, assertions)
+		if err != nil {
+			return models.Order{}, nil
+		}
 	}
 
 	dutyLocation := assertions.Order.NewDutyLocation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyLocationID) {
-		dutyLocation = fetchOrMakeDefaultNewOrdersDutyLocation(db)
+		var err error
+		dutyLocation, err = fetchOrMakeDefaultNewOrdersDutyLocation(db)
+		if err != nil {
+			return models.Order{}, err
+		}
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -38,7 +46,11 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 		mergeModels(&fullDocumentAssertions, assertions)
 
-		document = makeDocument(db, fullDocumentAssertions)
+		var err error
+		document, err = makeDocument(db, fullDocumentAssertions)
+		if err != nil {
+			return models.Order{}, err
+		}
 
 		fullUserUploadAssertions := Assertions{
 			UserUpload: models.UserUpload{
@@ -51,7 +63,10 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 		mergeModels(&fullUserUploadAssertions, assertions)
 
-		u := makeUserUpload(db, fullUserUploadAssertions)
+		u, err := makeUserUpload(db, fullUserUploadAssertions)
+		if err != nil {
+			return models.Order{}, err
+		}
 
 		document.UserUploads = append(document.UserUploads, u)
 	}
@@ -85,7 +100,11 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	originDutyLocation := assertions.OriginDutyLocation
 	if isZeroUUID(originDutyLocation.ID) {
-		originDutyLocation = makeDutyLocation(db, assertions)
+		var err error
+		originDutyLocation, err = makeDutyLocation(db, assertions)
+		if err != nil {
+			return models.Order{}, err
+		}
 	}
 
 	gbloc, err := models.FetchGBLOCForPostalCode(db, originDutyLocation.Address.PostalCode)
@@ -143,5 +162,5 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	mustCreate(db, &order, assertions.Stub)
 
-	return order
+	return order, nil
 }
