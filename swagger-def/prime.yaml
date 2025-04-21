@@ -1382,6 +1382,37 @@ paths:
             }
           ]
         ```
+
+        **IUBPK - International UB Pack**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        **IUBUPK - International UB Unpack**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        **UBP - International UB**
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
         ---
 
         International Basic Service Items & Accepted Payment Request Parameters:
@@ -2026,6 +2057,10 @@ definitions:
             enum:
               - DDSHUT # Domestic Destination Shuttle
               - DOSHUT # Domestic Origin Shuttle
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
   UpdateMTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
       Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.

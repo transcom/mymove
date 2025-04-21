@@ -111,6 +111,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
     accompaniedTour: '',
     dependentsUnderTwelve: '',
     dependentsTwelveAndOver: '',
+    civilianTdyUbAllowance: '',
   };
 
   const handleSubmit = (values) => {

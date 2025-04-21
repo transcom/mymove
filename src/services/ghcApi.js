@@ -89,6 +89,18 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
   );
 }
 
+export async function createProGearWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createProGearWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateProGearWeightTicket',
@@ -97,6 +109,19 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
       proGearWeightTicketId,
       'If-Match': eTag,
       updateProGearWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteProGearWeightTicket',
+    {
+      ppmShipmentId,
+      proGearWeightTicketId,
     },
     {
       normalize: false,
@@ -652,6 +677,18 @@ export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shi
     operationPath,
     {
       shipmentID,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function terminateShipment({ shipmentID, normalize = false, schemaKey = 'shipment', body }) {
+  const operationPath = 'shipment.createTermination';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      body,
     },
     { schemaKey, normalize },
   );

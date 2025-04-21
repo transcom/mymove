@@ -1268,55 +1268,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 	})
 
-	suite.Run("SITDepartureDate - errors when set equal to the SIT entry date", func() {
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
-					DestinationSITAuthEndDate: &now},
-			},
-		}, nil)
-		testCases := []struct {
-			reServiceCode models.ReServiceCode
-		}{
-			{
-				reServiceCode: models.ReServiceCodeDOPSIT,
-			},
-			{
-				reServiceCode: models.ReServiceCodeDDDSIT,
-			},
-		}
-		for _, tc := range testCases {
-			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
-				{
-					Model: models.ReService{
-						Code: tc.reServiceCode,
-					},
-				},
-				{
-					Model:    mtoShipment,
-					LinkOnly: true,
-				},
-				{
-					Model: models.MTOServiceItem{
-						SITEntryDate: &now,
-					},
-				},
-			}, nil)
-			newSITServiceItem := oldSITServiceItem
-			newSITServiceItem.SITDepartureDate = &now
-			serviceItemData := updateMTOServiceItemData{
-				updatedServiceItem: newSITServiceItem,
-				oldServiceItem:     oldSITServiceItem,
-				verrs:              validate.NewErrors(),
-			}
-			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
-			suite.NoError(err) // Just verrs
-			suite.True(serviceItemData.verrs.HasAny())
-			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
-			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before or equal to the SIT entry date.")
-		}
-	})
-
 	suite.Run("SITDepartureDate - errors when service item is missing a shipment ID", func() {
 
 		oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{

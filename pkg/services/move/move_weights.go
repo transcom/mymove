@@ -128,7 +128,10 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	if *move.Orders.Entitlement.DependentsAuthorized {
 		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
-	civilianTDYUBAllowance := 0 // TODO in B-22605
+	civilianTDYUBAllowance := 0
+	if move.Orders.Entitlement.UBAllowance != nil {
+		civilianTDYUBAllowance = *move.Orders.Entitlement.UBAllowance
+	}
 	ubWeightAllowance, err := models.GetUBWeightAllowance(appCtx, move.Orders.OriginDutyLocation.Address.IsOconus, move.Orders.NewDutyLocation.Address.IsOconus, move.Orders.ServiceMember.Affiliation, move.Orders.Grade, &move.Orders.OrdersType, move.Orders.Entitlement.DependentsAuthorized, move.Orders.Entitlement.AccompaniedTour, move.Orders.Entitlement.DependentsUnderTwelve, move.Orders.Entitlement.DependentsTwelveAndOver, &civilianTDYUBAllowance)
 	if err != nil {
 		return nil, nil, err
