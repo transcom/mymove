@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -15,12 +13,6 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 
 	suite.Run("golden path", func() {
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
@@ -42,13 +34,6 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
-		// ContractCode
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		serviceItemParamKey1 := factory.FetchOrBuildServiceItemParamKey(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceItemParamKey{

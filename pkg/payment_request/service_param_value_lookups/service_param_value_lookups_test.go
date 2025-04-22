@@ -64,11 +64,6 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithAllWeights(estimatedWeight *unit.Pound, originalWeight *unit.Pound, reweighWeight *unit.Pound, adjustedWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType, diversion bool, divertedFromShipmentID *uuid.UUID) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			EndDate: time.Now().Add(24 * time.Hour),
-		},
-	})
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
@@ -177,12 +172,6 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimated
 
 // Create a parent and child diverted shipment chain
 func (suite *ServiceParamValueLookupsSuite) setupDivertedShipmentChainServiceItemsWithAllWeights(parentEstimatedWeight *unit.Pound, childEstimatedWeight *unit.Pound, parentActualWeight *unit.Pound, childActualWeight *unit.Pound, parentReweighWeight *unit.Pound, childReweighWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.MTOServiceItem, models.PaymentRequest, models.PaymentRequest, *ServiceItemParamKeyData, *ServiceItemParamKeyData) {
-	// Create contract year
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			EndDate: time.Now().Add(24 * time.Hour),
-		},
-	})
 	// Create the parent shipment
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -273,11 +262,6 @@ func (suite *ServiceParamValueLookupsSuite) setupTestDivertedShipmentChain(paren
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			EndDate: time.Now().Add(24 * time.Hour),
-		},
-	})
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
@@ -322,11 +306,6 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithIntlFSCWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			EndDate: time.Now().Add(24 * time.Hour),
-		},
-	})
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
@@ -369,12 +348,6 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithIntlFSCWe
 
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("contract passed in", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
@@ -385,12 +358,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("MTOServiceItem passed in", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
@@ -411,11 +378,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 	for _, code := range serviceCodesWithoutShipment {
 		suite.Run(fmt.Sprintf("MTOShipment not looked up for %s", code), func() {
-			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					EndDate: time.Now().Add(24 * time.Hour),
-				},
-			})
 			mtoServiceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
 				{
 					Model: models.ReService{
@@ -450,12 +412,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	}
 
 	suite.Run("MTOShipment is looked up for other service items", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -479,12 +435,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("DestinationAddress is looked up for other service items", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		testData := []models.MTOServiceItem{
 			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -522,12 +472,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("DestinationAddress will not change from when SIT Destination service items were approved", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		testData := []models.MTOServiceItem{
 			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -579,12 +523,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("DestinationAddress is new address when there's a DeliverAddressUpdate and partially approved SIT", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		testData := []models.MTOServiceItem{
 			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -673,12 +611,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("DestinationAddress is not required for service items like domestic pack", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		servicesToTest := []models.ReServiceCode{models.ReServiceCodeDPK, models.ReServiceCodeDNPK}
 		for _, service := range servicesToTest {
 			mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -725,12 +657,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			}),
 		}
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		for _, mtoServiceItem := range testData {
 			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
 			suite.FatalNoError(err)
@@ -745,12 +671,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("PickupAddress is not required for service items like domestic unpack", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -771,12 +691,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("Correct addresses are used for NTS and NTS-release shipments", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		// Make a move and service for reuse.
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
@@ -787,6 +701,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			{
 				Model: models.Address{
 					PostalCode: pickupPostalCode,
+					City:       "COLUMBIA",
 				},
 			},
 		}, nil)
@@ -795,6 +710,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			{
 				Model: models.Address{
 					PostalCode: storageFacilityPostalCode,
+					City:       "AUGUSTA",
 				},
 			},
 		}, nil)
@@ -839,6 +755,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			{
 				Model: models.Address{
 					PostalCode: destinationPostalCode,
+					City:       "GEORGETOWN",
 				},
 			},
 		}, nil)
@@ -879,12 +796,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("SITDestinationAddress is looked up for destination sit", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		sitFinalDestAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		testData := []models.MTOServiceItem{
 			factory.BuildMTOServiceItem(suite.DB(),
@@ -951,12 +862,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("SITDestinationAddress is not loaded non sit", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		testData := []models.MTOServiceItem{
 			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -994,12 +899,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("Non-basic MTOServiceItem is missing a MTOShipmentID", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4()), MoveTaskOrderID: move.ID, MoveTaskOrder: move}
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
@@ -1012,12 +911,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.Run("Non-basic MTOServiceItem has a MTOShipmentID that is not found", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		badMTOServiceItem := models.MTOServiceItem{ID: uuid.Must(uuid.NewV4()), MTOShipmentID: models.UUIDPointer(uuid.Must(uuid.NewV4()))}
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, badMTOServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
@@ -1127,12 +1020,6 @@ func (suite *ServiceParamValueLookupsSuite) TestFetchContractForMove() {
 		suite.IsType(apperror.ConflictError{}, err)
 	})
 	suite.Run("should find contract for move that is available to prime", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		contract, err := fetchContractForMove(suite.AppContextForTest(), move.ID)
 		suite.NoError(err)
@@ -1147,6 +1034,7 @@ func (suite *ServiceParamValueLookupsSuite) TestGetDestinationAfterCheckingSIT()
 			{
 				Model: models.Address{
 					PostalCode: "88101",
+					City:       "CANNON AFB",
 				},
 			},
 		}, nil)
@@ -1260,6 +1148,7 @@ func (suite *ServiceParamValueLookupsSuite) TestGetDestinationAfterCheckingSIT()
 			{
 				Model: models.Address{
 					PostalCode: "88101",
+					City:       "CANNON AFB",
 				},
 			},
 		}, nil)

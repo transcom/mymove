@@ -145,6 +145,31 @@ describe('Shipment Container', () => {
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeDisabled();
     });
+    it('does not render a disabled button when shipment is not terminated', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted editURL="/" />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('shipment-display-checkbox')).toBeEnabled();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeEnabled();
+    });
+    it('renders a disabled button when shipment is terminated', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={{ ...hhgInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE }}
+            onChange={jest.fn()}
+            isSubmitted
+            editURL="/"
+          />
+        </MockProviders>,
+      );
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeDisabled();
+    });
     it('renders the terminated for cause tag when shipment status allows', async () => {
       const hhgInfoTerminated = { ...hhgInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE };
 
@@ -346,6 +371,29 @@ describe('Shipment Container', () => {
       );
 
       expect(screen.queryByRole('button', { name: 'View documents' })).toBeVisible();
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
+      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
+    });
+    it('renders the Send PPM to the Customer button successfully', async () => {
+      await act(async () => {
+        render(
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
+            <ShipmentDisplay
+              displayInfo={ppmInfo}
+              sendPpmToCustomer={jest.fn()}
+              counselorCanEdit={false}
+              ordersLOA={ordersLOA}
+              shipmentType={SHIPMENT_OPTIONS.PPM}
+              isSubmitted
+              allowApproval={false}
+              warnIfMissing={['counselorRemarks']}
+              completePpmForCustomerURL="/"
+            />
+          </MockProviders>,
+        );
+      });
+
+      expect(screen.queryByRole('button', { name: 'Send PPM to the Customer' })).toBeVisible();
       expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
       expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
     });

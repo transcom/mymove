@@ -1,6 +1,6 @@
--- B-22911 Beth introduced a move history sql refactor for us to swap
--- out with the pop query to be more efficient
-
+-- B-22911 Beth introduced a move history sql refactor for us to swapnout with the pop query to be more efficient
+-- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
+-- B 22696 Jon Spight added too destination assignments to history / Audit log
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
 
@@ -78,9 +78,9 @@ BEGIN
                 ''counseling_office_name'',
                 (SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
                 ''assigned_office_user_first_name'',
-                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id))),
+                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
                 ''assigned_office_user_last_name'',
-                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id)))
+                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
             ))
         )::TEXT AS context,
         NULL AS context_id,
@@ -93,7 +93,8 @@ BEGIN
         counseling_transportation_office_id TEXT,
         sc_assigned_id TEXT,
         too_assigned_id TEXT,
-        tio_assigned_id TEXT
+        tio_assigned_id TEXT,
+        too_destination_assigned_id TEXT
     ) ON TRUE
     WHERE audit_history.table_name = ''moves''
         AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE ''%shipment_seq_num%'' AND LENGTH(audit_history.changed_data::TEXT) < 25)
@@ -1814,6 +1815,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ======================================================
+-- Sub-function: populate sit extension updates
+-- ======================================================
+CREATE OR REPLACE FUNCTION fn_populate_sit_extensions(p_move_id UUID)
+RETURNS void AS
+$$
+DECLARE v_count INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO v_count
+  FROM audit_history
+  JOIN sit_extensions ON sit_extensions.id = audit_history.object_id
+  JOIN mto_shipments ON mto_shipments.id = sit_extensions.mto_shipment_id
+  JOIN moves ON mto_shipments.move_id = moves.id
+  WHERE moves.id = p_move_id
+    AND audit_history.table_name = 'sit_extensions';
+
+  IF v_count > 0 THEN
+    INSERT INTO audit_hist_temp
+    SELECT audit_history.*,
+           jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+             'shipment_type', mto_shipments.shipment_type,
+             'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
+             'shipment_locator', mto_shipments.shipment_locator
+           )))::TEXT AS context,
+           moves.id AS move_id
+    FROM audit_history
+    JOIN sit_extensions ON sit_extensions.id = audit_history.object_id
+    JOIN mto_shipments ON mto_shipments.id = sit_extensions.mto_shipment_id
+    JOIN moves ON mto_shipments.move_id = moves.id
+    WHERE moves.id = p_move_id
+      AND audit_history.table_name = 'sit_extensions'
+    GROUP BY audit_history.id, moves.id;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 
 -- ============================================
 -- ============================================
@@ -1909,6 +1946,7 @@ BEGIN
     PERFORM fn_populate_move_history_payment_requests(v_move_id);
     PERFORM fn_populate_move_history_service_item_dimensions(v_move_id);
     PERFORM fn_populate_move_history_service_item_customer_contacts(v_move_id);
+    PERFORM fn_populate_sit_extensions(v_move_id);
 
     -- adding a CTE here to stop duplicate entries because of duplicate user_id values
     -- with this CTE we get one consolidated row of user details

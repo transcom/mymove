@@ -9,11 +9,15 @@ import (
 // makeDocument creates a single Document.
 //
 // Deprecated: use factory.BuildDocument
-func makeDocument(db *pop.Connection, assertions Assertions) models.Document {
+func makeDocument(db *pop.Connection, assertions Assertions) (models.Document, error) {
 	sm := assertions.Document.ServiceMember
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Document.ServiceMemberID) {
-		sm = makeServiceMember(db, assertions)
+		var err error
+		sm, err = makeServiceMember(db, assertions)
+		if err != nil {
+			return models.Document{}, err
+		}
 	}
 
 	document := models.Document{
@@ -26,5 +30,5 @@ func makeDocument(db *pop.Connection, assertions Assertions) models.Document {
 
 	mustCreate(db, &document, assertions.Stub)
 
-	return document
+	return document, nil
 }

@@ -7,6 +7,7 @@ import ShipmentAddresses from './ShipmentAddresses';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { shipmentStatuses } from 'constants/shipments';
 
 const testProps = {
   pickupAddress: {
@@ -223,11 +224,23 @@ describe('ShipmentAddresses', () => {
     expect(screen.queryByText('Request Diversion')).not.toBeInTheDocument();
   });
 
-  it('renders with disabled request diversion button', async () => {
+  it('renders with disabled request diversion button when move is locked', async () => {
     const isMoveLocked = true;
     render(
       <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
         <ShipmentAddresses {...testProps} isMoveLocked={isMoveLocked} />
+      </MockProviders>,
+    );
+    const requestDiversionBtn = screen.getByRole('button', { name: 'Request Diversion' });
+    expect(requestDiversionBtn).toBeDisabled();
+  });
+  it('renders with disabled request diversion button when shipment is terminated', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentAddresses
+          {...testProps}
+          shipmentInfo={{ ...testProps.shipmentInfo, status: shipmentStatuses.TERMINATED_FOR_CAUSE }}
+        />
       </MockProviders>,
     );
     const requestDiversionBtn = screen.getByRole('button', { name: 'Request Diversion' });

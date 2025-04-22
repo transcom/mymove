@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			MarketCode:           marketCode,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMTOShipment, expErrors)
+		suite.verifyValidationErrors(&validMTOShipment, expErrors, nil)
 	})
 
 	suite.Run("test empty MTOShipment", func() {
@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"move_task_order_id": {"MoveTaskOrderID can not be blank."},
 			"status":             {"Status is not in the list [APPROVED, REJECTED, SUBMITTED, DRAFT, CANCELLATION_REQUESTED, CANCELED, DIVERSION_REQUESTED, TERMINATED_FOR_CAUSE]."},
 		}
-		suite.verifyValidationErrors(&emptyMTOShipment, expErrors)
+		suite.verifyValidationErrors(&emptyMTOShipment, expErrors, suite.AppContextForTest())
 	})
 
 	suite.Run("test rejected MTOShipment", func() {
@@ -50,10 +50,21 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			RejectionReason: &rejectionReason,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&rejectedMTOShipment, expErrors)
+		suite.verifyValidationErrors(&rejectedMTOShipment, expErrors, nil)
 	})
 
 	suite.Run("test validation failures", func() {
+		// Start an original shipment to check against db verrs
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		// Passing the terminated status to the factory will fail as the factory
+		// tries updating after already saving as terminated, thus failing
+		hhgShipment.Status = models.MTOShipmentStatusTerminatedForCause
+		hhgShipment.TerminationComments = models.StringPointer("I'll be back")
+		err := suite.DB().Save(&hhgShipment)
+		suite.NoError(err)
+
+		// Proceed with verr checks
+
 		// mock weights
 		estimatedWeight := unit.Pound(-1000)
 		actualWeight := unit.Pound(-980)
@@ -64,6 +75,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		tacType := models.LOAType("FAKE")
 		marketCode := models.MarketCode("x")
 		invalidMTOShipment := models.MTOShipment{
+			ID:                          hhgShipment.ID,
 			MoveTaskOrderID:             uuid.Must(uuid.NewV4()),
 			Status:                      models.MTOShipmentStatusRejected,
 			PrimeEstimatedWeight:        &estimatedWeight,
@@ -89,8 +101,9 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"tactype":                       {"TACType is not in the list [HHG, NTS]."},
 			"sactype":                       {"SACType is not in the list [HHG, NTS]."},
 			"market_code":                   {"MarketCode is not in the list [d, i]."},
+			"status":                        {"Cannot update shipment with status TERMINATED_FOR_CAUSE"},
 		}
-		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
+		suite.verifyValidationErrors(&invalidMTOShipment, expErrors, suite.AppContextForTest())
 	})
 	suite.Run("test MTO Shipment has a PPM Shipment", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
@@ -284,35 +297,14 @@ func (suite *ModelSuite) TestDetermineMarketCode() {
 }
 func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 	suite.Run("test creating approved service items for shipment", func() {
-
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-
-				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
 			{
 				Model: models.MTOShipment{
 					MarketCode: "i",
 				},
 			},
-			{
-				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
 		}, nil)
+
 		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
 		suite.NoError(err)
 	})
@@ -403,13 +395,14 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		airForce := models.AffiliationAIRFORCE
-		postalCode := "99501"
+		postalCode := "99744"
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               "ANDERSON",
 				},
 			},
 		}, nil)
@@ -448,7 +441,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		army := models.AffiliationARMY
-		postalCode := "99501"
+		postalCode := "99744"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
 
@@ -457,6 +450,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               "ANDERSON",
 				},
 			},
 		}, nil)
@@ -496,7 +490,8 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
 		suite.FatalNoError(err)
 		usmc := models.AffiliationMARINES
-		postalCode := "99501"
+		postalCode := "99744"
+		city := "ANDERSON"
 		// since we truncate the test db, we need to add the postal_code_to_gbloc value
 		// this doesn't matter to the db function because it will check for USMC but we are just verifying it won't be JEAT despite the zip matching
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
@@ -506,6 +501,7 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 				Model: models.Address{
 					PostalCode:         postalCode,
 					UsPostRegionCityID: &zone2UUID,
+					City:               city,
 				},
 			},
 		}, nil)
@@ -568,21 +564,13 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
+					IsOconus: models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					IsOconus: models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -597,21 +585,13 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
+					IsOconus: models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					IsOconus: models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -635,21 +615,13 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					IsOconus: models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some other address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					IsOconus: models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -665,20 +637,13 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
 					IsOconus:       nil,
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
+					IsOconus: models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -694,21 +659,13 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "CA",
-					PostalCode:     "90210",
-					IsOconus:       models.BoolPointer(false),
+					IsOconus: models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       nil,
+					IsOconus: nil,
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},

@@ -1,5 +1,5 @@
 import { Button, Tag } from '@trussworks/react-uswds';
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -28,11 +28,21 @@ const ShipmentApprovalPreview = ({
   shipmentManagementFee,
   isSubmitting,
 }) => {
+  const [isOconusMove, setIsOconusMove] = useState(false);
+
+  useEffect(() => {
+    // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB allowance details
+    if (ordersInfo?.currentDutyLocation?.address?.isOconus || ordersInfo?.newDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+  }, [ordersInfo?.currentDutyLocation, ordersInfo?.newDutyLocation]);
   return (
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={classNames('modal', styles.approvalPreviewModal)}>
+        <Modal className={classNames('modal', styles.approvalPreviewModal)} onClose={() => setIsModalVisible(false)}>
           <div className={classNames(styles.containerTop)}>
             <div>
               <button
@@ -48,11 +58,11 @@ const ShipmentApprovalPreview = ({
             <h2>Preview and post move task order</h2>
             <p>Is all the information shown correct and ready to send to Global Relocation Services?</p>
             <div className="display-flex">
-              <Button type="submit" onClick={onSubmit} disabled={isSubmitting}>
-                Approve and send
-              </Button>
               <Button type="reset" secondary onClick={() => setIsModalVisible(false)}>
                 Back
+              </Button>
+              <Button type="submit" onClick={onSubmit} disabled={isSubmitting}>
+                Approve and send
               </Button>
             </div>
           </div>
@@ -120,7 +130,7 @@ const ShipmentApprovalPreview = ({
               </>
             )}
             <h4>Allowances</h4>
-            <AllowancesList info={allowancesInfo} />
+            <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             <h4>Customer info</h4>
             <CustomerInfoList customerInfo={customerInfo} />
           </div>

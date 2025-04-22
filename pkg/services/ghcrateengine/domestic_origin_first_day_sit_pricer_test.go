@@ -15,10 +15,10 @@ const (
 	dofsitTestServiceArea          = "123"
 	dofsitTestIsPeakPeriod         = true
 	dofsitTestBasePriceCents       = unit.Cents(353)
-	dofsitTestContractYearName     = "DOFSIT Test Year"
-	dofsitTestEscalationCompounded = 1.125
+	dofsitTestContractYearName     = testdatagen.DefaultContractYearName
+	dofsitTestEscalationCompounded = 1.11000
 	dofsitTestWeight               = unit.Pound(4000)
-	dofsitTestPriceCents           = unit.Cents(15880)
+	dofsitTestPriceCents           = unit.Cents(15680)
 )
 
 var dofsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -79,7 +79,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, dofsitTestServiceArea, dofsitTestIsPeakPeriod, dofsitTestBasePriceCents, dofsitTestContractYearName, dofsitTestEscalationCompounded)
-		twoYearsLaterPickupDate := dofsitTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := dofsitTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dofsitTestWeight, dofsitTestServiceArea, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
