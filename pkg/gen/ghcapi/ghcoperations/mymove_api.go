@@ -345,6 +345,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveSearchMovesHandler: move.SearchMovesHandlerFunc(func(params move.SearchMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.SearchMoves has not yet been implemented")
 		}),
+		PpmSendPPMToCustomerHandler: ppm.SendPPMToCustomerHandlerFunc(func(params ppm.SendPPMToCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.SendPPMToCustomer has not yet been implemented")
+		}),
 		MoveSetFinancialReviewFlagHandler: move.SetFinancialReviewFlagHandlerFunc(func(params move.SetFinancialReviewFlagParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.SetFinancialReviewFlag has not yet been implemented")
 		}),
@@ -667,6 +670,8 @@ type MymoveAPI struct {
 	CustomerSearchCustomersHandler customer.SearchCustomersHandler
 	// MoveSearchMovesHandler sets the operation handler for the search moves operation
 	MoveSearchMovesHandler move.SearchMovesHandler
+	// PpmSendPPMToCustomerHandler sets the operation handler for the send p p m to customer operation
+	PpmSendPPMToCustomerHandler ppm.SendPPMToCustomerHandler
 	// MoveSetFinancialReviewFlagHandler sets the operation handler for the set financial review flag operation
 	MoveSetFinancialReviewFlagHandler move.SetFinancialReviewFlagHandler
 	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
@@ -1084,6 +1089,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveSearchMovesHandler == nil {
 		unregistered = append(unregistered, "move.SearchMovesHandler")
+	}
+	if o.PpmSendPPMToCustomerHandler == nil {
+		unregistered = append(unregistered, "ppm.SendPPMToCustomerHandler")
 	}
 	if o.MoveSetFinancialReviewFlagHandler == nil {
 		unregistered = append(unregistered, "move.SetFinancialReviewFlagHandler")
@@ -1632,6 +1640,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/search"] = move.NewSearchMoves(o.context, o.MoveSearchMovesHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/send-to-customer"] = ppm.NewSendPPMToCustomer(o.context, o.PpmSendPPMToCustomerHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

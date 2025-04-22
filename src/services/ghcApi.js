@@ -938,6 +938,18 @@ export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
 
+export async function sendPPMToCustomer(params) {
+  const operationPath = 'ppm.sendPPMToCustomer';
+  return makeGHCRequest(
+    operationPath,
+    {
+      ppmShipmentId: params.ppmShipmentId,
+      'If-Match': params.eTag,
+    },
+    { normalize: false },
+  );
+}
+
 export async function createOfficeAccountRequest({ body }) {
   return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
 }

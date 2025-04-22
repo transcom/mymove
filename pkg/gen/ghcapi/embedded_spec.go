@@ -4385,6 +4385,65 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/send-to-customer": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once a Service Counselor has reviewed the submitted PPM. Status is updated to waiting on customer so the customer may move the shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after a Service Counselor sends it to customer for moving",
+        "operationId": "sendPPMToCustomer",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully sent PPM to customer",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
       "get": {
         "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
@@ -22202,6 +22261,91 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/send-to-customer": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once a Service Counselor has reviewed the submitted PPM. Status is updated to waiting on customer so the customer may move the shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after a Service Counselor sends it to customer for moving",
+        "operationId": "sendPPMToCustomer",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully sent PPM to customer",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
       "get": {
