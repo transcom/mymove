@@ -8,7 +8,7 @@ import smartCard from 'shared/images/smart-card.png';
 import Modal, { ModalTitle, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const ValidCACModal = ({ onClose, onSubmit }) => (
-  <Modal>
+  <Modal onClose={onClose}>
     <ModalTitle className={styles.center}>
       <h3>Do you have a valid CAC?</h3>
     </ModalTitle>
@@ -22,11 +22,11 @@ export const ValidCACModal = ({ onClose, onSubmit }) => (
       account.
     </p>
     <ModalActions autofocus="true">
-      <Button data-focus="true" type="submit" data-testid="modalSubmitButton" onClick={() => onSubmit()}>
-        Yes
-      </Button>
       <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
         No
+      </Button>
+      <Button data-focus="true" type="submit" data-testid="modalSubmitButton" onClick={() => onSubmit()}>
+        Yes
       </Button>
     </ModalActions>
   </Modal>
