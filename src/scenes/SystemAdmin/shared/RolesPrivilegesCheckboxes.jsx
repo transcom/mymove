@@ -30,6 +30,15 @@ const RolesPrivilegesCheckboxInput = (props) => {
     (roleObj) => !roleObj.allowedPrivileges.includes(elevatedPrivilegeTypes.SUPERVISOR),
   );
 
+  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== roleTypes.PRIME); // Do not want Prime role to show
+  const rolesWithoutPrivs = availableRoles.filter((r) => r.allowedPrivileges.length === 0);
+  const supervisorRoles = availableRoles
+    .filter((r) => r.allowedPrivileges.includes(elevatedPrivilegeTypes.SUPERVISOR))
+    .map((r) => r.roleName);
+  const safetyRoles = availableRoles
+    .filter((r) => r.allowedPrivileges.includes(elevatedPrivilegeTypes.SAFETY))
+    .map((r) => r.roleName);
+
   const makeRoleTypeArray = (roles) => {
     if (!roles || roles.length === 0) {
       rolesSelected = [];
@@ -48,45 +57,32 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }, []);
   };
 
+  // If the user selects a role that isn't allowed to have a Safety Moves privilege, remove their selection.
   const parseRolesCheckboxInput = (input) => {
-    // If the user selects a role that isn't allowed to have a Safety Moves privilege, remove their selection.
-    nonSafetyRoles.forEach((nonSafetyRole) => {
-      let index = input.indexOf(nonSafetyRole.roleType);
-      if (privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
-        while (index !== -1) {
-          input.splice(index, 1);
-          index = input.indexOf(nonSafetyRole.roleType);
-        }
-      }
+    let result = [...input];
 
-      if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
+    if (!isHeadquartersRoleFF) {
+      const idx = result.indexOf(roleTypes.HQ);
+      if (idx !== -1) result.splice(idx, 1);
+    }
+
+    const disallowedByPrivilege = {
+      [elevatedPrivilegeTypes.SAFETY]: nonSafetyRoles.map((r) => r.roleType),
+      [elevatedPrivilegeTypes.SUPERVISOR]: nonSupervisorRoles.map((r) => r.roleType),
+    };
+
+    Object.entries(disallowedByPrivilege).forEach(([privType, badRoles]) => {
+      if (privilegesSelected.includes(privType)) {
+        badRoles.forEach((badRole) => {
+          let idx;
+          while ((idx = result.indexOf(badRole)) !== -1) {
+            result.splice(idx, 1);
+          }
+        });
       }
     });
 
-    nonSupervisorRoles.forEach((nonSupervisorRole) => {
-      let index = input.indexOf(nonSupervisorRole.roleType);
-      if (privilegesSelected.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
-        while (index !== -1) {
-          input.splice(index, 1);
-          index = input.indexOf(nonSupervisorRole.roleType);
-        }
-      }
-
-      if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    });
-    return input.reduce((rolesArray, role) => {
-      rolesArray.push(rolesWithPrivs.find((r) => r.roleType === role));
-      return rolesArray;
-    }, []);
+    return result.map((rt) => rolesWithPrivs.find((r) => r.roleType === rt));
   };
 
   const makePrivilegesArray = (privileges) => {
@@ -106,30 +102,23 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parsePrivilegesCheckboxInput = (input) => {
-    // If the user selects the Safety Moves privilege for a role that isn't allowed, remove their selection.
-    nonSafetyRoles.forEach((nonSafetyRole) => {
-      let index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
-      if (rolesSelected.includes(nonSafetyRole.roleType)) {
-        while (index !== -1) {
-          input.splice(index, 1);
-          index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
+    const result = [...input];
+
+    const disallowedByRole = {
+      [elevatedPrivilegeTypes.SAFETY]: nonSafetyRoles.map((r) => r.roleType),
+      [elevatedPrivilegeTypes.SUPERVISOR]: nonSupervisorRoles.map((r) => r.roleType),
+    };
+
+    Object.entries(disallowedByRole).forEach(([privType, badRoles]) => {
+      if (rolesSelected.some((role) => badRoles.includes(role))) {
+        let idx;
+        while ((idx = result.indexOf(privType)) !== -1) {
+          result.splice(idx, 1);
         }
       }
     });
 
-    nonSupervisorRoles.forEach((nonSupervisorRole) => {
-      let index = input.indexOf(elevatedPrivilegeTypes.SUPERVISOR);
-      if (rolesSelected.includes(nonSupervisorRole.roleType)) {
-        while (index !== -1) {
-          input.splice(index, 1);
-          index = input.indexOf(elevatedPrivilegeTypes.SUPERVISOR);
-        }
-      }
-    });
-    return input.reduce((privilegesArray, privilege) => {
-      privilegesArray.push(privileges.find((officeUserPrivilege) => officeUserPrivilege.privilegeType === privilege));
-      return privilegesArray;
-    }, []);
+    return result.map((privType) => privileges.find((p) => p.privilegeType === privType));
   };
   // filter the privileges to exclude the Safety Moves checkbox if the admin user is NOT a super admin
   const filteredPrivileges = privileges.filter((privilege) => {
@@ -139,14 +128,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
     return true;
   });
 
-  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== roleTypes.PRIME); // Do not want Prime role to show
-  const rolesWithoutPrivs = availableRoles.filter((r) => r.allowedPrivileges.length === 0);
-  const supervisorRoles = availableRoles
-    .filter((r) => r.allowedPrivileges.includes(elevatedPrivilegeTypes.SUPERVISOR))
-    .map((r) => r.roleName);
-  const safetyRoles = availableRoles
-    .filter((r) => r.allowedPrivileges.includes(elevatedPrivilegeTypes.SAFETY))
-    .map((r) => r.roleName);
   return (
     <>
       <CheckboxGroupInput
@@ -171,9 +152,11 @@ const RolesPrivilegesCheckboxInput = (props) => {
           The Supervisor privilege can only be selected for the following roles: {supervisorRoles.join(', ')}.
         </span>
       )}
-      <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
-        The Safety Moves privilege can only be selected for the following roles: {safetyRoles.join(', ')}.
-      </span>
+      {safetyRoles.length > 0 && (
+        <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
+          The Safety Moves privilege can only be selected for the following roles: {safetyRoles.join(', ')}.
+        </span>
+      )}
     </>
   );
 };
