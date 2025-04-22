@@ -698,7 +698,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                             orders.
                           </li>
                         </ul>
-                        <p>If none of these apply to you, you probably don&apos;t need multiple shipments.</p>
+                        <p>If none of these apply to you, you probably do not need multiple shipments.</p>
                       </>
                     </Description>
                   )}
