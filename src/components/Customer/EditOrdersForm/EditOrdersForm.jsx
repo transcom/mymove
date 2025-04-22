@@ -559,7 +559,7 @@ const EditOrdersForm = ({
                   ref={filePondEl}
                   createUpload={createUpload}
                   onChange={onUploadComplete}
-                  labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+                  labelIdle='Drag & drop or <span class="filepond--label-action">click to upload orders</span>'
                 />
               </div>
 

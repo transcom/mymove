@@ -3,6 +3,7 @@ import React from 'react';
 import { v4 } from 'uuid';
 import { mount } from 'enzyme';
 import { act, waitFor, render, screen } from '@testing-library/react';
+import { cloneDeep } from 'lodash';
 
 import MoveHome from './MoveHome';
 
@@ -1196,6 +1197,9 @@ const defaultPropsWithAdvanceAndPPMApproved = {
   uploadedAmendedOrderDocuments: [],
 };
 
+const defaultWithOrdersAndLock = cloneDeep(defaultPropsOrdersWithUnsubmittedShipments);
+defaultWithOrdersAndLock.serviceMemberMoves.currentMove[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+
 const mountMoveHomeWithProviders = (defaultProps) => {
   const moveId = defaultProps.serviceMemberMoves.currentMove[0].id;
   return mount(
@@ -1280,7 +1284,7 @@ describe('Home component', () => {
   });
 
   describe('with default props, with a lock on the move', () => {
-    it('renders Home with the right amount of components', async () => {
+    it('renders Home with the action button for orders disabled', async () => {
       const moveId = defaultWithLock.serviceMemberMoves.currentMove[0].id;
       getAllMoves.mockResolvedValue(true);
       await act(async () => {
@@ -1294,7 +1298,27 @@ describe('Home component', () => {
       await waitFor(() => {
         expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
         expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
-        expect(screen.getByTestId('editButton')).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Add orders' })).toBeDisabled();
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
+      });
+    });
+
+    it('renders Home with edit button for orders disabled', async () => {
+      const moveId = defaultWithOrdersAndLock.serviceMemberMoves.currentMove[0].id;
+      getAllMoves.mockResolvedValue(true);
+      await act(async () => {
+        render(
+          <MockProviders path={customerRoutes.MOVE_HOME_PATH} params={{ moveId }}>
+            <MoveHome {...defaultWithOrdersAndLock} />
+          </MockProviders>,
+        );
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
+        expect(screen.getAllByTestId('editButton')[1]).toBeDisabled();
         expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
         expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
         expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
