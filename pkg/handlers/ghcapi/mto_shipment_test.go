@@ -743,12 +743,13 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		}, nil)
 
 		reweighWeight := unit.Pound(1)
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Reweigh: models.Reweigh{
 				Weight: &reweighWeight,
 			},
 			MTOShipment: shipment,
 		})
+		suite.NoError(err)
 
 		shipment.Reweigh = &reweigh
 
@@ -847,12 +848,13 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		}, nil)
 
 		reweighWeight := unit.Pound(1)
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Reweigh: models.Reweigh{
 				Weight: &reweighWeight,
 			},
 			MTOShipment: shipment,
 		})
+		suite.NoError(err)
 
 		shipment.Reweigh = &reweigh
 
@@ -1745,12 +1747,13 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		}, nil)
 
 		reweighWeight := unit.Pound(1)
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Reweigh: models.Reweigh{
 				Weight: &reweighWeight,
 			},
 			MTOShipment: shipment1,
 		})
+		suite.NoError(err)
 
 		shipment1.Reweigh = &reweigh
 
@@ -1973,12 +1976,13 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		}, nil)
 
 		reweighWeight := unit.Pound(1)
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Reweigh: models.Reweigh{
 				Weight: &reweighWeight,
 			},
 			MTOShipment: shipment1,
 		})
+		suite.NoError(err)
 
 		shipment1.Reweigh = &reweigh
 

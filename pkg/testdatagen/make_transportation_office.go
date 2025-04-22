@@ -8,14 +8,17 @@ import (
 )
 
 // MakeTransportationOffice creates a single TransportationOffice.
-func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.TransportationOffice {
+func MakeTransportationOffice(db *pop.Connection, assertions Assertions) (models.TransportationOffice, error) {
 
 	transportationOfficeID := assertions.TransportationOffice.ID
 	if isZeroUUID(transportationOfficeID) {
 		transportationOfficeID = uuid.Must(uuid.NewV4())
 	}
 
-	address := MakeDefaultAddress(db)
+	address, err := MakeDefaultAddress(db)
+	if err != nil {
+		return models.TransportationOffice{}, err
+	}
 
 	office := models.TransportationOffice{
 		ID:        transportationOfficeID,
@@ -44,5 +47,5 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 
 	office.PhoneLines = phoneLines
 
-	return office
+	return office, nil
 }
