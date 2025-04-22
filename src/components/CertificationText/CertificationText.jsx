@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Box } from '@material-ui/core';
 
@@ -12,6 +12,16 @@ export const CertificationText = ({ certificationText, onScrollToBottom }) => {
     }
     return certificationMarkup;
   };
+
+  useEffect(() => {
+    // Allow keyboard users to scroll via focus
+    const el = scrollContainerRef.current;
+    if (el) {
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'region');
+      el.setAttribute('aria-label', 'Agreement text');
+    }
+  }, []);
 
   const handleScroll = (e) => {
     const container = scrollContainerRef.current;

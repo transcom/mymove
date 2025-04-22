@@ -54,13 +54,18 @@ const SubmitMoveForm = (props) => {
 
               <FormGroup>
                 <FormControlLabel
+                  className={!hasReadTheAgreement ? styles.disabledCheckbox : ''}
                   control={
                     <Checkbox
                       data-testid="acknowledgementCheckbox"
                       name="acknowledgementCheckbox"
-                      color="primary"
-                      disabled={!hasReadTheAgreement}
+                      color={!hasReadTheAgreement ? '#6c757d' : 'primary'}
+                      checked={hasAcknowledgedTerms}
+                      readOnly={!hasReadTheAgreement}
                       onChange={hasAgreedToTheTermsEvent}
+                      inputProps={{
+                        'aria-disabled': !hasReadTheAgreement,
+                      }}
                     />
                   }
                   label="I have read and understand the agreement as shown above"
@@ -84,18 +89,28 @@ const SubmitMoveForm = (props) => {
                         )}
                         <Field
                           as={TextInput}
-                          disabled={!hasAcknowledgedTerms}
-                          name="signature"
                           id="signature"
-                          required
-                          aria-describedby={showSignatureError ? 'signature-error-message' : null}
+                          name="signature"
+                          readOnly={!hasAcknowledgedTerms}
+                          aria-readonly={!hasAcknowledgedTerms}
+                          aria-required="true"
+                          aria-describedby={errors.signature && touched.signature ? 'signature-error' : undefined}
+                          onFocus={(e) => !hasAcknowledgedTerms && e.target.blur()}
+                          className={!hasAcknowledgedTerms ? styles.readOnlyInput : ''}
                         />
                       </FormGroup>
                     </Grid>
                     <Grid tablet={{ col: 'auto' }}>
                       <FormGroup>
                         <Label htmlFor="date">Date</Label>
-                        <Field as={TextInput} name="date" id="date" disabled />
+                        <Field
+                          as={TextInput}
+                          id="date"
+                          name="date"
+                          readOnly
+                          aria-readonly="true"
+                          className={styles.readOnlyInput}
+                        />
                       </FormGroup>
                     </Grid>
                   </Grid>

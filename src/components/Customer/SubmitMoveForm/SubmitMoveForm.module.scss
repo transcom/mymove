@@ -8,6 +8,17 @@
     width: auto;
   }
 }
+.disabledCheckbox {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.readOnlyInput {
+  background-color: #dcdee0;
+  pointer-events: none;
+  cursor: not-allowed;
+}
 
 .signatureBox {
   @include u-padding(2);
@@ -31,4 +42,6 @@
   .hideForPrint {
     display: none;
   }
+
+
 }

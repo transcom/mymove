@@ -18,7 +18,7 @@ describe('SubmitMoveForm component', () => {
     expect(getByLabelText('SIGNATURE')).toBeInTheDocument();
     expect(getByLabelText('SIGNATURE')).toBeRequired();
     expect(getByLabelText('Date')).toBeInTheDocument();
-    expect(getByLabelText('Date')).toBeDisabled();
+    expect(getByLabelText('Date')).toHaveAttribute('readonly');
   });
 
   it('submits the form when it is valid', async () => {
@@ -95,7 +95,7 @@ describe('SubmitMoveForm component', () => {
       name: /i have read and understand/i,
     });
 
-    expect(signatureInput).toBeDisabled();
+    expect(signatureInput).toHaveAttribute('readonly');
 
     // Simulate scroll-to-bottom to enable checkbox
     const docContainer = screen.getByTestId('certificationTextBox');

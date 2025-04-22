@@ -58,8 +58,8 @@ describe('Agreement page', () => {
     const completeButton = screen.getByRole('button', { name: 'Complete' });
 
     // all controls should start of disabled
-    expect(checkbox).toBeDisabled();
-    expect(signatureInput).toBeDisabled();
+    expect(checkbox).toHaveAttribute('readonly');
+    expect(signatureInput).toHaveAttribute('readonly');
     expect(completeButton).toBeDisabled();
     Object.defineProperty(scrollBox, 'scrollHeight', { configurable: true, value: 300 });
     Object.defineProperty(scrollBox, 'clientHeight', { configurable: true, value: 100 });
@@ -73,8 +73,8 @@ describe('Agreement page', () => {
     });
 
     // scroll to bottom should enable the checkbox, but not signature (yet)
-    expect(checkbox).toBeEnabled();
-    expect(signatureInput).toBeDisabled();
+    expect(checkbox).not.toHaveAttribute('readonly');
+    expect(signatureInput).toHaveAttribute('readonly');
     await userEvent.click(checkbox);
     expect(checkbox.checked).toEqual(true);
 
