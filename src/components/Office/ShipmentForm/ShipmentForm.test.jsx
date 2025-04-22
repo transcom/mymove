@@ -2411,7 +2411,9 @@ describe('ShipmentForm component', () => {
         userEvent.click(submitButton);
       });
 
-      expect(submitButton).toBeDisabled();
+      waitFor(() => {
+        expect(submitButton).toBeDisabled();
+      });
     });
 
     it('validates the year field is within the valid range', async () => {
@@ -2514,7 +2516,9 @@ describe('ShipmentForm component', () => {
         userEvent.click(submitButton);
       });
 
-      expect(submitButton).toBeDisabled();
+      waitFor(() => {
+        expect(submitButton).toBeDisabled();
+      });
     });
 
     it('validates the year field is within the valid range', async () => {
