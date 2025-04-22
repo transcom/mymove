@@ -18,7 +18,7 @@ BEGIN
       AND sent_to_gex_at < stale_sent_to_gex
     RETURNING payment_request_number
   )
-  INSERT INTO reflagged_payment_requests (
+INSERT INTO reflagged_payment_requests (
       payment_request_number,
       reflagged_count,
       updated_at

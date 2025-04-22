@@ -8,8 +8,11 @@ import (
 func (suite *ModelSuite) TestReportViolation() {
 	suite.Run("Create and query a reportViolation successfully", func() {
 		reportViolations := models.ReportViolations{}
-		testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
-		err := suite.DB().All(&reportViolations)
+
+		_, err := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		suite.NoError(err)
+
+		err = suite.DB().All(&reportViolations)
 		suite.NoError(err)
 	})
 
