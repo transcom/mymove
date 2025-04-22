@@ -300,19 +300,17 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		}
 
 		serviceItemsNeedingReview := false
-		for _, request := range moveWithServiceItems.MTOServiceItems {
-			if request.Status == models.MTOServiceItemStatusSubmitted {
+		for _, mtoServiceItem := range moveWithServiceItems.MTOServiceItems {
+			if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
 				serviceItemsNeedingReview = true
 				break
 			}
 		}
-
 		//remove assigned user when all service items have been reviewed
 		if !serviceItemsNeedingReview {
 			move.TOOAssignedID = nil
 		}
 
-		//When updating a service item - remove the TOO assigned user
 		verrs, err := appCtx.DB().ValidateAndSave(&move)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(move.ID, nil, verrs, "")
@@ -324,6 +322,48 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		if _, err = p.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
+
+		// do this somewhere else?? linter errors!
+		// check if we can set shipment status back to Approved
+		// eagerAssociations := []string{"MTOServiceItems",
+		// 	"SITDurationUpdates",
+		// 	"DeliveryAddressUpdate"}
+		// dbShipment, err := mtoshipment.FindShipment(appCtx, *serviceItem.MTOShipmentID, eagerAssociations...)
+
+		// if err != nil {
+		// 	return err
+		// }
+		// shipmentNeedsReview := false
+		// // check if any service items on current shipment still need to be reviewed
+		// for _, serviceItem := range dbShipment.MTOServiceItems {
+		// 	if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+		// 		shipmentNeedsReview = true
+		// 		break
+		// 	}
+		// }
+		// // check if all SIT Extensions are reviewed
+		// for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+		// 	if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+		// 		shipmentNeedsReview = true
+		// 		break
+		// 	}
+		// }
+		// // check if all Delivery Address updates are reviewed
+		// if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+		// 	shipmentNeedsReview = true
+		// }
+
+		// if !shipmentNeedsReview {
+		// 	dbShipment.Status = models.MTOShipmentStatusApprovalsRequested
+		// 	verrs, err = appCtx.DB().ValidateAndUpdate(&dbShipment)
+		// 	if verrs != nil && verrs.HasAny() {
+		// 		return apperror.NewInvalidInputError(
+		// 			dbShipment.ID, err, verrs, "Invalid input found while updating shipment")
+		// 	}
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 
 		returnedServiceItem = *updatedServiceItem
 
