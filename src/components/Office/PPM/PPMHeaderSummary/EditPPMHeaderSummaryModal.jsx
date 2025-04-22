@@ -92,7 +92,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             initialValues={initialValues}
             onSubmit={onSubmit}
           >
-            {({ isValid, handleChange, setFieldTouched, values, ...formikProps }) => {
+            {({ isValid, handleChange, values, ...formikProps }) => {
+              const setfieldtouched = formikProps.setFieldTouched;
               return (
                 <Form>
                   <div>
@@ -102,7 +103,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         label="Actual move start date"
                         id="actualMoveDate"
                         disabledDays={{ after: new Date() }}
-                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setfieldtouched }}
                       />
                     )}
                     {editItemName === 'advanceAmountReceived' && (
