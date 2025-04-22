@@ -332,6 +332,26 @@ func (p *ppmShipmentReviewDocuments) convertSSWValuesToPPMCloseoutSummary(appCtx
 		ppmCloseoutSummary.GTCCPaidSIT = (*unit.Cents)(&gtccSIT)
 	}
 
+	if page2Data.SmallPackageExpenseGTCCPaid != "" {
+		gtccSmallPackage, err := priceToCents(page2Data.SmallPackageExpenseGTCCPaid)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmCloseoutSummary.GTCCPaidSmallPackage = (*unit.Cents)(&gtccSmallPackage)
+	}
+
+	if page2Data.SmallPackageExpenseMemberPaid != "" {
+		memberSmallPackage, err := priceToCents(page2Data.SmallPackageExpenseMemberPaid)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ppmCloseoutSummary.MemberPaidSmallPackage = (*unit.Cents)(&memberSmallPackage)
+	}
+
 	if page2Data.PPMRemainingEntitlement != "" {
 		remainingIncentive, err := priceToCents(page2Data.PPMRemainingEntitlement)
 

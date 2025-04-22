@@ -1369,6 +1369,49 @@ paths:
       summary: Requests a shipment cancellation
       x-permissions:
         - create.shipmentCancellation
+  '/shipments/{shipmentID}/terminate':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              terminationReason:
+                type: string
+            required:
+              - terminationReason
+      responses:
+        '200':
+          description: Successfully terminated the shipment
+          schema:
+            $ref: 'definitions/MTOShipment.yaml'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Terminates a shipment
+      operationId: createTermination
+      summary: Terminates a shipment
+      x-permissions:
+        - create.shipmentTermination
   '/shipments/{shipmentID}/request-reweigh':
     parameters:
       - description: ID of the shipment
@@ -6969,7 +7012,7 @@ definitions:
         x-nullable: true
       hasProGear:
         description: >
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
         x-nullable: true
       proGearWeight:
@@ -7166,6 +7209,28 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      weightShipped:
+        description: The total weight shipped for a small package
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      isProGear:
+        description: Indicates if the customer is claiming an expense as pro-gear or not
+        type: boolean
+        x-nullable: true
+      proGearBelongsToSelf:
+        description: Indicates if the pro-gear belongs to the customer or their spouse
+        type: boolean
+        x-nullable: true
+      proGearDescription:
+        description: A brief description of the pro-gear
+        type: string
+        x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -7400,7 +7465,7 @@ definitions:
         example: 4200
       hasProGear:
         description: >
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
       proGearWeight:
         type: integer
@@ -7777,6 +7842,10 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
+      approvalRequestTypes:
+        type: array
+        items:
+          type: string
   QueueMovesResult:
     type: object
     properties:

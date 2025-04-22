@@ -7,7 +7,7 @@ import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import {
   formatCentsTruncateWhole,
@@ -34,6 +34,7 @@ const PPMShipmentCard = ({
 }) => {
   const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
+    ppmType,
     pickupAddress,
     secondaryPickupAddress,
     tertiaryPickupAddress,
@@ -110,11 +111,11 @@ const PPMShipmentCard = ({
 
         <dl className={styles.shipmentCardSubsection}>
           <div className={styles.row}>
-            <dt>Expected departure</dt>
+            <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped date' : 'Expected departure'}</dt>
             <dd>{formatCustomerDate(expectedDepartureDate)}</dd>
           </div>
           <div className={styles.row}>
-            <dt>Pickup Address</dt>
+            <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}</dt>
             <dd>{pickupAddress ? formatCustomerContactFullAddress(pickupAddress) : '—'}</dd>
           </div>
           {secondaryPickupAddress && (
@@ -130,7 +131,7 @@ const PPMShipmentCard = ({
             </div>
           )}
           <div className={styles.row}>
-            <dt>Delivery Address</dt>
+            <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}</dt>
             <dd>{destinationAddress ? formatCustomerContactFullAddress(destinationAddress) : '—'}</dd>
           </div>
           {secondaryDestinationAddress && (
