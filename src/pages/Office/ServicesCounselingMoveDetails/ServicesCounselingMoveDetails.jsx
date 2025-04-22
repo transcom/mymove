@@ -217,7 +217,9 @@ const ServicesCounselingMoveDetails = ({
     );
     const onlyPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
-      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
+      (shipment) =>
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT ||
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.DRAFT,
     );
 
     const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
@@ -290,7 +292,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit =
-      move.status === (MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || MOVE_STATUSES.DRAFT) &&
+      (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || move.status === MOVE_STATUSES.DRAFT) &&
       ppmShipmentsOtherStatuses.length > 0;
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
