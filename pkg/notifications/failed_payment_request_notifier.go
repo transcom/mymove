@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	html "html/template"
+	"strings"
 	text "text/template"
 
 	"go.uber.org/zap"
@@ -56,24 +57,28 @@ func (p PaymentRequestFailed) emails(appCtx appcontext.AppContext) ([]emailConte
 		return emails, nil
 	}
 
+	if ediError.Code == nil {
+		defaultCode := "000"
+		ediError.Code = &defaultCode
+	}
+
 	recipients := []string{"deandre.jones@caci.com", "deandrejones2002@gmail.com", "deandrejones2002@yahoo.com"}
 	htmlBody, textBody, err := p.renderTemplates(appCtx, emailData{
 		PaymentRequestNumber: p.paymentRequest.PaymentRequestNumber,
 		ErrorCode:            *ediError.Code,
+		ErrorDescription:     *ediError.Description,
 	})
 	if err != nil {
 		return emails, err
 	}
 
-	for _, recipient := range recipients {
-		email := emailContent{
-			recipientEmail: recipient,
-			subject:        "Payment Request Failed",
-			htmlBody:       htmlBody,
-			textBody:       textBody,
-		}
-		emails = append(emails, email)
+	email := emailContent{
+		recipientEmail: strings.Join(recipients, ";"),
+		subject:        "Payment Request Failed",
+		htmlBody:       htmlBody,
+		textBody:       textBody,
 	}
+	emails = append(emails, email)
 
 	return emails, nil
 
@@ -94,6 +99,7 @@ func (p PaymentRequestFailed) renderTemplates(appCtx appcontext.AppContext, data
 type emailData struct {
 	PaymentRequestNumber string
 	ErrorCode            string
+	ErrorDescription     string
 }
 
 // RenderHTML renders the html for the email
