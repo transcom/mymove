@@ -54,7 +54,7 @@ update_service() {
         EXPORT "${SERVICE_RESERVATION_MEM}" = "${SERVICE_RESERVATION_CLIENT_MEM}"
     fi
 
-    # read the currently running tasks into an array so later on we
+    #  read the currently running tasks into an array so later on we
     # can query to ensure they have been stopped
     local old_tasks
     read -ra old_tasks <<< "$(aws ecs list-tasks --service-name "${name}" --cluster "${cluster}" --query='taskArns[]' --output text)"
