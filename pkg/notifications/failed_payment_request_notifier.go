@@ -37,21 +37,33 @@ func NewPaymentRequestFailed(paymentRequest models.PaymentRequest) *PaymentReque
 
 func (p PaymentRequestFailed) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
-	/* srcEmail, err := models.FetchParameterValueByName(appCtx.DB(), "src_email")
+	srcEmail, err := models.FetchParameterValueByName(appCtx.DB(), "src_email")
 	if err != nil {
 		return emails, nil
 	}
-	dstEmail, err := models.FetchParameterValueByName(appCtx.DB(), "transcom_dstro_email")
+	dstEmail, err := models.FetchParameterValueByName(appCtx.DB(), "transcom_distro_email")
 	if err != nil {
 		return emails, nil
 	}
-	opsEmail, _ := models.FetchParameterValueByName(appCtx.DB(), "milmove_ops_email")
+	opsEmail, err := models.FetchParameterValueByName(appCtx.DB(), "milmove_ops_email")
 	if err != nil {
 		return emails, nil
 	}
 
-	recipients := []string{*srcEmail.ParameterValue, *dstEmail.ParameterValue, *opsEmail.ParameterValue}
-	*/
+	recipients := []string{}
+
+	if srcEmail.ParameterValue != nil {
+		recipients = append(recipients, *srcEmail.ParameterValue)
+	}
+
+	if dstEmail.ParameterValue != nil {
+		recipients = append(recipients, *dstEmail.ParameterValue)
+	}
+
+	if opsEmail.ParameterValue != nil {
+		recipients = append(recipients, *opsEmail.ParameterValue)
+	}
+
 	ediError, err := models.FetchEdiErrorByPaymentRequestID(appCtx.DB(), p.paymentRequest.ID)
 	if err != nil {
 		return emails, nil
@@ -62,7 +74,6 @@ func (p PaymentRequestFailed) emails(appCtx appcontext.AppContext) ([]emailConte
 		ediError.Code = &defaultCode
 	}
 
-	recipients := []string{"deandre.jones@caci.com", "deandrejones2002@gmail.com", "deandrejones2002@yahoo.com"}
 	htmlBody, textBody, err := p.renderTemplates(appCtx, emailData{
 		PaymentRequestNumber: p.paymentRequest.PaymentRequestNumber,
 		ErrorCode:            *ediError.Code,
@@ -78,8 +89,10 @@ func (p PaymentRequestFailed) emails(appCtx appcontext.AppContext) ([]emailConte
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
+	if len(recipients) == 0 {
+		return nil, fmt.Errorf("no email found for payment request")
+	}
 	emails = append(emails, email)
-
 	return emails, nil
 
 }
