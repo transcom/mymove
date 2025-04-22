@@ -16,7 +16,7 @@ import {
   patchMTOShipment,
   dateSelectionIsWeekendHoliday,
 } from 'services/internalApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_LOCKED_WARNING } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
@@ -829,6 +829,10 @@ describe('MtoShipmentForm component', () => {
       // Verify that the form is good to submit by checking that the save button is not disabled.
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).toBeDisabled();
+
+      // test to verify that the MOVE_LOCKED_WARNING text is showing:
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeVisible();
     });
 
     it('allow the user to save the form if the secondary address1 field is cleared but the toggle is switched to No', async () => {
