@@ -30,8 +30,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
     (roleObj) => !roleObj.allowedPrivileges.includes(elevatedPrivilegeTypes.SUPERVISOR),
   );
 
-  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== roleTypes.PRIME); // Do not want Prime role to show
-  const rolesWithoutPrivs = availableRoles.filter((r) => r.allowedPrivileges.length === 0);
+  const availableRoles = rolesWithPrivs.filter((r) => r.roleType !== 'prime'); // Prime isn't an office role
   const supervisorRoles = availableRoles
     .filter((r) => r.allowedPrivileges.includes(elevatedPrivilegeTypes.SUPERVISOR))
     .map((r) => r.roleName);
@@ -147,12 +146,12 @@ const RolesPrivilegesCheckboxInput = (props) => {
         optionValue="privilegeType"
         optionText="privilegeName"
       />
-      {rolesWithoutPrivs.length > 0 && (
+      {supervisorRoles.length !== availableRoles.length && (
         <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>
           The Supervisor privilege can only be selected for the following roles: {supervisorRoles.join(', ')}.
         </span>
       )}
-      {safetyRoles.length > 0 && (
+      {safetyRoles.length !== availableRoles.length && (
         <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
           The Safety Moves privilege can only be selected for the following roles: {safetyRoles.join(', ')}.
         </span>
