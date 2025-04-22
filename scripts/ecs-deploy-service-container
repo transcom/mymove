@@ -43,16 +43,16 @@ check_arn() {
 update_service() {
     local arn="$1"
     echo "* Updating service ${name} with ARN ${arn}"
-    
-    if [[ $name == "app" ]]; then 
+
+    if [[ $name == "app" ]]; then
         UNSET "${SERVICE_RESERVATION_MEM}"
         EXPORT "${SERVICE_RESERVATION_MEM}" = "${SERVICE_RESERVATION_APP_MEM}"
-    fi 
+    fi
 
-    if [[ $name == "app-client-tls" ]]; then 
+    if [[ $name == "app-client-tls" ]]; then
         UNSET "${SERVICE_RESERVATION_MEM}"
         EXPORT "${SERVICE_RESERVATION_MEM}" = "${SERVICE_RESERVATION_CLIENT_MEM}"
-    fi 
+    fi
 
     # read the currently running tasks into an array so later on we
     # can query to ensure they have been stopped
