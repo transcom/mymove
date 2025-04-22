@@ -48,7 +48,7 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 		movingExpense, err := h.movingExpenseCreator.CreateMovingExpense(appCtx, ppmShipmentID)
 
 		if err != nil {
-			appCtx.Logger().Error("internalapi.CreateMovingExpenseHandler", zap.Error(err))
+			appCtx.Logger().Error("ghcapi.CreateMovingExpenseHandler", zap.Error(err))
 			switch e := err.(type) {
 			case apperror.InvalidInputError:
 				return movingexpenseops.NewCreateMovingExpenseUnprocessableEntity().WithPayload(
@@ -64,7 +64,7 @@ func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingE
 			case apperror.QueryError:
 				if e.Unwrap() != nil {
 					// If you can unwrap, log the internal error (usually a pq error) for better debugging
-					appCtx.Logger().Error("internalapi.CreateMovingExpenseHandler error", zap.Error(e.Unwrap()))
+					appCtx.Logger().Error("ghcapi.CreateMovingExpenseHandler error", zap.Error(e.Unwrap()))
 				}
 				return movingexpenseops.
 					NewCreateMovingExpenseInternalServerError().
@@ -180,7 +180,6 @@ func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingE
 				return movingexpenseops.NewDeleteMovingExpenseForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
 
-			// Make sure the service member is not modifying another service member's PPM
 			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 
 			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
