@@ -51,6 +51,17 @@ BEGIN
 			END)
           AND rip.service_id = re_service_id
           AND rip.contract_id = c_id;
+    ELSIF service_code IN ('IUCRT', 'ICRT') THEN
+        SELECT rip.per_unit_cents
+        INTO per_unit_cents
+        FROM re_intl_accessorial_prices rip
+        WHERE
+            rip.market = (CASE
+                WHEN is_oconus THEN 'O'
+                ELSE 'C'
+			END)
+          AND rip.service_id = re_service_id
+          AND rip.contract_id = c_id;
     ELSIF service_code IN ('ISLH', 'UBP') THEN
         SELECT rip.per_unit_cents
         INTO per_unit_cents
