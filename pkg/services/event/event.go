@@ -52,6 +52,9 @@ const MTOShipmentUpdateEventKey KeyType = "MTOShipment.Update"
 // ShipmentDeleteEventKey is a key containing Shipment.Delete
 const ShipmentDeleteEventKey KeyType = "Shipment.Delete"
 
+// ShipmentTerminateEventKey is a key containing Shipment.CreateTermination
+const ShipmentTerminateEventKey KeyType = "Shipment.CreateTermination"
+
 // ShipmentApproveEventKey is a key containing Shipment.Approve
 const ShipmentApproveEventKey KeyType = "Shipment.Approve"
 

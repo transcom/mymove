@@ -167,6 +167,11 @@ type MTOShipmentWithoutServiceItems struct {
 	// ppm shipment
 	PpmShipment *PPMShipment `json:"ppmShipment,omitempty"`
 
+	// prime acknowledged at
+	// Read Only: true
+	// Format: date-time
+	PrimeAcknowledgedAt *strfmt.DateTime `json:"primeAcknowledgedAt,omitempty"`
+
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	// Example: 4500
 	// Minimum: 1
@@ -333,6 +338,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validatePpmShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeAcknowledgedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -768,6 +777,18 @@ func (m *MTOShipmentWithoutServiceItems) validatePpmShipment(formats strfmt.Regi
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) validatePrimeAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeAcknowledgedAt", "body", "date-time", m.PrimeAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) validatePrimeActualWeight(formats strfmt.Registry) error {
 	if swag.IsZero(m.PrimeActualWeight) { // not required
 		return nil
@@ -1162,6 +1183,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePrimeAcknowledgedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePrimeEstimatedWeightRecordedDate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1504,6 +1529,15 @@ func (m *MTOShipmentWithoutServiceItems) contextValidatePpmShipment(ctx context.
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidatePrimeAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "primeAcknowledgedAt", "body", m.PrimeAcknowledgedAt); err != nil {
+		return err
 	}
 
 	return nil

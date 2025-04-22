@@ -4,7 +4,6 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -44,11 +43,6 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		return nil, 0, err
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-	if err != nil {
-		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
-	}
-
 	var query *pop.Query
 	rawquery := `SELECT * FROM
 		(SELECT DISTINCT ON (id)
@@ -74,13 +68,8 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		similarity(service_members.last_name, f_unaccent(lower($1))) + similarity(service_members.first_name, f_unaccent(lower($1))) as total_sim
 	FROM service_members AS service_members
 		JOIN users ON users.id = service_members.user_id
-		LEFT JOIN orders ON orders.service_member_id = service_members.id`
-
-	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-		rawquery += ` WHERE ((orders.orders_type != 'SAFETY' or orders.orders_type IS NULL) AND`
-	} else {
-		rawquery += ` WHERE (`
-	}
+		LEFT JOIN orders ON orders.service_member_id = service_members.id
+		WHERE (((orders.orders_type != 'SAFETY' OR orders.orders_type IS NULL) AND LEFT(service_members.edipi, 2) != 'SM') AND`
 
 	if params.Edipi != nil {
 		rawquery += ` service_members.edipi = $1) ) distinct_customers`

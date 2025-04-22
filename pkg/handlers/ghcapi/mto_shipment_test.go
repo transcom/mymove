@@ -43,6 +43,7 @@ import (
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -651,7 +652,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
@@ -678,11 +680,15 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		handlerConfig := suite.HandlerConfig()
 
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 
 		approveParams := shipmentops.ApproveShipmentParams{
@@ -704,10 +710,286 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 	})
 
+	suite.Run("Applies reweigh to an approved shipment if move already has reweighs applied to existing shipments", func() {
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		reweighWeight := unit.Pound(1)
+		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			Reweigh: models.Reweigh{
+				Weight: &reweighWeight,
+			},
+			MTOShipment: shipment,
+		})
+
+		shipment.Reweigh = &reweigh
+
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
+		builder := query.NewQueryBuilder()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", approvedShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
+		}
+
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(approvedShipment.ID),
+			IfMatch:     eTag,
+		}
+
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), approvedShipment.ID, models.ReweighRequesterSystem).Return(nil, nil)
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentOK{}, response)
+		payload := response.(*shipmentops.ApproveShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.HasWebhookNotification(approvedShipment.ID, traceID)
+		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
+
+		reweighRequester.AssertNumberOfCalls(suite.T(), "RequestShipmentReweigh", 1) // Should request reweigh for the newly approved shipment
+	})
+
+	suite.Run("Returns error from RequestShipmentReweigh", func() {
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		reweighWeight := unit.Pound(1)
+		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			Reweigh: models.Reweigh{
+				Weight: &reweighWeight,
+			},
+			MTOShipment: shipment,
+		})
+
+		shipment.Reweigh = &reweigh
+
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
+		builder := query.NewQueryBuilder()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", approvedShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ApproveShipmentHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
+		}
+
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(approvedShipment.ID),
+			IfMatch:     eTag,
+		}
+
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), approvedShipment.ID, models.ReweighRequesterSystem).Return(nil, apperror.NotFoundError{})
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentNotFound{}, response)
+		reweighRequester.AssertNumberOfCalls(suite.T(), "RequestShipmentReweigh", 1) // Should request reweigh for the newly approved shipment
+	})
+
+	suite.Run("Returns error from CheckAutoReweigh", func() {
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(reweighRequester, waf, mockSender)
+		builder := query.NewQueryBuilder()
+		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", approvedShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+		mockMoveWeights := &mocks.MoveWeights{}
+
+		handler := ApproveShipmentHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+			mockMoveWeights,
+			reweighRequester,
+		}
+
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(approvedShipment.ID),
+			IfMatch:     eTag,
+		}
+
+		mockMoveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("*models.MTOShipment")).Return(apperror.NotFoundError{})
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentNotFound{}, response)
+		mockMoveWeights.AssertNumberOfCalls(suite.T(), "CheckAutoReweigh", 1) // Should request reweigh for the newly approved shipment
+	})
+
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		uuid := uuid.Must(uuid.NewV4())
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.AssertNumberOfCalls(suite.T(), "ApproveShipment", 0)
 
@@ -720,6 +1002,8 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -748,18 +1032,23 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -788,18 +1077,23 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.ConflictError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -828,18 +1122,23 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -868,18 +1167,23 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -908,18 +1212,23 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -971,7 +1280,8 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	mockSender := suite.TestNotificationSender()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -1042,12 +1352,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req = req.WithContext(trace.NewContext(req.Context(), traceID))
 
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 
 		approveParams := shipmentops.ApproveShipmentsParams{
@@ -1105,12 +1418,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req := httptest.NewRequest("POST", "/shipments/approve", nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1150,12 +1466,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req := httptest.NewRequest("POST", "/shipments/approve", nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1195,12 +1514,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req := httptest.NewRequest("POST", "/shipments/approve", nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1240,12 +1562,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req := httptest.NewRequest("POST", "/shipments/approve", nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1285,12 +1610,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req := httptest.NewRequest("POST", "/shipments/approve", nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1322,12 +1650,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req := httptest.NewRequest("POST", "/shipments/approve", nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1362,12 +1693,15 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 		req := httptest.NewRequest("POST", "/shipments/approve", nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
 
 		handler := ApproveShipmentsHandler{
 			handlerConfig,
 			approver,
 			sitstatus.NewShipmentSITStatus(),
 			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
 		}
 		approveParams := shipmentops.ApproveShipmentsParams{
 			HTTPRequest: req,
@@ -1388,6 +1722,347 @@ func (suite *HandlerSuite) TestApproveShipmentsHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("Applies reweigh to any approved shipments if move already has reweighs applied to existing shipments", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		reweighWeight := unit.Pound(1)
+		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			Reweigh: models.Reweigh{
+				Weight: &reweighWeight,
+			},
+			MTOShipment: shipment1,
+		})
+
+		shipment1.Reweigh = &reweigh
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		shipment3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag1 := etag.GenerateEtag(shipment1.UpdatedAt)
+		eTag2 := etag.GenerateEtag(shipment2.UpdatedAt)
+		eTag3 := etag.GenerateEtag(shipment3.UpdatedAt)
+
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), models.ReweighRequesterSystem).Return(nil, nil)
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
+		}
+
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment1.ID),
+						ETag:       &eTag1,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment2.ID),
+						ETag:       &eTag2,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment3.ID),
+						ETag:       &eTag3,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsOK{}, response)
+		payload := response.(*shipmentops.ApproveShipmentsOK).Payload
+		reweighRequester.AssertNumberOfCalls(suite.T(), "RequestShipmentReweigh", 2) // Should request reweigh for the newly approved shipment
+
+		// Validate outgoing payload
+		suite.NoError(payload[0].Validate(strfmt.Default))
+		suite.NoError(payload[1].Validate(strfmt.Default))
+
+		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
+		suite.HasWebhookNotification(shipment1.ID, traceID)
+		suite.HasWebhookNotification(shipment2.ID, traceID)
+	})
+
+	suite.Run("Returns error from CheckAutoReweigh", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		shipment3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag1 := etag.GenerateEtag(shipment1.UpdatedAt)
+		eTag2 := etag.GenerateEtag(shipment2.UpdatedAt)
+		eTag3 := etag.GenerateEtag(shipment3.UpdatedAt)
+
+		mockMoveWeights := &mocks.MoveWeights{}
+
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			mockMoveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+		mockMoveWeights.On("CheckAutoReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("*models.MTOShipment")).Return(apperror.SessionError{})
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+			mockMoveWeights,
+			reweighRequester,
+		}
+
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment1.ID),
+						ETag:       &eTag1,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment2.ID),
+						ETag:       &eTag2,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment3.ID),
+						ETag:       &eTag3,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsInternalServerError{}, response)
+	})
+
+	suite.Run("Returns error from RequestShipmentReweigh when a reweigh is currently active for the move", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		reweighWeight := unit.Pound(1)
+		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			Reweigh: models.Reweigh{
+				Weight: &reweighWeight,
+			},
+			MTOShipment: shipment1,
+		})
+
+		shipment1.Reweigh = &reweigh
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		shipment3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag1 := etag.GenerateEtag(shipment1.UpdatedAt)
+		eTag2 := etag.GenerateEtag(shipment2.UpdatedAt)
+		eTag3 := etag.GenerateEtag(shipment3.UpdatedAt)
+
+		approver := mtoshipment.NewShipmentApprover(
+			mtoshipment.NewShipmentRouter(),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			&routemocks.Planner{},
+			moveWeights,
+			moveTaskOrderUpdater,
+			moveRouter,
+		)
+
+		req := httptest.NewRequest("POST", "/shipments/approve", nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		req = req.WithContext(trace.NewContext(req.Context(), traceID))
+
+		handlerConfig := suite.HandlerConfig()
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+		reweighRequester.On("RequestShipmentReweigh", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), models.ReweighRequesterSystem).Return(nil, apperror.NotFoundError{})
+
+		handler := ApproveShipmentsHandler{
+			handlerConfig,
+			approver,
+			sitstatus.NewShipmentSITStatus(),
+			moveTaskOrderUpdater,
+			moveWeights,
+			reweighRequester,
+		}
+
+		approveParams := shipmentops.ApproveShipmentsParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.ApproveShipments{
+				ApproveShipments: []*ghcmessages.ApproveShipmentsApproveShipmentsItems0{
+					{
+						ShipmentID: handlers.FmtUUID(shipment1.ID),
+						ETag:       &eTag1,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment2.ID),
+						ETag:       &eTag2,
+					},
+					{
+						ShipmentID: handlers.FmtUUID(shipment3.ID),
+						ETag:       &eTag3,
+					},
+				},
+			},
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentsNotFound{}, response)
 	})
 }
 
@@ -2644,8 +3319,9 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
+		mockSender := suite.TestNotificationSender()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2655,7 +3331,6 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 		handler := RequestShipmentReweighHandler{
@@ -2702,8 +3377,9 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
+		mockSender := suite.TestNotificationSender()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2713,7 +3389,6 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 		handler := RequestShipmentReweighHandler{
@@ -2758,7 +3433,8 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2768,7 +3444,6 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 		handler := RequestShipmentReweighHandler{
@@ -2814,7 +3489,8 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2824,7 +3500,6 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 		handler := RequestShipmentReweighHandler{
@@ -2871,7 +3546,8 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2881,7 +3557,6 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 		handler := RequestShipmentReweighHandler{
@@ -2927,7 +3602,8 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 			mock.Anything,
 		).Return(400, nil)
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -2937,7 +3613,6 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		mockSender := suite.TestNotificationSender()
 		updater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 		handler := RequestShipmentReweighHandler{
@@ -3266,14 +3941,14 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-		mockSender := suite.TestNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 		addressCreator := address.NewAddressCreator()
 
@@ -3408,14 +4083,14 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-		mockSender := suite.TestNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 		addressCreator := address.NewAddressCreator()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -3491,14 +4166,14 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+		mockSender := suite.TestNotificationSender()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 		// Get shipment payment request recalculator service
 		creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 		statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 		recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 		paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-		mockSender := suite.TestNotificationSender()
 		addressUpdater := address.NewAddressUpdater()
 		addressCreator := address.NewAddressCreator()
 		moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -3669,7 +4344,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
@@ -3757,7 +4435,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3816,7 +4497,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
@@ -3870,7 +4554,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
@@ -3919,7 +4606,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
@@ -4006,7 +4696,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		sitStatus := sitstatus.NewShipmentSITStatus()
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
@@ -4243,7 +4936,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -4410,7 +5106,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
+		mockSender := suite.TestNotificationSender()
+		waf := entitlements.NewWeightAllotmentFetcher()
+		moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 		closeoutOfficeUpdater := moveservices.NewCloseoutOfficeUpdater(moveservices.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
@@ -4630,7 +5329,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		mock.Anything,
 	).Return(400, nil)
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf)
+	mockSender := suite.TestNotificationSender()
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -5458,5 +6158,125 @@ func (suite *HandlerSuite) TestUpdateSITServiceItemCustomerExpenseHandler() {
 
 		response := handler.Handle(createParams)
 		suite.IsType(&shipmentops.UpdateSITServiceItemCustomerExpenseInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestTerminateShipmentHandler() {
+	suite.Run("Returns 403 when user is not a Contracting Officer", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		user := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, user)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: &mocks.ShipmentTermination{},
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Just because"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationForbidden{}, response)
+	})
+
+	suite.Run("Returns 200 when shipment is successfully terminated", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+		contractingOfficer := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeContractingOfficer})
+		terminator := mtoshipment.NewShipmentTermination()
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, contractingOfficer)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: terminator,
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Good reason"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationOK{}, response)
+		okResponse := response.(*shipmentops.CreateTerminationOK)
+		payload := okResponse.Payload
+		suite.NotNil(payload)
+		suite.NotNil(payload.TerminatedAt)
+		suite.NotNil(payload.TerminationComments)
+		suite.Equal(payload.Status, ghcmessages.MTOShipmentStatusTERMINATEDFORCAUSE)
+	})
+
+	suite.Run("Returns 422 when TerminateShipment returns InvalidInputError", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		contractingOfficer := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeContractingOfficer})
+
+		verrs := validate.NewErrors()
+		verrs.Add("terminationComments", "is required")
+
+		mockTerminator := &mocks.ShipmentTermination{}
+		mockTerminator.On("TerminateShipment", mock.Anything, shipment.ID, "Invalid").Return(nil, apperror.NewInvalidInputError(shipment.ID, nil, verrs, ""))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, contractingOfficer)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: mockTerminator,
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Invalid"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Returns 404 when shipment is not found", func() {
+		shipmentID := uuid.Must(uuid.NewV4())
+		contractingOfficer := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeContractingOfficer})
+
+		mockTerminator := &mocks.ShipmentTermination{}
+		mockTerminator.On("TerminateShipment", mock.Anything, shipmentID, "Not found").Return(nil, apperror.NewNotFoundError(shipmentID, "shipment"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipmentID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, contractingOfficer)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: mockTerminator,
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipmentID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Not found"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationNotFound{}, response)
 	})
 }
