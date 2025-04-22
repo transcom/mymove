@@ -12,16 +12,24 @@ import (
 // makeDutyLocation creates a single DutyLocation
 //
 // Deprecated: use factory.BuildDutyLocation
-func makeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLocation {
+func makeDutyLocation(db *pop.Connection, assertions Assertions) (models.DutyLocation, error) {
 	transportationOffice := assertions.DutyLocation.TransportationOffice
 	if assertions.DutyLocation.TransportationOfficeID == nil {
-		transportationOffice = MakeTransportationOffice(db, assertions)
+		var err error
+		transportationOffice, err = MakeTransportationOffice(db, assertions)
+		if err != nil {
+			return models.DutyLocation{}, err
+		}
 	}
 
 	address := assertions.DutyLocation.Address
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.DutyLocation.AddressID) {
-		address = MakeAddress3(db, assertions)
+		var err error
+		address, err = MakeAddress3(db, assertions)
+		if err != nil {
+			return models.DutyLocation{}, err
+		}
 	}
 	affiliation := internalmessages.AffiliationAIRFORCE
 	location := models.DutyLocation{
@@ -36,17 +44,17 @@ func makeDutyLocation(db *pop.Connection, assertions Assertions) models.DutyLoca
 
 	mustCreate(db, &location, assertions.Stub)
 
-	return location
+	return location, nil
 }
 
 // fetchOrMakeDefaultCurrentDutyLocation returns a default duty
 // location - Yuma AFB
 //
 // Deprecated: use factory.FetchOrMakeDefaultCurrentDutyLocation
-func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
+func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) (models.DutyLocation, error) {
 	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err == nil {
-		return defaultLocation
+		return defaultLocation, nil
 	}
 
 	// Now that playwright tests create data on demand, it's possible
@@ -79,36 +87,43 @@ func fetchOrMakeDefaultCurrentDutyLocation(db *pop.Connection) models.DutyLocati
 	}
 	defaultLocation, err = models.FetchDutyLocationByName(db, "Yuma AFB")
 	if err != nil {
-		defaultLocation = makeDutyLocation(db, Assertions{
+		var errResponse error
+		defaultLocation, errResponse = makeDutyLocation(db, Assertions{
 			DutyLocation: models.DutyLocation{
 				Name: "Yuma AFB",
-			}})
+			},
+		})
+
+		if errResponse != nil {
+			return models.DutyLocation{}, errResponse
+		}
 	}
 	err = db.RawQuery(commitSavepoint).Exec()
 	if err != nil {
 		log.Fatalf("Error commit duty location savepoint/tx: %s", err)
 	}
 
-	return defaultLocation
+	return defaultLocation, nil
 }
 
 // fetchOrMakeDefaultNewOrdersDutyLocation returns a default duty
 // location - Yuma AFB
 //
 // Deprecated: use factory.fetchOrMakeDefaultNewOrdersDutyLocation
-func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
+func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) (models.DutyLocation, error) {
 	// Check if Fort Eisenhower exists, if not, create
 	// Move date picker for this test case only works with an address of street name "Fort Eisenhower"
 	fortEisenhower, err := models.FetchDutyLocationByName(db, "Fort Eisenhower, GA 30813")
 	if err == nil {
 		fortEisenhower.TransportationOffice, err = models.FetchDutyLocationTransportationOffice(db, fortEisenhower.ID)
 		if err == nil {
-			return fortEisenhower
+			return fortEisenhower, nil
 		}
 	}
+
 	fortEisenhowerAssertions := Assertions{
 		Address: models.Address{
-			City:       "Fort Eisenhower",
+			City:       "GROVETOWN",
 			State:      "GA",
 			PostalCode: "30813",
 		},
@@ -116,5 +131,6 @@ func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLoca
 			Name: "Fort Eisenhower, GA 30813",
 		},
 	}
+
 	return makeDutyLocation(db, fortEisenhowerAssertions)
 }
