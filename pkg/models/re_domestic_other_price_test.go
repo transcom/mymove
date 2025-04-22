@@ -17,7 +17,7 @@ func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
 			PriceCents:   unit.Cents(431),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReDomesticOtherPrice, expErrors)
+		suite.verifyValidationErrors(&validReDomesticOtherPrice, expErrors, nil)
 	})
 
 	suite.Run("test empty ReDomesticOtherPrice", func() {
@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
 			"schedule":    {"0 is not greater than 0."},
 			"price_cents": {"PriceCents can not be blank.", "0 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&emptyReDomesticOtherPrice, expErrors)
+		suite.verifyValidationErrors(&emptyReDomesticOtherPrice, expErrors, nil)
 	})
 
 	suite.Run("test ReDomesticOtherPrice with schedule about limit", func() {
@@ -42,6 +42,6 @@ func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
 		expErrors := map[string][]string{
 			"schedule": {"4 is not less than 4."},
 		}
-		suite.verifyValidationErrors(&badScheduleReDomesticOtherPrice, expErrors)
+		suite.verifyValidationErrors(&badScheduleReDomesticOtherPrice, expErrors, nil)
 	})
 }
