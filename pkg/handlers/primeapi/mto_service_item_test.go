@@ -1114,6 +1114,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 					PrimeEstimatedWeight: models.PoundPointer(1000),
 					RequestedPickupDate:  models.TimePointer(time.Now()),
 				},
+			},
 			{
 				Model: models.Address{
 					City:       "SULPHUR SPGS",
