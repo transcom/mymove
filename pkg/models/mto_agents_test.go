@@ -21,6 +21,6 @@ func (suite *ModelSuite) TestMTOAgentValidation() {
 			MTOAgentType:  models.MTOAgentReleasing,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMTOAgent, expErrors)
+		suite.verifyValidationErrors(&validMTOAgent, expErrors, nil)
 	})
 }
