@@ -20,17 +20,35 @@ func (suite *ServiceParamValueLookupsSuite) TestRateAreaLookup() {
 				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
+
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "62225")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "62225",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					State:              usprc.State,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
+
+		usprc, err = models.FindByZipCode(suite.AppContextForTest().DB(), "90210")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "90210",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					State:              usprc.State,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
