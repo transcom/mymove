@@ -43,20 +43,6 @@ check_arn() {
 update_service() {
     local arn="$1"
     echo "* Updating service ${name} with ARN ${arn}"
-
-    if [[ $name == "app" ]] || [[ $name == "app-client-tls" ]]; then
-        if [[ $name == "app" ]]; then 
-            temp_mem="${SERVICE_RESERVATION_APP_MEM}"
-        fi
-
-        if [[ $name == "app-client-tls" ]]; then
-            temp_mem="${SERVICE_RESERVATION_CLIENT_MEM}"
-        fi
-    else
-        temp_mem="${SERVICE_RESERVATION_MEM}"
-        fi
-    export temp_mem
-
     #  read the currently running tasks into an array so later on we
     # can query to ensure they have been stopped
     local old_tasks
@@ -119,6 +105,20 @@ put_metric() {
 
 # get current task definiton (for rollback)
 blue_task_def_arn=$(aws ecs describe-services --services "${name}" --cluster "${cluster}" --query 'services[0].taskDefinition' | jq -r .)
+
+#set memory unique for each app if it is client or
+if [[ $name == "app" ]] || [[ $name == "app-client-tls" ]]; then
+    if [[ $name == "app" ]]; then
+        export temp_mem="${SERVICE_RESERVATION_APP_MEM}"
+    fi
+
+    if [[ $name == "app-client-tls" ]]; then
+        export temp_mem="${SERVICE_RESERVATION_CLIENT_MEM}"
+    fi
+else
+    export temp_mem="${SERVICE_RESERVATION_MEM}"
+fi
+
 
 # create new task definition with the given image
 echo "* Registering new task definition"
