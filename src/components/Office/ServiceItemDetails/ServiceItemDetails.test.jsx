@@ -793,6 +793,8 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     ['POEFSC'],
     ['PODFSC'],
     ['UBP'],
+    ['ICRT'],
+    ['IUCRT'],
   ])('renders the formatted estimated price field for the service item: %s', (code) => {
     render(
       <ServiceItemDetails
