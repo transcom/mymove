@@ -43,8 +43,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async signInForPPMWithMove(move) {
-    const userId = move?.Orders?.service_member?.user_id;
-    await this.signInAsExistingCustomer(userId);
+    await this.signInAsExistingCustomer(move?.Orders?.service_member?.user_id);
   }
 
   /**
