@@ -99,6 +99,11 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 			email:     "qae_office_user@example.com",
 		},
 		{
+			userType:  CorOfficeUserType,
+			roleTypes: []roles.RoleType{roles.RoleTypeContractingOfficer},
+			email:     "cor_office_user@example.com",
+		},
+		{
 			userType:  CustomerServiceRepresentativeOfficeUserType,
 			roleTypes: []roles.RoleType{roles.RoleTypeCustomerServiceRepresentative},
 			email:     "customer_service_representative_office_user@example.com",
@@ -111,7 +116,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		{
 			userType: MultiRoleOfficeUserType,
 			roleTypes: []roles.RoleType{roles.RoleTypeTIO, roles.RoleTypeTOO,
-				roles.RoleTypeServicesCounselor, roles.RoleTypePrimeSimulator, roles.RoleTypeGSR, roles.RoleTypeHQ, roles.RoleTypeQae, roles.RoleTypeCustomerServiceRepresentative},
+				roles.RoleTypeServicesCounselor, roles.RoleTypePrimeSimulator, roles.RoleTypeGSR, roles.RoleTypeHQ, roles.RoleTypeQae, roles.RoleTypeCustomerServiceRepresentative, roles.RoleTypeContractingOfficer},
 			email: "multi_role@example.com",
 		},
 	} {

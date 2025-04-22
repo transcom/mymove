@@ -1,19 +1,19 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
-import QAECSRMoveSearch from './QAECSRMoveSearch';
+import MoveSearch from './MoveSearch';
 
 export default {
-  title: 'Office Components/QAECSRMoveSearch',
-  component: QAECSRMoveSearch,
+  title: 'Office Components/MoveSearch',
+  component: MoveSearch,
 };
 
 const defaultProps = {};
 
-export const MoveSearch = () => (
+export const StoryMoveSearch = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
     <MemoryRouter>
-      <QAECSRMoveSearch {...defaultProps} />
+      <MoveSearch {...defaultProps} />
     </MemoryRouter>
   </div>
 );
