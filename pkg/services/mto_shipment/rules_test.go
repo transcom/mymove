@@ -317,6 +317,121 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 	})
 
+	suite.Run("MTOShipmentHasValidRequestedPickupDate - requestedPickupDate required", func() {
+
+		testCases := []struct {
+			shipmentType models.MTOShipmentType
+			shouldError  bool
+		}{
+			// HHG
+			{models.MTOShipmentTypeHHG, true},
+			// NTS
+			{models.MTOShipmentTypeHHGIntoNTS, true},
+			// NTSR
+			{models.MTOShipmentTypeHHGOutOfNTS, false},
+			// BOAT HAUL AWAY
+			{models.MTOShipmentTypeBoatHaulAway, false},
+			// BOAT TOW AWAY
+			{models.MTOShipmentTypeBoatTowAway, false},
+			// MOBILE HOME
+			{models.MTOShipmentTypeMobileHome, false},
+			// UB
+			{models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			// PPM - should always pass validation
+			{models.MTOShipmentTypePPM, false},
+		}
+
+		for _, testCase := range testCases {
+			mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType: testCase.shipmentType,
+					},
+				},
+			}, nil)
+
+			mtoShipment.RequestedPickupDate = nil
+
+			checker := MTOShipmentHasValidRequestedPickupDate()
+			err := checker.Validate(suite.AppContextForTest(), &mtoShipment, nil)
+			if testCase.shouldError {
+				suite.ErrorContains(err, fmt.Sprintf("RequestedPickupDate is required to create or modify a %s shipment", testCase.shipmentType))
+			} else {
+				suite.NoError(err)
+			}
+		}
+	})
+
+	suite.Run("MTOShipmentHasValidRequestedPickupDate - requestedPickupDate must be in the future", func() {
+
+		mtoShipment_Valid_address := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()
+		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_Valid_address.MTOShipments[0], nil)
+		suite.NoError(err)
+
+		now := time.Now()
+		yesterday := now.AddDate(0, 0, -1)
+		tomorrow := now.AddDate(0, 0, 1)
+
+		testCases := []struct {
+			input        *time.Time
+			shipmentType models.MTOShipmentType
+			shouldError  bool
+		}{
+			// HHG
+			{&yesterday, models.MTOShipmentTypeHHG, true},
+			{&now, models.MTOShipmentTypeHHG, true},
+			{&tomorrow, models.MTOShipmentTypeHHG, false},
+			// NTS
+			{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&now, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
+			// NTSR
+			{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+			// BOAT HAUL AWAY
+			{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+			{&now, models.MTOShipmentTypeBoatHaulAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+			// BOAT TOW AWAY
+			{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+			{&now, models.MTOShipmentTypeBoatTowAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+			// MOBILE HOME
+			{&yesterday, models.MTOShipmentTypeMobileHome, true},
+			{&now, models.MTOShipmentTypeMobileHome, true},
+			{&tomorrow, models.MTOShipmentTypeMobileHome, false},
+			// UB
+			{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+			// PPM - should always pass validation
+			{&yesterday, models.MTOShipmentTypePPM, false},
+			{&now, models.MTOShipmentTypePPM, false},
+			{&tomorrow, models.MTOShipmentTypePPM, false},
+		}
+
+		for _, testCase := range testCases {
+			mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						ShipmentType:        testCase.shipmentType,
+						RequestedPickupDate: testCase.input,
+					},
+				},
+			}, nil)
+
+			checker := MTOShipmentHasValidRequestedPickupDate()
+			err := checker.Validate(suite.AppContextForTest(), &mtoShipment, nil)
+			if testCase.shouldError {
+				suite.ErrorContains(err, "Requested pickup must be greater than or equal to tomorrow's date.")
+			} else {
+				suite.NoError(err)
+			}
+		}
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
