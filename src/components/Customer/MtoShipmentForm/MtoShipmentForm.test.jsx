@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { generatePath } from 'react-router-dom';
-import { waitFor, screen, fireEvent } from '@testing-library/react';
+import { waitFor, screen, fireEvent, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
 
 import MtoShipmentForm from './MtoShipmentForm';
 
@@ -16,10 +17,12 @@ import {
   patchMTOShipment,
   dateSelectionIsWeekendHoliday,
 } from 'services/internalApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
+import { boatShipmentTypes } from 'constants/shipments';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -101,6 +104,8 @@ const ubProps = {
 };
 
 const updatedAt = '2021-06-11T18:12:11.918Z';
+const tomorrow = formatDateWithUTC(moment().add(1, 'days').toDate(), 'YYYY-MM-DD');
+const tomorrowDatePicker = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
 
 const mockMtoShipmentHHGWithDest = {
   id: uuidv4(),
@@ -109,7 +114,7 @@ const mockMtoShipmentHHGWithDest = {
   updatedAt,
   moveTaskOrderId: moveId,
   customerRemarks: 'mock remarks',
-  requestedPickupDate: '2021-06-07',
+  requestedPickupDate: tomorrow,
   requestedDeliveryDate: '2021-06-14',
   newDutyLocationAddress: {
     id: uuidv4(),
@@ -153,7 +158,7 @@ const mockMtoShipmentUB = {
   updatedAt,
   moveTaskOrderId: moveId,
   customerRemarks: 'mock remarks',
-  requestedPickupDate: '2021-08-01',
+  requestedPickupDate: tomorrow,
   requestedDeliveryDate: '2021-08-11',
   pickupAddress: {
     id: uuidv4(),
@@ -179,7 +184,7 @@ const mockMtoShipmentSecondaryAddress = {
   updatedAt,
   moveTaskOrderId: moveId,
   customerRemarks: 'mock remarks',
-  requestedPickupDate: '2021-08-01',
+  requestedPickupDate: tomorrow,
   requestedDeliveryDate: '2021-08-11',
   hasSecondaryPickupAddress: true,
   hasSecondaryDeliveryAddress: true,
@@ -457,6 +462,17 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTitle('No, I do not have a third delivery address')).toBeInstanceOf(HTMLInputElement);
     });
 
+    it('goes back when the back button is clicked', async () => {
+      renderMtoShipmentForm();
+
+      const backButton = await screen.findByRole('button', { name: 'Back' });
+      await userEvent.click(backButton);
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(-1);
+      });
+    });
+
     it('renders a third address fieldset when the user has a third delivery address', async () => {
       renderMtoShipmentForm({ mtoShipment: mockMtoShipmentHHGWithDest });
 
@@ -473,17 +489,6 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(4);
     });
 
-    it('goes back when the back button is clicked', async () => {
-      renderMtoShipmentForm();
-
-      const backButton = await screen.findByRole('button', { name: 'Back' });
-      await userEvent.click(backButton);
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(-1);
-      });
-    });
-
     it('can submit a new HHG shipment successfully', async () => {
       const mockMtoShipmentHHG = {
         id: uuidv4(),
@@ -491,7 +496,7 @@ describe('MtoShipmentForm component', () => {
         createdAt: '2021-06-11T18:12:11.918Z',
         updatedAt,
         moveTaskOrderId: moveId,
-        requestedPickupDate: '2021-06-07',
+        requestedPickupDate: tomorrow,
         requestedDeliveryDate: '2021-06-14',
         pickupAddress: {
           streetAddress1: '812 S 129th St',
@@ -515,7 +520,7 @@ describe('MtoShipmentForm component', () => {
         moveTaskOrderID: moveId,
         shipmentType: SHIPMENT_OPTIONS.HHG,
         customerRemarks: '',
-        requestedPickupDate: '2021-06-07',
+        requestedPickupDate: tomorrow,
         pickupAddress: { ...mockMtoShipmentHHG.pickupAddress },
         requestedDeliveryDate: '2021-06-14',
         hasSecondaryPickupAddress: false,
@@ -565,7 +570,7 @@ describe('MtoShipmentForm component', () => {
 
     it('shows an error when there is an error with the submission', async () => {
       const shipmentInfo = {
-        requestedPickupDate: '07 Jun 2021',
+        requestedPickupDate: tomorrow,
         pickupAddress: {
           streetAddress1: '812 S 129th St',
           streetAddress2: '#123',
@@ -616,7 +621,7 @@ describe('MtoShipmentForm component', () => {
       updatedAt,
       moveTaskOrderId: moveId,
       customerRemarks: 'mock remarks',
-      requestedPickupDate: '2021-08-01',
+      requestedPickupDate: tomorrow,
       requestedDeliveryDate: '2021-08-11',
       pickupAddress: {
         id: uuidv4(),
@@ -646,7 +651,7 @@ describe('MtoShipmentForm component', () => {
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
 
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -664,12 +669,12 @@ describe('MtoShipmentForm component', () => {
 
       expect(
         screen.getByText(
-          /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
         ),
       ).toHaveClass('usa-alert__text');
       expect(
         screen.getAllByText(
-          'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
+          `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
         ),
       ).toHaveLength(1);
     });
@@ -1103,7 +1108,7 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -1131,12 +1136,12 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United of States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United of States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
@@ -1158,12 +1163,12 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+            `Preferred pickup date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
@@ -1185,12 +1190,12 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
@@ -1212,7 +1217,7 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(
         screen.getByLabelText(
@@ -1223,7 +1228,7 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(
           screen.queryAllByText(
-            'Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveLength(0);
         expect(
@@ -1545,7 +1550,7 @@ describe('MtoShipmentForm component', () => {
       );
       renderUBShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentUB });
 
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -1571,12 +1576,12 @@ describe('MtoShipmentForm component', () => {
 
       expect(
         screen.getByText(
-          /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
         ),
       ).toHaveClass('usa-alert__text');
       expect(
         screen.getAllByText(
-          'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
+          `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
         ),
       ).toHaveLength(1);
     });
@@ -1812,7 +1817,7 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderUBShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentUB });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -1841,12 +1846,12 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderUBShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentUB });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United of States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United of States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
@@ -1868,12 +1873,12 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderUBShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentUB });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+            `Preferred pickup date ${tomorrowDatePicker} is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
@@ -1895,12 +1900,12 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderUBShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentUB });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
@@ -1922,7 +1927,7 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderUBShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipmentUB });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(
         screen.getByLabelText(
@@ -1933,7 +1938,7 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(
           screen.queryAllByText(
-            'Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveLength(0);
         expect(
@@ -2014,7 +2019,7 @@ describe('MtoShipmentForm component', () => {
         updatedAt,
         moveTaskOrderId: moveId,
         customerRemarks: 'mock remarks',
-        requestedPickupDate: '2021-08-01',
+        requestedPickupDate: tomorrow,
         requestedDeliveryDate: '2021-08-11',
         pickupAddress: {
           id: uuidv4(),
@@ -2041,12 +2046,12 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, shipmentType: SHIPMENT_OPTIONS.NTS, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       await waitFor(() => {
         // only pickup date is available. delivery alert will never be present.
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
@@ -2126,7 +2131,7 @@ describe('MtoShipmentForm component', () => {
         updatedAt,
         moveTaskOrderId: moveId,
         customerRemarks: 'mock remarks',
-        requestedPickupDate: '2021-08-01',
+        requestedPickupDate: tomorrow,
         requestedDeliveryDate: '2021-08-11',
         pickupAddress: {
           id: uuidv4(),
@@ -2158,7 +2163,7 @@ describe('MtoShipmentForm component', () => {
         // only delivery date is available. pickup alert will never be present.
         expect(
           screen.queryAllByText(
-            'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
+            `Preferred pickup date ${tomorrowDatePicker} is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.`,
           ),
         ).toHaveLength(0);
         expect(
@@ -2168,5 +2173,216 @@ describe('MtoShipmentForm component', () => {
         ).toHaveClass('usa-alert__text');
       });
     });
+  });
+
+  describe('requestedPickupDate validation when creating and editing non-PPM shipments', () => {
+    const mockHHGShipment = {
+      ...mockMtoShipmentHHGWithDest,
+      requestedPickupDate: '2021-06-07',
+    };
+    const mockNtsShipment = {
+      ...mockHHGShipment,
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      storageFacility: {
+        facilityName: 'Storage Facility',
+        address: {
+          city: 'Anytown',
+          country: 'USA',
+          postalCode: '90210',
+          state: 'OK',
+          streetAddress1: '555 Main Ave',
+          streetAddress2: 'Apartment 900',
+        },
+      },
+      tacType: 'HHG',
+      sacType: 'NTS',
+      tac: '123',
+      sac: '456',
+      serviceOrderNumber: '12341234',
+    };
+
+    const mockBoatShipment = (boatShipmentType) => ({
+      ...mockHHGShipment,
+      boatShipment: {
+        type: boatShipmentType,
+        year: 2020,
+        make: 'Yamaha',
+        model: '242X E-Series',
+        lengthInInches: 276,
+        widthInInches: 102,
+        heightInInches: 120,
+        hasTrailer: true,
+        isRoadworthy: true,
+      },
+    });
+
+    const mockMobileHomeShipment = {
+      ...mockHHGShipment,
+      mobileHomeShipment: {
+        year: 2020,
+        make: 'Yamaha',
+        model: '242X E-Series',
+        lengthInInches: 276,
+        widthInInches: 102,
+        heightInInches: 120,
+      },
+    };
+
+    const mockedUB = {
+      ...mockMtoShipmentUB,
+      requestedPickupDate: '2021-06-07',
+    };
+
+    const shipmentTypesSource = [
+      [SHIPMENT_TYPES.HHG, mockHHGShipment],
+      [SHIPMENT_TYPES.NTS, mockNtsShipment],
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY, mockBoatShipment(boatShipmentTypes.HAUL_AWAY)],
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY, mockBoatShipment(boatShipmentTypes.TOW_AWAY)],
+      [SHIPMENT_TYPES.MOBILE_HOME, mockMobileHomeShipment],
+      [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE, mockedUB],
+    ];
+
+    const shipmentTypesToTest = [
+      ...shipmentTypesSource.map((v) => [true].concat(v)),
+      ...shipmentTypesSource.map((v) => [false].concat(v)),
+    ];
+
+    it.each(shipmentTypesToTest)(
+      'preferredPickupDate (isCreate: %s | %s) - validation errors show',
+      async (isCreate, shipmentType, mockShipment) => {
+        const expectedDateSelectionIsWeekendHolidayResponse = {
+          country_code: 'US',
+          country_name: 'United States',
+          is_weekend: true,
+          is_holiday: true,
+        };
+        dateSelectionIsWeekendHoliday.mockImplementation(() =>
+          Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+        );
+
+        renderMtoShipmentForm({
+          shipmentType,
+          isCreatePage: isCreate,
+          mtoShipment: isCreate ? undefined : mockShipment,
+        });
+
+        if (isCreate) {
+          // Error doesn't show unless touched
+          expect(
+            within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId('errorMessage'),
+          ).not.toBeInTheDocument();
+
+          // Trigger error with empty date, field touched
+          await act(async () => {
+            const node = screen.getByLabelText(/Preferred pickup date/);
+            await userEvent.clear(node);
+            node.blur();
+          });
+          const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+            'formGroup',
+          );
+          await waitFor(() => {
+            expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
+          });
+        } else {
+          // Trigger error with invalid date, field touched
+          await act(async () => {
+            const node = screen.getByLabelText(/Preferred pickup date/);
+            await userEvent.clear(node);
+            await userEvent.paste('22 Mar 2022');
+            node.blur();
+          });
+          const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+            'formGroup',
+          );
+          await waitFor(() => {
+            expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent(
+              'Preferred pickup date must be in the future.',
+            );
+          });
+        }
+
+        // Trigger invalid date error - cannot be today
+        const now = formatDateForDatePicker(formatDateWithUTC(new Date()));
+        await act(async () => {
+          const node = screen.getByLabelText(/Preferred pickup date/);
+          await userEvent.clear(node);
+          await userEvent.paste(now);
+          node.blur();
+        });
+        expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(now);
+        const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent(
+            'Preferred pickup date must be in the future.',
+          );
+        });
+      },
+    );
+
+    it.each(shipmentTypesToTest)(
+      'preferredPickupDate (isCreate: %s | %s) - validation errors hide when valid and holiday alert shows',
+      async (isCreate, shipmentType, mockShipment) => {
+        const expectedDateSelectionIsWeekendHolidayResponse = {
+          country_code: 'US',
+          country_name: 'United States',
+          is_weekend: true,
+          is_holiday: true,
+        };
+        dateSelectionIsWeekendHoliday.mockImplementation(() =>
+          Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+        );
+        renderMtoShipmentForm({
+          shipmentType,
+          isCreatePage: isCreate,
+          mtoShipment: isCreate ? {} : mockShipment,
+        });
+
+        // Trigger invalid date error - must be in the future
+        await act(async () => {
+          const node = screen.getByLabelText(/Preferred pickup date/);
+          await userEvent.clear(node);
+          await userEvent.paste('26 Mar 2022');
+          node.blur();
+        });
+        expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('26 Mar 2022');
+        const dateRequiredParent = within(await screen.findByTestId('preferredPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent(
+            'Preferred pickup date must be in the future.',
+          );
+        });
+        // should hide holiday alert
+        expect(screen.queryByTestId('preferredPickupDateAlert')).not.toBeInTheDocument();
+
+        // Valid date, hides errors
+        await act(async () => {
+          const node = screen.getByLabelText(/Preferred pickup date/);
+          await userEvent.clear(node);
+          await userEvent.paste(tomorrowDatePicker);
+          node.blur();
+        });
+
+        expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
+        await waitFor(() => {
+          expect(
+            within(screen.getByTestId('preferredPickupDateFieldSet')).queryByTestId('errorMessage'),
+          ).not.toBeInTheDocument();
+          expect(screen.getByTestId('preferredPickupDateAlert')).toBeVisible();
+        });
+      },
+    );
   });
 });

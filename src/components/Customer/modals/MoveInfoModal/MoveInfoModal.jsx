@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const MoveInfoModal = ({ closeModal, enablePPM, enableUB, hasOconusDutyLocation }) => (
-  <Modal data-testid="moveInfoModal">
+  <Modal data-testid="moveInfoModal" onClose={closeModal}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3 data-testid="moveInfoModalHeading">More info about shipments</h3>
