@@ -153,7 +153,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		{
 			Model: models.Address{
 				StreetAddress1: "7 Q St",
-				City:           "Birmingham",
+				City:           "NICHOLASVILLE",
 				State:          "KY",
 				PostalCode:     "40356",
 			},
