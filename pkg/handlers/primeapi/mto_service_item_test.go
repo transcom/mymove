@@ -1114,6 +1114,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 					PrimeEstimatedWeight: models.PoundPointer(1000),
 					RequestedPickupDate:  models.TimePointer(time.Now()),
 				},
+			{
+				Model: models.Address{
+					City:       "SULPHUR SPGS",
+					PostalCode: "75482",
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
