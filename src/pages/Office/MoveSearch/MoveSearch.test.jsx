@@ -3,7 +3,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
-import QAECSRMoveSearch from './QAECSRMoveSearch';
+import MoveSearch from './MoveSearch';
 
 import { MockProviders } from 'testUtils';
 import { useMoveSearchQueries } from 'hooks/queries';
@@ -60,11 +60,11 @@ const mockSearchResultsWithMove = {
   isSuccess: true,
 };
 
-describe('QAECSRMoveSearch page', () => {
+describe('MoveSearch page', () => {
   it('page loads', async () => {
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
 
@@ -79,7 +79,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
     await act(async () => {
@@ -102,7 +102,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
 
@@ -128,7 +128,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
 
@@ -154,7 +154,7 @@ describe('QAECSRMoveSearch page', () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResults);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
     await act(async () => {
@@ -175,11 +175,11 @@ describe('QAECSRMoveSearch page', () => {
     });
   });
 
-  it('can navigate to move afer search', async () => {
+  it('can navigate to move afer search and it defaults to details', async () => {
     useMoveSearchQueries.mockReturnValue(mockSearchResultsWithMove);
     render(
       <MockProviders>
-        <QAECSRMoveSearch />
+        <MoveSearch />
       </MockProviders>,
     );
     await act(async () => {
@@ -198,6 +198,32 @@ describe('QAECSRMoveSearch page', () => {
 
       await screen.getByTestId('locator-0').click();
       expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/details');
+    });
+  });
+
+  it('navigates to a custom landingPath when provided', async () => {
+    useMoveSearchQueries.mockReturnValue(mockSearchResultsWithMove);
+    render(
+      <MockProviders>
+        <MoveSearch landingPath="mto" />
+      </MockProviders>,
+    );
+    await act(async () => {
+      const submitButton = screen.getByTestId('searchTextSubmit');
+      await screen.getByLabelText('Move Code').click();
+      await userEvent.type(screen.getByLabelText('Search'), 'MOVE12');
+      await waitFor(() => {
+        expect(screen.getByLabelText('Search')).toHaveValue('MOVE12');
+        expect(screen.getByLabelText('Move Code')).toBeChecked();
+      });
+      expect(submitButton).toBeEnabled();
+      await userEvent.click(submitButton);
+
+      const noResults = await screen.queryByText('Results (1)');
+      expect(noResults).toBeInTheDocument();
+
+      await screen.getByTestId('locator-0').click();
+      expect(mockNavigate).toHaveBeenCalledWith('/moves/MOVE12/mto');
     });
   });
 });
