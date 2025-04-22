@@ -1149,13 +1149,15 @@ export const useRolesPrivilegesQueries = () => {
 
   mappings.forEach((mapping) => {
     // Create a map of privileges with their types and names.
-    if (mapping.privilegeType) {
-      if (!privilegesMap.has(mapping.privilegeType)) {
-        privilegesMap.set(mapping.privilegeType, {
-          privilegeType: mapping.privilegeType,
-          privilegeName: mapping.privilegeName,
-        });
-      }
+    if (mapping.privileges) {
+      mapping.privileges.forEach((privilege) => {
+        if (!privilegesMap.has(privilege.privilegeType)) {
+          privilegesMap.set(privilege.privilegeType, {
+            privilegeType: privilege.privilegeType,
+            privilegeName: privilege.privilegeName,
+          });
+        }
+      });
     }
     // Create a map of roles with their types, names, and allowed privileges.
     if (mapping.roleType) {
@@ -1167,8 +1169,10 @@ export const useRolesPrivilegesQueries = () => {
         });
       }
       // Add their allowed privilege types.
-      if (mapping.privilegeType) {
-        rolesWithPrivsMap.get(mapping.roleType).allowedPrivileges.add(mapping.privilegeType);
+      if (mapping.privileges) {
+        mapping.privileges.forEach((priv) => {
+          rolesWithPrivsMap.get(mapping.roleType).allowedPrivileges.add(priv.privilegeType);
+        });
       }
     }
   });

@@ -1712,9 +1712,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -1777,9 +1777,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -1842,9 +1842,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -1950,9 +1950,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2042,9 +2042,9 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2332,9 +2332,9 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2548,12 +2548,12 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 						{
-							PrivilegeType: models.PrivilegeTypeSafety,
+							PrivilegeType: roles.PrivilegeTypeSafety,
 						},
 					},
 					Roles: []roles.Role{
@@ -2675,9 +2675,9 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
