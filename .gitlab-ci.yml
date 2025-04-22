@@ -142,7 +142,6 @@ stages:
   - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 
-
 .setup_tls_vars_prd: &setup_tls_vars_prd
   - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
   - export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY
