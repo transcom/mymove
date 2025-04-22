@@ -45,13 +45,13 @@ update_service() {
     echo "* Updating service ${name} with ARN ${arn}"
 
     if [[ $name == "app" ]]; then
-        UNSET "${SERVICE_RESERVATION_MEM}"
-        EXPORT "${SERVICE_RESERVATION_MEM}" = "${SERVICE_RESERVATION_APP_MEM}"
+        unset "${SERVICE_RESERVATION_MEM}"
+        export "${SERVICE_RESERVATION_MEM}"="${SERVICE_RESERVATION_APP_MEM}"
     fi
 
     if [[ $name == "app-client-tls" ]]; then
-        UNSET "${SERVICE_RESERVATION_MEM}"
-        EXPORT "${SERVICE_RESERVATION_MEM}" = "${SERVICE_RESERVATION_CLIENT_MEM}"
+        unset "${SERVICE_RESERVATION_MEM}"
+        export "${SERVICE_RESERVATION_MEM}"="${SERVICE_RESERVATION_CLIENT_MEM}"
     fi
 
     #  read the currently running tasks into an array so later on we
