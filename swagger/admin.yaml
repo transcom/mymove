@@ -967,6 +967,10 @@ definitions:
       roleName:
         type: string
         example: Task Ordering Officer
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -1016,6 +1020,9 @@ definitions:
       roleType:
         type: string
         example: task_ordering_officer
+      roleName:
+        type: string
+        example: Task Ordering Officer
       privilegeId:
         type: string
         format: uuid
@@ -1023,6 +1030,9 @@ definitions:
       privilegeType:
         type: string
         example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
       createdAt:
         type: string
         format: date-time
@@ -1790,7 +1800,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/RolePrivilege'
+              $ref: '#/definitions/Role'
         '401':
           description: request requires user authentication
         '404':

@@ -1,12 +1,12 @@
 package roles
 
 import (
+	"fmt"
 	"slices"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
@@ -61,18 +61,21 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 	suite.NotEmpty(availableRoles, "FetchRoleTypes should return values")
 
 	for _, rp := range rolesPrivileges {
-		// Assert that all roles are covered by the supervisor privilege
-		if rp.Privilege.PrivilegeType == models.PrivilegeTypeSupervisor {
-			index := slices.Index(availableRoles, rp.Role.RoleType)
-			suite.NotEqual(-1, index, "RoleType %s not found in availableRoles.", rp.Role.RoleType)
-			availableRoles = slices.Delete(availableRoles, index, index+1) // unique role->privilege, so remove role after check for supervisor
-		}
+		for _, privs := range rp.RolePrivileges {
+			fmt.Print(rp)
+			// Assert that all roles are covered by the supervisor privilege
+			if privs.Privilege.PrivilegeType == roles.PrivilegeTypeSupervisor {
+				index := slices.Index(availableRoles, rp.RoleType)
+				suite.NotEqual(-1, index, "RoleType %s not found in availableRoles.", rp.RoleType)
+				availableRoles = slices.Delete(availableRoles, index, index+1) // unique role->privilege, so remove role after check for supervisor
+			}
 
-		// Assert that all 6 specified roles are covered by the safety privilege
-		if rp.Privilege.PrivilegeType == models.PrivilegeTypeSafety {
-			index := slices.Index(availableRolesSafety, rp.Role.RoleType)
-			suite.NotEqual(-1, index, "RoleType %s not found in availableRolesSafety.", rp.Role.RoleType)
-			availableRolesSafety = slices.Delete(availableRolesSafety, index, index+1) // unique role->privilege, so remove role after check for safety
+			// Assert that all 6 specified roles are covered by the safety privilege
+			if privs.Privilege.PrivilegeType == roles.PrivilegeTypeSafety {
+				index := slices.Index(availableRolesSafety, rp.RoleType)
+				suite.NotEqual(-1, index, "RoleType %s not found in availableRolesSafety.", rp.RoleType)
+				availableRolesSafety = slices.Delete(availableRolesSafety, index, index+1) // unique role->privilege, so remove role after check for safety
+			}
 		}
 	}
 
