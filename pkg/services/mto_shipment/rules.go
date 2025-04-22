@@ -244,13 +244,19 @@ func MTOShipmentHasValidRequestedPickupDate() validator {
 		if newer.IsPPMShipment() {
 			return nil
 		}
-		if newer.RequestedPickupDate == nil || newer.RequestedPickupDate.IsZero() {
+		newerHasDate := newer != nil && newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
+		olderHasDate := older != nil && older.RequestedPickupDate != nil && !older.RequestedPickupDate.IsZero()
+		isBoatShipment := newer.ShipmentType == models.MTOShipmentTypeBoatHaulAway || newer.ShipmentType == models.MTOShipmentTypeBoatTowAway
+		isMTOShipmentTypeMobileHome := newer.ShipmentType == models.MTOShipmentTypeMobileHome
+		isMTOShipmentTypeHHGOutOfNTS := newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS
+		hasInvalidShipmentType := isBoatShipment || isMTOShipmentTypeMobileHome || isMTOShipmentTypeHHGOutOfNTS
+		if ((olderHasDate && !newerHasDate) || (!newerHasDate && !olderHasDate)) && !hasInvalidShipmentType {
 			verrs.Add("error validating mto shipment", "RequestedPickupDate is required to create a shipment")
 			return apperror.NewInvalidInputError(newer.ID, nil, validate.NewErrors(),
 				fmt.Sprintf("RequestedPickupDate is required to create a %s shipment", newer.ShipmentType))
 		}
-		isDateUpdated := older == nil || older.RequestedPickupDate == nil || (newer.RequestedPickupDate != nil && older.RequestedPickupDate != nil && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate))
-		if newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero() && isDateUpdated {
+		isDateUpdated := olderHasDate && newerHasDate && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate)
+		if newerHasDate || isDateUpdated {
 			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
 			requestedDate := newer.RequestedPickupDate.Truncate(24 * time.Hour)
 			if !requestedDate.After(today) {
