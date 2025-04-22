@@ -101,11 +101,11 @@ const ProGearForm = ({
                     <Fieldset>
                       <label htmlFor="belongsToSelf" className={classnames('usa-label', styles.descriptionTextField)}>
                         Who does this pro-gear belong to?
-                        <Hint className={styles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
-                        {formikProps.touched?.belongsToSelf && formikProps.errors?.belongsToSelf && (
-                          <ErrorMessage>{formikProps.errors?.belongsToSelf}</ErrorMessage>
-                        )}
                       </label>
+                      <Hint className={styles.hint}>You have to separate yours and your spouse&apos;s pro-gear.</Hint>
+                      {formikProps.touched?.belongsToSelf && formikProps.errors?.belongsToSelf && (
+                        <ErrorMessage>{formikProps.errors?.belongsToSelf}</ErrorMessage>
+                      )}
                       <Field
                         as={Radio}
                         id="ownerOfProGearSelf"
@@ -131,16 +131,14 @@ const ProGearForm = ({
                         <TextField
                           className={styles.descriptionTextField}
                           label="Brief description of the pro-gear"
-                          labelHint={
-                            <Hint className={styles.hint}>
-                              Examples of pro-gear include specialized apparel and government&ndash;issued equipment.
-                              <br />
-                              Check the {jtr} for examples of pro-gear.
-                            </Hint>
-                          }
                           id="description"
                           name="description"
                         />
+                        <Hint className={styles.hint}>
+                          Examples of pro-gear include specialized apparel and government&ndash;issued equipment.
+                          <br />
+                          Check the {jtr} for examples of pro-gear.
+                        </Hint>
                         <h3>Weight</h3>
                         <MaskedTextField
                           containerClassName={styles.weightField}
