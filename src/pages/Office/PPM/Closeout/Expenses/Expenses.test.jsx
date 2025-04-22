@@ -301,7 +301,7 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(patchExpense).toHaveBeenCalledWith({
         ppmShipmentId: mockPPMShipmentId,
-        expenseId: mockExpenseId,
+        movingExpenseId: mockExpenseId,
         payload: {
           ppmShipmentId: mockPPMShipmentId,
           movingExpenseType: 'CONTRACTED_EXPENSE',
@@ -313,6 +313,9 @@ describe('Expenses page', () => {
           paidWithGTCC: true,
           WeightStored: NaN,
           SITLocation: undefined,
+          isProGear: false,
+          trackingNumber: '',
+          weightShipped: NaN,
         },
         eTag: mockExpenseEtag,
       });
@@ -346,18 +349,21 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(patchExpense).toHaveBeenCalledWith({
         ppmShipmentId: mockPPMShipmentId,
-        expenseId: mockExpenseId,
+        movingExpenseId: mockExpenseId,
         payload: {
           ppmShipmentId: mockPPMShipmentId,
           movingExpenseType: 'PACKING_MATERIALS',
           description: 'Peanuts and wrapping paper',
           missingReceipt: false,
           amount: 1200,
+          isProGear: false,
           SITEndDate: undefined,
           SITStartDate: undefined,
           paidWithGTCC: false,
           WeightStored: NaN,
           SITLocation: undefined,
+          trackingNumber: '',
+          weightShipped: NaN,
         },
         eTag: mockExpenseEtag,
       });
@@ -395,11 +401,14 @@ describe('Expenses page', () => {
     await waitFor(() => {
       expect(patchExpense).toHaveBeenCalledWith({
         ppmShipmentId: mockPPMShipmentId,
-        expenseId: mockExpenseId,
+        movingExpenseId: mockExpenseId,
         payload: {
           ppmShipmentId: mockPPMShipmentId,
+          trackingNumber: '',
+          weightShipped: NaN,
           movingExpenseType: 'STORAGE',
           description: 'Peanuts and wrapping paper',
+          isProGear: false,
           missingReceipt: false,
           amount: 8500,
           SITEndDate: '2022-10-11',

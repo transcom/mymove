@@ -25,3 +25,7 @@
     @include u-margin-bottom(0);
   }
 }
+
+.introSection {
+  @include u-margin-bottom(5);
+}

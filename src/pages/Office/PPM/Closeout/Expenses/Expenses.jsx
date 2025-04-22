@@ -3,8 +3,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
-import styles from './Expenses.module.scss';
-
 import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -34,7 +32,7 @@ const Expenses = () => {
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const appName = APP_NAME.OFFICE;
-  const ppmShipment = mtoShipment?.ppmShipment;
+  const ppmShipment = mtoShipment?.ppmShipment ?? [];
   const expenses = documents?.MovingExpenses ?? [];
   const { ppmType } = ppmShipment;
 
@@ -158,7 +156,7 @@ const Expenses = () => {
 
     mutatePatchMovingExpense({
       ppmShipmentId: currentExpense.ppmShipmentId,
-      expenseId: currentExpense.id,
+      movingExpenseId: currentExpense.id,
       payload,
       eTag: currentExpense.eTag,
     });
@@ -194,17 +192,6 @@ const Expenses = () => {
               <ShipmentTag shipmentType={shipmentTypes.PPM} />
               <h1>Expenses</h1>
               {renderError()}
-              <div className={styles.introSection}>
-                <p>
-                  Document your qualified expenses by uploading receipts. They should include a description of the item,
-                  the price you paid, the date of purchase, and the business name. All documents must be legible and
-                  unaltered.
-                </p>
-                <p>
-                  Your finance office will make the final decision about which expenses are deductible or reimbursable.
-                </p>
-                <p>Upload one receipt at a time. Please do not put multiple receipts in one image.</p>
-              </div>
               <ExpenseForm
                 ppmType={ppmType}
                 expense={currentExpense}
