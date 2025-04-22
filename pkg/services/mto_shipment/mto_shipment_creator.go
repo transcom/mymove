@@ -344,6 +344,16 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
 		shipment = models.DetermineShipmentMarketCode(shipment)
 
+		if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			isShipmentOCONUS := models.IsShipmentOCONUS(*shipment)
+			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
+				errorMsg := "At least one address for a UB shipment must be OCONUS"
+				ubVerrs := validate.NewErrors()
+				ubVerrs.Add("UB shipment error", errorMsg)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, ubVerrs, errorMsg)
+			}
+		}
+
 		// create a shipment
 		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)
 

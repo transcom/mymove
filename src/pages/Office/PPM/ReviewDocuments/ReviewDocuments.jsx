@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import classNames from 'classnames';
 
 import styles from './ReviewDocuments.module.scss';
 
@@ -20,19 +21,19 @@ import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
 import { calculateWeightRequested } from 'hooks/custom';
-
-// TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
-//  this here for now.
-const DOCUMENT_TYPES = {
-  WEIGHT_TICKET: 'WEIGHT_TICKET',
-  PROGEAR_WEIGHT_TICKET: 'PROGEAR_WEIGHT_TICKET',
-  MOVING_EXPENSE: 'MOVING_EXPENSE',
-};
+import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
+import { PPM_TYPES, PPM_DOCUMENT_TYPES } from 'shared/constants';
+import { PPM_DOCUMENT_STATUS } from 'constants/ppms';
 
 export const ReviewDocuments = ({ readOnly }) => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+
+  const [serverError, setServerError] = useState(null);
+  const [showOverview, setShowOverview] = useState(false);
+
+  const [isFileUploading, setFileUploading] = useState(false);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -42,57 +43,68 @@ export const ReviewDocuments = ({ readOnly }) => {
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
 
-  const [ppmShipmentInfo, setPpmShipmentInfo] = useState({});
   const [allWeightTicketsRejected, setAllWeightTicketsRejected] = useState(false);
+  const [allMovingExpensesRejected, setAllMovingExpensesRejected] = useState(false);
   let documentSets = useMemo(() => [], []);
   const weightTickets = useMemo(() => documents?.WeightTickets ?? [], [documents?.WeightTickets]);
+  const movingExpenses = useMemo(() => documents?.MovingExpenses ?? [], [documents?.MovingExpenses]);
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
-  const movingExpenses = documents?.MovingExpenses ?? [];
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
-  useEffect(() => {
-    if (currentTotalWeight === 0 && documentSets[documentSetIndex]?.documentSet.status !== 'REJECTED') {
-      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
-    }
-  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
-  useEffect(() => {
-    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
-    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
-  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
-  useEffect(() => {
-    setCurrentAllowableWeight(currentAllowableWeight);
-  }, [currentAllowableWeight]);
-  useEffect(() => {
-    setCurrentMtoShipments(mtoShipments);
-  }, [mtoShipments]);
 
-  useEffect(() => {
-    if (mtoShipment) {
-      const updatedPpmShipmentInfo = {
+  const ppmShipmentInfo = useMemo(() => {
+    if (mtoShipment && mtoShipment.ppmShipment) {
+      return {
         ...mtoShipment.ppmShipment,
         miles: mtoShipment.distance,
-        actualWeight: currentTotalWeight,
+        actualWeight: ppmActualWeight?.actualWeight ?? currentTotalWeight,
       };
-      setPpmShipmentInfo(updatedPpmShipmentInfo);
     }
-  }, [mtoShipment, currentTotalWeight]);
+    return {};
+  }, [mtoShipment, ppmActualWeight, currentTotalWeight]);
+  const isPPMSPR = ppmShipmentInfo?.ppmType === PPM_TYPES.SMALL_PACKAGE;
 
   useEffect(() => {
     if (weightTickets.length > 0) {
-      const allRejected = weightTickets.every((ticket) => ticket.status === 'REJECTED');
+      const allRejected = weightTickets.every((ticket) => ticket.status === PPM_DOCUMENT_STATUS.REJECTED);
       setAllWeightTicketsRejected(allRejected);
     } else {
       setAllWeightTicketsRejected(false);
     }
   }, [weightTickets]);
 
+  useEffect(() => {
+    if (movingExpenses.length > 0) {
+      const allRejected = movingExpenses.every((ticket) => ticket.status === PPM_DOCUMENT_STATUS.REJECTED);
+      setAllMovingExpensesRejected(allRejected);
+    } else {
+      setAllMovingExpensesRejected(false);
+    }
+  }, [movingExpenses]);
+
+  useEffect(() => {
+    if (showOverview) {
+      if (allWeightTicketsRejected && weightTickets.length > 0) {
+        setServerError(
+          'Cannot closeout PPM. All weight tickets have been rejected. At least one approved weight ticket is required.',
+        );
+      } else if (allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR) {
+        setServerError(
+          'Cannot closeout PPM. All moving expenses have been rejected. At least one approved moving expense is required for a PPM-SPR.',
+        );
+      } else {
+        setServerError(null);
+      }
+    }
+  }, [showOverview, allWeightTicketsRejected, weightTickets, allMovingExpensesRejected, movingExpenses, isPPMSPR]);
+
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
 
   const constructWeightTicket = (weightTicket, tripNumber) => ({
-    documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
+    documentSetType: PPM_DOCUMENT_TYPES.WEIGHT_TICKET,
     documentSet: weightTicket,
     uploads: [
       ...weightTicket.emptyDocument.uploads,
@@ -109,7 +121,7 @@ export const ReviewDocuments = ({ readOnly }) => {
   }
 
   const constructProGearWeightTicket = (weightTicket, tripNumber) => ({
-    documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
+    documentSetType: PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
     documentSet: weightTicket,
     uploads: weightTicket.document.uploads,
     tripNumber,
@@ -125,7 +137,7 @@ export const ReviewDocuments = ({ readOnly }) => {
     // index individual input set elements by categorical type and chronological index.
     const accumulateMovingExpensesCategoricallyIndexed = (input) => {
       const constructExpenseCategoricallyIndexed = (movingExpense, categoryIndex) => ({
-        documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
+        documentSetType: PPM_DOCUMENT_TYPES.MOVING_EXPENSE,
         documentSet: movingExpense,
         uploads: movingExpense.document.uploads,
         categoryIndex,
@@ -164,9 +176,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const formRef = useRef();
   const mainRef = useRef();
 
-  const [serverError, setServerError] = useState(null);
-  const [showOverview, setShowOverview] = useState(false);
-
   const queryClient = useQueryClient();
 
   const onClose = () => {
@@ -198,12 +207,6 @@ export const ReviewDocuments = ({ readOnly }) => {
     }
   };
 
-  const getAllUploads = () => {
-    return documentSets.reduce((acc, documentSet) => {
-      return acc.concat(documentSet.uploads);
-    }, []);
-  };
-
   const onError = () => {
     setServerError('There was an error submitting the form. Please try again later.');
   };
@@ -221,19 +224,10 @@ export const ReviewDocuments = ({ readOnly }) => {
   const onContinue = () => {
     setServerError(null);
 
-    if (showOverview && allWeightTicketsRejected && weightTickets.length > 0) {
-      setServerError(
-        'Cannot closeout PPM. All weight tickets have been rejected. At least one approved weight ticket is required.',
-      );
-      return;
-    }
     if (formRef.current) {
       formRef.current.handleSubmit();
     }
   };
-
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const updateDocumentSetAllowableWeight = (newWeight) => {
@@ -248,9 +242,6 @@ export const ReviewDocuments = ({ readOnly }) => {
 
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
-  const currentTripNumber = currentDocumentSet.tripNumber + 1;
-  const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
-
   const formatDocumentSetDisplay = documentSetIndex + 1;
 
   let nextButton = 'Continue';
@@ -258,10 +249,44 @@ export const ReviewDocuments = ({ readOnly }) => {
     nextButton = readOnly ? 'Close' : 'PPM Review Complete';
   }
 
+  const currentTripNumber = currentDocumentSet?.tripNumber != null ? currentDocumentSet.tripNumber + 1 : 0;
+  const currentDocumentCategoryIndex =
+    currentDocumentSet?.categoryIndex != null ? currentDocumentSet.categoryIndex + 1 : 0;
+
+  useEffect(() => {
+    if (
+      currentTotalWeight === 0 &&
+      documentSets[documentSetIndex]?.documentSet.status !== PPM_DOCUMENT_STATUS.REJECTED
+    ) {
+      updateTotalWeight(ppmActualWeight?.actualWeight || 0);
+    }
+  }, [currentMtoShipments, ppmActualWeight?.actualWeight, currentTotalWeight, documentSets, documentSetIndex]);
+  useEffect(() => {
+    const totalMoveWeight = calculateWeightRequested(currentMtoShipments);
+    setMoveHasExcessWeight(totalMoveWeight > order.entitlement.totalWeight);
+  }, [currentMtoShipments, order.entitlement.totalWeight, currentTotalWeight]);
+  useEffect(() => {
+    setCurrentAllowableWeight(currentAllowableWeight);
+  }, [currentAllowableWeight]);
+  useEffect(() => {
+    setCurrentMtoShipments(mtoShipments);
+  }, [mtoShipments]);
+
+  const getAllUploads = () => {
+    return documentSets.reduce((acc, documentSet) => {
+      return acc.concat(documentSet.uploads);
+    }, []);
+  };
+
+  const uploads = showOverview ? getAllUploads() : currentDocumentSet?.uploads;
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
   return (
     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
-        <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
+        <DocumentViewer files={uploads} allowDownload isFileUploading={isFileUploading} />
       </div>
       <DocumentViewerSidebar
         title={readOnly ? 'View documents' : 'Review documents'}
@@ -293,6 +318,132 @@ export const ReviewDocuments = ({ readOnly }) => {
               </Alert>
             </Grid>
           )}
+          <div className={classNames(styles.top, styles.noBottomBorder)}>
+            {!readOnly && !showOverview && currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET && (
+              <>
+                <DocumentViewerFileManager
+                  title="Full Weight Documents"
+                  orderId={order.orderId}
+                  documentId={currentDocumentSet.documentSet.emptyDocumentId}
+                  files={currentDocumentSet.documentSet.emptyDocument.uploads}
+                  documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
+                  onAddFile={() => {
+                    setFileUploading(true);
+                  }}
+                  mtoShipment={mtoShipment}
+                  useChevron
+                />
+                &nbsp;
+                <DocumentViewerFileManager
+                  title="Empty Weight Documents"
+                  orderId={order.orderId}
+                  documentId={currentDocumentSet.documentSet.fullDocumentId}
+                  files={currentDocumentSet.documentSet.fullDocument.uploads}
+                  documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
+                  onAddFile={() => {
+                    setFileUploading(true);
+                  }}
+                  mtoShipment={mtoShipment}
+                  useChevron
+                />
+              </>
+            )}
+            {!readOnly && !showOverview && currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE && (
+              <DocumentViewerFileManager
+                title="Moving Expense Documents"
+                orderId={order.orderId}
+                documentId={currentDocumentSet.documentSet.documentId}
+                files={currentDocumentSet.documentSet.document.uploads}
+                documentType={PPM_DOCUMENT_TYPES.MOVING_EXPENSE}
+                onAddFile={() => {
+                  setFileUploading(true);
+                }}
+                mtoShipment={mtoShipment}
+                useChevron
+              />
+            )}
+            {!readOnly &&
+              !showOverview &&
+              currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+                <DocumentViewerFileManager
+                  title="Pro Gear Documents"
+                  orderId={order.orderId}
+                  documentId={currentDocumentSet.documentSet.documentId}
+                  files={currentDocumentSet.documentSet.document.uploads}
+                  documentType={PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
+                  onAddFile={() => {
+                    setFileUploading(true);
+                  }}
+                  mtoShipment={mtoShipment}
+                  useChevron
+                />
+              )}
+            {!readOnly &&
+              showOverview &&
+              documentSets.map((documentSet) => {
+                if (documentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET) {
+                  return (
+                    <>
+                      <DocumentViewerFileManager
+                        title="Full Weight Documents"
+                        orderId={order.orderId}
+                        documentId={documentSet.documentSet.emptyDocumentId}
+                        files={documentSet.documentSet.emptyDocument.uploads}
+                        documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
+                        onAddFile={() => {
+                          setFileUploading(true);
+                        }}
+                        mtoShipment={mtoShipment}
+                        useChevron
+                      />
+                      <DocumentViewerFileManager
+                        title="Empty Weight Documents"
+                        orderId={order.orderId}
+                        documentId={documentSet.documentSet.fullDocumentId}
+                        files={documentSet.documentSet.fullDocument.uploads}
+                        documentType={PPM_DOCUMENT_TYPES.WEIGHT_TICKET}
+                        onAddFile={() => {
+                          setFileUploading(true);
+                        }}
+                        mtoShipment={mtoShipment}
+                        useChevron
+                      />
+                    </>
+                  );
+                }
+                if (documentSet.documentSetType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET) {
+                  return (
+                    <DocumentViewerFileManager
+                      title="Pro Gear Documents"
+                      orderId={order.orderId}
+                      documentId={documentSet.documentSet.documentId}
+                      files={documentSet.documentSet.document.uploads}
+                      documentType={PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET}
+                      onAddFile={() => {
+                        setFileUploading(true);
+                      }}
+                      mtoShipment={mtoShipment}
+                      useChevron
+                    />
+                  );
+                }
+                return (
+                  <DocumentViewerFileManager
+                    title="Moving Expense Documents"
+                    orderId={order.orderId}
+                    documentId={documentSet.documentSet.documentId}
+                    files={documentSet.documentSet.document.uploads}
+                    documentType={PPM_DOCUMENT_TYPES.MOVING_EXPENSE}
+                    onAddFile={() => {
+                      setFileUploading(true);
+                    }}
+                    mtoShipment={mtoShipment}
+                    useChevron
+                  />
+                );
+              })}
+          </div>
+          <br />
           <ErrorMessage className={styles.errorMessage} display={!!serverError}>
             {serverError}
           </ErrorMessage>
@@ -313,7 +464,7 @@ export const ReviewDocuments = ({ readOnly }) => {
               />
             ) : (
               <>
-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
+                {currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
                     key={documentSetIndex}
                     weightTicket={currentDocumentSet.documentSet}
@@ -333,7 +484,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     readOnly={readOnly}
                   />
                 )}
-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
+                {currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
@@ -347,7 +498,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     order={order}
                   />
                 )}
-                {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
+                {currentDocumentSet.documentSetType === PPM_DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     key={documentSetIndex}
                     expense={currentDocumentSet.documentSet}
@@ -376,7 +527,10 @@ export const ReviewDocuments = ({ readOnly }) => {
             type="submit"
             onClick={onContinue}
             data-testid="reviewDocumentsContinueButton"
-            disabled={showOverview && allWeightTicketsRejected && weightTickets.length > 0}
+            disabled={
+              (showOverview && allWeightTicketsRejected && weightTickets.length > 0) ||
+              (showOverview && allMovingExpensesRejected && movingExpenses.length > 0 && isPPMSPR)
+            }
           >
             {nextButton}
           </Button>

@@ -23,6 +23,10 @@ type CreateOrders struct {
 	// Example: true
 	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
 
+	// The weight in pounds set by the customer or office user that a civilian TDY move is entitled to for Unaccompanied Baggage shipment types.
+	// Example: 3
+	CivilianTdyUbAllowance *int64 `json:"civilianTdyUbAllowance,omitempty"`
+
 	// counseling office Id
 	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
 	// Format: uuid

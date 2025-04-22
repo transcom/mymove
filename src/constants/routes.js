@@ -165,6 +165,10 @@ export const qaeCSRRoutes = {
   CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
 };
 
+export const contractingOfficerRoutes = {
+  MOVE_SEARCH_PATH: '/cor/search',
+};
+
 export const hqRoutes = {
   BASE_MOVE_QUEUE: `/move-queue`,
   MOVE_QUEUE: `move-queue`,

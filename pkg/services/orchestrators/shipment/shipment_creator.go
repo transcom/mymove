@@ -18,10 +18,11 @@ type shipmentCreator struct {
 	mobileHomeShipmentCreator services.MobileHomeShipmentCreator
 	shipmentRouter            services.ShipmentRouter
 	moveTaskOrderUpdater      services.MoveTaskOrderUpdater
+	moveWeights               services.MoveWeights
 }
 
 // NewShipmentCreator creates a new shipmentCreator struct with the basic checks and service dependencies.
-func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, boatShipmentCreator services.BoatShipmentCreator, mobileHomeShipmentCreator services.MobileHomeShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentCreator {
+func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, boatShipmentCreator services.BoatShipmentCreator, mobileHomeShipmentCreator services.MobileHomeShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater, moveWeights services.MoveWeights) services.ShipmentCreator {
 	return &shipmentCreator{
 		checks:                    basicShipmentChecks(),
 		mtoShipmentCreator:        mtoShipmentCreator,
@@ -30,6 +31,7 @@ func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipm
 		mobileHomeShipmentCreator: mobileHomeShipmentCreator,
 		shipmentRouter:            shipmentRouter,
 		moveTaskOrderUpdater:      moveTaskOrderUpdater,
+		moveWeights:               moveWeights,
 	}
 }
 
