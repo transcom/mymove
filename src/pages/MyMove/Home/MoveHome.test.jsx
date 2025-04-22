@@ -11,6 +11,7 @@ import { MockProviders } from 'testUtils';
 import { cancelMove, downloadPPMAOAPacket, getAllMoves } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MOVE_LOCKED_WARNING } from 'shared/constants';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -1296,6 +1297,8 @@ describe('Home component', () => {
         expect(screen.getByTestId('editButton')).toBeDisabled();
         expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
         expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
+        expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+        expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeVisible();
       });
     });
   });

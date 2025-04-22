@@ -9,6 +9,7 @@ import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { renderWithRouter } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MOVE_LOCKED_WARNING } from 'shared/constants';
 
 const mockNavigate = jest.fn();
 
@@ -204,6 +205,9 @@ describe('MobileHomeShipmentCreate component', () => {
       });
 
       expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeVisible();
     });
   });
 
