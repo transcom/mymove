@@ -18,6 +18,7 @@
     @include u-margin-left('105');
 
     @media (max-width: $tablet) {
+      @include u-margin-top(1);
       margin-left: 0;
     }
   }
@@ -51,5 +52,5 @@
 }
 
 .addShipmentIcon {
-  margin-left: -15px;
+  margin: 0;
 }

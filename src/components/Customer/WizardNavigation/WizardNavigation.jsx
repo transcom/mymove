@@ -42,22 +42,6 @@ const WizardNavigation = ({
           Back
         </Button>
       )}
-      <Button
-        type="button"
-        onClick={onNextClick}
-        className={styles.button}
-        data-testid={isLastPage ? 'wizardCompleteButton' : 'wizardNextButton'}
-        disabled={disableNext}
-      >
-        {submitButtonText}
-      </Button>
-
-      {isReviewPage && (
-        <Button type="button" onClick={onAddShipment} className={styles.button} data-testid="wizardAddShipmentButton">
-          <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />
-          &nbsp;&nbsp;Add Shipment
-        </Button>
-      )}
 
       {(showFinishLater || editMode) && (
         <Button
@@ -70,6 +54,23 @@ const WizardNavigation = ({
           {cancelButtonText}
         </Button>
       )}
+
+      {isReviewPage && (
+        <Button type="button" onClick={onAddShipment} className={styles.button} data-testid="wizardAddShipmentButton">
+          <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />
+          &nbsp;&nbsp;Add Shipment
+        </Button>
+      )}
+
+      <Button
+        type="button"
+        onClick={onNextClick}
+        className={styles.button}
+        data-testid={isLastPage ? 'wizardCompleteButton' : 'wizardNextButton'}
+        disabled={disableNext}
+      >
+        {submitButtonText}
+      </Button>
     </div>
   );
 };
