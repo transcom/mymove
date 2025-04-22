@@ -7,15 +7,23 @@ import (
 )
 
 // MakeDistanceCalculation creates a single DistanceCalculation
-func MakeDistanceCalculation(db *pop.Connection, assertions Assertions) models.DistanceCalculation {
+func MakeDistanceCalculation(db *pop.Connection, assertions Assertions) (models.DistanceCalculation, error) {
 	originAddress := assertions.DistanceCalculation.OriginAddress
 	if isZeroUUID(assertions.DistanceCalculation.OriginAddressID) {
-		originAddress = MakeAddress(db, assertions)
+		var err error
+		originAddress, err = MakeAddress(db, assertions)
+		if err != nil {
+			return models.DistanceCalculation{}, err
+		}
 	}
 
 	destinationAddress := assertions.DistanceCalculation.DestinationAddress
 	if isZeroUUID(assertions.DistanceCalculation.DestinationAddressID) {
-		destinationAddress = MakeAddress(db, assertions)
+		var err error
+		destinationAddress, err = MakeAddress(db, assertions)
+		if err != nil {
+			return models.DistanceCalculation{}, err
+		}
 	}
 
 	distanceCalculation := models.DistanceCalculation{
@@ -30,10 +38,10 @@ func MakeDistanceCalculation(db *pop.Connection, assertions Assertions) models.D
 
 	mustCreate(db, &distanceCalculation, assertions.Stub)
 
-	return distanceCalculation
+	return distanceCalculation, nil
 }
 
 // MakeDefaultDistanceCalculation returns a DistanceCalculation with default values
-func MakeDefaultDistanceCalculation(db *pop.Connection) models.DistanceCalculation {
+func MakeDefaultDistanceCalculation(db *pop.Connection) (models.DistanceCalculation, error) {
 	return MakeDistanceCalculation(db, Assertions{})
 }

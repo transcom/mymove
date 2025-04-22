@@ -375,7 +375,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 		{
 			Model: models.Address{
 				StreetAddress1: "235 Prospect Valley Road SE",
-				City:           "Fort Eisenhower",
+				City:           "AUGUSTA",
 				State:          "GA",
 				PostalCode:     recalculateTestPickupZip,
 			},

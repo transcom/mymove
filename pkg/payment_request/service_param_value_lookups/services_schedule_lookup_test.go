@@ -152,7 +152,6 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 
 	suite.Run("lookup dest ServicesSchedule not found", func() {
 		setupTestData()
-
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{PostalCode: "00100"},
