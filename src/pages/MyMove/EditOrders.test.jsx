@@ -17,6 +17,7 @@ import {
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_TYPE } from 'constants/orders';
 import { setShowLoadingSpinner } from 'store/general/actions';
+import { MOVE_LOCKED_WARNING } from 'shared/constants';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -350,6 +351,10 @@ describe('EditOrders Page', () => {
     const saveBtn = await screen.getByTestId('wizardNextButton');
     expect(saveBtn).toBeDisabled();
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
+
+    // test to verify that the MOVE_LOCKED_WARNING text is showing:
+    expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+    expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeVisible();
   });
 
   it('no option to delete uploaded orders when move is submitted', async () => {
