@@ -56,6 +56,7 @@ const SubmitMoveForm = (props) => {
                 <FormControlLabel
                   control={
                     <Checkbox
+                      data-testid="acknowledgementCheckbox"
                       name="acknowledgementCheckbox"
                       color="primary"
                       disabled={!hasReadTheAgreement}

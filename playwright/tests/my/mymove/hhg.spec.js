@@ -290,7 +290,31 @@ test.describe('(MultiMove) HHG', () => {
     await expect(page).toHaveURL(/\/moves\/[^/]+\/agreement/);
     await expect(page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
 
-    await page.locator('input[name="signature"]').fill('Mister Alaska');
+    const scrollBox = page.locator('[data-testid="certificationTextScrollBox"]');
+    const signatureBox = page.getByRole('textbox', { name: 'signature' });
+    // Make sure it's visible
+    await expect(scrollBox).toBeVisible();
+
+    // Gradual scroll to bottom to trigger the React onScroll logic
+    await scrollBox.evaluate(async (el) => {
+      // eslint-disable-next-line no-promise-executor-return
+      const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+      for (let i = 0; i <= el.scrollHeight; i += 100) {
+        // eslint-disable-next-line no-param-reassign
+        el.scrollTop = i;
+        await delay(50);
+      }
+    });
+
+    const checkbox = page.locator('[data-testid="acknowledgementCheckbox"]');
+    await expect(checkbox).toBeEnabled();
+
+    // Click it to acknowledge
+    await checkbox.click();
+
+    await expect(signatureBox).toBeEnabled();
+
+    await page.locator('input[name="signature"]').fill('Leo Spacemen');
     await expect(page.getByRole('button', { name: 'Complete' })).toBeEnabled();
     await page.getByRole('button', { name: 'Complete' }).click();
     await expect(page.getByText('submitted your move request.')).toBeVisible();
