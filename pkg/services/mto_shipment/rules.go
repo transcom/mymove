@@ -238,6 +238,40 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
 	})
 }
 
+// MTOShipmentHasValidRequestedPickupDate validates the RequestedPickupDate field of an MTOShipment.
+// It ensures that non-PPM shipments have a non-nil, non-zero RequestedPickupDate.
+// Additionally, it checks that the RequestedPickupDate is not in the past (i.e., it must be tomorrow or later)
+// when the date is newly set or updated. Returns an error if validation fails, otherwise nil.
+func MTOShipmentHasValidRequestedPickupDate() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if newer.IsPPMShipment() {
+			return nil
+		}
+		newerHasDate := newer != nil && newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
+		olderHasDate := older != nil && older.RequestedPickupDate != nil && !older.RequestedPickupDate.IsZero()
+		isBoatShipment := newer.ShipmentType == models.MTOShipmentTypeBoatHaulAway || newer.ShipmentType == models.MTOShipmentTypeBoatTowAway
+		isMTOShipmentTypeMobileHome := newer.ShipmentType == models.MTOShipmentTypeMobileHome
+		isMTOShipmentTypeHHGOutOfNTS := newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS
+		hasInvalidShipmentType := isBoatShipment || isMTOShipmentTypeMobileHome || isMTOShipmentTypeHHGOutOfNTS
+		if ((olderHasDate && !newerHasDate) || (!newerHasDate && !olderHasDate)) && !hasInvalidShipmentType {
+			verrs.Add("error validating mto shipment", "RequestedPickupDate is required to create a shipment")
+			return apperror.NewInvalidInputError(newer.ID, nil, validate.NewErrors(),
+				fmt.Sprintf("RequestedPickupDate is required to create a %s shipment", newer.ShipmentType))
+		}
+		isDateUpdated := olderHasDate && newerHasDate && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate)
+		if newerHasDate || isDateUpdated {
+			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
+			requestedDate := newer.RequestedPickupDate.Truncate(24 * time.Hour)
+			if !requestedDate.After(today) {
+				verrs.Add("error validating mto shipment", "Requested pickup must be greater than or equal to tomorrow's date.")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
+			}
+		}
+		return nil
+	})
+}
+
 // This function checks Prime specific validations on the model
 // It expects older to represent what's in the db and mtoShipment to represent the requested update
 // It updates mtoShipment accordingly if there are dependent updates like requiredDeliveryDate
