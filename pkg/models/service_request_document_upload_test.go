@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestServiceRequestDocumentUploadValidation() {
 			ServiceRequestDocumentID: uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validServiceRequestDocumentUpload, expErrors)
+		suite.verifyValidationErrors(&validServiceRequestDocumentUpload, expErrors, nil)
 	})
 
 	suite.Run("test empty ServiceRequestDocumentUpload", func() {
@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestServiceRequestDocumentUploadValidation() {
 			"service_request_document_id": {"ServiceRequestDocumentID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidServiceRequestDocumentUpload, expErrors)
+		suite.verifyValidationErrors(&invalidServiceRequestDocumentUpload, expErrors, nil)
 	})
 }
 

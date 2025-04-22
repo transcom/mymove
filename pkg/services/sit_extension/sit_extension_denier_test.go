@@ -167,7 +167,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 
 		// Test data needed to ensure that conversion sets the correct flags in both sit_extensions and mto_service_items table.
 		testdatagen.FetchReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
-		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		_, err := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDOFSIT,
 			},
@@ -177,6 +177,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 			},
 			MTOShipment: mtoShipment,
 		})
+		suite.NoError(err)
 
 		updatedShipment, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtension.ID, &officeRemarks, convertToCustomerExpense, eTag)
 		suite.NoError(err)

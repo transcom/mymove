@@ -26,7 +26,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "45007",
+					PostalCode: "45011",
 				},
 			},
 		}, nil)

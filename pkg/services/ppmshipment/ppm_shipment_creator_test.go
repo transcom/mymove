@@ -100,7 +100,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Eisenhower",
+				City:           "WALESKA",
 				State:          "GA",
 				PostalCode:     "30183",
 				County:         models.StringPointer("COLUMBIA"),
@@ -158,7 +158,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fairbanks",
+				City:           "ANCHORAGE",
 				State:          "AK",
 				PostalCode:     "99507",
 			},
@@ -166,7 +166,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Hawaiir",
+				City:           "HONOLULU",
 				State:          "HI",
 				PostalCode:     "96821",
 			},
@@ -300,41 +300,41 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		pickupAddress := models.Address{
 			StreetAddress1: "123 Any Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		secondaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		tertiaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		destinationAddress := models.Address{
 			StreetAddress1: "123 Any Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		secondaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 		tertiaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}

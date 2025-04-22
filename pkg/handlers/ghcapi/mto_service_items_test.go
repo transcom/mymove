@@ -96,7 +96,9 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
-		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
+		customerContact, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
+		suite.NoError(err)
+
 		destinationSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
