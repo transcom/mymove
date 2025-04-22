@@ -44,15 +44,18 @@ update_service() {
     local arn="$1"
     echo "* Updating service ${name} with ARN ${arn}"
 
-    if [[ $name == "app" ]]; then
-        unset "${SERVICE_RESERVATION_MEM}"
-        export "${SERVICE_RESERVATION_MEM}"="${SERVICE_RESERVATION_APP_MEM}"
-    fi
+    if [[ $name == "app" ]] || [[ $name == "app-client-tls" ]]; then
+        if [[ $name == "app" ]]; then 
+            temp_mem="${SERVICE_RESERVATION_APP_MEM}"
+        fi
 
-    if [[ $name == "app-client-tls" ]]; then
-        unset "${SERVICE_RESERVATION_MEM}"
-        export "${SERVICE_RESERVATION_MEM}"="${SERVICE_RESERVATION_CLIENT_MEM}"
-    fi
+        if [[ $name == "app-client-tls" ]]; then
+            temp_mem="${SERVICE_RESERVATION_CLIENT_MEM}"
+        fi
+    else
+        temp_mem="${SERVICE_RESERVATION_MEM}"
+        fi
+    export temp_mem
 
     #  read the currently running tasks into an array so later on we
     # can query to ensure they have been stopped
@@ -129,7 +132,7 @@ green_task_def_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
   --entrypoint "${entrypoint}" \
   --cpu "${SERVICE_RESERVATION_CPU}" \
-  --memory "${SERVICE_RESERVATION_MEM}" \
+  --memory "${temp_mem}" \
   --register)
 #  shellcheck disable=SC2181
 if [ "$?" != "0" ]; then echo "$green_task_def_date_arn"; exit 1; fi
