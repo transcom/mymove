@@ -282,11 +282,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     }
     if (hasAnyShipments()) {
       return (
-        <div>
-          <div className={styles.addShipmentButton}>
-            <FontAwesomeIcon icon="plus" />
-            &nbsp;&nbsp;Add another Shipment
-          </div>
+        <div className={styles.addShipmentIcon}>
+          <FontAwesomeIcon icon="plus" />
+          &nbsp;&nbsp;Add another Shipment
         </div>
       );
     }
@@ -678,7 +676,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                             orders.
                           </li>
                         </ul>
-                        <p>If none of these apply to you, you probably don&apos;t need another shipment.</p>
+                        <p>If none of these apply to you, you probably don&apos;t need more than one shipment.</p>
                       </>
                     </Description>
                   )}

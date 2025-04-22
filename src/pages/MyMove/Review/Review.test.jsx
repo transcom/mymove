@@ -450,7 +450,7 @@ describe('Review page', () => {
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
-    const backButton = screen.getByRole('button', { name: 'Finish later' });
+    const backButton = screen.getByRole('button', { name: 'Finish Later' });
 
     expect(backButton).toBeInTheDocument();
 
