@@ -609,6 +609,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     completedHeaderText="Orders uploaded"
                     editBtnLabel={hasOrdersAndUpload() ? 'Edit' : ''}
                     editBtnDisabled={isMoveLocked}
+                    actionBtnDisabled={isMoveLocked}
                     onEditBtnClick={() => handleNewPathClick(ordersEditPath)}
                     headerText="Upload orders"
                     actionBtnLabel={!hasOrdersAndUpload() ? 'Add orders' : ''}
@@ -629,6 +630,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     editBtnLabel="Upload/Manage Orders Documentation"
                     onEditBtnClick={() => handleNewPathClick(ordersAmendPath)}
                     editBtnDisabled={isMoveLocked}
+                    actionBtnDisabled={isMoveLocked}
                     headerText="Orders"
                     step="2"
                     containerClassName="step-amended-orders"

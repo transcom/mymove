@@ -1293,7 +1293,7 @@ describe('Home component', () => {
       await waitFor(() => {
         expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
         expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
-        expect(screen.getByTestId('editButton')).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Add orders' })).toBeDisabled();
         expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
         expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
       });
