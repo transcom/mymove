@@ -1336,6 +1336,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			suite.True(terminationFound, "AuditHistories contains an AuditHistory with a terminated shipment")
 		}
 	})
+
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
