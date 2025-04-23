@@ -26,7 +26,10 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
     <>
       <Overlay />
       <ModalContainer>
-        <Modal className={classNames(styles.RejectServiceItemModal, 'modal', 'container', 'container--popout')}>
+        <Modal
+          className={classNames(styles.RejectServiceItemModal, 'modal', 'container', 'container--popout')}
+          onClose={() => onClose()}
+        >
           <div>
             <div className={styles.modalTopContainer}>
               <h4>Are you sure you want to reject this request?</h4>
@@ -85,11 +88,11 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                       onChange={handleChange}
                     />
                     <div className={styles.modalActions}>
-                      <Button type="submit" disabled={!isValid || !dirty} data-testid="submitButton">
-                        Submit
-                      </Button>
                       <Button secondary type="reset" onClick={() => onClose()} data-testid="backButton">
                         Back
+                      </Button>
+                      <Button type="submit" disabled={!isValid || !dirty} data-testid="submitButton">
+                        Submit
                       </Button>
                     </div>
                   </Form>

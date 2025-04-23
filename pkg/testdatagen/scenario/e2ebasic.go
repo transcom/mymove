@@ -2165,7 +2165,7 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 
 	firstDeliveryDate := models.TimePointer(time.Now())
 	dateOfContact := models.TimePointer(time.Now())
-	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
+	customerContact1, err := testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
 			Type:                       models.CustomerContactTypeFirst,
@@ -2174,8 +2174,11 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
-	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
+	customerContact2, err := testdatagen.MakeMTOServiceItemCustomerContact(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
 			Type:                       models.CustomerContactTypeSecond,
@@ -2184,6 +2187,9 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -2222,13 +2228,17 @@ func createMoveWithServiceItemsandPaymentRequests02(appCtx appcontext.AppContext
 		},
 	}, nil)
 
-	testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
+	_, err = testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
+
 }
 
 func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -2482,13 +2492,16 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(appCtx appcontext.A
 	MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
 	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
+	mtoServiceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: uuid.FromStringOrNil("998caacf-ab9e-496e-8cf2-360723eb3e2d"),
 		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 		{
