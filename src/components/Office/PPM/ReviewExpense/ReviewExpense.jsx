@@ -286,7 +286,7 @@ export default function ReviewExpense({
       movingExpenseType: llvmExpenseTypes[selectedExpenseType],
       description: values.description,
       amount: convertDollarsToCents(values.amount),
-      paidWithGtcc: values.paidWithGtcc,
+      paidWithGtcc: values.paidWithGtcc === 'true',
       sitStartDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitStartDateValue : undefined,
       sitEndDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitEndDateValue : undefined,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
