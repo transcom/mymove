@@ -374,7 +374,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
     navigate(path);
   };
-  const getUserName = () => {};
 
   // eslint-disable-next-line class-methods-use-this
   const sortAllShipments = () => {

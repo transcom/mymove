@@ -31,6 +31,7 @@ import { milmoveHelpDesk } from 'shared/constants';
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves, setCanAddOrders }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const navigate = useNavigate();
+
   // this will run on page load
   // loads user info and move and updates if the serviceMember object in state changes
   useEffect(() => {
