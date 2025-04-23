@@ -357,6 +357,13 @@ const originPrice = (params, shipmentType, serviceCode) => {
   );
 };
 
+const ubPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.InternationalUbPrice;
+
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
+};
+
 const shuttleOriginPriceDomestic = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
@@ -537,6 +544,12 @@ const internationalPackPrice = (params, shipmentType) => {
   return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
 };
 
+const internationalUbPackPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.PackPriceInternationalUb;
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
+};
+
 const ntsPackingFactor = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NTSPackingFactor, params) || '';
   const label = SERVICE_ITEM_CALCULATION_LABELS.NTSPackingFactor;
@@ -563,6 +576,12 @@ const unpackPrice = (params, shipmentType) => {
 const internationalUnpackPrice = (params, shipmentType) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.UnpackPriceInternational;
+  return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
+};
+
+const internationalUbUnpackPrice = (params, shipmentType) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.UnpackPriceInternationalUb;
   return calculation(value, label, formatDetail(referenceDate(params, shipmentType)), formatDetail(peak(params)));
 };
 
@@ -1049,6 +1068,23 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // International UB Pack
+    case SERVICE_ITEM_CODES.IUBPK:
+      result = [
+        billableWeight(params),
+        internationalUbPackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.IUBUPK:
+      result = [
+        billableWeight(params),
+        internationalUbUnpackPrice(params, shipmentType),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // Port of Debarkation Fuel surcharge
     case SERVICE_ITEM_CODES.PODFSC:
       result = [
@@ -1064,6 +1100,15 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         billableWeight(params),
         mileageZipPOEFSC(params),
         mileageFactor(params, itemCode),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Unaccompanied Baggage Price
+    case SERVICE_ITEM_CODES.UBP:
+      result = [
+        billableWeight(params),
+        ubPrice(params, shipmentType),
+        priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;
