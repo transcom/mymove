@@ -28,6 +28,7 @@ import {
   cancelMove,
   updateFinancialFlag,
   updateMTOShipment,
+  sendPPMToCustomer,
 } from 'services/ghcApi';
 import {
   MOVE_STATUSES,
@@ -207,7 +208,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
-    const submittedShipmentsNonPPMNeedsCloseout = submittedShipments.filter(
+    const submittedShipmentsPPMNonCloseout = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
@@ -294,7 +295,7 @@ const ServicesCounselingMoveDetails = ({
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
     isMoveCancelled = move.status === MOVE_STATUSES.CANCELED;
 
-    shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
+    shipmentsInfo = submittedShipmentsPPMNonCloseout.map((shipment) => {
       const editURL =
         // This ternary checks if the shipment is a PPM. If so, PPM Shipments are editable at any time based on their ppm status.
         // If the shipment is not a PPM, it uses the existing counselorCanEdit checks for move status
@@ -550,6 +551,20 @@ const ServicesCounselingMoveDetails = ({
     },
     onError: (error) => {
       setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+    },
+  });
+
+  const { mutateAsync: handleSendPPMToCustomer } = useMutation(sendPPMToCustomer, {
+    onSuccess: (updatedPPMShipment) => {
+      mtoShipments?.forEach((shipment, key) => {
+        if (updatedPPMShipment.shipmentId === shipment.id) {
+          mtoShipments[key].ppmShipment = updatedPPMShipment;
+        }
+      });
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Failed to send PPM to customer.');
     },
   });
 
@@ -867,6 +882,8 @@ const ServicesCounselingMoveDetails = ({
                     displayInfo={shipment.displayInfo}
                     editURL={shipment.editURL}
                     viewURL={shipment.viewURL}
+                    sendPpmToCustomer={handleSendPPMToCustomer}
+                    counselorCanEdit={counselorCanEdit}
                     completePpmForCustomerURL={shipment.completePpmForCustomerURL}
                     isSubmitted={false}
                     key={shipment.id}
