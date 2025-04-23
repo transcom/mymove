@@ -14,12 +14,7 @@ import './index.scss';
 configureGlobalLogger();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+root.render(<App />);
 
-// MilMove does not have or use a service worker as of 2023-09-07
 // so disable this to prevent logging errors
 // registerServiceWorker();
