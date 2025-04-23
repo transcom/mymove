@@ -12,7 +12,7 @@ import (
 // PayGradeRank represents a customer's pay grade (Including civilian)
 type PayGradeRank struct {
 	ID          uuid.UUID `json:"id" db:"id"`
-	PayGradeID  uuid.UUID `db:"pay_grade_id"`
+	PayGradeID  uuid.UUID `json:"pay_grade_id" db:"pay_grade_id"`
 	Affiliation string    `json:"affiliation" db:"affiliation"`
 	RankAbbv    string    `json:"rank_abbv" db:"rank_abbv"`
 	RankName    string    `json:"rank_name" db:"rank_name"`

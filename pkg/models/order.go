@@ -105,7 +105,7 @@ type Order struct {
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
 	PayGradeRankID                 *uuid.UUID                         `db:"pay_grade_rank_id"`
-	PayGradeRank                   PayGradeRank                       `json:"" belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id"`
+	PayGradeRank                   PayGradeRank                       `belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id"`
 }
 
 // TableName overrides the table name used by Pop.
