@@ -6,3 +6,4 @@
 20250225233157_fn_get_destination_queue.up.sql
 20250325161602_fn_if_modified_func.up.sql
 20250325161603_fn_fetch_move_history.up.sql
+20250328183455_fn_fetch_moves_for_bulk_assignment_destination.up.sql

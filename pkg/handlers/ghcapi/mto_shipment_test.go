@@ -6160,3 +6160,123 @@ func (suite *HandlerSuite) TestUpdateSITServiceItemCustomerExpenseHandler() {
 		suite.IsType(&shipmentops.UpdateSITServiceItemCustomerExpenseInternalServerError{}, response)
 	})
 }
+
+func (suite *HandlerSuite) TestTerminateShipmentHandler() {
+	suite.Run("Returns 403 when user is not a Contracting Officer", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		user := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, user)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: &mocks.ShipmentTermination{},
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Just because"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationForbidden{}, response)
+	})
+
+	suite.Run("Returns 200 when shipment is successfully terminated", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+		contractingOfficer := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeContractingOfficer})
+		terminator := mtoshipment.NewShipmentTermination()
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, contractingOfficer)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: terminator,
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Good reason"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationOK{}, response)
+		okResponse := response.(*shipmentops.CreateTerminationOK)
+		payload := okResponse.Payload
+		suite.NotNil(payload)
+		suite.NotNil(payload.TerminatedAt)
+		suite.NotNil(payload.TerminationComments)
+		suite.Equal(payload.Status, ghcmessages.MTOShipmentStatusTERMINATEDFORCAUSE)
+	})
+
+	suite.Run("Returns 422 when TerminateShipment returns InvalidInputError", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		contractingOfficer := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeContractingOfficer})
+
+		verrs := validate.NewErrors()
+		verrs.Add("terminationComments", "is required")
+
+		mockTerminator := &mocks.ShipmentTermination{}
+		mockTerminator.On("TerminateShipment", mock.Anything, shipment.ID, "Invalid").Return(nil, apperror.NewInvalidInputError(shipment.ID, nil, verrs, ""))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, contractingOfficer)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: mockTerminator,
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Invalid"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Returns 404 when shipment is not found", func() {
+		shipmentID := uuid.Must(uuid.NewV4())
+		contractingOfficer := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeContractingOfficer})
+
+		mockTerminator := &mocks.ShipmentTermination{}
+		mockTerminator.On("TerminateShipment", mock.Anything, shipmentID, "Not found").Return(nil, apperror.NewNotFoundError(shipmentID, "shipment"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/terminate", shipmentID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, contractingOfficer)
+
+		handler := TerminateShipmentHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			ShipmentTermination: mockTerminator,
+		}
+
+		params := shipmentops.CreateTerminationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipmentID),
+			Body: shipmentops.CreateTerminationBody{
+				TerminationReason: handlers.FmtString("Not found"),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.CreateTerminationNotFound{}, response)
+	})
+}
