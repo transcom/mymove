@@ -36,7 +36,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   };
 
   // fetching all move data on load since this component is dependent on that data
-  // this will run each time the component is loaded/access
+  // this will run each time the component is loaded/accessed
   useEffect(() => {
     getAllMoves(serviceMemberId).then((response) => {
       updateAllMoves(response);
