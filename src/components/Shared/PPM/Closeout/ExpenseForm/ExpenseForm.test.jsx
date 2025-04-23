@@ -130,6 +130,12 @@ describe('ExpenseForm component', () => {
         expect(screen.getByRole('heading', { level: 2, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
+      expect(
+        screen.getByText(
+          'Document your qualified expenses by uploading receipts. They should include a description of the item, the price you paid, the date of purchase, and the business name. All documents must be legible and unaltered.',
+        ),
+      ).toBeInTheDocument();
+
       expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('heading', { level: 3, name: 'Description' })).toBeInTheDocument();
       expect(screen.getByLabelText('What did you buy or rent?')).toBeInstanceOf(HTMLInputElement);
