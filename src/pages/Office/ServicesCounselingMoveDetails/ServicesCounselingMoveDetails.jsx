@@ -292,8 +292,8 @@ const ServicesCounselingMoveDetails = ({
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit =
-      (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || move.status === MOVE_STATUSES.DRAFT) &&
-      ppmShipmentsOtherStatuses.length > 0;
+      (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0) ||
+      move.status === MOVE_STATUSES.DRAFT;
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || move.status === MOVE_STATUSES.DRAFT) &&

@@ -287,4 +287,4 @@ export const civilianTDYUBAllowanceWeightWarningOfficeUser =
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];
 
 export const MOVE_LOCKED_WARNING =
-  "An office user is currently viewing or editing your move. You'll be able to edit or submit your move once they have finished.";
+  'An office user is currently viewing or editing your move. You will be able to edit or submit your move once they have finished.';

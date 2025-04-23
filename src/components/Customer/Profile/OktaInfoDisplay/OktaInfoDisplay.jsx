@@ -8,18 +8,16 @@ import oktaInfoDisplayStyles from './OktaInfoDisplay.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
-const OktaInfoDisplay = ({ editURL, oktaUsername, oktaEmail, oktaFirstName, oktaLastName, oktaEdipi, isEditable }) => {
+const OktaInfoDisplay = ({ editURL, oktaUsername, oktaEmail, oktaFirstName, oktaLastName, oktaEdipi }) => {
   const { state } = useLocation();
 
   return (
     <div className={oktaInfoDisplayStyles.serviceInfoContainer}>
       <div className={oktaInfoDisplayStyles.header}>
         <img className={oktaInfoDisplayStyles.oktaLogo} src={oktaLogo} alt="Okta logo" />
-        {isEditable && (
-          <Link className={oktaInfoDisplayStyles.oktaEditLink} to={editURL} state={state}>
-            Edit
-          </Link>
-        )}
+        <Link className={oktaInfoDisplayStyles.oktaEditLink} to={editURL} state={state}>
+          Edit
+        </Link>
       </div>
       <div className={oktaInfoDisplayStyles.header}>
         <p>

@@ -32,11 +32,7 @@ const Profile = ({ officeUser }) => {
             <h1>Profile</h1>
           </div>
           <SectionWrapper className={formStyles.formSection}>
-            <ContactInfoDisplay
-              officeUserInfo={officeUserInfo}
-              editURL={officeRoutes.CONTACT_INFO_EDIT_PATH}
-              isEditable
-            />
+            <ContactInfoDisplay officeUserInfo={officeUserInfo} editURL={officeRoutes.CONTACT_INFO_EDIT_PATH} />
           </SectionWrapper>
         </Grid>
       </GridContainer>

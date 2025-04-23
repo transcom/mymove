@@ -1,6 +1,5 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
-import { cloneDeep } from 'lodash';
 
 import OktaInfoDisplay from './OktaInfoDisplay';
 
@@ -14,7 +13,6 @@ jest.mock('react-router-dom', () => ({
 
 describe('OktaInfoDisplay component', () => {
   const testProps = {
-    isEditable: true,
     oktaUsername: 'dummy@okta.mil',
     oktaEmail: 'dummy@okta.mil',
     oktaFirstName: 'Dummy',
@@ -55,15 +53,5 @@ describe('OktaInfoDisplay component', () => {
     expect(editLink).toBeInTheDocument();
 
     expect(editLink.href).toContain(testProps.editURL);
-  });
-
-  it('Disables edit link when isEditable prop is false', async () => {
-    const testPropsNotEditable = cloneDeep(testProps);
-    testPropsNotEditable.isEditable = false;
-    renderWithRouter(<OktaInfoDisplay {...testPropsNotEditable} />, { path: '/moves/review/edit-okta-profile' });
-
-    const editLink = screen.queryByRole('link', { name: 'Edit' });
-
-    expect(editLink).toBeNull();
   });
 });

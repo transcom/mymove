@@ -351,6 +351,7 @@ describe('EditOrdersForm component', () => {
 
     it('disables the submit button if move is locked by office user', async () => {
       showCounselingOffices.mockImplementation(() => Promise.resolve({}));
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
       // Fill out form so that form is valid, and submit button will only be disabled if the move is locked.
       render(
@@ -378,8 +379,6 @@ describe('EditOrdersForm component', () => {
           />
         </MockProviders>,
       );
-      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
-
       await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
       await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
