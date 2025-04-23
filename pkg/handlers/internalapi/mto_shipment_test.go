@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
-
+	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -142,7 +142,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
-		tomorrow := time.Now().Add(24 * time.Hour)
 		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
@@ -150,7 +149,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			},
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
@@ -517,7 +516,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		// Set fields appropriately for NTS-Release
 		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTS
 		params.Body.ShipmentType = &ntsrShipmentType
-		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.RequestedPickupDate = strfmt.Date(*futureDate)
 		params.Body.PickupAddress = nil
 		params.Body.SecondaryPickupAddress = nil
 
@@ -534,7 +533,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Nil(createdShipment.RequestedPickupDate)
+		suite.NotNil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
 		suite.Equal(params.Body.Agents[0].FirstName, createdShipment.Agents[0].FirstName)
@@ -567,7 +566,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params.Body.ShipmentType = &boatShipmentType
 		params.Body.BoatShipment = boatShipment
 
-		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.RequestedPickupDate = strfmt.Date(*futureDate)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -584,7 +583,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Nil(createdShipment.RequestedPickupDate)
+		suite.NotNil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
 		suite.Equal(*params.Body.BoatShipment.Type, *createdShipment.BoatShipment.Type)

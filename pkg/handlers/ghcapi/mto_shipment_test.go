@@ -4275,7 +4275,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
-	tomorrow := time.Now().Add(24 * time.Hour)
+	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
 	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    mto,
@@ -4283,7 +4283,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 		},
 		{
 			Model: models.MTOShipment{
-				RequestedPickupDate: &tomorrow,
+				RequestedPickupDate: futureDate,
 			},
 		},
 	}, nil)

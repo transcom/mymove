@@ -659,3 +659,144 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		suite.Contains(err.Error(), "not found for mtoShipment")
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate() {
+	uuidTest, _ := uuid.NewV4()
+	today := time.Now().Truncate(24 * time.Hour)
+	tomorrow := today.Add(24 * time.Hour)
+	futureDate := models.TimePointer(tomorrow)
+	pastDate := models.TimePointer(today.Add(-24 * time.Hour))
+	zeroTime := time.Time{}
+	requiredDateError := "RequestedPickupDate is required to create or modify a HHG shipment"
+	invalidDateError := "Requested pickup must be greater than or equal to tomorrow's date"
+
+	testCases := []struct {
+		name          string
+		newer         *models.MTOShipment
+		older         *models.MTOShipment
+		expectedError bool
+		errorMessage  string
+	}{
+		{
+			name: "Zero RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &zeroTime,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  requiredDateError,
+		},
+		{
+			name: "RequestedPickupDate today",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &today,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "RequestedPickupDate in future",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: futureDate,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: false,
+		},
+		{
+			name: "Nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  requiredDateError,
+		},
+		{
+			name: "PPM shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			expectedError: false,
+		},
+		{
+			name: "RequestedPickupDate in the past",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: pastDate,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "Boat shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+			},
+			expectedError: false,
+		},
+		{
+			name: "Mobile home shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeMobileHome,
+			},
+			expectedError: false,
+		},
+		{
+			name: "HHG Out of NTS shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
+			},
+			expectedError: false,
+		},
+		{
+			name: "Update from valid date to nil, shipment mutations have nil",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+			older: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &tomorrow,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: false,
+			errorMessage:  requiredDateError,
+		},
+		{
+			name: "Update from valid date to new valid date",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: models.TimePointer(tomorrow.Add(24 * time.Hour)),
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			older: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &tomorrow,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			validator := MTOShipmentHasValidRequestedPickupDate()
+			err := validator.Validate(suite.AppContextForTest(), tc.newer, tc.older)
+			if tc.expectedError {
+				suite.Error(err)
+				suite.Contains(err.Error(), tc.errorMessage)
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+}

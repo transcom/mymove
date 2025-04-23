@@ -221,6 +221,24 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate() validator {
 	})
 }
 
+func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if newer != nil {
+			squenceIsValid := isMTOShipmentAddressCreateSequenceValid(*newer)
+			if !squenceIsValid {
+				verrs.Add("error validating mto shipment", "Shipment cannot have a third address without a second address present")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "Invalid input found while validating the MTO shipment")
+			}
+		}
+		return nil
+	})
+}
+
+// MTOShipmentHasValidRequestedPickupDate validates the RequestedPickupDate field of an MTOShipment.
+// It ensures that non-PPM shipments have a non-nil, non-zero RequestedPickupDate.
+// Additionally, it checks that the RequestedPickupDate is not in the past (i.e., it must be tomorrow or later)
+// when the date is newly set or updated. Returns an error if validation fails, otherwise nil.
 func MTOShipmentHasValidRequestedPickupDate() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
@@ -250,20 +268,6 @@ func MTOShipmentHasValidRequestedPickupDate() validator {
 			if !requestedDate.After(today) {
 				verrs.Add("error validating mto shipment", "Requested pickup must be greater than or equal to tomorrow's date.")
 				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "Requested pickup must be greater than or equal to tomorrow's date.")
-			}
-		}
-		return nil
-	})
-}
-
-func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
-		verrs := validate.NewErrors()
-		if newer != nil {
-			squenceIsValid := isMTOShipmentAddressCreateSequenceValid(*newer)
-			if !squenceIsValid {
-				verrs.Add("error validating mto shipment", "Shipment cannot have a third address without a second address present")
-				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "Invalid input found while validating the MTO shipment")
 			}
 		}
 		return nil
