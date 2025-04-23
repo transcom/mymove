@@ -91,6 +91,9 @@ func (p PaymentRequestFailed) emails(appCtx appcontext.AppContext) ([]emailConte
 	if len(recipients) == 0 {
 		return nil, fmt.Errorf("no email found for payment request")
 	}
+	if len(recipients) == 0 {
+		return nil, fmt.Errorf("no email found for payment request")
+	}
 	emails = append(emails, email)
 	return emails, nil
 }
