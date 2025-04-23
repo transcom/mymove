@@ -1,6 +1,7 @@
 export default {
   acknowledgeExcessWeightRisk: 'acknowledgeExcessWeightRisk',
   acknowledgeExcessUnaccompaniedBaggageWeightRisk: 'acknowledgeExcessUnaccompaniedBaggageWeightRisk',
+  acknowledgeMovesAndShipments: 'acknowledgeMovesAndShipments', // prime.yaml
   approveShipment: 'approveShipment', // ghc.yaml
   approveShipments: 'approveShipments', // ghc.yaml
   approveShipmentDiversion: 'approveShipmentDiversion',
@@ -61,6 +62,8 @@ export default {
   finishDocumentReview: 'finishDocumentReview', // ghc.yaml
   getMove: 'getMove', // ghc.yaml
   createSITExtension: 'createSITExtension', // prime.yaml
+  approveSITExtension: 'approveSITExtension',
+  denySITExtension: 'denySITExtension',
   patchMove: 'patchMove', // internal.yaml
   uploadAdditionalDocuments: 'uploadAdditionalDocuments', // internal.yaml
   createOrder: 'createOrder', // ghc.yaml
@@ -72,4 +75,5 @@ export default {
   updateAssignedOfficeUser: 'updateAssignedOfficeUser', // ghc.yaml
   deleteAssignedOfficeUser: 'deleteAssignedOfficeUser', // ghc.yaml
   saveBulkAssignmentData: 'saveBulkAssignmentData', // ghc.yaml
+  createTermination: 'createTermination', // ghc.yaml
 };
