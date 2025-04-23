@@ -1,6 +1,9 @@
 package ghcapi
 
 import (
+	"database/sql"
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -14,6 +17,78 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 )
+
+// CreateMovingExpenseHandler
+
+type CreateMovingExpenseHandler struct {
+	handlers.HandlerConfig
+	movingExpenseCreator services.MovingExpenseCreator
+}
+
+// Handle creates a moving expense
+func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingExpenseParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest, func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+		if appCtx.Session() == nil {
+			noSessionErr := apperror.NewSessionError("No user session")
+			return movingexpenseops.NewCreateMovingExpenseUnauthorized(), noSessionErr
+		}
+
+		// No need for payload_to_model for Create
+		ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(ppmShipmentID, "Incorrect PPMShipmentID")
+			default:
+				appCtx.Logger().Error("missing PPM Shipment ID", zap.Error(err))
+				return movingexpenseops.NewCreateMovingExpenseBadRequest(), nil
+			}
+		}
+
+		movingExpense, err := h.movingExpenseCreator.CreateMovingExpense(appCtx, ppmShipmentID)
+
+		if err != nil {
+			appCtx.Logger().Error("ghcapi.CreateMovingExpenseHandler", zap.Error(err))
+			switch e := err.(type) {
+			case apperror.InvalidInputError:
+				return movingexpenseops.NewCreateMovingExpenseUnprocessableEntity().WithPayload(
+					payloadForValidationError(
+						handlers.ValidationErrMessage,
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors,
+					),
+				), err
+			case apperror.NotFoundError:
+				return movingexpenseops.NewCreateMovingExpenseNotFound(), err
+			case apperror.QueryError:
+				if e.Unwrap() != nil {
+					// If you can unwrap, log the internal error (usually a pq error) for better debugging
+					appCtx.Logger().Error("ghcapi.CreateMovingExpenseHandler error", zap.Error(e.Unwrap()))
+				}
+				return movingexpenseops.
+					NewCreateMovingExpenseInternalServerError().
+					WithPayload(
+						payloads.InternalServerError(
+							nil,
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+						),
+					), err
+			default:
+				return movingexpenseops.NewCreateMovingExpenseInternalServerError().WithPayload(
+					payloads.InternalServerError(
+						nil,
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+					),
+				), err
+			}
+		}
+
+		// Add to payload
+		returnPayload := payloads.MovingExpense(h.FileStorer(), movingExpense)
+		return movingexpenseops.NewCreateMovingExpenseCreated().WithPayload(returnPayload), nil
+	})
+}
 
 // UpdateMovingExpenseHandler
 type UpdateMovingExpenseHandler struct {
@@ -82,4 +157,51 @@ func (h UpdateMovingExpenseHandler) Handle(params movingexpenseops.UpdateMovingE
 
 		return movingexpenseops.NewUpdateMovingExpenseOK().WithPayload(returnPayload), nil
 	})
+}
+
+// DeleteMovingExpenseHandler
+type DeleteMovingExpenseHandler struct {
+	handlers.HandlerConfig
+	movingExpenseDeleter services.MovingExpenseDeleter
+}
+
+// Handle deletes a moving expense
+func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingExpenseParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				appCtx.Logger().Error("ghcapi.DeleteMovingExpenseHandler", zap.Error(noSessionErr))
+				return movingexpenseops.NewDeleteMovingExpenseUnauthorized(), noSessionErr
+			}
+			if !appCtx.Session().IsOfficeApp() {
+				return movingexpenseops.NewDeleteMovingExpenseForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
+
+			movingExpenseID := uuid.FromStringOrNil(params.MovingExpenseID.String())
+
+			err := h.movingExpenseDeleter.DeleteMovingExpense(appCtx, ppmID, movingExpenseID)
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.DeleteMovingExpenseHandler", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return movingexpenseops.NewDeleteMovingExpenseNotFound(), err
+				case apperror.ConflictError:
+					return movingexpenseops.NewDeleteMovingExpenseConflict(), err
+				case apperror.ForbiddenError:
+					return movingexpenseops.NewDeleteMovingExpenseForbidden(), err
+				case apperror.UnprocessableEntityError:
+					return movingexpenseops.NewDeleteMovingExpenseUnprocessableEntity(), err
+				default:
+					return movingexpenseops.NewDeleteMovingExpenseInternalServerError(), err
+				}
+			}
+
+			return movingexpenseops.NewDeleteMovingExpenseNoContent(), nil
+		})
 }
