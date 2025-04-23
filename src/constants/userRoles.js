@@ -34,4 +34,5 @@ export const officeRoles = [
   roleTypes.HQ,
   roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
   roleTypes.GSR,
+  roleTypes.CONTRACTING_OFFICER,
 ];

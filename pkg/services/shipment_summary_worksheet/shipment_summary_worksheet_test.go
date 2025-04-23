@@ -1611,6 +1611,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 		Shipment: models.MTOShipment{
 			ShipmentLocator: &locator,
 		},
+		PPMType:                      models.PPMTypeActualExpense,
 		IsActualExpenseReimbursement: models.BoolPointer(true),
 		FinalIncentive:               models.CentPointer(20000),
 	}
