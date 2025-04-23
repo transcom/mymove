@@ -332,6 +332,10 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	isInternationalShipment := ppmShipment.Shipment.MarketCode == models.MarketCodeInternational
 	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment)
 
+	if ppmShipment.PickupAddress == nil || ppmShipment.DestinationAddress == nil {
+		return serviceItemPrices{}, apperror.NewBadDataError("Cannot have a nil address")
+	}
+
 	actualPickupPostal := ppmShipment.PickupAddress.PostalCode
 	actualDestPostal := ppmShipment.DestinationAddress.PostalCode
 	// Change DLH to DSH if move within same Zip3 (only for domestic shipments - intl uses ISLH)

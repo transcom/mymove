@@ -1176,7 +1176,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-
 					HasReceivedAdvance: handlers.FmtBool(false),
 				},
 				estimatedIncentive: models.CentPointer(unit.Cents(500000)),
@@ -1206,7 +1205,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					}, nil)
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
-
 					HasReceivedAdvance:    handlers.FmtBool(true),
 					AdvanceAmountReceived: handlers.FmtInt64(250000),
 				},
