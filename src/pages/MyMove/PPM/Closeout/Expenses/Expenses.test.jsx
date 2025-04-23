@@ -164,7 +164,7 @@ describe('Expenses page', () => {
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
 
     const saveBtn = screen.getByRole('button', { name: 'Save & Continue' });
     expect(saveBtn).toBeEnabled();
@@ -210,7 +210,7 @@ describe('Expenses page', () => {
     expect(screen.getByLabelText("I don't have this receipt")).not.toBeChecked();
     expect(screen.getByText('expense.pdf')).toBeInTheDocument();
 
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
@@ -243,7 +243,7 @@ describe('Expenses page', () => {
 
     expect(screen.getByLabelText('Select type')).toHaveDisplayValue('- Select -');
 
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
   });
 
@@ -418,9 +418,9 @@ describe('Expenses page', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
     expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
