@@ -4421,9 +4421,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
 		suite.NoError(err)
 
-		for i := 0; i < len(expectedReServiceCodes); i++ {
-			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+		actualReServiceCodes := []models.ReServiceCode{}
+		for _, item := range serviceItems {
+			actualReServiceCodes = append(actualReServiceCodes, item.ReService.Code)
 		}
+
+		suite.ElementsMatch(expectedReServiceCodes, actualReServiceCodes)
 	})
 }
 
