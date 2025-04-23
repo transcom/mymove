@@ -10,6 +10,7 @@ import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entit
 import { customerRoutes } from 'constants/routes';
 import { getAllMoves } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
+import { MOVE_LOCKED_WARNING } from 'shared/constants';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
@@ -416,6 +417,9 @@ describe('Review page', () => {
     },
   };
 
+  const testServiceMemberMovesWithLock = cloneDeep(testServiceMemberMoves);
+  testServiceMemberMovesWithLock.previousMoves[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+
   it('renders the Review Page', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
@@ -424,6 +428,16 @@ describe('Review page', () => {
     });
 
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
+  });
+
+  it('renders the warning message if a move has been locked by an office user', async () => {
+    selectAllMoves.mockImplementation(() => testServiceMemberMovesWithLock);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    await act(async () => {
+      renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+    });
+
+    expect(screen.getByText(MOVE_LOCKED_WARNING));
   });
 
   it('Finish Later button goes back to the home page', async () => {
@@ -481,8 +495,6 @@ describe('Review page', () => {
   });
 
   it('return home button is shown when move is locked by an office user', async () => {
-    const testServiceMemberMovesWithLock = cloneDeep(testServiceMemberMoves);
-    testServiceMemberMovesWithLock.previousMoves[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
     selectAllMoves.mockImplementation(() => testServiceMemberMovesWithLock);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     getAllMoves.mockResolvedValue(() => testServiceMemberMovesWithLock);
