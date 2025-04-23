@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	html "html/template"
-	"strings"
 	text "text/template"
 
 	"go.uber.org/zap"
@@ -84,17 +83,19 @@ func (p PaymentRequestFailed) emails(appCtx appcontext.AppContext) ([]emailConte
 	}
 
 	email := emailContent{
-		recipientEmail: strings.Join(recipients, ";"),
-		subject:        "Payment Request Failed",
-		htmlBody:       htmlBody,
-		textBody:       textBody,
+		recipientEmails: recipients,
+		subject:         "Payment Request Failed",
+		htmlBody:        htmlBody,
+		textBody:        textBody,
+	}
+	if len(recipients) == 0 {
+		return nil, fmt.Errorf("no email found for payment request")
 	}
 	if len(recipients) == 0 {
 		return nil, fmt.Errorf("no email found for payment request")
 	}
 	emails = append(emails, email)
 	return emails, nil
-
 }
 
 func (p PaymentRequestFailed) renderTemplates(appCtx appcontext.AppContext, data emailData) (string, string, error) {
