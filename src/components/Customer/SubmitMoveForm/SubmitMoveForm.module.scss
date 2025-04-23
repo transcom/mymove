@@ -19,6 +19,11 @@
   pointer-events: none;
   cursor: not-allowed;
 }
+.dateGrid {
+  @media (max-width: 640px) {
+    margin-top: 1rem;
+  }
+}
 
 .signatureBox {
   @include u-padding(2);
