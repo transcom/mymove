@@ -452,3 +452,18 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 	)
 	return []byte(s), nil
 }
+
+func (m MTOServiceItem) CheckIsSITServiceItem() bool {
+	if m.ReService.Code == ReServiceCodeDDDSIT ||
+		m.ReService.Code == ReServiceCodeDDASIT ||
+		m.ReService.Code == ReServiceCodeDOFSIT ||
+		m.ReService.Code == ReServiceCodeDDFSIT ||
+		m.ReService.Code == ReServiceCodeDOASIT ||
+		m.ReService.Code == ReServiceCodeDOPSIT ||
+		m.ReService.Code == ReServiceCodeDOSFSC ||
+		m.ReService.Code == ReServiceCodeDDSFSC {
+		return true
+	} else {
+		return false
+	}
+}
