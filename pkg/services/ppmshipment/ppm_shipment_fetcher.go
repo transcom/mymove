@@ -250,6 +250,8 @@ func FindPPMShipmentAndWeightTickets(appCtx appcontext.AppContext, id uuid.UUID)
 		EagerPreload(
 			"Shipment",
 			"WeightTickets",
+			"PickupAddress",
+			"DestinationAddress",
 		).
 		Find(&ppmShipment, id)
 
