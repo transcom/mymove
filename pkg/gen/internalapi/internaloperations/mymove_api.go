@@ -42,6 +42,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/validation_code"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -278,6 +279,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ApplicationParametersValidateHandler: application_parameters.ValidateHandlerFunc(func(params application_parameters.ValidateParams) middleware.Responder {
 			return middleware.NotImplemented("operation application_parameters.Validate has not yet been implemented")
 		}),
+		ValidationCodeValidateCodeHandler: validation_code.ValidateCodeHandlerFunc(func(params validation_code.ValidateCodeParams) middleware.Responder {
+			return middleware.NotImplemented("operation validation_code.ValidateCode has not yet been implemented")
+		}),
 		PostalCodesValidatePostalCodeWithRateDataHandler: postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
 		}),
@@ -471,6 +475,8 @@ type MymoveAPI struct {
 	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// ApplicationParametersValidateHandler sets the operation handler for the validate operation
 	ApplicationParametersValidateHandler application_parameters.ValidateHandler
+	// ValidationCodeValidateCodeHandler sets the operation handler for the validate code operation
+	ValidationCodeValidateCodeHandler validation_code.ValidateCodeHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
 	// FeatureFlagsVariantFeatureFlagForUserHandler sets the operation handler for the variant feature flag for user operation
@@ -767,6 +773,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ApplicationParametersValidateHandler == nil {
 		unregistered = append(unregistered, "application_parameters.ValidateHandler")
+	}
+	if o.ValidationCodeValidateCodeHandler == nil {
+		unregistered = append(unregistered, "validation_code.ValidateCodeHandler")
 	}
 	if o.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		unregistered = append(unregistered, "postal_codes.ValidatePostalCodeWithRateDataHandler")
@@ -1146,6 +1155,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/application_parameters"] = application_parameters.NewValidate(o.context, o.ApplicationParametersValidateHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/validation_code"] = validation_code.NewValidateCode(o.context, o.ValidationCodeValidateCodeHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

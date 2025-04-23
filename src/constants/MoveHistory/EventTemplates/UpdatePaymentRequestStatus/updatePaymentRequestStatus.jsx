@@ -12,7 +12,7 @@ export default {
   getEventNameDisplay: ({ oldValues, changedValues }) => {
     const paymentRequestNumber = oldValues?.payment_request_number ?? changedValues?.payment_request_number;
 
-    return <> Submitted payment request {paymentRequestNumber} </>;
+    return <> Reviewed payment request {paymentRequestNumber} </>;
   },
   getDetails: ({ context }) => <PaymentDetails context={context} />,
 };

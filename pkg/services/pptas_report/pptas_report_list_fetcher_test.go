@@ -10,6 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	mocks "github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ReportServiceSuite) TestReportFetcher() {
@@ -45,6 +47,22 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 			},
 		},
 	}, nil)
+	reweighedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+	}, nil)
+
+	reweighWeight := unit.Pound(2399)
+	reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		Reweigh: models.Reweigh{
+			Weight: &reweighWeight,
+		},
+		MTOShipment: reweighedShipment,
+	})
+
 	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -61,6 +79,8 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 			},
 		},
 	}, nil)
+
+	move.MTOShipments[0].Reweigh = &reweigh
 
 	pr := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 		{

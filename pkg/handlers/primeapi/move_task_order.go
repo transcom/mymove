@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -37,6 +38,9 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
 			}
+			searchParams.Acknowledged = params.Acknowledged
+			searchParams.AcknowledgedAfter = handlers.FmtDateTimePtrToPopPtr(params.AcknowledgedAfter)
+			searchParams.AcknowledgedBefore = handlers.FmtDateTimePtrToPopPtr(params.AcknowledgedBefore)
 
 			mtos, amendmentCountInfo, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrdersAmendments(appCtx, &searchParams)
 
@@ -377,5 +381,41 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			contentDisposition := fmt.Sprintf("inline; filename=\"%s-for-MTO-%s-%s.pdf\"", fileNamePrefix, locator, time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
 			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(contentDisposition).WithPayload(payload), nil
+		})
+}
+
+type AcknowledgeMovesAndShipmentsHandler struct {
+	handlers.HandlerConfig
+	services.MoveAndShipmentAcknowledgementUpdater
+}
+
+func (h AcknowledgeMovesAndShipmentsHandler) Handle(params movetaskorderops.AcknowledgeMovesAndShipmentsParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			payload := params.Body
+
+			if payload == nil {
+				invalidMovesError := apperror.NewBadDataError("Invalid moves: params Body is nil")
+				appCtx.Logger().Error(invalidMovesError.Error())
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsUnprocessableEntity(), invalidMovesError
+			}
+			moves, verrs := payloads.MovesModelFromAcknowledgeMovesAndShipments(&payload)
+			if verrs != nil && verrs.HasAny() {
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Invalid input found in moves", h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+			} else if moves == nil {
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsUnprocessableEntity().WithPayload(
+					payloads.ValidationError("Unable to process moves", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
+			}
+			// Call service to acknowledge moves/shipments here
+			err := h.MoveAndShipmentAcknowledgementUpdater.AcknowledgeMovesAndShipments(appCtx, moves)
+			if err != nil {
+				return movetaskorderops.NewAcknowledgeMovesAndShipmentsInternalServerError(), err
+			}
+			responsePayload := &primemessages.AcknowledgeMovesShipmentsSuccessResponse{
+				Message: "Successfully updated acknowledgement for moves and shipments",
+			}
+			return movetaskorderops.NewAcknowledgeMovesAndShipmentsOK().WithPayload(responsePayload), nil
 		})
 }

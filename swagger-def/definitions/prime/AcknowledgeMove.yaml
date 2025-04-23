@@ -1,0 +1,14 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
+  primeAcknowledgedAt:
+    type: string
+    format: date-time
+    example: 2025-04-13T14:15:22Z
+  mtoShipments:
+    type: array
+    items:
+      $ref: 'AcknowledgeShipment.yaml'

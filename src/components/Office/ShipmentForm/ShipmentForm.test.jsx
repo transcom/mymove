@@ -1199,9 +1199,9 @@ describe('ShipmentForm component', () => {
 
   describe('filling the form', () => {
     it('shows an error if the submitHandler returns an error', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError();
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
 
       renderWithRouter(
@@ -1231,8 +1231,7 @@ describe('ShipmentForm component', () => {
     it('shows a specific error message if the submitHandler returns a specific error message', async () => {
       const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError({ response: { body: { message: mockSpecificMessage, status: 400 } } });
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
 
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
@@ -1262,9 +1261,9 @@ describe('ShipmentForm component', () => {
     });
 
     it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError();
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
 
@@ -1295,9 +1294,9 @@ describe('ShipmentForm component', () => {
     });
 
     it('shows an error if the submitHandler returns an error when creating a PPM', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
-        // fire onError handler on form
-        onError();
+        onError({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
       });
 
       renderWithRouter(
@@ -1615,6 +1614,12 @@ describe('ShipmentForm component', () => {
         expect(smallPackageRadio).toHaveAttribute('value', PPM_TYPES.SMALL_PACKAGE);
         expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).toBeChecked();
       });
+
+      expect(screen.queryByText('Shipped from Address')).toBeInTheDocument();
+      expect(screen.queryByText('Pickup Address')).not.toBeInTheDocument();
+
+      expect(screen.queryByText('Destination Address')).toBeInTheDocument();
+      expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
 
       expect(screen.queryByText('Storage in transit')).not.toBeInTheDocument();
     });
@@ -2281,6 +2286,30 @@ describe('ShipmentForm component', () => {
     it('does not display for TOO', () => {
       renderWithRouter(<ShipmentForm {...defaultSITProps} userRole={roleTypes.TOO} />);
       expect(screen.queryByRole('heading', { level: 2, name: /Storage in transit \(SIT\)/ })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('creating a new PPM shipment as SC', () => {
+    it('renders the PPM shipment form correctly with warning', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.PPM} isCreatePage />);
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(await screen.findByText('PPM')).toBeInTheDocument();
+      expect(await screen.findByTestId('scPPMCreateWarning')).toBeInTheDocument();
+    });
+  });
+
+  describe('editing a PPM shipment as SC', () => {
+    it('renders the PPM shipment form correctly without warning', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.PPM} isCreatePage={false} />);
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(await screen.findByText('PPM')).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          'Creating a PPM as a Service Counselor will automatically approve the PPM shipment and send it to the customer.',
+        ),
+      ).not.toBeInTheDocument();
     });
   });
 
