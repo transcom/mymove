@@ -1448,6 +1448,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			})
 		}
 	})
+
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
