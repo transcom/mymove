@@ -20,11 +20,11 @@ const UserEdit = () => {
   const redirect = useRedirect();
   const [serverError, setServerError] = useState('');
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [disableOpen, setDisableOpen] = useState(false);
+  const [inactivateOpen, setInactivateOpen] = useState(false);
   const [userData, setUserData] = useState({});
   const handleDeleteClick = () => setDeleteOpen(true);
   const handleDeleteClose = () => setDeleteOpen(false);
-  const handleDisableClose = () => setDisableOpen(false);
+  const handleInactivateClose = () => setInactivateOpen(false);
 
   const renderUserEditToolbar = () => {
     return (
@@ -51,14 +51,16 @@ const UserEdit = () => {
         redirect('/');
       })
       .catch(() => {
-        setDisableOpen(true);
+        setInactivateOpen(true);
         redirect(false);
       });
   };
 
-  const disableUserHandler = async () => {
-    userData.active = false;
-    await updateUser(userData.id, userData)
+  const inactivateUserHandler = async () => {
+    const userUpdates = {
+      active: false,
+    };
+    await updateUser(userData.id, userUpdates)
       .then(() => {
         redirect('/');
       })
@@ -73,9 +75,9 @@ const UserEdit = () => {
     setDeleteOpen(false);
   };
 
-  const handleDisableConfirm = () => {
-    disableUserHandler();
-    setDisableOpen(false);
+  const handleInactivateConfirm = () => {
+    inactivateUserHandler();
+    setInactivateOpen(false);
   };
 
   return (
@@ -88,20 +90,20 @@ const UserEdit = () => {
         onClose={handleDeleteClose}
       />
       <Confirm
-        isOpen={disableOpen && userData.active}
+        isOpen={inactivateOpen && userData.active}
         title={`Deletion failed for user ${userData.oktaEmail}`}
-        content="This deletion failed as this user is already tied to existing moves. Would you like to disable them instead?"
-        onConfirm={handleDisableConfirm}
-        onClose={handleDisableClose}
+        content="This deletion failed as this user is already tied to existing moves. Would you like to inactivate them instead?"
+        onConfirm={handleInactivateConfirm}
+        onClose={handleInactivateClose}
       />
-      {disableOpen && !userData.active && (
+      {inactivateOpen && !userData.active && (
         <Alert type="error" slim className={styles.error}>
-          This deletion failed as this user is already tied to existing moves. The user is already disabled.
+          This deletion failed as this user is already tied to existing moves. The user is already inactive.
         </Alert>
       )}
       {serverError && (
         <Alert type="error" slim className={styles.error}>
-          {serverError}
+          There was a server error.
         </Alert>
       )}
       <SimpleForm

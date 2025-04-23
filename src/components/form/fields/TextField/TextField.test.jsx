@@ -156,6 +156,41 @@ describe('TextField component', () => {
       expect(queryByText('First Name').parentElement).toHaveClass('usa-label--error');
       expect(queryByText('This field is required')).toBeInTheDocument();
     });
+
+    it('renders a prefix before the input field', () => {
+      const mockMeta = {
+        touched: false,
+        error: '',
+        initialError: '',
+        initialTouched: false,
+        initialValue: '',
+        value: '',
+      };
+      const mockField = {
+        value: '',
+        checked: false,
+        onChange: jest.fn(),
+        onBlur: jest.fn(),
+        multiple: undefined,
+        name: 'prefixedInput',
+      };
+
+      useField.mockReturnValue([mockField, mockMeta]);
+
+      const { getByText, getByLabelText } = render(
+        <TextField
+          name="prefixedInput"
+          label="Prefixed Input"
+          type="text"
+          id="prefixedInput"
+          prefix="TERMINATED FOR CAUSE:"
+        />,
+      );
+
+      // Check the prefix span is rendered
+      expect(getByText('TERMINATED FOR CAUSE:')).toBeInTheDocument();
+      expect(getByLabelText('Prefixed Input')).toBeInstanceOf(HTMLInputElement);
+    });
   });
 
   describe('with a warning', () => {

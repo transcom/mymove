@@ -1,6 +1,7 @@
 export default {
   acknowledgeExcessWeightRisk: 'acknowledgeExcessWeightRisk',
   acknowledgeExcessUnaccompaniedBaggageWeightRisk: 'acknowledgeExcessUnaccompaniedBaggageWeightRisk',
+  acknowledgeMovesAndShipments: 'acknowledgeMovesAndShipments', // prime.yaml
   approveShipment: 'approveShipment', // ghc.yaml
   approveShipments: 'approveShipments', // ghc.yaml
   approveShipmentDiversion: 'approveShipmentDiversion',
@@ -72,4 +73,5 @@ export default {
   updateAssignedOfficeUser: 'updateAssignedOfficeUser', // ghc.yaml
   deleteAssignedOfficeUser: 'deleteAssignedOfficeUser', // ghc.yaml
   saveBulkAssignmentData: 'saveBulkAssignmentData', // ghc.yaml
+  createTermination: 'createTermination', // ghc.yaml
 };

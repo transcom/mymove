@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
@@ -14,9 +14,12 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { requiredAddressSchema } from 'utils/validation';
+import { FEATURE_FLAG_KEYS, getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName }) => {
-  const { actualMoveDate, advanceAmountReceived, allowableWeight, pickupAddressObj, destinationAddressObj } =
+const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName, grade }) => {
+  const [ppmSprFF, setPpmSprFF] = useState(false);
+  const { ppmType, actualMoveDate, advanceAmountReceived, allowableWeight, pickupAddressObj, destinationAddressObj } =
     sectionInfo;
   let title = 'Edit';
   if (sectionType === 'shipmentInfo') {
@@ -26,6 +29,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
   }
   const initialValues = {
     editItemName,
+    ppmType: sectionInfo.ppmType,
     actualMoveDate: actualMoveDate || '',
     advanceAmountReceived: formatCentsTruncateWhole(advanceAmountReceived).replace(/,/g, ''),
     allowableWeight: formatWeight(allowableWeight),
@@ -65,6 +69,15 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
     }),
   });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
+    };
+    fetchData();
+  }, []);
+
+  const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
+
   return (
     <div>
       <Overlay />
@@ -80,7 +93,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             onSubmit={onSubmit}
           >
             {({ isValid, handleChange, setFieldTouched, values, ...formikProps }) => {
-              const { isActualExpenseReimbursement } = values;
               return (
                 <Form>
                   <div>
@@ -110,7 +122,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     {editItemName === 'pickupAddress' && (
                       <AddressFields
                         name="pickupAddress"
-                        legend="Pickup Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                         className={styles.AddressFieldSet}
                         locationLookup
                         formikProps={formikProps}
@@ -119,7 +131,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     {editItemName === 'destinationAddress' && (
                       <AddressFields
                         name="destinationAddress"
-                        legend="Delivery Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         className={styles.AddressFieldSet}
                         locationLookup
                         formikProps={formikProps}
@@ -140,31 +152,44 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         data-testid="editAllowableWeightInput"
                       />
                     )}
-                    {editItemName === 'isActualExpenseReimbursement' && (
+                    {editItemName === 'expenseType' && (
                       <FormGroup>
-                        <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
-                          Is this PPM an Actual Expense Reimbursement?
+                        <Label className={styles.Label} htmlFor="ppmType">
+                          What is the PPM type?
                         </Label>
                         <Field
                           as={Radio}
-                          id="isActualExpenseReimbursementYes"
-                          label="Yes"
-                          name="isActualExpenseReimbursement"
-                          value="true"
-                          title="Yes"
-                          checked={isActualExpenseReimbursement === 'true'}
+                          id="isIncentiveBased"
+                          label={getPPMTypeLabel(PPM_TYPES.INCENTIVE_BASED)}
+                          name="ppmType"
+                          value={PPM_TYPES.INCENTIVE_BASED}
+                          disabled={isCivilian}
+                          checked={values.ppmType === PPM_TYPES.INCENTIVE_BASED}
                           className={styles.buttonGroup}
+                          data-testid="isIncentiveBased"
                         />
                         <Field
                           as={Radio}
-                          id="isActualExpenseReimbursementNo"
-                          label="No"
-                          name="isActualExpenseReimbursement"
-                          value="false"
-                          title="No"
-                          checked={isActualExpenseReimbursement !== 'true'}
+                          id="isActualExpense"
+                          label={getPPMTypeLabel(PPM_TYPES.ACTUAL_EXPENSE)}
+                          name="ppmType"
+                          value={PPM_TYPES.ACTUAL_EXPENSE}
+                          checked={values.ppmType === PPM_TYPES.ACTUAL_EXPENSE}
                           className={styles.buttonGroup}
+                          data-testid="isActualExpense"
                         />
+                        {ppmSprFF && (
+                          <Field
+                            as={Radio}
+                            id="isSmallPackage"
+                            label={getPPMTypeLabel(PPM_TYPES.SMALL_PACKAGE)}
+                            name="ppmType"
+                            value={PPM_TYPES.SMALL_PACKAGE}
+                            checked={values.ppmType === PPM_TYPES.SMALL_PACKAGE}
+                            className={styles.buttonGroup}
+                            data-testid="isSmallPackage"
+                          />
+                        )}
                       </FormGroup>
                     )}
                   </div>
