@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 
 import ServiceItemDetails from './ServiceItemDetails';
 
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+
 const sitStatus = {
   currentSIT: {
     sitAuthorizedEndDate: '2024-03-17',
@@ -889,21 +891,27 @@ describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC,
 });
 
 describe('ServiceItemDetails Estimated Price for IDSFSC, IOSFSC IOASIT, IDASIT, IOPSIT, IDDSIT, IOFSIT, IDFSIT', () => {
-  it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT'], ['IOPSIT'], ['IDDSIT'], ['IOFSIT'], ['IDFSIT']])(
-    'renders the formatted estimated price field for service item: %s',
-    (code) => {
-      render(
-        <ServiceItemDetails
-          id="1"
-          code={code}
-          details={details}
-          shipment={shipment}
-          serviceRequestDocs={serviceRequestDocs}
-        />,
-      );
+  it.each([
+    [SERVICE_ITEM_CODES.IDSFSC],
+    [SERVICE_ITEM_CODES.IOSFSC],
+    [SERVICE_ITEM_CODES.IOASIT],
+    [SERVICE_ITEM_CODES.IDASIT],
+    [SERVICE_ITEM_CODES.IOPSIT],
+    [SERVICE_ITEM_CODES.IDDSIT],
+    [SERVICE_ITEM_CODES.IOFSIT],
+    [SERVICE_ITEM_CODES.IDFSIT],
+  ])('renders the formatted estimated price field for service item: %s', (code) => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code={code}
+        details={details}
+        shipment={shipment}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
 
-      expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
-      expect(screen.getByText('$28.00')).toBeInTheDocument();
-    },
-  );
+    expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
+    expect(screen.getByText('$28.00')).toBeInTheDocument();
+  });
 });
