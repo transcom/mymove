@@ -89,6 +89,13 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
     navigate(nextPath);
   };
 
+  const handleAddShipment = () => {
+    const addShipmentPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
+      moveId,
+    });
+    navigate(addShipmentPath);
+  };
+
   const inDraftStatus = move.status === MOVE_STATUSES.DRAFT;
 
   // PPM, boat, and mobile home shipments can be left in an incomplete state, disable proceeding to the signature move
@@ -135,6 +142,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
               <div className={formStyles.formActions}>
                 <WizardNavigation
                   onNextClick={handleNext}
+                  onAddShipment={handleAddShipment}
                   disableNext={hasIncompleteShipment() || !mtoShipments?.length}
                   onCancelClick={handleCancel}
                   isFirstPage

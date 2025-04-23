@@ -4,6 +4,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Home.module.scss';
 import {
@@ -295,7 +296,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       return '';
     }
     if (hasAnyShipments()) {
-      return 'Add another shipment';
+      return (
+        <div className={styles.addShipmentIcon}>
+          <FontAwesomeIcon icon="plus" />
+          &nbsp;&nbsp;Add another Shipment
+        </div>
+      );
     }
     return 'Set up your shipments';
   };
@@ -677,6 +683,27 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       We will collect addresses, dates, and how you want to move your personal property.
                       <br /> Note: You can change these details later by talking to a move counselor or customer care
                       representative.
+                      <h3> Reasons you might need multiple shipments. </h3>
+                      <>
+                        <ul>
+                          <li>
+                            You plan to have an <strong>HHG</strong> and a <strong>PPM (DITY)</strong> — you want the
+                            government to pay professional movers, and you also want to be reimbursed for moving some
+                            things yourself.
+                          </li>
+                          <br />
+                          <li>
+                            You have additional belongings to move from or to a very different location, like another
+                            city.
+                          </li>
+                          <br />
+                          <li>
+                            You need to schedule another type of shipment, like an NTS. This would be listed on your
+                            orders.
+                          </li>
+                        </ul>
+                        <p>If none of these apply to you, you probably do not need multiple shipments.</p>
+                      </>
                     </Description>
                   )}
                 </Step>

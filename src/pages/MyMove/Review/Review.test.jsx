@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { cloneDeep } from 'lodash';
 import { act } from 'react-dom/test-utils';
+import { generatePath } from 'react-router-dom';
 
 import ConnectedReview from 'pages/MyMove/Review/Review';
 import { renderWithProviders } from 'testUtils';
@@ -404,6 +405,10 @@ describe('Review page', () => {
   const mockRoutingOptionsNoShipments = { path: mockPath, params: mockParamsNoShipments };
   const mockRoutingOptionsSubmitted = { path: mockPath, params: mockParamsSubmitted };
 
+  const addShipmentPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
+    moveId: mockParams.moveId,
+  });
+
   const testFlashState = {
     flash: {
       flashMessage: {
@@ -430,6 +435,22 @@ describe('Review page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
   });
 
+  it('Add Shipment button goes to the review page', async () => {
+    selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
+
+    renderWithProviders(<ConnectedReview />, mockRoutingOptions);
+
+    const addShipmentButton = screen.getByRole('button', { name: 'Add Shipment' });
+
+    expect(addShipmentButton).toBeInTheDocument();
+
+    await userEvent.click(addShipmentButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith(addShipmentPath);
+  });
+
   it('renders the warning message if a move has been locked by an office user', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMovesWithLock);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
@@ -449,7 +470,7 @@ describe('Review page', () => {
       renderWithProviders(<ConnectedReview />, mockRoutingOptions);
     });
 
-    const backButton = screen.getByRole('button', { name: 'Finish later' });
+    const backButton = screen.getByRole('button', { name: 'Finish Later' });
 
     expect(backButton).toBeInTheDocument();
 

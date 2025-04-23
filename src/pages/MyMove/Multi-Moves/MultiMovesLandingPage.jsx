@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from '@trussworks/react-uswds';
+import { Alert, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from 'react-router';
 import { connect } from 'react-redux';
@@ -26,7 +26,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import { profileStates } from 'constants/customerStates';
 import { getAllMoves } from 'services/internalApi';
-import { milmoveHelpDesk } from 'shared/constants';
+import { milmoveHelpDesk, MULTI_MOVE_LOCKED_WARNING } from 'shared/constants';
 
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves, setCanAddOrders }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
@@ -86,6 +86,21 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
     );
   }
 
+  let lockedMovePresent = false;
+  for (let i = 0; i < serviceMemberMoves.currentMove.length; i += 1) {
+    if (new Date() < new Date(serviceMemberMoves.currentMove[i]?.lockExpiresAt)) {
+      lockedMovePresent = true;
+      break;
+    }
+  }
+
+  for (let i = 0; i < serviceMemberMoves.previousMoves.length; i += 1) {
+    if (new Date() < new Date(serviceMemberMoves.previousMoves[i]?.lockExpiresAt)) {
+      lockedMovePresent = true;
+      break;
+    }
+  }
+
   return (
     <div>
       <div className={styles.homeContainer}>
@@ -110,6 +125,11 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
               for further assistance.
             </p>
           </Helper>
+          {lockedMovePresent && (
+            <Alert className={styles.lockWarning} headingLevel="h4" type="warning">
+              {MULTI_MOVE_LOCKED_WARNING}
+            </Alert>
+          )}
           <div className={styles.centeredContainer}>
             <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick} data-testid="createMoveBtn">
               <span>Create a Move</span>

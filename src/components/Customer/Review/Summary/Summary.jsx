@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { generatePath, Link, matchPath } from 'react-router-dom';
+import { generatePath, matchPath } from 'react-router-dom';
 import { func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
-import { Button, Grid } from '@trussworks/react-uswds';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from '../../../../shared/constants';
@@ -450,7 +448,6 @@ export class Summary extends Component {
     const canAddAnotherShipment = isReviewPage && currentMove.status === MOVE_STATUSES.DRAFT && !isMoveLocked;
 
     const showMoveSetup = showHHGShipmentSummary;
-    const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: currentMove.id });
 
     const thirdSectionHasContent = showMoveSetup || (isReviewPage && mtoShipments.length > 0);
     return (
@@ -516,28 +513,7 @@ export class Summary extends Component {
             {isReviewPage && this.renderShipments()}
           </SectionWrapper>
         )}
-        {canAddAnotherShipment ? (
-          <Grid row>
-            <Grid col="fill" tablet={{ col: 'auto' }}>
-              <Link to={shipmentSelectionPath} className="usa-link">
-                Add another shipment
-              </Link>
-            </Grid>
-            <Grid col="auto" className={styles.buttonContainer}>
-              <Button
-                title="Help with adding shipments"
-                type="button"
-                onClick={this.toggleModal}
-                unstyled
-                className={styles.buttonRight}
-              >
-                <FontAwesomeIcon icon={['far', 'circle-question']} />
-              </Button>
-            </Grid>
-          </Grid>
-        ) : (
-          <p>Talk with your movers directly if you want to add or change shipments.</p>
-        )}
+        {!canAddAnotherShipment && <p>Talk with your movers directly if you want to add or change shipments.</p>}
         {moveIsApproved && currentDutyLocation && (
           <p>
             *To change these fields, contact your local PPPO office at {currentDutyLocation?.name}
