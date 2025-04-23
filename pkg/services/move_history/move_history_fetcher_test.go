@@ -6,12 +6,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -46,6 +48,51 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 			testScenario: "Use the new proc",
 			useDbProc:    true,
 		},
+	}
+	moveAssigner := moverouter.NewMoveAssignerBulkAssignment()
+
+	setupTestData := func() (models.TransportationOffice, models.Move, models.Move, models.Move) {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		move1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		move2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		move3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+		}, nil)
+
+		return transportationOffice, move1, move2, move3
 	}
 
 	suite.Run("successfully returns submitted move history available to prime", func() {
@@ -96,19 +143,25 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 				suite.MustSave(&approvedMove.Orders)
 
 				// update Pickup Address
+				usprcNorfolk, err := models.FindByZipCodeAndCity(suite.DB(), "23503", "Norfolk")
+				suite.NoError(err)
 				oldAddress := *approvedShipment.PickupAddress
 				updateAddress := approvedShipment.PickupAddress
 				updateAddress.City = "Norfolk"
 				updateAddress.State = "VA"
 				updateAddress.PostalCode = "23503"
+				updateAddress.UsPostRegionCityID = &usprcNorfolk.ID
 				suite.MustSave(updateAddress)
 
 				// update Secondary Pickup Address
+				usprcHampton, err := models.FindByZipCodeAndCity(suite.DB(), "23661", "Hampton")
+				suite.NoError(err)
 				oldSecondaryPickupAddress := *approvedShipment.SecondaryPickupAddress
 				updateSecondaryPickupAddress := approvedShipment.SecondaryPickupAddress
 				updateSecondaryPickupAddress.City = "Hampton"
 				updateSecondaryPickupAddress.State = "VA"
 				updateSecondaryPickupAddress.PostalCode = "23661"
+				updateSecondaryPickupAddress.UsPostRegionCityID = &usprcHampton.ID
 				suite.MustSave(updateSecondaryPickupAddress)
 
 				// update move
@@ -398,6 +451,63 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 			})
 		}
 	})
+	suite.Run("returns Audit History with assignment information", func() {
+		transportationOffice, move1, move2, move3 := setupTestData()
+
+		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeTOO,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		moves := []models.Move{move1, move2, move3}
+		userData := []*ghcmessages.BulkAssignmentForUser{
+			{ID: strfmt.UUID(officeUser.ID.String()), MoveAssignments: 2},
+		}
+		for _, tc := range procFeatureFlagCases {
+			_, err := moveAssigner.BulkMoveAssignment(suite.AppContextForTest(), string(models.QueueTypeDestinationRequest), userData, moves)
+			suite.NoError(err)
+
+			params := services.FetchMoveHistoryParams{Locator: move1.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+			moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
+
+			hasAssignment := false
+			for _, history := range moveHistoryData.AuditHistories {
+				if history.ChangedData != nil {
+					changedData := removeEscapeJSONtoObject(history.ChangedData)
+					if changedData["too_destination_assigned_id"] != officeUser.ID {
+						hasAssignment = true
+					}
+				}
+			}
+			suite.NotNil(moveHistoryData)
+			suite.NoError(err)
+			suite.NotEmpty(moveHistoryData.AuditHistories, "AuditHistories should not be empty")
+			suite.Equal(true, hasAssignment)
+		}
+	})
 }
 
 // Test specific move history data scenarios
@@ -417,21 +527,40 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		},
 	}
 
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("has audit history records for service item", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
-
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 				shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 				addressCreator := address.NewAddressCreator()
 				portLocationFetcher := portlocation.NewPortLocationFetcher()
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
 				updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 				move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 				serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -605,6 +734,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 	suite.Run("has audit history records for service item dimensions", func() {
 		for _, tc := range procFeatureFlagCases {
 			suite.Run(tc.testScenario, func() {
+				testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -614,15 +744,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 						LinkOnly: true,
 					},
 				}, nil)
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 				dimension := models.MTOServiceItemDimension{
 					Type:      models.DimensionTypeItem,
@@ -692,15 +813,6 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 						LinkOnly: true,
 					},
 				}, nil)
-				builder := query.NewQueryBuilder()
-				moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-				planner := &routemocks.Planner{}
-				planner.On("ZipTransitDistance",
-					mock.AnythingOfType("*appcontext.appContext"),
-					mock.Anything,
-					mock.Anything,
-				).Return(400, nil)
-				creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 				reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
