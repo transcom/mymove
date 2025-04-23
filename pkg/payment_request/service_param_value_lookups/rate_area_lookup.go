@@ -11,7 +11,7 @@ type RateAreaLookup struct {
 }
 
 func (r RateAreaLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
-	rateArea, err := fetchRateArea(appCtx, keyData.MTOServiceItemID, r.Address.ID, keyData.ContractID)
+	rateArea, err := models.FetchRateArea(appCtx.DB(), r.Address.ID, keyData.MTOServiceItemID, keyData.ContractID)
 	if err != nil {
 		return "", err
 	}

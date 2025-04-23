@@ -3,8 +3,6 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -22,21 +20,4 @@ func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string,
 	}
 
 	return domesticServiceArea, nil
-}
-
-func fetchRateArea(appCtx appcontext.AppContext, serviceItemID uuid.UUID, addressID uuid.UUID, contractID uuid.UUID) (models.ReRateArea, error) {
-
-	var reRateArea models.ReRateArea
-	rateAreaID, err := models.FetchRateAreaID(appCtx.DB(), addressID, &serviceItemID, contractID)
-	if err != nil {
-		return reRateArea, fmt.Errorf("error fetching rate area id for shipment ID: %s, service ID %s, and contract ID: %s: %s", addressID, serviceItemID, addressID, err)
-	}
-
-	err = appCtx.DB().Q().
-		Where("re_rate_areas.id = ?", &rateAreaID).
-		First(&reRateArea)
-	if err != nil {
-		return reRateArea, err
-	}
-	return reRateArea, nil
 }

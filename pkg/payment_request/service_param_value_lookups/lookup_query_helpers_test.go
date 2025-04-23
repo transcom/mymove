@@ -2,9 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -30,24 +28,4 @@ func (suite *ServiceParamValueLookupsSuite) TestLookupQueryHelpers() {
 	suite.FatalNoError(err)
 	suite.Equal(strfmt.UUID(domesticServiceArea.ID.String()), strfmt.UUID(dsa.ID.String()))
 
-}
-
-func (suite *ServiceParamValueLookupsSuite) TestFetchRateArea() {
-	suite.Run("Successful", func() {
-		service := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOPSIT)
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		address := factory.BuildAddress(suite.DB(), nil, nil)
-		ra, err := fetchRateArea(suite.AppContextForTest(), service.ID, address.ID, contract.ID)
-		suite.FatalNoError(err)
-		suite.True(len(ra.Code) > 0)
-	})
-
-	suite.Run("failure", func() {
-		service := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOPSIT)
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		invalidAddressID := uuid.Must(uuid.NewV4())
-		_, err := fetchRateArea(suite.AppContextForTest(), service.ID, invalidAddressID, contract.ID)
-		suite.NotNil(err)
-		suite.Contains(err.Error(), "error fetching rate area id for shipment")
-	})
 }
