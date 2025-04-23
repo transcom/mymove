@@ -329,31 +329,11 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		// 	"SITDurationUpdates",
 		// 	"DeliveryAddressUpdate"}
 		// dbShipment, err := mtoshipment.FindShipment(appCtx, *serviceItem.MTOShipmentID, eagerAssociations...)
-
 		// if err != nil {
 		// 	return err
 		// }
-		// shipmentNeedsReview := false
-		// // check if any service items on current shipment still need to be reviewed
-		// for _, serviceItem := range dbShipment.MTOServiceItems {
-		// 	if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-		// 		shipmentNeedsReview = true
-		// 		break
-		// 	}
-		// }
-		// // check if all SIT Extensions are reviewed
-		// for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
-		// 	if sitDurationUpdate.Status == models.SITExtensionStatusPending {
-		// 		shipmentNeedsReview = true
-		// 		break
-		// 	}
-		// }
-		// // check if all Delivery Address updates are reviewed
-		// if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
-		// 	shipmentNeedsReview = true
-		// }
 
-		// if !shipmentNeedsReview {
+		// if shipmentApprovable(*dbShipment) {
 		// 	dbShipment.Status = models.MTOShipmentStatusApprovalsRequested
 		// 	verrs, err = appCtx.DB().ValidateAndUpdate(&dbShipment)
 		// 	if verrs != nil && verrs.HasAny() {
@@ -376,6 +356,27 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 
 	return &returnedServiceItem, nil
 }
+
+// func shipmentApprovable(dbShipment models.MTOShipment) bool {
+// 	// check if any service items on current shipment still need to be reviewed
+// 	for _, serviceItem := range dbShipment.MTOServiceItems {
+// 		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+// 			return false
+// 		}
+// 	}
+// 	// check if all SIT Extensions are reviewed
+// 	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+// 		if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+// 			return false
+// 		}
+// 	}
+// 	// check if all Delivery Address updates are reviewed
+// 	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+// 		return false
+// 	}
+
+// 	return true
+// }
 
 func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, status models.MTOServiceItemStatus, rejectionReason *string) (*models.MTOServiceItem, error) {
 	serviceItem.Status = status
