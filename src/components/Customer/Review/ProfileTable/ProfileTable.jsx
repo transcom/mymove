@@ -21,7 +21,6 @@ const ProfileTable = ({
   streetAddress2,
   streetAddress3,
   telephone,
-  isMoveLocked,
 }) => {
   const containerClassNames = classnames(reviewStyles['review-container'], reviewStyles['profile-container']);
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
@@ -35,7 +34,6 @@ const ProfileTable = ({
           className={reviewStyles['edit-btn']}
           data-testid="edit-profile-table"
           onClick={() => onEditClick(editProfilePath)}
-          disabled={isMoveLocked}
         >
           Edit
         </Button>

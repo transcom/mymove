@@ -484,7 +484,6 @@ export class Summary extends Component {
             streetAddress2={serviceMember.residential_address.streetAddress2}
             streetAddress3={serviceMember.residential_address?.streetAddress3 || ''}
             telephone={serviceMember.telephone}
-            isMoveLocked={isMoveLocked}
           />
         </SectionWrapper>
         <SectionWrapper className={styles.SummarySectionWrapper}>

@@ -761,7 +761,6 @@ describe('Summary page', () => {
       });
 
       expect(screen.queryByRole('link', { name: 'Add another shipment' })).toBeNull();
-      expect(screen.getByTestId('edit-profile-table')).toBeDisabled();
       expect(screen.getByTestId('edit-orders-table')).toBeDisabled();
       expect(screen.queryByTestId('edit-shipment-btn')).toBeNull();
       expect(screen.queryByTestId('edit-ntsr-shipment-btn')).toBeNull();
