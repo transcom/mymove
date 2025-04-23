@@ -33,7 +33,7 @@ type MTOServiceItem struct {
 	MoveTaskOrderID                   uuid.UUID                      `db:"move_id"`
 	MTOShipment                       MTOShipment                    `belongs_to:"mto_shipments" fk_id:"mto_shipment_id"`
 	MTOShipmentID                     *uuid.UUID                     `db:"mto_shipment_id"`
-	ReService                         ReService                      `belongs_to:"re_services" fk_id:"re_service_id"`
+	ReService                         ReService                      `belongs_to:"re_services" fk_id:"re_service_id" json:"re_service"`
 	ReServiceID                       uuid.UUID                      `db:"re_service_id"`
 	Reason                            *string                        `db:"reason"`
 	RejectionReason                   *string                        `db:"rejection_reason"`
@@ -451,4 +451,19 @@ func (m MTOServiceItem) Value() (driver.Value, error) {
 		externalCrate,
 	)
 	return []byte(s), nil
+}
+
+func (m MTOServiceItem) CheckIsSITServiceItem() bool {
+	if m.ReService.Code == ReServiceCodeDDDSIT ||
+		m.ReService.Code == ReServiceCodeDDASIT ||
+		m.ReService.Code == ReServiceCodeDOFSIT ||
+		m.ReService.Code == ReServiceCodeDDFSIT ||
+		m.ReService.Code == ReServiceCodeDOASIT ||
+		m.ReService.Code == ReServiceCodeDOPSIT ||
+		m.ReService.Code == ReServiceCodeDOSFSC ||
+		m.ReService.Code == ReServiceCodeDDSFSC {
+		return true
+	} else {
+		return false
+	}
 }
