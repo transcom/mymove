@@ -28,7 +28,6 @@ func (suite *ServiceParamValueLookupsSuite) TestRateAreaLookup() {
 		originAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					IsOconus:           models.BoolPointer(false),
 					UsPostRegionCityID: &usprc.ID,
 					City:               usprc.USPostRegionCityNm,
 					State:              usprc.State,
@@ -37,21 +36,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRateAreaLookup() {
 			},
 		}, nil)
 
-		usprc, err = models.FindByZipCode(suite.AppContextForTest().DB(), "90210")
-		suite.NotNil(usprc)
-		suite.FatalNoError(err)
-
-		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					IsOconus:           models.BoolPointer(false),
-					UsPostRegionCityID: &usprc.ID,
-					City:               usprc.USPostRegionCityNm,
-					State:              usprc.State,
-					PostalCode:         usprc.UsprZipID,
-				},
-			},
-		}, nil)
+		destAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
