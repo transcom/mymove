@@ -868,6 +868,26 @@ describe('ServiceItemDetails rejection reason ', () => {
   });
 });
 
+describe('ServiceItemDetails Estimated Price for DDFSIT, DDDSIT, DDASIT, DDSFSC, DOPSIT, DOFSIT, DOASIT, DOSFSC', () => {
+  it.each([['DDFSIT'], ['DDDSIT'], ['DDASIT'], ['DDSFSC'], ['DOPSIT'], ['DOFSIT'], ['DOASIT'], ['DOSFSC']])(
+    'renders the formatted estimated price field for the approved service item: %s',
+    (code) => {
+      render(
+        <ServiceItemDetails
+          id="1"
+          code={code}
+          details={details}
+          shipment={shipment}
+          serviceRequestDocs={serviceRequestDocs}
+        />,
+      );
+
+      expect(screen.getByText('Estimated Price:')).toBeInTheDocument();
+      expect(screen.getByText('$28.00')).toBeInTheDocument();
+    },
+  );
+});
+
 describe('ServiceItemDetails Estimated Price for IDSFSC, IOSFSC IOASIT, IDASIT, IOPSIT, IDDSIT, IOFSIT, IDFSIT', () => {
   it.each([['IDSFSC'], ['IOSFSC'], ['IOASIT'], ['IDASIT'], ['IOPSIT'], ['IDDSIT'], ['IOFSIT'], ['IDFSIT']])(
     'renders the formatted estimated price field for service item: %s',
