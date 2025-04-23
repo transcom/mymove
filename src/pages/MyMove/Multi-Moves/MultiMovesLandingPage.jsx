@@ -86,20 +86,11 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
     );
   }
 
-  let lockedMovePresent = false;
-  for (let i = 0; i < serviceMemberMoves.currentMove.length; i += 1) {
-    if (new Date() < new Date(serviceMemberMoves.currentMove[i]?.lockExpiresAt)) {
-      lockedMovePresent = true;
-      break;
-    }
-  }
-
-  for (let i = 0; i < serviceMemberMoves.previousMoves.length; i += 1) {
-    if (new Date() < new Date(serviceMemberMoves.previousMoves[i]?.lockExpiresAt)) {
-      lockedMovePresent = true;
-      break;
-    }
-  }
+  const now = new Date();
+  const lockedMovePresent = [...serviceMemberMoves.currentMove, ...serviceMemberMoves.previousMoves].some((move) => {
+    const expires = new Date(move?.lockExpiresAt);
+    return expires > now;
+  });
 
   return (
     <div>
