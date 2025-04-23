@@ -141,6 +141,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
               <ConnectedSummary isMoveLocked={isMoveLocked} />
               <div className={formStyles.formActions}>
                 <WizardNavigation
+                  isReviewPage
                   onNextClick={handleNext}
                   onAddShipment={handleAddShipment}
                   disableNext={hasIncompleteShipment() || !mtoShipments?.length}
