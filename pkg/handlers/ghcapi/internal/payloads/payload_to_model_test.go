@@ -467,6 +467,8 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 		isProGear := true
 		proGearBelongsToSelf := false
 		proGearDescription := "Pro gear details"
+		paidWithGTCC := true
+		missingReceipt := false
 
 		expenseType := ghcmessages.OmittableMovingExpenseTypeSMALLPACKAGE
 		sitLocation := ghcmessages.SITLocationTypeORIGIN
@@ -488,6 +490,8 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 			IsProGear:              &isProGear,
 			ProGearBelongsToSelf:   &proGearBelongsToSelf,
 			ProGearDescription:     &proGearDescription,
+			PaidWithGTCC:           &paidWithGTCC,
+			MissingReceipt:         &missingReceipt,
 		}
 
 		result := MovingExpenseModelFromUpdate(updateMovingExpense)
@@ -509,6 +513,8 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 		suite.Equal(handlers.FmtBoolPtr(&isProGear), result.IsProGear, "IsProGear should match")
 		suite.Equal(handlers.FmtBoolPtr(&proGearBelongsToSelf), result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
 		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
+		suite.Equal(handlers.FmtBoolPtr(&paidWithGTCC), result.PaidWithGTCC, "PaidWithGTCC should match")
+		suite.Equal(handlers.FmtBoolPtr(&missingReceipt), result.MissingReceipt, "MissingReceipt should match")
 	})
 }
 

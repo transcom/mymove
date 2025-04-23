@@ -15,6 +15,7 @@ import { shipmentTypes } from 'constants/shipments';
 import ExpenseForm from 'components/Shared/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
+import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   createUploadForPPMDocument,
@@ -133,6 +134,14 @@ const Expenses = () => {
     }
   };
 
+  const handleErrorMessage = (error) => {
+    if (error?.response?.status === 412) {
+      setErrorMessage(CUSTOMER_ERROR_MESSAGES.PRECONDITION_FAILED);
+    } else {
+      setErrorMessage('Failed to save updated trip record');
+    }
+  };
+
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
     const payload = {
@@ -162,9 +171,9 @@ const Expenses = () => {
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
         dispatch(updateMTOShipment(mtoShipment));
       })
-      .catch(() => {
+      .catch((error) => {
         setSubmitting(false);
-        setErrorMessage('Failed to save updated trip record');
+        handleErrorMessage(error);
       });
   };
 
@@ -193,17 +202,6 @@ const Expenses = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} />
             <h1>Expenses</h1>
             {renderError()}
-            <div className={styles.introSection}>
-              <p>
-                Document your qualified expenses by uploading receipts. They should include a description of the item,
-                the price you paid, the date of purchase, and the business name. All documents must be legible and
-                unaltered.
-              </p>
-              <p>
-                Your finance office will make the final decision about which expenses are deductible or reimbursable.
-              </p>
-              <p>Upload one receipt at a time. Please do not put multiple receipts in one image.</p>
-            </div>
             <ExpenseForm
               ppmType={ppmType}
               expense={currentExpense}

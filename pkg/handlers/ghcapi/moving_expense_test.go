@@ -40,11 +40,12 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		subtestData.ppmShipment = factory.BuildPPMShipment(suite.DB(), nil, nil)
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/moving-expense", subtestData.ppmShipment.ID.String())
 		req := httptest.NewRequest("POST", endpoint, nil)
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		if authenticateRequest {
-			req = suite.AuthenticateRequest(req, serviceMember)
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
 		}
+
 		subtestData.params = movingexpenseops.CreateMovingExpenseParams{
 			HTTPRequest:   req,
 			PpmShipmentID: *handlers.FmtUUID(subtestData.ppmShipment.ID),
@@ -90,20 +91,6 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		response := subtestData.handler.Handle(subtestData.params)
 
 		suite.IsType(&movingexpenseops.CreateMovingExpenseUnauthorized{}, response)
-	})
-
-	suite.Run("POST failure - 404 - Not Found - Wrong Service Member", func() {
-		subtestData := makeCreateSubtestData(false)
-
-		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
-		req := subtestData.params.HTTPRequest
-		unauthorizedRequest := suite.AuthenticateRequest(req, unauthorizedUser)
-		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedRequest
-
-		response := subtestData.handler.Handle(unauthorizedParams)
-
-		suite.IsType(&movingexpenseops.CreateMovingExpenseNotFound{}, response)
 	})
 
 	suite.Run("Post failure - 500 - Server Error", func() {
