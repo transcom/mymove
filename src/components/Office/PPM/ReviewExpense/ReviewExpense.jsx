@@ -35,7 +35,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
 import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
-import SmallPackageForm from 'components/Customer/PPM/Closeout/SmallPackageForm/SmallPackageForm';
+import SmallPackageForm from 'components/Shared/PPM/Closeout/SmallPackageForm/SmallPackageForm';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
