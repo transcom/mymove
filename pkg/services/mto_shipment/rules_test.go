@@ -327,7 +327,7 @@ func (suite *MTOShipmentServiceSuite) TestCheckAddressUpdateAllowed() {
 		v4ID := uuid.Must(uuid.NewV4())
 		bannedErrMsgPartial := "does not allow address updates"
 		hhgIntoNtsErrMsgPartial := "cannot update the destination address of an NTS shipment directly"
-		hhgOutOfNtsErrMsgPartial := "cannot update the pickup address of an NTS shipment directly"
+		hhgOutOfNtsErrMsgPartial := "cannot update the pickup address of an NTS-Release shipment directly"
 		approvedDestinationAddressErrMsgPartial := "please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service"
 		testCases := map[string]struct {
 			status           models.MTOShipmentStatus
