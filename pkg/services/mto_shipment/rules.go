@@ -456,7 +456,7 @@ func checkShipmentTypeAllowsUpdate(address models.Address, shipment models.MTOSh
 		}
 	case models.MTOShipmentTypeHHGOutOfNTS:
 		if shipment.PickupAddressID != nil && *shipment.PickupAddressID == address.ID {
-			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("cannot update the pickup address of an NTS shipment directly, please update the storage facility address instead for shipment id %s", shipment.ID))
+			return apperror.NewConflictError(shipment.ID, fmt.Sprintf("cannot update the pickup address of an NTS-Release shipment directly, please update the storage facility address instead for shipment id %s", shipment.ID))
 		}
 	}
 
