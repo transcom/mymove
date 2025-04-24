@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -62,6 +63,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 					},
 				},
 			}, nil)
+
+			// if check here for shipment fetch not found
+			if subtestData.mtoShipment.PPMShipment != nil {
+				subtestData.mtoShipment.PPMShipment.EstimatedWeight = models.PoundPointer(1000)
+			}
+			err := suite.DB().Save(&subtestData.mtoShipment)
+			suite.NoError(err)
 		} else {
 			if isInternational {
 				subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -83,6 +91,10 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 					},
 				}, nil)
 			}
+
+			subtestData.mtoShipment.PrimeEstimatedWeight = models.PoundPointer(1000)
+			err := suite.DB().Save(&subtestData.mtoShipment)
+			suite.NoError(err)
 		}
 
 		if isInternational {
@@ -109,6 +121,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		if isInternational {
 			serviceCode = models.ReService{Code: models.ReServiceCodeIOFSIT}
 		}
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:                   mto.ID,
@@ -137,16 +151,35 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		return makeSubtestDataWithPPMShipmentType(false, true)
 	}
 
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -174,14 +207,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("Successful POST International - Integration Test", func() {
 		subtestData := makeSubtestInternationalData()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -223,14 +248,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -277,14 +294,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -415,14 +424,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	suite.Run("POST failure - 404 - MTO is not available to Prime", func() {
 		subtestData := makeSubtestData()
 		mtoNotAvailable := factory.BuildMove(suite.DB(), nil, nil)
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -459,14 +460,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -561,14 +554,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("POST failure - Shipment fetch not found", func() {
 		subtestData := makeSubtestDataWithPPMShipmentType(true, false)
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -593,14 +578,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.Run("POST failure - 422 - PPM not allowed to create service item", func() {
 		subtestData := makeSubtestDataWithPPMShipmentType(true, false)
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -670,16 +647,35 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		return subtestData
 	}
 
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("Successful POST - Integration Test - Domestic Crating", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -709,14 +705,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 	suite.Run("Successful POST - Integration Test - Domestic Uncrating", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -803,23 +791,59 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 				Model:    subtestData.mto,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+				},
+			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		sitDepartureDate := time.Now().Add(time.Hour * 72)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
-			MoveTaskOrderID: subtestData.mto.ID,
-			MTOShipmentID:   &subtestData.mtoShipment.ID,
-			ReService:       models.ReService{},
-			Reason:          models.StringPointer("lorem ipsum"),
-			SITEntryDate:    &sitEntryDate,
-			SITPostalCode:   &sitPostalCode,
+			MoveTaskOrderID:  subtestData.mto.ID,
+			MTOShipmentID:    &subtestData.mtoShipment.ID,
+			ReService:        models.ReService{},
+			Reason:           models.StringPointer("lorem ipsum"),
+			SITEntryDate:     &sitEntryDate,
+			SITDepartureDate: &sitDepartureDate,
+			SITPostalCode:    &sitPostalCode,
 		}
 
 		return subtestData
 	}
+
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	suite.Run("POST failure - 422 Cannot create DOPSIT standalone", func() {
 		subtestData := makeSubtestData()
@@ -832,14 +856,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		requestApprovalRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -878,14 +894,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		requestApprovalRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -947,14 +955,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}, nil)
 
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1019,6 +1019,33 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		return subtestData
 	}
 
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("Failed POST - Does not DOFSIT with missing SitHHGActualOrigin", func() {
 		subtestData := makeSubtestData()
 		// Under test: createMTOServiceItemHandler function
@@ -1031,14 +1058,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		requstedApprovalsRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requstedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1091,6 +1110,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 				LinkOnly: true,
 			},
 			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+					RequestedPickupDate:  models.TimePointer(time.Now()),
+				},
+			},
+			{
 				Model: models.Address{
 					City:       "SULPHUR SPGS",
 					PostalCode: "75482",
@@ -1136,6 +1161,33 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("Successful POST - Create DOFSIT", func() {
 		subtestData := makeSubtestData()
 		// Under test: createMTOServiceItemHandler function
@@ -1148,14 +1200,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		requestedApprovalsRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1268,6 +1312,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 	sitEntryDate := time.Now().Add(time.Hour * 24)
+	sitDepartureDate := time.Now().Add(time.Hour * 72)
 
 	type localSubtestData struct {
 		mto            models.Move
@@ -1279,13 +1324,35 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 		subtestData.mto = factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		estimatedPrimeWeight := unit.Pound(6000)
+		pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
 		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    subtestData.mto,
 				LinkOnly: true,
 			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    deliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedPrimeWeight,
+					RequestedPickupDate:  &pickupDate,
+				},
+			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{
@@ -1308,9 +1375,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 					FirstAvailableDeliveryDate: time.Now(),
 				},
 			},
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
-			SITEntryDate: &sitEntryDate,
+			CreatedAt:                  time.Now(),
+			UpdatedAt:                  time.Now(),
+			SITEntryDate:               &sitEntryDate,
+			SITDepartureDate:           &sitDepartureDate,
+			SITPostalCode:              models.StringPointer("94510"),
+			SITOriginHHGActualAddress:  subtestData.mtoShipment.PickupAddress,
+			SITDestinationFinalAddress: subtestData.mtoShipment.DestinationAddress,
 		}
 		subtestData.params = mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
@@ -1319,16 +1390,35 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		return subtestData
 	}
 
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1336,12 +1426,14 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 
 		mtoServiceItemDDFSIT := models.MTOServiceItem{
-			MoveTaskOrderID: subtestData.mto.ID,
-			MTOShipmentID:   &subtestData.mtoShipment.ID,
-			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
-			Description:     handlers.FmtString("description"),
-			SITEntryDate:    &sitEntryDate,
-			Reason:          models.StringPointer("lorem ipsum"),
+			MoveTaskOrderID:           subtestData.mto.ID,
+			MTOShipmentID:             &subtestData.mtoShipment.ID,
+			ReService:                 models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Description:               handlers.FmtString("description"),
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             models.StringPointer("94510"),
+			SITOriginHHGActualAddress: subtestData.mtoShipment.PickupAddress,
+			Reason:                    models.StringPointer("lorem ipsum"),
 			CustomerContacts: models.MTOServiceItemCustomerContacts{
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeFirst,
@@ -1395,14 +1487,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			SITEntryDate:    &sitEntryDate,
 			Reason:          models.StringPointer("lorem ipsum"),
 		}
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1428,14 +1512,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	suite.Run("Failure POST - Integration Test - Missing reason", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1484,14 +1560,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1538,14 +1606,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1574,9 +1634,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		// SETUP
 		// Create the payload
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &routemocks.Planner{}
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
