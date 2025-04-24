@@ -109,6 +109,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		RequestedOfficeUsersGetRequestedOfficeUserHandler: requested_office_users.GetRequestedOfficeUserHandlerFunc(func(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation requested_office_users.GetRequestedOfficeUser has not yet been implemented")
 		}),
+		OfficeUsersGetRolesPrivilegesHandler: office_users.GetRolesPrivilegesHandlerFunc(func(params office_users.GetRolesPrivilegesParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.GetRolesPrivileges has not yet been implemented")
+		}),
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
 		}),
@@ -256,6 +259,8 @@ type MymoveAPI struct {
 	RejectedOfficeUsersGetRejectedOfficeUserHandler rejected_office_users.GetRejectedOfficeUserHandler
 	// RequestedOfficeUsersGetRequestedOfficeUserHandler sets the operation handler for the get requested office user operation
 	RequestedOfficeUsersGetRequestedOfficeUserHandler requested_office_users.GetRequestedOfficeUserHandler
+	// OfficeUsersGetRolesPrivilegesHandler sets the operation handler for the get roles privileges operation
+	OfficeUsersGetRolesPrivilegesHandler office_users.GetRolesPrivilegesHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
 	// UsersGetUserHandler sets the operation handler for the get user operation
@@ -430,6 +435,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.RequestedOfficeUsersGetRequestedOfficeUserHandler == nil {
 		unregistered = append(unregistered, "requested_office_users.GetRequestedOfficeUserHandler")
+	}
+	if o.OfficeUsersGetRolesPrivilegesHandler == nil {
+		unregistered = append(unregistered, "office_users.GetRolesPrivilegesHandler")
 	}
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
@@ -658,6 +666,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/requested-office-users/{officeUserId}"] = requested_office_users.NewGetRequestedOfficeUser(o.context, o.RequestedOfficeUsersGetRequestedOfficeUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/office-users/roles-privileges"] = office_users.NewGetRolesPrivileges(o.context, o.OfficeUsersGetRolesPrivilegesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
