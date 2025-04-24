@@ -43,11 +43,11 @@ func GetPayGradeRankDropdownOptions(db *pop.Connection, affiliation string) ([]s
 	var dropdownOptions []string
 
 	err := db.Q().RawQuery(`
-		select pgr.id, pgr.rank_abbv ||' / '|| pg.grade
+		select pgr.rank_abbv || ' / ' || pg.grade as rank_name
 		from pay_grade_ranks pgr
 		join pay_grades pg on pgr.pay_grade_id = pg.id
 		where affiliation = $1
-		order by pgr.rank_order
+		order by pgr.rank_order ASC
 	`, affiliation).All(&dropdownOptions)
 	if err != nil {
 		return nil, err

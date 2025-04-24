@@ -156,12 +156,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			options, err := models.GetPayGradeRankDropdownOptions(appCtx.DB(), string(*serviceMember.Affiliation))
-			if err != nil {
-				return nil, apperror.NewNotFoundError(serviceMemberID, " while looking for dropdown options")
-			}
-			print(options)
-
 			originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
