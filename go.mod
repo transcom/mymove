@@ -1,6 +1,7 @@
 module github.com/transcom/mymove
 
-go 1.23
+go 1.23.0
+
 toolchain go1.24.1
 
 // Temporary workaroudn to mockery alias generation issue with go 1.23
