@@ -249,7 +249,7 @@ func MTOShipmentHasValidRequestedPickupDate() validator {
 		if newer != nil && newer.ShipmentType != "" {
 			newerShipmentType = newer.ShipmentType
 		}
-		newerHasDate := newer !=nil && newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
+		newerHasDate := newer != nil && newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
 		olderHasDate := older != nil && older.RequestedPickupDate != nil && !older.RequestedPickupDate.IsZero()
 		isPickupDateRequired := newerShipmentType == models.MTOShipmentTypeBoatHaulAway || newerShipmentType == models.MTOShipmentTypeBoatTowAway ||
 			newerShipmentType == models.MTOShipmentTypeMobileHome || newerShipmentType == models.MTOShipmentTypeHHGOutOfNTS
