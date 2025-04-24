@@ -153,9 +153,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				if suite.Errorf(err, "should have errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input) {
 					suite.IsType(apperror.InvalidInputError{}, err)
 					if testCase.input != nil && !testCase.input.IsZero() {
-						suite.Contains(err.Error(), "Requested pickup must be greater than or equal to tomorrow's date.")
+						suite.Contains(err.Error(), "RequestedPickupDate must be greater than or equal to tomorrow's date.")
 					} else {
-						suite.Contains(err.Error(), fmt.Sprintf("RequestedPickupDate is required to create or modify a %s shipment", testCase.shipmentType))
+						suite.Contains(err.Error(), fmt.Sprintf("RequestedPickupDate is required to create or modify %s %s shipment", GetAorAnByShipmentType(testCase.shipmentType), testCase.shipmentType))
 					}
 				}
 			} else {
@@ -239,46 +239,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.True(*createdShipment.PickupAddress.IsOconus)
 		suite.True(*createdShipment.DestinationAddress.IsOconus)
 		suite.Equal(createdShipment.MarketCode, models.MarketCodeInternational)
-	})
-
-	suite.Run("If the shipment has an international address it should be returned", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
-
-		internationalAddress := factory.BuildAddress(nil, []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "GB",
-					CountryName: "UNITED KINGDOM",
-				},
-			},
-		}, nil)
-		// stubbed countries need an ID
-		internationalAddress.ID = uuid.Must(uuid.NewV4())
-
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-			{
-				Model:    internationalAddress,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: futureDate,
-				},
-			},
-		}, nil)
-
-		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
-
-		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-
-		suite.Error(err)
-		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 
 	suite.Run("If the shipment has an international address it should be returned", func() {
@@ -1599,7 +1559,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			if testCase.shouldError {
 				suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, *testCase.input)
 				suite.Error(err)
-				suite.Equal("Requested pickup must be greater than or equal to tomorrow's date.", err.Error())
+				suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
 			} else {
 				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, *testCase.input)
 				suite.NotNil(shipment)

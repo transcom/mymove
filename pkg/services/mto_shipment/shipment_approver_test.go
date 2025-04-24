@@ -1595,7 +1595,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
 			if testCase.shouldError {
 				suite.NotNil(shipment, "Should return even with error for %s | %s", testCase.shipmentType, *testCase.input)
 				suite.Error(err)
-				suite.Equal("Requested pickup must be greater than or equal to tomorrow's date.", err.Error())
+				suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
 			} else {
 				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, *testCase.input)
 				suite.NotNil(shipment)
@@ -1880,7 +1880,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 				suite.NotNil(approvedShipments, "Should return even with error for %s | %s", testCase.shipmentType, *testCase.input)
 				suite.Len(*approvedShipments, 0)
 				suite.Error(err)
-				suite.Equal("Requested pickup must be greater than or equal to tomorrow's date.", err.Error())
+				suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
 			} else {
 				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, *testCase.input)
 				suite.Len(*approvedShipments, 2)
