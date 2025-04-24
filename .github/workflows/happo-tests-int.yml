@@ -1,8 +1,8 @@
-name: Happo CI (main)
+name: Happo CI (integrationTesting)
 
 on:
   push:
-    branches: [main]
+    branches: [integrationTesting]
 
 jobs:
   happo:
