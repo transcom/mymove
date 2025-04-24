@@ -6,7 +6,6 @@ import {
   ORDERS_DEPARTMENT_INDICATOR,
 } from 'constants/orders';
 import { shipmentDestinationTypes } from 'constants/shipments';
-import { SIT_EXTENSION_REASONS } from 'constants/sitExtensions';
 
 // This is to map the human-readable text to the options
 export default {
@@ -16,5 +15,4 @@ export default {
   ...ORDERS_PAY_GRADE_OPTIONS,
   ...ORDERS_DEPARTMENT_INDICATOR,
   ...shipmentDestinationTypes,
-  ...SIT_EXTENSION_REASONS,
 };

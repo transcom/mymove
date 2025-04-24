@@ -4,22 +4,11 @@ import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
-
-const formatChangedValues = (historyRecord) => {
-  const newChangedValues = {
-    ...getMtoShipmentLabel(historyRecord),
-    ...historyRecord.changedValues,
-  };
-  return { ...historyRecord, changedValues: newChangedValues };
-};
 
 export default {
-  action: a.INSERT,
+  action: a.UPDATE,
   eventName: o.createSITExtension,
-  tableName: t.sit_extensions,
-  getEventNameDisplay: () => 'SIT extension requested',
-  getDetails: (historyRecord) => {
-    return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
-  },
+  tableName: t.moves,
+  getEventNameDisplay: () => 'Updated move',
+  getDetails: (historyRecord) => <LabeledDetails historyRecord={historyRecord} />,
 };

@@ -22,5 +22,4 @@ export default {
   has_secondary_delivery_address: 'has_secondary_delivery_address',
   has_tertiary_pickup_address: 'has_tertiary_pickup_address',
   has_tertiary_delivery_address: 'has_tertiary_delivery_address',
-  customer_expense: 'customer_expense',
 };

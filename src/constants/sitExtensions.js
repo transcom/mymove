@@ -31,13 +31,3 @@ export const SIT_EXTENSION_STATUSES = {
   [SIT_EXTENSION_STATUS.APPROVED]: 'Approved',
   [SIT_EXTENSION_STATUS.DENIED]: 'Denied',
 };
-
-export const SIT_EXTENSION_REASONS = {
-  SERIOUS_ILLNESS_MEMBER: 'Serious illness of the member',
-  SERIOUS_ILLNESS_DEPENDENT: 'Serious illness or death of a dependent',
-  IMPENDING_ASSIGNEMENT: 'Impending assignment to government quarters',
-  DIRECTED_TEMPORARY_DUTY: 'Directed temporary duty after arrival at permanent duty location',
-  NONAVAILABILITY_OF_CIVILIAN_HOUSING: 'Nonavailability of suitable civilian housing',
-  AWAITING_COMPLETION_OF_RESIDENCE: 'Awaiting completion of residence under construction',
-  OTHER: 'Other reason',
-};

@@ -121,7 +121,7 @@ describe('when given a PPM shipment update', () => {
     it.each([
       ['Estimated weight', ': 2,233 lbs'],
       ['Expected departure date', ': 08 Dec 2023'],
-      ['SIT expected', ': Yes'],
+      ['Sit expected', ': Yes'],
       ['SIT estimated storage start', ': 22 Mar 2020'],
       ['SIT estimated storage end', ': 13 Apr 2020'],
       ['SIT estimated storage weight', ': 6,877 lbs'],

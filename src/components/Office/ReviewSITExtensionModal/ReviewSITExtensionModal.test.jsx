@@ -41,22 +41,8 @@ describe('ReviewSITExtensionModal', () => {
       />,
     );
 
-    const previousEndDate = formatDateForDatePicker(sitStatus.currentSIT.sitAuthorizedEndDate);
-    const combinedDays = sitExt.requestedDays + sitStatus.totalDaysRemaining;
-    const combinedDate = formatDateForDatePicker(moment().add(combinedDays, 'days'));
-    const normalizeText = (text) => text.replace(/\s+/g, ' ').trim();
-
     await waitFor(() => {
-      expect(screen.getByText(/Total days of SIT proposed/i)).toBeInTheDocument();
-      expect(screen.getByText(/Previously approved\s*\(45\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/Requested\s*\(45\)\s*=\s*90/i)).toBeInTheDocument();
-      expect(screen.getByText('Total days used')).toBeInTheDocument();
-      expect(screen.getByText('Proposed total days remaining (if extension request is approved)')).toBeInTheDocument();
-      expect(screen.getByText('SIT start date')).toBeInTheDocument();
-      const expectedHeaderText = `Previously authorized end date(${previousEndDate}) + days requested (${sitExt.requestedDays}) = ${combinedDate}`;
-      const headerElement = screen.getByText(/Previously authorized end date/i);
-      expect(normalizeText(headerElement.textContent)).toContain(normalizeText(expectedHeaderText));
-      expect(screen.getByText('Calculated total SIT days')).toBeInTheDocument();
+      expect(screen.getByText('45')).toBeInTheDocument();
       expect(screen.getByText('Awaiting completion of residence under construction')).toBeInTheDocument();
       expect(screen.getByText('The customer requested an extension')).toBeInTheDocument();
     });
@@ -93,6 +79,7 @@ describe('ReviewSITExtensionModal', () => {
     const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days').subtract(1, 'day'));
 
     await waitFor(() => {
+      // expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'yes',
         convertToCustomerExpense: false,
@@ -224,42 +211,5 @@ describe('ReviewSITExtensionModal', () => {
     expect(sitStartAndEndTable).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('Calculated total SIT days')).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('15')).toBeInTheDocument();
-  });
-
-  it('calculates SIT end date based on changed daysApproved', async () => {
-    const mockOnSubmit = jest.fn();
-
-    const statusOfSIT = {
-      totalDaysRemaining: 30,
-      totalSITDaysUsed: 15,
-      calculatedTotalDaysInSIT: 15,
-      currentSIT: {
-        daysInSIT: 15,
-        sitEntryDate: '2025-01-01',
-        sitAuthorizedEndDate: '2025-01-31',
-      },
-    };
-
-    render(
-      <ReviewSITExtensionModal
-        sitExtension={sitExt}
-        shipment={shipment}
-        sitStatus={statusOfSIT}
-        onSubmit={mockOnSubmit}
-        onClose={() => {}}
-      />,
-    );
-
-    const daysApprovedInput = screen.getByTestId('daysApproved');
-    await userEvent.clear(daysApprovedInput);
-    await userEvent.type(daysApprovedInput, '90');
-
-    const expectedSitEndDate = formatDateForDatePicker(moment('2025-01-01').add(90, 'days').subtract(1, 'days'));
-
-    await waitFor(() => {
-      const container = screen.getByTestId('sitEndDate');
-      const sitEndDateInput = within(container).getByRole('textbox');
-      expect(sitEndDateInput.value).toBe(expectedSitEndDate);
-    });
   });
 });
