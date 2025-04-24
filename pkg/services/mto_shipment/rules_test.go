@@ -700,6 +700,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 				RequestedPickupDate: &today,
 			},
 			expectedError: true,
+			errorMessage:  invalidDateError,
 		},
 		{
 			name: "Update from valid date to nil",
