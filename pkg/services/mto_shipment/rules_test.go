@@ -552,7 +552,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 	futureDate := models.TimePointer(tomorrow)
 	pastDate := models.TimePointer(today.Add(-24 * time.Hour))
 	zeroTime := time.Time{}
-	requiredDateError := "RequestedPickupDate is required to create a HHG shipment"
+	requiredDateError := "RequestedPickupDate is required to create an HHG shipment"
 	invalidDateError := "RequestedPickupDate must be greater than or equal to tomorrow's date"
 
 	testCases := []struct {
@@ -609,7 +609,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			expectedError: false,
 		},
 		{
-			name: "RequestedPickupDate in the past",
+			name: "HHG shipment with past RequestedPickupDate",
 			newer: &models.MTOShipment{
 				ID:                  uuidTest,
 				RequestedPickupDate: pastDate,
@@ -627,6 +627,26 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			expectedError: false,
 		},
 		{
+			name: "Boat shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "Boat shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
 			name: "Mobile home shipment with nil RequestedPickupDate",
 			newer: &models.MTOShipment{
 				ID:           uuidTest,
@@ -635,12 +655,51 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			expectedError: false,
 		},
 		{
+			name: "Mobile home shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeMobileHome,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "Mobile home shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeMobileHome,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
 			name: "HHG Out of NTS shipment with nil RequestedPickupDate",
 			newer: &models.MTOShipment{
 				ID:           uuidTest,
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
 			},
 			expectedError: false,
+		},
+		{
+			name: "HHG Out of NTS shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Out of NTS shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
 		},
 		{
 			name: "Update from valid date to nil",
@@ -684,4 +743,27 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			}
 		})
 	}
+}
+
+func (suite *MTOShipmentServiceSuite) TestGetAorAnWithShipmentType() {
+	suite.Run("GetAorAnWithShipmentType", func() {
+		testCases := map[models.MTOShipmentType]string{
+			models.MTOShipmentTypeHHG:                  "an",
+			models.MTOShipmentTypeHHGIntoNTS:           "an",
+			models.MTOShipmentTypeHHGOutOfNTS:          "an",
+			models.MTOShipmentTypeUnaccompaniedBaggage: "an",
+			models.MTOShipmentTypeMobileHome:           "a",
+			models.MTOShipmentTypeBoatHaulAway:         "a",
+			models.MTOShipmentTypeBoatTowAway:          "a",
+			models.MTOShipmentTypePPM:                  "a",
+			"UnknownType":                              "a",
+		}
+
+		for shipmentType, expected := range testCases {
+			suite.Run(string(shipmentType), func() {
+				result := GetAorAnByShipmentType(shipmentType)
+				suite.Equal(expected, result)
+			})
+		}
+	})
 }

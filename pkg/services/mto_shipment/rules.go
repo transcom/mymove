@@ -244,16 +244,19 @@ func MTOShipmentHasValidRequestedPickupDate() validator {
 		if newer.IsPPMShipment() {
 			return nil
 		}
-		newerHasDate := newer != nil && newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
+
+		newerShipmentType := models.MTOShipmentType("")
+		if newer != nil && newer.ShipmentType != "" {
+			newerShipmentType = newer.ShipmentType
+		}
+		newerHasDate := newer.RequestedPickupDate != nil && !newer.RequestedPickupDate.IsZero()
 		olderHasDate := older != nil && older.RequestedPickupDate != nil && !older.RequestedPickupDate.IsZero()
-		isBoatShipment := newer.ShipmentType == models.MTOShipmentTypeBoatHaulAway || newer.ShipmentType == models.MTOShipmentTypeBoatTowAway
-		isMTOShipmentTypeMobileHome := newer.ShipmentType == models.MTOShipmentTypeMobileHome
-		isMTOShipmentTypeHHGOutOfNTS := newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS
-		hasInvalidShipmentType := isBoatShipment || isMTOShipmentTypeMobileHome || isMTOShipmentTypeHHGOutOfNTS
-		if ((olderHasDate && !newerHasDate) || (!newerHasDate && !olderHasDate)) && !hasInvalidShipmentType {
+		isPickupDateRequired := newerShipmentType == models.MTOShipmentTypeBoatHaulAway || newerShipmentType == models.MTOShipmentTypeBoatTowAway ||
+			newerShipmentType == models.MTOShipmentTypeMobileHome || newerShipmentType == models.MTOShipmentTypeHHGOutOfNTS
+		if ((olderHasDate && !newerHasDate) || (!newerHasDate && !olderHasDate)) && !isPickupDateRequired {
 			verrs.Add("error validating mto shipment", "RequestedPickupDate is required to create a shipment")
 			return apperror.NewInvalidInputError(newer.ID, nil, validate.NewErrors(),
-				fmt.Sprintf("RequestedPickupDate is required to create a %s shipment", newer.ShipmentType))
+				fmt.Sprintf("RequestedPickupDate is required to create %s %s shipment", GetAorAnByShipmentType(newerShipmentType), newerShipmentType))
 		}
 		isDateUpdated := olderHasDate && newerHasDate && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate)
 		if newerHasDate || isDateUpdated {
@@ -264,6 +267,7 @@ func MTOShipmentHasValidRequestedPickupDate() validator {
 				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
 			}
 		}
+
 		return nil
 	})
 }
@@ -474,4 +478,16 @@ func childDiversionPrimeWeightRule() validator {
 		}
 		return nil
 	})
+}
+
+func GetAorAnByShipmentType(shipmentType models.MTOShipmentType) string {
+	switch shipmentType {
+	case models.MTOShipmentTypeHHG,
+		models.MTOShipmentTypeHHGIntoNTS,
+		models.MTOShipmentTypeHHGOutOfNTS,
+		models.MTOShipmentTypeUnaccompaniedBaggage:
+		return "an"
+	default:
+		return "a"
+	}
 }
