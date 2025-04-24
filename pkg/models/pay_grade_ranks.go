@@ -47,7 +47,7 @@ func GetPayGradeRankDropdownOptions(db *pop.Connection, affiliation string) ([]s
 		from pay_grade_ranks pgr
 		join pay_grades pg on pgr.pay_grade_id = pg.id
 		where affiliation = $1
-		order by pgr.rank_order;
+		order by pgr.rank_order
 	`, affiliation).All(&dropdownOptions)
 	if err != nil {
 		return nil, err
