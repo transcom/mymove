@@ -293,7 +293,22 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx a
 
 	return moves, nil
 }
+func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentDestination(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
+	var moves []models.MoveWithEarliestDate
+	err := appCtx.DB().RawQuery("SELECT * FROM fetch_moves_for_bulk_assignment_destination($1)",
+		gbloc).
+		All(&moves)
 
+	if err != nil {
+		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeId, err)
+	}
+
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
+	return moves, nil
+}
 func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentPaymentRequest(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
 	var moves []models.MoveWithEarliestDate
 
