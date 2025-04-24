@@ -187,6 +187,9 @@ INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name
     ('41023a85-bbbf-4ee9-a7ce-ae5bab910cce','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'NAVY','MCPON','Master Chief Petty Officer of the Navy',17,now(),now()),
     ('b333751f-4831-4068-91ca-25fbe60c4b3a','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'SPACE_FORCE','CMASSF','Chief Master Sergeant of the Space Force',11,now(),now());
 
+INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
+    ('5324bc17-9c46-486e-9d7f-1ed9f1f76dcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN', 'CIV', 'Civilian', 1, now(), now());
+
 --add pay_grade_rank_id to orders table
 alter table orders drop if exists pay_grade_rank_id;
 alter table pay_grade_ranks drop constraint if exists pay_grade_rank_id;
