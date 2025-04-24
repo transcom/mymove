@@ -80,7 +80,7 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 		}
 
 		if shipmentApprovable(*shipment) {
-			shipment.Status = models.MTOShipmentStatusApprovalsRequested
+			shipment.Status = models.MTOShipmentStatusApproved
 		}
 
 		updatedShipment, err := f.updateSitDaysAllowance(txnAppCtx, *shipment, approvedDays)
