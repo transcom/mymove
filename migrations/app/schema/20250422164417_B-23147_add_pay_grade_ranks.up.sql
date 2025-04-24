@@ -171,13 +171,13 @@ INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name
     ('61c647fa-5325-45b9-8d6f-30a2aaa06308','6cb785d0-cabf-479a-a36d-a6aec294a4d0'::uuid,'SPACE_FORCE','Spc1','Specialist 1',22,now(),now());
 
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
-    ('d3aa6931-7858-4123-be0b-f3242a49e9f7', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'AIR_FORCE','CIV','Civiian',null,now(),now()),
-    ('0be75ca3-5226-447b-ad5f-d73205946bcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civiian',null,now(),now()),
-    ('4af7df34-a5a3-448e-93eb-7bed05704cd0', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civiian',null,now(),now()),
-    ('676ae8f9-0ca6-4919-b502-ef46c1cfaa48', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civiian',null,now(),now()),
-    ('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civiian',null,now(),now()),
-    ('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civiian',null,now(),now());
-    (uuid_generate_v4(), '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'OTHER', 'CIV', 'Civilian', 1, now(), now());
+    ('d3aa6931-7858-4123-be0b-f3242a49e9f7', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'AIR_FORCE','CIV','Civilian',null,now(),now()),
+    ('0be75ca3-5226-447b-ad5f-d73205946bcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civilian',null,now(),now()),
+    ('4af7df34-a5a3-448e-93eb-7bed05704cd0', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civilian',null,now(),now()),
+    ('676ae8f9-0ca6-4919-b502-ef46c1cfaa48', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civilian',null,now(),now()),
+    ('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civilian',null,now(),now()),
+    ('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civilian',null,now(),now()),
+    ('6557dfe3-35b7-44c5-adee-43a29dfcf289', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'OTHER','CIV','Civilian',null,now(),now());
 
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
     ('4e75f79c-2a2a-442e-a7c9-bd3bcf57e3c4','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'AIR_FORCE','CMSAF','Chief Master Sergeant of the Air Force',11,now(),now()),
@@ -188,7 +188,7 @@ INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name
     ('b333751f-4831-4068-91ca-25fbe60c4b3a','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'SPACE_FORCE','CMASSF','Chief Master Sergeant of the Space Force',11,now(),now());
 
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
-    (uuid_generate_v4(), '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN', 'CIV', 'Civilian', 1, now(), now());
+    ('5324bc17-9c46-486e-9d7f-1ed9f1f76dcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN', 'CIV', 'Civilian', 1, now(), now());
 
 --add pay_grade_rank_id to orders table
 alter table orders drop if exists pay_grade_rank_id;
