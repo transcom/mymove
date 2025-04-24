@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import AboutForm from 'components/Shared/PPM/Closeout/AboutForm/AboutForm';
 import { configureStore } from 'shared/store';
 import { APP_NAME } from 'constants/apps';
+import { PPM_TYPES } from 'shared/constants';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -370,6 +371,75 @@ describe('AboutForm component', () => {
             expect.anything(),
           );
         });
+      });
+    });
+
+    describe('AboutForm - when ppmType is SMALL_PACKAGE', () => {
+      const smallPackageMtoShipment = {
+        ppmShipment: {
+          ppmType: PPM_TYPES.SMALL_PACKAGE,
+          actualMoveDate: '01 Jan 2022',
+          pickupAddress: {
+            streetAddress1: '123 Small Package St',
+            streetAddress2: '',
+            streetAddress3: '',
+            city: 'Smalltown',
+            state: 'SP',
+            postalCode: '12345',
+            usPostRegionCitiesID: '',
+          },
+          destinationAddress: {
+            streetAddress1: '456 Destination Ave',
+            streetAddress2: '',
+            streetAddress3: '',
+            city: 'Destination City',
+            state: 'SP',
+            postalCode: '67890',
+            usPostRegionCitiesID: '',
+          },
+          hasReceivedAdvance: false,
+          w2Address: {
+            streetAddress1: '',
+            streetAddress2: '',
+            streetAddress3: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            usPostRegionCitiesID: '',
+          },
+        },
+      };
+
+      const smallPackageProps = {
+        onSubmit: jest.fn(),
+        onBack: jest.fn(),
+        mtoShipment: smallPackageMtoShipment,
+      };
+
+      it('renders "Shipped Date" heading and small package labels', async () => {
+        render(
+          <Provider store={mockStore.store}>
+            <AboutForm {...smallPackageProps} appName={APP_NAME.MYMOVE} />
+          </Provider>,
+        );
+
+        const headings = screen.getAllByRole('heading', { level: 2 });
+        expect(headings[2]).toHaveTextContent('Shipped Date');
+
+        expect(screen.getByLabelText('When did you ship your package?')).toBeInTheDocument();
+
+        expect(
+          screen.queryByText(/If you picked things up or dropped things off from other places/),
+        ).not.toBeInTheDocument();
+
+        expect(screen.queryByText('Destination Address')).toBeInTheDocument();
+        expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
+
+        expect(screen.getByText('W-2 address')).toBeInTheDocument();
+
+        expect(screen.getByRole('heading', { level: 2, name: /Locations/ })).toBeInTheDocument();
+
+        expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
       });
     });
   });

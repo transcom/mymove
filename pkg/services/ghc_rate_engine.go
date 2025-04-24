@@ -347,7 +347,7 @@ type IntlUBUnpackPricer interface {
 
 // IntlUBPricer prices international UB Shipments
 //
-//go:generate mockery --name IntlUBUPricer
+//go:generate mockery --name IntlUBPricer
 type IntlUBPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer

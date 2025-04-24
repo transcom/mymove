@@ -10,6 +10,7 @@ import PrimeUIUpdateInternationalOriginSITForm from './PrimeUIUpdateInternationa
 import PrimeUIUpdateInternationalDestSITForm from './PrimeUIUpdateInternationalDestSITForm';
 import PrimeUIUpdateInternationalFuelSurchargeForm from './PrimeUIUpdateInternationalFuelSurchargeForm';
 import PrimeUIUpdateInternationalShuttleForm from './PrimeUIUpdateInternationalShuttleForm';
+import PrimeUIUpdateDomesticShuttleForm from './PrimeUIUpdateDomesticShuttleform';
 
 import { updateMTOServiceItem } from 'services/primeApi';
 import scrollToTop from 'shared/scrollToTop';
@@ -172,6 +173,12 @@ const PrimeUIUpdateServiceItem = ({ setFlashMessage }) => {
                   moveTaskOrder={moveTaskOrder}
                   mtoServiceItemId={mtoServiceItemId}
                   onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                />
+              ) : null}
+              {modelType === 'MTOServiceItemDomesticShuttle' ? (
+                <PrimeUIUpdateDomesticShuttleForm
+                  onUpdateServiceItem={createUpdateServiceItemRequestMutation}
+                  serviceItem={serviceItem}
                 />
               ) : null}
               {modelType === 'MTOServiceItemInternationalShuttle' ? (

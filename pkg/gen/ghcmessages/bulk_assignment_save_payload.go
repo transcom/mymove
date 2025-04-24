@@ -25,7 +25,7 @@ type BulkAssignmentSavePayload struct {
 	MoveData []BulkAssignmentMoveData `json:"moveData"`
 
 	// A string corresponding to the queue type
-	// Enum: [COUNSELING CLOSEOUT TASK_ORDER PAYMENT_REQUEST]
+	// Enum: [COUNSELING CLOSEOUT TASK_ORDER PAYMENT_REQUEST DESTINATION_REQUESTS]
 	QueueType string `json:"queueType,omitempty"`
 
 	// user data
@@ -79,7 +79,7 @@ var bulkAssignmentSavePayloadTypeQueueTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["COUNSELING","CLOSEOUT","TASK_ORDER","PAYMENT_REQUEST"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["COUNSELING","CLOSEOUT","TASK_ORDER","PAYMENT_REQUEST","DESTINATION_REQUESTS"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -100,6 +100,9 @@ const (
 
 	// BulkAssignmentSavePayloadQueueTypePAYMENTREQUEST captures enum value "PAYMENT_REQUEST"
 	BulkAssignmentSavePayloadQueueTypePAYMENTREQUEST string = "PAYMENT_REQUEST"
+
+	// BulkAssignmentSavePayloadQueueTypeDESTINATIONREQUESTS captures enum value "DESTINATION_REQUESTS"
+	BulkAssignmentSavePayloadQueueTypeDESTINATIONREQUESTS string = "DESTINATION_REQUESTS"
 )
 
 // prop value enum
