@@ -247,7 +247,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(
                     o_rate_area_id,
                     NULL,
-                    (SELECT id FROM re_services WHERE code = ''IHPK'' LIMIT 1),
+                    (SELECT id FROM re_services WHERE code = ''IHPK''),
                     declared_contract_id,
                     ''IHPK'',
                     shipment.requested_pickup_date
