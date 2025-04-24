@@ -16,8 +16,7 @@ BEGIN
                                      're_zip3s','zip3_distances', 're_contracts', 're_domestic_service_areas',
                                      're_intl_prices', 're_intl_other_prices', 're_domestic_linehaul_prices',
                                      're_domestic_service_area_prices', 're_domestic_other_prices', 'pay_grades',
-                                     'hhg_allowances',
-                                     'jppso_regions', 'jppso_region_state_assignments', 'gbloc_aors', 'roles')) LOOP
+                                     'hhg_allowances', 'jppso_regions', 'jppso_region_state_assignments', 'gbloc_aors', 'roles', 'privileges', 'roles_privileges')) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
 END \$\$;
