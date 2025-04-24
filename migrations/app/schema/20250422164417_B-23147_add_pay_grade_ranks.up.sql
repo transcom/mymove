@@ -180,12 +180,12 @@ INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name
     (uuid_generate_v4(), '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'OTHER', 'CIV', 'Civilian', 1, now(), now());
 
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
-	('4e75f79c-2a2a-442e-a7c9-bd3bcf57e3c4','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'AIR_FORCE','CMA','Chief Master Sergeant of the Air Force',11,now(),now()),
+	('4e75f79c-2a2a-442e-a7c9-bd3bcf57e3c4','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'AIR_FORCE','CMSAF','Chief Master Sergeant of the Air Force',11,now(),now()),
 	('2a1b2c87-9861-4900-9d1f-6844a3dd4e9d','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'ARMY','SMA','Sergeant Major of the Army',16,now(),now()),
-	('621104d4-e717-414c-8016-b7edf0683ad7','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'COAST_GUARD','MCPG','Master Chief Petty Officer of the Coast Guard',16,now(),now()),
-	('028097e4-2b35-4a20-b6db-3b436dc56f45','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'MARINES','SMM','Sergeant Major of the Marine Corps',16,now(),now()),
-	('41023a85-bbbf-4ee9-a7ce-ae5bab910cce','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'NAVY','MCPN','Master Chief Petty Officer of the Navy',17,now(),now()),
-	('b333751f-4831-4068-91ca-25fbe60c4b3a','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'SPACE_FORCE','CMA','Chief Master Sergeant of the Space Force',11,now(),now());
+	('621104d4-e717-414c-8016-b7edf0683ad7','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'COAST_GUARD','MCPOCG','Master Chief Petty Officer of the Coast Guard',16,now(),now()),
+	('028097e4-2b35-4a20-b6db-3b436dc56f45','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'MARINES','SgtMajMC','Sergeant Major of the Marine Corps',16,now(),now()),
+	('41023a85-bbbf-4ee9-a7ce-ae5bab910cce','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'NAVY','MCPON','Master Chief Petty Officer of the Navy',17,now(),now()),
+	('b333751f-4831-4068-91ca-25fbe60c4b3a','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'SPACE_FORCE','CMASSF','Chief Master Sergeant of the Space Force',11,now(),now());
 
 --add pay_grade_rank_id to orders table
 alter table orders drop if exists pay_grade_rank_id;
