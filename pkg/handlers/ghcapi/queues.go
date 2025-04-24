@@ -767,6 +767,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -788,6 +789,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -809,6 +811,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeTOO,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -830,6 +833,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx,
 					roles.RoleTypeTIO,
 					officeUser.TransportationOfficeID,
+					*queueType,
 				)
 				if err != nil {
 					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
@@ -845,7 +849,30 @@ func (h GetBulkAssignmentDataHandler) Handle(
 				}
 
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
+			case string(models.QueueTypeDestinationRequest):
+				// fetch the TOOs who work at their office
+				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+					*queueType,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+				// fetch the moves available to be assigned to their office users
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentDestination(
+					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+
+				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			}
+
 			return queues.NewGetBulkAssignmentDataOK().WithPayload(&officeUserData), nil
 		})
 }

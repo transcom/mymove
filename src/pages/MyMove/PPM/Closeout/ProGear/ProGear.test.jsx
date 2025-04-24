@@ -114,12 +114,22 @@ const mockServiceMember = {
   id: 'testId',
 };
 
+const mockOrders = {
+  'fd4e80f8-d025-44b2-8c33-15240fac51ab': {
+    entitlement: {
+      proGear: 1234,
+      proGearSpouse: 123,
+    },
+  },
+};
+
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
   selectProGearWeightTicketAndIndexById: jest.fn(() => mockEmptyProGearWeightTicketAndIndex),
   selectProGearEntitlements: jest.fn(() => mockEntitlement),
   selectServiceMemberFromLoggedInUser: jest.fn(() => mockServiceMember),
+  selectOrdersForLoggedInUser: jest.fn(() => mockOrders),
 }));
 
 beforeEach(() => {
@@ -186,10 +196,6 @@ describe('Pro-gear page', () => {
     createProGearWeightTicket.mockResolvedValue(mockProGearWeightTicket);
     renderProGearPage();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pro-gear');
-  });
-  it('displays reminder to include pro-gear weight in total', () => {
-    renderProGearPage();
-    expect(screen.getByText(/This pro-gear should be included in your total weight moved./)).toBeInTheDocument();
   });
 
   it('replaces the router history with newly created pro gear weight ticket id', async () => {
