@@ -39,32 +39,32 @@ INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name
 
 -- USAF
 INSERT INTO pay_grade_ranks (id,pay_grade_id,affiliation,rank_abbv,rank_name,rank_order,created_at,updated_at) VALUES
-	 ('560ce615-e31d-4800-9273-8344508d18e2','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'AIR_FORCE','Gen','General',1,now(),now()),
-	 ('d84742d4-cbbc-48ce-af03-3eada00aa145','1d6e34c3-8c6c-4d4f-8b91-f46bed3f5e80'::uuid,'AIR_FORCE','Lt Gen','Lieutenant General',2,now(),now()),
-	 ('5db514e4-5808-4211-aea7-866ac6a74dc4','6e50b04a-52dc-45c9-91d9-4a7b4fa1ab20'::uuid,'AIR_FORCE','Maj Gen','Major General',3,now(),now()),
-	 ('daae28b0-9b9d-45bf-9ba9-b33e079f6105','cf664124-9baf-4187-8f28-0908c0f0a5e0'::uuid,'AIR_FORCE','Brig Gen','Brigadier General',4,now(),now()),
-	 ('f6157a08-c804-4d61-867d-806b4680a4de','455a112d-d1e0-4559-81e8-6df664638f70'::uuid,'AIR_FORCE','Col','Colonel',5,now(),now()),
-	 ('78eb194c-e7c3-4a47-a6c6-913de1a689f8','3bc4b197-7897-4105-80a1-39a0378d7730'::uuid,'AIR_FORCE','Lt Col','Lieutenant Colonel',6,now(),now()),
-	 ('299eb095-0dc9-4789-9549-3aaa147a2b81','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'AIR_FORCE','Maj','Major',7,now(),now()),
-	 ('8850863d-c5e1-49dd-9c47-58a3289b122c','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'AIR_FORCE','Capt','Captain',8,now(),now()),
-	 ('c98ba41b-3fcd-474f-98ac-51764cc1f0e5','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'AIR_FORCE','1st Lt','First Lieutenant',9,now(),now()),
-	 ('43b69e7b-99a3-488f-8cea-3abe63d6f20a','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','AVC','Aviation Cadet',10,now(),now()),
-	 ('914db640-0de5-494d-b917-b4a44e022f4b','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','2d Lt','Second Lieutenant',10,now(),now()),
-	 ('2cf8e36a-20fb-41fe-9268-d3d1f0219d1a','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','AFC','Air Force Academy Cadet',10,now(),now()),
-	 ('6317aedf-73b6-4926-b763-44ff1ba0c00a','ea8cb0e9-15ff-43b4-9e41-7168d01e7553'::uuid,'AIR_FORCE','CWO5','Chief Warrant Officer 5',11,now(),now()),
-	 ('3b55fae1-bd2e-4e70-b154-d0df35cd706a','74db5649-cf66-4af8-939b-d3d7f1f6b7c6'::uuid,'AIR_FORCE','CWO4','Chief Warrant Officer 4',12,now(),now()),
-	 ('13cf90df-c8a9-47ae-bd78-e0854db429aa','5a65fb1f-4245-4178-b6a7-cc504c9cbb37'::uuid,'AIR_FORCE','CWO3','Chief Warrant Officer 3',13,now(),now()),
-	 ('5af407d9-5586-42ec-a1e7-f9d11283641a','a687a2e1-488c-4943-b9d9-3d645a2712f4'::uuid,'AIR_FORCE','CWO2','Chief Warrant Officer 2',14,now(),now()),
-	 ('6a819381-85d6-45fe-ad61-88aeb1d5f91f','6badf8a0-b0ef-4e42-b827-7f63a3987a4b'::uuid,'AIR_FORCE','WO','Warrant Officer 1',15,now(),now()),
-	 ('85578266-a86c-42ce-b740-e62614361114','a5fc8fd2-6f91-492b-abe2-2157d03ec990'::uuid,'AIR_FORCE','CMSgt','Chief Master Sergeant',16,now(),now()),
-	 ('dda2b553-99be-439b-b088-b7608b48eff0','1d909db0-602f-4724-bd43-8f90a6660460'::uuid,'AIR_FORCE','SMSgt','Senior Master Sergeant',17,now(),now()),
-	 ('43dd0d76-1f2f-45fb-a73e-404fe2ab93f0','523d57a1-529c-4dfd-8c33-9cb169fd29a0'::uuid,'AIR_FORCE','MSGgt','Master Sergeant',18,now(),now()),
-	 ('0472a25d-b1a0-451c-9895-110dfe44496a','541aec36-bd9f-4ad2-abb4-d9b63e29dc80'::uuid,'AIR_FORCE','TSGgt','Technical Sergeant',19,now(),now()),
-	 ('ae9f9d91-b049-4f60-bdc9-e441a7b3cb30','3f142461-dca5-4a77-9295-92ee93371330'::uuid,'AIR_FORCE','SSgt','Staff Sergeant',20,now(),now()),
-	 ('753f82f9-27e1-4ee7-9b57-bfef3c83656b','bb55f37c-3165-46ba-ad3f-9a477f699990'::uuid,'AIR_FORCE','SrA','Senior Airman',21,now(),now()),
-	 ('3aca9ba8-3b84-42bf-8f2f-5ef02587ba89','862eb395-86d1-44af-ad47-dec44fbeda30'::uuid,'AIR_FORCE','A1C','Airman First Class',22,now(),now()),
-	 ('cb0ee2b8-e852-40fe-b972-2730b53860c7','5f871c82-f259-43cc-9245-a6e18975dde0'::uuid,'AIR_FORCE','Amn','Airman',23,now(),now()),
-	 ('f6dbd496-8f71-487b-a432-55b60967f474','6cb785d0-cabf-479a-a36d-a6aec294a4d0'::uuid,'AIR_FORCE','AB','Airman Basic',24,now(),now());
+    ('560ce615-e31d-4800-9273-8344508d18e2','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'AIR_FORCE','Gen','General',1,now(),now()),
+    ('d84742d4-cbbc-48ce-af03-3eada00aa145','1d6e34c3-8c6c-4d4f-8b91-f46bed3f5e80'::uuid,'AIR_FORCE','Lt Gen','Lieutenant General',2,now(),now()),
+    ('5db514e4-5808-4211-aea7-866ac6a74dc4','6e50b04a-52dc-45c9-91d9-4a7b4fa1ab20'::uuid,'AIR_FORCE','Maj Gen','Major General',3,now(),now()),
+    ('daae28b0-9b9d-45bf-9ba9-b33e079f6105','cf664124-9baf-4187-8f28-0908c0f0a5e0'::uuid,'AIR_FORCE','Brig Gen','Brigadier General',4,now(),now()),
+    ('f6157a08-c804-4d61-867d-806b4680a4de','455a112d-d1e0-4559-81e8-6df664638f70'::uuid,'AIR_FORCE','Col','Colonel',5,now(),now()),
+    ('78eb194c-e7c3-4a47-a6c6-913de1a689f8','3bc4b197-7897-4105-80a1-39a0378d7730'::uuid,'AIR_FORCE','Lt Col','Lieutenant Colonel',6,now(),now()),
+    ('299eb095-0dc9-4789-9549-3aaa147a2b81','e83d8f8d-f70b-4db1-99cc-dd983d2fd250'::uuid,'AIR_FORCE','Maj','Major',7,now(),now()),
+    ('8850863d-c5e1-49dd-9c47-58a3289b122c','5658d67b-d510-4226-9e56-714403ba0f10'::uuid,'AIR_FORCE','Capt','Captain',8,now(),now()),
+    ('c98ba41b-3fcd-474f-98ac-51764cc1f0e5','d1b76a01-d8e4-4bd3-98ff-fa93ff7bc790'::uuid,'AIR_FORCE','1st Lt','First Lieutenant',9,now(),now()),
+    ('43b69e7b-99a3-488f-8cea-3abe63d6f20a','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','AVC','Aviation Cadet',10,now(),now()),
+    ('914db640-0de5-494d-b917-b4a44e022f4b','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','2d Lt','Second Lieutenant',10,now(),now()),
+    ('2cf8e36a-20fb-41fe-9268-d3d1f0219d1a','9a892c59-48d5-4eba-b5f9-193716da8827'::uuid,'AIR_FORCE','AFC','Air Force Academy Cadet',10,now(),now()),
+    ('6317aedf-73b6-4926-b763-44ff1ba0c00a','ea8cb0e9-15ff-43b4-9e41-7168d01e7553'::uuid,'AIR_FORCE','CWO5','Chief Warrant Officer 5',11,now(),now()),
+    ('3b55fae1-bd2e-4e70-b154-d0df35cd706a','74db5649-cf66-4af8-939b-d3d7f1f6b7c6'::uuid,'AIR_FORCE','CWO4','Chief Warrant Officer 4',12,now(),now()),
+    ('13cf90df-c8a9-47ae-bd78-e0854db429aa','5a65fb1f-4245-4178-b6a7-cc504c9cbb37'::uuid,'AIR_FORCE','CWO3','Chief Warrant Officer 3',13,now(),now()),
+    ('5af407d9-5586-42ec-a1e7-f9d11283641a','a687a2e1-488c-4943-b9d9-3d645a2712f4'::uuid,'AIR_FORCE','CWO2','Chief Warrant Officer 2',14,now(),now()),
+    ('6a819381-85d6-45fe-ad61-88aeb1d5f91f','6badf8a0-b0ef-4e42-b827-7f63a3987a4b'::uuid,'AIR_FORCE','WO','Warrant Officer 1',15,now(),now()),
+    ('85578266-a86c-42ce-b740-e62614361114','a5fc8fd2-6f91-492b-abe2-2157d03ec990'::uuid,'AIR_FORCE','CMSgt','Chief Master Sergeant',16,now(),now()),
+    ('dda2b553-99be-439b-b088-b7608b48eff0','1d909db0-602f-4724-bd43-8f90a6660460'::uuid,'AIR_FORCE','SMSgt','Senior Master Sergeant',17,now(),now()),
+    ('43dd0d76-1f2f-45fb-a73e-404fe2ab93f0','523d57a1-529c-4dfd-8c33-9cb169fd29a0'::uuid,'AIR_FORCE','MSGgt','Master Sergeant',18,now(),now()),
+    ('0472a25d-b1a0-451c-9895-110dfe44496a','541aec36-bd9f-4ad2-abb4-d9b63e29dc80'::uuid,'AIR_FORCE','TSGgt','Technical Sergeant',19,now(),now()),
+    ('ae9f9d91-b049-4f60-bdc9-e441a7b3cb30','3f142461-dca5-4a77-9295-92ee93371330'::uuid,'AIR_FORCE','SSgt','Staff Sergeant',20,now(),now()),
+    ('753f82f9-27e1-4ee7-9b57-bfef3c83656b','bb55f37c-3165-46ba-ad3f-9a477f699990'::uuid,'AIR_FORCE','SrA','Senior Airman',21,now(),now()),
+    ('3aca9ba8-3b84-42bf-8f2f-5ef02587ba89','862eb395-86d1-44af-ad47-dec44fbeda30'::uuid,'AIR_FORCE','A1C','Airman First Class',22,now(),now()),
+    ('cb0ee2b8-e852-40fe-b972-2730b53860c7','5f871c82-f259-43cc-9245-a6e18975dde0'::uuid,'AIR_FORCE','Amn','Airman',23,now(),now()),
+    ('f6dbd496-8f71-487b-a432-55b60967f474','6cb785d0-cabf-479a-a36d-a6aec294a4d0'::uuid,'AIR_FORCE','AB','Airman Basic',24,now(),now());
 -- Marines
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
     ('535c23c3-95e6-4795-9c5f-52e1dceae375','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'MARINES','Gen','General',1,now(),now()),
@@ -171,21 +171,21 @@ INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name
     ('61c647fa-5325-45b9-8d6f-30a2aaa06308','6cb785d0-cabf-479a-a36d-a6aec294a4d0'::uuid,'SPACE_FORCE','Spc1','Specialist 1',22,now(),now());
 
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
-	('d3aa6931-7858-4123-be0b-f3242a49e9f7', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'AIR_FORCE','CIV','Civiian',null,now(),now()),
-	('0be75ca3-5226-447b-ad5f-d73205946bcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civiian',null,now(),now()),
-	('4af7df34-a5a3-448e-93eb-7bed05704cd0', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civiian',null,now(),now()),
-	('676ae8f9-0ca6-4919-b502-ef46c1cfaa48', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civiian',null,now(),now()),
-	('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civiian',null,now(),now()),
-	('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civiian',null,now(),now());
+    ('d3aa6931-7858-4123-be0b-f3242a49e9f7', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'AIR_FORCE','CIV','Civiian',null,now(),now()),
+    ('0be75ca3-5226-447b-ad5f-d73205946bcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'ARMY','CIV','Civiian',null,now(),now()),
+    ('4af7df34-a5a3-448e-93eb-7bed05704cd0', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'COAST_GUARD','CIV','Civiian',null,now(),now()),
+    ('676ae8f9-0ca6-4919-b502-ef46c1cfaa48', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'MARINES','CIV','Civiian',null,now(),now()),
+    ('4a1dfa4b-f051-4c2b-a7d1-7279171e02d2', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'NAVY','CIV','Civiian',null,now(),now()),
+    ('3a4fcdf6-9ddf-4e31-b4da-d9823cfbb9b6', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9'::uuid,'SPACE_FORCE','CIV','Civiian',null,now(),now());
     (uuid_generate_v4(), '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'OTHER', 'CIV', 'Civilian', 1, now(), now());
 
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
-	('4e75f79c-2a2a-442e-a7c9-bd3bcf57e3c4','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'AIR_FORCE','CMSAF','Chief Master Sergeant of the Air Force',11,now(),now()),
-	('2a1b2c87-9861-4900-9d1f-6844a3dd4e9d','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'ARMY','SMA','Sergeant Major of the Army',16,now(),now()),
-	('621104d4-e717-414c-8016-b7edf0683ad7','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'COAST_GUARD','MCPOCG','Master Chief Petty Officer of the Coast Guard',16,now(),now()),
-	('028097e4-2b35-4a20-b6db-3b436dc56f45','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'MARINES','SgtMajMC','Sergeant Major of the Marine Corps',16,now(),now()),
-	('41023a85-bbbf-4ee9-a7ce-ae5bab910cce','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'NAVY','MCPON','Master Chief Petty Officer of the Navy',17,now(),now()),
-	('b333751f-4831-4068-91ca-25fbe60c4b3a','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'SPACE_FORCE','CMASSF','Chief Master Sergeant of the Space Force',11,now(),now());
+    ('4e75f79c-2a2a-442e-a7c9-bd3bcf57e3c4','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'AIR_FORCE','CMSAF','Chief Master Sergeant of the Air Force',11,now(),now()),
+    ('2a1b2c87-9861-4900-9d1f-6844a3dd4e9d','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'ARMY','SMA','Sergeant Major of the Army',16,now(),now()),
+    ('621104d4-e717-414c-8016-b7edf0683ad7','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'COAST_GUARD','MCPOCG','Master Chief Petty Officer of the Coast Guard',16,now(),now()),
+    ('028097e4-2b35-4a20-b6db-3b436dc56f45','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'MARINES','SgtMajMC','Sergeant Major of the Marine Corps',16,now(),now()),
+    ('41023a85-bbbf-4ee9-a7ce-ae5bab910cce','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'NAVY','MCPON','Master Chief Petty Officer of the Navy',17,now(),now()),
+    ('b333751f-4831-4068-91ca-25fbe60c4b3a','911208cc-3d13-49d6-9478-b0a3943435c0'::uuid,'SPACE_FORCE','CMASSF','Chief Master Sergeant of the Space Force',11,now(),now());
 
 INSERT INTO pay_grade_ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
     (uuid_generate_v4(), '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN', 'CIV', 'Civilian', 1, now(), now());
