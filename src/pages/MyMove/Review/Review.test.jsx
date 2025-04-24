@@ -454,6 +454,7 @@ describe('Review page', () => {
   it('renders the warning message if a move has been locked by an office user', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMovesWithLock);
     selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
     await act(async () => {
       renderWithProviders(<ConnectedReview />, mockRoutingOptions);
     });
