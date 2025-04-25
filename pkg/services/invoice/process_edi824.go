@@ -21,9 +21,9 @@ type edi824Processor struct {
 }
 
 // NewEDI824Processor returns a new EDI824 processor
-func NewEDI824Processor() services.SyncadaFileProcessor {
+func NewEDI824Processor(notifications notifications.NotificationSender) services.SyncadaFileProcessor {
 
-	return &edi824Processor{}
+	return &edi824Processor{notifications: notifications}
 }
 
 // ProcessFile parses an EDI 824 response and updates the payment request status

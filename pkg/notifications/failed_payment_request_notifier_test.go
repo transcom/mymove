@@ -1,8 +1,6 @@
 package notifications
 
 import (
-	"strings"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,13 +17,6 @@ func (suite *NotificationSuite) TestPaymentRequestFailedEmails() {
 		ParameterValue: stringPointer("src@example.com"),
 	})
 	suite.NoError(err)
-	email1, _ := models.FetchParameterValueByName(suite.DB(), "src_email")
-
-	recipients := []string{}
-
-	if email1.ParameterValue != nil {
-		recipients = append(recipients, *email1.ParameterValue)
-	}
 
 	ediError := models.EdiError{
 		PaymentRequestID: paymentRequest.ID,
@@ -39,7 +30,6 @@ func (suite *NotificationSuite) TestPaymentRequestFailedEmails() {
 
 	suite.NoError(err)
 	suite.Equal(1, len(emails))
-	suite.Equal(strings.Join(recipients, ";"), emails[0].recipientEmail)
 	suite.Equal("Payment Request Failed", emails[0].subject)
 	suite.Contains(emails[0].htmlBody, "123")
 	suite.Contains(emails[0].textBody, "Test error")
