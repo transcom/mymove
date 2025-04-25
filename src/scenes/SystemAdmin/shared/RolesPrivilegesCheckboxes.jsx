@@ -14,6 +14,11 @@ const RolesPrivilegesCheckboxInput = (props) => {
   let rolesSelected = [];
   let privilegesSelected = [];
 
+  const listFormatter = new Intl.ListFormat('en', {
+    style: 'long',
+    type: 'conjunction',
+  });
+
   useEffect(() => {
     isBooleanFlagEnabled('headquarters_role')?.then((enabled) => {
       setHeadquartersRoleFF(enabled);
@@ -156,7 +161,8 @@ const RolesPrivilegesCheckboxInput = (props) => {
               whiteSpace: 'pre-wrap',
             }}
           >
-            The {privilegeName} privilege can only be selected for the following roles: {roleNames.join(', ')}.
+            The {privilegeName} privilege can only be selected for the following roles:{' '}
+            {listFormatter.format(roleNames)}.
           </span>
         );
       })}

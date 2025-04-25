@@ -26,7 +26,7 @@ func (f rolesFetcher) FetchRolesForUser(appCtx appcontext.AppContext, userID uui
 
 func (f rolesFetcher) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.Role, error) {
 	var allRoles []roles.Role
-	err := appCtx.DB().Q().EagerPreload("RolePrivileges", "RolePrivileges.Privilege").All(&allRoles)
+	err := appCtx.DB().Q().EagerPreload("RolePrivileges", "RolePrivileges.Privilege").Order("sort ASC").All(&allRoles)
 	return allRoles, err
 }
 

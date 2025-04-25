@@ -3292,6 +3292,10 @@ func init() {
           "type": "string",
           "example": "supervisor"
         },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -3394,6 +3398,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",
@@ -7153,6 +7161,10 @@ func init() {
           "type": "string",
           "example": "supervisor"
         },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -7255,6 +7267,10 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int32"
         },
         "updatedAt": {
           "type": "string",

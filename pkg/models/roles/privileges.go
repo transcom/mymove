@@ -32,6 +32,7 @@ type Privilege struct {
 	ID            uuid.UUID     `json:"id" db:"id"`
 	PrivilegeType PrivilegeType `json:"privilege_type" db:"privilege_type"`
 	PrivilegeName PrivilegeName `json:"privilege_name" db:"privilege_name"`
+	Sort          int32         `json:"sort" db:"sort"`
 	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
 }
