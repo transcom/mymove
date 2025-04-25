@@ -85,6 +85,9 @@ type CreateUpdateOrders struct {
 	// Format: uuid
 	OriginDutyLocationID strfmt.UUID `json:"origin_duty_location_id,omitempty"`
 
+	// Rank
+	Rank *string `json:"rank,omitempty"`
+
 	// Report-by date
 	//
 	// Report By Date

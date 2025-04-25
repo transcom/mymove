@@ -35,7 +35,7 @@ type orderFetcher struct {
 type QueryOption func(*pop.Query)
 
 func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
-	var moves []models.Move
+	var moves models.Moves
 
 	var officeUserGbloc string
 	if params.ViewAsGBLOC != nil {
@@ -142,6 +142,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"LockedByOfficeUser",
 			"SCAssignedUser",
 			"CounselingOffice",
+			"Orders.Rank",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -339,7 +340,7 @@ func (j *JSONB) UnmarshalJSON(data []byte) error {
 }
 
 func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
-	var moves []models.Move
+	var moves models.Moves
 	var movesWithCount []MoveWithCount
 
 	// getting the office user's GBLOC
@@ -453,7 +454,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 }
 
 func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
-	var moves []models.Move
+	var moves models.Moves
 	var err error
 	var officeUserGbloc string
 
@@ -623,6 +624,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
+		"Rank",
 	).Find(order, orderID)
 
 	if err != nil {

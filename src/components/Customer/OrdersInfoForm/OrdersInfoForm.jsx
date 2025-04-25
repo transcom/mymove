@@ -13,7 +13,7 @@ import styles from './OrdersInfoForm.module.scss';
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -23,16 +23,16 @@ import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import { showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
+import { usePaygradeRankDropdownOptions, formatLabelReportByDate } from 'utils/formatters';
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner, affiliation }) => {
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -43,12 +43,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
   const [enableUB, setEnableUB] = useState(false);
   const [ordersType, setOrdersType] = useState('');
   const [grade, setGrade] = useState('');
+  const [rank, setrank] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
-
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
   const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+  const [mappedRanks, payGradeRankOptionValues] = usePaygradeRankDropdownOptions(affiliation);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -62,7 +63,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    // grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    rank: Yup.mixed().oneOf(Object.keys(mappedRanks)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
@@ -159,6 +161,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     enableUB,
     ordersType,
     grade,
+    rank,
     isCivilianTDYMove,
   ]);
 
@@ -189,6 +192,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       {({ isValid, isSubmitting, handleSubmit, handleChange, setValues, values, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
+        const handleRankGradeChange = (rankGrade = { rank: null, grade: null }) => {
+          setrank(rankGrade.rank);
+          setGrade(rankGrade.grade);
+          setValues({
+            ...values,
+            ...rankGrade,
+          });
+        };
         const handleCounselingOfficeChange = () => {
           setValues({
             ...values,
@@ -486,16 +497,22 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
                   />
                 </FormGroup>
               )}
-
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
+                label="Rank"
+                name="rank"
+                id="rank"
                 required
                 showRequiredAsterisk
-                options={payGradeOptions}
+                options={payGradeRankOptionValues}
                 onChange={(e) => {
-                  setGrade(e.target.value);
+                  if (e.target.value === '') {
+                    handleRankGradeChange({ rank: null, grade: null });
+                    handleChange(e);
+                    return;
+                  }
+                  const rankValue = e.target.value;
+                  const gradeForRank = mappedRanks[rankValue].grade;
+                  handleRankGradeChange({ rank: rankValue, grade: gradeForRank });
                   handleChange(e);
                 }}
               />
@@ -562,6 +579,7 @@ OrdersInfoForm.propTypes = {
     has_dependents: PropTypes.string,
     new_duty_location: DutyLocationShape,
     grade: PropTypes.string,
+    rank: PropTypes.string,
     origin_duty_location: DutyLocationShape,
     dependents_under_twelve: PropTypes.string,
     dependents_twelve_and_over: PropTypes.string,
@@ -573,8 +591,14 @@ OrdersInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfoForm);

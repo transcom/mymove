@@ -8072,6 +8072,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -8602,6 +8608,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -12173,6 +12185,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -14007,6 +14022,50 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Affiliation",
+          "enum": [
+            "NAVY_AND_MARINES",
+            "ARMY",
+            "ARMY_CORPS_OF_ENGINEERS",
+            "AIR_AND_SPACE_FORCE",
+            "COAST_GUARD",
+            "OFFICE_OF_SECRETARY_OF_DEFENSE"
+          ],
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "SGT"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "rankShortName": {
+          "type": "string",
+          "title": "Rank Abbv",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
       "type": "object",
@@ -15611,6 +15670,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -26496,6 +26561,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -27026,6 +27097,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -30597,6 +30674,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -32507,6 +32587,50 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "affiliation": {
+          "type": "string",
+          "title": "Affiliation",
+          "enum": [
+            "NAVY_AND_MARINES",
+            "ARMY",
+            "ARMY_CORPS_OF_ENGINEERS",
+            "AIR_AND_SPACE_FORCE",
+            "COAST_GUARD",
+            "OFFICE_OF_SECRETARY_OF_DEFENSE"
+          ],
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "SGT"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "rankShortName": {
+          "type": "string",
+          "title": "Rank Abbv",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
       "type": "object",
@@ -34167,6 +34291,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "title": "Rank of service member",
+          "x-nullable": true,
+          "example": "PV1"
         },
         "reportByDate": {
           "description": "Report By Date",

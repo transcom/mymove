@@ -9,7 +9,7 @@ import { useOrdersDocumentQueries } from 'hooks/queries';
 import { MOVE_DOCUMENT_TYPE, MOVE_STATUSES } from 'shared/constants';
 import { counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatYesNoAPIValue } from 'utils/formatters';
-import { ORDERS_TYPE } from 'constants/orders';
+import { formatRankGradeDisplayValue, ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 
 const mockOriginDutyLocation = {
   address: {
@@ -149,6 +149,9 @@ const useOrdersDocumentQueriesReturnValue = {
       },
       first_name: 'Leo',
       grade: 'E_1',
+      payGradeRank: {
+        rankShortName: 'PVT',
+      },
       id: '1',
       last_name: 'Spacemen',
       order_number: 'ORDER3',
@@ -218,6 +221,11 @@ describe('Orders page', () => {
   });
 
   describe('Basic rendering', () => {
+    const {
+      payGradeRank: { rankShortName },
+      grade,
+    } = useOrdersDocumentQueriesReturnValue.orders[1];
+    const displayValue = formatRankGradeDisplayValue({ rank: rankShortName, grade: ORDERS_PAY_GRADE_OPTIONS[grade] });
     it('renders the sidebar orders detail form', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
@@ -291,7 +299,7 @@ describe('Orders page', () => {
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
-      expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
+      expect(screen.getByTestId('payGradeRankInput')).toHaveDisplayValue(displayValue);
     });
 
     it('disables fields for correct statuses', async () => {
@@ -320,7 +328,7 @@ describe('Orders page', () => {
         const newDutyLocationInput = screen.getByLabelText('New duty location *');
         expect(newDutyLocationInput).toBeInTheDocument();
         expect(newDutyLocationInput).toBeDisabled();
-        const payGradeInput = screen.getByLabelText('Pay grade *');
+        const payGradeInput = screen.getByLabelText(/Rank/);
         expect(payGradeInput).toBeInTheDocument();
         expect(payGradeInput).toBeDisabled();
         const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
@@ -361,7 +369,7 @@ describe('Orders page', () => {
         const newDutyLocationInput = screen.getByLabelText('New duty location *');
         expect(newDutyLocationInput).toBeInTheDocument();
         expect(newDutyLocationInput).not.toBeDisabled();
-        const payGradeInput = screen.getByLabelText('Pay grade *');
+        const payGradeInput = screen.getByLabelText(/Rank/);
         expect(payGradeInput).toBeInTheDocument();
         expect(payGradeInput).not.toBeDisabled();
         const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');

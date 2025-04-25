@@ -315,8 +315,7 @@ export const MoveTaskOrder = (props) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [MOVES, move.locator] });
     },
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
+    onError: () => {
       // TODO: Handle error some how
       // RA Summary: eslint: no-console - System Information Leak: External
       // RA: The linter flags any use of console.
@@ -327,7 +326,6 @@ export const MoveTaskOrder = (props) => {
       // RA Validator Status: Known Issue
       // RA Modified Severity: CAT II
       // eslint-disable-next-line no-console
-      console.log(errorMsg);
     },
   });
 
@@ -765,17 +763,6 @@ export const MoveTaskOrder = (props) => {
       },
     );
   };
-
-  /**
-   * @typedef AddressShape
-   * @prop {string} city
-   * @prop {string} state
-   * @prop {string} postalCode
-   * @prop {string} streetAddress1
-   * @prop {string} streetAddress2
-   * @prop {string} streetAddress3
-   * @prop {string} country
-   */
 
   /**
    * @function

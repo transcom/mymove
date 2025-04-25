@@ -79,6 +79,10 @@ type CreateOrders struct {
 	// Format: uuid
 	OriginDutyLocationID strfmt.UUID `json:"originDutyLocationId,omitempty"`
 
+	// Rank of service member
+	// Example: PV1
+	Rank *string `json:"rank,omitempty"`
+
 	// Report-by date
 	//
 	// Report By Date

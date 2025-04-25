@@ -397,6 +397,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	departmentIndicator *string,
 	originDutyLocation *DutyLocation,
 	grade *internalmessages.OrderPayGrade,
+	rank *string,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string,
@@ -413,6 +414,15 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			ServiceMember:   s,
 		}
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(&uploadedOrders)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		rankRecord := PaygradeRank{}
+
+		err = txnAppCtx.DB().Where("affiliation = ?", s.Affiliation).Where("rank_short_name = ?", rank).First(&rankRecord)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = err
@@ -438,6 +448,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SAC:                            sac,
 			DepartmentIndicator:            departmentIndicator,
 			Grade:                          grade,
+			PaygradeRankId:                 &rankRecord.ID,
+			Rank:                           &rankRecord,
 			OriginDutyLocation:             originDutyLocation,
 			Entitlement:                    entitlement,
 			OriginDutyLocationGBLOC:        originDutyLocationGBLOC,

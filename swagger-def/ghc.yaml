@@ -5751,6 +5751,41 @@ definitions:
       CIVILIAN_EMPLOYEE: Civilian Employee
       ACADEMY_CADET: Service Academy Cadet
       MIDSHIPMAN: Midshipman
+  Rank:
+    type: object
+    x-nullable: true
+    title: Rank
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      paygradeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      affiliation:
+        type: string
+        x-nullable: true
+        title: Affiliation
+        enum:
+          - NAVY_AND_MARINES
+          - ARMY
+          - ARMY_CORPS_OF_ENGINEERS
+          - AIR_AND_SPACE_FORCE
+          - COAST_GUARD
+          - OFFICE_OF_SECRETARY_OF_DEFENSE
+      rankName:
+        type: string
+        x-nullable: true
+        example: SGT
+      rankOrder:
+        type: integer
+        x-nullable: true
+      rankShortName:
+        type: string
+        x-nullable: true
+        title: Rank Abbv
   Move:
     properties:
       id:
@@ -6119,6 +6154,8 @@ definitions:
         readOnly: true
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        $ref: '#/definitions/Rank'
       agency:
         $ref: 'definitions/Affiliation.yaml'
       entitlement:
@@ -6286,6 +6323,11 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        title: Rank of service member
+        example: PV1
+        x-nullable: true
       originDutyLocationId:
         type: string
         format: uuid
@@ -6376,6 +6418,11 @@ definitions:
         $ref: definitions/NullableString.yaml
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        title: Rank of service member
+        example: PV1
+        x-nullable: true
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6456,6 +6503,11 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        title: Rank of service member
+        example: PV1
+        x-nullable: true
       dependentsAuthorized:
         type: boolean
         x-nullable: true

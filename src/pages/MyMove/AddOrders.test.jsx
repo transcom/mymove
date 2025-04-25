@@ -42,6 +42,7 @@ jest.mock('store/entities/selectors', () => ({
   selectServiceMemberFromLoggedInUser: jest.fn(),
   selectCanAddOrders: jest.fn(),
   selectMoveId: jest.fn(),
+  selectServiceMemberAffiliation: jest.fn().mockImplementation(() => 'ARMY'),
 }));
 
 jest.mock('store/general/actions', () => ({
@@ -268,7 +269,7 @@ describe('Add Orders page', () => {
     expect(screen.getByText('Are dependents included in your orders?')).toBeInTheDocument();
     expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
     expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Rank/)).toBeInTheDocument();
 
     const backBtn = await screen.findByRole('button', { name: 'Back' });
     expect(backBtn).toBeInTheDocument();
@@ -435,7 +436,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), 'SGT');
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -470,6 +471,7 @@ describe('Add Orders page', () => {
   });
 
   it('submits OCONUS fields correctly on form submit', async () => {
+    const [chosenRank, chosenGrade] = ['SGT', 'E_5'];
     const testOrdersValues = {
       orders_type: 'PERMANENT_CHANGE_OF_STATION',
       issue_date: '2020-11-08',
@@ -513,7 +515,8 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
-      grade: 'E_5',
+      grade: chosenGrade,
+      rankShortName: chosenRank,
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -534,7 +537,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -571,6 +574,7 @@ describe('Add Orders page', () => {
   });
 
   it('properly does not pass in OCONUS fields when is a CONUS move', async () => {
+    const [chosenRank, chosenGrade] = ['SGT', 'E_5'];
     const testOrdersValues = {
       orders_type: 'PERMANENT_CHANGE_OF_STATION',
       issue_date: '2020-11-08',
@@ -613,7 +617,8 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
       },
-      grade: 'E_5',
+      grade: chosenGrade,
+      rankShortName: chosenRank,
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -634,11 +639,10 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-
       const selectedOptionCurrent = await screen.findByText('Altus');
       await userEvent.click(selectedOptionCurrent);
       // Select an CONUS new duty location

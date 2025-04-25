@@ -97,7 +97,7 @@ const AddOrders = ({
       /* eslint-enable no-nested-ternary */
     };
     const oconusFields = constructOconusFields();
-    const pendingValues = {
+    const { rank, ...pendingValues } = {
       ...values,
       service_member_id: serviceMemberId,
       new_duty_location_id: values.new_duty_location.id,
@@ -105,6 +105,7 @@ const AddOrders = ({
       report_by_date: formatDateForSwagger(values.report_by_date),
       issue_date: formatDateForSwagger(values.issue_date),
       grade: values.grade,
+      rankShortName: values.rank,
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
       ...oconusFields,
@@ -139,6 +140,7 @@ const AddOrders = ({
     has_dependents: '',
     new_duty_location: '',
     grade: '',
+    rank: '',
     origin_duty_location: '',
     accompanied_tour: '',
     dependents_under_twelve: '',

@@ -9,6 +9,7 @@ import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { formatRankGradeDisplayValue, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 
 const mockOriginDutyLocation = {
   address: {
@@ -128,6 +129,9 @@ const useOrdersDocumentQueriesReturnValue = {
       },
       first_name: 'Leo',
       grade: 'E_1',
+      payGradeRank: {
+        rankShortName: 'PVT',
+      },
       id: '1',
       last_name: 'Spacemen',
       order_number: 'ORDER3',
@@ -196,6 +200,11 @@ describe('Orders page', () => {
   });
 
   describe('Basic rendering', () => {
+    const {
+      payGradeRank: { rankShortName },
+      grade,
+    } = useOrdersDocumentQueriesReturnValue.orders[1];
+    const displayValue = formatRankGradeDisplayValue({ rank: rankShortName, grade: ORDERS_PAY_GRADE_OPTIONS[grade] });
     it('renders the sidebar orders detail form', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
 
@@ -204,12 +213,12 @@ describe('Orders page', () => {
           <Orders {...ordersMockProps} />
         </MockProviders>,
       );
+      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
       expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('2222');
-      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue('E-1');
-      expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
+      expect(screen.getByTestId('payGradeRankInput')).toHaveDisplayValue(displayValue);
     });
   });
 

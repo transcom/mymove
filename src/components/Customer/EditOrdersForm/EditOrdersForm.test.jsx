@@ -12,6 +12,10 @@ import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constan
 import { MockProviders } from 'testUtils';
 
 jest.setTimeout(60000);
+jest.mock('store/entities/selectors', () => ({
+  ...jest.requireActual('store/entities/selectors'),
+  selectServiceMemberAffiliation: jest.fn().mockImplementation(() => 'ARMY'),
+}));
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -197,6 +201,7 @@ const initialValues = {
   report_by_date: '2020-11-26',
   has_dependents: 'no',
   origin_duty_location: {
+    provides_services_counseling: true,
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -213,7 +218,6 @@ const initialValues = {
     id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
-    provides_services_counseling: true,
   },
   counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
   new_duty_location: {
@@ -245,6 +249,7 @@ const initialValues = {
     },
   ],
   grade: 'E_1',
+  rank: 'PVT',
   accompanied_tour: '',
   dependents_under_twelve: '',
   dependents_twelve_and_over: '',
@@ -254,6 +259,7 @@ const initialValues = {
 const civilianTDYTestProps = {
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
+    rank: 'CIV',
     orders_type: ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY,
     issue_date: '',
     report_by_date: '',
@@ -296,7 +302,7 @@ describe('EditOrdersForm component', () => {
       ['Yes', false, HTMLInputElement],
       ['No', false, HTMLInputElement],
       [/New duty location/, false, HTMLInputElement],
-      [/Pay grade/, true, HTMLSelectElement],
+      [/Rank/, true, HTMLSelectElement],
       [/Current duty location/, false, HTMLInputElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
       render(
@@ -418,7 +424,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), []);
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
 
     await waitFor(() => {
@@ -477,13 +483,14 @@ describe('EditOrdersForm component', () => {
       </MockProviders>,
     );
 
+    const chosenRank = 'CPL';
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), chosenRank);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -527,7 +534,8 @@ describe('EditOrdersForm component', () => {
           provides_services_counseling: true,
         },
         origin_duty_location: expect.any(Object),
-        grade: 'E_5',
+        grade: 'E_4',
+        rank: chosenRank,
         counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
         uploaded_orders: expect.arrayContaining([
           expect.objectContaining({
@@ -594,7 +602,8 @@ describe('EditOrdersForm component', () => {
           contentType: 'application/pdf',
         },
       ],
-      grade: 'E_1',
+      grade: 'E_4',
+      rank: 'CPL',
       origin_duty_location: {
         address: {
           city: '',
@@ -630,7 +639,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
+      expect(screen.getByLabelText(/Rank/)).toHaveValue(testInitialValues.rank.rankShortName);
       expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
 
@@ -654,7 +663,7 @@ describe('EditOrdersForm component', () => {
       [/Report by date/, 'report_by_date', ''],
       ['Duty Location', 'new_duty_location', null],
       ['Uploaded Orders', 'uploaded_orders', []],
-      [/Pay grade/, 'grade', ''],
+      [/Rank/, 'rank', ''],
     ])('when there is no %s', async (attributeNamePrettyPrint, attributeName, valueToReplaceIt) => {
       const modifiedProps = {
         onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
@@ -766,7 +775,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_8']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['CPL']);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 200 });
@@ -931,7 +940,7 @@ describe('EditOrdersForm component', () => {
     });
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), civilianTDYTestProps.initialValues.rank);
 
     await waitFor(() => {
       expect(screen.getByLabelText(/If your orders specify a UB weight allowance, enter it here./)).toBeInTheDocument();
@@ -956,7 +965,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), civilianTDYTestProps.initialValues.rank);
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
@@ -979,9 +988,9 @@ describe('EditOrdersForm component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Rank/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), 'CPL');
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),

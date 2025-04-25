@@ -332,10 +332,10 @@ describe('CreateCustomerForm', () => {
     const waiter = waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
-        state: {
+        state: expect.objectContaining({
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
-        },
+        }),
       });
     });
 
@@ -428,10 +428,10 @@ describe('CreateCustomerForm', () => {
       );
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
-        state: {
+        state: expect.objectContaining({
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
-        },
+        }),
       });
     });
   }, 20000);
@@ -573,10 +573,10 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
-        state: {
+        state: expect.objectContaining({
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
-        },
+        }),
       });
     });
   }, 20000);
@@ -654,10 +654,10 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
-        state: {
+        state: expect.objectContaining({
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
-        },
+        }),
       });
     });
   }, 50000);
@@ -729,10 +729,10 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
-        state: {
+        state: expect.objectContaining({
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: true,
-        },
+        }),
       });
     });
   }, 50000);

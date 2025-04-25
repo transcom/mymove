@@ -76,6 +76,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Tac:                  handlers.FmtString("E19A"),
 		Sac:                  handlers.FmtString("SacNumber"),
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
+		Rank:                 handlers.FmtString("PVT"),
 		Grade:                ghcmessages.GradeE1.Pointer(),
 		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
 	}

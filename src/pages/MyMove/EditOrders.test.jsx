@@ -28,6 +28,7 @@ jest.mock('store/entities/selectors', () => ({
   selectServiceMemberFromLoggedInUser: jest.fn(),
   selectOrdersForLoggedInUser: jest.fn(),
   selectAllMoves: jest.fn(),
+  selectServiceMemberAffiliation: jest.fn().mockImplementation(() => 'ARMY'),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -96,6 +97,7 @@ describe('EditOrders Page', () => {
           proGearSpouse: 500,
         },
         grade: 'E_7',
+        payGradeRank: { rankShortName: 'SFC' },
         has_dependents: false,
         id: 'testOrders1',
         issue_date: '2024-02-29',

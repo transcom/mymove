@@ -312,6 +312,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
+    rank: order?.payGradeRank?.rankShortName,
     dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
@@ -395,6 +396,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                 </div>
                 <div className={styles.body}>
                   <OrdersDetailForm
+                    agency={order?.agency}
                     deptIndicatorOptions={deptIndicatorDropdownOptions}
                     ordersTypeOptions={ordersTypeDropdownOptions}
                     ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
