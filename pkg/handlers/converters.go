@@ -148,6 +148,13 @@ func StringFromEmail(email *strfmt.Email) *string {
 	return &emailString
 }
 
+func GetStringOrEmpty(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
 // FmtString converts pop type to go-swagger type
 func FmtString(s string) *string {
 	return &s
