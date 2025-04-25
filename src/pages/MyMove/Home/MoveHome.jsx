@@ -285,7 +285,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       return (
         <div className={styles.addShipmentIcon}>
           <FontAwesomeIcon icon="plus" />
-          &nbsp;&nbsp;Add another Shipment
+          &nbsp;&nbsp;Add another shipment
         </div>
       );
     }

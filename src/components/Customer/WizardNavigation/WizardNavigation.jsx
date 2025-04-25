@@ -58,7 +58,7 @@ const WizardNavigation = ({
       {isReviewPage && (
         <Button type="button" onClick={onAddShipment} className={styles.button} data-testid="wizardAddShipmentButton">
           <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />
-          &nbsp;&nbsp;Add Shipment
+          &nbsp;&nbsp;Add shipment
         </Button>
       )}
 
