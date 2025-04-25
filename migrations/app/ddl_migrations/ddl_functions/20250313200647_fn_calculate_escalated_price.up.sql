@@ -1,6 +1,7 @@
 --B-22466  M.Inthavongsay Adding initial migration file for calculate_escalated_price stored procedure using new migration process.
 --B-22662  C.Jewell Replaced escalation factor select with reusable func.
 --Also updating to allow IOPSIT and IDDSIT SIT service items.
+-- B-22742  C. Kleinjan  Migrate function to DDL Migrations and adding the ability to get escalated price for ICRT and IUCRT
 
 -- function to calculate the escalated price, takes in:
 -- origin rate area
@@ -42,6 +43,17 @@ BEGIN
         	WHERE ra.id = d_rate_area_id;
 		END IF;
 
+        SELECT rip.per_unit_cents
+        INTO per_unit_cents
+        FROM re_intl_accessorial_prices rip
+        WHERE
+            rip.market = (CASE
+                WHEN is_oconus THEN 'O'
+                ELSE 'C'
+			END)
+          AND rip.service_id = re_service_id
+          AND rip.contract_id = c_id;
+    ELSIF service_code IN ('IUCRT', 'ICRT') THEN
         SELECT rip.per_unit_cents
         INTO per_unit_cents
         FROM re_intl_accessorial_prices rip

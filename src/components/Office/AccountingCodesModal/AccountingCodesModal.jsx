@@ -16,7 +16,7 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
   const handleFormSubmit = (values) => onSubmit(values);
 
   return (
-    <Modal data-testid="AccountingCodes">
+    <Modal data-testid="AccountingCodes" onClose={onClose}>
       <ModalClose handleClick={onClose} />
 
       <ModalTitle>
@@ -46,10 +46,10 @@ const AccountingCodesModal = ({ onClose, onSubmit, onEditCodesClick, shipmentTyp
             </button>
           </div>
           <ModalActions>
-            <Button type="submit">Save</Button>
             <Button type="button" secondary onClick={onClose}>
               Cancel
             </Button>
+            <Button type="submit">Save</Button>
           </ModalActions>
         </Form>
       </Formik>

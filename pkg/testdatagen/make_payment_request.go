@@ -9,12 +9,16 @@ import (
 )
 
 // MakePaymentRequest creates a single PaymentRequest and associated set relationships
-func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.PaymentRequest {
+func MakePaymentRequest(db *pop.Connection, assertions Assertions) (models.PaymentRequest, error) {
 	// Create new PaymentRequest if not provided
 	// ID is required because it must be populated for Eager saving to work.
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = makeMove(db, assertions)
+		var err error
+		moveTaskOrder, err = makeMove(db, assertions)
+		if err != nil {
+			return models.PaymentRequest{}, err
+		}
 	}
 
 	paymentRequestNumber := assertions.PaymentRequest.PaymentRequestNumber
@@ -42,5 +46,5 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 
 	mustCreate(db, &paymentRequest, assertions.Stub)
 
-	return paymentRequest
+	return paymentRequest, nil
 }

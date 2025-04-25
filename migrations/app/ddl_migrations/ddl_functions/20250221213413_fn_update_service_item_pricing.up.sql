@@ -17,7 +17,6 @@ DECLARE
     estimated_price NUMERIC;
     o_rate_area_id UUID;
     d_rate_area_id UUID;
-    contract_id UUID;
     service_code TEXT;
     o_zip_code TEXT;
     d_zip_code TEXT;
@@ -65,10 +64,10 @@ BEGIN
 
         CASE
             WHEN service_code IN (''ISLH'', ''UBP'') THEN
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, NULL);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
                     -- multiply by 110% of estimated weight
@@ -82,9 +81,9 @@ BEGIN
 
             WHEN service_code IN (''IHPK'', ''IUBPK'', ''IOSHUT'') THEN
                 -- perform IHPK/IUBPK-specific logic (no destination rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, NULL);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
                     -- multiply by 110% of estimated weight
@@ -96,9 +95,9 @@ BEGIN
 			        WHERE id = service_item.id;
                 END IF;
             WHEN service_code IN (''ICRT'') THEN
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
 
                 SELECT INTO length, height, width length_thousandth_inches, height_thousandth_inches, width_thousandth_inches
                 FROM mto_service_item_dimensions
@@ -113,9 +112,9 @@ BEGIN
 			        WHERE id = service_item.id;
                 END IF;
             WHEN service_code IN (''IUCRT'') THEN
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                d_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(d_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                d_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(d_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
 
                 SELECT INTO length, height, width length_thousandth_inches, height_thousandth_inches, width_thousandth_inches
                 FROM mto_service_item_dimensions
@@ -131,9 +130,9 @@ BEGIN
                 END IF;
             WHEN service_code IN (''IHUPK'', ''IUBUPK'', ''IDSHUT'') THEN
                 -- perform IHUPK/IUBUPK-specific logic (no origin rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, NULL);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
                     -- multiply by 110% of estimated weight
@@ -209,14 +208,14 @@ BEGIN
                 END IF;
 
             WHEN service_code IN (''IOASIT'', ''IDASIT'') THEN
-                contract_id := get_contract_id(shipment.requested_pickup_date);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
 
                 IF service_code = ''IOASIT'' THEN
-                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, NULL);
+                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
                 ELSE
-                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, NULL);
+                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
                 END IF;
 
                 days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date)) as days);
@@ -247,7 +246,7 @@ BEGIN
                 escalated_price := calculate_escalated_price(
                     o_rate_area_id,
                     NULL,
-                    (SELECT id FROM re_services WHERE code = ''IHPK'' LIMIT 1),
+                    (SELECT id FROM re_services WHERE code = ''IHPK''),
                     declared_contract_id,
                     ''IHPK'',
                     shipment.requested_pickup_date
@@ -282,17 +281,17 @@ BEGIN
                 SET pricing_estimate = estimated_price
                 WHERE id = service_item.id;
             WHEN service_code IN (''IOPSIT'', ''IDDSIT'') THEN
-                contract_id := get_contract_id(shipment.requested_pickup_date);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
 
                 distance = service_item.sit_delivery_miles;
                 RAISE NOTICE ''SIT mileage = %'', distance;
 
                 IF service_code = ''IOPSIT'' THEN
-                    o_rate_area_id := get_rate_area_id(service_item.sit_origin_hhg_actual_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, distance);
+                    o_rate_area_id := get_rate_area_id(service_item.sit_origin_hhg_actual_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, distance);
                 ELSE
-                    d_rate_area_id := get_rate_area_id(service_item.sit_destination_final_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, distance);
+                    d_rate_area_id := get_rate_area_id(service_item.sit_destination_final_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, distance);
                 END IF;
 
                 IF escalated_price IS NOT NULL AND shipment.prime_estimated_weight IS NOT NULL THEN
@@ -312,14 +311,14 @@ BEGIN
                 END IF;
 
 			WHEN service_code IN (''IOFSIT'', ''IDFSIT'') THEN
-				contract_id := get_contract_id(shipment.requested_pickup_date);
+				declared_contract_id := get_contract_id(shipment.requested_pickup_date);
 
 				IF service_code = ''IOFSIT'' THEN
-                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
                 ELSE
-                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
                 END IF;
 
 				IF escalated_price IS NOT NULL THEN
