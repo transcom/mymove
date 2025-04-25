@@ -1316,6 +1316,39 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  EdiError:
+    type: object
+    required:
+      - id
+      - paymentRequestID
+      - ediType
+    properties:
+      id:
+        type: string
+        format: uuid
+      paymentRequestID:
+        type: string
+        format: uuid
+      paymentRequestNumber:
+        type: string
+        example: '1234-5678-1'
+      code:
+        type: string
+        x-nullable: true
+      description:
+        type: string
+        x-nullable: true
+      ediType:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+
+  EdiErrors:
+    type: array
+    items:
+      $ref: '#/definitions/EdiError'
 
 paths:
   /user:
@@ -2738,5 +2771,67 @@ paths:
           description: request requires user authentication
         '404':
           description: Payment Request EDI Files not found
+        '500':
+          description: server error
+  /edi-errors:
+    get:
+      summary: List of EDI Errors
+      description: >
+        Returns a list of EDI errors tied to payment requests that are in EDI_ERROR status.
+        This endpoint is for Admin UI use only.
+      operationId: fetchEdiErrors
+      tags:
+        - EDI Errors
+      parameters:
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/EdiErrors'
+        '400':
+          description: Invalid request
+        '401':
+          description: Must be authenticated to use this end point
+        '500':
+          description: Server error
+  /edi-errors/{ediErrorId}:
+    get:
+      produces:
+        - application/json
+      summary: Get information on a specific EDI Error by the ID of the EDI Error
+      description: Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.
+      operationId: getEdiError
+      tags:
+        - Single EDI Error
+      parameters:
+        - name: ediErrorId
+          in: path
+          description: EDI Error ID
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/EdiError'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: EDI error not found
         '500':
           description: server error
