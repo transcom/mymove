@@ -70,10 +70,9 @@ BEGIN
         AND v_gbloc = CASE
             WHEN service_members.affiliation != 'MARINES'
                 AND (
-                        (mto_shipments.shipment_type != 'HHG_OUTOF_NTS'
-                        AND move_to_dest_gbloc.gbloc = v_gbloc)
-                    OR (
-                        mto_shipments.shipment_type = 'HHG_OUTOF_NTS' AND  orders.gbloc = v_gbloc)
+                        move_to_dest_gbloc.gbloc = v_gbloc
+                    OR
+                        orders.gbloc = v_gbloc
                     )
             THEN orders.gbloc
             ELSE move_to_dest_gbloc.gbloc
