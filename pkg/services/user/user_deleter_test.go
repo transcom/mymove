@@ -29,7 +29,7 @@ func (suite *UserServiceSuite) TestDeleteUser() {
 		return user
 	}
 
-	suite.Run("success - a simple user is deleted", func() {
+	suite.Run("Success - delete a simple user", func() {
 		initialUserCount, _ := suite.DB().Count(&models.User{})
 		initialServiceMemberCount, _ := suite.DB().Count(&models.ServiceMember{})
 		initialOfficeUserCount, _ := suite.DB().Count(&models.OfficeUser{})
@@ -171,7 +171,7 @@ func (suite *UserServiceSuite) TestDeleteUser() {
 		suite.Equal(initialUserRolesCount, finalUserRolesCount)
 	})
 
-	suite.Run("Success - delete an Admin User", func() {
+	suite.Run("Error - cannot delete an Admin User", func() {
 		initialUserCount, _ := suite.DB().Count(&models.User{})
 		initialServiceMemberCount, _ := suite.DB().Count(&models.ServiceMember{})
 		initialOfficeUserCount, _ := suite.DB().Count(&models.OfficeUser{})
@@ -253,7 +253,7 @@ func (suite *UserServiceSuite) TestDeleteUser() {
 		suite.Equal(setupUserRolesCount, finalUserRolesCount)
 	})
 
-	suite.Run("error - a customer user has a move and cannot be deleted", func() {
+	suite.Run("Error - a customer user has a move and cannot be deleted", func() {
 		initialUserCount, _ := suite.DB().Count(&models.User{})
 		initialServiceMemberCount, _ := suite.DB().Count(&models.ServiceMember{})
 		initialOfficeUserCount, _ := suite.DB().Count(&models.OfficeUser{})
@@ -326,7 +326,7 @@ func (suite *UserServiceSuite) TestDeleteUser() {
 		suite.Equal(setupUserRolesCount, finalUserRolesCount)
 	})
 
-	suite.Run("error - a user is not found", func() {
+	suite.Run("Error - a user is not found", func() {
 		userID := uuid.Must(uuid.NewV4())
 		expectedError := apperror.NewNotFoundError(userID, "while looking for User")
 

@@ -68,14 +68,14 @@ export async function deleteUser(userId) {
     { normalize: false },
   );
 }
-export async function updateUser(userId, body) {
+export async function updateUser(userId, user) {
   const operationPath = 'Users.updateUser';
 
   return makeAdminRequest(
     operationPath,
     {
       userId,
-      body,
+      User: user,
     },
     { normalize: false },
   );
