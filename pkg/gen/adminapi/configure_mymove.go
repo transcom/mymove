@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/client_certificates"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/e_d_i_errors"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_orders"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/moves"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
@@ -22,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_files"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/rejected_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/single_e_d_i_error"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
@@ -78,6 +80,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
 		})
 	}
+	if api.EdiErrorsFetchEdiErrorsHandler == nil {
+		api.EdiErrorsFetchEdiErrorsHandler = e_d_i_errors.FetchEdiErrorsHandlerFunc(func(params e_d_i_errors.FetchEdiErrorsParams) middleware.Responder {
+			return middleware.NotImplemented("operation e_d_i_errors.FetchEdiErrors has not yet been implemented")
+		})
+	}
 	if api.AdminUsersGetAdminUserHandler == nil {
 		api.AdminUsersGetAdminUserHandler = admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
@@ -86,6 +93,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.ClientCertificatesGetClientCertificateHandler == nil {
 		api.ClientCertificatesGetClientCertificateHandler = client_certificates.GetClientCertificateHandlerFunc(func(params client_certificates.GetClientCertificateParams) middleware.Responder {
 			return middleware.NotImplemented("operation client_certificates.GetClientCertificate has not yet been implemented")
+		})
+	}
+	if api.SingleediErrorGetEdiErrorHandler == nil {
+		api.SingleediErrorGetEdiErrorHandler = single_e_d_i_error.GetEdiErrorHandlerFunc(func(params single_e_d_i_error.GetEdiErrorParams) middleware.Responder {
+			return middleware.NotImplemented("operation single_e_d_i_error.GetEdiError has not yet been implemented")
 		})
 	}
 	if api.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
@@ -121,6 +133,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.RequestedOfficeUsersGetRequestedOfficeUserHandler == nil {
 		api.RequestedOfficeUsersGetRequestedOfficeUserHandler = requested_office_users.GetRequestedOfficeUserHandlerFunc(func(params requested_office_users.GetRequestedOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation requested_office_users.GetRequestedOfficeUser has not yet been implemented")
+		})
+	}
+	if api.OfficeUsersGetRolesPrivilegesHandler == nil {
+		api.OfficeUsersGetRolesPrivilegesHandler = office_users.GetRolesPrivilegesHandlerFunc(func(params office_users.GetRolesPrivilegesParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.GetRolesPrivileges has not yet been implemented")
 		})
 	}
 	if api.UploadsGetUploadHandler == nil {
