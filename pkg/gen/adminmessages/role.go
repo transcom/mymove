@@ -45,6 +45,9 @@ type Role struct {
 	// Required: true
 	RoleType *string `json:"roleType"`
 
+	// sort
+	Sort int32 `json:"sort,omitempty"`
+
 	// updated at
 	// Required: true
 	// Read Only: true

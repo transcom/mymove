@@ -1,7 +1,6 @@
 package roles
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/gofrs/uuid"
@@ -62,7 +61,6 @@ func (suite *RolesServiceSuite) TestFetchRolesPrivileges() {
 
 	for _, rp := range rolesPrivileges {
 		for _, privs := range rp.RolePrivileges {
-			fmt.Print(rp)
 			// Assert that all roles are covered by the supervisor privilege
 			if privs.Privilege.PrivilegeType == roles.PrivilegeTypeSupervisor {
 				index := slices.Index(availableRoles, rp.RoleType)

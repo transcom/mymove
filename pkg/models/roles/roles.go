@@ -45,6 +45,7 @@ type Role struct {
 	ID             uuid.UUID       `json:"id" db:"id"`
 	RoleType       RoleType        `json:"role_type" db:"role_type"`
 	RoleName       RoleName        `json:"role_name" db:"role_name"`
+	Sort           int32           `json:"sort" db:"sort"`
 	CreatedAt      time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time       `json:"updated_at" db:"updated_at"`
 	RolePrivileges []RolePrivilege `json:"role_privileges" has_many:"roles_privileges" fk_id:"role_id"`

@@ -960,6 +960,9 @@ definitions:
       roleName:
         type: string
         example: Task Ordering Officer
+      sort:
+        type: integer
+        format: int32
       privileges:
         type: array
         items:
@@ -991,6 +994,9 @@ definitions:
       privilegeName:
         type: string
         example: Supervisor
+      sort:
+        type: integer
+        format: int32
       createdAt:
         type: string
         format: date-time

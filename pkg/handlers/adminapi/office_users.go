@@ -28,40 +28,47 @@ import (
 func payloadForRole(r roles.Role) *adminmessages.Role {
 	roleType := string(r.RoleType)
 	roleName := string(r.RoleName)
+	sort := int32(r.Sort)
 	return &adminmessages.Role{
 		ID:        handlers.FmtUUID(r.ID),
 		RoleType:  &roleType,
 		RoleName:  &roleName,
+		Sort:      sort,
 		CreatedAt: *handlers.FmtDateTime(r.CreatedAt),
 		UpdatedAt: *handlers.FmtDateTime(r.UpdatedAt),
 	}
 }
 
 func payloadForPrivilege(p roles.Privilege) *adminmessages.Privilege {
+	sort := int32(p.Sort)
 	return &adminmessages.Privilege{
 		ID:            *handlers.FmtUUID(p.ID),
 		PrivilegeType: *handlers.FmtString(string(p.PrivilegeType)),
 		PrivilegeName: *handlers.FmtString(string(p.PrivilegeName)),
+		Sort:          sort,
 		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
 		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
 	}
 }
 
 func payloadForRolePrivilege(role roles.Role) *adminmessages.Role {
-
+	sort := int32(role.Sort)
 	r := &adminmessages.Role{
 		ID:        handlers.FmtUUID(role.ID),
 		RoleType:  handlers.FmtString(string(role.RoleType)),
 		RoleName:  handlers.FmtString(string(role.RoleName)),
+		Sort:      sort,
 		CreatedAt: *handlers.FmtDateTime(role.CreatedAt),
 		UpdatedAt: *handlers.FmtDateTime(role.UpdatedAt),
 	}
 
 	for _, rp := range role.RolePrivileges {
+		privSort := int32(rp.Privilege.Sort)
 		r.Privileges = append(r.Privileges, &adminmessages.Privilege{
 			ID:            *handlers.FmtUUID(rp.PrivilegeID),
 			PrivilegeType: *handlers.FmtString(string(rp.Privilege.PrivilegeType)),
 			PrivilegeName: *handlers.FmtString(string(rp.Privilege.PrivilegeName)),
+			Sort:          privSort,
 			CreatedAt:     *handlers.FmtDateTime(rp.Privilege.CreatedAt),
 			UpdatedAt:     *handlers.FmtDateTime(rp.Privilege.UpdatedAt),
 		})
