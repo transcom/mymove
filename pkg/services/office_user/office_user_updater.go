@@ -98,6 +98,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 			}
 
 			if existingUser.OktaID != "" && appCtx.Session().IDToken != "devlocal" {
+			if existingUser.OktaID != "" && appCtx.Session().IDToken != "devlocal" {
 				apiKey := models.GetOktaAPIKey()
 				oktaID := existingUser.OktaID
 				req := appCtx.HTTPRequest()
