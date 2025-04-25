@@ -89,6 +89,18 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
   );
 }
 
+export async function createProGearWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createProGearWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateProGearWeightTicket',
@@ -97,6 +109,19 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
       proGearWeightTicketId,
       'If-Match': eTag,
       updateProGearWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteProGearWeightTicket',
+    {
+      ppmShipmentId,
+      proGearWeightTicketId,
     },
     {
       normalize: false,
@@ -657,6 +682,18 @@ export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shi
   );
 }
 
+export function terminateShipment({ shipmentID, normalize = false, schemaKey = 'shipment', body }) {
+  const operationPath = 'shipment.createTermination';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export async function getMovesQueue(
   key,
   { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
@@ -874,6 +911,18 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 
 export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}
+
+export async function sendPPMToCustomer(params) {
+  const operationPath = 'ppm.sendPPMToCustomer';
+  return makeGHCRequest(
+    operationPath,
+    {
+      ppmShipmentId: params.ppmShipmentId,
+      'If-Match': params.eTag,
+    },
+    { normalize: false },
+  );
 }
 
 export async function createOfficeAccountRequest({ body }) {
