@@ -147,6 +147,19 @@ const (
 	ServiceLocationB ServiceLocationType = "B"
 )
 
+type ApprovalRequestType string
+
+// ApprovalRequestTypes are actions that will trigger a move appearing in the TOO queue
+// and also include all of the above ReServiceCodes
+const (
+	ApprovalRequestAmendedOrders            ApprovalRequestType = "AMENDED_ORDERS"
+	ApprovalRequestExcessWeight             ApprovalRequestType = "EXCESS_WEIGHT"
+	ApprovalRequestSITExtension             ApprovalRequestType = "SIT_EXTENSION"
+	ApprovalRequestDestinationAddressUpdate ApprovalRequestType = "DESTINATION_ADDRESS_UPDATE"
+	ApprovalRequestDiversion                ApprovalRequestType = "DIVERSION"
+	ApprovalRequestNewShipment              ApprovalRequestType = "NEW_SHIPMENT"
+)
+
 // ReService model struct
 type ReService struct {
 	ID              uuid.UUID            `json:"id" db:"id" rw:"r"`
