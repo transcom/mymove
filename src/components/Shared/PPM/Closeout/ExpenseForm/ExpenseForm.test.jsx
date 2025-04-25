@@ -159,7 +159,7 @@ describe('ExpenseForm component', () => {
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
     });
 
@@ -212,7 +212,7 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -250,7 +250,7 @@ describe('ExpenseForm component', () => {
       expect(screen.getByLabelText('Start date')).toHaveDisplayValue('24 Sep 2022');
       expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('End date')).toHaveDisplayValue('26 Dec 2022');
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -316,7 +316,7 @@ describe('ExpenseForm component', () => {
     it('calls the onBack prop when the back button is clicked', async () => {
       render(<ExpenseForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();
