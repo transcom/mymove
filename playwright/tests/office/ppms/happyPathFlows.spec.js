@@ -124,3 +124,18 @@ test.describe('Services counselor user', () => {
     );
   });
 });
+
+test.describe('Services counselor user approval', () => {
+  test.beforeEach(async ({ ppmPage }) => {
+    const move = await ppmPage.testHarness.buildApprovedMoveWithSubmittedPPMShipmentForSC();
+    await ppmPage.navigateToMoveUsingMoveSearch(move.locator);
+  });
+
+  test('is able to approve a submitted PPM shipment', async ({ page }) => {
+    // View existing shipment
+    await page.locator('[data-testid="sendPpmToCustomerButton"]').click();
+    await page.locator('button:text("Yes, submit")').click();
+
+    await expect(page.locator('[data-testid="ppmStatusTag"]')).toContainText('Waiting on customer');
+  });
+});

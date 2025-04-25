@@ -39,6 +39,9 @@ const Expenses = () => {
     selectExpenseAndIndexById(state, mtoShipmentId, expenseId),
   );
 
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
+
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
       setMultiMove(enabled);
@@ -140,6 +143,13 @@ const Expenses = () => {
       SITStartDate: formatDateForSwagger(values.sitStartDate),
       WeightStored: parseInt(values.sitWeight, 10),
       SITLocation: values.sitLocation,
+      weightShipped: parseInt(values.weightShipped, 10),
+      trackingNumber: values.trackingNumber,
+      isProGear: values.isProGear === 'true',
+      ...(values.isProGear === 'true' && {
+        proGearBelongsToSelf: values.proGearBelongsToSelf === 'true',
+        proGearDescription: values.proGearDescription,
+      }),
     };
 
     patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)
@@ -192,6 +202,7 @@ const Expenses = () => {
               <p>Upload one receipt at a time. Please do not put multiple receipts in one image.</p>
             </div>
             <ExpenseForm
+              ppmType={ppmType}
               expense={currentExpense}
               receiptNumber={currentIndex + 1}
               onBack={handleBack}
