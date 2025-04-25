@@ -6,6 +6,7 @@ import styles from './Home.module.scss';
 
 import { customerRoutes } from 'constants/routes';
 import Helper from 'components/Customer/Home/Helper';
+import { MOVE_LOCKED_WARNING } from 'shared/constants';
 
 export const HelperNeedsOrders = () => (
   <Helper title="Next step: Add your orders">
@@ -40,6 +41,12 @@ export const HelperNeedsSubmitMove = () => (
       <li>Sign the legal agreement</li>
       <li>You’ll hear from a move counselor or your transportation office within a few days</li>
     </ul>
+  </Helper>
+);
+
+export const HelperMoveIsLocked = () => (
+  <Helper title="Your move has been locked by an office user">
+    <p>{MOVE_LOCKED_WARNING}</p>
   </Helper>
 );
 

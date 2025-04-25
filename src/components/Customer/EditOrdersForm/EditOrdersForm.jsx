@@ -48,6 +48,7 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  isMoveLocked,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -605,7 +606,7 @@ const EditOrdersForm = ({
               <WizardNavigation
                 editMode
                 onCancelClick={onCancel}
-                disableNext={!isValid || isSubmitting}
+                disableNext={!isValid || isSubmitting || isMoveLocked}
                 onNextClick={handleSubmit}
               />
             </div>
