@@ -1093,6 +1093,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			}
 			delete(rolePrivEntries, entryKey) // remove to ensure unique values
 		}
+		suite.Len(rolePrivEntries, 0, "all entries should have been deleted")
 	})
 
 	suite.Run("401 ERROR - Unauthorized ", func() {

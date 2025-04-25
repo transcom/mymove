@@ -58,7 +58,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }, []);
   };
 
-  // If the user selects a role that isn't allowed to have a Safety Moves privilege, remove their selection.
   const parseRolesCheckboxInput = (input) => {
     let result = [...input];
 
