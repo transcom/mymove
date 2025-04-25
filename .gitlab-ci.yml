@@ -894,7 +894,7 @@ client_test:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "1"
+    KUBERNETES_CPU_REQUEST: "3"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
   needs:
