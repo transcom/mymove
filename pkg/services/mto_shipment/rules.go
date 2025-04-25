@@ -264,7 +264,7 @@ func MTOShipmentHasValidRequestedPickupDate() validator {
 		}
 
 		isDateUpdated := olderHasDate && newerHasDate && !newer.RequestedPickupDate.Equal(*older.RequestedPickupDate)
-		if newerHasDate && !olderHasDate || isDateUpdated {
+		if (newerHasDate && !olderHasDate) || isDateUpdated {
 			today := time.Now().Truncate(24 * time.Hour) // Truncate to date only (midnight)
 			requestedDate := newer.RequestedPickupDate.Truncate(24 * time.Hour)
 			if !requestedDate.After(today) {
