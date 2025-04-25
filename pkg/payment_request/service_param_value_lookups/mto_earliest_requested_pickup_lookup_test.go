@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"errors"
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -11,28 +9,40 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
+func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 	key := models.ServiceItemParamNameMTOEarliestRequestedPickup
 
-	availableToPrimeAt := time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
+	earliestRequestedPickup := time.Date(2020, time.March, 15, 0, 0, 0, 452487000, time.Local)
+	laterRequestedPickup := time.Date(2025, time.November, 1, 0, 0, 0, 0, time.Local)
 	var mtoServiceItem models.MTOServiceItem
 	var paymentRequest models.PaymentRequest
 	var paramLookup *ServiceItemParamKeyData
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: availableToPrimeAt.Add(-24 * time.Hour),
-				EndDate:   availableToPrimeAt.Add(24 * time.Hour),
+		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &earliestRequestedPickup,
+				},
 			},
-		})
+		}, nil)
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &laterRequestedPickup,
+				},
+			},
+		}, nil)
+
+		shipments := models.MTOShipments{shipment1, shipment2}
+
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: &availableToPrimeAt,
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+					MTOShipments:       shipments,
 				},
 			},
 		}, nil)
@@ -40,6 +50,10 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -54,28 +68,8 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		expected := availableToPrimeAt.Format(ghcrateengine.TimestampParamFormat)
+		expected := earliestRequestedPickup.Format(ghcrateengine.TimestampParamFormat)
 		suite.Equal(expected, valueStr)
-	})
-
-	suite.Run("nil AvailableToPrimeAt", func() {
-		setupTestData()
-
-		// Set the AvailableToPrimeAt to nil
-		moveTaskOrder := paymentRequest.MoveTaskOrder
-		oldAvailableToPrimeAt := moveTaskOrder.AvailableToPrimeAt
-		moveTaskOrder.AvailableToPrimeAt = nil
-		suite.MustSave(&moveTaskOrder)
-
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.IsType(&apperror.BadDataError{}, errors.Unwrap(err))
-		expected := fmt.Sprintf("Data received from requester is bad: %s: This move task order is not available to prime", apperror.BadDataCode)
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-
-		moveTaskOrder.AvailableToPrimeAt = oldAvailableToPrimeAt
-		suite.MustSave(&moveTaskOrder)
 	})
 
 	suite.Run("bogus MoveTaskOrderID", func() {

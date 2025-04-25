@@ -223,7 +223,7 @@ var (
 	}
 	paramMTOEarliestRequestedPickup = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameMTOEarliestRequestedPickup,
-		Description: "mto available to prime at",
+		Description: "mto earliest requested pickup date",
 		Type:        models.ServiceItemParamTypeTimestamp,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
