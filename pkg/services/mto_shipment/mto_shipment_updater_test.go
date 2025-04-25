@@ -2622,6 +2622,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
+		parameter := models.ApplicationParameters{
+			ParameterName:  models.StringPointer("maxSitDaysAllowance"),
+			ParameterValue: models.StringPointer("90"),
+		}
+		suite.MustCreate(&parameter)
+
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
@@ -2782,6 +2788,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.Run("Successful Office/TOO UpdateShipment - no sit departure date - pricing estimates refreshed using MAX days for International Additional Days SIT service item", func() {
+		parameter := models.ApplicationParameters{
+			ParameterName:  models.StringPointer("maxSitDaysAllowance"),
+			ParameterValue: models.StringPointer("90"),
+		}
+		suite.MustCreate(&parameter)
+
 		testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
