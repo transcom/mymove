@@ -32,7 +32,7 @@ const WizardNavigation = ({
   if (isLastPage) submitButtonText = 'Complete';
   else if (editMode) submitButtonText = 'Save';
 
-  let cancelButtonText = 'Finish Later';
+  let cancelButtonText = 'Finish later';
   if (editMode) cancelButtonText = 'Cancel';
 
   return (
