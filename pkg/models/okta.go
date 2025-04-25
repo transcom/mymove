@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -28,12 +29,13 @@ type OktaUpdateProfile struct {
 }
 
 type OktaProfile struct {
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	Email       string `json:"email"`
-	Login       string `json:"login"`
-	MobilePhone string `json:"mobilePhone"`
-	CacEdipi    string `json:"cac_edipi"`
+	FirstName   string  `json:"firstName"`
+	LastName    string  `json:"lastName"`
+	Email       string  `json:"email"`
+	Login       string  `json:"login"`
+	MobilePhone string  `json:"mobilePhone"`
+	CacEdipi    string  `json:"cac_edipi"`
+	GsaID       *string `json:"gsa_id"`
 }
 
 type OktaUser struct {
@@ -63,6 +65,7 @@ type CreatedOktaUser struct {
 		Login       string  `json:"login"`
 		Email       string  `json:"email"`
 		CacEdipi    *string `json:"cac_edipi"`
+		GsaID       *string `json:"gsa_id"`
 	} `json:"profile"`
 }
 
@@ -74,6 +77,16 @@ type OktaError struct {
 	ErrorCauses  []struct {
 		ErrorSummary string `json:"errorSummary"`
 	} `json:"errorCauses"`
+}
+
+type OktaGroupProfile struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type OktaGroup struct {
+	ID      string           `json:"id"`
+	Profile OktaGroupProfile `json:"profile"`
 }
 
 // ensures a valid email address
@@ -142,7 +155,8 @@ func GetOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaID s
 // OKTA ACCOUNT FETCHING SEVERAL USERS //
 // fetching existing users by email/edipi
 // email and edipi are unique in okta, so searching for those should be enough to ensure there isn't an existing account
-func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Provider, apiKey, oktaEmail string, oktaEdipi *string) ([]CreatedOktaUser, error) {
+// gsaID is used for office users that do not use the typical EDIPI - this will be nil when searching for existing customers
+func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Provider, apiKey, oktaEmail string, oktaEdipi *string, gsaID *string) ([]CreatedOktaUser, error) {
 	if oktaEmail == "" {
 		return nil, fmt.Errorf("email is required and cannot be empty")
 	}
@@ -150,18 +164,20 @@ func SearchForExistingOktaUsers(appCtx appcontext.AppContext, provider *okta.Pro
 		return nil, fmt.Errorf("invalid email format: %s", oktaEmail)
 	}
 
-	if oktaEdipi != nil {
+	if oktaEdipi != nil && *oktaEdipi != "" {
 		if !isValidEdipi(*oktaEdipi) {
 			return nil, fmt.Errorf("invalid EDIPI format: %s", *oktaEdipi)
 		}
 	}
 
-	var searchFilter string
-	if oktaEdipi != nil {
-		searchFilter = fmt.Sprintf(`profile.email eq "%s" or profile.cac_edipi eq "%s"`, oktaEmail, *oktaEdipi)
-	} else {
-		searchFilter = fmt.Sprintf(`profile.email eq "%s"`, oktaEmail)
+	searchFilter := fmt.Sprintf(`profile.email eq "%s"`, oktaEmail)
+	if oktaEdipi != nil && *oktaEdipi != "" {
+		searchFilter += fmt.Sprintf(` or profile.cac_edipi eq "%s"`, *oktaEdipi)
 	}
+	if gsaID != nil && *gsaID != "" {
+		searchFilter += fmt.Sprintf(` or profile.gsa_id eq "%s"`, *gsaID)
+	}
+
 	u, err := url.Parse(provider.GetUsersURL())
 	if err != nil {
 		return nil, err
@@ -299,4 +315,96 @@ func UpdateOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaI
 		return nil, err
 	}
 	return &createdUser, nil
+}
+
+// OKTA USER GROUP ASSOCIATIONS //
+// this func handles showing all groups a user is a part of
+func GetOktaUserGroups(appCtx appcontext.AppContext, provider *okta.Provider, apiKey, userID string) ([]OktaGroup, error) {
+	u, err := url.Parse(provider.GetUserGroupsURL(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	// this is done via a GET request for fetching all groups associated with a user
+	// https://developer.okta.com/docs/api/openapi/okta-management/management/tag/UserResources/#tag/UserResources/operation/listUserGroups
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		appCtx.Logger().Error("could not create GET request when fetching user groups", zap.Error(err))
+		return nil, err
+	}
+	req.Header.Add("Authorization", "SSWS "+apiKey)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		appCtx.Logger().Error("could not execute GET request when fetching user groups", zap.Error(err))
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	response, err := io.ReadAll(resp.Body)
+	if err != nil {
+		appCtx.Logger().Error("could not read GET response when fetching user groups", zap.Error(err))
+		return nil, err
+	}
+
+	var groups []OktaGroup
+	if err := json.Unmarshal(response, &groups); err != nil {
+		appCtx.Logger().Error("could not unmarshal GET response when fetching user groups", zap.Error(err))
+		return nil, err
+	}
+	return groups, nil
+}
+
+// OKTA ADDING USER TO GROUP //
+// this func handles adding a user to the group ID that is provided
+func AddOktaUserToGroup(appCtx appcontext.AppContext, provider *okta.Provider, apiKey, groupID string, userID string) error {
+	u, err := url.Parse(provider.AddUserToGroupURL(groupID, userID))
+	if err != nil {
+		return err
+	}
+
+	// https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Group/#tag/Group/operation/assignUserToGroup
+	req, err := http.NewRequest("PUT", u.String(), nil)
+	if err != nil {
+		appCtx.Logger().Error("could not create PUT request when adding user to Okta group", zap.Error(err))
+		return err
+	}
+	req.Header.Add("Authorization", "SSWS "+apiKey)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		appCtx.Logger().Error("could not execute PUT request when adding user to Okta group", zap.Error(err))
+		return err
+	}
+	defer resp.Body.Close()
+
+	response, err := io.ReadAll(resp.Body)
+	if err != nil {
+		appCtx.Logger().Error("could not read PUT response when adding user to Okta group", zap.Error(err))
+		return err
+	}
+
+	// this means we were successful since Okta sends back a 204
+	if len(response) == 0 {
+		return nil
+	}
+
+	var oktaErr OktaError
+	if err := json.Unmarshal(response, &oktaErr); err != nil {
+		appCtx.Logger().Error("could not unmarshal Okta error response", zap.Error(err))
+		return err
+	}
+
+	// if we can see the error summary, we will send that back
+	if oktaErr.ErrorSummary != "" {
+		return errors.New(oktaErr.ErrorSummary)
+	}
+
+	return nil
 }
