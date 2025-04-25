@@ -67,16 +67,7 @@ BEGIN
                 )
             )
         )
-        AND v_gbloc = CASE
-            WHEN service_members.affiliation != 'MARINES'
-                AND (
-                        move_to_dest_gbloc.gbloc = v_gbloc
-                    OR
-                        orders.gbloc = v_gbloc
-                    )
-            THEN orders.gbloc
-            ELSE move_to_dest_gbloc.gbloc
-        END
+        AND move_to_dest_gbloc.gbloc  = v_gbloc
     GROUP BY moves.id
     ORDER BY earliest_date;
 END
