@@ -5,10 +5,8 @@ BEGIN
 SELECT rcy.escalation_compounded INTO declared_factor
 FROM re_contract_years rcy
 WHERE rcy.contract_id = in_contract_id
-    AND in_date >= rcy.start_date
-    AND in_date <= rcy.end_date
-ORDER BY rcy.start_date DESC
-LIMIT 1;
+    AND in_date BETWEEN rcy.start_date AND rcy.end_date
+ORDER BY rcy.start_date DESC;
 IF NOT FOUND THEN RAISE EXCEPTION 'No matching contract year found for contract_id=% and date=%',
 in_contract_id,
 in_date;
