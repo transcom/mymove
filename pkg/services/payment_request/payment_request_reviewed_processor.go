@@ -49,14 +49,16 @@ func NewPaymentRequestReviewedProcessor(
 	generator services.GHCPaymentRequestInvoiceGenerator,
 	runSendToSyncada bool,
 	gexSender services.GexSender,
-	sftpSender services.SyncadaSFTPSender) services.PaymentRequestReviewedProcessor {
+	sftpSender services.SyncadaSFTPSender,
+	notificationSender notifications.NotificationSender) services.PaymentRequestReviewedProcessor {
 
 	return &paymentRequestReviewedProcessor{
 		reviewedPaymentRequestFetcher: fetcher,
 		ediGenerator:                  generator,
 		gexSender:                     gexSender,
 		sftpSender:                    sftpSender,
-		runSendToSyncada:              runSendToSyncada}
+		runSendToSyncada:              runSendToSyncada,
+		notifications:                 notificationSender}
 }
 
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
@@ -75,15 +77,14 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 			return nil, err
 		}
 	}
-
 	return NewPaymentRequestReviewedProcessor(
 		reviewedPaymentRequestFetcher,
 		generator,
 		sendToSyncada,
 		gexSender,
-		sftpSession), nil
+		sftpSession,
+		nil), nil
 }
-
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var lockedPR models.PaymentRequest
@@ -156,6 +157,8 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 
 		return nil
 	})
+	paymentRequestNotifier := notifications.NewPaymentRequestFailed(pr)
+
 	if transactionError != nil {
 		errDescription := transactionError.Error()
 
@@ -183,7 +186,6 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 			)
 		}
 		//send email to open HDT for review for payment requests that failed to send to GEX
-		paymentRequestNotifier := notifications.NewPaymentRequestFailed(pr)
 		err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
 		if err != nil {
 			appCtx.Logger().Error(
