@@ -367,7 +367,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
-		draftMove := factory.BuildMove(suite.DB(), nil, nil)
+		draftMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusServiceCounselingCompleted,
+				},
+			},
+		}, nil)
 		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    draftMove,

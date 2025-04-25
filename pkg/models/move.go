@@ -583,6 +583,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"CloseoutOffice",
 		"CloseoutOffice.Address.Country",
 		"CounselingOffice",
+		"LockExpiresAt",
 	).All(&moves)
 	if err != nil {
 		return moves, err
