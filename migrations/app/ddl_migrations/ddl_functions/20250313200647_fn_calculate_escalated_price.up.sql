@@ -1,5 +1,6 @@
 --B-22466  M.Inthavongsay Adding initial migration file for calculate_escalated_price stored procedure using new migration process.
 --Also updating to allow IOPSIT and IDDSIT SIT service items.
+-- B-22742  C. Kleinjan  Migrate function to DDL Migrations and adding the ability to get escalated price for ICRT and IUCRT
 
 -- function to calculate the escalated price, takes in:
 -- origin rate area
