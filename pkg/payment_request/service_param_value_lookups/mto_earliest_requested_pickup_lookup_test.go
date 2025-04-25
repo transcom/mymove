@@ -14,21 +14,35 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 	key := models.ServiceItemParamNameMTOEarliestRequestedPickup
 
-	earliestRequestedPickup := time.Date(2025, time.April, 21, 0, 0, 0, 452487000, time.Local)
+	earliestRequestedPickup := time.Date(2024, time.March, 15, 0, 0, 0, 452487000, time.Local)
+	laterRequestedPickup := time.Date(2025, time.November, 1, 0, 0, 0, 0, time.Local)
 	var mtoServiceItem models.MTOServiceItem
 	var paymentRequest models.PaymentRequest
 	var paramLookup *ServiceItemParamKeyData
 
 	setupTestData := func() {
+		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &earliestRequestedPickup,
+				},
+			},
+		}, nil)
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &laterRequestedPickup,
+				},
+			},
+		}, nil)
+
+		shipments := models.MTOShipments{shipment1, shipment2}
+
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: models.TimePointer(time.Now()),
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &earliestRequestedPickup,
+					MTOShipments:       shipments,
 				},
 			},
 		}, nil)
