@@ -135,6 +135,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		officeuser.NewOfficeUserDeleter(queryBuilder),
 	}
 
+	adminAPI.OfficeUsersGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
+		handlerConfig,
+		roles.NewRolesFetcher(),
+	}
+
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
 		handlerConfig,
 		office.NewOfficeListFetcher(queryBuilder),
