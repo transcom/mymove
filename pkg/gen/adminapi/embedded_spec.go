@@ -496,6 +496,97 @@ func init() {
         }
       }
     },
+    "/edi-errors": {
+      "get": {
+        "description": "Returns a list of EDI errors tied to payment requests that are in EDI_ERROR status. This endpoint is for Admin UI use only.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "EDI Errors"
+        ],
+        "summary": "List of EDI Errors",
+        "operationId": "fetchEdiErrors",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiErrors"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/edi-errors/{ediErrorId}": {
+      "get": {
+        "description": "Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Single EDI Error"
+        ],
+        "summary": "Get information on a specific EDI Error by the ID of the EDI Error",
+        "operationId": "getEdiError",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "EDI Error ID",
+            "name": "ediErrorId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiError"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "EDI error not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -951,6 +1042,39 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/office-users/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RolePrivilege"
+              }
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -2671,6 +2795,50 @@ func init() {
         }
       }
     },
+    "EdiError": {
+      "type": "object",
+      "required": [
+        "id",
+        "paymentRequestID",
+        "ediType"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediType": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestNumber": {
+          "type": "string",
+          "example": "1234-5678-1"
+        }
+      }
+    },
+    "EdiErrors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EdiError"
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -3355,6 +3523,44 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "RolePrivilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "roleId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "task_ordering_officer"
         },
         "updatedAt": {
           "type": "string",
@@ -4317,6 +4523,97 @@ func init() {
         }
       }
     },
+    "/edi-errors": {
+      "get": {
+        "description": "Returns a list of EDI errors tied to payment requests that are in EDI_ERROR status. This endpoint is for Admin UI use only.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "EDI Errors"
+        ],
+        "summary": "List of EDI Errors",
+        "operationId": "fetchEdiErrors",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiErrors"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/edi-errors/{ediErrorId}": {
+      "get": {
+        "description": "Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Single EDI Error"
+        ],
+        "summary": "Get information on a specific EDI Error by the ID of the EDI Error",
+        "operationId": "getEdiError",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "EDI Error ID",
+            "name": "ediErrorId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/EdiError"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "EDI error not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic-orders": {
       "get": {
         "description": "This endpoint returns a list of Electronic Orders. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
@@ -4772,6 +5069,39 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/office-users/roles-privileges": {
+      "get": {
+        "description": "This endpoint returns a list of unique role to privilege mappings. Do not use this\nendpoint directly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Office users"
+        ],
+        "summary": "Retrieve a list of unique role to privilege mappings.",
+        "operationId": "getRolesPrivileges",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of unique role privilege mappings",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RolePrivilege"
+              }
+            }
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "No role-privilege mapping found"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -6492,6 +6822,50 @@ func init() {
         }
       }
     },
+    "EdiError": {
+      "type": "object",
+      "required": [
+        "id",
+        "paymentRequestID",
+        "ediType"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediType": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "paymentRequestNumber": {
+          "type": "string",
+          "example": "1234-5678-1"
+        }
+      }
+    },
+    "EdiErrors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EdiError"
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -7177,6 +7551,44 @@ func init() {
         "roleType": {
           "type": "string",
           "example": "customer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "RolePrivilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "463c2034-d197-4d9a-897e-8bbe64893a31"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "roleId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "task_ordering_officer"
         },
         "updatedAt": {
           "type": "string",
