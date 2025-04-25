@@ -703,6 +703,44 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			errorMessage:  invalidDateError,
 		},
 		{
+			name: "HHG Into NTS shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+			},
+			expectedError: true,
+			errorMessage:  "RequestedPickupDate is required to create an HHG_INTO_NTS shipment",
+		},
+		{
+			name: "HHG Into NTS shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Into NTS shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Into NTS shipment with future date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+				RequestedPickupDate: futureDate,
+			},
+			expectedError: false,
+		},
+		{
 			name: "Update from valid date to nil",
 			newer: &models.MTOShipment{
 				ID:           uuidTest,
