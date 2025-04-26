@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { cloneDeep } from 'lodash';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
@@ -191,6 +192,9 @@ const testProps = {
   grade: '',
 };
 
+const testPropsWithLock = cloneDeep(testProps);
+testPropsWithLock.isMoveLocked = true;
+
 const initialValues = {
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   issue_date: '2020-11-08',
@@ -343,6 +347,62 @@ describe('EditOrdersForm component', () => {
       waitFor(async () => {
         expect(screen.getByText(documentSizeLimitMsg)).toBeInTheDocument();
       });
+    });
+
+    it('disables the submit button if move is locked by office user', async () => {
+      showCounselingOffices.mockImplementation(() => Promise.resolve({}));
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      // Fill out form so that form is valid, and submit button will only be disabled if the move is locked.
+      render(
+        <MockProviders>
+          <EditOrdersForm
+            {...testPropsWithLock}
+            initialValues={{
+              origin_duty_location: {
+                name: 'Altus AFB',
+                provides_services_counseling: true,
+                address: { isOconus: false },
+              },
+              counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+              uploaded_orders: [
+                {
+                  id: '123',
+                  createdAt: '2020-11-08',
+                  bytes: 1,
+                  url: 'url',
+                  filename: 'Test Upload',
+                  contentType: 'application/pdf',
+                },
+              ],
+            }}
+          />
+        </MockProviders>,
+      );
+      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+      await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+      await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+      await userEvent.click(screen.getByLabelText('No'));
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+      // Test New Duty Location Search Box interaction
+      await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+      const selectedOptionNew = await screen.findByText(/Luke/);
+      await userEvent.click(selectedOptionNew);
+
+      expect(screen.getByLabelText(/Counseling office/));
+
+      await waitFor(() =>
+        expect(screen.getByRole('form')).toHaveFormValues({
+          new_duty_location: 'Luke AFB',
+          origin_duty_location: 'Altus AFB',
+        }),
+      );
+
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+      expect(submitButton).toBeDisabled();
     });
   });
 

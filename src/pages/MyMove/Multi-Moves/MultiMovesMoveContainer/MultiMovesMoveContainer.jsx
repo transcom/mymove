@@ -133,6 +133,8 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
     scrollToTop();
   };
 
+  const now = new Date();
+
   const moveList = moves.map((m, index) => (
     <React.Fragment key={index}>
       <div className={styles.moveContainer}>
@@ -149,17 +151,23 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
             </>
           )}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            <Button
-              data-testid="goToMoveBtn"
-              className={styles.goToMoveBtn}
-              secondary
-              outline
-              onClick={() => {
-                handleGoToMoveClick(m.id);
-              }}
-            >
-              Go to Move
-            </Button>
+            {now < new Date(m?.lockExpiresAt) ? (
+              <Button data-testid="moveLockedBtn" className={styles.moveLockedBtn} secondary disabled>
+                Move Locked
+              </Button>
+            ) : (
+              <Button
+                data-testid="goToMoveBtn"
+                className={styles.goToMoveBtn}
+                secondary
+                outline
+                onClick={() => {
+                  handleGoToMoveClick(m.id);
+                }}
+              >
+                Go to Move
+              </Button>
+            )}
           </div>
           <FontAwesomeIcon
             className={styles.icon}
