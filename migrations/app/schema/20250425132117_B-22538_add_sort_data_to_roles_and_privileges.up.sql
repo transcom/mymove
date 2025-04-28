@@ -1,4 +1,4 @@
-----B-22538   Michael Saki    Add updates for sort column in roles and privileges tables
+--B-22538   Michael Saki    Add updates for sort column in roles and privileges tables
 
 UPDATE roles
 SET sort = CASE role_type
