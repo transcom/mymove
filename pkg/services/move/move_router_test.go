@@ -1054,6 +1054,12 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					ProvidesServicesCounseling: true,
 				},
 			},
+			{
+				Model: models.TransportationOffice{
+					Name:  "PPPO Jacksonville - USN",
+					Gbloc: "CNNQ",
+				},
+			},
 		}, nil)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
@@ -1077,6 +1083,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 
 		move.MTOShipments = models.MTOShipments{shipment}
 		move.MTOShipments[0].PPMShipment = &ppmShipment
+
+		move.Orders.OriginDutyLocationID = &ppmDutyLocation.ID
+		move.Orders.OriginDutyLocation = &ppmDutyLocation
 
 		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 			{
@@ -1451,8 +1460,36 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
 	})
 
+	suite.Run("status changed to service counseling completed when originally in DRAFT status", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
+		hhgShipment := factory.BuildMTOShipmentMinimal(nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
+	})
+
 	suite.Run("status changed to approved", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
+		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
+		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+	})
+
+	suite.Run("status changed to approved when originally in DRAFT status", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
 		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 
@@ -1473,7 +1510,7 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 	})
 
 	suite.Run("move has unexpected existing status", func() {
-		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusDRAFT)
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusServiceCounselingCompleted)
 		ppmShipment := factory.BuildPPMShipment(nil, nil, nil)
 		move.MTOShipments = models.MTOShipments{ppmShipment.Shipment}
 

@@ -189,6 +189,104 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 
 }
 
+// Create an HHG move that is terminated
+func MakeHHGMoveInTerminatedStatus(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		},
+	}, nil)
+
+	sitDaysAllowance := 270
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				Status:               models.MTOShipmentStatusTerminatedForCause,
+				SITDaysAllowance:     &sitDaysAllowance,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Add current sit so we can review the modal
+	// At time of writing it needs to be:
+	// current
+	// days remaining <=30
+	// --break--
+	// We're gonna go well over 90 days so that
+	// we can see the convert to customer expense button.
+	twoYearsAgo := time.Now().AddDate(-2, 0, 0)
+	aMonthAhead := time.Now().AddDate(0, 1, 0)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), mto, shipment, &twoYearsAgo, &aMonthAhead)
+	scenario.MakeSITExtensionsForShipment(appCtx, shipment)
+
+	return mto
+}
+
 // MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO is a function
 // that creates an HHG move with service items and payments requests with files
 // from the Prime for review by thte TOO
@@ -413,10 +511,13 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 		}, nil)
 
 	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
+	mtoServiceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: MTOShipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 		{
@@ -4018,7 +4119,26 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(),
+	)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -4122,7 +4242,26 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(),
+	)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -4461,7 +4600,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -4549,12 +4688,20 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 
 	sitLocationType := models.SITLocationTypeOrigin
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
-	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "42444",
+				City:       "POOLE",
+			},
+		},
+	}, nil)
 	sitDaysAllowance := 90
 	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				PostalCode: "42444",
+				City:       "POOLE",
 			},
 		},
 	}, nil)
@@ -4562,6 +4709,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 		{
 			Model: models.Address{
 				PostalCode: "30813",
+				City:       "GROVETOWN",
 			},
 		},
 	}, nil)
@@ -4597,7 +4745,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
@@ -4847,7 +4995,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4886,7 +5034,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4937,7 +5085,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4972,7 +5120,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -5028,7 +5176,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5105,7 +5253,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5194,7 +5342,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx appcontext.
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5270,7 +5418,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5336,7 +5484,7 @@ func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppConte
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
@@ -5419,6 +5567,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			PickupAddress:               &address,
+			DestinationAddress:          &address,
 			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 			SITEstimatedEntryDate:       &storageStart,
 			SITEstimatedDepartureDate:   &storageEnd,
@@ -5426,7 +5576,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+	shipment.Shipment.DestinationAddress = shipment.Shipment.PickupAddress
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)
@@ -5568,7 +5719,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)
@@ -5704,7 +5855,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5775,7 +5926,7 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -5832,7 +5983,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -7263,7 +7414,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 			},
@@ -7342,7 +7493,7 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 		},
 	}, nil)
 
-	destinationAddress := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
+	destinationAddress, err := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				City:       orders.OriginDutyLocation.Address.City,
@@ -7352,6 +7503,9 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 			},
 		},
 	}, nil)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
 		{
@@ -7446,7 +7600,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 			},
@@ -7540,7 +7694,7 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Eisenhower",
+				City:           "GROVETOWN",
 				State:          "GA",
 				PostalCode:     "30813",
 			},

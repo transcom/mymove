@@ -95,6 +95,11 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 			Model:    move,
 			LinkOnly: true,
 		},
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: models.PoundPointer(1500),
+			},
+		},
 	}, nil)
 	destAddress := factory.BuildDefaultAddress(suite.DB())
 
@@ -234,7 +239,26 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	creator := NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
 
 	createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemForUnapprovedMove)
@@ -262,11 +286,28 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	creator := NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	// Happy path: If the service item is created successfully it should be returned
 	suite.Run("200 Success - Destination SIT Service Item Creation", func() {
-
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
 		// Set up:     We create an approved move and attempt to create DDFSIT service item on it. Includes Dimensions
@@ -737,8 +778,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		startDate := time.Date(testdatagen.GHCTestYear, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(testdatagen.GHCTestYear, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
@@ -785,8 +826,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		startDate := time.Date(testdatagen.GHCTestYear, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(testdatagen.GHCTestYear, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
@@ -838,7 +879,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &pickupDate,
+					RequestedPickupDate:  &pickupDate,
+					PrimeEstimatedWeight: models.PoundPointer(1500),
 				},
 			},
 		}, nil)
@@ -1072,12 +1114,19 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	var reServiceDOPSIT models.ReService
 	var reServiceDOSFSC models.ReService
 
+	var reServiceIOFSIT models.ReService
+
 	setupTestData := func() models.MTOShipment {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1500),
+				},
 			},
 		}, nil)
 
@@ -1086,12 +1135,92 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		reServiceDOPSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
 		reServiceDOSFSC = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
 
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		return mtoShipment
+	}
+
+	setupTestInternationalData := func(isOconusPickupAddress bool, isOconusDestinationAddress bool) models.MTOShipment {
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		var pickupAddress models.Address
+		var destinationAddress models.Address
+
+		if isOconusPickupAddress {
+			pickupAddress = oconusAddress
+		} else {
+			pickupAddress = conusAddress
+		}
+
+		if isOconusDestinationAddress {
+			destinationAddress = oconusAddress
+		} else {
+			destinationAddress = conusAddress
+		}
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:           models.MarketCodeInternational,
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+				},
+			},
+		}, nil)
+
+		reServiceIOFSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIOFSIT)
+
 		return mtoShipment
 	}
 
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	creator := NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	suite.Run("Failure - 422 Cannot create DOFSIT service item with non-null address.ID", func() {
 
@@ -1116,16 +1245,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			SITOriginHHGActualAddress: &actualPickupAddress,
 			Status:                    models.MTOServiceItemStatusSubmitted,
 		}
-
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -1165,16 +1284,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			SITOriginHHGActualAddress: &actualPickupAddress,
 			Status:                    models.MTOServiceItemStatusSubmitted,
 		}
-
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.NotNil(createdServiceItems)
@@ -1219,6 +1328,81 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.Equal(1, numDOSFSCFound)
 	})
 
+	suite.Run("Create IOFSIT service item and auto-create IOASIT, IOPSIT, IOSFSC", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create IOFSIT service item with a new address
+		// Expected outcome: Success, 4 service items created
+
+		// Customer gets new pickup address for SIT Origin Pickup (IOPSIT) which gets added when
+		// creating IOFSIT (SIT origin first day).
+		shipment := setupTestInternationalData(false, true)
+
+		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
+		// that we properly create the address coming in from the API.
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
+
+		serviceItemIOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceIOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemsList := *createdServiceItems
+		suite.Equal(4, len(createdServiceItemsList))
+
+		numIOFSITFound := 0
+		numIOASITFound := 0
+		numIOPSITFound := 0
+		numIOSFSCFound := 0
+
+		for _, item := range createdServiceItemsList {
+			suite.Equal(serviceItemIOFSIT.MoveTaskOrderID, item.MoveTaskOrderID)
+			suite.Equal(serviceItemIOFSIT.MTOShipmentID, item.MTOShipmentID)
+			suite.Equal(serviceItemIOFSIT.SITEntryDate, item.SITEntryDate)
+			suite.Equal(serviceItemIOFSIT.Reason, item.Reason)
+			suite.Equal(serviceItemIOFSIT.SITPostalCode, item.SITPostalCode)
+			suite.Equal(actualPickupAddress.StreetAddress1, item.SITOriginHHGActualAddress.StreetAddress1)
+			suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
+
+			if item.ReService.Code == models.ReServiceCodeIOPSIT || item.ReService.Code == models.ReServiceCodeIOSFSC {
+				suite.Equal(*item.SITDeliveryMiles, 400)
+			}
+
+			switch item.ReService.Code {
+			case models.ReServiceCodeIOFSIT:
+				numIOFSITFound++
+			case models.ReServiceCodeIOASIT:
+				numIOASITFound++
+			case models.ReServiceCodeIOPSIT:
+				numIOPSITFound++
+			case models.ReServiceCodeIOSFSC:
+				numIOSFSCFound++
+			}
+		}
+
+		suite.Equal(1, numIOFSITFound)
+		suite.Equal(1, numIOASITFound)
+		suite.Equal(1, numIOPSITFound)
+		suite.Equal(1, numIOSFSCFound)
+	})
+
 	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
 		// Create DOFSIT
 		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
@@ -1239,16 +1423,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			SITOriginHHGActualAddress: &actualPickupAddress,
 			Status:                    models.MTOServiceItemStatusSubmitted,
 		}
-
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		// Successful creation of DOFSIT
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
@@ -1375,15 +1549,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
 			},
 		}, nil)
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
 		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Error(err)
 		expectedError := fmt.Sprintf(
@@ -1420,15 +1586,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
 			},
 		}, nil)
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
 		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Error(err)
 		expectedError := fmt.Sprintf(
@@ -1455,16 +1613,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			ReService:       reServiceDOPSIT,
 		}
 
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
 		suite.Nil(createdServiceItems)
@@ -1489,16 +1637,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			ReService:       reServiceDOSFSC,
 		}
 
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
 
 		suite.Nil(createdServiceItems)
@@ -1521,16 +1659,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			MTOShipmentID:   &shipment.ID,
 			ReService:       reServiceDOASIT,
 		}
-
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
 
@@ -1605,7 +1733,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -1630,6 +1776,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 				Model:    move,
 				LinkOnly: true,
 			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+				},
+			},
 		}, nil)
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
@@ -1639,11 +1790,100 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
 		return shipment, creator, reServiceDDFSIT
 
+	}
+
+	setupTestInternationalData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:           models.MarketCodeInternational,
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+				},
+			},
+		}, nil)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(125, nil)
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
+		reServiceIDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDFSIT)
+		return shipment, creator, reServiceIDFSIT
 	}
 
 	setupAdditionalSIT := func() (models.ReService, models.ReService, models.ReService) {
@@ -1652,6 +1892,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		reServiceDDDSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 		reServiceDDSFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 		return reServiceDDASIT, reServiceDDDSIT, reServiceDDSFSC
+	}
+
+	setupAdditionalInternationalSIT := func() (models.ReService, models.ReService, models.ReService) {
+		// These codes will be needed for the following tests:
+		reServiceIDASIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDASIT)
+		reServiceIDDSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDDSIT)
+		reServiceIDSFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIDSFSC)
+		return reServiceIDASIT, reServiceIDDSIT, reServiceIDSFSC
 	}
 
 	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
@@ -1672,6 +1920,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		var contacts models.MTOServiceItemCustomerContacts
 		contacts = append(contacts, contact1, contact2)
 		return contacts
+	}
+
+	convertCustomerIDsToFindTestMap := func(contacts models.MTOServiceItemCustomerContacts) map[uuid.UUID]bool {
+		customerContactIDMap := make(map[uuid.UUID]bool, len(contacts))
+		// load all known customer IDs into map
+		for _, contact := range contacts {
+			customerContactIDMap[contact.ID] = true
+		}
+		return customerContactIDMap
 	}
 
 	sitEntryDate := time.Now().AddDate(0, 0, 1)
@@ -1795,10 +2052,95 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// We create one set of customer contacts and attach them to each destination service item.
 		// This portion verifies that.
-		suite.Equal(createdServiceItemList[1].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[1].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[0], serviceItemDDFSIT.CustomerContacts[0])
-		suite.Equal(createdServiceItemList[2].CustomerContacts[1], serviceItemDDFSIT.CustomerContacts[1])
+		customerContactIDMap := convertCustomerIDsToFindTestMap(serviceItemDDFSIT.CustomerContacts)
+		// Verify there are only 2 customers created
+		suite.Equal(len(customerContactIDMap), 2)
+		for _, createdServiceItem := range createdServiceItemList {
+			for _, item := range createdServiceItem.CustomerContacts {
+				// remove ID from map to denote it was found
+				delete(customerContactIDMap, item.ID)
+			}
+		}
+		// found all expected IDs. expect empty map
+		suite.Equal(len(customerContactIDMap), 0)
+	})
+
+	// Successful creation of IDFSIT service item and the extra IDASIT/IDDSIT items
+	suite.Run("Success - IDFSIT creation approved - no SITDestinationFinalAddress", func() {
+		shipment, creator, reServiceIDFSIT := setupTestInternationalData()
+		setupAdditionalInternationalSIT()
+
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			SITDepartureDate: &sitDepartureDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemList := *createdServiceItems
+		suite.Equal(len(createdServiceItemList), 4)
+
+		// check the returned items for the correct data
+		numIDASITFound := 0
+		numIDDSITFound := 0
+		numIDFSITFound := 0
+		numIDSFSCFound := 0
+		for _, item := range createdServiceItemList {
+			suite.Equal(item.MoveTaskOrderID, serviceItemIDFSIT.MoveTaskOrderID)
+			suite.Equal(item.MTOShipmentID, serviceItemIDFSIT.MTOShipmentID)
+			suite.Equal(item.SITEntryDate, serviceItemIDFSIT.SITEntryDate)
+			suite.Equal(item.SITDepartureDate, serviceItemIDFSIT.SITDepartureDate)
+
+			suite.Equal(item.SITDestinationOriginalAddressID, serviceItemIDFSIT.SITDestinationOriginalAddressID)
+			suite.Equal(item.SITDestinationFinalAddressID, serviceItemIDFSIT.SITDestinationFinalAddressID)
+
+			if item.ReService.Code == models.ReServiceCodeIDDSIT || item.ReService.Code == models.ReServiceCodeIDSFSC {
+				// if this fails check the mock in the setupdata func and/or if destination address is OCONUS
+				suite.Equal(*item.SITDeliveryMiles, 125)
+			}
+
+			if item.ReService.Code == models.ReServiceCodeIDASIT {
+				numIDASITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeIDDSIT {
+				numIDDSITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeIDFSIT {
+				numIDFSITFound++
+				suite.Equal(len(item.CustomerContacts), len(serviceItemIDFSIT.CustomerContacts))
+			}
+			if item.ReService.Code == models.ReServiceCodeIDDSIT {
+				numIDSFSCFound++
+			}
+		}
+		suite.Equal(numIDASITFound, 1)
+		suite.Equal(numIDDSITFound, 1)
+		suite.Equal(numIDFSITFound, 1)
+		suite.Equal(numIDSFSCFound, 1)
+
+		// We create one set of customer contacts and attach them to each destination service item.
+		// This portion verifies that.
+		customerContactIDMap := convertCustomerIDsToFindTestMap(serviceItemIDFSIT.CustomerContacts)
+		// Verify there are only 2 customers created
+		suite.Equal(len(customerContactIDMap), 2)
+		for _, createdServiceItem := range createdServiceItemList {
+			for _, item := range createdServiceItem.CustomerContacts {
+				// remove ID from map to denote it was found
+				delete(customerContactIDMap, item.ID)
+			}
+		}
+
+		// found all expected IDs. expect empty map
+		suite.Equal(len(customerContactIDMap), 0)
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
@@ -1939,12 +2281,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Then attempt to create a DDASIT
 		serviceItemDDASIT := models.MTOServiceItem{
-			MoveTaskOrderID: shipment.MoveTaskOrderID,
-			MoveTaskOrder:   shipment.MoveTaskOrder,
-			MTOShipmentID:   &shipment.ID,
-			MTOShipment:     shipment,
-			ReService:       reServiceDDASIT,
-			Status:          models.MTOServiceItemStatusSubmitted,
+			MoveTaskOrderID:            shipment.MoveTaskOrderID,
+			MoveTaskOrder:              shipment.MoveTaskOrder,
+			MTOShipmentID:              &shipment.ID,
+			MTOShipment:                shipment,
+			ReService:                  reServiceDDASIT,
+			Status:                     models.MTOServiceItemStatusSubmitted,
+			SITDestinationFinalAddress: shipment.DestinationAddress,
 		}
 
 		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
@@ -1964,6 +2307,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	suite.Run("Failure - DDASIT creation needs DDFSIT", func() {
 
 		// Make the necessary SIT code objects
+		_, creator, _ := setupTestData()
 		reServiceDDASIT, _, _ := setupAdditionalSIT()
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
@@ -1987,15 +2331,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
 
 		suite.Nil(createdServiceItems)
@@ -2058,6 +2393,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	suite.Run("Failure - cannot create domestic service item international domestic shipment", func() {
+		_, creator, _ := setupTestData()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		dimension := models.MTOServiceItemDimension{
 			Type:      models.DimensionTypeItem,
@@ -2096,16 +2432,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			SITDestinationFinalAddress:   &destAddress,
 		}
 
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &internationalServiceItem)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -2115,6 +2441,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	suite.Run("Failure - cannot create international service item for domestic shipment", func() {
+		_, creator, _ := setupTestData()
+
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		dimension := models.MTOServiceItemDimension{
 			Type:      models.DimensionTypeItem,
@@ -2152,16 +2480,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			SITDestinationFinalAddressID: &destAddress.ID,
 			SITDestinationFinalAddress:   &destAddress,
 		}
-
-		builder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &internationalServiceItem)
 		suite.Nil(createdServiceItems)
@@ -2217,20 +2535,18 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
 		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
-		startDate := time.Now().AddDate(-1, 0, 0)
-		endDate := startDate.AddDate(1, 1, 1)
 		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 		sitPostalCode := "99999"
 		reason := "lorem ipsum"
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					Name:                 "Test Contract Year",
 					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
+					StartDate:            testdatagen.ContractStartDate,
+					EndDate:              testdatagen.ContractEndDate,
 				},
 			})
 
@@ -2446,27 +2762,46 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
-		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(66330), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
-		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(586080), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
-		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(45870), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
-		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(47652), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
-		suite.Equal(unit.Cents(13619760), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(13437600), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
-		suite.Equal(unit.Cents(11088000), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(10929600), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
+		// negative because we are using 2020 fuel rates
 		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
 	})
 
@@ -2744,27 +3079,46 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.Anything,
 			mock.Anything,
 		).Return(800, nil)
-		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
-		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(66330), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
-		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(586080), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
-		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(45870), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
-		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(47652), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
-		suite.Equal(unit.Cents(29990400), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(29589120), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
-		suite.Equal(unit.Cents(22176000), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(21859200), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
+		// negative because we are using 2020 fuel rate
 		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
@@ -2830,5 +3184,131 @@ func (suite *MTOServiceItemServiceSuite) TestGetAdjustedWeight() {
 		incomingWeight := unit.Pound(1000)
 		adjustedWeight := GetAdjustedWeight(incomingWeight, true)
 		suite.Equal(unit.Pound(1100), *adjustedWeight)
+	})
+}
+
+func (suite *MTOServiceItemServiceSuite) TestFindSITEstimatedPrice() {
+	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: models.PoundPointer(1000),
+				},
+			},
+		}, nil)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(
+			planner,
+			builder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
+		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		return shipment, creator, reServiceDDFSIT
+
+	}
+
+	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
+		deliveryDate := time.Now()
+		attemptedContact := time.Now()
+		contact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "0815Z",
+		}
+		contact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "1430Z",
+		}
+		var contacts models.MTOServiceItemCustomerContacts
+		contacts = append(contacts, contact1, contact2)
+		return contacts
+	}
+
+	sitEntryDate := time.Now().AddDate(0, 0, 1)
+
+	// Successful creation of DDFSIT MTO service item.
+	suite.Run("Success - Creation of Domestic Destination SIT MTO Service Items with estimated prices", func() {
+
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.NoError(err)
+		suite.NotNil(serviceItems)
+
+		for _, serviceItem := range *serviceItems {
+			suite.NotNil(serviceItem.PricingEstimate)
+		}
+	})
+
+	// Successful creation of DOFSIT MTO service item.
+	suite.Run("Success - Creation of Domestic Origin SIT MTO Service Items with estimated prices", func() {
+
+		shipment, creator, reServiceDOFSIT := setupTestData()
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDOFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.NoError(err)
+		suite.NotNil(serviceItems)
+
+		for _, serviceItem := range *serviceItems {
+			suite.NotNil(serviceItem.PricingEstimate)
+		}
 	})
 }

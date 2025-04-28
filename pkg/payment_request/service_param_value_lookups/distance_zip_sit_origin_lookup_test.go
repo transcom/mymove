@@ -3,14 +3,12 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"strconv"
-	"time"
 
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
@@ -29,12 +27,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 	setupTestData := func() {
 
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress = factory.BuildAddress(suite.DB(),
@@ -42,6 +34,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 				{
 					Model: models.Address{
 						PostalCode: originZip,
+						City:       "AUGUSTA",
+						State:      "GA",
 					},
 				},
 			}, nil)
@@ -51,6 +45,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 				{
 					Model: models.Address{
 						PostalCode: actualOriginZipSameZip3,
+						City:       "AUGUSTA",
+						State:      "GA",
 					},
 				},
 			}, nil)
@@ -60,6 +56,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 				{
 					Model: models.Address{
 						PostalCode: actualOriginZipDiffZip3,
+						City:       "MONTGOMERY",
+						State:      "AL",
 					},
 				},
 			}, nil)
@@ -193,7 +191,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 		suite.Error(err)
 	})
 
-	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
+	suite.Run("sets distance to NOT ONE when origin and destination postal codes are the same but shipment.PickupAddress zip is different. This test verifies mileage takes shipment and SIT actual.", func() {
 		setupTestData()
 
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -216,8 +214,44 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 		distance, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
 
+		//Check if distance not equal 1
+		suite.NotEqual("1", distance)
+
+	})
+
+	suite.Run("sets distance to one when origin and destination postal codes are the same", func() {
+		setupTestData()
+
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+			{
+				Model:    originAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGActualAddress,
+			},
+		}, nil)
+
+		createdShipment := models.MTOShipment{}
+		err := suite.DB().Find(&createdShipment, mtoServiceItem.MTOShipmentID)
+		suite.FatalNoError(err)
+		err = suite.DB().Load(&createdShipment, "MoveTaskOrder", "PickupAddress")
+		suite.FatalNoError(err)
+		// hack - ensure generated shipment linked to test service item contains the same the pickup zip as SIT origin/actual for test.
+		createdShipment.PickupAddress.PostalCode = originAddress.PostalCode
+		suite.NoError(suite.DB().Update(createdShipment.PickupAddress))
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+
+		suite.FatalNoError(err)
+
+		distance, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+
 		//Check if distance equal 1
 		suite.Equal("1", distance)
-
 	})
 }

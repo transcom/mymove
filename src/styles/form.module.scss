@@ -10,7 +10,6 @@
     @include typeset('body', 11, 2);
     @include u-margin-y(4);
   }
-
   .hide {
     display: none;
   }
@@ -187,4 +186,9 @@ p + .radioGroup {
 .requiredAsterisk {
   color: $color-red;
   font-weight: bold;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
 }

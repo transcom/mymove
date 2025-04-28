@@ -474,7 +474,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ActualValue   *edisegment.N9
 		}{
 			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
-			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+			{TestName: "contract code", Qualifier: "CT", ExpectedValue: testdatagen.DefaultContractCode, ActualValue: &result.Header.ContractCode},
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
@@ -507,7 +507,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ActualValue   *edisegment.N9
 		}{
 			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
-			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+			{TestName: "contract code", Qualifier: "CT", ExpectedValue: testdatagen.DefaultContractCode, ActualValue: &result.Header.ContractCode},
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
@@ -754,6 +754,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		customAddress := models.Address{
 			ID:         uuid.Must(uuid.NewV4()),
 			PostalCode: "73403",
+			City:       "ARDMORE",
 		}
 		destDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},

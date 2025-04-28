@@ -204,8 +204,9 @@ func (m MTOShipment) TableName() string {
 type MTOShipments []MTOShipment
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
+func (m *MTOShipment) Validate(db *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
+	var customVerrs []validate.Errors
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
 		string(MTOShipmentStatusApproved),
 		string(MTOShipmentStatusRejected),
@@ -216,6 +217,16 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusDiversionRequested),
 		string(MTOShipmentStatusTerminatedForCause),
 	}})
+	// Check if the status of the original shipment is terminated
+	if m.ID != uuid.Nil && db != nil {
+		var existingShipment MTOShipment
+		err := db.Find(&existingShipment, m.ID)
+		if err == nil && existingShipment.Status == MTOShipmentStatusTerminatedForCause {
+			terminationVerr := validate.NewErrors()
+			terminationVerr.Add("status", "Cannot update shipment with status TERMINATED_FOR_CAUSE")
+			customVerrs = append(customVerrs, *terminationVerr)
+		}
+	}
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: 0, Name: "PrimeEstimatedWeight"})
@@ -284,7 +295,17 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		})
 	}
 
-	return validate.Validate(vs...), nil
+	verrs := validate.Validate(vs...)
+	// Add our custom verrs the ole manual way because the types
+	// didn't want to append together
+	for _, e := range customVerrs {
+		for field, msgs := range e.Errors {
+			for _, msg := range msgs {
+				verrs.Add(field, msg)
+			}
+		}
+	}
+	return verrs, nil
 }
 
 // GetCustomerFromShipment gets the service member given a shipment id
@@ -482,6 +503,7 @@ func CreateInternationalAccessorialServiceItemsForShipment(db *pop.Connection, s
 // a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:
 // iHHG
 // iUB
+// iNTS
 func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, shipment *MTOShipment, mileage *int) error {
 	err := db.RawQuery("CALL update_service_item_pricing($1, $2)", shipment.ID, mileage).Exec()
 	if err != nil {

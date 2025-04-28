@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -18,26 +17,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	key := models.ServiceItemParamNameDistanceZip
 
 	suite.Run("Calculate transit zip distance", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "33607",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
@@ -64,12 +44,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate transit zip distance for international shipment with port data", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Port{
@@ -86,6 +60,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					PostalCode: "74133",
+					City:       "TULSA",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -148,7 +123,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			{
 				Model: models.Address{
 					StreetAddress1: "JBER",
-					City:           "JBER",
+					City:           "ANCHORAGE",
 					State:          "AK",
 					PostalCode:     "99505",
 					IsOconus:       models.BoolPointer(true),
@@ -158,8 +133,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		}, nil)
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode, City: ppmShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode, City: ppmShipment.DestinationAddress.City},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -176,36 +151,18 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate transit zip distance with an approved Destination SIT service item", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		now := time.Now()
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					PostalCode: "88101",
+					City:       "CANNON AFB",
 				},
 			},
 		}, nil)
 
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "33607",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
@@ -261,8 +218,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode, City: ppmShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode, City: ppmShipment.DestinationAddress.City},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -292,8 +249,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		}, nil)
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode, City: ppmShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode, City: ppmShipment.DestinationAddress.City},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -314,26 +271,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Sucessfully updates mtoShipment distance when the pickup and destination zips are the same", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "90211",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
@@ -360,26 +298,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("Calculate zip distance with param cache", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "33607",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90210",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, []factory.Trait{
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
 		})
 
@@ -456,24 +375,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the pickup zipcode isn't at least 5 digits", func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					PostalCode: "33",
 				},
 				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.Address{
-					PostalCode: "90103",
-				},
-				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, []factory.Trait{
 			factory.GetTraitAvailableToPrimeMove,
@@ -495,20 +402,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 	})
 
 	suite.Run("returns error if the destination zipcode isn't at least 5 digits", func() {
-
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "33607",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
 			{
 				Model: models.Address{
 					PostalCode: "901",
@@ -578,8 +472,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		}, nil)
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: MTOShipment.PickupAddress.PostalCode},
-			DestinationAddress: models.Address{PostalCode: MTOShipment.DestinationAddress.PostalCode},
+			PickupAddress:      models.Address{PostalCode: MTOShipment.PickupAddress.PostalCode, City: MTOShipment.PickupAddress.City},
+			DestinationAddress: models.Address{PostalCode: MTOShipment.DestinationAddress.PostalCode, City: MTOShipment.DestinationAddress.City},
 		}
 
 		distance, err := distanceZipLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{

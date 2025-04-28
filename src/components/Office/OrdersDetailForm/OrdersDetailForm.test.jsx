@@ -123,8 +123,8 @@ describe('OrdersDetailForm', () => {
     const tacInputRequired = screen.getByLabelText('TAC *');
     expect(tacInputRequired).toBeInTheDocument();
     expect(tacInputRequired).toBeDisabled();
-    const sacInputs = screen.queryAllByLabelText('SAC');
     const tacInputs = screen.queryAllByLabelText('TAC');
+    const sacInputs = screen.queryAllByLabelText('SAC');
     expect(tacInputs.length).toBe(1);
     expect(sacInputs.length).toBe(2);
     expect(tacInputs[0]).toBeDisabled();

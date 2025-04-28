@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -39,6 +40,7 @@ type approveShipmentSubtestData struct {
 	reServiceCodes         []models.ReServiceCode
 	moveWeights            services.MoveWeights
 	mtoUpdater             services.MoveTaskOrderUpdater
+	contractID             uuid.UUID
 }
 
 // Creates data for the TestApproveShipment function
@@ -71,6 +73,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	suite.FatalNoError(err)
 
 	// Let's create service codes in the DB
+	// INPK and IHPK don't need this since they're not truncated
 	subtestData.reServiceCodes = []models.ReServiceCode{
 		models.ReServiceCodeDLH,
 		models.ReServiceCodeFSC,
@@ -124,12 +127,31 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	).Return(400, nil)
 	ppmEstimator := &servicesMocks.PPMEstimator{}
 	queryBuilder := query.NewQueryBuilder()
+
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 	subtestData.mtoUpdater = mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		siCreator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
 	mockSender := setUpMockNotificationSender()
 	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
@@ -150,20 +172,12 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		{
 			Model: models.Address{
 				StreetAddress1: "7 Q St",
-				City:           "Birmingham",
+				City:           "NICHOLASVILLE",
 				State:          "KY",
 				PostalCode:     "40356",
 			},
 		},
 	}, nil)
-
-	//ContractCode
-	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			StartDate: time.Now().Add(-24 * time.Hour),
-			EndDate:   time.Now().Add(24 * time.Hour),
-		},
-	})
 
 	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
 		ReDomesticServiceArea: models.ReDomesticServiceArea{
@@ -181,7 +195,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-			ContractID:            contractYear.Contract.ID,
+			ContractID:            contractYear.ContractID,
 			Contract:              contractYear.Contract,
 			DomesticServiceAreaID: serviceArea.ID,
 			DomesticServiceArea:   serviceArea,
@@ -224,6 +238,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	domesticOriginNonpeakPrice.IsPeakPeriod = false
 	domesticOriginNonpeakPrice.PriceCents = 127
 
+	subtestData.contractID = contractYear.ContractID
 	return subtestData
 }
 
@@ -257,9 +272,28 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	ppmEstimator := &servicesMocks.PPMEstimator{}
 	queryBuilder := query.NewQueryBuilder()
 	planner := &mocks.Planner{}
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 	mtoUpdater := mt.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		siCreator,
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
 	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and should NOT update pricing without port data", func() {
@@ -319,13 +353,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
-
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 
 		shipmentRouter := NewShipmentRouter()
 		waf := entitlements.NewWeightAllotmentFetcher()
@@ -758,10 +785,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(subtestData.reServiceCodes[i], serviceItems[i].ReService.Code)
-			if serviceItems[i].ReService.Code == models.ReServiceCodeDOP {
-				// pricing estimate will be nil for invalid service area
-				suite.Nil(serviceItems[i].PricingEstimate)
-			}
 		}
 	})
 
@@ -1583,4 +1606,217 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 		_, err := shipmentApprover.ApproveShipments(suite.AppContextForTest(), shipmentIdWithEtagArr)
 		suite.Error(err)
 	})
+}
+
+// Calculate final estimated price for NTS INPK
+// the base price cents comes from IHPK because iHHG -> iNTS
+func computeINPKExpectedPriceCents(
+	basePriceCents int,
+	escalationFactor float64,
+	marketFactor float64,
+	primeEstimatedWeightLbs int,
+) unit.Cents {
+	// Convert incoming cents to dollars just like how the calculate_escalated_price proc does before multiplying it
+	// As well as add double rounding to the dollar amounts since the proc uses dollars instead of cents
+	unroundedEscDollarAmount := float64(basePriceCents) / 100.0
+	roundedEscDollars := math.Round(unroundedEscDollarAmount*escalationFactor*100) / 100 // rounds to 2 decimals
+	cwt := (float64(primeEstimatedWeightLbs) * 1.1) / 100.0
+	finalDollars := roundedEscDollars * marketFactor * cwt
+	// Second rounding
+	final := math.Round(finalDollars * 100)
+
+	return unit.Cents(final)
+}
+
+// fetchMarketFactor retrieves the market factor for a given service and contract
+func fetchMarketFactor(appCtx appcontext.AppContext, contractID, serviceID uuid.UUID, marketCode string) (float64, error) {
+	var shipmentTypePrice models.ReShipmentTypePrice
+
+	err := appCtx.DB().Where("contract_id = ? AND service_id = ? AND market = ?", contractID, serviceID, marketCode).
+		First(&shipmentTypePrice)
+
+	if err != nil {
+		return 0, errors.Wrap(err, "error fetching market factor")
+	}
+
+	return shipmentTypePrice.Factor, nil
+}
+
+func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimatePricing() {
+	now := time.Now()
+
+	setupOconusToConusNtsShipment := func(estimatedWeight *unit.Pound) (models.StorageFacility, models.Address, models.Address, models.MTOShipment) {
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+			{
+				Model: models.StorageFacility{
+					FacilityName: *models.StringPointer("Test Storage Name"),
+					Email:        models.StringPointer("old@email.com"),
+					LotNumber:    models.StringPointer("Test lot number"),
+					Phone:        models.StringPointer("555-555-5555"),
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99507",
+					IsOconus:       models.BoolPointer(true),
+				},
+			},
+		}, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "148 S East St",
+					City:           "Miami",
+					State:          "FL",
+					PostalCode:     "94535",
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:             models.MoveStatusAPPROVED,
+					AvailableToPrimeAt: &now,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:           models.MarketCodeInternational,
+					Status:               models.MTOShipmentStatusSubmitted,
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
+					PrimeEstimatedWeight: estimatedWeight,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
+		return storageFacility, pickupAddress, destinationAddress, shipment
+	}
+
+	suite.Run("NTS OCONUS to CONUS estimate prices on approval", func() {
+		subtestData := suite.createApproveShipmentSubtestData()
+
+		testCases := []struct {
+			name            string
+			estimatedWeight *unit.Pound
+		}{
+			{
+				name:            "Successfully applies estimated weight to INPK when estimated weight is present",
+				estimatedWeight: models.PoundPointer(100000),
+			},
+			{
+				name:            "Leaves estimated INPK price as nil when no estimated weight is present",
+				estimatedWeight: nil,
+			},
+		}
+		for _, tc := range testCases {
+			appCtx := subtestData.appCtx
+			planner := subtestData.planner
+			approver := subtestData.shipmentApprover
+			_, _, _, shipment := setupOconusToConusNtsShipment(tc.estimatedWeight)
+
+			planner.On("ZipTransitDistance",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+			).Return(500, nil)
+
+			// Aprove the shipment to trigger the estimate pricing proc on INPK
+			shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+			_, approverErr := approver.ApproveShipment(appCtx, shipment.ID, shipmentEtag)
+			suite.FatalNoError(approverErr)
+
+			// Get created pre approved service items
+			var serviceItems []models.MTOServiceItem
+			err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+			suite.NoError(err)
+
+			// Get the contract escalation factor
+			var escalationFactor float64
+			err = suite.DB().RawQuery(`
+			SELECT calculate_escalation_factor($1, $2)
+		`, subtestData.contractID, shipment.RequestedPickupDate).First(&escalationFactor)
+			suite.FatalNoError(err)
+
+			// Verify our non-truncated escalation factor db value is as expected
+			// this also tests the calculate_escalation_factor proc
+			// This information was pulled from the migration scripts (Or just run db fresh and perform the lookups
+			// manually, whichever is your cup of tea)
+			suite.Equal(escalationFactor, 1.11)
+
+			// Fetch the INPK market factor from the DB
+			inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
+			ntsMarketFactor, err := fetchMarketFactor(suite.AppContextForTest(), subtestData.contractID, inpkReService.ID, "O")
+			suite.FatalNoError(err)
+
+			// Assert basic service items
+			// Basic = created immediately on their own, not requested
+			// Accessorial = created at a later date if requested
+			expectedServiceItems := map[models.ReServiceCode]*unit.Cents{
+				// Not testing ISLH or PODFSC so their prices will be nil
+				models.ReServiceCodeISLH:   nil,
+				models.ReServiceCodePODFSC: nil,
+				// Remember that we pass in IHPK base price, not INPK base price. INPK doesn't have a base price
+				// because it uses IHPK for iHHG -> iNTS packing
+				models.ReServiceCodeINPK: func() *unit.Cents {
+					// Handle test case of nil weight
+					if shipment.PrimeEstimatedWeight == nil {
+						return nil
+					}
+					return models.CentPointer(computeINPKExpectedPriceCents(6105, escalationFactor, ntsMarketFactor, shipment.PrimeEstimatedWeight.Int()))
+				}(),
+			}
+			suite.Equal(len(expectedServiceItems), len(serviceItems))
+
+			// Look for INPK and assert its expected price matches the actual price the proc sets
+			var foundINPK bool
+			for _, serviceItem := range serviceItems {
+				actualReServiceCode := serviceItem.ReService.Code
+				suite.Contains(expectedServiceItems, actualReServiceCode, "Unexpected service code found: %s", actualReServiceCode)
+
+				expectedPrice, found := expectedServiceItems[actualReServiceCode]
+				suite.True(found, "Expected price for service code %s not found", actualReServiceCode)
+				if actualReServiceCode == models.ReServiceCodeINPK {
+					foundINPK = true
+					if expectedPrice == nil || serviceItem.PricingEstimate == nil {
+						// Safely ref if test case has nil outcomes
+						suite.Nil(expectedPrice, "Expected price should be nil for service code %s", actualReServiceCode)
+						suite.Nil(serviceItem.PricingEstimate, "Pricing estimate should be nil for service code %s", actualReServiceCode)
+					} else {
+						suite.Equal(*expectedPrice, *serviceItem.PricingEstimate, "Pricing estimate mismatch for service code %s", actualReServiceCode)
+					}
+				}
+			}
+			suite.FatalTrue(foundINPK)
+		}
+	})
+
 }
