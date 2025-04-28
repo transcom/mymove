@@ -28,7 +28,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 		return nil, nil, err
 	}
 
-	if payload.Email != nil {
+	if payload.Email != nil && foundUser.Email != *payload.Email {
 		foundUser.Email = *payload.Email
 		updateUserAndOkta = true
 	}
@@ -96,7 +96,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 				return verrs
 			}
 
-			if existingUser.OktaID != "" {
+			if existingUser.OktaID != "" && appCtx.Session().IDToken != "devlocal" {
 				apiKey := models.GetOktaAPIKey()
 				oktaID := existingUser.OktaID
 				req := appCtx.HTTPRequest()
