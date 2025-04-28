@@ -19,7 +19,7 @@ export function isPPMAboutInfoComplete(ppmShipment) {
     'actualMoveDate',
     'pickupAddress',
     'destinationAddress',
-    'w21Address',
+    'w2Address',
     'hasReceivedAdvance',
   ].every((fieldName) => ppmShipment[fieldName] !== null);
 
