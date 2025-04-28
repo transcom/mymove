@@ -32,7 +32,7 @@ const WizardNavigation = ({
   if (isLastPage) submitButtonText = 'Complete';
   else if (editMode) submitButtonText = 'Save';
 
-  let cancelButtonText = 'Finish Later';
+  let cancelButtonText = 'Finish later';
   if (editMode) cancelButtonText = 'Cancel';
 
   return (
@@ -58,7 +58,7 @@ const WizardNavigation = ({
       {isReviewPage && (
         <Button type="button" onClick={onAddShipment} className={styles.button} data-testid="wizardAddShipmentButton">
           <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />
-          &nbsp;&nbsp;Add Shipment
+          &nbsp;&nbsp;Add shipment
         </Button>
       )}
 

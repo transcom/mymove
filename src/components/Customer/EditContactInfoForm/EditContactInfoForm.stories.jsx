@@ -30,6 +30,7 @@ const fakeData = {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
+    county: 'El Paso',
   },
   backup_mailing_address: {
     streetAddress1: '9 W 2nd Ave',
@@ -37,6 +38,7 @@ const fakeData = {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79936',
+    county: 'El Paso',
   },
   backup_contact: {
     name: 'Peyton Wing',
@@ -60,6 +62,7 @@ export const DefaultState = (argTypes) => (
           city: '',
           state: '',
           postalCode: '',
+          county: '',
         },
         backup_mailing_address: {
           streetAddress1: '',
@@ -67,6 +70,7 @@ export const DefaultState = (argTypes) => (
           city: '',
           state: '',
           postalCode: '',
+          county: '',
         },
         backup_contact: {
           name: '',
