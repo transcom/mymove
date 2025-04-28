@@ -1,4 +1,5 @@
 @import 'shared/styles/_basics';
+@import 'shared/styles/colors';
 .title {
   @include u-margin-bottom(1);
 }
@@ -18,4 +19,9 @@
 .hint.hint {
   @include u-margin-top(0);
   @include u-margin-bottom(1);
+}
+
+.requiredAsterisk {
+  color: $color-red;
+  font-weight: bold;
 }
