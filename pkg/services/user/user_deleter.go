@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"regexp"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -17,6 +18,8 @@ import (
 type userDeleter struct {
 	builder userQueryBuilder
 }
+
+var foreignKeyPattern = regexp.MustCompile("violates foreign key constraint")
 
 func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) error {
 	var user models.User
@@ -53,18 +56,18 @@ func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) err
 
 		err = o.builder.DeleteMany(txnAppCtx, &[]models.ServiceMember{}, userIdFilter)
 		if err != nil {
-			return err
+			return handleError(id, err)
 		}
 
 		err = o.builder.DeleteMany(txnAppCtx, &[]models.OfficeUser{}, userIdFilter)
 		if err != nil {
-			return err
+			return handleError(id, err)
 		}
 
 		// delete the user
 		err = o.builder.DeleteOne(txnAppCtx, &user)
 		if err != nil {
-			return err
+			return handleError(id, err)
 		}
 
 		return nil
@@ -106,4 +109,11 @@ func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) err
 // NewUserDeleter returns a new user deleter builder
 func NewUserDeleter(builder userQueryBuilder) services.UserDeleter {
 	return &userDeleter{builder}
+}
+
+func handleError(id uuid.UUID, rawError error) error {
+	if foreignKeyPattern.MatchString(rawError.Error()) {
+		return apperror.NewConflictError(id, rawError.Error())
+	}
+	return rawError
 }

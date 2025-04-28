@@ -211,7 +211,8 @@ func (h DeleteUserHandler) Handle(params userop.DeleteUserParams) middleware.Res
 				case apperror.NotFoundError:
 					return userop.NewDeleteUserNotFound(), err
 				case apperror.ConflictError:
-					appCtx.Logger().Debug("Encountered ConflictError")
+					return userop.NewDeleteUserConflict(), err
+				case apperror.ForbiddenError:
 					return userop.NewDeleteUserForbidden(), err
 				default:
 					return userop.NewDeleteUserInternalServerError(), err

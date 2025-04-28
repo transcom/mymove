@@ -65,7 +65,7 @@ func (o *DeleteUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer 
 const DeleteUserForbiddenCode int = 403
 
 /*
-DeleteUserForbidden User cannot be deleted
+DeleteUserForbidden User cannot be deleted, forbidden
 
 swagger:response deleteUserForbidden
 */
@@ -109,6 +109,31 @@ func (o *DeleteUserNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
+}
+
+// DeleteUserConflictCode is the HTTP code returned for type DeleteUserConflict
+const DeleteUserConflictCode int = 409
+
+/*
+DeleteUserConflict User cannot be deleted due to associated data
+
+swagger:response deleteUserConflict
+*/
+type DeleteUserConflict struct {
+}
+
+// NewDeleteUserConflict creates DeleteUserConflict with default headers values
+func NewDeleteUserConflict() *DeleteUserConflict {
+
+	return &DeleteUserConflict{}
+}
+
+// WriteResponse to the client
+func (o *DeleteUserConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(409)
 }
 
 // DeleteUserInternalServerErrorCode is the HTTP code returned for type DeleteUserInternalServerError

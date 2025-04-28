@@ -1872,10 +1872,13 @@ func init() {
             "description": "request requires user authentication"
           },
           "403": {
-            "description": "User cannot be deleted"
+            "description": "User cannot be deleted, forbidden"
           },
           "404": {
             "description": "User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
@@ -5730,10 +5733,13 @@ func init() {
             "description": "request requires user authentication"
           },
           "403": {
-            "description": "User cannot be deleted"
+            "description": "User cannot be deleted, forbidden"
           },
           "404": {
             "description": "User not found"
+          },
+          "409": {
+            "description": "User cannot be deleted due to associated data"
           },
           "500": {
             "description": "server error"
