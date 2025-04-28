@@ -50,8 +50,14 @@ const UserEdit = () => {
       .then(() => {
         redirect('/');
       })
-      .catch(() => {
-        setInactivateOpen(true);
+      .catch((err) => {
+        if (err?.statusCode === 409) {
+          setInactivateOpen(true);
+        } else if (err?.statusCode === 403) {
+          setServerError('This is an Admin User and cannot be deleted.');
+        } else {
+          setServerError(err?.message);
+        }
         redirect(false);
       });
   };
@@ -103,7 +109,7 @@ const UserEdit = () => {
       )}
       {serverError && (
         <Alert type="error" slim className={styles.error}>
-          There was a server error.
+          {serverError}
         </Alert>
       )}
       <SimpleForm
