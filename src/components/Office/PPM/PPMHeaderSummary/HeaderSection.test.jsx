@@ -6,6 +6,8 @@ import HeaderSection from './HeaderSection';
 
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
 import { renderWithProviders } from 'testUtils';
+import { PPM_TYPES } from 'shared/constants';
+import { formatWeight } from 'utils/formatters';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -261,6 +263,19 @@ const invalidSectionTypeProps = {
   },
 };
 
+const smallPackageSectionInfo = {
+  type: 'shipmentInfo',
+  ppmType: PPM_TYPES.SMALL_PACKAGE,
+  plannedMoveDate: '2022-02-01',
+  allowableWeight: 5000, // in pounds
+  movingExpenses: [
+    { weightShipped: 2000, isProGear: false },
+    { weightShipped: 500, isProGear: true, proGearBelongsToSelf: false },
+  ],
+  pickupAddress: '123 Street, City, State',
+  destinationAddress: '456 Avenue, City, State',
+};
+
 const clickDetailsButton = async (buttonType) => {
   await act(async () => {
     await fireEvent.click(screen.getByTestId(`${buttonType}-showRequestDetailsButton`));
@@ -286,7 +301,7 @@ describe('PPMHeaderSummary component', () => {
         clickDetailsButton('shipmentInfo');
       });
 
-      expect(screen.getByText('Actual Expense Reimbursement')).toBeInTheDocument();
+      expect(screen.getByText('Expense Type')).toBeInTheDocument();
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('15-Mar-2020')).toBeInTheDocument();
       expect(screen.getByText('Actual Move Start Date')).toBeInTheDocument();
@@ -328,222 +343,261 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('Remaining Incentive')).toBeInTheDocument();
       expect(screen.getByTestId('remainingIncentive')).toHaveTextContent('$71,190.41');
     });
+
+    describe('edit items correctly', () => {
+      it('edits expense type correctly', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
+        });
+        await act(async () => {
+          clickDetailsButton('shipmentInfo');
+        });
+
+        const modalButton = within(screen.getByTestId('expenseType')).getByTestId('editTextButton');
+        await act(() => userEvent.click(modalButton));
+        await act(() => userEvent.click(screen.getByText('Actual Expense Reimbursement')));
+        await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+        });
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+            moveTaskOrderID: 'move123',
+            shipmentID: 'shipment123',
+            ifMatchETag: 'etag123',
+            body: {
+              ppmShipment: {
+                isActualExpenseReimbursement: true,
+                ppmType: PPM_TYPES.ACTUAL_EXPENSE,
+              },
+            },
+          });
+        });
+      });
+
+      it('edits actual move date correctly', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
+        });
+        await act(async () => {
+          clickDetailsButton('shipmentInfo');
+        });
+
+        const modalButton = within(screen.getByTestId('actualMoveDate')).getByTestId('editTextButton');
+        await act(() => userEvent.click(modalButton));
+        await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+        });
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+            moveTaskOrderID: 'move123',
+            shipmentID: 'shipment123',
+            ifMatchETag: 'etag123',
+            body: {
+              ppmShipment: {
+                actualMoveDate: '2022-01-20',
+              },
+            },
+          });
+        });
+      });
+
+      it('edits advance amount received correctly', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...incentivesProps} />, mockRoutingConfig);
+        });
+        await act(async () => {
+          clickDetailsButton('incentives');
+        });
+
+        const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
+        await act(() => userEvent.click(modalButton));
+        await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+        });
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+            moveTaskOrderID: 'move123',
+            shipmentID: 'shipment123',
+            ifMatchETag: 'etag123',
+            body: {
+              ppmShipment: {
+                advanceAmountReceived: 112200,
+                hasReceivedAdvance: true,
+              },
+            },
+          });
+        });
+      });
+
+      it('if advance amount received is 0', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...incentivesAdvanceReceivedZeroProps} />, mockRoutingConfig);
+        });
+        await act(async () => {
+          clickDetailsButton('incentives');
+        });
+
+        const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
+        await act(() => userEvent.click(modalButton));
+        await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+        });
+
+        await act(async () => {
+          expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+            moveTaskOrderID: 'move123',
+            shipmentID: 'shipment123',
+            ifMatchETag: 'etag123',
+            body: {
+              ppmShipment: {
+                advanceAmountReceived: null,
+                hasReceivedAdvance: false,
+              },
+            },
+          });
+        });
+      });
+    });
+
+    describe('displays "Incentive Factors" section', () => {
+      it('renders "Incentive Factors" on load with correct prop values', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...incentiveFactorsProps} />, mockRoutingConfig);
+        });
+        await act(async () => {
+          clickDetailsButton('incentiveFactors');
+        });
+
+        expect(screen.getByText('Linehaul Price')).toBeInTheDocument();
+        expect(screen.getByTestId('haulPrice')).toHaveTextContent('$68,926.68');
+        expect(screen.getByText('Linehaul Fuel Rate Adjustment')).toBeInTheDocument();
+        expect(screen.getByTestId('haulFSC')).toHaveTextContent('$1.43');
+        expect(screen.getByText('Packing Charge')).toBeInTheDocument();
+        expect(screen.getByTestId('packPrice')).toHaveTextContent('$200.00');
+        expect(screen.getByText('Unpacking Charge')).toBeInTheDocument();
+        expect(screen.getByTestId('unpackPrice')).toHaveTextContent('$100.00');
+        expect(screen.getByText('Origin Price')).toBeInTheDocument();
+        expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
+        expect(screen.getByText('Destination Price')).toBeInTheDocument();
+        expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
+        expect(screen.getByText('International Packing Charge')).toBeInTheDocument();
+        expect(screen.getByTestId('intlPackPrice')).toHaveTextContent('$12.34');
+        expect(screen.getByText('International Unpacking Charge')).toBeInTheDocument();
+        expect(screen.getByTestId('intlUnpackPrice')).toHaveTextContent('$123.45');
+        expect(screen.getByText('International Shipping & Linehaul Charge')).toBeInTheDocument();
+        expect(screen.getByTestId('intlLinehaulPrice')).toHaveTextContent('$1,234.56');
+        expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
+      });
+
+      it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...incentiveFactorsShorthaulProps} />, mockRoutingConfig);
+        });
+        await act(async () => {
+          clickDetailsButton('incentiveFactors');
+        });
+
+        expect(screen.getByText('Shorthaul Price')).toBeInTheDocument();
+        expect(screen.getByTestId('haulPrice')).toHaveTextContent('$68,926.68');
+        expect(screen.getByText('Shorthaul Fuel Rate Adjustment')).toBeInTheDocument();
+        expect(screen.getByTestId('haulFSC')).toHaveTextContent('-$1.43');
+        expect(screen.getByText('Packing Charge')).toBeInTheDocument();
+        expect(screen.getByTestId('packPrice')).toHaveTextContent('$200.00');
+        expect(screen.getByText('Unpacking Charge')).toBeInTheDocument();
+        expect(screen.getByTestId('unpackPrice')).toHaveTextContent('$100.00');
+        expect(screen.getByText('Origin Price')).toBeInTheDocument();
+        expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
+        expect(screen.getByText('Destination Price')).toBeInTheDocument();
+        expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
+        expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
+      });
+    });
+
+    describe('handles errors correctly', () => {
+      it('renders an alert if an unknown section type was passed in', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
+        });
+
+        const alert = screen.getByTestId('alert');
+        expect(alert).toBeInTheDocument();
+        expect(alert).toHaveTextContent('Error getting section title!');
+      });
+
+      it('renders an alert if an unknown section type was passed in and details are expanded', async () => {
+        usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+        useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+        await act(async () => {
+          renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
+        });
+        await act(async () => {
+          clickDetailsButton(invalidSectionTypeProps.sectionInfo.type);
+        });
+        expect(screen.getByText('An error occured while getting section markup!')).toBeInTheDocument();
+      });
+    });
   });
 
-  describe('edit items correctly', () => {
-    it('edits actual expense reimbursement correctly', async () => {
+  describe('HeaderSection - Small Package details', () => {
+    const smallPackageProps = {
+      sectionInfo: smallPackageSectionInfo,
+      dataTestId: 'smallPackageSection',
+      setUpdatedItemName: jest.fn(),
+      readOnly: false,
+      grade: 'ARMY',
+    };
+
+    it('renders small package shipment details correctly', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
-        renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
-      });
-      await act(async () => {
-        clickDetailsButton('shipmentInfo');
-      });
-
-      const modalButton = within(screen.getByTestId('isActualExpenseReimbursement')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByText('Yes')));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
-
-      await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+        renderWithProviders(<HeaderSection {...smallPackageProps} />, mockRoutingConfig);
       });
 
       await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
-          moveTaskOrderID: 'move123',
-          shipmentID: 'shipment123',
-          ifMatchETag: 'etag123',
-          body: {
-            ppmShipment: {
-              isActualExpenseReimbursement: true,
-            },
-          },
-        });
-      });
-    });
-
-    it('edits actual move date correctly', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
-        renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
-      });
-      await act(async () => {
-        clickDetailsButton('shipmentInfo');
+        await clickDetailsButton('shipmentInfo');
       });
 
-      const modalButton = within(screen.getByTestId('actualMoveDate')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+      // Cceck that the "Allowable Weight" section is rendered with the formatted weight
+      expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
+      expect(screen.getByText(formatWeight(smallPackageSectionInfo.allowableWeight))).toBeInTheDocument();
 
-      await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
-      });
+      const totalWeight = smallPackageSectionInfo.movingExpenses.reduce(
+        (sum, expense) => sum + (expense.weightShipped || 0),
+        0,
+      );
+      expect(screen.getByText('Total Weight Shipped')).toBeInTheDocument();
+      expect(screen.getByText(formatWeight(totalWeight))).toBeInTheDocument();
 
-      await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
-          moveTaskOrderID: 'move123',
-          shipmentID: 'shipment123',
-          ifMatchETag: 'etag123',
-          body: {
-            ppmShipment: {
-              actualMoveDate: '2022-01-20',
-            },
-          },
-        });
-      });
-    });
-
-    it('edits advance amount received correctly', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
-        renderWithProviders(<HeaderSection {...incentivesProps} />, mockRoutingConfig);
-      });
-      await act(async () => {
-        clickDetailsButton('incentives');
-      });
-
-      const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
-
-      await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
-      });
-
-      await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
-          moveTaskOrderID: 'move123',
-          shipmentID: 'shipment123',
-          ifMatchETag: 'etag123',
-          body: {
-            ppmShipment: {
-              advanceAmountReceived: 112200,
-              hasReceivedAdvance: true,
-            },
-          },
-        });
-      });
-    });
-
-    it('if advance amount received is 0', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
-        renderWithProviders(<HeaderSection {...incentivesAdvanceReceivedZeroProps} />, mockRoutingConfig);
-      });
-      await act(async () => {
-        clickDetailsButton('incentives');
-      });
-
-      const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
-      await act(() => userEvent.click(modalButton));
-      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
-
-      await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
-      });
-
-      await act(async () => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
-          moveTaskOrderID: 'move123',
-          shipmentID: 'shipment123',
-          ifMatchETag: 'etag123',
-          body: {
-            ppmShipment: {
-              advanceAmountReceived: null,
-              hasReceivedAdvance: false,
-            },
-          },
-        });
-      });
-    });
-  });
-
-  describe('displays "Incentive Factors" section', () => {
-    it('renders "Incentive Factors" on load with correct prop values', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
-        renderWithProviders(<HeaderSection {...incentiveFactorsProps} />, mockRoutingConfig);
-      });
-      await act(async () => {
-        clickDetailsButton('incentiveFactors');
-      });
-
-      expect(screen.getByText('Linehaul Price')).toBeInTheDocument();
-      expect(screen.getByTestId('haulPrice')).toHaveTextContent('$68,926.68');
-      expect(screen.getByText('Linehaul Fuel Rate Adjustment')).toBeInTheDocument();
-      expect(screen.getByTestId('haulFSC')).toHaveTextContent('$1.43');
-      expect(screen.getByText('Packing Charge')).toBeInTheDocument();
-      expect(screen.getByTestId('packPrice')).toHaveTextContent('$200.00');
-      expect(screen.getByText('Unpacking Charge')).toBeInTheDocument();
-      expect(screen.getByTestId('unpackPrice')).toHaveTextContent('$100.00');
-      expect(screen.getByText('Origin Price')).toBeInTheDocument();
-      expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
-      expect(screen.getByText('Destination Price')).toBeInTheDocument();
-      expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
-      expect(screen.getByText('International Packing Charge')).toBeInTheDocument();
-      expect(screen.getByTestId('intlPackPrice')).toHaveTextContent('$12.34');
-      expect(screen.getByText('International Unpacking Charge')).toBeInTheDocument();
-      expect(screen.getByTestId('intlUnpackPrice')).toHaveTextContent('$123.45');
-      expect(screen.getByText('International Shipping & Linehaul Charge')).toBeInTheDocument();
-      expect(screen.getByTestId('intlLinehaulPrice')).toHaveTextContent('$1,234.56');
-      expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
-    });
-
-    it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
-        renderWithProviders(<HeaderSection {...incentiveFactorsShorthaulProps} />, mockRoutingConfig);
-      });
-      await act(async () => {
-        clickDetailsButton('incentiveFactors');
-      });
-
-      expect(screen.getByText('Shorthaul Price')).toBeInTheDocument();
-      expect(screen.getByTestId('haulPrice')).toHaveTextContent('$68,926.68');
-      expect(screen.getByText('Shorthaul Fuel Rate Adjustment')).toBeInTheDocument();
-      expect(screen.getByTestId('haulFSC')).toHaveTextContent('-$1.43');
-      expect(screen.getByText('Packing Charge')).toBeInTheDocument();
-      expect(screen.getByTestId('packPrice')).toHaveTextContent('$200.00');
-      expect(screen.getByText('Unpacking Charge')).toBeInTheDocument();
-      expect(screen.getByTestId('unpackPrice')).toHaveTextContent('$100.00');
-      expect(screen.getByText('Origin Price')).toBeInTheDocument();
-      expect(screen.getByTestId('originPrice')).toHaveTextContent('$156.40');
-      expect(screen.getByText('Destination Price')).toBeInTheDocument();
-      expect(screen.getByTestId('destinationPrice')).toHaveTextContent('$346.40');
-      expect(screen.getByTestId('sitReimbursement')).toHaveTextContent('$300.00');
-    });
-  });
-
-  describe('handles errors correctly', () => {
-    it('renders an alert if an unknown section type was passed in', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
-        renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
-      });
-
-      const alert = screen.getByTestId('alert');
-      expect(alert).toBeInTheDocument();
-      expect(alert).toHaveTextContent('Error getting section title!');
-    });
-
-    it('renders an alert if an unknown section type was passed in and details are expanded', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      await act(async () => {
-        renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
-      });
-      await act(async () => {
-        clickDetailsButton(invalidSectionTypeProps.sectionInfo.type);
-      });
-      expect(screen.getByText('An error occured while getting section markup!')).toBeInTheDocument();
+      expect(screen.getByText('Pro-gear')).toBeInTheDocument();
+      // should be two because we have pro gear (one yes) and one spouse pro-gear (yes)
+      expect(screen.getAllByText('Yes')).toHaveLength(2);
+      expect(screen.getByText('Spouse Pro-gear')).toBeInTheDocument();
     });
   });
 });
