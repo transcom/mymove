@@ -935,9 +935,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText(/If your orders specify a specific UB weight allowance, enter it here./),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/If your orders specify a UB weight allowance, enter it here./)).toBeInTheDocument();
     });
   });
 
@@ -962,7 +960,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
@@ -987,7 +985,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
