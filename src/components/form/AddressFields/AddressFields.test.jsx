@@ -11,7 +11,7 @@ describe('AddressFields component', () => {
   const mockStore = configureStore({});
 
   it('renders a legend and all address inputs', () => {
-    const { getByText, getByLabelText } = render(
+    const { getByText, getByLabelText, getByTestId } = render(
       <Provider store={mockStore.store}>
         <Formik>
           <AddressFields legend="Address Form" name="address" />
@@ -21,6 +21,9 @@ describe('AddressFields component', () => {
     expect(getByText('Address Form')).toBeInstanceOf(HTMLLegendElement);
     expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
     expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
+    expect(getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
+    expect(getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
+    expect(getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
     expect(getByLabelText(/Location Lookup/)).toBeInstanceOf(HTMLInputElement);
   });
 
@@ -37,7 +40,7 @@ describe('AddressFields component', () => {
         },
       };
 
-      const { getByLabelText } = render(
+      const { getByLabelText, getByTestId } = render(
         <Provider store={mockStore.store}>
           <Formik initialValues={initialValues}>
             <AddressFields legend="Address Form" name="address" />
@@ -46,6 +49,9 @@ describe('AddressFields component', () => {
       );
       expect(getByLabelText(/Address 1/)).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
+      expect(getByTestId('City')).toHaveTextContent(initialValues.address.city);
+      expect(getByTestId('State')).toHaveTextContent(initialValues.address.state);
+      expect(getByTestId('ZIP')).toHaveTextContent(initialValues.address.postalCode);
       expect(
         screen.getAllByText(
           `${initialValues.address.city}, ${initialValues.address.state} ${initialValues.address.postalCode} (${initialValues.address.county})`,
@@ -67,7 +73,7 @@ describe('AddressFields component', () => {
         },
       };
 
-      const { getByLabelText } = render(
+      const { getByLabelText, getByTestId } = render(
         <Provider store={mockStore.store}>
           <Formik initialValues={initialValues}>
             {({ ...formikProps }) => {
@@ -78,6 +84,9 @@ describe('AddressFields component', () => {
       );
       expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
+      expect(getByTestId('City')).toHaveTextContent(initialValues.address.city);
+      expect(getByTestId('State')).toHaveTextContent(initialValues.address.state);
+      expect(getByTestId('ZIP')).toHaveTextContent(initialValues.address.postalCode);
       expect(
         screen.getAllByText(
           `${initialValues.address.city}, ${initialValues.address.state} ${initialValues.address.postalCode} (${initialValues.address.county})`,

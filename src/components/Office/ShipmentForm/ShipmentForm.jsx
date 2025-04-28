@@ -1516,7 +1516,6 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="pickup.address"
                         legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
-                        locationLookup
                         formikProps={formikProps}
                         render={(fields) => (
                           <>
@@ -1627,7 +1626,6 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
-                        locationLookup
                         formikProps={formikProps}
                         address1LabelHint="Optional"
                         render={(fields) => (
