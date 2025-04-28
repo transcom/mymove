@@ -547,8 +547,8 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 	suite.Run("Gets all moves belonging to a service member", func() {
 
-		time := time.Now()
-		laterTime := time.AddDate(0, 0, 1)
+		now := time.Now()
+		laterTime := now.AddDate(0, 0, 1)
 		// Given: A servicemember and a user
 		user := factory.BuildDefaultUser(suite.DB())
 
@@ -581,7 +581,8 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 			{
 				Model: models.Move{
-					CreatedAt: time,
+					CreatedAt:     now,
+					LockExpiresAt: &laterTime,
 				},
 			},
 		}, nil)
