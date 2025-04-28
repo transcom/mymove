@@ -1980,12 +1980,6 @@ paths:
         - application/json
       parameters:
         - $ref: 'parameters/ppmShipmentId.yaml'
-        - description: ID of the moving expense to be deleted
-          in: path
-          name: movingExpenseId
-          required: true
-          format: uuid
-          type: string
       responses:
         '204':
           description: Successfully soft deleted the moving expense

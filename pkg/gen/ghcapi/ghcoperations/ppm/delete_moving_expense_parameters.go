@@ -31,7 +31,7 @@ type DeleteMovingExpenseParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of the moving expense to be deleted
+	/*UUID of the moving expense
 	  Required: true
 	  In: path
 	*/

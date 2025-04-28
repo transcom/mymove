@@ -28,6 +28,23 @@ type CreateMovingExpenseHandler struct {
 // Handle creates a moving expense
 func (h CreateMovingExpenseHandler) Handle(params movingexpenseops.CreateMovingExpenseParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest, func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+		/** Feature Flag - COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER **/
+		const featureFlagNameCloseoutForCustomer = "complete_ppm_closeout_for_customer"
+		isCloseoutForCustomerFeatureOn := false
+		flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameCloseoutForCustomer, map[string]string{})
+
+		if ffErr != nil {
+			appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameCloseoutForCustomer), zap.Error(ffErr))
+		} else {
+			isCloseoutForCustomerFeatureOn = flag.Match
+		}
+
+		if !isCloseoutForCustomerFeatureOn {
+			return movingexpenseops.NewCreateMovingExpenseUnprocessableEntity().WithPayload(payloadForValidationError(
+				"Unable to create a moving expense", "Moving expenses cannot be created unless the complete_ppm_closeout_for_customer feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+		}
+
 		if appCtx.Session() == nil {
 			noSessionErr := apperror.NewSessionError("No user session")
 			return movingexpenseops.NewCreateMovingExpenseUnauthorized(), noSessionErr
@@ -169,6 +186,23 @@ type DeleteMovingExpenseHandler struct {
 func (h DeleteMovingExpenseHandler) Handle(params movingexpenseops.DeleteMovingExpenseParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			/** Feature Flag - COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER **/
+			const featureFlagNameCloseoutForCustomer = "complete_ppm_closeout_for_customer"
+			isCloseoutForCustomerFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameCloseoutForCustomer, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameCloseoutForCustomer), zap.Error(ffErr))
+			} else {
+				isCloseoutForCustomerFeatureOn = flag.Match
+			}
+
+			if !isCloseoutForCustomerFeatureOn {
+				return movingexpenseops.NewDeleteMovingExpenseUnprocessableEntity().WithPayload(payloadForValidationError(
+					"Unable to delete a moving expense", "Moving expenses cannot be deleted unless the complete_ppm_closeout_for_customer feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
 			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
 			errPayload := &ghcmessages.Error{Message: &errInstance}
 			if appCtx.Session() == nil {
