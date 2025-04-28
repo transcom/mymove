@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	notificationMocks "github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -5405,6 +5406,162 @@ func (suite *MTOShipmentServiceSuite) TestUpdateSITServiceItemsSITIfPostalCodeCh
 			suite.Equal(*serviceItems[i].SITDeliveryMiles, expectedMileage)
 			suite.Equal(serviceItems[i].SITDestinationOriginalAddress.PostalCode, destinationAddress.PostalCode)
 			suite.Equal(serviceItems[i].SITDestinationFinalAddress.PostalCode, destinationAddress.PostalCode)
+		}
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
+
+	builder := query.NewQueryBuilder()
+	fetcher := fetch.NewFetcher(builder)
+	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	waf := entitlements.NewWeightAllotmentFetcher()
+	mockSender := setUpMockNotificationSender()
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
+	addressCreator := address.NewAddressCreator()
+	addressUpdater := address.NewAddressUpdater()
+
+	createSubtestData := func() (services.MTOShipmentUpdater, models.Move) {
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(500, nil)
+		mtoShipmentUpdaterPrime := NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
+
+		reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             reContract,
+				ContractID:           reContract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().AddDate(1, 0, 0),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		return mtoShipmentUpdaterPrime, move
+	}
+
+	suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
+		shipmentUpdater, move := createSubtestData()
+
+		now := time.Now()
+		yesterday := now.AddDate(0, 0, -1)
+		tomorrow := now.AddDate(0, 0, 1)
+
+		testCases := []struct {
+			input        *time.Time
+			shipmentType models.MTOShipmentType
+			shouldError  bool
+		}{
+			// HHG
+			{&yesterday, models.MTOShipmentTypeHHG, true},
+			{&now, models.MTOShipmentTypeHHG, true},
+			{&tomorrow, models.MTOShipmentTypeHHG, false},
+			// NTS
+			{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&now, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
+			// NTSR
+			{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+			// BOAT HAUL AWAY
+			{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+			{&now, models.MTOShipmentTypeBoatHaulAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+			// BOAT TOW AWAY
+			{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+			{&now, models.MTOShipmentTypeBoatTowAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+			// MOBILE HOME
+			{&yesterday, models.MTOShipmentTypeMobileHome, true},
+			{&now, models.MTOShipmentTypeMobileHome, true},
+			{&tomorrow, models.MTOShipmentTypeMobileHome, false},
+			// UB
+			{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+			//PPM - should always pass validation
+			{&yesterday, models.MTOShipmentTypePPM, false},
+			{&now, models.MTOShipmentTypePPM, false},
+			{&tomorrow, models.MTOShipmentTypePPM, false},
+		}
+
+		for _, testCase := range testCases {
+			// Default is HHG, but we set it explicitly below via the test cases
+			var oldShipment models.MTOShipment
+			if testCase.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+					MaxDaysTransitTime: 12,
+					WeightLbsLower:     0,
+					WeightLbsUpper:     10000,
+					DistanceMilesLower: 0,
+					DistanceMilesUpper: 10000,
+				}
+				verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+				suite.Assert().False(verrs.HasAny())
+				suite.NoError(err)
+				moveForPrime := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+				oldShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    moveForPrime,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:         testCase.shipmentType,
+							RequestedPickupDate:  &tomorrow,
+							ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+							PrimeEstimatedWeight: models.PoundPointer(unit.Pound(4000)),
+							Status:               models.MTOShipmentStatusSubmitted,
+						},
+					},
+				}, nil)
+			} else {
+				oldShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType:        testCase.shipmentType,
+							Status:              models.MTOShipmentStatusSubmitted,
+							RequestedPickupDate: &tomorrow,
+						},
+					},
+				}, nil)
+			}
+
+			updatedShipment := models.MTOShipment{
+				ID:                  oldShipment.ID,
+				RequestedPickupDate: testCase.input,
+			}
+
+			eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+			too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+			session := auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          *too.UserID,
+				OfficeUserID:    too.ID,
+			}
+			session.Roles = append(session.Roles, too.User.Roles...)
+			shipment, err := shipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+
+			if testCase.shouldError {
+				suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, *testCase.input)
+				suite.Error(err)
+				suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
+			} else {
+				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, *testCase.input)
+				suite.NotNil(shipment)
+			}
 		}
 	})
 }

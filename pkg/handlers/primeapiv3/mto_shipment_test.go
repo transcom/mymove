@@ -1106,6 +1106,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			MtoShipmentID: badID,
 			FirstName:     handlers.FmtString("Mary"),
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1367,6 +1368,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				UpdatedAt:        time.Now(),
 			},
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1623,6 +1625,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			HasProGear:                 &hasProGear,
 			SitExpected:                &sitExpected,
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1662,7 +1665,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		now := time.Now()
+		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1789,7 +1798,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		now := time.Now()
+		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1882,7 +1897,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		now := time.Now()
+		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2033,7 +2054,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		now := time.Now()
+		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2158,7 +2185,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		now := time.Now()
+		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2283,7 +2316,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		now := time.Now()
+		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2417,7 +2456,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		now := time.Now()
+		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &tomorrow,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",

@@ -319,7 +319,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			}
 		}
 	})
-
 }
 
 func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
@@ -549,16 +548,17 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate() {
+
 	uuidTest, _ := uuid.NewV4()
 	today := time.Now().Truncate(24 * time.Hour)
 	tomorrow := today.Add(24 * time.Hour)
 	futureDate := models.TimePointer(tomorrow)
 	pastDate := models.TimePointer(today.Add(-24 * time.Hour))
 	zeroTime := time.Time{}
-	requiredDateError := "RequestedPickupDate is required to create an HHG shipment"
+	requiredDateError := "RequestedPickupDate is required to create or modify an HHG shipment"
 	invalidDateError := "RequestedPickupDate must be greater than or equal to tomorrow's date"
 
-	testCases := []struct {
+	edgeTestCases := []struct {
 		name          string
 		newer         *models.MTOShipment
 		older         *models.MTOShipment
@@ -574,6 +574,15 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			},
 			expectedError: true,
 			errorMessage:  requiredDateError,
+		},
+		{
+			name: "RequestedPickupDate in past",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: pastDate,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
 		},
 		{
 			name: "RequestedPickupDate today",
@@ -604,146 +613,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 			errorMessage:  requiredDateError,
 		},
 		{
-			name: "PPM shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypePPM,
-			},
-			expectedError: false,
-		},
-		{
-			name: "HHG shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				RequestedPickupDate: pastDate,
-				ShipmentType:        models.MTOShipmentTypeHHG,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Boat shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeBoatHaulAway,
-			},
-			expectedError: false,
-		},
-		{
-			name: "Boat shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Boat shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Mobile home shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeMobileHome,
-			},
-			expectedError: false,
-		},
-		{
-			name: "Mobile home shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeMobileHome,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "Mobile home shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeMobileHome,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Out of NTS shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
-			},
-			expectedError: false,
-		},
-		{
-			name: "HHG Out of NTS shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Out of NTS shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Into NTS shipment with nil RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:           uuidTest,
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
-			},
-			expectedError: true,
-			errorMessage:  "RequestedPickupDate is required to create an HHG_INTO_NTS shipment",
-		},
-		{
-			name: "HHG Into NTS shipment with past RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
-				RequestedPickupDate: pastDate,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Into NTS shipment with todays date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
-				RequestedPickupDate: &today,
-			},
-			expectedError: true,
-			errorMessage:  invalidDateError,
-		},
-		{
-			name: "HHG Into NTS shipment with future date for RequestedPickupDate",
-			newer: &models.MTOShipment{
-				ID:                  uuidTest,
-				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
-				RequestedPickupDate: futureDate,
-			},
-			expectedError: false,
-		},
-		{
 			name: "Update from valid date to nil",
 			newer: &models.MTOShipment{
 				ID:           uuidTest,
@@ -754,7 +623,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 				RequestedPickupDate: &tomorrow,
 				ShipmentType:        models.MTOShipmentTypeHHG,
 			},
-			expectedError: true,
+			expectedError: false,
 			errorMessage:  requiredDateError,
 		},
 		{
@@ -773,13 +642,162 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range edgeTestCases {
 		suite.Run(tc.name, func() {
 			validator := MTOShipmentHasValidRequestedPickupDate()
 			err := validator.Validate(suite.AppContextForTest(), tc.newer, tc.older)
 			if tc.expectedError {
 				suite.Error(err)
 				suite.Contains(err.Error(), tc.errorMessage)
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+
+	// TEST - requestedPickupDate required
+
+	requiredTestCases := []struct {
+		shipmentType models.MTOShipmentType
+		shouldError  bool
+	}{
+		// HHG
+		{models.MTOShipmentTypeHHG, true},
+		// NTS
+		{models.MTOShipmentTypeHHGIntoNTS, true},
+		// NTSR
+		{models.MTOShipmentTypeHHGOutOfNTS, false},
+		// BOAT HAUL AWAY
+		{models.MTOShipmentTypeBoatHaulAway, false},
+		// BOAT TOW AWAY
+		{models.MTOShipmentTypeBoatTowAway, false},
+		// MOBILE HOME
+		{models.MTOShipmentTypeMobileHome, false},
+		// UB
+		{models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		// PPM - should always pass validation
+		{models.MTOShipmentTypePPM, false},
+	}
+
+	checker := MTOShipmentHasValidRequestedPickupDate()
+	for _, testCase := range requiredTestCases {
+		suite.Run(fmt.Sprintf("requestedPickupDate required | %s", string(testCase.shipmentType)), func() {
+			mtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: nil,
+			}
+			err := checker.Validate(suite.AppContextForTest(), &mtoShipment, nil)
+			if testCase.shouldError {
+				suite.ErrorContains(err, fmt.Sprintf("RequestedPickupDate is required to create or modify %s %s shipment", GetAorAnByShipmentType(testCase.shipmentType), testCase.shipmentType))
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+
+	// TEST - requestedPickupDate must be in the future
+
+	now := time.Now()
+	yesterday := now.AddDate(0, 0, -1)
+
+	futureTestCases := []struct {
+		input        *time.Time
+		shipmentType models.MTOShipmentType
+		shouldError  bool
+	}{
+		// HHG
+		{&yesterday, models.MTOShipmentTypeHHG, true},
+		{&now, models.MTOShipmentTypeHHG, true},
+		{&tomorrow, models.MTOShipmentTypeHHG, false},
+		// NTS
+		{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+		{&now, models.MTOShipmentTypeHHGIntoNTS, true},
+		{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
+		// NTSR
+		{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+		{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+		{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+		// BOAT HAUL AWAY
+		{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+		{&now, models.MTOShipmentTypeBoatHaulAway, true},
+		{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+		// BOAT TOW AWAY
+		{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+		{&now, models.MTOShipmentTypeBoatTowAway, true},
+		{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+		// MOBILE HOME
+		{&yesterday, models.MTOShipmentTypeMobileHome, true},
+		{&now, models.MTOShipmentTypeMobileHome, true},
+		{&tomorrow, models.MTOShipmentTypeMobileHome, false},
+		// UB
+		{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+		// PPM - should always pass validation
+		{&yesterday, models.MTOShipmentTypePPM, false},
+		{&now, models.MTOShipmentTypePPM, false},
+		{&tomorrow, models.MTOShipmentTypePPM, false},
+	}
+
+	checker = MTOShipmentHasValidRequestedPickupDate()
+	for _, testCase := range futureTestCases {
+		suite.Run(fmt.Sprintf("requestedPickupDate must be in the future | %s", string(testCase.shipmentType)), func() {
+			mtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: testCase.input,
+			}
+			err := checker.Validate(suite.AppContextForTest(), &mtoShipment, nil)
+			if testCase.shouldError {
+				suite.ErrorContains(err, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+
+	// TEST - requestedPickupDate must be in the future (UPDATE)
+	updateTestCases := []struct {
+		input        *time.Time
+		shipmentType models.MTOShipmentType
+		shouldError  bool
+	}{
+		// HHG
+		{&yesterday, models.MTOShipmentTypeHHG, true},
+		// NTS
+		{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+		// NTSR
+		{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+		// BOAT HAUL AWAY
+		{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+		// BOAT TOW AWAY
+		{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+		// MOBILE HOME
+		{&yesterday, models.MTOShipmentTypeMobileHome, true},
+		// UB
+		{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+		// PPM - should always pass validation
+		{&yesterday, models.MTOShipmentTypePPM, false},
+	}
+
+	checker = MTOShipmentHasValidRequestedPickupDate()
+	for _, testCase := range updateTestCases {
+		suite.Run(fmt.Sprintf("requestedPickupDate must be in the future (UPDATE) | %s", string(testCase.shipmentType)), func() {
+			mtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: &tomorrow,
+			}
+
+			updatedMtoShipment := models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        testCase.shipmentType,
+				RequestedPickupDate: testCase.input,
+			}
+			err := checker.Validate(suite.AppContextForTest(), &updatedMtoShipment, &mtoShipment)
+			if testCase.shouldError {
+				suite.ErrorContains(err, "RequestedPickupDate must be greater than or equal to tomorrow's date.")
 			} else {
 				suite.NoError(err)
 			}
