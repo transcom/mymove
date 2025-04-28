@@ -11,6 +11,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/payment_request"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	"github.com/transcom/mymove/pkg/services/clientcert"
+	edierrors "github.com/transcom/mymove/pkg/services/edi_errors"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -133,6 +134,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	adminAPI.OfficeUsersDeleteOfficeUserHandler = DeleteOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserDeleter(queryBuilder),
+	}
+
+	adminAPI.OfficeUsersGetRolesPrivilegesHandler = GetRolesPrivilegesHandler{
+		handlerConfig,
+		roles.NewRolesFetcher(),
 	}
 
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
@@ -321,5 +327,17 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		prsff.NewPaymentRequestSyncadaFileFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
+
+	adminAPI.EdiErrorsFetchEdiErrorsHandler = FetchEdiErrorsHandler{
+		HandlerConfig:   handlerConfig,
+		ediErrorFetcher: edierrors.NewEDIErrorFetcher(),
+		NewPagination:   pagination.NewPagination,
+	}
+
+	adminAPI.SingleediErrorGetEdiErrorHandler = GetEdiErrorHandler{
+		HandlerConfig:   handlerConfig,
+		ediErrorFetcher: edierrors.NewEDIErrorFetcher(),
+	}
+
 	return adminAPI
 }
