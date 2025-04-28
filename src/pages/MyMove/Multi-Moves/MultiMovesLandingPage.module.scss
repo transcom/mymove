@@ -2,7 +2,6 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_variables';
 
-
 .grid-container {
   margin-left: auto;
   margin-right: auto;
@@ -22,6 +21,10 @@
       box-shadow: none;
     }
   }
+}
+
+.lockWarning {
+  margin-bottom: 2rem;
 }
 
 .customerHeader {
@@ -57,38 +60,38 @@
 }
 
 .centeredContainer {
-    display: flex;
-    justify-content: center;
-  }
+  display: flex;
+  justify-content: center;
+}
 
 .createMoveBtn {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    @include u-margin-top(-1);
-    span {
-      @include u-margin-right(.5em)
-    }
-
-    @media (max-width: $tablet) {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      span {
-        @include u-margin-right(0);
-      }
-    }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  @include u-margin-top(-1);
+  span {
+    @include u-margin-right(0.5em);
   }
 
+  @media (max-width: $tablet) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    span {
+      @include u-margin-right(0);
+    }
+  }
+}
+
 .movesContainer {
-    border: 1px solid $base-lighter;
-    border-radius: 3px;
-    margin-top: 1rem;
-    padding-top: 1vh;
-    padding-left: 2vw;
-    padding-right: 2vw;
-    padding-bottom: 2vh;
+  border: 1px solid $base-lighter;
+  border-radius: 3px;
+  margin-top: 1rem;
+  padding-top: 1vh;
+  padding-left: 2vw;
+  padding-right: 2vw;
+  padding-bottom: 2vh;
 }
 
 .flashMessage {
