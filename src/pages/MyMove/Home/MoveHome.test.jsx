@@ -1399,7 +1399,7 @@ describe('Home component', () => {
 
       // confirm move request step should now be enabled
       const actionBtnWrapper = shallow(shipmentStep.prop('actionBtnLabel'));
-      expect(actionBtnWrapper.text()).toContain('Add another Shipment');
+      expect(actionBtnWrapper.text()).toContain('Add another shipment');
     });
 
     it('cancel move button is visible', async () => {

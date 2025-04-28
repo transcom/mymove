@@ -442,7 +442,7 @@ describe('Review page', () => {
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
-    const addShipmentButton = screen.getByRole('button', { name: 'Add Shipment' });
+    const addShipmentButton = screen.getByRole('button', { name: 'Add shipment' });
 
     expect(addShipmentButton).toBeInTheDocument();
 
@@ -471,7 +471,7 @@ describe('Review page', () => {
       renderWithProviders(<ConnectedReview />, mockRoutingOptions);
     });
 
-    const backButton = screen.getByRole('button', { name: 'Finish Later' });
+    const backButton = screen.getByRole('button', { name: 'Finish later' });
 
     expect(backButton).toBeInTheDocument();
 
