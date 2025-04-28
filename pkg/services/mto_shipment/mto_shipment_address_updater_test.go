@@ -318,17 +318,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					UsesExternalVendor:   true,
 					Status:               models.MTOShipmentStatusApproved,
 					PrimeEstimatedWeight: &primeActualWeight,
 					PrimeActualWeight:    &primeEstimatedWeight,
 				},
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
 			},
 			{
 				Model:    address,
@@ -434,18 +429,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTS,
+					ShipmentType:         models.MTOShipmentTypeHHG,
 					UsesExternalVendor:   true,
 					Status:               models.MTOShipmentStatusApproved,
 					PrimeEstimatedWeight: &primeActualWeight,
 					PrimeActualWeight:    &primeEstimatedWeight,
 					MarketCode:           models.MarketCodeInternational,
 				},
-			},
-			{
-				Model:    address,
-				Type:     &factory.Addresses.DeliveryAddress,
-				LinkOnly: true,
 			},
 			{
 				Model:    address,
