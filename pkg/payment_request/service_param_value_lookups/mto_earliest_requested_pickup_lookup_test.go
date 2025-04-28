@@ -35,8 +35,16 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 				},
 			},
 		}, nil)
+		shipment3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &earliestRequestedPickup,
+					DeletedAt:           models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
 
-		shipments := models.MTOShipments{shipment1, shipment2}
+		shipments := models.MTOShipments{shipment1, shipment2, shipment3}
 
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
