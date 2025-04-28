@@ -547,3 +547,265 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		suite.Contains(err.Error(), "not found for mtoShipment")
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestMTOShipmentHasValidRequestedPickupDate() {
+	uuidTest, _ := uuid.NewV4()
+	today := time.Now().Truncate(24 * time.Hour)
+	tomorrow := today.Add(24 * time.Hour)
+	futureDate := models.TimePointer(tomorrow)
+	pastDate := models.TimePointer(today.Add(-24 * time.Hour))
+	zeroTime := time.Time{}
+	requiredDateError := "RequestedPickupDate is required to create an HHG shipment"
+	invalidDateError := "RequestedPickupDate must be greater than or equal to tomorrow's date"
+
+	testCases := []struct {
+		name          string
+		newer         *models.MTOShipment
+		older         *models.MTOShipment
+		expectedError bool
+		errorMessage  string
+	}{
+		{
+			name: "Zero RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &zeroTime,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  requiredDateError,
+		},
+		{
+			name: "RequestedPickupDate today",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &today,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "RequestedPickupDate in future",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: futureDate,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: false,
+		},
+		{
+			name: "Nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  requiredDateError,
+		},
+		{
+			name: "PPM shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
+			expectedError: false,
+		},
+		{
+			name: "HHG shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: pastDate,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "Boat shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+			},
+			expectedError: false,
+		},
+		{
+			name: "Boat shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "Boat shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeBoatHaulAway,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "Mobile home shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeMobileHome,
+			},
+			expectedError: false,
+		},
+		{
+			name: "Mobile home shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeMobileHome,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "Mobile home shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeMobileHome,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Out of NTS shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTS,
+			},
+			expectedError: false,
+		},
+		{
+			name: "HHG Out of NTS shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Out of NTS shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGOutOfNTS,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Into NTS shipment with nil RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+			},
+			expectedError: true,
+			errorMessage:  "RequestedPickupDate is required to create an HHG_INTO_NTS shipment",
+		},
+		{
+			name: "HHG Into NTS shipment with past RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+				RequestedPickupDate: pastDate,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Into NTS shipment with todays date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+				RequestedPickupDate: &today,
+			},
+			expectedError: true,
+			errorMessage:  invalidDateError,
+		},
+		{
+			name: "HHG Into NTS shipment with future date for RequestedPickupDate",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				ShipmentType:        models.MTOShipmentTypeHHGIntoNTS,
+				RequestedPickupDate: futureDate,
+			},
+			expectedError: false,
+		},
+		{
+			name: "Update from valid date to nil",
+			newer: &models.MTOShipment{
+				ID:           uuidTest,
+				ShipmentType: models.MTOShipmentTypeHHG,
+			},
+			older: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &tomorrow,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: true,
+			errorMessage:  requiredDateError,
+		},
+		{
+			name: "Update from valid date to new valid date",
+			newer: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: models.TimePointer(tomorrow.Add(24 * time.Hour)),
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			older: &models.MTOShipment{
+				ID:                  uuidTest,
+				RequestedPickupDate: &tomorrow,
+				ShipmentType:        models.MTOShipmentTypeHHG,
+			},
+			expectedError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			validator := MTOShipmentHasValidRequestedPickupDate()
+			err := validator.Validate(suite.AppContextForTest(), tc.newer, tc.older)
+			if tc.expectedError {
+				suite.Error(err)
+				suite.Contains(err.Error(), tc.errorMessage)
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+}
+
+func (suite *MTOShipmentServiceSuite) TestGetAorAnWithShipmentType() {
+	suite.Run("GetAorAnWithShipmentType", func() {
+		testCases := map[models.MTOShipmentType]string{
+			models.MTOShipmentTypeHHG:                  "an",
+			models.MTOShipmentTypeHHGIntoNTS:           "an",
+			models.MTOShipmentTypeHHGOutOfNTS:          "an",
+			models.MTOShipmentTypeUnaccompaniedBaggage: "an",
+			models.MTOShipmentTypeMobileHome:           "a",
+			models.MTOShipmentTypeBoatHaulAway:         "a",
+			models.MTOShipmentTypeBoatTowAway:          "a",
+			models.MTOShipmentTypePPM:                  "a",
+			"UnknownType":                              "a",
+		}
+
+		for shipmentType, expected := range testCases {
+			suite.Run(string(shipmentType), func() {
+				result := GetAorAnByShipmentType(shipmentType)
+				suite.Equal(expected, result)
+			})
+		}
+	})
+}
