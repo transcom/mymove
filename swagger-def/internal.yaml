@@ -2455,6 +2455,10 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      lockExpiresAt:
+        format: date-time
+        type: string
+        readOnly: true
   IsDateWeekendHolidayInfo:
     type: object
     properties:

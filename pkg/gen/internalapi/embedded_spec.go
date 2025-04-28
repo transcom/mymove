@@ -4845,6 +4845,11 @@ func init() {
           "format": "uuid",
           "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "moveCode": {
           "type": "string",
           "readOnly": true,
@@ -14266,6 +14271,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "moveCode": {
           "type": "string",

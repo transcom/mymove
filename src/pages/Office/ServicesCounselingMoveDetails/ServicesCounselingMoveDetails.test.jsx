@@ -2026,7 +2026,7 @@ describe('MoveDetails page', () => {
 
         renderComponent();
 
-        expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
       });
 
       it('renders submit and view/edit buttons/links', async () => {
@@ -2034,7 +2034,7 @@ describe('MoveDetails page', () => {
 
         renderComponent();
 
-        expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
         expect(screen.queryByRole('combobox')).toBeInTheDocument(); // Add a new shipment ButtonDropdown
         const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
         expect(shipmentEditButtons.length).toBe(2);

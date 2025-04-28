@@ -31,6 +31,13 @@ const defaultProps = {
   mtoShipment,
 };
 
+const defaultPropsWithLock = {
+  onSubmit: jest.fn(),
+  onBack: jest.fn(),
+  mtoShipment,
+  isMoveLocked: true,
+};
+
 const emptyInfoProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
@@ -59,6 +66,12 @@ describe('MobileHomeShipmentForm component', () => {
           'Are there things about this mobile home shipment that your counselor or movers should know or discuss with you?',
         ),
       ).toBeVisible();
+    });
+
+    it('disables submit button if move is locked by office user', async () => {
+      render(<MobileHomeShipmentForm {...defaultPropsWithLock} />);
+      const submitBtn = screen.getByRole('button', { name: 'Continue' });
+      expect(submitBtn).toBeDisabled();
     });
   });
 
