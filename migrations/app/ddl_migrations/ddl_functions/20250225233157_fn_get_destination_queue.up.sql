@@ -108,7 +108,7 @@ BEGIN
                                 LEFT JOIN mto_shipments ON mto_shipments.id = se.mto_shipment_id
                                 LEFT JOIN mto_service_items ON mto_shipments.id = mto_service_items.mto_shipment_id
                                 LEFT JOIN re_services ON mto_service_items.re_service_id = re_services.id
-                                WHERE se.mto_shipment_id = ms.id AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''DDSHUT'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'', ''IDSHUT'')
+                                WHERE se.mto_shipment_id = ms.id AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'')
                             )
                         )
                     )
