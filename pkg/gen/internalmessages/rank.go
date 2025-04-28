@@ -19,9 +19,6 @@ import (
 // swagger:model Rank
 type Rank struct {
 
-	// affiliation
-	Affiliation *Affiliation `json:"affiliation,omitempty"`
-
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
@@ -32,12 +29,9 @@ type Rank struct {
 	// Format: uuid
 	PaygradeID strfmt.UUID `json:"paygradeId,omitempty"`
 
-	// Rank Abbv
-	RankAbbv *string `json:"rankAbbv,omitempty"`
-
-	// rank name
+	// rank grade name
 	// Example: SGT
-	RankName *string `json:"rankName,omitempty"`
+	RankGradeName *string `json:"rankGradeName,omitempty"`
 
 	// rank order
 	RankOrder *int64 `json:"rankOrder,omitempty"`
@@ -46,10 +40,6 @@ type Rank struct {
 // Validate validates this rank
 func (m *Rank) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateAffiliation(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -62,25 +52,6 @@ func (m *Rank) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *Rank) validateAffiliation(formats strfmt.Registry) error {
-	if swag.IsZero(m.Affiliation) { // not required
-		return nil
-	}
-
-	if m.Affiliation != nil {
-		if err := m.Affiliation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("affiliation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("affiliation")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -108,38 +79,8 @@ func (m *Rank) validatePaygradeID(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this rank based on the context it is used
+// ContextValidate validates this rank based on context it is used
 func (m *Rank) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *Rank) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Affiliation != nil {
-
-		if swag.IsZero(m.Affiliation) { // not required
-			return nil
-		}
-
-		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("affiliation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("affiliation")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

@@ -7284,9 +7284,6 @@ func init() {
       "type": "object",
       "title": "Rank",
       "properties": {
-        "affiliation": {
-          "$ref": "#/definitions/Affiliation"
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -7297,12 +7294,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "rankAbbv": {
-          "type": "string",
-          "title": "Rank Abbv",
-          "x-nullable": true
-        },
-        "rankName": {
+        "rankGradeName": {
           "type": "string",
           "x-nullable": true,
           "example": "SGT"
@@ -16858,9 +16850,6 @@ func init() {
       "type": "object",
       "title": "Rank",
       "properties": {
-        "affiliation": {
-          "$ref": "#/definitions/Affiliation"
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -16871,12 +16860,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "rankAbbv": {
-          "type": "string",
-          "title": "Rank Abbv",
-          "x-nullable": true
-        },
-        "rankName": {
+        "rankGradeName": {
           "type": "string",
           "x-nullable": true,
           "example": "SGT"

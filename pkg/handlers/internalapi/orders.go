@@ -756,13 +756,15 @@ type GetRanksHandler struct {
 func (h GetRanksHandler) Handle(params ordersop.GetRanksParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			_, err := models.GetPayGradeRankDropdownOptions(appCtx.DB(), params.Affiliation)
+			ranks, err := models.GetPayGradeRankDropdownOptions(appCtx.DB(), params.Affiliation)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			var x []*internalmessages.Rank
+			if len(ranks) < 1 {
+				return ordersop.NewGetRanksNotFound(), nil
+			}
 
-			return ordersop.NewGetRanksOK().WithPayload(x), nil
+			return ordersop.NewGetRanksOK().WithPayload(ranks), nil
 		})
 }

@@ -2723,19 +2723,13 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      affiliation:
-        $ref: '#/definitions/Affiliation'
-      rankName:
+      rankGradeName:
         type: string
         x-nullable: true
         example: SGT
       rankOrder:
         type: integer
         x-nullable: true
-      rankAbbv:
-        type: string
-        x-nullable: true
-        title: Rank Abbv
   OrdersType:
     type: string
     title: Orders type

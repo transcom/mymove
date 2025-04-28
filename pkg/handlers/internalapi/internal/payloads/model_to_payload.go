@@ -740,14 +740,3 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 	}
 	return payload
 }
-
-func Ranks(ranks []string) []*internalmessages.Rank {
-	// for _, rank := range ranks {
-
-	// }
-
-	// do this
-
-	var ronk []*internalmessages.Rank
-	return ronk
-}
