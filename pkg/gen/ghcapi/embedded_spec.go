@@ -4067,14 +4067,6 @@ func init() {
         "parameters": [
           {
             "$ref": "#/parameters/ppmShipmentId"
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of the moving expense to be deleted",
-            "name": "movingExpenseId",
-            "in": "path",
-            "required": true
           }
         ],
         "responses": {
@@ -21868,14 +21860,6 @@ func init() {
             "format": "uuid",
             "description": "UUID of the PPM shipment",
             "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of the moving expense to be deleted",
-            "name": "movingExpenseId",
             "in": "path",
             "required": true
           }
