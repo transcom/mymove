@@ -41,6 +41,13 @@ const emptyInfoProps = {
   emptyBoatInfo,
 };
 
+const defaultPropsWithLock = {
+  onSubmit: jest.fn(),
+  onBack: jest.fn(),
+  mtoShipment,
+  isMoveLocked: true,
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -67,6 +74,12 @@ describe('BoatShipmentForm component', () => {
           'Are there things about this boat shipment that your counselor or movers should know or discuss with you?',
         ),
       ).toBeVisible();
+    });
+
+    it('disables submit button if move is locked by office user', async () => {
+      render(<BoatShipmentForm {...defaultPropsWithLock} />);
+      const submitBtn = screen.getByRole('button', { name: 'Continue' });
+      expect(submitBtn).toBeDisabled();
     });
   });
 

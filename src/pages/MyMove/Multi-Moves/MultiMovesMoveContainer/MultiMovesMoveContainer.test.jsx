@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect'; // For expect assertions
+import { cloneDeep } from 'lodash';
 
 import { mockMovesPCS, mockMovesPPMWithAdvanceOptions } from '../MultiMovesTestData';
 
@@ -26,7 +27,11 @@ jest.mock('services/internalApi', () => ({
 
 describe('MultiMovesMoveContainer', () => {
   const mockCurrentMoves = mockMovesPCS.currentMove;
+  const mockCurrentMovesWithLock = cloneDeep(mockMovesPCS.currentMove);
+  mockCurrentMovesWithLock[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
   const mockPreviousMoves = mockMovesPCS.previousMoves;
+  const mockPreviousMovesWithLock = cloneDeep(mockMovesPCS.previousMoves);
+  mockPreviousMovesWithLock[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
 
   it('renders current move list correctly', () => {
     render(
@@ -40,6 +45,20 @@ describe('MultiMovesMoveContainer', () => {
     expect(screen.getByRole('button', { name: 'Go to Move' })).toBeInTheDocument();
   });
 
+  it('shows "Move Locked" button forc current move if it has been locked by an office user', async () => {
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockCurrentMovesWithLock} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByTestId('move-info-container')).toBeInTheDocument();
+    expect(screen.getByText('#MOVECO')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Move Locked' })).toBeInTheDocument();
+    });
+  });
+
   it('renders previous move list correctly', () => {
     render(
       <MockProviders>
@@ -49,6 +68,20 @@ describe('MultiMovesMoveContainer', () => {
 
     expect(screen.queryByText('#SAMPLE')).toBeInTheDocument();
     expect(screen.queryByText('#EXAMPL')).toBeInTheDocument();
+  });
+
+  it('shows "Move Locked" button for a previous move if it has been locked by an office user', async () => {
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockPreviousMovesWithLock} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByText('#SAMPLE')).toBeInTheDocument();
+    expect(screen.queryByText('#EXAMPL')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Move Locked' })).toBeInTheDocument();
+    });
   });
 
   it('expands and collapses moves correctly', () => {
