@@ -53,7 +53,7 @@ type UpdatePPMShipment struct {
 	// Format: date
 	ExpectedDepartureDate *strfmt.Date `json:"expectedDepartureDate,omitempty"`
 
-	// Indicates whether PPM shipment has pro gear.
+	// Indicates whether PPM shipment has pro-gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
 

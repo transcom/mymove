@@ -406,7 +406,7 @@ func AddProgearWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models
 		progearWeightTicket)
 }
 
-// AddMovingExpenseToPPMShipment adds a progear weight ticket to
+// AddMovingExpenseToPPMShipment adds a moving expense to
 // an existing PPMShipment
 func AddMovingExpenseToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, userUploader *uploader.UserUploader, movingExpenseTemplate *models.MovingExpense) {
 	if ppmShipment == nil {
@@ -723,6 +723,62 @@ func BuildPPMShipmentWithApprovedDocuments(db *pop.Connection) models.PPMShipmen
 	// changes we've made to it aren't reflected in the pointer
 	// reference that the MTOShipment has, so we'll need to update it
 	// to point at the latest version.
+	ppmShipment.Shipment.PPMShipment = &ppmShipment
+
+	return ppmShipment
+}
+
+// BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses creates a PPM-SPR with two moving expenses that are approved
+func BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+	ppmShipment := BuildPPMShipmentWithApprovedDocumentsMissingPaymentPacket(db, nil, []Customization{{
+		Model: models.PPMShipment{
+			PPMType: models.PPMTypeSmallPackage,
+		},
+	}})
+
+	trackingNumber := "TRK1234"
+	trackingNumber2 := "TRK5678"
+	isProGear := true
+	proGearBelongsToSelf := true
+	proGearDescription := "Pro gear updated description"
+	weightShipped := 2000
+	spr := models.MovingExpenseReceiptTypeSmallPackage
+	approvedStatus := models.PPMDocumentStatusApproved
+
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader,
+		&models.MovingExpense{
+			MovingExpenseType:    &spr,
+			Status:               &approvedStatus,
+			PaidWithGTCC:         models.BoolPointer(false),
+			MissingReceipt:       models.BoolPointer(false),
+			Amount:               models.CentPointer(unit.Cents(8675309)),
+			TrackingNumber:       &trackingNumber,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		},
+	)
+
+	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader,
+		&models.MovingExpense{
+			MovingExpenseType:    &spr,
+			Status:               &approvedStatus,
+			PaidWithGTCC:         models.BoolPointer(false),
+			MissingReceipt:       models.BoolPointer(false),
+			Amount:               models.CentPointer(unit.Cents(8675309)),
+			TrackingNumber:       &trackingNumber2,
+			IsProGear:            &isProGear,
+			ProGearBelongsToSelf: &proGearBelongsToSelf,
+			ProGearDescription:   &proGearDescription,
+			WeightShipped:        (*unit.Pound)(&weightShipped),
+		},
+	)
+
+	if db != nil {
+		mustSave(db, &ppmShipment)
+	}
+
 	ppmShipment.Shipment.PPMShipment = &ppmShipment
 
 	return ppmShipment

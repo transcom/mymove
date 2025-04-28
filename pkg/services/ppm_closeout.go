@@ -13,5 +13,5 @@ import (
 //go:generate mockery --name PPMCloseoutFetcher
 type PPMCloseoutFetcher interface {
 	GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error)
-	GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error)
+	GetActualWeight(ppmShipment *models.PPMShipment) unit.Pound
 }

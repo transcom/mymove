@@ -144,6 +144,10 @@ describe('Shipment details component', () => {
     expect(addServiceItemLink).toBeInTheDocument();
     expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
 
+    const acknowledgeShipmentLink = screen.getByText(/Acknowledge Shipment/, { selector: 'a.usa-button' });
+    expect(acknowledgeShipmentLink).toBeInTheDocument();
+    expect(acknowledgeShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/acknowledge`);
+
     expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(7);
   });
 

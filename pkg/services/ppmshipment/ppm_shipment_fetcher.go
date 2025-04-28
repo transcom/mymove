@@ -25,6 +25,8 @@ func NewPPMShipmentFetcher() services.PPMShipmentFetcher {
 const (
 	// EagerPreloadAssociationShipment is the name of the association for the shipment
 	EagerPreloadAssociationShipment = "Shipment"
+	// EagerPreloadAssociationMove is the name of the association for the Move
+	EagerPreloadAssociationMove = "Shipment.MoveTaskOrder"
 	// EagerPreloadAssociationServiceMember is the name of the association for the service member
 	EagerPreloadAssociationServiceMember = "Shipment.MoveTaskOrder.Orders.ServiceMember"
 	// EagerPreloadAssociationWeightTickets is the name of the association for the weight tickets
@@ -72,6 +74,7 @@ const (
 func GetListOfAllPreloadAssociations() []string {
 	return []string{
 		EagerPreloadAssociationShipment,
+		EagerPreloadAssociationMove,
 		EagerPreloadAssociationServiceMember,
 		EagerPreloadAssociationWeightTickets,
 		EagerPreloadAssociationProgearWeightTickets,

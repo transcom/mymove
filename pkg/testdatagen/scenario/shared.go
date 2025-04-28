@@ -3234,6 +3234,101 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	return move
 }
 
+func CreateApprovedMoveWithSubmittedPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+	oktaID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        moveInfo.UserID,
+				OktaID:    oktaID.String(),
+				OktaEmail: moveInfo.Email,
+				Active:    true,
+			}},
+	}, nil)
+
+	smWithPPM := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            moveInfo.SmID,
+				FirstName:     models.StringPointer(moveInfo.FirstName),
+				LastName:      models.StringPointer(moveInfo.LastName),
+				PersonalEmail: models.StringPointer(moveInfo.Email),
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				Status:      models.MoveStatusAPPROVED,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return move
+}
+
 func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, locator string) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "completeWithSIT@ppm.submitted"
