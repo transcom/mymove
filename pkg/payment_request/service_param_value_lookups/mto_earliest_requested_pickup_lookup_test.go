@@ -89,4 +89,34 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Nil(badParamLookup)
 	})
+
+	suite.Run("no valid shipments", func() {
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &laterRequestedPickup,
+					DeletedAt:           models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoServiceItem.MTOShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.IsType(apperror.BadDataError{}, err)
+	})
 }

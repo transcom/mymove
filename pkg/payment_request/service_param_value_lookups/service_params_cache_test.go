@@ -204,7 +204,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameMTOEarliestRequestedPickup,
-				Description: "prime mto made available date",
+				Description: "move earliest requested pickup",
 				Type:        models.ServiceItemParamTypeDate,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
