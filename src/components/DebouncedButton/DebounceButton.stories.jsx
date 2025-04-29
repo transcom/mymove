@@ -40,7 +40,7 @@ const FadeMessage = forwardRef((props, ref) => {
   );
 });
 
-export const DefaultButton = () => {
+export const BasicDebounceButton = () => {
   const fadeRef = useRef(0);
 
   return (
