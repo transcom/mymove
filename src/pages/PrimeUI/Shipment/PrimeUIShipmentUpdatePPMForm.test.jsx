@@ -194,6 +194,14 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     expect(await screen.getAllByLabelText(/Address 3/)[0]).toHaveValue(
       initialValues.ppmShipment.pickupAddress.streetAddress3,
     );
+    expect(screen.getAllByText('City')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.pickupAddress.city)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.pickupAddress.state)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.pickupAddress.county)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.pickupAddress.postalCode)[0]).toBeInTheDocument();
     expect(
       screen.getAllByText(
         `${initialValues.ppmShipment.pickupAddress.city}, ${initialValues.ppmShipment.pickupAddress.state} ${initialValues.ppmShipment.pickupAddress.postalCode} (${initialValues.ppmShipment.pickupAddress.county})`,
@@ -209,6 +217,14 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     expect(await screen.getAllByLabelText(/Address 3/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.streetAddress3,
     );
+    expect(screen.getAllByText('City')[1]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.secondaryPickupAddress.city)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[1]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.secondaryPickupAddress.state)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[1]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.secondaryPickupAddress.county)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[1]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.secondaryPickupAddress.postalCode)[0]).toBeInTheDocument();
     expect(
       screen.getAllByText(
         `${initialValues.ppmShipment.secondaryPickupAddress.city}, ${initialValues.ppmShipment.secondaryPickupAddress.state} ${initialValues.ppmShipment.secondaryPickupAddress.postalCode} (${initialValues.ppmShipment.secondaryPickupAddress.county})`,
@@ -224,6 +240,14 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     expect(await screen.getAllByLabelText(/Address 3/)[2]).toHaveValue(
       initialValues.ppmShipment.tertiaryPickupAddress.streetAddress3,
     );
+    expect(screen.getAllByText('City')[2]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryPickupAddress.city)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[2]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryPickupAddress.state)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[2]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryPickupAddress.county)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[2]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryPickupAddress.postalCode)[0]).toBeInTheDocument();
     expect(
       screen.getAllByText(
         `${initialValues.ppmShipment.tertiaryPickupAddress.city}, ${initialValues.ppmShipment.tertiaryPickupAddress.state} ${initialValues.ppmShipment.tertiaryPickupAddress.postalCode} (${initialValues.ppmShipment.tertiaryPickupAddress.county})`,
@@ -241,6 +265,14 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     expect(await screen.getAllByLabelText(/Address 3/)[3]).toHaveValue(
       initialValues.ppmShipment.destinationAddress.streetAddress3,
     );
+    expect(screen.getAllByText('City')[3]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.destinationAddress.city)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[3]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.destinationAddress.state)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[3]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.destinationAddress.county)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[3]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.destinationAddress.postalCode)[0]).toBeInTheDocument();
     expect(
       screen.getAllByText(
         `${initialValues.ppmShipment.destinationAddress.city}, ${initialValues.ppmShipment.destinationAddress.state} ${initialValues.ppmShipment.destinationAddress.postalCode} (${initialValues.ppmShipment.destinationAddress.county})`,
@@ -262,7 +294,16 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
         exact: false,
       }),
     ).toBeInTheDocument();
-
+    expect(screen.getAllByText('City')[4]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.secondaryDestinationAddress.city)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[4]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.secondaryDestinationAddress.state)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[4]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.secondaryDestinationAddress.county)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[4]).toBeInTheDocument();
+    expect(
+      screen.getAllByText(initialValues.ppmShipment.secondaryDestinationAddress.postalCode)[0],
+    ).toBeInTheDocument();
     expect(
       screen.getAllByText(
         `${initialValues.ppmShipment.secondaryDestinationAddress.city}, ${initialValues.ppmShipment.secondaryDestinationAddress.state} ${initialValues.ppmShipment.secondaryDestinationAddress.postalCode} (${initialValues.ppmShipment.secondaryDestinationAddress.county})`,
@@ -278,6 +319,14 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     expect(await screen.getAllByLabelText(/Address 3/)[5]).toHaveValue(
       initialValues.ppmShipment.tertiaryDestinationAddress.streetAddress3,
     );
+    expect(screen.getAllByText('City')[5]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryDestinationAddress.city)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[5]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryDestinationAddress.state)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[5]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryDestinationAddress.county)[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[5]).toBeInTheDocument();
+    expect(screen.getAllByText(initialValues.ppmShipment.tertiaryDestinationAddress.postalCode)[0]).toBeInTheDocument();
     expect(
       screen.getAllByText(
         `${initialValues.ppmShipment.tertiaryDestinationAddress.city}, ${initialValues.ppmShipment.tertiaryDestinationAddress.state} ${initialValues.ppmShipment.tertiaryDestinationAddress.postalCode} (${initialValues.ppmShipment.tertiaryDestinationAddress.county})`,

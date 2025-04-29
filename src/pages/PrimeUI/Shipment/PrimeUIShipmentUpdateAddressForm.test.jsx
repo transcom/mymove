@@ -82,6 +82,15 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     expect(screen.getByLabelText(/Address 1/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
+    expect(screen.getByText('City')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.city)).toBeInTheDocument();
+    expect(screen.getByText('State')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.state)).toBeInTheDocument();
+    expect(screen.getByText('County')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.county)).toBeInTheDocument();
+    expect(screen.getByText('ZIP')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.postalCode)).toBeInTheDocument();
+
     expect(
       screen.getAllByText(
         `${shipmentAddress.city}, ${shipmentAddress.state} ${shipmentAddress.postalCode} (${shipmentAddress.county})`,
