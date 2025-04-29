@@ -10,11 +10,19 @@ import (
 // FetchServiceParamList fetches the service param list.  Returns a slice of ServiceParam models, each with an
 // eagerly fetched ServiceItemParamKey association.
 func (p *RequestPaymentHelper) FetchServiceParamList(appCtx appcontext.AppContext, mtoServiceItem models.MTOServiceItem) (models.ServiceParams, error) {
+
+	// Resolve the ReService for our lookup
+	reServiceForLookup, err := resolveReServiceForLookup(appCtx, mtoServiceItem)
+	if err != nil {
+		return nil, err
+	}
+
 	// Get all service item param keys that do not come from pricers
+	// using the ReService identified above
 	var serviceParams models.ServiceParams
-	err := appCtx.DB().Q().
+	err = appCtx.DB().Q().
 		InnerJoin("service_item_param_keys sipk", "service_params.service_item_param_key_id = sipk.id").
-		Where("service_id = ?", mtoServiceItem.ReServiceID).
+		Where("service_id = ?", reServiceForLookup.ID).
 		Where("sipk.origin <> ?", models.ServiceItemParamOriginPricer).
 		EagerPreload("ServiceItemParamKey").
 		All(&serviceParams)
