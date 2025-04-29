@@ -775,6 +775,67 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 	})
 
+	suite.Run("task order queue returns a move with service item names", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// build a move with only origin service items
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(shipment)
+		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		cratingServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+				},
+			},
+		}, nil)
+		suite.NotNil(originSITServiceItem)
+		suite.NotNil(cratingServiceItem)
+
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Equal(1, len(moves))
+		suite.Equal(2, len(moves[0].MTOServiceItems))
+		suite.Equal(models.ReServiceCode("DOFSIT"), moves[0].MTOServiceItems[0].ReService.Code)
+		suite.Equal(models.ReServiceCode("DCRT"), moves[0].MTOServiceItems[1].ReService.Code)
+	})
+
 	suite.Run("task order queue returns a move with origin requested SIT service items", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
@@ -2428,6 +2489,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				},
 			},
 		}, nil)
+
 		// Create data for a second Origin ZANY
 		dutyLocationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -3177,8 +3239,8 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	}
 
 	buildMoveAGFM := func() (models.Move, models.MTOShipment) {
-		postalCode := "AGFM"
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "AGFM", "AGFM")
+		postalCode := "43077"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "AGFM")
 
 		// setting up two moves, each with requested destination SIT service items
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -3216,16 +3278,13 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 	buildMoveZone2AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
-		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
-		suite.FatalNoError(err)
+		// this is a use a us_post_region_cities_id within AK Zone II
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					City:               "Anchorage",
-					State:              "AK",
-					PostalCode:         "99501",
-					UsPostRegionCityID: &zone2UUID,
+					City:       "Anchorage",
+					State:      "AK",
+					PostalCode: "99501",
 				},
 			},
 		}, nil)
@@ -3266,16 +3325,14 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 	buildMoveZone4AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
-		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
-		suite.FatalNoError(err)
+		// this will use a us_post_region_cities_id within AK Zone II
+
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					City:               "Anchorage",
-					State:              "AK",
-					PostalCode:         "99501",
-					UsPostRegionCityID: &zone4UUID,
+					City:       "Anchorage",
+					State:      "AK",
+					PostalCode: "99501",
 				},
 			},
 		}, nil)

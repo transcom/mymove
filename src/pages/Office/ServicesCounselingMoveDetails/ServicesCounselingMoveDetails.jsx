@@ -28,6 +28,7 @@ import {
   cancelMove,
   updateFinancialFlag,
   updateMTOShipment,
+  sendPPMToCustomer,
 } from 'services/ghcApi';
 import {
   MOVE_STATUSES,
@@ -208,7 +209,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
-    const submittedShipmentsNonPPMNeedsCloseout = submittedShipments.filter(
+    const submittedShipmentsPPMNonCloseout = submittedShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
@@ -216,7 +217,9 @@ const ServicesCounselingMoveDetails = ({
     );
     const onlyPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
-      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
+      (shipment) =>
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT ||
+        shipment.ppmShipment?.status !== ppmShipmentStatuses.DRAFT,
     );
 
     const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
@@ -289,15 +292,15 @@ const ServicesCounselingMoveDetails = ({
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit =
-      move.status === (MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || MOVE_STATUSES.DRAFT) &&
-      ppmShipmentsOtherStatuses.length > 0;
+      (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0) ||
+      move.status === MOVE_STATUSES.DRAFT;
     counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       (move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING || move.status === MOVE_STATUSES.DRAFT) &&
       shipmentsInfo.shipmentType !== SHIPMENT_TYPES.PPM;
     isMoveCancelled = move.status === MOVE_STATUSES.CANCELED;
 
-    shipmentsInfo = submittedShipmentsNonPPMNeedsCloseout.map((shipment) => {
+    shipmentsInfo = submittedShipmentsPPMNonCloseout.map((shipment) => {
       const editURL =
         // This ternary checks if the shipment is a PPM. If so, PPM Shipments are editable at any time based on their ppm status.
         // If the shipment is not a PPM, it uses the existing counselorCanEdit checks for move status
@@ -555,6 +558,20 @@ const ServicesCounselingMoveDetails = ({
     },
     onError: (error) => {
       setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+    },
+  });
+
+  const { mutateAsync: handleSendPPMToCustomer } = useMutation(sendPPMToCustomer, {
+    onSuccess: (updatedPPMShipment) => {
+      mtoShipments?.forEach((shipment, key) => {
+        if (updatedPPMShipment.shipmentId === shipment.id) {
+          mtoShipments[key].ppmShipment = updatedPPMShipment;
+        }
+      });
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Failed to send PPM to customer.');
     },
   });
 
@@ -873,6 +890,8 @@ const ServicesCounselingMoveDetails = ({
                     displayInfo={shipment.displayInfo}
                     editURL={shipment.editURL}
                     viewURL={shipment.viewURL}
+                    sendPpmToCustomer={handleSendPPMToCustomer}
+                    counselorCanEdit={counselorCanEdit}
                     completePpmForCustomerURL={shipment.completePpmForCustomerURL}
                     isSubmitted={false}
                     key={shipment.id}
@@ -945,7 +964,7 @@ const ServicesCounselingMoveDetails = ({
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

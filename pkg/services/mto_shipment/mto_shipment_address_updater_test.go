@@ -77,7 +77,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Some Street",
-					City:           "Some City",
+					City:           "COLUMBIA",
 					State:          "SC",
 					PostalCode:     "29229",
 					IsOconus:       models.BoolPointer(false),
@@ -145,7 +145,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: "1234 Some Street",
-					City:           "Some City",
+					City:           "COLUMBIA",
 					State:          "SC",
 					PostalCode:     "29229",
 					IsOconus:       models.BoolPointer(false),
@@ -213,6 +213,32 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				suite.Equal(*mtoServiceItem.SITDeliveryMiles, 465)
 			}
 		}
+	})
+
+	suite.Run("UB shipment without any OCONUS address should error", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		conusAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		// default factory is OCONUS dest and CONUS pickup
+		ubShipment := factory.BuildUBShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.True(*ubShipment.DestinationAddress.IsOconus)
+		suite.False(*ubShipment.PickupAddress.IsOconus)
+
+		updatedAddress := conusAddress
+		updatedAddress.ID = *ubShipment.DestinationAddressID
+		eTag := etag.GenerateEtag(ubShipment.DestinationAddress.UpdatedAt)
+
+		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, ubShipment.ID, eTag, false)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "At least one address for a UB shipment must be OCONUS")
 	})
 
 	suite.Run("Successful - UpdateMTOShipmentAddress - Test updating international origin SITDeliveryMiles on shipment pickup address change", func() {
@@ -294,6 +320,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 		newAddress := address
 		newAddress.PostalCode = "67492"
+		newAddress.City = "WOODBINE"
 
 		var serviceItems []models.MTOServiceItem
 
@@ -336,7 +363,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: "177 Q st",
-					City:           "AK",
+					City:           "FAIRBANKS",
 					State:          "AK",
 					PostalCode:     "99708",
 					IsOconus:       models.BoolPointer(true), //OCONUS - prevent pricing
@@ -410,6 +437,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 		newAddress := address
 		newAddress.PostalCode = "67492"
+		newAddress.City = "WOODBINE"
 
 		var serviceItems []models.MTOServiceItem
 

@@ -238,51 +238,6 @@ func (o *CreateProGearWeightTicketNotFound) WriteResponse(rw http.ResponseWriter
 	}
 }
 
-// CreateProGearWeightTicketPreconditionFailedCode is the HTTP code returned for type CreateProGearWeightTicketPreconditionFailed
-const CreateProGearWeightTicketPreconditionFailedCode int = 412
-
-/*
-CreateProGearWeightTicketPreconditionFailed Precondition failed
-
-swagger:response createProGearWeightTicketPreconditionFailed
-*/
-type CreateProGearWeightTicketPreconditionFailed struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewCreateProGearWeightTicketPreconditionFailed creates CreateProGearWeightTicketPreconditionFailed with default headers values
-func NewCreateProGearWeightTicketPreconditionFailed() *CreateProGearWeightTicketPreconditionFailed {
-
-	return &CreateProGearWeightTicketPreconditionFailed{}
-}
-
-// WithPayload adds the payload to the create pro gear weight ticket precondition failed response
-func (o *CreateProGearWeightTicketPreconditionFailed) WithPayload(payload *ghcmessages.Error) *CreateProGearWeightTicketPreconditionFailed {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create pro gear weight ticket precondition failed response
-func (o *CreateProGearWeightTicketPreconditionFailed) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateProGearWeightTicketPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(412)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // CreateProGearWeightTicketUnprocessableEntityCode is the HTTP code returned for type CreateProGearWeightTicketUnprocessableEntity
 const CreateProGearWeightTicketUnprocessableEntityCode int = 422
 

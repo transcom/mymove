@@ -5271,6 +5271,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - TERMINATION_FOR_CAUSE
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:
@@ -5319,6 +5320,14 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      terminationComments:
+        type: string
+        x-nullable: true
+        readOnly: true
+      terminatedAt:
+        format: date-time
+        type: string
+        x-nullable: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -5621,6 +5630,9 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+      - PODFSC
+      - POEFSC
+      - UBP
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating

@@ -4,6 +4,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Home.module.scss';
 import {
@@ -14,6 +15,7 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperPPMCloseoutSubmitted,
+  HelperMoveIsLocked,
 } from './HomeHelpers';
 
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
@@ -63,7 +65,6 @@ import {
   isPPMShipmentComplete,
   isBoatShipmentComplete,
   isMobileHomeShipmentComplete,
-  isWeightTicketComplete,
 } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -101,6 +102,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,6 +134,34 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     });
   }, [updateAllMoves, serviceMember]);
 
+  let uploadedOrderDocuments;
+  let mtoShipments;
+  let move;
+  let orders;
+
+  if (serviceMemberMoves && serviceMemberMoves.currentMove && serviceMemberMoves.previousMoves) {
+    // Find the move in the currentMove array
+    const currentMove = serviceMemberMoves.currentMove.find((thisMove) => thisMove.id === moveId);
+    // Find the move in the previousMoves array if not found in currentMove
+    const previousMove = serviceMemberMoves.previousMoves.find((thisMove) => thisMove.id === moveId);
+    // the move will either be in the currentMove or previousMove object
+    move = currentMove || previousMove;
+    ({ orders } = move);
+    uploadedOrderDocuments = orders?.uploaded_orders?.uploads || [];
+    if (!move.mtoShipments) {
+      mtoShipments = [];
+    } else {
+      mtoShipments = move.mtoShipments;
+    }
+  }
+
+  useEffect(() => {
+    const now = new Date();
+    if (now < new Date(move?.lockExpiresAt)) {
+      setIsMoveLocked(true);
+    }
+  }, [move]);
+
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
     return (
@@ -141,21 +171,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         </div>
       </div>
     );
-  }
-
-  // Find the move in the currentMove array
-  const currentMove = serviceMemberMoves.currentMove.find((move) => move.id === moveId);
-  // Find the move in the previousMoves array if not found in currentMove
-  const previousMove = serviceMemberMoves.previousMoves.find((move) => move.id === moveId);
-  // the move will either be in the currentMove or previousMove object
-  const move = currentMove || previousMove;
-  const { orders } = move;
-  const uploadedOrderDocuments = orders?.uploaded_orders?.uploads || [];
-  let mtoShipments;
-  if (!move.mtoShipments) {
-    mtoShipments = [];
-  } else {
-    mtoShipments = move.mtoShipments;
   }
 
   // checking to see if the orders object has a length
@@ -281,7 +296,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       return '';
     }
     if (hasAnyShipments()) {
-      return 'Add another shipment';
+      return (
+        <div className={styles.addShipmentIcon}>
+          <FontAwesomeIcon icon="plus" />
+          &nbsp;&nbsp;Add another shipment
+        </div>
+      );
     }
     return 'Set up your shipments';
   };
@@ -345,23 +365,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     });
 
     if (aboutInfoComplete) {
-      if (shipment.ppmShipment.weightTickets.length === 0) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      } else if (!shipment.ppmShipment.weightTickets.some(isWeightTicketComplete)) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-          weightTicketId: shipment.ppmShipment.weightTickets[0].id,
-        });
-      } else {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      }
+      path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      });
     }
 
     navigate(path);
@@ -412,6 +419,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // handles logic of which helper boxes to render
   const renderHelper = () => {
+    if (isMoveLocked) return <HelperMoveIsLocked />;
     if (!hasOrdersAndUpload()) return <HelperNeedsOrders />;
     if (!hasAnyShipments()) return <HelperNeedsShipment />;
     if (!hasSubmittedMove()) return <HelperNeedsSubmitMove />;
@@ -520,22 +528,26 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const shipmentNumbersByType = {};
   return (
     <>
-      <CancelMoveConfirmationModal
-        isOpen={showCancelMoveModal}
-        moveID={moveId}
-        onClose={() => setShowCancelMoveModal(false)}
-        onSubmit={handleCancelMove}
-      />
-      <ConnectedDestructiveShipmentConfirmationModal
-        isOpen={showDeleteModal}
-        shipmentID={targetShipmentId}
-        onClose={hideDeleteModal}
-        onSubmit={handleDeleteShipmentConfirmation}
-        title="Delete this?"
-        content="Your information will be gone. You’ll need to start over if you want it back."
-        submitText="Yes, Delete"
-        closeText="No, Keep It"
-      />
+      {!isMoveLocked && (
+        <>
+          <CancelMoveConfirmationModal
+            isOpen={showCancelMoveModal}
+            moveID={moveId}
+            onClose={() => setShowCancelMoveModal(false)}
+            onSubmit={handleCancelMove}
+          />
+          <ConnectedDestructiveShipmentConfirmationModal
+            isOpen={showDeleteModal}
+            shipmentID={targetShipmentId}
+            onClose={hideDeleteModal}
+            onSubmit={handleDeleteShipmentConfirmation}
+            title="Delete this?"
+            content="Your information will be gone. You’ll need to start over if you want it back."
+            submitText="Yes, Delete"
+            closeText="No, Keep It"
+          />
+        </>
+      )}
       <ErrorModal isOpen={showErrorAlert} closeModal={togglePPMPacketErrorModal} errorMessage={errorModalMessage} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
@@ -576,6 +588,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     }}
                     unstyled
                     data-testid="cancel-move-button"
+                    disabled={isMoveLocked}
                   >
                     Cancel move
                   </Button>
@@ -590,7 +603,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
                   actionBtnLabel={
-                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Non-Orders Documentation' : null
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Additional Documentation' : null
                   }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
@@ -601,6 +614,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     complete={hasOrdersAndUpload()}
                     completedHeaderText="Orders uploaded"
                     editBtnLabel={hasOrdersAndUpload() ? 'Edit' : ''}
+                    editBtnDisabled={isMoveLocked}
+                    actionBtnDisabled={isMoveLocked}
                     onEditBtnClick={() => handleNewPathClick(ordersEditPath)}
                     headerText="Upload orders"
                     actionBtnLabel={!hasOrdersAndUpload() ? 'Add orders' : ''}
@@ -620,6 +635,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     completedHeaderText="Orders"
                     editBtnLabel="Upload/Manage Orders Documentation"
                     onEditBtnClick={() => handleNewPathClick(ordersAmendPath)}
+                    editBtnDisabled={isMoveLocked}
+                    actionBtnDisabled={isMoveLocked}
                     headerText="Orders"
                     step="2"
                     containerClassName="step-amended-orders"
@@ -635,7 +652,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 )}
                 <Step
                   actionBtnLabel={shipmentActionBtnLabel()}
-                  actionBtnDisabled={!hasOrdersAndUpload() || showCancelSuccessAlert}
+                  actionBtnDisabled={!hasOrdersAndUpload() || showCancelSuccessAlert || isMoveLocked}
                   actionBtnId="shipment-selection-btn"
                   onActionBtnClick={() => handleNewPathClick(shipmentSelectionPath)}
                   complete={!hasIncompleteShipment() && hasAnyShipments()}
@@ -652,6 +669,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                         onShipmentClick={handleShipmentClick}
                         onDeleteClick={handleDeleteClick}
                         moveSubmitted={hasSubmittedMove()}
+                        isMoveLocked={isMoveLocked}
                       />
                       {hasSubmittedMove() && (
                         <p className={styles.descriptionExtra}>
@@ -665,11 +683,32 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       We will collect addresses, dates, and how you want to move your personal property.
                       <br /> Note: You can change these details later by talking to a move counselor or customer care
                       representative.
+                      <h3> Reasons you might need multiple shipments. </h3>
+                      <>
+                        <ul>
+                          <li>
+                            You plan to have an <strong>HHG</strong> and a <strong>PPM (DITY)</strong> — you want the
+                            government to pay professional movers, and you also want to be reimbursed for moving some
+                            things yourself.
+                          </li>
+                          <br />
+                          <li>
+                            You have additional belongings to move from or to a very different location, like another
+                            city.
+                          </li>
+                          <br />
+                          <li>
+                            You need to schedule another type of shipment, like an NTS. This would be listed on your
+                            orders.
+                          </li>
+                        </ul>
+                        <p>If none of these apply to you, you probably do not need multiple shipments.</p>
+                      </>
                     </Description>
                   )}
                 </Step>
                 <Step
-                  actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments()}
+                  actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments() || isMoveLocked}
                   actionBtnId="review-and-submit-btn"
                   actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
                   complete={hasSubmittedMove()}
@@ -838,6 +877,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       onUploadClick={handlePPMUploadClick}
                       onDownloadError={togglePPMPacketErrorModal}
                       onFeedbackClick={handlePPMFeedbackClick}
+                      isMoveLocked={isMoveLocked}
                     />
                   </Step>
                 )}

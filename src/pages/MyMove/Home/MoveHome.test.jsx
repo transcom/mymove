@@ -1,16 +1,18 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { v4 } from 'uuid';
-import { mount } from 'enzyme';
-import { act, waitFor } from '@testing-library/react';
+import { mount, shallow } from 'enzyme';
+import { act, waitFor, render, screen } from '@testing-library/react';
+import { cloneDeep } from 'lodash';
 
 import MoveHome from './MoveHome';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
-import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
+import { cancelMove, downloadPPMAOAPacket, getAllMoves } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MOVE_LOCKED_WARNING } from 'shared/constants';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -79,6 +81,28 @@ const defaultPropsNoOrders = {
         status: 'DRAFT',
         submittedAt: '0001-01-01T00:00:00.000Z',
         updatedAt: '0001-01-01T00:00:00.000Z',
+      },
+    ],
+    previousMoves: [],
+  },
+  uploadedOrderDocuments: [],
+  uploadedAmendedOrderDocuments: [],
+};
+
+const defaultWithLock = {
+  ...props,
+  serviceMemberMoves: {
+    currentMove: [
+      {
+        createdAt: '2024-02-16T15:55:20.639Z',
+        eTag: 'MjAyNC0wMi0xNlQxNTo1NToyMC42Mzk5MDRa',
+        id: '6dad799c-4567-4a7d-9419-1a686797768f',
+        moveCode: '4H8VCD',
+        orders: {},
+        status: 'DRAFT',
+        submittedAt: '0001-01-01T00:00:00.000Z',
+        updatedAt: '0001-01-01T00:00:00.000Z',
+        lockExpiresAt: '2099-04-07T17:21:30.450Z', // Date very far into the future to maintain lock
       },
     ],
     previousMoves: [],
@@ -1173,6 +1197,9 @@ const defaultPropsWithAdvanceAndPPMApproved = {
   uploadedAmendedOrderDocuments: [],
 };
 
+const defaultWithOrdersAndLock = cloneDeep(defaultPropsOrdersWithUnsubmittedShipments);
+defaultWithOrdersAndLock.serviceMemberMoves.currentMove[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+
 const mountMoveHomeWithProviders = (defaultProps) => {
   const moveId = defaultProps.serviceMemberMoves.currentMove[0].id;
   return mount(
@@ -1256,6 +1283,50 @@ describe('Home component', () => {
     });
   });
 
+  describe('with default props, with a lock on the move', () => {
+    it('renders Home with the action button for orders disabled', async () => {
+      const moveId = defaultWithLock.serviceMemberMoves.currentMove[0].id;
+      getAllMoves.mockResolvedValue(true);
+      await act(async () => {
+        render(
+          <MockProviders path={customerRoutes.MOVE_HOME_PATH} params={{ moveId }}>
+            <MoveHome {...defaultWithLock} />
+          </MockProviders>,
+        );
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Add orders' })).toBeDisabled();
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
+      });
+    });
+
+    it('renders Home with edit button for orders disabled', async () => {
+      const moveId = defaultWithOrdersAndLock.serviceMemberMoves.currentMove[0].id;
+      getAllMoves.mockResolvedValue(true);
+      await act(async () => {
+        render(
+          <MockProviders path={customerRoutes.MOVE_HOME_PATH} params={{ moveId }}>
+            <MoveHome {...defaultWithOrdersAndLock} />
+          </MockProviders>,
+        );
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('shipment-selection-btn')).toBeDisabled();
+        expect(screen.getAllByTestId('editButton')[1]).toBeDisabled();
+        expect(screen.getByTestId('review-and-submit-btn')).toBeDisabled();
+        expect(screen.getByTestId('cancel-move-button')).toBeDisabled();
+        expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+        expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeVisible();
+      });
+    });
+  });
+
   describe('with default props, orders with uploads', () => {
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithUploads);
 
@@ -1323,12 +1394,12 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
-      // shipment step button should now be "Add another shipment"
+      // shipment step button should now be "Add Shipment"
       const shipmentStep = wrapper.find('Step[step="3"]');
-      expect(shipmentStep.prop('actionBtnLabel')).toBe('Add another shipment');
+
       // confirm move request step should now be enabled
-      const confirmMoveRequest = wrapper.find('Step[step="4"]');
-      expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
+      const actionBtnWrapper = shallow(shipmentStep.prop('actionBtnLabel'));
+      expect(actionBtnWrapper.text()).toContain('Add another shipment');
     });
 
     it('cancel move button is visible', async () => {
@@ -1348,6 +1419,7 @@ describe('Home component', () => {
   });
 
   describe('with default props, orders with HHG & PPM shipments and NEEDS_SERVICE_COUNSELING move status', () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithSubmittedShipments);
 
     it('renders Home with the right amount of components', () => {
@@ -1379,10 +1451,19 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // check that the label of the button to Upload additional documents that aren't orders has the correct labeling
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
+
       // confirm move request step should now be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
+    });
+
+    it('has specific text for PPM moves in the Helper Header', () => {
+      expect(wrapper.text()).toContain('(check your email for approval notification)');
     });
 
     it('cancel move button is not visible', () => {
@@ -1428,6 +1509,11 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
+
       // confirm move request step should now be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
@@ -1473,6 +1559,10 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
       // confirm move request step should be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
@@ -1756,6 +1846,10 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
       // confirm move request step should be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();

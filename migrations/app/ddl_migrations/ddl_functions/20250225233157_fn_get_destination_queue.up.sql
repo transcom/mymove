@@ -2,6 +2,8 @@
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
 -- B-21824 - Samay Sofo replaced too_assigned_id with too_destination_assigned_id for destination assigned queue
+-- B-21902 - Samay Sofo added has_safety_privilege parameter to filter out safety orders and also retrieved orders_type
+-- B-22760 - Paul Stonebraker retrieve mto_service_items for the moves and delivery address update requests for the shipments
 DROP FUNCTION IF EXISTS get_destination_queue;
 CREATE OR REPLACE FUNCTION get_destination_queue(
     user_gbloc TEXT DEFAULT NULL,
@@ -16,6 +18,7 @@ CREATE OR REPLACE FUNCTION get_destination_queue(
     origin_duty_location TEXT DEFAULT NULL,
     counseling_office TEXT DEFAULT NULL,
     too_assigned_user TEXT DEFAULT NULL,
+	has_safety_privilege BOOLEAN DEFAULT FALSE,
     page INTEGER DEFAULT 1,
     per_page INTEGER DEFAULT 20,
     sort TEXT DEFAULT NULL,
@@ -35,6 +38,7 @@ RETURNS TABLE (
     mto_shipments JSONB,
     counseling_transportation_office JSONB,
     too_destination_assigned JSONB,
+    mto_service_items JSONB,
     total_count BIGINT
 ) AS $$
 DECLARE
@@ -66,6 +70,7 @@ BEGIN
             moves.counseling_transportation_office_id AS counseling_transportation_office_id,
             json_build_object(
                 ''id'', orders.id,
+                ''orders_type'', orders.orders_type,
                 ''origin_duty_location_gbloc'', orders.gbloc,
                 ''service_member'', json_build_object(
                     ''id'', service_members.id,
@@ -89,12 +94,24 @@ BEGIN
                             ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                             ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                             ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                            ''prime_estimated_weight'', ms.prime_estimated_weight
+                            ''prime_estimated_weight'', ms.prime_estimated_weight,
+                            ''delivery_address_update'', json_build_object(
+                                ''status'', ms.address_update_status
+                            )
                         )
                     )
                     FROM (
-                        SELECT DISTINCT ON (mto_shipments.id) mto_shipments.*
+                        SELECT DISTINCT ON (mto_shipments.id)
+                            mto_shipments.id,
+                            mto_shipments.shipment_type,
+                            mto_shipments.status,
+                            mto_shipments.requested_pickup_date,
+                            mto_shipments.scheduled_pickup_date,
+                            mto_shipments.approved_date,
+                            mto_shipments.prime_estimated_weight,
+                            shipment_address_updates.status as address_update_status
                         FROM mto_shipments
+                        LEFT JOIN shipment_address_updates on shipment_address_updates.shipment_id = mto_shipments.id
                         WHERE mto_shipments.move_id = moves.id
                     ) AS ms
                 ),
@@ -106,8 +123,28 @@ BEGIN
             json_build_object(
                 ''first_name'', too_user.first_name,
                 ''last_name'', too_user.last_name,
-				''id'', too_user.id
+                ''id'', too_user.id
             )::JSONB AS too_destination_assigned,
+            COALESCE(
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            ''id'', msi.id,
+                            ''status'', msi.status,
+                            ''re_service'', json_build_object(
+                                ''code'', msi.code
+                            )
+                        )
+                    )
+                    FROM (
+                        SELECT mto_service_items.id, mto_service_items.status, re_services.code
+                        FROM mto_service_items
+                        LEFT JOIN re_services on mto_service_items.re_service_id = re_services.id
+                        WHERE mto_service_items.move_id = moves.id
+                    ) as msi
+                ),
+                ''[]''
+            )::JSONB as mto_service_items,
             COUNT(*) OVER() AS total_count
         FROM moves
         JOIN orders ON moves.orders_id = orders.id
@@ -183,6 +220,11 @@ BEGIN
         sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
     END IF;
 
+   -- filter out safety orders for users without safety privilege
+   IF NOT has_safety_privilege THEN
+    sql_query := sql_query || ' AND orders.orders_type != ''SAFETY'' ';
+   END IF;
+
     -- add destination queue-specific filters (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
         AND (
@@ -251,18 +293,18 @@ BEGIN
             service_members.affiliation,
             origin_duty_locations.name,
             counseling_offices.name,
-			too_user.first_name,
+            too_user.first_name,
             too_user.last_name,
-			too_user.id';
+            too_user.id';
     sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
 	IF sort_column <> 'moves.locator' THEN
         sql_query := sql_query || ', moves.locator ASC ';
     END IF;
-    sql_query := sql_query || ' LIMIT $13 OFFSET $14 ';
+    sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';
 
     RETURN QUERY EXECUTE sql_query
     USING user_gbloc, customer_name, edipi, emplid, m_status, move_code, requested_move_date, date_submitted,
-          branch, origin_duty_location, counseling_office, too_assigned_user, per_page, offset_value;
+          branch, origin_duty_location, counseling_office, too_assigned_user, has_safety_privilege, per_page, offset_value;
 
 END;
 $$ LANGUAGE plpgsql;

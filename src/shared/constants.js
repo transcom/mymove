@@ -18,6 +18,7 @@ export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
 export const technicalHelpDeskURL =
   'https://www.militaryonesource.mil/resources/gov/customer-service-contacts-for-military-pcs/#technical-help-desk';
+export const milmoveHelpDesk = 'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil';
 
 export function serviceName() {
   if (isAdminSite) {
@@ -250,6 +251,7 @@ export const FEATURE_FLAG_KEYS = {
   BULK_RE_ASSIGNMENT: 'bulk_re_assignment',
   CUSTOMER_REGISTRATION: 'customer_registration',
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
+  TERMINATING_SHIPMENTS: 'terminating_shipments',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
@@ -283,3 +285,9 @@ export const civilianTDYUBAllowanceWeightWarningOfficeUser =
   '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.';
 
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];
+
+export const MOVE_LOCKED_WARNING =
+  'An office user is currently viewing or editing your move. You will be able to edit or submit your move once they have finished.';
+
+export const MULTI_MOVE_LOCKED_WARNING =
+  'An office user is currently viewing or editing one of your moves. You will be able to edit or submit this move once they have finished.';

@@ -178,6 +178,15 @@ describe('PPMSummaryList component', () => {
     });
   });
 
+  describe('move is locked by office user', () => {
+    const props = { ...defaultProps, shipments: shipments.slice(0, 1) };
+    it('should disable any edit/delete buttons', () => {
+      render(<PPMSummaryList {...props} isMoveLocked />);
+      const uploadButton = screen.getByRole('button', { name: 'Upload PPM Documents' });
+      expect(uploadButton).toBeDisabled();
+    });
+  });
+
   describe('payment docs submitted for closeout review', () => {
     it('should display submitted date and disabled button with copy', () => {
       render(<PPMSummaryList shipments={[shipments[2]]} />);
@@ -206,7 +215,7 @@ describe('PPMSummaryList component', () => {
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`PPM documentation submitted: 19 Apr 2022`)).toBeInTheDocument();
-      expect(screen.queryByText(`Documentation accepted and verified: 23 Apr 2022`)).toBeInTheDocument();
+      expect(screen.queryByText(`PPM closeout completed: 23 Apr 2022`)).toBeInTheDocument();
 
       expect(screen.getByText(/From:/, { selector: 'span' })).toBeInTheDocument();
       expect(screen.getByText(/Pickup Test City, NY 10001/, { selector: 'p' })).toBeInTheDocument();

@@ -5,20 +5,17 @@ import { Button } from '@trussworks/react-uswds';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { connectModal, ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
-export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
+export const SubmitMoveConfirmationModal = ({ onClose, onSubmit, isShipment }) => (
   <div data-testid="SubmitMoveConfirmationModal">
     <Overlay />
     <ModalContainer>
-      <Modal>
+      <Modal onClose={() => onClose()}>
         <ModalClose handleClick={() => onClose()} />
         <ModalTitle>
           <h2>Are you sure?</h2>
         </ModalTitle>
-        <p>You can’t make changes after you submit the move.</p>
+        <p>You can’t make changes after you submit the {isShipment ? 'shipment' : 'move'}.</p>
         <ModalActions>
-          <Button className="usa-button--submit" type="submit" onClick={() => onSubmit()}>
-            Yes, submit
-          </Button>
           <Button
             className="usa-button--tertiary"
             type="button"
@@ -26,6 +23,9 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
             data-testid="modalCancelButton"
           >
             Cancel
+          </Button>
+          <Button className="usa-button--submit" type="submit" onClick={() => onSubmit()}>
+            Yes, submit
           </Button>
         </ModalActions>
       </Modal>
@@ -36,6 +36,11 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
 SubmitMoveConfirmationModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  isShipment: PropTypes.bool,
+};
+
+SubmitMoveConfirmationModal.defaultProps = {
+  isShipment: false,
 };
 
 SubmitMoveConfirmationModal.displayName = 'SubmitMoveConfirmationModal';

@@ -86,31 +86,32 @@ describe('OrdersDetailForm', () => {
 
   it('renders the Form disabled with all information if flag is passed', async () => {
     renderOrdersDetailForm({ formIsDisabled: true });
-    const currentDutyLocationInput = screen.getByLabelText('Current duty location *');
+    const currentDutyLocationInput = screen.getByLabelText(/Current duty location/);
     expect(currentDutyLocationInput).toBeInTheDocument();
     expect(currentDutyLocationInput).toBeDisabled();
-    const newDutyLocationInput = screen.getByLabelText('New duty location *');
+    const newDutyLocationInput = screen.getByLabelText(/New duty location/);
     expect(newDutyLocationInput).toBeInTheDocument();
     expect(newDutyLocationInput).toBeDisabled();
-    const payGradeInput = screen.getByLabelText('Pay grade *');
+    const payGradeInput = screen.getByLabelText(/Pay grade/);
     expect(payGradeInput).toBeInTheDocument();
     expect(payGradeInput).toBeDisabled();
-    const dateIssuedInput = screen.getByLabelText('Date issued *');
+    const dateIssuedInput = screen.getByLabelText(/Date issued/);
     expect(dateIssuedInput).toBeInTheDocument();
     expect(dateIssuedInput).toBeDisabled();
-    const reportByDateInput = screen.getByLabelText('Report by date *');
+    const reportByDateInput = screen.getByLabelText(/Report by date/);
     expect(reportByDateInput).toBeInTheDocument();
     expect(reportByDateInput).toBeDisabled();
-    const departmentIndicatorInput = screen.getByLabelText('Department indicator *');
+    const departmentIndicatorInput = screen.getByLabelText(/Department indicator/);
     expect(departmentIndicatorInput).toBeInTheDocument();
     expect(departmentIndicatorInput).toBeDisabled();
-    const ordersNumberInput = screen.getByLabelText('Orders number *');
+    const ordersNumberInput = screen.getByLabelText(/Orders number/);
     expect(ordersNumberInput).toBeInTheDocument();
     expect(ordersNumberInput).toBeDisabled();
-    const ordersTypeInput = screen.getByLabelText('Orders type *');
-    expect(ordersTypeInput).toBeInTheDocument();
-    expect(ordersTypeInput).toBeDisabled();
-    const ordersTypeDetailInput = screen.getByLabelText('Orders type detail *');
+    const ordersTypeInputs = screen.getAllByLabelText(/Orders type/);
+    ordersTypeInputs.forEach((input) => {
+      expect(input).toBeDisabled();
+    });
+    const ordersTypeDetailInput = screen.getByLabelText(/Orders type detail/);
     expect(ordersTypeDetailInput).toBeInTheDocument();
     expect(ordersTypeDetailInput).toBeDisabled();
     const dependentsAuthorizedInput = screen.getByLabelText('Dependents authorized');
@@ -122,8 +123,11 @@ describe('OrdersDetailForm', () => {
     const tacInputRequired = screen.getByLabelText('TAC *');
     expect(tacInputRequired).toBeInTheDocument();
     expect(tacInputRequired).toBeDisabled();
+    const tacInputs = screen.queryAllByLabelText('TAC');
     const sacInputs = screen.queryAllByLabelText('SAC');
+    expect(tacInputs.length).toBe(1);
     expect(sacInputs.length).toBe(2);
+    expect(tacInputs[0]).toBeDisabled();
     expect(sacInputs[0]).toBeDisabled();
     expect(sacInputs[1]).toBeDisabled();
   });

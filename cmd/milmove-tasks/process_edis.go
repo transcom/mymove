@@ -237,7 +237,7 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 
 	// Process 824s
 	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor())
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor(nil))
 	if err != nil {
 		logger.Error("Error reading EDI824 application advice responses", zap.Error(err))
 	} else {

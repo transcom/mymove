@@ -6,6 +6,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio, Label, Tag } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import moment from 'moment';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -27,7 +28,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
-import { Form } from 'components/form/Form';
+import { Form } from 'components/form';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
@@ -76,9 +77,11 @@ import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
-import { datePickerFormat, formatDate } from 'shared/dates';
+import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
+import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import { getResponseError } from 'services/internalApi';
 
 const ShipmentForm = (props) => {
   const {
@@ -139,6 +142,8 @@ const ShipmentForm = (props) => {
   const [isRequestedDeliveryDateAlertVisible, setIsRequestedDeliveryDateAlertVisible] = useState(false);
   const [requestedPickupDateAlertMessage, setRequestedPickupDateAlertMessage] = useState('');
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
+  const [isRequestedPickupDateInvalid, setIsRequestedPickupDateInvalid] = useState(false);
+  const [isRequestedPickupDateChanged, setIsRequestedPickupDateChanged] = useState(false);
   const DEFAULT_COUNTRY_CODE = 'US';
 
   const queryClient = useQueryClient();
@@ -199,15 +204,15 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSetError = (error, defaultError) => {
-    if (error?.response?.body?.message !== null && error?.response?.body?.message !== undefined) {
-      if (error?.statusCode !== null && error?.statusCode !== undefined) {
-        setErrorCode(error.statusCode);
-      }
-      setErrorMessage(`${error?.response?.body?.message}`);
-    } else {
-      setErrorMessage(defaultError);
+  const handleSetError = (error, defaultErrorMessage) => {
+    const { response } = error;
+
+    if (setErrorCode && (response?.statusCode || response?.status)) {
+      setErrorCode(response?.statusCode || response?.status);
     }
+
+    const message = getResponseError(response, defaultErrorMessage);
+    setErrorMessage(message);
   };
 
   const handleSubmitShipmentAddressUpdateReview = async (
@@ -631,17 +636,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({
-        values,
-        isValid,
-        isSubmitting,
-        setValues,
-        handleSubmit,
-        setFieldError,
-        validateForm,
-        setFieldTouched,
-        ...formikProps
-      }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
         const {
           ppmType,
           hasSecondaryDestination,
@@ -653,7 +648,7 @@ const ShipmentForm = (props) => {
           hasTertiaryDelivery,
         } = values;
 
-        const isCivilian = serviceMember?.grade === 'CIVILIAN_EMPLOYEE';
+        const isCivilian = serviceMember?.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
         if (!ppmType) {
           const type = isCivilian ? PPM_TYPES.ACTUAL_EXPENSE : PPM_TYPES.INCENTIVE_BASED;
           setValues({
@@ -693,7 +688,7 @@ const ShipmentForm = (props) => {
 
         const updateAddressTouched = (e, fieldName, address) => {
           handleAddressToggleChange(e, values, setValues, address);
-          setFieldTouched(`${fieldName}.usPostRegionCitiesID`, true);
+          formikProps.setFieldTouched(`${fieldName}.usPostRegionCitiesID`, true);
         };
 
         const handleUseCurrentResidenceChange = (e) => {
@@ -717,12 +712,28 @@ const ShipmentForm = (props) => {
                 ...values,
                 pickup: {
                   ...values.pickup,
-                  blankAddress,
+                  address: blankAddress.address,
                 },
               },
               { shouldValidate: true },
             );
           }
+        };
+
+        const validatePickupDate = (e) => {
+          let error = validateDate(e);
+          // requestedPickupDate must be in the future for non-PPM shipments
+          const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+          const today = moment().startOf('day');
+
+          if (!error && isRequestedPickupDateChanged && !isPPM && !pickupDate.isAfter(today)) {
+            setIsRequestedPickupDateInvalid(true);
+            error = 'Requested pickup date must be in the future.';
+          } else {
+            setIsRequestedPickupDateInvalid(false);
+          }
+
+          return error;
         };
 
         const handlePickupDateChange = (e) => {
@@ -733,19 +744,24 @@ const ShipmentForm = (props) => {
               requestedDate: formatDate(e, datePickerFormat),
             },
           });
+
+          setIsRequestedPickupDateChanged(true);
+
           const onErrorHandler = (errResponse) => {
             const { response } = errResponse;
             setDatesErrorMessage(response?.body?.detail);
           };
-          dateSelectionWeekendHolidayCheck(
-            dateSelectionIsWeekendHoliday,
-            DEFAULT_COUNTRY_CODE,
-            new Date(e),
-            'Requested pickup date',
-            setRequestedPickupDateAlertMessage,
-            setIsRequestedPickupDateAlertVisible,
-            onErrorHandler,
-          );
+          if (!validatePickupDate(e)) {
+            dateSelectionWeekendHolidayCheck(
+              dateSelectionIsWeekendHoliday,
+              DEFAULT_COUNTRY_CODE,
+              new Date(e),
+              'Requested pickup date',
+              setRequestedPickupDateAlertMessage,
+              setIsRequestedPickupDateAlertVisible,
+              onErrorHandler,
+            );
+          }
         };
 
         const handleDeliveryDateChange = (e) => {
@@ -933,9 +949,14 @@ const ShipmentForm = (props) => {
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
-                    <Fieldset>
-                      {isRequestedPickupDateAlertVisible && (
-                        <Alert type="warning" aria-live="polite" headingLevel="h4">
+                    <Fieldset data-testid="requestedPickupDateFieldSet">
+                      {isRequestedPickupDateAlertVisible && !isRequestedPickupDateInvalid && (
+                        <Alert
+                          type="warning"
+                          aria-live="polite"
+                          headingLevel="h4"
+                          data-testid="requestedPickupDateAlert"
+                        >
                           {requestedPickupDateAlertMessage}
                         </Alert>
                       )}
@@ -943,7 +964,7 @@ const ShipmentForm = (props) => {
                         name="pickup.requestedDate"
                         label="Requested pickup date"
                         id="requestedPickupDate"
-                        validate={validateDate}
+                        validate={validatePickupDate}
                         onChange={handlePickupDateChange}
                       />
                     </Fieldset>
@@ -1494,7 +1515,7 @@ const ShipmentForm = (props) => {
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <AddressFields
                         name="pickup.address"
-                        legend="Pickup Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                         formikProps={formikProps}
                         render={(fields) => (
                           <>
@@ -1604,17 +1625,18 @@ const ShipmentForm = (props) => {
                       />
                       <AddressFields
                         name="destination.address"
-                        legend="Delivery Address"
+                        legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         formikProps={formikProps}
                         address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second Delivery Address</h4>
+                            <h4>Second {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address</h4>
                             <FormGroup>
                               <p>
-                                Will you move any belongings to a second address? (Must be near the delivery address.
-                                Subject to approval.)
+                                Will you move any belongings to a second address? (Must be near the{' '}
+                                {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'destination' : 'delivery'} address. Subject to
+                                approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1654,11 +1676,14 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" formikProps={formikProps} />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third Delivery Address</h4>
+                                    <h4>
+                                      Third {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination' : 'Delivery'} Address
+                                    </h4>
                                     <FormGroup>
                                       <p>
-                                        Will you move any belongings to a third address? (Must be near the delivery
-                                        address. Subject to approval.)
+                                        Will you move any belongings to a third address? (Must be near the{' '}
+                                        {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'destination' : 'delivery'} address.
+                                        Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field

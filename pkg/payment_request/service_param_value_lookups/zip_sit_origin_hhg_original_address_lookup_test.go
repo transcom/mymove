@@ -1,11 +1,8 @@
 package serviceparamvaluelookups
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLookup() {
@@ -19,12 +16,6 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 	var mtoServiceItemNoSITOriginZips models.MTOServiceItem
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress := factory.BuildAddress(suite.DB(),
@@ -32,6 +23,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 				{
 					Model: models.Address{
 						PostalCode: originZip,
+						City:       "AUGUSTA",
 					},
 				},
 			}, nil)
@@ -41,6 +33,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 				{
 					Model: models.Address{
 						PostalCode: actualOriginZipSameZip3,
+						City:       "AUGUSTA",
 					},
 				},
 			}, nil)

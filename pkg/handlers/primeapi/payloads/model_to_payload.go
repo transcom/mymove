@@ -628,6 +628,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 		PrimeAcknowledgedAt:              handlers.FmtDateTimePtr(mtoShipment.PrimeAcknowledgedAt),
+		TerminationComments:              handlers.FmtStringPtr(mtoShipment.TerminationComments),
+		TerminatedAt:                     handlers.FmtDateTimePtr(mtoShipment.TerminatedAt),
 	}
 
 	// Set up address payloads

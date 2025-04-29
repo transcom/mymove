@@ -21,4 +21,5 @@ export default {
   gsr_appeals: 'gsr_appeals',
   payment_service_items: 'payment_service_items',
   shipment_address_updates: 'shipment_address_updates',
+  sit_extensions: 'sit_extensions',
 };

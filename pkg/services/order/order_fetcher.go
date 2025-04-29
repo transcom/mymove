@@ -166,7 +166,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.Entitlement",
 			"Orders.OrdersType",
 			"MTOShipments",
+			"MTOShipments.SITDurationUpdates",
+			"MTOShipments.DeliveryAddressUpdate",
 			"MTOServiceItems",
+			"MTOServiceItems.ReService",
 			"ShipmentGBLOC",
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
@@ -323,6 +326,8 @@ type MoveWithCount struct {
 	CounselingOffice              *models.TransportationOffice `json:"-"`
 	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
 	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
+	MTOServiceItemsRaw            json.RawMessage              `json:"mto_service_items" db:"mto_service_items"`
+	MTOServiceItems               *models.MTOServiceItems      `json:"-"`
 	TotalCount                    int64                        `json:"total_count" db:"total_count"`
 }
 
@@ -339,6 +344,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 
 	// getting the office user's GBLOC
 	var officeUserGbloc string
+	hasSafetyPrivilege := false
 	if params.ViewAsGBLOC != nil {
 		officeUserGbloc = *params.ViewAsGBLOC
 	} else {
@@ -349,9 +355,14 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 			return []models.Move{}, 0, gblocErr
 		}
 	}
-
+	privileges, privErr := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		hasSafetyPrivilege = true
+	} else if privErr != nil {
+		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
+	}
 	// calling the database function with all passed in parameters
-	err := appCtx.DB().RawQuery("SELECT * FROM get_destination_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)",
+	err := appCtx.DB().RawQuery("SELECT * FROM get_destination_queue($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
 		officeUserGbloc,
 		params.CustomerName,
 		params.Edipi,
@@ -364,6 +375,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		strings.Join(params.OriginDutyLocation, " "),
 		params.CounselingOffice,
 		params.TOODestinationAssignedUser,
+		hasSafetyPrivilege,
 		params.Page,
 		params.PerPage,
 		params.Sort,
@@ -415,6 +427,16 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		}
 		movesWithCount[i].TOODestinationAssignedUserRaw = nil
 		movesWithCount[i].TOODestinationAssignedUser = &tooAssigned
+
+		// populating Moves.MTOServiceItems struct
+		var serviceItems models.MTOServiceItems
+		if movesWithCount[i].MTOServiceItemsRaw != nil {
+			if err := json.Unmarshal(movesWithCount[i].MTOServiceItemsRaw, &serviceItems); err != nil {
+				return nil, 0, fmt.Errorf("error unmarshaling mto_service_items JSON: %w", err)
+			}
+		}
+		movesWithCount[i].MTOServiceItemsRaw = nil
+		movesWithCount[i].MTOServiceItems = &serviceItems
 	}
 
 	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func

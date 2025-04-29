@@ -3279,6 +3279,101 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 	return move
 }
 
+func CreateApprovedMoveWithSubmittedPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+	oktaID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        moveInfo.UserID,
+				OktaID:    oktaID.String(),
+				OktaEmail: moveInfo.Email,
+				Active:    true,
+			}},
+	}, nil)
+
+	smWithPPM := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            moveInfo.SmID,
+				FirstName:     models.StringPointer(moveInfo.FirstName),
+				LastName:      models.StringPointer(moveInfo.LastName),
+				PersonalEmail: models.StringPointer(moveInfo.Email),
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				Status:      models.MoveStatusAPPROVED,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	if *smWithPPM.Affiliation == models.AffiliationARMY || *smWithPPM.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return move
+}
+
 func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, locator string) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "completeWithSIT@ppm.submitted"
@@ -4192,15 +4287,7 @@ func createHHGWithOriginSITServiceItems(
 			},
 		},
 		{
-			Model: factory.BuildAddress(db, []factory.Customization{
-				{
-					Model: models.Address{
-						City:       "Harlem",
-						State:      "GA",
-						PostalCode: "30813",
-					},
-				},
-			}, nil),
+			Model:    factory.BuildAddress(db, nil, nil),
 			LinkOnly: true,
 			Type:     &factory.Addresses.DeliveryAddress,
 		},
@@ -4230,7 +4317,26 @@ func createHHGWithOriginSITServiceItems(
 	).Return(400, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(),
+	)
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
@@ -4271,6 +4377,8 @@ func createHHGWithOriginSITServiceItems(
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
 	originSITAddress.Country = nil
+	originSITAddress.UsPostRegionCityID = nil
+	originSITAddress.UsPostRegionCity = nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -4463,15 +4571,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 			},
 		},
 		{
-			Model: factory.BuildAddress(db, []factory.Customization{
-				{
-					Model: models.Address{
-						City:       "Harlem",
-						State:      "GA",
-						PostalCode: "30813",
-					},
-				},
-			}, nil),
+			Model:    factory.BuildAddress(db, nil, nil),
 			LinkOnly: true,
 			Type:     &factory.Addresses.DeliveryAddress,
 		},
@@ -4502,7 +4602,26 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 	).Return(400, nil)
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(),
+	)
 
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
@@ -4807,12 +4926,15 @@ func createHHGWithPaymentServiceItems(
 	}, nil)
 
 	reweighWeight := unit.Pound(100000)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err := testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: shipmentWithOriginalAndReweighWeight,
 		Reweigh: models.Reweigh{
 			Weight: &reweighWeight,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	shipmentWithOriginalAndReweighWeightReweihBolded := factory.BuildMTOShipment(db, []factory.Customization{
 		{
@@ -4836,12 +4958,15 @@ func createHHGWithPaymentServiceItems(
 
 	// Make the reweigh weight and the estimated weight (original weight) be the same to create devseed
 	// data where we can check that the reweigh weight is bolded.
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: shipmentWithOriginalAndReweighWeightReweihBolded,
 		Reweigh: models.Reweigh{
 			Weight: &estimatedWeight,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	billableWeightCap := unit.Pound(2000)
 	billableWeightJustification := "Capped shipment"
@@ -4867,12 +4992,15 @@ func createHHGWithPaymentServiceItems(
 		},
 	}, nil)
 
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: shipmentWithOriginalReweighAndAdjustedWeight,
 		Reweigh: models.Reweigh{
 			Weight: &reweighWeight,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	shipmentWithOriginalAndAdjustedWeight := factory.BuildMTOShipment(db, []factory.Customization{
 		{
@@ -4915,7 +5043,26 @@ func createHHGWithPaymentServiceItems(
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(123, nil).Once()
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(),
+	)
 
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
@@ -4968,7 +5115,7 @@ func createHHGWithPaymentServiceItems(
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Times(2)
 
 	// called for DLH, DSH, FSC service item estimated price calculations
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(400, nil).Times(3)
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(400, nil).Times(4)
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
@@ -4989,6 +5136,8 @@ func createHHGWithPaymentServiceItems(
 	originSITAddress.CountryId = &country.ID
 	originSITAddress.Country = nil
 	originSITAddress.ID = uuid.Nil
+	originSITAddress.UsPostRegionCity = nil
+	originSITAddress.UsPostRegionCityID = nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -5135,7 +5284,7 @@ func createHHGWithPaymentServiceItems(
 		Width:  unit.ThousandthInches(10000),
 	}
 	// cannot convert yet, has MTOServiceItemDimensions
-	crating := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	crating, err := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDCRT,
 		},
@@ -5153,9 +5302,12 @@ func createHHGWithPaymentServiceItems(
 		MTOShipment: longhaulShipment,
 		Stub:        true,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	// cannot convert yet, has MTOServiceItemDimensions
-	uncrating := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	uncrating, err := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDUCRT,
 		},
@@ -5173,6 +5325,9 @@ func createHHGWithPaymentServiceItems(
 		MTOShipment: longhaulShipment,
 		Stub:        true,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	cratingServiceItems := []models.MTOServiceItem{crating, uncrating}
 	for index := range cratingServiceItems {
@@ -5375,6 +5530,7 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -5495,6 +5651,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 			Model: models.Address{
 				// This is a postal code that maps to the default office user gbloc LKNQ in the PostalCodeToGBLOC table
 				PostalCode: "85325",
+				City:       "BOUSE",
 			},
 		},
 	}, nil)
@@ -5531,7 +5688,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	// setup service item
-	serviceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	serviceItem, err := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -5539,6 +5696,9 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		Move:        mto,
 		MTOShipment: MTOShipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -5571,7 +5731,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 					},
 					{
 						IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-						Value:       "2022-03-16",
+						Value:       "2024-03-16",
 					},
 				},
 				Status: models.PaymentServiceItemStatusRequested,
@@ -5579,7 +5739,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}
 
-	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
+	paymentRequest, err = paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
 
 	if err != nil {
 		logger.Fatal("error while creating payment request:", zap.Error(err))
@@ -5987,7 +6147,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	firstDeliveryDate := models.TimePointer(time.Now())
 	dateOfContact := models.TimePointer(time.Now())
-	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	customerContact1, err := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
@@ -5996,8 +6156,11 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 			FirstAvailableDeliveryDate: *firstDeliveryDate,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
-	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	customerContact2, err := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeSecond,
@@ -6006,6 +6169,9 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
 			Model: models.MTOServiceItem{
@@ -6122,13 +6288,16 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 		},
 	}, nil)
 
-	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 }
 
 func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -6923,7 +7092,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
-	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	customerContact1, err := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
@@ -6932,8 +7101,11 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			FirstAvailableDeliveryDate: time.Now(),
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
-	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	customerContact2, err := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeSecond,
@@ -6942,6 +7114,9 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	serviceItemDDFSIT := factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
@@ -6981,7 +7156,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 
-	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	serviceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -6989,6 +7164,9 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 		Move:        move,
 		MTOShipment: hhgShipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	dcrtCost := unit.Cents(55555)
 	factory.BuildPaymentServiceItem(db, []factory.Customization{
@@ -7995,7 +8173,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		},
 	}, nil)
 
-	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	customerContact1, err := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
@@ -8004,8 +8182,11 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			FirstAvailableDeliveryDate: time.Now(),
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
-	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	customerContact2, err := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeSecond,
 			DateOfContact:              time.Now().Add(time.Hour * 48),
@@ -8013,6 +8194,9 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	factory.BuildMTOServiceItem(db, []factory.Customization{
 		{
@@ -8037,7 +8221,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		},
 	}, nil)
 
-	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	serviceItemDCRT, err := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -8045,6 +8229,9 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 		Move:        move,
 		MTOShipment: hhgShipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	dcrtCost := unit.Cents(55555)
 	factory.BuildPaymentServiceItem(db, []factory.Customization{
@@ -9050,7 +9237,7 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 	move.TIORemarks = &tioRemarks
 	testdatagen.MustSave(db, &move)
 	reweighedWeight := unit.Pound(800)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err := testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		UserUploader: userUploader,
 		MTOShipment: models.MTOShipment{
 			MoveTaskOrderID: move.ID,
@@ -9060,7 +9247,16 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 			Weight: &reweighedWeight,
 		},
 	})
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{UserUploader: userUploader})
+	if err != nil {
+		log.Panic(err)
+	}
+
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		UserUploader: userUploader,
+	})
+	if err != nil {
+		log.Panic(err)
+	}
 }
 
 func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
@@ -9115,12 +9311,15 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 		},
 	}, nil)
 	diveretedReweigh := unit.Pound(5500)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err := testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: divertedShipment,
 		Reweigh: models.Reweigh{
 			Weight: &diveretedReweigh,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	canceledEstimated := unit.Pound(5000)
 	canceledActual := unit.Pound(6000)
@@ -9139,12 +9338,15 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: canceledShipment,
 		Reweigh: models.Reweigh{
 			Weight: &canceledReweigh,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	approvedEstimated := unit.Pound(1000)
 	approvedActual := unit.Pound(1500)
@@ -9162,12 +9364,15 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: approvedShipment,
 		Reweigh: models.Reweigh{
 			Weight: &approvedReweigh,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	approvedReweighRequestedEstimated := unit.Pound(1000)
 	approvedReweighRequestedActual := unit.Pound(1500)
@@ -9184,9 +9389,12 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: approvedReweighRequestedShipment,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	divRequestedEstimated := unit.Pound(1000)
 	divRequestedActual := unit.Pound(1500)
@@ -9204,12 +9412,15 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: divRequestedShipment,
 		Reweigh: models.Reweigh{
 			Weight: &divRequestedReweigh,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	cancellationRequestedEstimated := unit.Pound(1000)
 	cancellationRequestedActual := unit.Pound(1500)
@@ -9227,12 +9438,15 @@ func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUp
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		MTOShipment: cancellationRequestedShipment,
 		Reweigh: models.Reweigh{
 			Weight: &cancellationRequestedReweigh,
 		},
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 }
 
 func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
@@ -10236,6 +10450,7 @@ func CreateMoveWithMTOShipment(appCtx appcontext.AppContext, ordersType internal
 	tac := "E19A"
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10393,6 +10608,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	tac := "E19A"
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10522,6 +10738,7 @@ func CreateNeedsServicesCounselingInOtherGBLOC(appCtx appcontext.AppContext, ord
 		{
 			Model: models.Address{
 				PostalCode: "35023",
+				City:       "BESSEMER",
 			},
 		},
 	}, nil)
@@ -10576,6 +10793,7 @@ func CreateNeedsServicesCounselingWithAmendedOrders(appCtx appcontext.AppContext
 	tac := "E19A"
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10646,6 +10864,7 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10729,6 +10948,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10793,6 +11013,7 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10855,6 +11076,7 @@ func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, orde
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -10918,6 +11140,7 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -10997,6 +11220,7 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -11066,6 +11290,7 @@ func CreateHHGNeedsServicesCounselingUSMC3(appCtx appcontext.AppContext, userUpl
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	move := factory.BuildMove(db, []factory.Customization{
 		{
@@ -11143,6 +11368,7 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -11183,6 +11409,7 @@ func createHHGNoShipments(appCtx appcontext.AppContext) {
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -11703,12 +11930,14 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			},
 		},
 		{
-			Model: models.Address{},
-			Type:  &factory.Addresses.SITDestinationOriginalAddress,
+			Model: models.Address{PostalCode: "35023",
+				City: "BESSEMER"},
+			Type: &factory.Addresses.SITDestinationOriginalAddress,
 		},
 		{
-			Model: models.Address{},
-			Type:  &factory.Addresses.SITDestinationFinalAddress,
+			Model: models.Address{PostalCode: "35023",
+				City: "BESSEMER"},
+			Type: &factory.Addresses.SITDestinationFinalAddress,
 		},
 		{
 			Model: models.ReService{
@@ -11724,16 +11953,22 @@ func createMoveWithOriginAndDestinationSIT(appCtx appcontext.AppContext, userUpl
 			LinkOnly: true,
 		},
 	}, nil)
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	_, err := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItem: dddsit,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
-	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+	_, err = testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 			Type: models.CustomerContactTypeSecond,
 		},
 		MTOServiceItem: dddsit,
 	})
+	if err != nil {
+		log.Panic(err)
+	}
 
 	return dddsit
 }
@@ -12242,6 +12477,7 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12319,6 +12555,7 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12395,6 +12632,7 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12447,6 +12685,7 @@ func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, us
 	submittedAt := time.Now()
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12537,6 +12776,7 @@ func createRandomMove(
 	dutyLocationCount := len(allDutyLocations)
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	if orderTemplate.OriginDutyLocationID == nil {
 		// We can pick any origin duty location not only one in the office user's GBLOC
 		if *serviceMemberTemplate.Affiliation == models.AffiliationMARINES {
@@ -12676,6 +12916,7 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 	}, nil)
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
@@ -12953,6 +13194,7 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
@@ -13216,6 +13458,7 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
@@ -13540,6 +13783,7 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
+	newDutyLocation.Address.City = "CINCINNATI"
 
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{

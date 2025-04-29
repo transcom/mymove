@@ -100,7 +100,7 @@ require (
 	golang.org/x/crypto v0.27.0
 	golang.org/x/net v0.29.0
 	golang.org/x/oauth2 v0.23.0
-	golang.org/x/text v0.21.0
+	golang.org/x/text v0.22.0
 	golang.org/x/tools v0.24.0
 	google.golang.org/grpc v1.68.0
 	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
@@ -197,7 +197,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hhrutter/lzw v1.0.0 // indirect
-	github.com/hhrutter/tiff v1.0.1 // indirect
+	github.com/hhrutter/tiff v1.0.2 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -261,11 +261,11 @@ require (
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
-	golang.org/x/image v0.23.0 // indirect
+	golang.org/x/image v0.24.0 // indirect
 	golang.org/x/mod v0.20.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/term v0.24.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
 	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
@@ -280,4 +280,4 @@ require (
 	pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c // indirect
 )
 
-replace github.com/pdfcpu/pdfcpu => github.com/transcom/pdfcpu v0.0.0-20250225161110-ce2f81788248
+replace github.com/pdfcpu/pdfcpu => github.com/transcom/pdfcpu v0.0.0-20250328180134-22f362a2dd57

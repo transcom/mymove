@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
@@ -15,7 +15,7 @@ import { customerRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
 import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
-import { SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, SHIPMENT_TYPES } from 'shared/constants';
 import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
 import { useTitle } from 'hooks/custom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -27,6 +27,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   const navigate = useNavigate();
   const [multiMove, setMultiMove] = useState(false);
   const { moveId } = useParams();
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
   const handleCancel = () => {
     if (multiMove) {
       navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
@@ -46,6 +47,30 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
     });
   }, [updateAllMoves, serviceMemberId]);
 
+  let mtoShipments;
+  let move;
+
+  if (serviceMemberMoves && serviceMemberMoves.currentMove && serviceMemberMoves.previousMoves) {
+    // Find the move in the currentMove array
+    const currentMove = serviceMemberMoves.currentMove.find((thisMove) => thisMove.id === moveId);
+    // Find the move in the previousMoves array if not found in currentMove
+    const previousMove = serviceMemberMoves.previousMoves.find((thisMove) => thisMove.id === moveId);
+    // the move will either be in the currentMove or previousMove object
+    move = currentMove || previousMove;
+    if (!move.mtoShipments) {
+      mtoShipments = [];
+    } else {
+      mtoShipments = move.mtoShipments;
+    }
+  }
+
+  useEffect(() => {
+    const now = new Date();
+    if (now < new Date(move?.lockExpiresAt)) {
+      setIsMoveLocked(true);
+    }
+  }, [move]);
+
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
     return (
@@ -57,16 +82,18 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
     );
   }
 
-  const currentMove = serviceMemberMoves.currentMove.find((m) => m.id === moveId);
-  const previousMove = serviceMemberMoves.previousMoves.find((m) => m.id === moveId);
-  const move = currentMove || previousMove;
-  const { mtoShipments } = move;
-
   const handleNext = () => {
     const nextPath = generatePath(customerRoutes.MOVE_AGREEMENT_PATH, {
       moveId,
     });
     navigate(nextPath);
+  };
+
+  const handleAddShipment = () => {
+    const addShipmentPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
+      moveId,
+    });
+    navigate(addShipmentPath);
   };
 
   const inDraftStatus = move.status === MOVE_STATUSES.DRAFT;
@@ -89,37 +116,46 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   };
 
   return (
-    <GridContainer>
-      <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
-          <ConnectedFlashMessage />
+    <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
+      <GridContainer>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <ConnectedFlashMessage />
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
-          <div className={styles.reviewMoveContainer}>
-            <div className={styles.reviewMoveHeaderContainer}>
-              <h1 data-testid="review-move-header">Review your details</h1>
-              <p>
-                You are almost done setting up your move. Double&#8209;check that your information is accurate, add more
-                shipments if needed, then move on to the final step.
-              </p>
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <div className={styles.reviewMoveContainer}>
+              <div className={styles.reviewMoveHeaderContainer}>
+                <h1 data-testid="review-move-header">Review your details</h1>
+                <p>
+                  You are almost done setting up your move. Double&#8209;check that your information is accurate, add
+                  more shipments if needed, then move on to the final step.
+                </p>
+              </div>
+              <ConnectedSummary isMoveLocked={isMoveLocked} />
+              <div className={formStyles.formActions}>
+                <WizardNavigation
+                  isReviewPage
+                  onNextClick={handleNext}
+                  onAddShipment={handleAddShipment}
+                  disableNext={hasIncompleteShipment() || !mtoShipments?.length}
+                  onCancelClick={handleCancel}
+                  isFirstPage
+                  showFinishLater
+                  readOnly={!inDraftStatus || isMoveLocked}
+                />
+              </div>
             </div>
-            <ConnectedSummary />
-            <div className={formStyles.formActions}>
-              <WizardNavigation
-                onNextClick={handleNext}
-                disableNext={hasIncompleteShipment() || !mtoShipments?.length}
-                onCancelClick={handleCancel}
-                isFirstPage
-                showFinishLater
-                readOnly={!inDraftStatus}
-              />
-            </div>
-          </div>
+          </Grid>
         </Grid>
-      </Grid>
-    </GridContainer>
+      </GridContainer>
+    </>
   );
 };
 

@@ -55,7 +55,15 @@ let validationShape = {
   }),
 };
 
-const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
+const DateAndLocationForm = ({
+  mtoShipment,
+  destinationDutyLocation,
+  serviceMember,
+  move,
+  onBack,
+  onSubmit,
+  isMoveLocked,
+}) => {
   const initialValues = {
     useCurrentResidence: false,
     pickupAddress: {},
@@ -152,20 +160,28 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
           const { checked } = e.target;
           if (checked) {
             // use current residence
-            setValues({
-              ...values,
-              pickupAddress: {
-                address: residentialAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  ...values.pickup,
+                  address: residentialAddress,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           } else {
             // Revert address
-            setValues({
-              ...values,
-              pickupAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  ...values.pickup,
+                  address: blankAddress.address,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -176,17 +192,22 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues({
               ...values,
               destinationAddress: {
+                ...values.destinationAddress,
                 address: destinationDutyAddress,
               },
             });
           } else {
             // Revert address
-            setValues({
-              ...values,
-              destinationAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                destinationAddress: {
+                  ...values.destinationAddress,
+                  address: blankAddress.address,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -558,7 +579,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   className={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
+                  disabled={!isValid || isSubmitting || isMoveLocked}
+                  data-testid="saveAndContinueButton"
                 >
                   Save & Continue
                 </Button>

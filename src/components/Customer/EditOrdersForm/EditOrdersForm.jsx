@@ -48,6 +48,7 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  isMoveLocked,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -558,7 +559,7 @@ const EditOrdersForm = ({
                   ref={filePondEl}
                   createUpload={createUpload}
                   onChange={onUploadComplete}
-                  labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+                  labelIdle='Drag & drop or <span class="filepond--label-action">click to upload orders</span>'
                 />
               </div>
 
@@ -579,7 +580,7 @@ const EditOrdersForm = ({
                       labelHint={<span className={styles.civilianUBAllowanceWarning}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                          If your orders specify a specific UB weight allowance, enter it here.
+                          If your orders specify a UB weight allowance, enter it here.
                           <ToolTip
                             text={
                               <span className={styles.toolTipText}>
@@ -605,7 +606,7 @@ const EditOrdersForm = ({
               <WizardNavigation
                 editMode
                 onCancelClick={onCancel}
-                disableNext={!isValid || isSubmitting}
+                disableNext={!isValid || isSubmitting || isMoveLocked}
                 onNextClick={handleSubmit}
               />
             </div>

@@ -202,28 +202,49 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewConflictError(newAddress.ID, ": Address is not associated with the provided MTOShipmentID.")
 	}
 
-	// Make the update and create a InvalidInput Error if there were validation issues
 	var address *models.Address
-	if newAddress.ID == uuid.Nil {
-		// New address doesn't have an ID yet, it should be created
-		address, err = f.addressCreator.CreateAddress(appCtx, newAddress)
-	} else {
-		// It has an ID, it should be updated
-		address, err = f.addressUpdater.UpdateAddress(appCtx, newAddress, etag.GenerateEtag(oldAddress.UpdatedAt))
-	}
-	if err != nil {
-		return nil, apperror.NewQueryError("Address", err, "")
-	}
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
-	_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, f.addressCreator, &mtoShipment, newAddress, &oldAddress, appCtx)
-	if err != nil {
-		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
-	}
+		if newAddress.ID == uuid.Nil {
+			// New address doesn't have an ID yet, it should be created
+			address, err = f.addressCreator.CreateAddress(appCtx, newAddress)
+		} else {
+			// It has an ID, it should be updated
+			address, err = f.addressUpdater.UpdateAddress(appCtx, newAddress, etag.GenerateEtag(oldAddress.UpdatedAt))
+		}
+		if err != nil {
+			return apperror.NewQueryError("Address", err, "")
+		}
 
-	// update the service item pricing if relevant fields have changed..ie mileage
-	err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &mtoShipment, nil)
-	if err != nil {
-		return nil, err
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			var shipment models.MTOShipment
+			err := query.Scope(utilities.ExcludeDeletedScope()).Eager("DestinationAddress", "PickupAddress").Find(&shipment, mtoShipment.ID)
+			if err != nil {
+				return apperror.NewQueryError("Error when querying UB shipment", err, "")
+			}
+			// check that one of the addresses is OCONUS
+			isShipmentOCONUS := models.IsShipmentOCONUS(shipment)
+			if isShipmentOCONUS != nil && !*isShipmentOCONUS {
+				return apperror.NewConflictError(shipment.ID, "At least one address for a UB shipment must be OCONUS")
+			}
+		}
+
+		_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, f.addressCreator, &mtoShipment, newAddress, &oldAddress, appCtx)
+		if err != nil {
+			return apperror.NewQueryError("No updated service items on shipment address change", err, "")
+		}
+
+		// update the service item pricing if relevant fields have changed..ie mileage
+		err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &mtoShipment, nil)
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
 	return address, nil

@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
-
+	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -107,9 +107,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		return mockUpdater
 	}
 
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		testMTOShipmentObjects.builder,
+		testMTOShipmentObjects.moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		testMTOShipmentObjects.builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		siCreator,
 		testMTOShipmentObjects.moveRouter,
 		setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
@@ -146,6 +165,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			{
 				Model:    mto,
 				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
 			},
 		}, nil)
 		subtestData.mtoShipment.MoveTaskOrderID = mto.ID
@@ -275,13 +299,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - UB", func() {
-		// const ubFlag = "true"
-		// suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
-
 		subtestData := makeCreateSubtestData(true, true)
 
 		params := subtestData.params
 		params.Body.ShipmentType = internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE.Pointer()
+
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "International St.",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		// UB shipments need one address to be OCONUS
+		params.Body.PickupAddress.PostalCode = &pickupAddress.PostalCode
+		params.Body.PickupAddress.City = &pickupAddress.City
+		params.Body.PickupAddress.State = &pickupAddress.State
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -496,7 +535,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		// Set fields appropriately for NTS-Release
 		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTS
 		params.Body.ShipmentType = &ntsrShipmentType
-		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.RequestedPickupDate = strfmt.Date(*futureDate)
 		params.Body.PickupAddress = nil
 		params.Body.SecondaryPickupAddress = nil
 
@@ -513,7 +552,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Nil(createdShipment.RequestedPickupDate)
+		suite.NotNil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
 		suite.Equal(params.Body.Agents[0].FirstName, createdShipment.Agents[0].FirstName)
@@ -546,7 +585,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params.Body.ShipmentType = &boatShipmentType
 		params.Body.BoatShipment = boatShipment
 
-		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.RequestedPickupDate = strfmt.Date(*futureDate)
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -563,7 +602,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Nil(createdShipment.RequestedPickupDate)
+		suite.NotNil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
 		suite.Equal(*params.Body.BoatShipment.Type, *createdShipment.BoatShipment.Type)
@@ -941,8 +980,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		// Address fields
 		street1 := "123 main street"
-		city := "New York"
-		state := "NY"
+		city := "BEVERLY HILLS"
+		state := "CA"
 		zipcode := "90210"
 
 		ppmUpdateTestCases := map[string]struct {

@@ -1104,3 +1104,4 @@
 20250213214427_drop_received_by_gex_payment_request_status_type.up.sql
 # nothing should be added below this line this file is archived and only needed for rebuilding db Locally to be run prior to new migrations process to keep the current state
 20250320204111_pptas_cert.up.sql
+20250402202400_pptas_prd_cert.up.sql
