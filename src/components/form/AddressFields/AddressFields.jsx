@@ -106,6 +106,7 @@ export const AddressFields = ({
             label="Location Lookup"
             handleLocationChange={handleOnLocationChange}
           />
+
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
             {infoStr}
             <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
@@ -113,6 +114,50 @@ export const AddressFields = ({
             </a>
             {assistanceStr}
           </Hint>
+          <div className={styles.container}>
+            <div className={styles.column}>
+              <TextField
+                label="City"
+                id={`city_${addressFieldsUUID.current}`}
+                name={`${name}.city`}
+                labelHint={labelHintProp}
+                data-testid={`${name}.city`}
+                display="readonly"
+                validate={validators?.city}
+              />
+              <TextField
+                label="State"
+                id={`state_${addressFieldsUUID.current}`}
+                name={`${name}.state`}
+                data-testid={`${name}.state`}
+                labelHint={labelHintProp}
+                display="readonly"
+                validate={validators?.state}
+                styles="margin-top: 1.5em"
+              />
+            </div>
+            <div className={styles.column}>
+              <TextField
+                label="ZIP"
+                id={`zip_${addressFieldsUUID.current}`}
+                name={`${name}.postalCode`}
+                data-testid={`${name}.postalCode`}
+                maxLength={10}
+                labelHint={labelHintProp}
+                display="readonly"
+                validate={validators?.postalCode}
+              />
+              <TextField
+                label="County"
+                id={`county_${addressFieldsUUID.current}`}
+                name={`${name}.county`}
+                labelHint={labelHintProp}
+                data-testid={`${name}.county`}
+                display="readonly"
+                validate={validators?.county}
+              />
+            </div>
+          </div>
         </>,
       )}
     </Fieldset>
