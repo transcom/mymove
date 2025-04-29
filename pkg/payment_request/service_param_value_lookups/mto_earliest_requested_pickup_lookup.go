@@ -32,6 +32,9 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 
 	var earliestPickupDate *time.Time
 	for _, shipment := range moveTaskOrder.MTOShipments {
+		print("\n\n\n\n\n", shipment.RequestedPickupDate.GoString(), "\n", shipment.DeletedAt, "\n\n\n\n")
+		print(len(moveTaskOrder.MTOShipments))
+
 		if shipment.ShipmentType != models.MTOShipmentTypePPM && earliestPickupDate == nil && shipment.DeletedAt == nil {
 			earliestPickupDate = shipment.RequestedPickupDate
 		}
@@ -39,6 +42,10 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 		if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.RequestedPickupDate.Before(*earliestPickupDate) && shipment.DeletedAt == nil {
 			earliestPickupDate = shipment.RequestedPickupDate
 		}
+	}
+
+	if earliestPickupDate == nil {
+		return "", apperror.NewBadDataError("This move task order has no shipments with a requested pickup date")
 	}
 
 	utcMidnight := models.TimePointer(time.Date(
