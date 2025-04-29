@@ -4,8 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import styles from './Expenses.module.scss';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -30,7 +28,6 @@ import { APP_NAME } from 'constants/apps';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,9 +44,6 @@ const Expenses = () => {
   const appName = APP_NAME.MYMOVE;
 
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
     if (!expenseId) {
       createMovingExpense(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -127,11 +121,11 @@ const Expenses = () => {
   };
 
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+    navigate(path);
   };
 
   const handleErrorMessage = (error) => {
