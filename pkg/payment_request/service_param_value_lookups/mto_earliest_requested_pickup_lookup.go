@@ -42,7 +42,7 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 	}
 
 	if earliestPickupDate == nil {
-		return "", apperror.NewBadDataError("This move task order has no shipments with a requested pickup date")
+		return "", apperror.NewConflictError(moveTaskOrderID, "This move task order has no shipments with a requested pickup date")
 	}
 
 	utcMidnight := models.TimePointer(time.Date(
@@ -53,10 +53,6 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 		time.UTC,
 	))
 
-	availableToPrimeAt := utcMidnight
-	if availableToPrimeAt == nil {
-		return "", apperror.NewBadDataError("This move task order is not available to prime")
-	}
-
-	return (*availableToPrimeAt).Format(ghcrateengine.TimestampParamFormat), nil
+	earliestPickupDate = utcMidnight
+	return (*earliestPickupDate).Format(ghcrateengine.TimestampParamFormat), nil
 }

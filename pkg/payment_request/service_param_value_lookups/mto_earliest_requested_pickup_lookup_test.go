@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
@@ -66,6 +67,18 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 			},
 		}, nil)
 
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 12),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
 		var err error
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
@@ -91,6 +104,17 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 	})
 
 	suite.Run("no valid shipments", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &laterRequestedPickup,
+					ShipmentType:        models.MTOShipmentTypeHHG,
+					Status:              models.MTOShipmentStatusSubmitted,
+					DeletedAt:           models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -98,10 +122,8 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 				},
 			},
 			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &laterRequestedPickup,
-					DeletedAt:           models.TimePointer(time.Now()),
-				},
+				Model:    shipment,
+				LinkOnly: true,
 			},
 		}, nil)
 
@@ -111,12 +133,13 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 				LinkOnly: true,
 			},
 			{
-				Model:    mtoServiceItem.MTOShipment,
+				Model:    shipment,
 				LinkOnly: true,
 			},
 		}, nil)
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-		suite.IsType(apperror.BadDataError{}, err)
+		print(err.Error())
+		suite.IsType(apperror.ConflictError{}, err)
 	})
 }
