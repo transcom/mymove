@@ -26,3 +26,4 @@
 20250416140435_B-22762_add_appl_params_emails.up.sql
 20250418132629_B-22761_add_flagSentToGexStaleInterval_to_application_parameters.up.sql
 20250422164417_B-23147_add_pay_grade_ranks.up.sql
+20250424182556_B-22463_add_max_sit_days_application_parameter.up.sql

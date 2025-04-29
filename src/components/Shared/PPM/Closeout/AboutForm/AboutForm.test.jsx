@@ -106,9 +106,15 @@ describe('AboutForm component', () => {
 
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('');
+      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('');
+      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('');
 
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('');
+      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('');
+      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('');
       expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(3);
 
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
@@ -178,6 +184,12 @@ describe('AboutForm component', () => {
 
         expect(requiredAlerts[1]).toHaveTextContent('Required');
         expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
+        expect(requiredAlerts[2]).toHaveTextContent('Required');
+        expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.city');
+        expect(requiredAlerts[3]).toHaveTextContent('Required');
+        expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.state');
+        expect(requiredAlerts[4]).toHaveTextContent('Required');
+        expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.postalCode');
 
         await userEvent.click(screen.getByTestId('yes-has-received-advance'));
       });
@@ -200,7 +212,9 @@ describe('AboutForm component', () => {
 
       expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveDisplayValue('11 NE Elm Road');
       expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
-
+      expect(screen.getAllByTestId(/City/)[2]).toHaveTextContent('Jacksonville');
+      expect(screen.getAllByTestId(/State/)[2]).toHaveTextContent('FL');
+      expect(screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent('32217');
       expect(screen.getByText('Jacksonville, FL 32217 ()'));
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
@@ -236,7 +250,7 @@ describe('AboutForm component', () => {
       // street 1 is now OPTIONAL for onboarding but required for PPM doc upload. If this fails it means addtional labelHints
       // have been introduced elsewhere within the control.
       const hints = document.getElementsByClassName('usa-hint');
-      expect(hints.length).toBe(6);
+      expect(hints.length).toBe(18);
       // verify labelHints are actually 'Optional'
       for (let i = 0; i < hints.length; i += 1) {
         expect(hints[i]).toHaveTextContent('Required');
