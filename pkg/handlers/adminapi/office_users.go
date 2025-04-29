@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -309,32 +308,24 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
-			if len(payload.Privileges) != 0 {
-				for _, privilege := range payload.Privileges {
-					for _, role := range payload.Roles {
-						privilegesAllowed, err := h.RoleAssociater.VerifyRolesPrivelegesAllowed(appCtx, role.RoleType, privilege.PrivilegeType)
+			privilegesAllowed, verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
 
-						if err != nil {
-							return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
-						}
+			if err != nil {
+				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
 
-						if !privilegesAllowed {
-							err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
-							appCtx.Logger().Error(err.Error())
-							verrs := validate.NewErrors()
-							verrs.Add("Validation Error", err.Error())
-							validationError := &adminmessages.ValidationError{
-								InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
-							}
-
-							validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
-							validationError.Detail = handlers.FmtString("Selected office user role is not authorized for supplied privilege")
-							validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
-
-							return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
-						}
-					}
+			if !privilegesAllowed {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
+						Title:    handlers.FmtString(handlers.ValidationErrMessage),
+						Detail:   handlers.FmtString("Selected office user role is not authorized for supplied privilege"),
+						Instance: handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
+					},
 				}
+
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
 			}
 
 			// if the user is being manually created, then we know they will already be approved
@@ -461,32 +452,24 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
-			if len(payload.Privileges) != 0 {
-				for _, privilege := range payload.Privileges {
-					for _, role := range payload.Roles {
-						privilegesAllowed, err := h.RoleAssociater.VerifyRolesPrivelegesAllowed(appCtx, role.RoleType, privilege.PrivilegeType)
+			privilegesAllowed, verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
 
-						if err != nil {
-							return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
-						}
+			if err != nil {
+				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
 
-						if !privilegesAllowed {
-							err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
-							appCtx.Logger().Error(err.Error())
-							verrs := validate.NewErrors()
-							verrs.Add("Validation Error", err.Error())
-							validationError := &adminmessages.ValidationError{
-								InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
-							}
-
-							validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
-							validationError.Detail = handlers.FmtString("Selected office user role is not authorized for supplied privilege")
-							validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
-
-							return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
-						}
-					}
+			if !privilegesAllowed {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
+						Title:    handlers.FmtString(handlers.ValidationErrMessage),
+						Detail:   handlers.FmtString("Selected office user role is not authorized for supplied privilege"),
+						Instance: handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest)),
+					},
 				}
+
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
 			}
 
 			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload, primaryTransportationOfficeID)

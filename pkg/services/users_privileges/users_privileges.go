@@ -1,10 +1,15 @@
 package usersprivileges
 
 import (
+	"fmt"
+
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -108,4 +113,34 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 		}
 	}
 	return userPrivilegesToDelete, nil
+}
+
+func (u usersPrivilegesCreator) VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (bool, *validate.Errors, error) {
+	for _, privilege := range privileges {
+		for _, role := range roles {
+			var results []models.RolePrivilege
+			sql := `SELECT roles_privileges.id, roles_privileges.role_id, roles_privileges.privilege_id, roles_privileges.created_at, roles_privileges.updated_at FROM roles_privileges
+			JOIN roles ON roles_privileges.role_id = roles.id
+			JOIN privileges ON roles_privileges.privilege_id = privileges.id
+			WHERE role_type = $1 AND privilege_type = $2`
+
+			query := appCtx.DB().RawQuery(sql, role.RoleType, privilege.PrivilegeType)
+
+			err := query.All(&results)
+
+			if err != nil {
+				return false, nil, err
+			}
+
+			if len(results) == 0 {
+				err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
+				appCtx.Logger().Error(err.Error())
+				verrs := validate.NewErrors()
+				verrs.Add("Validation Error", err.Error())
+				return false, verrs, nil
+			}
+		}
+	}
+
+	return true, nil, nil
 }
