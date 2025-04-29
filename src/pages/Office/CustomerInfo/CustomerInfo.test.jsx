@@ -123,6 +123,9 @@ describe('CustomerInfo', () => {
         mockCustomer.backup_contact.email,
       );
       expect(screen.getByDisplayValue('123 Any Street').value).toEqual(mockCustomer.current_address.streetAddress1);
+      expect(screen.getByText('Beverly Hills')).toHaveTextContent(mockCustomer.current_address.city);
+      expect(screen.getByText('CA')).toHaveTextContent(mockCustomer.current_address.state);
+      expect(screen.getByText('90210')).toHaveTextContent(mockCustomer.current_address.postalCode);
       expect(
         screen.getAllByText(
           `${mockCustomer.current_address.city}, ${mockCustomer.current_address.state} ${mockCustomer.current_address.postalCode} ()`,
