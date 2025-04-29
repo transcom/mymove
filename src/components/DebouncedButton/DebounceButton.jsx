@@ -18,7 +18,7 @@ const DebounceButton = ({ onClick, delay, ariaLabel, chidren, ...props }) => {
 };
 
 DebounceButton.defaultProps = {
-  delay: 1000,
+  delay: 2000,
 };
 
 DebounceButton.propTypes = {

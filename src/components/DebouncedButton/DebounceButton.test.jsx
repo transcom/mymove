@@ -1,28 +1,38 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
+import { mount } from 'enzyme';
 
 import DebounceButton from './DebounceButton';
 
-describe('DebounceButton component', () => {
-  it('renders the DebounceButton component without errors', () => {
-    render(<DebounceButton>Button Text</DebounceButton>);
+import { createMTOShipment } from 'services/internalApi';
 
-    expect(screen.queryByTestId('debounce-button')).toBeInTheDocument();
+jest.mock('services/internalApi', () => ({
+  createMTOShipment: jest.fn().mockImplementation(() => Promise.resolve({ locator: 'ABC123' })),
+}));
+
+describe('DebounceButton component', () => {
+  const defaultProps = {
+    onClick: () => Promise.resolve(setTimeout(createMTOShipment(), 500)),
+    delay: 2000,
+  };
+
+  it('renders the DebounceButton component without errors', () => {
+    const wrapper = mount(<DebounceButton {...defaultProps}>Button Text</DebounceButton>);
+    const btn = wrapper.find('[datatest-id="debounce-button"]');
+
+    expect(btn).toBeTruthy();
   });
 
-  // it('calls onChange prop on option selection', async () => {
-  //   const onChangeSpy = jest.fn();
-  //   render(
-  //     <ButtonDropdown onChange={onChangeSpy}>
-  //       <option>- Select - </option>
-  //       <option value="value1">Option A</option>
-  //       <option value="value2">Option B</option>
-  //       <option value="value3">Option C</option>
-  //     </ButtonDropdown>,
-  //   );
-  //   const dropdown = screen.getByRole('combobox');
-  //   await userEvent.selectOptions(dropdown, 'value1');
+  it('multi-click calls fetcher once', () => {
+    act(() => {
+      const wrapper = mount(<DebounceButton {...defaultProps}>Click Me</DebounceButton>);
+      const btn = wrapper.find('[datatest-id="debounce-button"]');
+      btn.first().simulate('click');
+      btn.first().simulate('click');
+      btn.first().simulate('click');
+      wrapper.update();
+    });
 
-  //   expect(onChangeSpy).toHaveBeenCalled();
-  // });
+    expect(createMTOShipment).toHaveBeenCalledTimes(1);
+  });
 });
