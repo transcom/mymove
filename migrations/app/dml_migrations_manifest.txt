@@ -10,7 +10,9 @@
 20250227211534_update_re_country_prn_divisions.up.sql
 20250303210036_B-22462_service_params_add_param_and_remove_ones__not_needed.up.sql
 20250305204911_B-22483_init_mappings_on_roles_privileges.up.sql
+20250306163108_B-22663_insert_INPK_service_params.up.sql
 20250306215742_B-22770_upd_base_names.up.sql
+20250307190914_b-22663-update-nts-packing-param.up.sql
 20250310151829_B-22463_add_supporting_service_params_for_request_payment.up.sql
 20250312122657_B-22839_upd_pobox_zips.up.sql
 20250314180812_B-22770_upd_base_names_again.up.sql
