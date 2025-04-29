@@ -209,7 +209,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		{
 			Model: models.ServiceItemParamKey{
 				Key:         models.ServiceItemParamNameMTOEarliestRequestedPickup,
-				Description: "prime mto made available date",
+				Description: "move earliest requested pickup",
 				Type:        models.ServiceItemParamTypeDate,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
@@ -588,8 +588,8 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	})
 
 	// MS - has no shipment
-	// Prime MTO Made Available Date
-	suite.Run("Task Order Service Prime MTO available", func() {
+	// Prime MTO Earliest Requested Pickup
+	suite.Run("Task Order Service Earliest Requested Pickup", func() {
 		subtestData := suite.makeSubtestData()
 
 		subtestData.mtoServiceItemMS.MTOShipmentID = nil
@@ -600,7 +600,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		paramLookupService3, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, subtestData.mtoServiceItemMS, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.NoError(err)
 
-		availToPrimeAt := time.Date(testdatagen.GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+		availToPrimeAt := time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 		subtestData.move.AvailableToPrimeAt = &availToPrimeAt
 		suite.MustSave(&subtestData.move)
 		expectedAvailToPrimeDate := subtestData.move.AvailableToPrimeAt.String()[:10]
