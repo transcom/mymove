@@ -26,6 +26,7 @@ export const Basic = () => (
         city: '',
         state: '',
         postalCode: '',
+        county: '',
       },
     }}
   >
@@ -48,6 +49,7 @@ export const CurrentResidentialAddress = () => (
         city: '',
         state: '',
         postalCode: '',
+        county: '',
       },
     }}
     validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
@@ -95,6 +97,7 @@ export const CurrentResidentialAddressWithCustomValidators = () => (
         city: '',
         state: '',
         postalCode: '',
+        county: '',
       },
     }}
     validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
@@ -125,6 +128,7 @@ export const InsideSectionWrapper = () => (
         city: '',
         state: '',
         postalCode: '',
+        county: '',
       },
     }}
     validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}

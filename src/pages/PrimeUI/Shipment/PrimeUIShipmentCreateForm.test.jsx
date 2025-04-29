@@ -226,10 +226,18 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
       initialValues.ppmShipment.pickupAddress.streetAddress1,
     );
+    expect(screen.getAllByText('City')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
 
     expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
     );
+    expect(screen.getAllByText('City')[1]).toBeInTheDocument();
+    expect(screen.getAllByText('State')[1]).toBeInTheDocument();
+    expect(screen.getAllByText('County')[1]).toBeInTheDocument();
+    expect(screen.getAllByText('ZIP')[1]).toBeInTheDocument();
 
     expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(2);
 
