@@ -218,8 +218,22 @@ BEGIN
                     escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
                 END IF;
 
-                days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date)) as days);
-                RAISE NOTICE ''days_in_sit = % (sit_departure_date: % - sit_entry_date: %)'', days_in_sit, service_item.sit_departure_date, service_item.sit_entry_date;
+                BEGIN
+                    -- Retrieve MAX days in sit allowance value from application parameter table.
+                    days_in_sit := get_application_parameter_value(''maxSitDaysAllowance'')::int - 1;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE EXCEPTION ''%: unexpected error parsing maxSitDaysAllowance application param value'', service_code;
+                END;
+
+                IF days_in_sit IS NULL THEN
+                    RAISE EXCEPTION ''%: maxSitDaysAllowance application param value not found'', service_code;
+                END IF;
+
+                IF service_item.sit_entry_date IS NOT NULL AND service_item.sit_departure_date IS NOT NULL THEN
+                    days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date)) as days);
+                END IF;
+
+                RAISE NOTICE ''days_in_sit = %'', days_in_sit;
 
                 IF escalated_price IS NOT NULL AND days_in_sit IS NOT NULL AND days_in_sit >= 0 THEN
                     RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
