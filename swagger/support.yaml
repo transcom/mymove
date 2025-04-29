@@ -2234,6 +2234,9 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+      - PODFSC
+      - POEFSC
+      - UBP
 responses:
   InvalidRequest:
     description: The request payload is invalid.

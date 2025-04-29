@@ -2983,7 +2983,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {
@@ -7004,7 +7007,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {

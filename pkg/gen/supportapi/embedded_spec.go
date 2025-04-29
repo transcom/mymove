@@ -2444,7 +2444,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "UpdateMTOServiceItemStatus": {
@@ -5424,7 +5427,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "UpdateMTOServiceItemStatus": {
