@@ -73,7 +73,7 @@ func (router shipmentRouter) Approve(_ appcontext.AppContext, shipment *models.M
 		id:                        shipment.ID,
 		transitionFromStatus:      shipment.Status,
 		transitionToStatus:        models.MTOShipmentStatusApproved,
-		transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted, models.MTOShipmentStatusDiversionRequested},
+		transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted, models.MTOShipmentStatusDiversionRequested, models.MTOShipmentStatusApprovalsRequested},
 	}
 }
 
@@ -196,4 +196,5 @@ func statusSliceContains(statusSlice []models.MTOShipmentStatus, status models.M
 var validStatusesBeforeApproval = []models.MTOShipmentStatus{
 	models.MTOShipmentStatusSubmitted,
 	models.MTOShipmentStatusDiversionRequested,
+	models.MTOShipmentStatusApprovalsRequested,
 }

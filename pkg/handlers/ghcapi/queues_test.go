@@ -471,7 +471,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		},
 		{
 			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
+				Status: models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 		{
