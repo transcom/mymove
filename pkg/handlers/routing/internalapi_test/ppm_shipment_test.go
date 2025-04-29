@@ -55,7 +55,7 @@ func (suite *InternalAPISuite) TestSubmitPPMShipmentDocumentation() {
 
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
-		suite.Equal(http.StatusForbidden, rr.Code)
+		suite.Equal(http.StatusNotFound, rr.Code)
 	})
 
 	suite.Run("Unauthorized call to /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation by user that isn't logged in", func() {
