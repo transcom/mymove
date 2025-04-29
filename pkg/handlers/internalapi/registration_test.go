@@ -25,8 +25,15 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 		provider, err := factory.BuildOktaProvider(milProviderName)
 		suite.NoError(err)
 
+		// mocking the okta customer group id env variable
+		originalGroupID := os.Getenv("OKTA_CUSTOMER_GROUP_ID")
+		os.Setenv("OKTA_CUSTOMER_GROUP_ID", "notrealcustomergroupId")
+		defer os.Setenv("OKTA_CUSTOMER_GROUP_ID", originalGroupID)
+
 		// these mocked endpoints fetch an exact user
 		mockAndActivateOktaGETEndpointExistingUserNoError(provider)
+		mockAndActivateOktaGroupGETEndpointNoError(provider)
+		mockAndActivateOktaGroupAddEndpointNoError(provider)
 
 		affiliation := internalmessages.AffiliationARMY
 		body := &internalmessages.CreateOktaAndMilMoveUser{
@@ -75,12 +82,17 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 
 		// setting the dodid_unique flag to true
 		os.Setenv("FEATURE_FLAG_DODID_UNIQUE", "true")
+		originalGroupID := os.Getenv("OKTA_CUSTOMER_GROUP_ID")
+		os.Setenv("OKTA_CUSTOMER_GROUP_ID", "notrealcustomergroupId")
+		defer os.Setenv("OKTA_CUSTOMER_GROUP_ID", originalGroupID)
 
 		provider, err := factory.BuildOktaProvider(milProviderName)
 		suite.NoError(err)
 
 		// these mocked endpoints fetch an exact user
 		mockAndActivateOktaGETEndpointExistingUserNoError(provider)
+		mockAndActivateOktaGroupGETEndpointNoError(provider)
+		mockAndActivateOktaGroupAddEndpointNoError(provider)
 
 		affiliation := internalmessages.AffiliationARMY
 		body := &internalmessages.CreateOktaAndMilMoveUser{
@@ -689,6 +701,29 @@ func mockAndActivateOktaPOSTEndpointsNoError(provider *okta.Provider) {
 			"login": "email@email.com"
 		}
 	}`, oktaID)))
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupGETEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	getGroupsEndpoint := provider.GetUserGroupsURL(oktaID)
+
+	httpmock.RegisterResponder("GET", getGroupsEndpoint,
+		httpmock.NewStringResponder(200, `[]`))
+
+	httpmock.Activate()
+}
+
+func mockAndActivateOktaGroupAddEndpointNoError(provider *okta.Provider) {
+
+	oktaID := "fakeSub"
+	groupID := "notrealcustomergroupId"
+	addGroupEndpoint := provider.AddUserToGroupURL(groupID, oktaID)
+
+	httpmock.RegisterResponder("PUT", addGroupEndpoint,
+		httpmock.NewStringResponder(204, ""))
 
 	httpmock.Activate()
 }
