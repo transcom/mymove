@@ -108,12 +108,12 @@ describe('Agreement page', () => {
     );
   });
 
-  it('displays warning and disables submit button if the move has been locked by a services counselor', async () => {
+  it('displays warning and disables submit button if the move has been locked by a services counselor and is in DRAFT status', async () => {
     renderWithRouterProp(
       <Agreement
         {...testProps}
         serviceMember={{ first_name: 'Sofia', last_name: 'Clark-Nuñez' }}
-        move={{ lockExpiresAt: '2099-04-07T17:21:30.450Z' }}
+        move={{ lockExpiresAt: '2099-04-07T17:21:30.450Z', status: MOVE_STATUSES.DRAFT }}
       />,
       {
         path: customerRoutes.MOVE_REVIEW_PATH,

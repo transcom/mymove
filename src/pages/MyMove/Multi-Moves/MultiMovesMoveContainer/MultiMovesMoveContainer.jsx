@@ -151,7 +151,7 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
             </>
           )}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            {now < new Date(m?.lockExpiresAt) ? (
+            {now < new Date(m?.lockExpiresAt) && m?.status === MOVE_STATUSES.DRAFT ? (
               <Button data-testid="moveLockedBtn" className={styles.moveLockedBtn} secondary disabled>
                 Move Locked
               </Button>

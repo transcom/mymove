@@ -157,7 +157,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   useEffect(() => {
     const now = new Date();
-    if (now < new Date(move?.lockExpiresAt)) {
+    if (now < new Date(move?.lockExpiresAt) && move?.status === MOVE_STATUSES.DRAFT) {
       setIsMoveLocked(true);
     }
   }, [move]);

@@ -8,7 +8,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { SIGNED_CERT_OPTIONS, MOVE_LOCKED_WARNING } from 'shared/constants';
+import { SIGNED_CERT_OPTIONS, MOVE_LOCKED_WARNING, MOVE_STATUSES } from 'shared/constants';
 import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import { submitMoveForApproval } from 'services/internalApi';
 import { selectCurrentMove, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
@@ -61,7 +61,7 @@ export const Agreement = ({ updateMove, setFlashMessage, serviceMember, move }) 
 
   useEffect(() => {
     const now = new Date();
-    if (now < new Date(move?.lockExpiresAt)) {
+    if (now < new Date(move?.lockExpiresAt) && move?.status === MOVE_STATUSES.DRAFT) {
       setIsMoveLocked(true);
     }
   }, [move]);
