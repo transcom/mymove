@@ -321,12 +321,14 @@ LocationSearchBoxComponent.propTypes = {
   searchLocations: PropTypes.func,
   showAddress: PropTypes.func.isRequired,
   isDisabled: PropTypes.bool,
+  showRequiredAsterisk: PropTypes.bool,
 };
 
 LocationSearchBoxComponent.defaultProps = {
   ...LocationSearchBoxContainer.defaultProps,
   searchLocations: SearchDutyLocations,
   isDisabled: false,
+  showRequiredAsterisk: false,
 };
 
 export default LocationSearchBoxContainer;

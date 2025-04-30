@@ -786,16 +786,10 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
-   * @param {string} moveId
    * returns {Promise<void>}
    */
-  async cancelAddLineItemAndReturnToCloseoutReviewPage(moveId) {
-    // calculate the home url to wait for it after click
-    const url = new URL(this.page.url());
-    url.pathname = `/move/${moveId}`;
-    await this.page.getByRole('button', { name: 'Return to Homepage' }).click();
-    await this.page.waitForURL(url.href);
-    await this.navigateToPPMReviewPage();
+  async cancelAddLineItemAndReturnToCloseoutReviewPage() {
+    await this.page.getByRole('button', { name: 'Cancel' }).click();
   }
 
   /**
