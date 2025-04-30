@@ -39,6 +39,7 @@ const moveData = [
     locator: 'AB5P',
     departmentIndicator: 'ARMY',
     shipmentsCount: 2,
+    status: 'SUBMITTED',
     originDutyLocation: {
       name: 'Area 51',
     },
@@ -211,7 +212,6 @@ const GetMountedComponent = (queueTypeToMount) => {
   );
   return wrapper;
 };
-
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
 describe('MoveQueue & DestinationRequestsQueue', () => {
   afterEach(() => {
@@ -242,6 +242,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.edipi,
     );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
@@ -337,6 +338,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.edipi,
     );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
