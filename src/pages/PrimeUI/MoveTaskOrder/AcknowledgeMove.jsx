@@ -22,6 +22,7 @@ import { formatDateForSwagger, formatDateWithUTC } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import Hint from 'components/Hint/index';
 
 const AcknowledgeMove = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -117,6 +118,9 @@ const AcknowledgeMove = ({ setFlashMessage }) => {
                         label="Prime Acknowledged At"
                         disabled={moveTaskOrder.primeAcknowledgedAt}
                       />
+                      <Hint id="primeAcknowledgedAtHint" data-testid="primeAcknowledgedAtHint">
+                        Prime Acknowledged At date can only be saved one time.
+                      </Hint>
                     </dl>
                     <div className={formStyles.formActions}>
                       <WizardNavigation
