@@ -7,7 +7,7 @@ describe('When given a shipment updated by create service item', () => {
   const historyRecord = {
     action: 'UPDATE',
     changedValues: {
-      status: 'APPROVALS_REQUESTED',
+      status: 'APPROVALS REQUESTED',
     },
     context: [
       {
@@ -26,7 +26,7 @@ describe('When given a shipment updated by create service item', () => {
     expect(result.getEventNameDisplay(historyRecord)).toEqual('Updated shipment');
   });
   describe('when given a specific set of details', () => {
-    it.each([['Status', ': APPROVALS_REQUESTED']])(
+    it.each([['Status', ': APPROVALS REQUESTED']])(
       'displays the correct details value for %s',
       async (label, value) => {
         const result = getTemplate(historyRecord);
