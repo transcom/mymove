@@ -592,5 +592,5 @@ export async function cancelMove(moveId) {
 }
 
 export async function getRankGradeOptions(affiliation) {
-  return makeInternalRequestRaw('orders.getRanks', { affiliation });
+  return makeInternalRequest('orders.getRanks', { affiliation }, { normalize: false });
 }
