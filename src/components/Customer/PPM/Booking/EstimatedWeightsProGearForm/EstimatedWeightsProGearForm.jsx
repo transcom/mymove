@@ -35,6 +35,8 @@ const validationSchema = Yup.object().shape({
   spouseProGearWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')
     .max(500, 'Enter a weight 500 lbs or less'),
+  hasGunSafe: Yup.boolean().required('Required'),
+  gunSafeWeight: Yup.number().min(0, 'Enter a weight 0 lbs or greater').max(500, 'Enter a weight 500 lbs or less'),
 });
 
 const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) => {
@@ -138,6 +140,73 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                     id="hasProGearNo"
                     label="No"
                     name="hasProGear"
+                    value="false"
+                    checked={values.hasProGear === 'false'}
+                  />
+                </Fieldset>
+                <Hint className={ppmStyles.hint}>
+                  If you are not sure, select yes and your counselor can help you figure it out.
+                </Hint>
+                {values.hasProGear === 'true' && (
+                  <>
+                    <MaskedTextField
+                      defaultValue="0"
+                      name="proGearWeight"
+                      label="Estimated weight of your pro-gear"
+                      labelHint="Required"
+                      id="proGearWeight"
+                      mask={Number}
+                      scale={0} // digits after point, 0 for integers
+                      signed={false} // disallow negative
+                      thousandsSeparator=","
+                      lazy={false} // immediate masking evaluation
+                      suffix="lbs"
+                    />
+                    <MaskedTextField
+                      defaultValue="0"
+                      name="spouseProGearWeight"
+                      label="Estimated weight of your spouse’s pro-gear"
+                      labelHint="Required"
+                      id="spouseProGearWeight"
+                      mask={Number}
+                      scale={0} // digits after point, 0 for integers
+                      signed={false} // disallow negative
+                      thousandsSeparator=","
+                      lazy={false} // immediate masking evaluation
+                      suffix="lbs"
+                    />
+                    <Hint>
+                      Talk to your counselor about requirements for documenting pro-gear included in your PPM.
+                    </Hint>
+                  </>
+                )}
+              </SectionWrapper>
+              <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                <h2>Gun Safe</h2>
+                <p>
+                  Pro-gear, or PBP&E, includes books, papers, and equipment you need for your official duties. Service
+                  members can move up to 2,000 lbs of pro-gear. Additionally, spouses can move up to 500 lbs.
+                </p>
+
+                <p>You get paid for moving pro-gear, but it does not count against your total weight allowance.</p>
+                <Fieldset>
+                  <legend className="usa-label">
+                    Do you or your spouse have pro-gear that you&apos;ll move in this PPM?
+                  </legend>
+                  <RequiredTag />
+                  <Field
+                    as={Radio}
+                    id="hasGunSafeYes"
+                    label="Yes"
+                    name="hasGunSafe"
+                    value="true"
+                    checked={values.hasProGear === 'true'}
+                  />
+                  <Field
+                    as={Radio}
+                    id="hasGunSafeNo"
+                    label="No"
+                    name="hasGunSafe"
                     value="false"
                     checked={values.hasProGear === 'false'}
                   />
