@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -45,14 +46,14 @@ func GetPayGradeRankDropdownOptions(db *pop.Connection, affiliation string) ([]*
 
 	err := db.Q().RawQuery(`
 		select
-			pgr.rank_abbv || ' / ' || pg.grade as rankGradeName,
-			pgr.id,
-			pgr.paygradeId,
-			pgr.rank_order as rankOrder
-		from pay_grade_ranks pgr
-		join pay_grades pg on pgr.pay_grade_id = pg.id
+			pay_grade_ranks.rank_abbv || ' / ' || pay_grades.grade as RankGradeName,
+			pay_grade_ranks.id,
+			pay_grade_ranks.pay_grade_id as PaygradeID,
+			pay_grade_ranks.rank_order as RankOrder
+		from pay_grade_ranks
+		join pay_grades on pay_grade_ranks.pay_grade_id = pay_grades.id
 		where affiliation = $1
-		order by pgr.rank_order ASC
+		order by pay_grade_ranks.rank_order DESC
 	`, affiliation).All(&dropdownOptions)
 	if err != nil {
 		return nil, err

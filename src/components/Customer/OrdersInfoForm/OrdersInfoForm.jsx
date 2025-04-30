@@ -23,16 +23,18 @@ import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
+import { formatLabelReportByDate } from 'utils/formatters';
 import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { sortRankPayGradeOptions } from 'shared/utils';
 
 let originMeta;
 let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -120,12 +122,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
     fetchCounselingOffices();
   }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
 
+  const [rankOptions, setRankOptions] = useState([]);
   useEffect(() => {
     const fetchRankGradeOptions = async () => {
       setShowLoadingSpinner(true, 'Loading Rank/Grade options');
       try {
-        const fetchedData = await getRankGradeOptions('AIR_FORCE');
-        console.log(fetchedData);
+        const fetchedRanks = await getRankGradeOptions(affiliation);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
+          setRankOptions(formattedOptions);
+        }
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -133,10 +139,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
       }
       setShowLoadingSpinner(false, null);
     };
-    console.log(affiliation);
 
     fetchRankGradeOptions();
-  }, []);
+  }, [affiliation, setShowLoadingSpinner]);
 
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
@@ -511,7 +516,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
                 id="grade"
                 required
                 showRequiredAsterisk
-                options={payGradeOptions}
+                options={rankOptions}
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
@@ -573,7 +578,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
 
 OrdersInfoForm.propTypes = {
   ordersTypeOptions: DropdownArrayOf.isRequired,
-  affiliation: PropTypes.string,
   initialValues: PropTypes.shape({
     orders_type: PropTypes.string,
     issue_date: PropTypes.string,
@@ -592,8 +596,15 @@ OrdersInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
+const mapStateToProps = (state) => {
+  const user = selectLoggedInUser(state);
+  const affiliation = selectServiceMember(state, user?.service_member);
+
+  return affiliation;
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfoForm);

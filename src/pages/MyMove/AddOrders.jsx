@@ -5,7 +5,7 @@ import { generatePath, useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
-import { getServiceMember, createOrders, getResponseError } from 'services/internalApi';
+import { createOrders, getResponseError, getServiceMember } from 'services/internalApi';
 import {
   updateOrders as updateOrdersAction,
   updateServiceMember as updateServiceMemberAction,
@@ -33,7 +33,6 @@ const AddOrders = ({
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [serviceMember, setServiceMember] = useState(null);
   const navigate = useNavigate();
 
   // if the user did NOT come from the create a move button, we want to redirect them to their current move
@@ -121,7 +120,7 @@ const AddOrders = ({
       setCanAddOrders(false);
       const newOrderId = createdOrders.id;
       updateOrders(createdOrders);
-      const updatedServiceMember = serviceMember;
+      const updatedServiceMember = await getServiceMember(serviceMemberId);
       updateServiceMember(updatedServiceMember);
       setMoveId(createdOrders?.moves[0].id);
       setCanAddOrders(false);
@@ -132,22 +131,6 @@ const AddOrders = ({
       setServerError(errorMessage);
     }
   };
-
-  useEffect(() => {
-    console.log('running');
-    const getServiceMemberData = async () => {
-      try {
-        const tempsm = await getServiceMember(serviceMemberId);
-        setServiceMember(tempsm);
-      } catch (e) {
-        const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update/create orders due to server error');
-        setServerError(errorMessage);
-      }
-    };
-
-    getServiceMemberData();
-  }, []);
 
   const initialValues = {
     orders_type: '',
@@ -194,7 +177,6 @@ const AddOrders = ({
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <OrdersInfoForm
             ordersTypeOptions={ordersTypeOptions}
-            affiliation={serviceMember?.affiliation}
             initialValues={initialValues}
             onSubmit={submitOrders}
             onBack={handleBack}
