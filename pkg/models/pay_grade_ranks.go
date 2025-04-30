@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // PayGradeRank represents a customer's pay grade (Including civilian)
@@ -39,11 +40,15 @@ func (p PayGradeRank) TableName() string {
 }
 
 // get pay grade / rank for orders drop down
-func GetPayGradeRankDropdownOptions(db *pop.Connection, affiliation string) ([]string, error) {
-	var dropdownOptions []string
+func GetPayGradeRankDropdownOptions(db *pop.Connection, affiliation string) ([]*internalmessages.Rank, error) {
+	var dropdownOptions []*internalmessages.Rank
 
 	err := db.Q().RawQuery(`
-		select pgr.rank_abbv || ' / ' || pg.grade as rank_name
+		select
+			pgr.rank_abbv || ' / ' || pg.grade as rankGradeName,
+			pgr.id,
+			pgr.paygradeId,
+			pgr.rank_order as rankOrder
 		from pay_grade_ranks pgr
 		join pay_grades pg on pgr.pay_grade_id = pg.id
 		where affiliation = $1

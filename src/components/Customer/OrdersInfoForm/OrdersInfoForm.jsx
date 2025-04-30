@@ -24,14 +24,14 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
-import { showCounselingOffices } from 'services/internalApi';
+import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
+const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -119,6 +119,24 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     };
     fetchCounselingOffices();
   }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
+
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedData = await getRankGradeOptions('AIR_FORCE');
+        console.log(fetchedData);
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+    console.log(affiliation);
+
+    fetchRankGradeOptions();
+  }, []);
 
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
@@ -555,6 +573,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
 OrdersInfoForm.propTypes = {
   ordersTypeOptions: DropdownArrayOf.isRequired,
+  affiliation: PropTypes.string,
   initialValues: PropTypes.shape({
     orders_type: PropTypes.string,
     issue_date: PropTypes.string,

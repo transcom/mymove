@@ -8015,6 +8015,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -8545,6 +8548,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -12102,6 +12108,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -13936,6 +13945,32 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankGradeName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "SGT"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
       "type": "object",
@@ -15540,6 +15575,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -26353,6 +26391,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -26883,6 +26924,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -30440,6 +30484,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -32350,6 +32397,32 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankGradeName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "SGT"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
       "type": "object",
@@ -34010,6 +34083,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Report By Date",

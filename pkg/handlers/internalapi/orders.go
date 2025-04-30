@@ -747,3 +747,24 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 			return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload), nil
 		})
 }
+
+type GetRanksHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle retrieves orders in the system belonging to the logged in user given order ID
+func (h GetRanksHandler) Handle(params ordersop.GetRanksParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			ranks, err := models.GetPayGradeRankDropdownOptions(appCtx.DB(), params.Affiliation)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			if len(ranks) < 1 {
+				return ordersop.NewGetRanksNotFound(), nil
+			}
+
+			return ordersop.NewGetRanksOK().WithPayload(ranks), nil
+		})
+}
