@@ -366,22 +366,23 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                     ) : (
                       <ModalActions>
                         <div className={styles.BulkAssignmentButtonsContainer}>
-                          <div className={styles.BulkAssignmentButtonsLeft}>
+                          <div>
                             <Button
                               onClick={handleEqualAssignClick}
                               type="button"
                               data-testid="modalEqualAssignButton"
+                              secondary
                               hidden={isBulkReAssignmentMode}
                               disabled={!Object.values(selectedUsers).some(Boolean)}
                             >
                               Equal Assign
                             </Button>
                           </div>
-                          <div>
+                          <div className={styles.BulkAssignmentButtonsRight}>
                             <Button
                               type="button"
                               className={styles.button}
-                              outline
+                              secondary
                               onClick={handleCancelClick(values)}
                               data-testid="modalCancelButton"
                             >

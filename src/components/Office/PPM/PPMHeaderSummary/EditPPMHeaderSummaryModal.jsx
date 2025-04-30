@@ -198,7 +198,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                       type="button"
                       onClick={() => onClose()}
                       data-testid="modalCancelButton"
-                      outline
+                      secondary
                       className={styles.CancelButton}
                     >
                       Cancel
