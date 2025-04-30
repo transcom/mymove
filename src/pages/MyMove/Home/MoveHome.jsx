@@ -42,7 +42,7 @@ import {
   cancelMove,
 } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
-import { PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -64,7 +64,6 @@ import {
   isPPMShipmentComplete,
   isBoatShipmentComplete,
   isMobileHomeShipmentComplete,
-  isWeightTicketComplete,
 } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -342,8 +341,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   const handlePPMUploadClick = (shipmentId) => {
     const shipment = mtoShipments.find((mtoShipment) => mtoShipment.id === shipmentId);
-    const ppmShipment = shipment?.ppmShipment || {};
-    const { ppmType } = ppmShipment;
 
     const aboutInfoComplete = isPPMAboutInfoComplete(shipment.ppmShipment);
 
@@ -353,29 +350,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     });
 
     if (aboutInfoComplete) {
-      if (ppmType === PPM_TYPES.SMALL_PACKAGE) {
-        // PPM-SPRs skip the weight ticket part of closeout
-        path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      } else if (shipment.ppmShipment.weightTickets.length === 0) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      } else if (!shipment.ppmShipment.weightTickets.some(isWeightTicketComplete)) {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-          weightTicketId: shipment.ppmShipment.weightTickets[0].id,
-        });
-      } else {
-        path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
-          moveId: move.id,
-          mtoShipmentId: shipmentId,
-        });
-      }
+      path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      });
     }
 
     navigate(path);
