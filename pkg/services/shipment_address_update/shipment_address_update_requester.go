@@ -573,7 +573,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				var updatedServiceItem *models.MTOServiceItem
 
 				// Recalculate pricing if SIT is approved and Service Item is DDD or FSC
-				if shipmentHasApprovedDestSIT && (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeFSC) {
+				if shipmentHasApprovedDestSIT && (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC) {
 					sitPricingEstimate, err := serviceItemCreator.FindSITEstimatedPrice(appCtx, &serviceItem, shipment)
 					if err != nil {
 						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
