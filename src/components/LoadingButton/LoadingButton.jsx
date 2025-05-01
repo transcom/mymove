@@ -26,7 +26,7 @@ const LoadingButton = ({
     >
       {isLoading ? (
         <>
-          {loadingText}{' '}
+          {loadingText}
           <FontAwesomeIcon icon={loadingIcon} spin={iconSpin} role="presentation" id={styles.loadingButtonIcon} />
         </>
       ) : (
