@@ -8550,7 +8550,9 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -26926,7 +26928,9 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
           "description": "Report By Date",

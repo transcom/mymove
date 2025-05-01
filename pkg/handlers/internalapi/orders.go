@@ -315,6 +315,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				deptIndicator,
 				&originDutyLocation,
 				grade,
+				&payload.Rank,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,

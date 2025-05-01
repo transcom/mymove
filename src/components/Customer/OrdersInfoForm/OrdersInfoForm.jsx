@@ -13,7 +13,7 @@ import styles from './OrdersInfoForm.module.scss';
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -26,8 +26,7 @@ import Callout from 'components/Callout';
 import { formatLabelReportByDate } from 'utils/formatters';
 import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
-import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { sortRankPayGradeOptions } from 'shared/utils';
@@ -64,7 +63,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    // grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
@@ -273,6 +272,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
 
         const toggleCivilianTDYUBTooltip = () => {
           setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
+
+        const handleGradeRankChange = (e) => {
+          const paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+          setGrade(paygrade);
+          setValues({ ...values, rank: e.target.value, grade: paygrade });
+          // setValues({ ...values, grade: paygrade });
         };
 
         return (
@@ -511,15 +517,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
               )}
 
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
+                label="Rank / Pay grade"
+                name="rank"
+                id="rank"
                 required
                 showRequiredAsterisk
                 options={rankOptions}
                 onChange={(e) => {
-                  setGrade(e.target.value);
-                  handleChange(e);
+                  handleGradeRankChange(e);
                 }}
               />
 
@@ -597,10 +602,9 @@ OrdersInfoForm.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectLoggedInUser(state);
-  const affiliation = selectServiceMember(state, user?.service_member);
-
-  return affiliation;
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
 };
 
 const mapDispatchToProps = {
