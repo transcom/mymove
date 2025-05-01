@@ -1,5 +1,5 @@
 import { Button, Tag } from '@trussworks/react-uswds';
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -28,6 +28,16 @@ const ShipmentApprovalPreview = ({
   shipmentManagementFee,
   isSubmitting,
 }) => {
+  const [isOconusMove, setIsOconusMove] = useState(false);
+
+  useEffect(() => {
+    // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB allowance details
+    if (ordersInfo?.currentDutyLocation?.address?.isOconus || ordersInfo?.newDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+  }, [ordersInfo?.currentDutyLocation, ordersInfo?.newDutyLocation]);
   return (
     <div>
       <Overlay />
@@ -120,7 +130,7 @@ const ShipmentApprovalPreview = ({
               </>
             )}
             <h4>Allowances</h4>
-            <AllowancesList info={allowancesInfo} />
+            <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             <h4>Customer info</h4>
             <CustomerInfoList customerInfo={customerInfo} />
           </div>
