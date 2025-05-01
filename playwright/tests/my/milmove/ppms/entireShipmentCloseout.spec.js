@@ -69,15 +69,15 @@ test.describe('Entire PPM closeout flow', () => {
 
       // Add incomplete weight ticket
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
 
       // Add incomplete moving expense
       await customerPpmPage.navigateFromCloseoutReviewPageToAddExpensePage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
 
       // Add incomplete pro-gear weight ticket
       await customerPpmPage.navigateFromCloseoutReviewPageToAddProGearPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
 
       // Now that we have incomplete line items, we cannot submit the PPM
       await customerPpmPage.verifySaveAndContinueDisabled();
@@ -197,18 +197,21 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
       // Add incomplete weight ticket and exit
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
       await customerPpmPage.returnToMoveHome();
 
       await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
 
       // Add incomplete moving expense and exit
       await customerPpmPage.navigateFromCloseoutReviewPageToAddExpensePage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
       await customerPpmPage.returnToMoveHome();
 
       await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
 
       // Add incomplete pro-gear weight ticket and exit
       await customerPpmPage.navigateFromCloseoutReviewPageToAddProGearPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
       await customerPpmPage.returnToMoveHome();
 
       await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
