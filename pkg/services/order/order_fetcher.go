@@ -49,7 +49,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -153,7 +153,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
 	} else {
@@ -191,7 +191,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
 		if role == roles.RoleTypeServicesCounselor {
@@ -355,8 +355,8 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 			return []models.Move{}, 0, gblocErr
 		}
 	}
-	privileges, privErr := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-	if privErr == nil && privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+	privileges, privErr := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 		hasSafetyPrivilege = true
 	} else if privErr != nil {
 		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
@@ -468,7 +468,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		return []models.Move{}, err
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -540,8 +540,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", roles.PrivilegeSearchTypeSafety)
 		}
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -570,8 +570,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", roles.PrivilegeSearchTypeSafety)
 		}
 
 		if params.NeedsPPMCloseout != nil {
