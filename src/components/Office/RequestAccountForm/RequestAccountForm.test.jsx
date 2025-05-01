@@ -203,6 +203,23 @@ describe('RequestAccountForm component', () => {
     expect(screen.getAllByText('Domain must be .mil, .gov or .edu').length).toBe(1);
   });
 
+  it('shows error when no roles are selected', async () => {
+    renderWithRouter(<RequestAccountForm {...testProps} />);
+
+    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+
+    // check/uncheck the TOO checkbox
+    await userEvent.click(tooCheckbox);
+    await userEvent.click(tooCheckbox);
+
+    const policyVerrs = await screen.findAllByText('You must select at least one role.');
+    expect(policyVerrs.length).toBe(1);
+
+    // validation should go away when checking box again
+    await userEvent.click(tooCheckbox);
+    expect(screen.queryByText('You must select at least one role.')).not.toBeInTheDocument();
+  });
+
   it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
     renderWithRouter(<RequestAccountForm {...testProps} />);
 
