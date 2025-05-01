@@ -714,9 +714,19 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		weightticket.NewOfficeWeightTicketUpdater(weightTicketFetcher, ppmShipmentUpdater),
 	}
 
+	ghcAPI.PpmCreateMovingExpenseHandler = CreateMovingExpenseHandler{
+		handlerConfig,
+		movingexpense.NewMovingExpenseCreator(),
+	}
+
 	ghcAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{
 		handlerConfig,
 		movingexpense.NewOfficeMovingExpenseUpdater(ppmEstimator),
+	}
+
+	ghcAPI.PpmDeleteMovingExpenseHandler = DeleteMovingExpenseHandler{
+		handlerConfig,
+		movingexpense.NewMovingExpenseDeleter(),
 	}
 
 	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{

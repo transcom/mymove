@@ -132,6 +132,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
+		PpmCreateMovingExpenseHandler: ppm.CreateMovingExpenseHandlerFunc(func(params ppm.CreateMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.CreateMovingExpense has not yet been implemented")
+		}),
 		OrderCreateOrderHandler: order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
 		}),
@@ -161,6 +164,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsDeleteEvaluationReportHandler: evaluation_reports.DeleteEvaluationReportHandlerFunc(func(params evaluation_reports.DeleteEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.DeleteEvaluationReport has not yet been implemented")
+		}),
+		PpmDeleteMovingExpenseHandler: ppm.DeleteMovingExpenseHandlerFunc(func(params ppm.DeleteMovingExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.DeleteMovingExpense has not yet been implemented")
 		}),
 		PpmDeleteProGearWeightTicketHandler: ppm.DeleteProGearWeightTicketHandlerFunc(func(params ppm.DeleteProGearWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteProGearWeightTicket has not yet been implemented")
@@ -528,6 +534,8 @@ type MymoveAPI struct {
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// PpmCreateMovingExpenseHandler sets the operation handler for the create moving expense operation
+	PpmCreateMovingExpenseHandler ppm.CreateMovingExpenseHandler
 	// OrderCreateOrderHandler sets the operation handler for the create order operation
 	OrderCreateOrderHandler order.CreateOrderHandler
 	// PpmCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
@@ -548,6 +556,8 @@ type MymoveAPI struct {
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
 	EvaluationReportsDeleteEvaluationReportHandler evaluation_reports.DeleteEvaluationReportHandler
+	// PpmDeleteMovingExpenseHandler sets the operation handler for the delete moving expense operation
+	PpmDeleteMovingExpenseHandler ppm.DeleteMovingExpenseHandler
 	// PpmDeleteProGearWeightTicketHandler sets the operation handler for the delete pro gear weight ticket operation
 	PpmDeleteProGearWeightTicketHandler ppm.DeleteProGearWeightTicketHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
@@ -877,6 +887,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
+	if o.PpmCreateMovingExpenseHandler == nil {
+		unregistered = append(unregistered, "ppm.CreateMovingExpenseHandler")
+	}
 	if o.OrderCreateOrderHandler == nil {
 		unregistered = append(unregistered, "order.CreateOrderHandler")
 	}
@@ -906,6 +919,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsDeleteEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.DeleteEvaluationReportHandler")
+	}
+	if o.PpmDeleteMovingExpenseHandler == nil {
+		unregistered = append(unregistered, "ppm.DeleteMovingExpenseHandler")
 	}
 	if o.PpmDeleteProGearWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteProGearWeightTicketHandler")
@@ -1359,6 +1375,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/moving-expenses"] = ppm.NewCreateMovingExpense(o.context, o.PpmCreateMovingExpenseHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/orders"] = order.NewCreateOrder(o.context, o.OrderCreateOrderHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1396,6 +1416,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewDeleteEvaluationReport(o.context, o.EvaluationReportsDeleteEvaluationReportHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewDeleteMovingExpense(o.context, o.PpmDeleteMovingExpenseHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

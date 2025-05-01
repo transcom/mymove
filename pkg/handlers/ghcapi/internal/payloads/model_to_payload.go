@@ -3,6 +3,7 @@ package payloads
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -1675,6 +1676,21 @@ func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments, 
 			payload[i] = MTOShipment(storer, &copyOfMtoShipment, nil)
 		}
 	}
+	return &payload
+}
+
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *ghcmessages.Error {
+	errDetail := handlers.FmtString(handlers.InternalServerErrDetail)
+
+	if detail != nil {
+		errDetail = detail
+	}
+
+	msg := fmt.Sprintf("%v | Instance: %v", *errDetail, traceID)
+	payload := ghcmessages.Error{Message: &msg}
+
 	return &payload
 }
 
