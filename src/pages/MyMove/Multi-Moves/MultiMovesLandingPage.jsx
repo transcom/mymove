@@ -89,7 +89,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
   const now = new Date();
   const lockedMovePresent = [...serviceMemberMoves.currentMove, ...serviceMemberMoves.previousMoves].some((move) => {
     const expires = new Date(move?.lockExpiresAt);
-    return expires > now && move?.status === MOVE_STATUSES.DRAFT;
+    return move?.status === MOVE_STATUSES.DRAFT && expires > now;
   });
 
   return (

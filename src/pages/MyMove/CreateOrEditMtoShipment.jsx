@@ -51,7 +51,7 @@ export class CreateOrEditMtoShipment extends Component {
     const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
     const now = new Date();
     let isMoveLocked = false;
-    if (now < new Date(move?.lockExpiresAt) && move?.status === MOVE_STATUSES.DRAFT) {
+    if (move?.status === MOVE_STATUSES.DRAFT && now < new Date(move?.lockExpiresAt)) {
       isMoveLocked = true;
     }
     let mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);

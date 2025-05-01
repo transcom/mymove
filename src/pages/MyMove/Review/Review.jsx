@@ -66,7 +66,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
 
   useEffect(() => {
     const now = new Date();
-    if (now < new Date(move?.lockExpiresAt) && move?.status === MOVE_STATUSES.DRAFT) {
+    if (move?.status === MOVE_STATUSES.DRAFT && now < new Date(move?.lockExpiresAt)) {
       setIsMoveLocked(true);
     }
   }, [move]);
