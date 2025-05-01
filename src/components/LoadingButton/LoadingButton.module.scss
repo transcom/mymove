@@ -1,0 +1,13 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors.scss';
+
+.loadingButton {
+  @include at-media("mobile-lg") {
+    width: 12rem;
+  }
+}
+
+#loadingButtonIcon {
+  color: white;
+  margin-left: 0.5rem;
+}
