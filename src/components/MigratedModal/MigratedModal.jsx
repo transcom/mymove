@@ -1,19 +1,66 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './MigratedModal.module.scss';
 
+const trapFocus = (modalRef) => {
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+  ];
+  const focusableElements = modalRef.current?.querySelectorAll(focusableSelectors.join(','));
+  return Array.prototype.slice.call(focusableElements);
+};
+
 /** This is a straightforward port of the Modal component from React-USWDS 1.17
  *  into the MilMove project, as the component is being deprecated in USWDS 2.x. */
 
 /** Modal UI component */
-export const Modal = ({ title, children, actions, className }) => {
+export const Modal = ({ title, children, actions, className, onClose }) => {
   const classes = classnames(styles.modal, className);
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose?.();
+        return;
+      }
+
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableEls = trapFocus(modalRef);
+        const firstEl = focusableEls[0];
+        const lastEl = focusableEls[focusableEls.length - 1];
+
+        if (!event.shiftKey && document.activeElement === lastEl) {
+          event.preventDefault();
+          firstEl?.focus();
+        }
+
+        if (event.shiftKey && document.activeElement === firstEl) {
+          event.preventDefault();
+          lastEl?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   return (
-    <div data-testid="modal" className={classes}>
+    <div data-testid="modal" className={classes} ref={modalRef} tabIndex={-1}>
       <div className={styles.title}>{title}</div>
       <div className={styles.content}>{children}</div>
       <div className={styles.actions}>{actions}</div>
@@ -26,12 +73,14 @@ Modal.propTypes = {
   children: PropTypes.node.isRequired,
   actions: PropTypes.node,
   className: PropTypes.string,
+  onClose: PropTypes.func,
 };
 
 Modal.defaultProps = {
   title: '',
   actions: '',
   className: '',
+  onClose: () => {},
 };
 
 /** Overlay UI component (grey background) */

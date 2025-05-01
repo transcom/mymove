@@ -9,10 +9,14 @@ import (
 )
 
 // MakeMTOServiceItemCustomerContact creates a single customer contact and associated set relationships
-func MakeMTOServiceItemCustomerContact(db *pop.Connection, assertions Assertions) models.MTOServiceItemCustomerContact {
+func MakeMTOServiceItemCustomerContact(db *pop.Connection, assertions Assertions) (models.MTOServiceItemCustomerContact, error) {
 	MTOServiceItem := assertions.MTOServiceItem
 	if isZeroUUID(MTOServiceItem.ID) {
-		MTOServiceItem = MakeMTOServiceItem(db, assertions)
+		var err error
+		MTOServiceItem, err = MakeMTOServiceItem(db, assertions)
+		if err != nil {
+			return models.MTOServiceItemCustomerContact{}, err
+		}
 	}
 
 	MTOServiceItemCustomerContact := models.MTOServiceItemCustomerContact{
@@ -28,5 +32,5 @@ func MakeMTOServiceItemCustomerContact(db *pop.Connection, assertions Assertions
 
 	mustCreate(db, &MTOServiceItemCustomerContact, assertions.Stub)
 
-	return MTOServiceItemCustomerContact
+	return MTOServiceItemCustomerContact, nil
 }

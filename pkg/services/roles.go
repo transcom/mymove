@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
@@ -13,7 +12,7 @@ import (
 //go:generate mockery --name RoleAssociater
 type RoleAssociater interface {
 	FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error)
-	FetchRolesPrivileges(appCtx appcontext.AppContext) ([]models.RolePrivilege, error)
+	FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.Role, error)
 	FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.RoleType, error)
 	VerifyRolesPrivelegesAllowed(appCtx appcontext.AppContext, roleType *string, privilegeType *string) (bool, error)
 }

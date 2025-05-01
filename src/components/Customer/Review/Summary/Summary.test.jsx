@@ -1,11 +1,10 @@
 import React from 'react';
+import { cloneDeep } from 'lodash';
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
-import { FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
 import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { renderWithRouterProp } from 'testUtils';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { customerRoutes } from 'constants/routes';
 import { selectCurrentMoveFromAllMoves } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -599,21 +598,12 @@ const testProps = {
   setMsg: jest.fn(),
   updateAllMoves: jest.fn(),
 };
+const moveLockTestProps = cloneDeep(testProps);
+moveLockTestProps.isMoveLocked = true;
 
 describe('Summary page', () => {
   describe('if the user can add another shipment', () => {
     selectCurrentMoveFromAllMoves.mockImplementation(() => testMove);
-    it('displays the Add Another Shipment section', () => {
-      renderWithRouterProp(<Summary {...testProps} />, {
-        path: customerRoutes.MOVE_REVIEW_PATH,
-        params: { moveId: '123' },
-      });
-
-      expect(screen.getByRole('link', { name: 'Add another shipment' })).toHaveAttribute(
-        'href',
-        '/moves/123/shipment-type',
-      );
-    });
 
     it('displays contact local PPPO office message', async () => {
       renderWithRouterProp(<Summary {...testProps} />, {
@@ -622,87 +612,72 @@ describe('Summary page', () => {
       });
       expect(await screen.findByText(/\*To change these fields, contact your local PPPO office/)).toBeInTheDocument();
     });
+  });
 
-    it('displays a button that opens a modal', async () => {
-      renderWithRouterProp(<Summary {...testProps} />, {
-        path: customerRoutes.MOVE_REVIEW_PATH,
-        params: { moveId: '123' },
-      });
-
-      expect(
-        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).not.toBeInTheDocument();
-
-      expect(screen.getByTitle('Help with adding shipments')).toBeInTheDocument();
-      await userEvent.click(screen.getByTitle('Help with adding shipments'));
-
-      expect(
-        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).toBeInTheDocument();
+  describe('if the move has been locked by an office user', () => {
+    // Add PPM, NTS, and NTS-R shipment types to move in order to test that each card has its buttons disabled
+    testMove.mtoShipments.push({
+      id: 'testPPMShipment123',
+      agents: [],
+      customerRemarks: 'please be carefule',
+      moveTaskOrderID: '123',
+      pickupAddress: {
+        city: 'Beverly Hills',
+      },
+      requestedDeliveryDate: '2020-08-31',
+      requestedPickupDate: '2020-08-31',
+      shipmentType: SHIPMENT_TYPES.PPM,
+      status: MOVE_STATUSES.SUBMITTED,
+      updatedAt: '2020-09-02T21:08:38.392Z',
+    });
+    testMove.mtoShipments.push({
+      id: 'testNTSShipment123',
+      agents: [],
+      customerRemarks: 'please be carefule',
+      moveTaskOrderID: '123',
+      pickupAddress: {
+        city: 'Beverly Hills',
+      },
+      requestedDeliveryDate: '2020-08-31',
+      requestedPickupDate: '2020-08-31',
+      shipmentType: SHIPMENT_TYPES.NTS,
+      status: MOVE_STATUSES.SUBMITTED,
+      updatedAt: '2020-09-02T21:08:38.392Z',
+    });
+    testMove.mtoShipments.push({
+      id: 'testNTSRShipment123',
+      agents: [],
+      customerRemarks: 'please be carefule',
+      moveTaskOrderID: '123',
+      pickupAddress: {
+        city: 'Beverly Hills',
+      },
+      requestedDeliveryDate: '2020-08-31',
+      requestedPickupDate: '2020-08-31',
+      shipmentType: SHIPMENT_TYPES.NTSR,
+      status: MOVE_STATUSES.SUBMITTED,
+      updatedAt: '2020-09-02T21:08:38.392Z',
     });
 
-    it('add shipment modal displays default text, nothing is disabled', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-
-      renderWithRouterProp(<Summary {...testProps} />, {
+    selectCurrentMoveFromAllMoves.mockImplementation(() => testMove);
+    it('displays the Add Another Shipment section', () => {
+      renderWithRouterProp(<Summary {...moveLockTestProps} />, {
         path: customerRoutes.MOVE_REVIEW_PATH,
         params: { moveId: '123' },
       });
 
-      expect(
-        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).not.toBeInTheDocument();
-
-      expect(screen.getByTitle('Help with adding shipments')).toBeInTheDocument();
-      await userEvent.click(screen.getByTitle('Help with adding shipments'));
-
-      expect(
-        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).toBeInTheDocument();
-
-      // verify it display default text in modal when nothing is disabled
-      expect(await screen.findByText(/If none of these apply to you, you probably/)).toBeInTheDocument();
-
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.MOBILE_HOME);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
-    });
-
-    it('add shipment modal displays still in dev mode', async () => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
-
-      renderWithRouterProp(<Summary {...testProps} />, {
-        path: customerRoutes.MOVE_REVIEW_PATH,
-        params: { moveId: '123' },
-      });
-
-      expect(
-        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).not.toBeInTheDocument();
-
-      await userEvent.click(screen.getByTitle('Help with adding shipments'));
-
-      expect(
-        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
-      ).toBeInTheDocument();
-
-      // verify it display default text in modal feature flag is enabled. display under construction text
-      expect(
-        await screen.findByText(
-          /Some shipment types are still being developed and will become available at a later date./,
-        ),
-      ).toBeInTheDocument();
-
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.MOBILE_HOME);
-      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+      expect(screen.queryByRole('link', { name: 'Add another shipment' })).toBeNull();
+      expect(screen.getByTestId('edit-orders-table')).toBeDisabled();
+      expect(screen.queryByTestId('edit-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('edit-ntsr-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('delete-ntsr-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('edit-nts-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('delete-nts-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('editShipmentButton')).toBeNull();
+      expect(screen.queryByTestId('delete-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('deleteShipmentButton')).toBeNull();
     });
   });
+
   afterEach(jest.clearAllMocks);
 });

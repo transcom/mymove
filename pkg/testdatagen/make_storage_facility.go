@@ -7,10 +7,14 @@ import (
 )
 
 // MakeStorageFacility creates a single SIT Extension and associated set relationships
-func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.StorageFacility {
+func MakeStorageFacility(db *pop.Connection, assertions Assertions) (models.StorageFacility, error) {
 	address := assertions.StorageFacility.Address
 	if isZeroUUID(address.ID) {
-		address = MakeAddress(db, assertions)
+		var err error
+		address, err = MakeAddress(db, assertions)
+		if err != nil {
+			return models.StorageFacility{}, nil
+		}
 	}
 
 	storageFacility := models.StorageFacility{
@@ -27,10 +31,10 @@ func MakeStorageFacility(db *pop.Connection, assertions Assertions) models.Stora
 
 	mustCreate(db, &storageFacility, assertions.Stub)
 
-	return storageFacility
+	return storageFacility, nil
 }
 
 // MakeDefaultStorageFacility makes a single StorageFacility with default values
-func MakeDefaultStorageFacility(db *pop.Connection) models.StorageFacility {
+func MakeDefaultStorageFacility(db *pop.Connection) (models.StorageFacility, error) {
 	return MakeStorageFacility(db, Assertions{})
 }

@@ -56,3 +56,8 @@ export async function deleteOfficeUser(officeUserId) {
     { normalize: false },
   );
 }
+
+export async function getRolesPrivileges() {
+  const operationPath = 'Office users.getRolesPrivileges';
+  return makeAdminRequest(operationPath, {}, { normalize: false });
+}

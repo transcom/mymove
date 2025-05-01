@@ -145,7 +145,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     name="pickupAddress"
                     legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                     className={styles.AddressFieldSet}
                     render={(fields) => (
@@ -181,12 +180,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                           </div>
                         </FormGroup>
                         {values.hasSecondaryPickupAddress === 'true' && (
-                          <AddressFields
-                            name="secondaryPickupAddress"
-                            labelHint="Required"
-                            locationLookup
-                            formikProps={formikProps}
-                          />
+                          <AddressFields name="secondaryPickupAddress" labelHint="Required" formikProps={formikProps} />
                         )}
                       </>
                     )}
@@ -196,7 +190,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                     className={styles.AddressFieldSet}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                     render={(fields) => (
                       <>
@@ -234,7 +227,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                           <AddressFields
                             name="secondaryDestinationAddress"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                           />
                         )}
@@ -289,7 +281,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     name={formFieldsName}
                     className={styles.AddressFieldSet}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                   />
                 </SectionWrapper>
