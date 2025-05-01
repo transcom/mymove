@@ -262,6 +262,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
+	now := time.Now()
+	tomorrow := now.AddDate(0, 0, 1)
+
 	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and should NOT update pricing without port data", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
@@ -710,7 +713,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		estimatedWeight := unit.Pound(1212)
 
-		tomorrow := time.Now().Add(24 * time.Hour)
 		peakPeriod := time.Date(tomorrow.Year(), testdatagen.DateInsidePeakRateCycle.Month(), testdatagen.DateInsidePeakRateCycle.Day(), 0, 0, 0, 0, time.UTC)
 
 		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
@@ -821,7 +823,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		tomorrow := time.Now().Add(24 * time.Hour)
 		shipmentHeavy := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1253,7 +1254,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the CONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
-		tomorrow := time.Now().Add(24 * time.Hour)
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1323,7 +1323,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("If the OCONUS to CONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
-		tomorrow := time.Now().Add(24 * time.Hour)
 		var scheduledPickupDate time.Time
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
@@ -1396,7 +1395,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 	suite.Run("If the OCONUS to OCONUS UB mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
 		var scheduledPickupDate time.Time
-		tomorrow := time.Now().Add(24 * time.Hour)
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1487,11 +1485,11 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
-	suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
-		now := time.Now()
-		yesterday := now.AddDate(0, 0, -1)
-		tomorrow := now.AddDate(0, 0, 1)
+	now := time.Now()
+	yesterday := now.AddDate(0, 0, -1)
+	tomorrow := now.AddDate(0, 0, 1)
 
+	suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx
 		move := subtestData.move
@@ -1605,13 +1603,16 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentValidation() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
+	now := time.Now()
+	yesterday := now.AddDate(0, 0, -1)
+	tomorrow := now.AddDate(0, 0, 1)
+
 	suite.Run("Successfully approves multiple shipments", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		shipmentApprover := subtestData.shipmentApprover
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		tomorrow := time.Now().Add(24 * time.Hour)
 		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1666,7 +1667,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		tomorrow := time.Now().Add(24 * time.Hour)
 		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -1736,10 +1736,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipments() {
 	})
 
 	suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
-
-		now := time.Now()
-		yesterday := now.AddDate(0, 0, -1)
-		tomorrow := now.AddDate(0, 0, 1)
 
 		subtestData := suite.createApproveShipmentSubtestData()
 		shipmentApprover := subtestData.shipmentApprover
