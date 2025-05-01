@@ -8,6 +8,7 @@ import { generatePath } from 'react-router';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -275,7 +276,8 @@ const MoveDetails = ({
       shipment.status === shipmentStatuses.APPROVED ||
       shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-      shipment.status === shipmentStatuses.CANCELED,
+      shipment.status === shipmentStatuses.CANCELED ||
+      shipment.status === shipmentStatuses.TERMINATED_FOR_CAUSE,
   );
 
   const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
@@ -525,6 +527,9 @@ const MoveDetails = ({
 
   return (
     <div className={styles.tabContent}>
+      <div className={styles.flashMessage}>
+        <ConnectedFlashMessage />
+      </div>
       <div className={styles.container}>
         <LeftNav sections={sections}>
           <LeftNavTag
@@ -735,7 +740,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

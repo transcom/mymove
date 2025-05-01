@@ -28,7 +28,7 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 		return nil, nil, err
 	}
 
-	if payload.Email != nil {
+	if payload.Email != nil && officeUser.Email != *payload.Email {
 		officeUser.Email = *payload.Email
 		updateUserEmail = true
 	}
@@ -114,7 +114,8 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 			}
 
 			// requested office users will likely not have Okta accounts yet, but we still need to check the edge case
-			if existingUser.OktaID != "" {
+			// skipping when users are in devlocal because we use false okta IDs
+			if existingUser.OktaID != "" && appCtx.Session().IDToken != "devlocal" {
 				apiKey := models.GetOktaAPIKey()
 				oktaID := existingUser.OktaID
 				req := appCtx.HTTPRequest()

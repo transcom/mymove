@@ -53,3 +53,6 @@ enum:
   - MS
   - NSTH
   - NSTUB
+  - PODFSC
+  - POEFSC
+  - UBP
