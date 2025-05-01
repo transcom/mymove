@@ -3125,12 +3125,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
 			suite.AppContextForTest(), approvedShipment2.ID, models.MTOShipmentStatusCancellationRequested, nil, nil, eTag)
-		// suite.NoError(suite.DB().Find(&approvedShipment2, approvedShipment2.ID))
+		suite.NoError(suite.DB().Find(&approvedShipment2, approvedShipment2.ID))
 
 		suite.NoError(err)
 		suite.NotNil(updatedShipment)
 		suite.Equal(models.MTOShipmentStatusCancellationRequested, updatedShipment.Status)
-		// suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment2.Status)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment2.Status)
 	})
 
 	suite.Run("A CANCELLATION_REQUESTED shipment can change to CANCELED", func() {
