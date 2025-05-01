@@ -85,7 +85,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     }
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
     setErrorMessage(null);
 
     const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';

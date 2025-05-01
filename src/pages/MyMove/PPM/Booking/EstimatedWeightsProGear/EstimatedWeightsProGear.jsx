@@ -34,7 +34,7 @@ const EstimatedWeightsProGear = () => {
     navigate(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
     setErrorMessage(null);
 
     const hasProGear = values.hasProGear === 'true';
