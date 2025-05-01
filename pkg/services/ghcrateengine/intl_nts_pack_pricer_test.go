@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"math"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -17,7 +18,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlNTSHHGPackPricer() {
 		paymentServiceItem, contract := suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
 
 		totalCost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.NoError(err)
+		suite.FatalNoError(err)
 
 		// Fetch the INPK market factor from the DB
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
@@ -26,7 +27,7 @@ func (suite *GHCRateEngineServiceSuite) TestIntlNTSHHGPackPricer() {
 		suite.FatalTrue(suite.NotEmpty(ntsMarketFactor))
 
 		// Multiply the IHPK price by the NTS market factor to ensure it math'd properly
-		suite.Equal((float64(ihpkTestTotalCost) * ntsMarketFactor), float64(totalCost))
+		suite.FatalTrue(suite.Equal(math.Round((float64(ihpkTestTotalCost) * ntsMarketFactor)), float64(totalCost)))
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: ihpkTestContractYearName},
