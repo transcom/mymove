@@ -82,7 +82,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.EditPPMHeaderSummaryModal}>
+        <Modal className={styles.EditPPMHeaderSummaryModal} onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle className={styles.ModalTitle}>
             <h3>{title}</h3>
@@ -92,7 +92,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             initialValues={initialValues}
             onSubmit={onSubmit}
           >
-            {({ isValid, handleChange, setFieldTouched, values, ...formikProps }) => {
+            {({ isValid, handleChange, values, ...formikProps }) => {
               return (
                 <Form>
                   <div>
@@ -102,7 +102,10 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         label="Actual move start date"
                         id="actualMoveDate"
                         disabledDays={{ after: new Date() }}
-                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        formikFunctionsToValidatePostalCodeOnChange={{
+                          handleChange,
+                          setFieldTouched: formikProps.setFieldTouched,
+                        }}
                       />
                     )}
                     {editItemName === 'advanceAmountReceived' && (
@@ -192,9 +195,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     )}
                   </div>
                   <ModalActions>
-                    <Button type="submit" disabled={!isValid}>
-                      Save
-                    </Button>
                     <Button
                       type="button"
                       onClick={() => onClose()}
@@ -203,6 +203,9 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                       className={styles.CancelButton}
                     >
                       Cancel
+                    </Button>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
                     </Button>
                   </ModalActions>
                 </Form>

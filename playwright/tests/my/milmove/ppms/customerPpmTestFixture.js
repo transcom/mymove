@@ -45,8 +45,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async signInForPPMWithMove(move) {
-    const userId = move?.Orders?.service_member?.user_id;
-    await this.signInAsExistingCustomer(userId);
+    await this.signInAsExistingCustomer(move?.Orders?.service_member?.user_id);
   }
 
   /**
@@ -797,16 +796,10 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
-   * @param {string} moveId
    * returns {Promise<void>}
    */
-  async cancelAddLineItemAndReturnToCloseoutReviewPage(moveId) {
-    // calculate the home url to wait for it after click
-    const url = new URL(this.page.url());
-    url.pathname = `/move/${moveId}`;
-    await this.page.getByRole('button', { name: 'Return to Homepage' }).click();
-    await this.page.waitForURL(url.href);
-    await this.navigateToPPMReviewPage();
+  async cancelAddLineItemAndReturnToCloseoutReviewPage() {
+    await this.page.getByRole('button', { name: 'Cancel' }).click();
   }
 
   /**

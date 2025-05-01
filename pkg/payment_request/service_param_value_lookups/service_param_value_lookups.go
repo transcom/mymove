@@ -92,6 +92,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameMarketDest,
 	models.ServiceItemParamNameMarketOrigin,
 	models.ServiceItemParamNameExternalCrate,
+	models.ServiceItemParamNameNTSPackingFactor,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -167,6 +168,13 @@ func ServiceParamLookupInitialize(
 				return nil, err
 			}
 			sitDestinationOriginalAddress = *mtoServiceItem.SITDestinationOriginalAddress
+		}
+	}
+
+	if mtoServiceItem.SITOriginHHGActualAddressID != nil && mtoServiceItem.SITOriginHHGActualAddress == nil {
+		err := appCtx.DB().Load(&mtoServiceItem, "SITOriginHHGActualAddress")
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -258,7 +266,12 @@ func ServiceParamLookupInitialize(
 }
 
 func (s *ServiceItemParamKeyData) setLookup(appCtx appcontext.AppContext, serviceItemCode models.ReServiceCode, paramKey models.ServiceItemParamName, lookup ServiceItemParamKeyLookup) error {
-	useKey, err := s.serviceItemNeedsParamKey(appCtx, serviceItemCode, paramKey)
+	var reServiceLookup = serviceItemCode
+	switch serviceItemCode {
+	case models.ReServiceCodeINPK:
+		reServiceLookup = models.ReServiceCodeIHPK
+	}
+	useKey, err := s.serviceItemNeedsParamKey(appCtx, reServiceLookup, paramKey)
 	if useKey && err == nil {
 		s.lookups[paramKey] = lookup
 	} else if err != nil {
@@ -447,6 +460,10 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	lookups[models.ServiceItemParamNamePerUnitCents] = PerUnitCentsLookup{
 		ServiceItem: serviceItem,
 		MTOShipment: shipment,
+	}
+
+	lookups[models.ServiceItemParamNameNTSPackingFactor] = ShipmentTypePriceLookup{
+		ServiceItem: serviceItem,
 	}
 
 	lookups[models.ServiceItemParamNamePortZip] = PortZipLookup{

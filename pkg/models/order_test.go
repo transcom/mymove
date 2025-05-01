@@ -41,7 +41,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"packing_and_shipping_instructions": {"PackingAndShippingInstructions can not be blank."},
 	}
 
-	suite.verifyValidationErrors(order, expErrors)
+	suite.verifyValidationErrors(order, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
@@ -55,7 +55,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	})
 
 	suite.Run("test UploadedAmendedOrdersID is not nil UUID", func() {
@@ -65,7 +65,7 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 			"uploaded_amended_orders_id": {"UploadedAmendedOrdersID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	})
 }
 
@@ -85,7 +85,7 @@ func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
 
 		expErrors := map[string][]string{}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	}
 }
 
@@ -111,7 +111,7 @@ func (suite *ModelSuite) TestTacFormat() {
 			"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters."},
 		}
 
-		suite.verifyValidationErrors(&order, expErrors)
+		suite.verifyValidationErrors(&order, expErrors, nil)
 	}
 }
 
@@ -437,13 +437,13 @@ func (suite *ModelSuite) TestSaveOrder() {
 	order := move.Orders
 
 	postalCode := "30813"
-	newPostalCode := "12345"
+	newPostalCode := "95437"
 	addressCreator := address.NewAddressCreator()
 
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
+		City:           "FORT BRAGG",
+		State:          "NC",
 		PostalCode:     newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
@@ -498,12 +498,12 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	order := move.Orders
 
 	postalCode := "30813"
-	newPostalCode := "12345"
+	newPostalCode := "95437"
 	addressCreator := address.NewAddressCreator()
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
+		City:           "FORT BRAGG",
+		State:          "NC",
 		PostalCode:     newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)

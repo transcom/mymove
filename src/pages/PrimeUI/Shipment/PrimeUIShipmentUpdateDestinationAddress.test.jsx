@@ -176,6 +176,14 @@ describe('PrimeUIShipmentUpdateDestinationAddress page', () => {
         expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.destinationAddress.streetAddress1);
         expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
         expect(screen.getAllByLabelText(/Address 3/)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('City')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.city)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('State')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.state)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('County')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.county)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.postalCode)[0]).toBeInTheDocument();
         expect(
           screen.getAllByText(
             `${shipment.destinationAddress.city}, ${shipment.destinationAddress.state} ${shipment.destinationAddress.postalCode} (${shipment.destinationAddress.county})`,
