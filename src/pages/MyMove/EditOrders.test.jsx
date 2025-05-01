@@ -377,17 +377,19 @@ describe('EditOrders Page', () => {
       }),
     );
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+      expect(submitButton).toBeEnabled();
 
-    await userEvent.click(submitButton);
+      userEvent.click(submitButton);
 
-    await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
 
-    expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
-    expect(mockNavigate).not.toHaveBeenCalled();
+    waitFor(() => {
+      expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   it('next button patches the orders and goes to the previous page', async () => {
@@ -397,17 +399,19 @@ describe('EditOrders Page', () => {
     });
     patchOrders.mockImplementation(() => Promise.resolve(testProps.currentOrders));
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    const submitButton = screen.findByRole('button', { name: 'Save' });
+    waitFor(async () => {
+      await expect(submitButton).not.toBeDisabled();
 
-    await userEvent.click(submitButton);
+      await userEvent.click(submitButton);
 
-    await waitFor(() => {
       expect(patchOrders).toHaveBeenCalledTimes(1);
     });
 
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(-1);
+    });
   });
 
   it('submits OCONUS fields correctly on form submit', async () => {
