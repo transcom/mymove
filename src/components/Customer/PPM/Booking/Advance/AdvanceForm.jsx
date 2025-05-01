@@ -15,7 +15,7 @@ import formStyles from 'styles/form.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive, getFormattedMaxAdvancePercentage } from 'utils/incentives';
-import DebounceButton from 'components/DebouncedButton/DebounceButton';
+import LoadingButton from 'components/LoadingButton/LoadingButton';
 
 const validationSchema = (maxAdvance, formattedMaxAdvance, estimatedIncentive) => {
   let returnSchema = Yup.object().shape({
@@ -154,14 +154,15 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
-                <DebounceButton
-                  className={ppmStyles.saveButton}
+                <LoadingButton
+                  buttonClassName={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
-                >
-                  Save & Continue
-                </DebounceButton>
+                  disabled={isSubmitting || !isValid}
+                  isLoading={isSubmitting}
+                  labelText="Save & Continue"
+                  loadingText="Saving"
+                />
               </div>
             </Form>
           </div>
