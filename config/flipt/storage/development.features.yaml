@@ -235,6 +235,14 @@ flags:
       - segment:
           key: mil-app
           value: false
+  - key: move_history_proc_replacement
+    name: Replace POP-based move history fetching with a new proc
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: customer_registration
     name: Customer registration feature flag
     type: BOOLEAN_FLAG_TYPE
