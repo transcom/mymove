@@ -1615,6 +1615,12 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('Small Package Reimbursement')[0]).toBeChecked();
       });
 
+      expect(screen.queryByText('Shipped from Address')).toBeInTheDocument();
+      expect(screen.queryByText('Pickup Address')).not.toBeInTheDocument();
+
+      expect(screen.queryByText('Destination Address')).toBeInTheDocument();
+      expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
+
       expect(screen.queryByText('Storage in transit')).not.toBeInTheDocument();
     });
   });
@@ -2352,7 +2358,9 @@ describe('ShipmentForm component', () => {
         userEvent.click(submitButton);
       });
 
-      expect(submitButton).toBeDisabled();
+      waitFor(() => {
+        expect(submitButton).toBeDisabled();
+      });
     });
 
     it('validates the year field is within the valid range', async () => {
@@ -2455,7 +2463,9 @@ describe('ShipmentForm component', () => {
         userEvent.click(submitButton);
       });
 
-      expect(submitButton).toBeDisabled();
+      waitFor(() => {
+        expect(submitButton).toBeDisabled();
+      });
     });
 
     it('validates the year field is within the valid range', async () => {

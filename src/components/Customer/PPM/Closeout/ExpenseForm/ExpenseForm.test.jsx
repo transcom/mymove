@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { DocumentAndImageUploadInstructions } from 'content/uploads';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { PPM_TYPES } from 'shared/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -15,6 +16,19 @@ const defaultProps = {
     id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
     ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
+  },
+  receiptNumber: 1,
+  onCreateUpload: jest.fn(),
+  onUploadComplete: jest.fn(),
+  onUploadDelete: jest.fn(),
+  onBack: jest.fn(),
+  onSubmit: jest.fn(),
+};
+
+const smallPackageProps = {
+  expense: {
+    id: '32ecb311-edbe-4fd4-96ee-bd693113f3f3',
+    ppmShipmentId: '343bb456-63af-4f76-89bd-7403094a5c4d',
   },
   receiptNumber: 1,
   onCreateUpload: jest.fn(),
@@ -92,6 +106,20 @@ const sitExpenseProps = {
   },
 };
 
+const smallPackageExpenseProps = {
+  expense: {
+    paidWithGtcc: false,
+    amount: 5309,
+    missingReceipt: false,
+    document: { uploads: [] },
+    trackingNumber: 'track THIS!',
+    weightShipped: '500',
+    isProGear: true,
+    proGearBelongsToSelf: false,
+    proGearDescription: 'describte THAT',
+  },
+};
+
 describe('ExpenseForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load with defaults', async () => {
@@ -124,7 +152,7 @@ describe('ExpenseForm component', () => {
       expect(uploadFileTypeHints[0]).toBeInTheDocument();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
     });
 
@@ -144,7 +172,7 @@ describe('ExpenseForm component', () => {
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
 
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -183,8 +211,39 @@ describe('ExpenseForm component', () => {
       expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('End date')).toHaveDisplayValue('26 Dec 2022');
 
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+    });
+
+    it('renders base expense form for small package', async () => {
+      render(<ExpenseForm ppmType={PPM_TYPES.SMALL_PACKAGE} {...smallPackageProps} />);
+
+      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByRole('option', { name: 'Small package reimbursement' }).selected).toBe(true);
+      expect(screen.getByRole('option', { name: 'Small package reimbursement' })).toBeDisabled();
+      expect(screen.getByTestId('smallPackageInfo')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('weightShipped')).toBeInTheDocument();
+      });
+      // the extra pro gear fields should not be rendered until the user selects that the expense is pro gear
+      expect(screen.queryByText(/Who does this pro-gear belong to/i)).toBeNull();
+      expect(screen.queryByLabelText(/Brief description of the pro-gear/i)).toBeNull();
+    });
+
+    it('renders pro gear values on existing expense form for small package', async () => {
+      render(<ExpenseForm ppmType={PPM_TYPES.SMALL_PACKAGE} {...smallPackageProps} {...smallPackageExpenseProps} />);
+
+      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByRole('option', { name: 'Small package reimbursement' }).selected).toBe(true);
+      expect(screen.getByRole('option', { name: 'Small package reimbursement' })).toBeDisabled();
+
+      // these should be visible now because smallPackageExpense props has a isProGear value of true
+      await waitFor(() => {
+        expect(screen.getByTestId('proGearWeight')).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/Who does this pro-gear belong to/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Brief description of the pro-gear/i)).toBeInTheDocument();
     });
   });
 
@@ -215,10 +274,10 @@ describe('ExpenseForm component', () => {
         expect(defaultProps.onSubmit).toHaveBeenCalled();
       });
     });
-    it('calls the onBack prop when the Return To Homepage button is clicked', async () => {
+    it('calls the onBack prop when the Cancel button is clicked', async () => {
       render(<ExpenseForm {...defaultProps} />);
 
-      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
       await waitFor(() => {
         expect(defaultProps.onBack).toHaveBeenCalled();

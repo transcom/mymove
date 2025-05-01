@@ -91,7 +91,8 @@ function showShipmentFilter(shipment) {
     shipment.status === shipmentStatuses.APPROVED ||
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
-    shipment.status === shipmentStatuses.CANCELED
+    shipment.status === shipmentStatuses.CANCELED ||
+    shipment.status === shipmentStatuses.TERMINATED_FOR_CAUSE
   );
 }
 
@@ -122,6 +123,7 @@ export const MoveTaskOrder = (props) => {
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
   const [unapprovedSITExtensionForShipment, setUnApprovedSITExtensionForShipment] = useState({});
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
+  const [sitExtensionUpdateCounter, setSitExtensionUpdateCounter] = useState(0); // adding a counter to trigger state updates
   /* ------------------ Miscellaneous ------------------------- */
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [estimatedHHGWeightTotal, setEstimatedHHGWeightTotal] = useState(null);
@@ -129,7 +131,6 @@ export const MoveTaskOrder = (props) => {
   const [estimatedNTSReleaseWeightTotal, setEstimatedNTSReleaseWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
   const [estimatedUBWeightTotal, setEstimatedUBWeightTotal] = useState(null);
-  const [, setSubmittedChangeTime] = useState(Date.now());
   const [breakdownVisible, setBreakdownVisible] = useState(false);
 
   const nonShipmentSections = useMemo(() => {
@@ -350,7 +351,7 @@ export const MoveTaskOrder = (props) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
-      setSubmittedChangeTime(Date.now());
+      setSitExtensionUpdateCounter((prev) => prev + 1);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -366,6 +367,7 @@ export const MoveTaskOrder = (props) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
+      setSitExtensionUpdateCounter((prev) => prev + 1);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -554,7 +556,6 @@ export const MoveTaskOrder = (props) => {
         },
       });
     }
-    setSubmittedChangeTime(Date.now());
   };
 
   /* istanbul ignore next */
@@ -574,7 +575,6 @@ export const MoveTaskOrder = (props) => {
       {
         onSuccess: () => {
           setIsSuccessAlertVisible(true);
-          setSubmittedChangeTime(Date.now());
         },
       },
     );
@@ -921,34 +921,23 @@ export const MoveTaskOrder = (props) => {
 
   /* ------------------ Update SIT extension counts ------------------------- */
   useEffect(() => {
-    const copyItemsFromTempArrayToSourceArray = (temp, target) => {
-      Object.keys(temp).forEach((item) => {
-        const targetArray = target;
-        targetArray[item] = temp[item];
-      });
-    };
-    const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
-      const unapprovedSITExtensionShipmentItems = [];
-      let unapprovedSITExtensionCount = 0;
-      shipmentsWithStatus?.forEach((mtoShipment) => {
-        const unapprovedSITExtItems =
-          mtoShipment.sitExtensions?.filter((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING) ?? [];
-        const unapprovedSITCount = unapprovedSITExtItems.length;
-        unapprovedSITExtensionCount += unapprovedSITCount; // Top bar Label
-        unapprovedSITExtensionShipmentItems[`${mtoShipment.id}`] = unapprovedSITCount; // Nav bar Label
-      });
-      return { count: unapprovedSITExtensionCount, items: unapprovedSITExtensionShipmentItems };
-    };
-    const { count, items } = checkShipmentsForUnapprovedSITExtensions(mtoShipments);
-    setUnapprovedSITExtensionCount(count);
-    copyItemsFromTempArrayToSourceArray(items, unapprovedSITExtensionForShipment);
-    setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
-  }, [
-    mtoShipments,
-    setUnapprovedSITExtensionCount,
-    setUnApprovedSITExtensionForShipment,
-    unapprovedSITExtensionForShipment,
-  ]);
+    if (mtoShipments) {
+      const sitExtensionCount = mtoShipments.reduce((total, shipment) => {
+        const pendingCount =
+          shipment.sitExtensions?.filter((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING).length || 0;
+        return total + pendingCount;
+      }, 0);
+      setUnapprovedSITExtensionCount(sitExtensionCount);
+
+      const sitExtensionsForShipment = mtoShipments.reduce((acc, shipment) => {
+        const pendingCount =
+          shipment.sitExtensions?.filter((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING).length || 0;
+        acc[shipment.id] = pendingCount;
+        return acc;
+      }, {});
+      setUnApprovedSITExtensionForShipment(sitExtensionsForShipment);
+    }
+  }, [mtoShipments, setUnapprovedSITExtensionCount, sitExtensionUpdateCounter]);
 
   /* ------------------ Utils ------------------------- */
   // determine if max billable weight should be displayed yet
@@ -1280,7 +1269,8 @@ export const MoveTaskOrder = (props) => {
               mtoShipment.status !== shipmentStatuses.APPROVED &&
               mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
               mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED &&
-              mtoShipment.status !== shipmentStatuses.CANCELED
+              mtoShipment.status !== shipmentStatuses.CANCELED &&
+              mtoShipment.status !== shipmentStatuses.TERMINATED_FOR_CAUSE
             ) {
               return false;
             }
@@ -1315,6 +1305,7 @@ export const MoveTaskOrder = (props) => {
                     originState: pickupAddress?.state || '',
                     originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
+                    actualPickupDate: mtoShipment.actualPickupDate,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.ppmShipment?.status || mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
