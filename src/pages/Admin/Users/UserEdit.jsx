@@ -50,8 +50,14 @@ const UserEdit = () => {
       .then(() => {
         redirect('/');
       })
-      .catch(() => {
-        setInactivateOpen(true);
+      .catch((err) => {
+        if (err?.statusCode === 409) {
+          setInactivateOpen(true);
+        } else if (err?.statusCode === 403) {
+          setServerError('This is an Admin User and cannot be deleted.');
+        } else {
+          setServerError(err?.message);
+        }
         redirect(false);
       });
   };
@@ -84,14 +90,14 @@ const UserEdit = () => {
     <Edit>
       <Confirm
         isOpen={deleteOpen}
-        title={`Delete user ${userData.oktaEmail} ?`}
+        title={`Delete user ${userData.oktaEmail}?`}
         content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteClose}
       />
       <Confirm
         isOpen={inactivateOpen && userData.active}
-        title={`Deletion failed for user ${userData.oktaEmail}`}
+        title={`Deletion failed for user ${userData.oktaEmail}.`}
         content="This deletion failed as this user is already tied to existing moves. Would you like to inactivate them instead?"
         onConfirm={handleInactivateConfirm}
         onClose={handleInactivateClose}
@@ -103,7 +109,7 @@ const UserEdit = () => {
       )}
       {serverError && (
         <Alert type="error" slim className={styles.error}>
-          There was a server error.
+          {serverError}
         </Alert>
       )}
       <SimpleForm
