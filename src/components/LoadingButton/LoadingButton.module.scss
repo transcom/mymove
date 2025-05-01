@@ -3,7 +3,7 @@
 
 .loadingButton {
   @include at-media("mobile-lg") {
-    width: 12rem;
+    width: 12rem; // Prevents the button from changing size when the text changes
   }
 }
 
