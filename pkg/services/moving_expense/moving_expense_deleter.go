@@ -35,10 +35,12 @@ func (d *movingExpenseDeleter) DeleteMovingExpense(appCtx appcontext.AppContext,
 		return apperror.NewQueryError("MovingExpense fetch original", err, "")
 	}
 
-	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-		wrongServiceMemberIDErr := apperror.NewForbiddenError("Attempted delete by wrong service member")
-		appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(wrongServiceMemberIDErr))
-		return wrongServiceMemberIDErr
+	if appCtx.Session().IsMilApp() {
+		if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+			wrongServiceMemberIDErr := apperror.NewForbiddenError("Attempted delete by wrong service member")
+			appCtx.Logger().Error("internalapi.DeleteMovingExpenseHandler", zap.Error(wrongServiceMemberIDErr))
+			return wrongServiceMemberIDErr
+		}
 	}
 
 	found := false
