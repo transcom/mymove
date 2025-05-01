@@ -118,21 +118,15 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 func (u usersPrivilegesCreator) VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (bool, *validate.Errors, error) {
 	for _, privilege := range privileges {
 		for _, role := range roles {
-			var results []models.RolePrivilege
-			sql := `SELECT roles_privileges.id, roles_privileges.role_id, roles_privileges.privilege_id, roles_privileges.created_at, roles_privileges.updated_at FROM roles_privileges
-			JOIN roles ON roles_privileges.role_id = roles.id
-			JOIN privileges ON roles_privileges.privilege_id = privileges.id
-			WHERE role_type = $1 AND privilege_type = $2`
 
-			query := appCtx.DB().RawQuery(sql, role.RoleType, privilege.PrivilegeType)
-
-			err := query.All(&results)
+			var result []string
+			err := appCtx.DB().RawQuery("SELECT * FROM is_role_privilege_allowed($1, $2)", role.RoleType, privilege.PrivilegeType).All(&result)
 
 			if err != nil {
 				return false, nil, err
 			}
 
-			if len(results) == 0 {
+			if result[0] == "false" {
 				err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
 				appCtx.Logger().Error(err.Error())
 				verrs := validate.NewErrors()
