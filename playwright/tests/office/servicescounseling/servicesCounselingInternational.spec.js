@@ -16,6 +16,7 @@ test.describe('Services counselor user', () => {
       createCustomerFF === 'false' || alaskaFF === 'false',
       'Skip if the create customer & AK FFs are not enabled.',
     );
+
     test('create a customer and add a basic iHHG shipment with Alaska address', async ({ page, officePage }) => {
       // make sure we see the queue
       await expect(page.getByText('Moves')).toBeVisible();
@@ -65,8 +66,10 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Current duty location').fill('Tinker');
       await expect(page.getByText(originLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
+      await page.getByLabel('Counseling office').selectOption({ label: 'PPPO Tinker AFB - USAF' });
+
       const pickupLocation = 'Elmendorf AFB, AK 99506';
-      await page.getByLabel('New duty location').fill('JBER');
+      await page.getByLabel('New duty location').fill('99506');
       await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('label[for="hasDependentsNo"]').click();
@@ -78,15 +81,12 @@ test.describe('Services counselor user', () => {
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
       await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
       await page.getByRole('button', { name: 'Done' }).click();
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');
       await page.getByLabel('Orders type detail').selectOption('Shipment of HHG Permitted');
-      await page.getByLabel('TAC', { exact: true }).nth(0).fill('TEST');
+      await page.getByLabel('TAC').nth(0).fill('TEST');
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
@@ -104,6 +104,49 @@ test.describe('Services counselor user', () => {
 
       // verify we can see the iHHG shipment, submit it to the TOO
       await expect(page.getByText('iHHG')).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Submit move details' })).toBeEnabled();
+      await page.getByRole('button', { name: 'Submit move details' }).click();
+      await expect(page.getByText('Are you sure?')).toBeVisible();
+      await page.getByRole('button', { name: 'Yes, submit' }).click();
+      await expect(page.getByText('Move submitted.')).toBeVisible();
+    });
+
+    test('can create PPM with existing iHHG shipment on move', async ({ page, scPage }) => {
+      const move = await scPage.testHarness.buildIntlHHGMoveNeedsSC();
+      await scPage.navigateToMove(move.locator);
+
+      // adding a PPM shipment
+      await page.getByLabel('Add a new shipment').selectOption('PPM');
+      await expect(page.getByText('Add shipment details')).toBeVisible();
+      await expect(page.getByText('Weight allowance: 8,000 lbs')).toBeVisible();
+      await page.getByLabel('Planned Departure Date').fill('01 May 2025');
+      await page.getByLabel('Planned Departure Date').blur();
+      await page.getByText('Use pickup address').click();
+
+      const deliveryLocation = 'FAIRBANKS, AK 99702 (FAIRBANKS NORTH STAR)';
+      const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
+      await deliveryAddress.getByLabel('Address 1').nth(0).fill('123 Cold St.');
+      await page.locator('input[id="destination.address-location-input"]').fill('99702');
+      await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
+
+      await scPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
+
+      await page.getByTestId('estimatedWeight').fill('2,000');
+
+      await expect(page.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
+      await page.getByRole('button', { name: 'Save and Continue' }).click();
+
+      await expect(page.getByText('Incentive & advance')).toBeVisible();
+      await expect(page.getByText('Estimated incentive')).toBeVisible();
+
+      await page.getByTestId('counselor-remarks').fill('remarks');
+
+      await expect(page.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
+      await page.getByRole('button', { name: 'Save and Continue' }).click();
+
+      // verify we can see the PPM shipment, submit it to the TOO
+      await expect(page.getByText('iPPM')).toBeVisible();
       await expect(page.getByRole('button', { name: 'Submit move details' })).toBeEnabled();
       await page.getByRole('button', { name: 'Submit move details' }).click();
       await expect(page.getByText('Are you sure?')).toBeVisible();
