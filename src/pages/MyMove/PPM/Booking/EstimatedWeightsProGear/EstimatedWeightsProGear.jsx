@@ -52,14 +52,14 @@ const EstimatedWeightsProGear = () => {
 
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
-        setSubmitting(false);
         dispatch(updateMTOShipment(response));
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
+        setSubmitting(false);
       })
       .catch((err) => {
-        setSubmitting(false);
         setErrorCode(err?.response?.status);
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
+        setSubmitting(false);
       });
   };
 
