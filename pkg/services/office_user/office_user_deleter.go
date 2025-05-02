@@ -21,8 +21,6 @@ func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uu
 	var officeUser models.OfficeUser
 	err := appCtx.DB().EagerPreload(
 		"User",
-		"User.Roles",
-		"User.Privileges",
 	).Where("id = ?", id).Find(&officeUser, id)
 	if err == sql.ErrNoRows {
 		return apperror.NewNotFoundError(id, "while looking for OfficeUser")
@@ -33,30 +31,27 @@ func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uu
 	user := officeUser.User
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		userIdFilter := []services.QueryFilter{query.NewQueryFilter("user_id", "=", user.ID.String())}
-		if len(user.Roles) > 0 {
-			// Delete associated roles (users_roles)
-			err = o.builder.DeleteMany(appCtx, &[]models.UsersRoles{}, userIdFilter)
-			if err != nil {
-				return err
-			}
+
+		// Delete associated roles (users_roles)
+		err = o.builder.DeleteMany(txnAppCtx, &[]models.UsersRoles{}, userIdFilter)
+		if err != nil {
+			return err
 		}
 
-		if len(user.Privileges) > 0 {
-			// Delete associated privileges (users_privileges)
-			err = o.builder.DeleteMany(appCtx, &[]models.UsersPrivileges{}, userIdFilter)
-			if err != nil {
-				return err
-			}
+		// Delete associated privileges (users_privileges)
+		err = o.builder.DeleteMany(txnAppCtx, &[]models.UsersPrivileges{}, userIdFilter)
+		if err != nil {
+			return err
 		}
 
 		// delete the office user (office_users)
-		err = o.builder.DeleteOne(appCtx, &officeUser)
+		err = o.builder.DeleteOne(txnAppCtx, &officeUser)
 		if err != nil {
 			return err
 		}
 
 		// finally, delete the user (user)
-		err = o.builder.DeleteOne(appCtx, &user)
+		err = o.builder.DeleteOne(txnAppCtx, &user)
 		if err != nil {
 			return err
 		}
