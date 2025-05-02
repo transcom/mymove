@@ -1218,8 +1218,7 @@
     debug "^4.3.1"
     globals "^11.1.0"
 
-"@babel/traverse@^7.22.20", "@babel/traverse@^7.25.9", "@babel/traverse@^7.26.10", "@babel/traverse@^7.26.5", "@babel/traverse@^7.26.8", "@babel/traverse@^7.27.0":
-  version "7.27.0"
+"@babel/types@^7.0.0", "@babel/types@^7.12.11", "@babel/types@^7.12.6", "@babel/types@^7.2.0", "@babel/types@^7.20.0", "@babel/types@^7.20.7", "@babel/types@^7.22.19", "@babel/types@^7.22.5", "@babel/types@^7.23.0", "@babel/types@^7.23.9", "@babel/types@^7.24.7", "@babel/types@^7.25.9", "@babel/types@^7.26.10", "@babel/types@^7.27.0", "@babel/types@^7.3.0", "@babel/types@^7.3.3", "@babel/types@^7.4.4":  version "7.27.0"
   resolved "https://registry.npmjs.org/@babel/traverse/-/traverse-7.27.0.tgz"
   integrity sha512-19lYZFzYVQkkHkl4Cy4WrAVcqBkgvV2YM2TU3xG6DIwO7O3ecbDPfW3yM3bjAGcqcQHi+CCtjMR3dIEHxsd6bA==
   dependencies:
@@ -1230,14 +1229,6 @@
     "@babel/types" "^7.27.0"
     debug "^4.3.1"
     globals "^11.1.0"
-
-"@babel/types@^7.0.0", "@babel/types@^7.12.11", "@babel/types@^7.12.6", "@babel/types@^7.2.0", "@babel/types@^7.20.0", "@babel/types@^7.20.7", "@babel/types@^7.22.19", "@babel/types@^7.22.5", "@babel/types@^7.23.0", "@babel/types@^7.23.9", "@babel/types@^7.24.7", "@babel/types@^7.25.9", "@babel/types@^7.26.10", "@babel/types@^7.27.0", "@babel/types@^7.3.0", "@babel/types@^7.3.3", "@babel/types@^7.4.4":
-  version "7.27.0"
-  resolved "https://registry.npmjs.org/@babel/types/-/types-7.27.0.tgz"
-  integrity sha512-H45s8fVLYjbhFH62dIJ3WtmJ6RSPt/3DRO0ZcT2SUiYiQyz3BLVb9ADEnLl91m74aQPS3AzzeajZHYOalWe3bg==
-  dependencies:
-    "@babel/helper-string-parser" "^7.25.9"
-    "@babel/helper-validator-identifier" "^7.25.9"
 
 "@base2/pretty-print-object@1.0.1":
   version "1.0.1"
