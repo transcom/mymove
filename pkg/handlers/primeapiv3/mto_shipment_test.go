@@ -57,7 +57,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
+	now := time.Now()
+	futureDate := models.TimePointer(now.Add(24 * time.Hour))
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -1663,13 +1664,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			planner,
 			vLocationServices,
 		}
-
-		now := time.Now()
-		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
@@ -1797,12 +1795,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
-		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
@@ -1896,12 +1892,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
-		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
@@ -2053,12 +2047,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
-		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
@@ -2184,12 +2176,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
-		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
@@ -2315,12 +2305,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
-		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
@@ -2455,12 +2443,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
-		tomorrow := now.Add(24 * time.Hour)
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					RequestedPickupDate: &tomorrow,
+					RequestedPickupDate: futureDate,
 				},
 			},
 			{
