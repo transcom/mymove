@@ -162,6 +162,19 @@ describe('CreateMoveCustomerInfo Component', () => {
       expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
       expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
   });
 

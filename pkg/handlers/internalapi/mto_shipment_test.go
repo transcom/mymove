@@ -275,13 +275,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - UB", func() {
-		// const ubFlag = "true"
-		// suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
-
 		subtestData := makeCreateSubtestData(true, true)
 
 		params := subtestData.params
 		params.Body.ShipmentType = internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE.Pointer()
+
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "International St.",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Cordova",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		// UB shipments need one address to be OCONUS
+		params.Body.PickupAddress.PostalCode = &pickupAddress.PostalCode
+		params.Body.PickupAddress.City = &pickupAddress.City
+		params.Body.PickupAddress.State = &pickupAddress.State
 
 		response := subtestData.handler.Handle(subtestData.params)
 

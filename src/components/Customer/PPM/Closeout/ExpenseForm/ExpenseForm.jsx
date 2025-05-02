@@ -5,6 +5,8 @@ import { Button, ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@tru
 import { func, number } from 'prop-types';
 import * as Yup from 'yup';
 
+import SmallPackageForm from '../SmallPackageForm/SmallPackageForm';
+
 import styles from './ExpenseForm.module.scss';
 
 import { formatCents } from 'utils/formatters';
@@ -23,21 +25,29 @@ import { uploadShape } from 'types/uploads';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
+import { PPM_TYPES } from 'shared/constants';
 
 const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
-  description: Yup.string().required('Required'),
+  description: Yup.string().when('expenseType', {
+    is: (expenseType) => expenseType !== expenseTypes.SMALL_PACKAGE,
+    then: (schema) => schema.required('Required'),
+  }),
   paidWithGTCC: Yup.boolean().required('Required'),
   amount: Yup.string().notOneOf(['0', '0.00'], 'Please enter a non-zero amount').required('Required'),
   missingReceipt: Yup.boolean().required('Required'),
   document: Yup.array().of(uploadShape).min(1, 'At least one upload is required'),
   sitStartDate: Yup.date()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
       is: expenseTypes.STORAGE,
       then: (schema) => schema.required('Required').max(Yup.ref('sitEndDate'), 'Start date must be before end date.'),
     }),
   sitEndDate: Yup.date()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .when('expenseType', {
       is: expenseTypes.STORAGE,
@@ -47,13 +57,37 @@ const validationSchema = Yup.object().shape({
     is: expenseTypes.STORAGE,
     then: (schema) => schema.required('Required'),
   }),
-  sitWeight: Yup.number().when('expenseType', {
-    is: expenseTypes.STORAGE,
-    then: (schema) => schema.required('Required').moreThan(0, 'Weight stored must be at least 1 lb.'),
+  sitWeight: Yup.number()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
+    .when('expenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) => schema.required('Required').moreThan(0, 'Weight stored must be at least 1 lb.'),
+    }),
+  weightShipped: Yup.number().when('expenseType', {
+    is: expenseTypes.SMALL_PACKAGE,
+    then: (schema) => schema.required('Required').min(0, 'Weight shipped must be at least 1 lb.'),
+  }),
+  isProGear: Yup.string().when('expenseType', {
+    is: expenseTypes.SMALL_PACKAGE,
+    then: (schema) => schema.required('Required'),
+  }),
+  proGearBelongsToSelf: Yup.string()
+    .nullable()
+    .when('isProGear', {
+      is: 'true',
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema.strip(),
+    }),
+  proGearDescription: Yup.string().when('isProGear', {
+    is: 'true',
+    then: (schema) => schema.required('Required'),
+    otherwise: (schema) => schema.strip(),
   }),
 });
 
 const ExpenseForm = ({
+  ppmType,
   expense,
   receiptNumber,
   onBack,
@@ -73,10 +107,16 @@ const ExpenseForm = ({
     sitEndDate,
     sitLocation,
     weightStored,
+    trackingNumber,
+    weightShipped,
+    isProGear,
+    proGearBelongsToSelf,
+    proGearDescription,
   } = expense || {};
 
   const initialValues = {
-    expenseType: movingExpenseType || '',
+    expenseType:
+      !movingExpenseType && ppmType === PPM_TYPES.SMALL_PACKAGE ? expenseTypes.SMALL_PACKAGE : movingExpenseType,
     description: description || '',
     paidWithGTCC: paidWithGtcc ? 'true' : 'false',
     amount: amount ? `${formatCents(amount)}` : '',
@@ -86,9 +126,21 @@ const ExpenseForm = ({
     sitEndDate: sitEndDate || '',
     sitLocation: sitLocation || undefined,
     sitWeight: weightStored ? `${weightStored}` : '',
+    trackingNumber: trackingNumber || '',
+    weightShipped: weightShipped ? `${weightShipped}` : '',
+    isProGear: isProGear ? 'true' : 'false',
+    ...(isProGear && {
+      proGearBelongsToSelf: proGearBelongsToSelf ? 'true' : 'false',
+      proGearDescription: proGearDescription || '',
+    }),
   };
 
   const documentRef = createRef();
+
+  const availableExpenseTypes =
+    ppmType === PPM_TYPES.SMALL_PACKAGE
+      ? [{ value: 'Small package reimbursement', key: 'SMALL_PACKAGE' }]
+      : ppmExpenseTypes;
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -97,17 +149,37 @@ const ExpenseForm = ({
           <div className={classnames(ppmStyles.formContainer)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.ExpenseForm)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>{`Receipt ${receiptNumber}`}</h2>
-                <FormGroup>
-                  <DropdownInput label="Select type" name="expenseType" options={ppmExpenseTypes} id="expenseType" />
+                <h2>
+                  {ppmType !== PPM_TYPES.SMALL_PACKAGE ? `Receipt ` : `Package `}
+                  {receiptNumber}
+                </h2>
+                {values.expenseType === expenseTypes.SMALL_PACKAGE && (
+                  <Hint data-testid="smallPackageInfo">
+                    Receipts from the package carrier should include the weight, cost, and tracking number (optional).
+                    Receipts must be legible and unaltered. Files must be 25MB or smaller. You must upload at least one
+                    package carrier receipt to get paid for your Small Package Reimbursement PPM.
+                  </Hint>
+                )}
+                <FormGroup className={styles.dropdown}>
+                  <DropdownInput
+                    label="Select type"
+                    name="expenseType"
+                    options={availableExpenseTypes}
+                    id="expenseType"
+                    isDisabled={ppmType === PPM_TYPES.SMALL_PACKAGE}
+                  />
                 </FormGroup>
                 {values.expenseType && (
                   <>
                     <FormGroup>
-                      <h3>Description</h3>
-                      <TextField label="What did you buy or rent?" id="description" name="description" />
-                      <Hint>Add a brief description of the expense.</Hint>
-                      {values.expenseType === 'STORAGE' && (
+                      {values.expenseType !== expenseTypes.SMALL_PACKAGE && (
+                        <>
+                          <h3>Description</h3>
+                          <TextField label="What did you buy or rent?" id="description" name="description" />
+                          <Hint>Add a brief description of the expense.</Hint>
+                        </>
+                      )}
+                      {values.expenseType === expenseTypes.STORAGE && (
                         <FormGroup>
                           <legend className="usa-label">Where did you store your items?</legend>
                           <Field
@@ -166,30 +238,45 @@ const ExpenseForm = ({
                       </Fieldset>
                     </FormGroup>
                     <FormGroup>
-                      <h3>Amount</h3>
-                      <MaskedTextField
-                        name="amount"
-                        label="Amount"
-                        id="amount"
-                        mask={Number}
-                        scale={2} // digits after point, 0 for integers
-                        signed={false} // disallow negative
-                        radix="." // fractional delimiter
-                        mapToRadix={['.']} // symbols to process as radix
-                        padFractionalZeros // if true, then pads zeros at end to the length of scale
-                        thousandsSeparator=","
-                        lazy={false} // immediate masking evaluation
-                        prefix="$"
-                        hintClassName={ppmStyles.innerHint}
-                      />
-                      <Hint>
-                        Enter the total unit price for all items on the receipt that you&apos;re claiming as part of
-                        your PPM moving expenses.
-                      </Hint>
+                      {values.expenseType !== expenseTypes.SMALL_PACKAGE ? (
+                        <>
+                          <h3>Amount</h3>
+                          <MaskedTextField
+                            name="amount"
+                            label="Amount"
+                            id="amount"
+                            mask={Number}
+                            scale={2} // digits after point, 0 for integers
+                            signed={false} // disallow negative
+                            radix="." // fractional delimiter
+                            mapToRadix={['.']} // symbols to process as radix
+                            padFractionalZeros // if true, then pads zeros at end to the length of scale
+                            thousandsSeparator=","
+                            lazy={false} // immediate masking evaluation
+                            prefix="$"
+                            hintClassName={ppmStyles.innerHint}
+                          />
+                          <Hint>
+                            Enter the total unit price for all items on the receipt that you&apos;re claiming as part of
+                            your PPM moving expenses.
+                          </Hint>
+                        </>
+                      ) : (
+                        <SmallPackageForm />
+                      )}
                       <CheckboxField id="missingReceipt" name="missingReceipt" label="I don't have this receipt" />
+                      {values.missingReceipt && values.expenseType === expenseTypes.SMALL_PACKAGE && (
+                        <Alert type="info" className={styles.uploadInstructions}>
+                          {values.expenseType === expenseTypes.SMALL_PACKAGE &&
+                            'If you do not upload legible package receipts your PPM reimbursement could be affected.'}
+                        </Alert>
+                      )}
                       {values.missingReceipt && (
                         <Alert type="info">
-                          {`If you can, get a replacement copy of your receipt and upload that. \nIf that is not possible, write and sign a statement that explains why this receipt is missing. Include details about where and when you purchased this item. Upload that statement. Your reimbursement for this expense will be based on the information you provide.`}
+                          If you can, get a replacement copy of your receipt and upload that. If that is not possible,
+                          write and sign a statement that explains why this receipt is missing. Include details about
+                          where and when you purchased this item. Upload that statement. Your reimbursement for this
+                          expense will be based on the information you provide.
                         </Alert>
                       )}
                       <div className={styles.labelWrapper}>
@@ -241,7 +328,7 @@ const ExpenseForm = ({
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Return To Homepage
+                  Cancel
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}

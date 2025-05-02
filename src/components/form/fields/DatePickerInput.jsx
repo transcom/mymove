@@ -4,6 +4,8 @@ import { useField } from 'formik';
 import { FormGroup, Label } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
+import RequiredAsterisk from '../RequiredAsterisk';
+
 import styles from './DatePickerInput.module.scss';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
@@ -24,6 +26,7 @@ export const DatePickerInput = (props) => {
     hint,
     disableErrorLabel,
     onChange,
+    showRequiredAsterisk,
   } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
@@ -44,7 +47,9 @@ export const DatePickerInput = (props) => {
         <>
           <div className="labelWrapper">
             <Label hint={hint} className={styles.label} error={hasError} htmlFor={inputId.current}>
-              {label}
+              <span>
+                {label} {showRequiredAsterisk && <RequiredAsterisk />}
+              </span>
               {showOptional && <div className={styles.optionalLabel}>Optional</div>}
             </Label>
           </div>

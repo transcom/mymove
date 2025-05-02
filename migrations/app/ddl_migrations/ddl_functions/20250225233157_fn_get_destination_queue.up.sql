@@ -2,6 +2,7 @@
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
 -- B-21824 - Samay Sofo replaced too_assigned_id with too_destination_assigned_id for destination assigned queue
+-- B-21902 - Samay Sofo added has_safety_privilege parameter to filter out safety orders and also retrieved orders_type
 DROP FUNCTION IF EXISTS get_destination_queue;
 CREATE OR REPLACE FUNCTION get_destination_queue(
     user_gbloc TEXT DEFAULT NULL,
@@ -16,6 +17,7 @@ CREATE OR REPLACE FUNCTION get_destination_queue(
     origin_duty_location TEXT DEFAULT NULL,
     counseling_office TEXT DEFAULT NULL,
     too_assigned_user TEXT DEFAULT NULL,
+	has_safety_privilege BOOLEAN DEFAULT FALSE,
     page INTEGER DEFAULT 1,
     per_page INTEGER DEFAULT 20,
     sort TEXT DEFAULT NULL,
@@ -66,6 +68,7 @@ BEGIN
             moves.counseling_transportation_office_id AS counseling_transportation_office_id,
             json_build_object(
                 ''id'', orders.id,
+                ''orders_type'', orders.orders_type,
                 ''origin_duty_location_gbloc'', orders.gbloc,
                 ''service_member'', json_build_object(
                     ''id'', service_members.id,
@@ -106,7 +109,7 @@ BEGIN
             json_build_object(
                 ''first_name'', too_user.first_name,
                 ''last_name'', too_user.last_name,
-				''id'', too_user.id
+                ''id'', too_user.id
             )::JSONB AS too_destination_assigned,
             COUNT(*) OVER() AS total_count
         FROM moves
@@ -183,6 +186,11 @@ BEGIN
         sql_query := sql_query || ' AND (too_user.first_name || '' '' || too_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
     END IF;
 
+   -- filter out safety orders for users without safety privilege
+   IF NOT has_safety_privilege THEN
+    sql_query := sql_query || ' AND orders.orders_type != ''SAFETY'' ';
+   END IF;
+
     -- add destination queue-specific filters (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
         AND (
@@ -251,18 +259,18 @@ BEGIN
             service_members.affiliation,
             origin_duty_locations.name,
             counseling_offices.name,
-			too_user.first_name,
+            too_user.first_name,
             too_user.last_name,
-			too_user.id';
+            too_user.id';
     sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
 	IF sort_column <> 'moves.locator' THEN
         sql_query := sql_query || ', moves.locator ASC ';
     END IF;
-    sql_query := sql_query || ' LIMIT $13 OFFSET $14 ';
+    sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';
 
     RETURN QUERY EXECUTE sql_query
     USING user_gbloc, customer_name, edipi, emplid, m_status, move_code, requested_move_date, date_submitted,
-          branch, origin_duty_location, counseling_office, too_assigned_user, per_page, offset_value;
+          branch, origin_duty_location, counseling_office, too_assigned_user, has_safety_privilege, per_page, offset_value;
 
 END;
 $$ LANGUAGE plpgsql;

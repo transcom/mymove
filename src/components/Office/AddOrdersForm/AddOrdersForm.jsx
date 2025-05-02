@@ -12,6 +12,7 @@ import styles from './AddOrdersForm.module.scss';
 
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
+import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
@@ -237,6 +238,7 @@ const AddOrdersForm = ({
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
+              {requiredAsteriskMessage}
               <DropdownInput
                 label="Orders type"
                 name="ordersType"
@@ -247,10 +249,10 @@ const AddOrdersForm = ({
                   handleOrderTypeChange(e);
                 }}
                 isDisabled={isSafetyMoveSelected || isBluebarkMoveSelected}
-                hint="Required"
+                showRequiredAsterisk
               />
-              <DatePickerInput name="issueDate" label="Orders date" required hint="Required" />
-              <DatePickerInput name="reportByDate" label="Report by date" required hint="Required" />
+              <DatePickerInput name="issueDate" label="Orders date" required showRequiredAsterisk />
+              <DatePickerInput name="reportByDate" label="Report by date" required showRequiredAsterisk />
 
               <DutyLocationInput
                 label="Current duty location"
@@ -262,7 +264,7 @@ const AddOrdersForm = ({
                 }}
                 metaOverride={originMeta}
                 required
-                hint="Required"
+                showRequiredAsterisk
               />
               {currentDutyLocation.provides_services_counseling && (
                 <div>
@@ -271,7 +273,7 @@ const AddOrdersForm = ({
                     name="counselingOfficeId"
                     id="counselingOfficeId"
                     data-testid="counselingOfficeSelect"
-                    hint="Required"
+                    showRequiredAsterisk
                     required
                     options={counselingOfficeOptions}
                   />
@@ -312,7 +314,7 @@ const AddOrdersForm = ({
                     displayAddress={false}
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
-                    hint="Required"
+                    showRequiredAsterisk
                     onDutyLocationChange={(e) => {
                       setNewDutyLocation(e);
                     }}
@@ -323,7 +325,7 @@ const AddOrdersForm = ({
                   name="newDutyLocation"
                   label="New duty location"
                   required
-                  hint="Required"
+                  showRequiredAsterisk
                   metaOverride={newDutyMeta}
                   onDutyLocationChange={(e) => {
                     setNewDutyLocation(e);
@@ -332,7 +334,11 @@ const AddOrdersForm = ({
               )}
 
               <FormGroup>
-                <Label hint="Required">Are dependents included in the orders?</Label>
+                <Label>
+                  <span>
+                    Are dependents included in the orders? <RequiredAsterisk />{' '}
+                  </span>
+                </Label>
                 <div>
                   <Field
                     as={Radio}
@@ -367,7 +373,11 @@ const AddOrdersForm = ({
 
               {showAccompaniedTourField && (
                 <FormGroup>
-                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <Label>
+                    <span>
+                      Is this an accompanied tour? <RequiredAsterisk />
+                    </span>
+                  </Label>
                   <div>
                     <div className={styles.radioWithToolTip}>
                       <Field
@@ -424,6 +434,7 @@ const AddOrdersForm = ({
                     signed={false}
                     thousandsSeparator=","
                     lazy={false}
+                    showRequiredAsterisk
                   />
 
                   <MaskedTextField
@@ -437,6 +448,7 @@ const AddOrdersForm = ({
                     signed={false}
                     thousandsSeparator=","
                     lazy={false}
+                    showRequiredAsterisk
                   />
                 </FormGroup>
               )}
@@ -447,7 +459,7 @@ const AddOrdersForm = ({
                 id="grade"
                 required
                 options={payGradeOptions}
-                hint="Required"
+                showRequiredAsterisk
                 onChange={(e) => {
                   setGrade(e.target.value);
                   handleChange(e);
@@ -470,7 +482,7 @@ const AddOrdersForm = ({
                     labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                     label={
                       <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                        If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                        If the customer&apos;s orders specify a UB weight allowance, enter it here.
                         <ToolTip
                           text={
                             <span className={styles.toolTipText}>
@@ -504,7 +516,7 @@ const AddOrdersForm = ({
                       labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                          If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                          If the customer&apos;s orders specify a UB weight allowance, enter it here.
                           <ToolTip
                             text={
                               <span className={styles.toolTipText}>

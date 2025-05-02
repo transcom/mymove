@@ -251,6 +251,19 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText(/New duty location/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/Pay grade/)).toBeInstanceOf(HTMLSelectElement);
       expect(getByLabelText(/Current duty location/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
   });
 
@@ -800,7 +813,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });
@@ -825,7 +838,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
     await waitFor(() =>
       expect(
-        screen.queryByText('If your orders specify a specific UB weight allowance, enter it here.'),
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
       ).not.toBeInTheDocument(),
     );
   });

@@ -55,6 +55,7 @@ import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { isPreceedingAddressComplete } from 'shared/utils';
 import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -331,6 +332,7 @@ class MtoShipmentForm extends Component {
 
           return (
             <GridContainer>
+              <NotificationScrollToTop dependency={errorMessage} />
               <Grid row>
                 <Grid col desktop={{ col: 8, offset: 2 }}>
                   {errorMessage && (
