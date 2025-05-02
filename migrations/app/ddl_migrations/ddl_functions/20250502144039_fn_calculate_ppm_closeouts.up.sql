@@ -1,4 +1,6 @@
-drop procedure if exists calculate_ppm_closeout;
+-- B-22831  Beth Grohmann  Add calculate_ppm_closeout
+-- B-23586  Alex Lusk  Modify calculate_ppm_closeout to run as a migration, add skip_if_existsm, add zero-fill
+DROP PROCEDURE IF EXISTS calculate_ppm_closeout;
 
 CREATE OR REPLACE PROCEDURE calculate_ppm_closeout(p_ppm_shipment_id UUID, skip_if_exists bool)
 LANGUAGE plpgsql
