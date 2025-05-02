@@ -10613,6 +10613,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	oconusDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
 			Model: models.Address{
+				City:       "Fairbanks",
 				State:      "AK",
 				PostalCode: "99702",
 				IsOconus:   models.BoolPointer(true),
