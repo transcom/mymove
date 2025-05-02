@@ -22,8 +22,6 @@ import { setFlashMessage } from 'store/flash/actions';
 const FinalCloseout = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
-  // const [isLoading, setIsLoading] = useState(true);
-  // const [selectedMove, setSelectedMove] = useState(false);
   const { moveCode, shipmentId } = useParams();
   const { selectedMove, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
 
