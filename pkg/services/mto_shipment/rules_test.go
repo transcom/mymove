@@ -322,6 +322,140 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 }
 
+func (suite *MTOShipmentServiceSuite) TestCheckAddressUpdateAllowed() {
+	suite.Run("checkStatusAllowsAddressUpdates", func() {
+		v4ID := uuid.Must(uuid.NewV4())
+		bannedErrMsgPartial := "does not allow address updates"
+		hhgIntoNtsErrMsgPartial := "cannot update the destination address of an NTS shipment directly"
+		hhgOutOfNtsErrMsgPartial := "cannot update the pickup address of an NTS-Release shipment directly"
+		approvedDestinationAddressErrMsgPartial := "please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service"
+		testCases := map[string]struct {
+			status           models.MTOShipmentStatus
+			sType            models.MTOShipmentType
+			canUpdate        bool
+			applyIds         bool
+			errorMsgIncludes string
+		}{
+			"Draft is not banned": {
+				status:    models.MTOShipmentStatusDraft,
+				canUpdate: true,
+			},
+			"Submitted is not banned": {
+				status:    models.MTOShipmentStatusSubmitted,
+				canUpdate: true,
+			},
+			"CancellationRequested is not banned": {
+				status:    models.MTOShipmentStatusCancellationRequested,
+				canUpdate: true,
+			},
+			"DiversionRequested is not banned": {
+				status:    models.MTOShipmentStatusDiversionRequested,
+				canUpdate: true,
+			},
+			"Approved is not banned": {
+				status:    models.MTOShipmentStatusApproved,
+				canUpdate: true,
+			},
+			"Rejected is banned": {
+				status:           models.MTOShipmentStatusRejected,
+				canUpdate:        false,
+				errorMsgIncludes: bannedErrMsgPartial,
+			},
+			"Canceled is banned": {
+				status:           models.MTOShipmentStatusCanceled,
+				canUpdate:        false,
+				errorMsgIncludes: bannedErrMsgPartial,
+			},
+			"TerminatedForCause is banned": {
+				status:           models.MTOShipmentStatusTerminatedForCause,
+				canUpdate:        false,
+				errorMsgIncludes: bannedErrMsgPartial,
+			},
+			"HHG into NTS can't update dest address directly": {
+				sType:            models.MTOShipmentTypeHHGIntoNTS,
+				canUpdate:        false,
+				applyIds:         true,
+				errorMsgIncludes: hhgIntoNtsErrMsgPartial,
+			},
+			"HHG out of NTS can't update pickup address directly": {
+				sType:            models.MTOShipmentTypeHHGOutOfNTS,
+				canUpdate:        false,
+				applyIds:         true,
+				errorMsgIncludes: hhgOutOfNtsErrMsgPartial,
+			},
+			"Approved cannot have its destination address changed from this service, it must use the ShipmentAddressUpdateRequester service": {
+				status:           models.MTOShipmentStatusApproved,
+				canUpdate:        false,
+				applyIds:         true,
+				errorMsgIncludes: approvedDestinationAddressErrMsgPartial,
+			},
+		}
+		// !IMPORANT!
+		// Update this count on every new test case that isn't related to the status check of checkStatusNotBannedFromAddressUpdates
+		var countOfNonStatusTestCases = 3
+
+		appCtx := suite.AppContextForTest()
+
+		// Check that we have a test case for all counts of possible shipment statuses
+		type statusRow struct {
+			Status string `db:"status"`
+		}
+		var rows []statusRow
+		err := appCtx.DB().
+			RawQuery(`SELECT unnest(enum_range(NULL::public.mto_shipment_status)) AS status`).
+			All(&rows)
+		suite.FatalNoError(err)
+		suite.Require().Equal(len(testCases)-countOfNonStatusTestCases, len(rows), "The count of shipment status test cases do not match the amount pulled from the database enum")
+
+		checker := checkAddressUpdateAllowed()
+
+		for name, tc := range testCases {
+			suite.Run(name, func() {
+				address := models.Address{}
+				shipment := models.MTOShipment{
+					Status:       tc.status,
+					ShipmentType: tc.sType,
+				}
+				if tc.applyIds {
+					address.ID = v4ID
+					shipment.PickupAddressID = &v4ID
+					shipment.DestinationAddressID = &v4ID
+				}
+				err := checker.Validate(appCtx, &address, &shipment)
+				if tc.canUpdate {
+					suite.NoError(err, "expected no error for status %s", tc.status)
+				} else {
+					suite.Error(err, "expected error for status %s", tc.status)
+					suite.ErrorContains(err, tc.errorMsgIncludes, "expected error to match the test case partial err msg case")
+				}
+			})
+		}
+	})
+
+	suite.Run("Check error if shipment or address is nil", func() {
+		testCases := map[string]struct {
+			address  *models.Address
+			shipment *models.MTOShipment
+		}{
+			"shipment should error if nil": {
+				address: &models.Address{},
+			},
+			"address should error if nil": {
+				shipment: &models.MTOShipment{},
+			},
+		}
+		appCtx := suite.AppContextForTest()
+		checker := checkAddressUpdateAllowed()
+		for name, tc := range testCases {
+			suite.Run(name, func() {
+				err := checker.Validate(appCtx, tc.address, tc.shipment)
+				suite.Error(err)
+				suite.ErrorContains(err, "shipment address updater is not passing needed validator values")
+			})
+		}
+	})
+}
+
 func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 	suite.Run("checkDeleteAllowedTOO", func() {
 		testCases := map[models.MoveStatus]bool{
