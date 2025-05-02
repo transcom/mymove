@@ -32,7 +32,8 @@
 
 .addCustomerBtn {
   height: 43px;
-  width: 7vw;
+  white-space: nowrap;
+  width: fit-content;
   background-color: $link;
 }
 
