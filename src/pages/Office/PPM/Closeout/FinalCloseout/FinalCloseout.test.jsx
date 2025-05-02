@@ -10,62 +10,81 @@ import { MockProviders } from 'testUtils';
 import { ppmSubmissionCertificationText } from 'scenes/Legalese/legaleseText';
 import { formatDateForSwagger } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { getMove, getMTOShipments, submitPPMShipmentSignedCertification } from 'services/ghcApi';
-
-const testMove = {
-  additionalDocuments: {
-    id: 'c43ae36e-4e15-4cb3-865a-e4dccffa0df7',
-    service_member_id: 'dfdd3e21-3988-4104-a5c2-06b195f9b7f0',
-    uploads: [
-      {
-        bytes: 120653,
-        contentType: 'application/pdf',
-        createdAt: '2024-05-29T19:14:39.108Z',
-        filename: '9380-Statement-20240430.pdf',
-        id: 'c3c0cda9-a77e-4b8b-8b8b-67ccadc3c862',
-        status: 'PROCESSING',
-        updatedAt: '2024-05-29T19:14:39.108Z',
-        url: '/storage/user/accf760b-2e3d-4af8-a59b-c10b591dcc15/uploads/c3c0cda9-a77e-4b8b-8b8b-67ccadc3c862?contentType=application%2Fpdf',
-      },
-      {
-        bytes: 307051,
-        contentType: 'image/png',
-        createdAt: '2024-05-30T04:23:27.241Z',
-        filename: 'Screenshot 2024-05-16 at 3.33.52 PM.png',
-        id: '70a35ab0-a3f5-44a3-8702-0bb7d0c568c8',
-        status: 'PROCESSING',
-        updatedAt: '2024-05-30T04:23:27.241Z',
-        url: '/storage/user/accf760b-2e3d-4af8-a59b-c10b591dcc15/uploads/70a35ab0-a3f5-44a3-8702-0bb7d0c568c8?contentType=image%2Fpng',
-      },
-      {
-        bytes: 82301,
-        contentType: 'image/png',
-        createdAt: '2024-05-30T04:33:10.622Z',
-        filename: 'Screenshot 2024-05-17 at 1.09.21 PM.png',
-        id: 'b11c0130-2403-4287-b464-4c5ac17797b3',
-        status: 'PROCESSING',
-        updatedAt: '2024-05-30T04:33:10.622Z',
-        url: '/storage/user/accf760b-2e3d-4af8-a59b-c10b591dcc15/uploads/b11c0130-2403-4287-b464-4c5ac17797b3?contentType=image%2Fpng',
-      },
-    ],
-  },
-  created_at: '2024-05-29T18:46:17.808Z',
-  eTag: 'MjAyNC0wNS0yOVQxOToxNDozOS4xMDQyNzJa',
-  id: '43a369e8-5fa3-4a13-9d9a-36d86731c1da',
-  locator: '988HDJ',
-  mto_shipments: ['c93bf4d1-1470-4c50-b2b6-f736abd2986a'],
-  orders_id: '69967de3-3d9d-4e73-a497-f401884393bf',
-  primeCounselingCompletedAt: '0001-01-01T00:00:00.000Z',
-  service_member_id: 'dfdd3e21-3988-4104-a5c2-06b195f9b7f0',
-  status: 'NEEDS SERVICE COUNSELING',
-  submitted_at: '2024-05-29T18:47:26.360Z',
-  updated_at: '2024-05-29T19:14:39.104Z',
-};
+import { submitPPMShipmentSignedCertification } from 'services/ghcApi';
+import { useEditShipmentQueries } from 'hooks/queries';
 
 const shipmentID = uuidv4();
-const response = {
-  mtoShipments: {
-    [shipmentID]: {
+
+const useEditShipmentQueriesReturnValue = {
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: 'NEEDS SERVICE COUNSELING',
+  },
+  order: {
+    id: '1',
+    originDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Knox',
+        state: 'KY',
+        postalCode: '40121',
+      },
+    },
+    destinationDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Irwin',
+        state: 'CA',
+        postalCode: '92310',
+      },
+    },
+    customer: {
+      agency: 'ARMY',
+      backup_contact: {
+        email: 'email@example.com',
+        name: 'name',
+        phone: '555-555-5555',
+      },
+      current_address: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
+        id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      dodID: '6833908165',
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
+      email: 'combo@ppm.hhg',
+      first_name: 'Submitted',
+      id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
+      last_name: 'Ppmhhg',
+      phone: '555-555-5555',
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
+      id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
+      nonTemporaryStorage: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+    order_number: 'ORDER3',
+    order_type: 'PERMANENT_CHANGE_OF_STATION',
+    order_type_detail: 'HHG_PERMITTED',
+    tac: '9999',
+  },
+  mtoShipments: [
+    {
       actualProGearWeight: null,
       actualSpouseProGearWeight: null,
       createdAt: '2025-03-25T14:33:35.101Z',
@@ -231,7 +250,10 @@ const response = {
       status: 'APPROVED',
       updatedAt: '2025-03-25T15:56:05.658Z',
     },
-  },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
 };
 
 const testMoveCode = '1A5PM3';
@@ -246,6 +268,11 @@ const mockDispatch = jest.fn();
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
   useDispatch: jest.fn().mockImplementation(() => mockDispatch),
+}));
+
+jest.mock('hooks/queries', () => ({
+  usePPMShipmentDocsQueries: jest.fn(),
+  useEditShipmentQueries: jest.fn(),
 }));
 
 jest.mock('services/ghcApi', () => ({
@@ -277,13 +304,12 @@ const ppmReviewPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_RE
 });
 
 describe('Final Closeout page', () => {
-  getMove.mockResolvedValue(testMove);
-  getMTOShipments.mockResolvedValue(response);
+  useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
 
   it('loads the selected shipment from redux', async () => {
     const mockRoutingConfig = {
       path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
-      params: { moveCode: testMoveCode, shipmentId: response.mtoShipments[shipmentID].id },
+      params: { moveCode: testMoveCode, shipmentId: shipmentID },
     };
 
     render(
@@ -301,7 +327,7 @@ describe('Final Closeout page', () => {
   it('renders the page headings', async () => {
     const mockRoutingConfig = {
       path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
-      params: { moveCode: testMoveCode, shipmentId: response.mtoShipments[shipmentID].id },
+      params: { moveCode: testMoveCode, shipmentId: shipmentID },
     };
 
     render(
@@ -321,7 +347,7 @@ describe('Final Closeout page', () => {
   it('routes to the home page when the return to homepage link is clicked', async () => {
     const mockRoutingConfig = {
       path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
-      params: { moveCode: testMoveCode, shipmentId: response.mtoShipments[shipmentID].id },
+      params: { moveCode: testMoveCode, shipmentId: shipmentID },
     };
 
     render(
@@ -338,11 +364,13 @@ describe('Final Closeout page', () => {
   });
 
   it('submits the ppm signed certification', async () => {
-    submitPPMShipmentSignedCertification.mockResolvedValueOnce(response.mtoShipments[0].ppmShipment);
+    submitPPMShipmentSignedCertification.mockResolvedValueOnce(
+      useEditShipmentQueriesReturnValue.mtoShipments[0].ppmShipment,
+    );
 
     const mockRoutingConfig = {
       path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
-      params: { moveCode: testMoveCode, shipmentId: response.mtoShipments[shipmentID].id },
+      params: { moveCode: testMoveCode, shipmentId: shipmentID },
     };
 
     render(
@@ -354,20 +382,18 @@ describe('Final Closeout page', () => {
       expect(screen.getByTestId('tag')).toHaveTextContent('PPM');
     });
 
-    await userEvent.type(screen.getByRole('textbox', { name: 'Signature' }), 'Grace Griffin');
     await userEvent.click(screen.getByRole('button', { name: 'Submit PPM Documentation' }));
 
     await waitFor(() =>
-      expect(submitPPMShipmentSignedCertification).toHaveBeenCalledWith(response.mtoShipments[0].ppmShipment.id, {
-        certification_text: ppmSubmissionCertificationText,
-        signature: 'Grace Griffin',
-        date: formatDateForSwagger(new Date()),
-      }),
+      expect(submitPPMShipmentSignedCertification).toHaveBeenCalledWith(
+        useEditShipmentQueriesReturnValue.mtoShipments[0].ppmShipment.id,
+        {
+          certification_text: ppmSubmissionCertificationText,
+          signature: '',
+          date: formatDateForSwagger(new Date()),
+        },
+      ),
     );
-
-    expect(updateMTOShipment).toHaveBeenCalledWith(response.mtoShipments[shipmentID]);
-    expect(mockDispatch).toHaveBeenCalledTimes(2);
-
-    expect(mockNavigate).toHaveBeenCalledWith(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(`/counseling/moves/${testMoveCode}/details`);
   });
 });
