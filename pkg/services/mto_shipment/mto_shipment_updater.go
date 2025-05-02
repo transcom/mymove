@@ -219,6 +219,10 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.Status = requestedUpdatedShipment.Status
 	}
 
+	if requestedUpdatedShipment.ApprovedDate != nil {
+		dbShipment.ApprovedDate = requestedUpdatedShipment.ApprovedDate
+	}
+
 	if requestedUpdatedShipment.RequiredDeliveryDate != nil {
 		dbShipment.RequiredDeliveryDate = requestedUpdatedShipment.RequiredDeliveryDate
 	}

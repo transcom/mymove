@@ -666,10 +666,12 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
 		addressUpdate.OfficeRemarks = &tooRemarks
+	}
 
-		if shipmentApprovable(shipment) {
-			shipment.Status = models.MTOShipmentStatusApproved
-		}
+	if shipmentApprovable(shipment) {
+		shipment.Status = models.MTOShipmentStatusApproved
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
 	}
 
 	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {

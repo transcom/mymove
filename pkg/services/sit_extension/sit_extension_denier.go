@@ -92,6 +92,8 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 
 		if shipmentApprovable(shipment) {
 			shipment.Status = models.MTOShipmentStatusApproved
+			approvedDate := time.Now()
+			shipment.ApprovedDate = &approvedDate
 			verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
 			if verrs != nil && verrs.HasAny() {
 				return apperror.NewInvalidInputError(
