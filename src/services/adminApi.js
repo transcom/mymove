@@ -68,6 +68,7 @@ export async function deleteUser(userId) {
     { normalize: false },
   );
 }
+
 export async function updateUser(userId, user) {
   const operationPath = 'Users.updateUser';
 

@@ -65,10 +65,11 @@ const UserEdit = () => {
   const inactivateUserHandler = async () => {
     const userUpdates = {
       active: false,
+      oktaEmail: userData.oktaEmail,
     };
     await updateUser(userData.id, userUpdates)
       .then(() => {
-        redirect('/');
+        redirect('./show');
       })
       .catch((error) => {
         setServerError(error);
@@ -90,14 +91,14 @@ const UserEdit = () => {
     <Edit>
       <Confirm
         isOpen={deleteOpen}
-        title={`Delete user ${userData.oktaEmail} ?`}
+        title={`Delete user ${userData.oktaEmail}?`}
         content="Are you sure you want to delete this user? It will delete all associated roles, privileges, and user data. This action cannot be undone."
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteClose}
       />
       <Confirm
         isOpen={inactivateOpen && userData.active}
-        title={`Deletion failed for user ${userData.oktaEmail}`}
+        title={`Deletion failed for user ${userData.oktaEmail}.`}
         content="This deletion failed as this user is already tied to existing moves. Would you like to inactivate them instead?"
         onConfirm={handleInactivateConfirm}
         onClose={handleInactivateClose}
