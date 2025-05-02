@@ -5,11 +5,11 @@ on:
 
 jobs:
   zap_scan:
-    runs-on: ubuntu-latest
     name: Scan mymove
+    runs-on: ubuntu-latest
     steps:
       - name: ZAP_scan
-        uses: zaproxy/action-full-scan@v0.10.0
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
           target: 'https://my.move.mil'
           allow_issue_writing: 'false'
@@ -20,11 +20,11 @@ jobs:
           path: ./zap_report/
 
   zap_scan_office:
-    runs-on: ubuntu-latest
     name: Scan Office
+    runs-on: ubuntu-latest
     steps:
       - name: ZAP_Scan
-        uses: zaproxy/action-full-scan@v0.10.0
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
           target: 'https://office.move.mil'
           allow_issue_writing: 'false'
@@ -35,11 +35,11 @@ jobs:
           path: ./zap_report/
 
   zap_scan_admin:
-    runs-on: ubuntu-latest
     name: Scan admin
+    runs-on: ubuntu-latest
     steps:
       - name: ZAP_Scan
-        uses: zaproxy/action-full-scan@v0.10.0
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
           target: 'https://admin.move.mil'
           allow_issue_writing: 'false'
