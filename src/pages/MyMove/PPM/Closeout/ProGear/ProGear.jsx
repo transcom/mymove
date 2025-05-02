@@ -3,8 +3,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import {
   selectMTOShipmentById,
@@ -43,13 +41,12 @@ const ProGear = () => {
   const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, proGearId } = useParams();
 
-  const [multiMove, setMultiMove] = useState(false);
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+    navigate(path);
   };
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -59,9 +56,6 @@ const ProGear = () => {
   );
 
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
     if (!proGearId) {
       createProGearWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
