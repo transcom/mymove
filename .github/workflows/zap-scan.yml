@@ -8,10 +8,10 @@ jobs:
     name: Scan mymove
     runs-on: ubuntu-latest
     steps:
-      - name: ZAP_scan
+      - name: ZAP_scan_mymove
         uses: zaproxy/action-full-scan@v0.12.0
         with:
-          target: 'https://my.move.mil'
+          target: 'https://my.stg.move.mil'
           allow_issue_writing: 'false'
       - name: Upload ZAP Scan Results
         uses: actions/upload-artifact@v4
@@ -23,10 +23,10 @@ jobs:
     name: Scan Office
     runs-on: ubuntu-latest
     steps:
-      - name: ZAP_Scan
+      - name: ZAP_Scan_office
         uses: zaproxy/action-full-scan@v0.12.0
         with:
-          target: 'https://office.move.mil'
+          target: 'https://office.stg.move.mil'
           allow_issue_writing: 'false'
       - name: Upload ZAP Scan Results
         uses: actions/upload-artifact@v4
@@ -38,10 +38,10 @@ jobs:
     name: Scan admin
     runs-on: ubuntu-latest
     steps:
-      - name: ZAP_Scan
+      - name: ZAP_Scan_admin
         uses: zaproxy/action-full-scan@v0.12.0
         with:
-          target: 'https://admin.move.mil'
+          target: 'https://admin.stg.move.mil'
           allow_issue_writing: 'false'
       - name: Upload ZAP Scan Results
         uses: actions/upload-artifact@v4
