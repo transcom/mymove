@@ -29,13 +29,12 @@ type RawEmailSender interface {
 }
 
 type emailContent struct {
-	attachments     []string
-	recipientEmail  string
-	recipientEmails []string
-	subject         string
-	htmlBody        string
-	textBody        string
-	onSuccess       func(string) error
+	attachments    []string
+	recipientEmail string
+	subject        string
+	htmlBody       string
+	textBody       string
+	onSuccess      func(string) error
 }
 
 // NotificationSender is an interface for sending notifications
@@ -121,14 +120,8 @@ func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc RawEmai
 			return err
 		}
 
-		var destinations []string
-		if len(email.recipientEmails) > 0 {
-			destinations = email.recipientEmails
-		} else {
-			destinations = []string{email.recipientEmail}
-		}
 		input := ses.SendRawEmailInput{
-			Destinations: destinations,
+			Destinations: []string{email.recipientEmail},
 			RawMessage:   &types.RawMessage{Data: rawMessage},
 			Source:       aws.String(senderEmail(domain)),
 		}
@@ -156,11 +149,7 @@ func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc RawEmai
 func formatRawEmailMessage(email emailContent, domain string) ([]byte, error) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", senderEmail(domain))
-	if len(email.recipientEmails) > 0 {
-		m.SetHeader("To", email.recipientEmails...)
-	} else {
-		m.SetHeader("To", email.recipientEmail)
-	}
+	m.SetHeader("To", email.recipientEmail)
 	m.SetHeader("Subject", email.subject)
 	m.SetBody(uploader.FileTypeText, email.textBody)
 	m.AddAlternative("text/html", email.htmlBody)
