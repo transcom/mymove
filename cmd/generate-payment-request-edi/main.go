@@ -19,6 +19,7 @@ import (
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
