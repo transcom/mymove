@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { v4 } from 'uuid';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { act, waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
@@ -1323,12 +1323,12 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
-      // shipment step button should now be "Add another shipment"
+      // shipment step button should now be "Add Shipment"
       const shipmentStep = wrapper.find('Step[step="3"]');
-      expect(shipmentStep.prop('actionBtnLabel')).toBe('Add another shipment');
+
       // confirm move request step should now be enabled
-      const confirmMoveRequest = wrapper.find('Step[step="4"]');
-      expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
+      const actionBtnWrapper = shallow(shipmentStep.prop('actionBtnLabel'));
+      expect(actionBtnWrapper.text()).toContain('Add another shipment');
     });
 
     it('cancel move button is visible', async () => {

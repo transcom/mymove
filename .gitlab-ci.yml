@@ -30,16 +30,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env placeholder_env
+  DP3_ENV: &dp3_env exp
 
   # Specify the branch to deploy TODO: this might be not needed. So far useless
-  DP3_BRANCH: &dp3_branch placeholder_branch_name
+  DP3_BRANCH: &dp3_branch B-22724-React-Upgrade-Main
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
-  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-22724-React-Upgrade-Main
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-22724-React-Upgrade-Main
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-22724-React-Upgrade-Main
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-22724-React-Upgrade-Main
 
   OTEL_IMAGE_TAG: &otel_image_tag "git-$OTEL_VERSION-$CI_COMMIT_SHORT_SHA"
 
@@ -87,7 +87,8 @@ stages:
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
-  - export SERVICE_RESERVATION_CLITENT_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
+
   - |
     if [[ "$DP3_ENV" == "exp" || "$DP3_ENV" == "loadtest" || "$DP3_ENV" == "demo" ]]; then
       export ENV=$(echo ${DP3_ENV} | tr '[:lower:]' '[:upper:]');
@@ -123,7 +124,7 @@ stages:
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
   - export SERVICE_RESERVATION_APP_MEM=4096
-  - export SERVICE_RESERVATION_CLITENT_MEM=4096
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 .setup_tls_vars_stg: &setup_tls_vars_stg
   - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
@@ -137,9 +138,8 @@ stages:
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
   - export SERVICE_RESERVATION_CPU=2048
   - export SERVICE_RESERVATION_MEM=4096
-  - export SERVICE_RESERVATION_APP_MEM=4096
-  - export SERVICE_RESERVATION_CLITENT_MEM=4096
-
+  - export SERVICE_RESERVATION_APP_MEM=16384
+  - export SERVICE_RESERVATION_CLIENT_MEM=4096
 
 
 .setup_tls_vars_prd: &setup_tls_vars_prd
@@ -641,8 +641,8 @@ compile_app_client:
       policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
   before_script:
   - *setup_milmove_env
   - *install_yarn
@@ -676,8 +676,8 @@ compile_app_server:
       policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "3"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   needs:
     - pre_deps_golang
     - pre_deps_yarn
@@ -902,7 +902,7 @@ client_test:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
   variables:
-    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_REQUEST: "3"
     KUBERNETES_MEMORY_REQUEST: "14Gi"
     KUBERNETES_MEMORY_LIMIT: "14Gi"
   needs:
