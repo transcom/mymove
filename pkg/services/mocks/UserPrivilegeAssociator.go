@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
+	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
+
+	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -41,6 +43,34 @@ func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppCon
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, []roles.PrivilegeType) error); ok {
 		r1 = rf(appCtx, userID, privileges)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// verifyUserPrivilegeAllowed provides a mock function with given fields: appCtx, userID, roles, privileges
+func (_m *UserPrivilegeAssociator) verifyUserPrivilegeAllowed(appCtx appcontext.AppContext, userID uuid.UUID, roles []adminmessages.Role, privileges []adminmessages.Privilege) (bool, error) {
+	ret := _m.Called(appCtx, userID, roles, privileges)
+
+	if len(ret) == 0 {
+		panic("no return value specified for verifyUserPrivilegeAllowed")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []adminmessages.Role, []adminmessages.Privilege) (bool, error)); ok {
+		return rf(appCtx, userID, roles, privileges)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []adminmessages.Role, []adminmessages.Privilege) bool); ok {
+		r0 = rf(appCtx, userID, roles, privileges)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, []adminmessages.Role, []adminmessages.Privilege) error); ok {
+		r1 = rf(appCtx, userID, roles, privileges)
 	} else {
 		r1 = ret.Error(1)
 	}

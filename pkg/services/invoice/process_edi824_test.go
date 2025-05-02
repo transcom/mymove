@@ -10,7 +10,6 @@ import (
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -29,9 +28,8 @@ func TestProcessEDI824Suite(t *testing.T) {
 }
 
 func (suite *ProcessEDI824Suite) TestParsingEDI824() {
-	mockNotificationSender := notifications.NewStubNotificationSender("")
+	edi824Processor := NewEDI824Processor()
 
-	edi824Processor := NewEDI824Processor(mockNotificationSender)
 	suite.Run("successfully processes a valid EDI824", func() {
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
@@ -290,8 +288,7 @@ IEA*1*000000997
 }
 
 func (suite *ProcessEDI824Suite) TestValidatingEDI824() {
-	mockSender := notifications.NewStubNotificationSender("")
-	edi824Processor := NewEDI824Processor(mockSender)
+	edi824Processor := NewEDI824Processor()
 
 	suite.Run("fails when there are validation errors on the EDI", func() {
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)

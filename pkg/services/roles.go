@@ -14,5 +14,4 @@ type RoleAssociater interface {
 	FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error)
 	FetchRolesPrivileges(appCtx appcontext.AppContext) ([]roles.Role, error)
 	FetchRoleTypes(appCtx appcontext.AppContext) ([]roles.RoleType, error)
-	VerifyRolesPrivelegesAllowed(appCtx appcontext.AppContext, roleType *string, privilegeType *string) (bool, error)
 }

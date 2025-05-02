@@ -741,7 +741,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	suite.Run("Failed to create due to Supervisor priveleges not authorized", func() {
 		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
 		supervisorPrivilegeName := "Supervisor"
-		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 		primeRoleName := "Prime"
 		primeRoleType := string(roles.RoleTypePrime)
 		params := officeuserop.CreateOfficeUserParams{
@@ -790,7 +790,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	suite.Run("Update fails due to Safety priveleges not authorized", func() {
 		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
 		safetyPrivilegeName := "Safety"
-		safetyPrivilegeType := string(models.PrivilegeSearchTypeSafety)
+		safetyPrivilegeType := string(roles.PrivilegeSearchTypeSafety)
 		contractingOfficerRoleName := "Contracting Officer"
 		contractingOfficerRoleType := string(roles.RoleTypeContractingOfficer)
 		params := officeuserop.CreateOfficeUserParams{
@@ -1090,7 +1090,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		primaryOffice := true
 		supervisorPrivilegeName := "Supervisor"
-		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 		primeRoleName := "Prime"
 		primeRoleType := string(roles.RoleTypePrime)
 
@@ -1149,7 +1149,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		primaryOffice := true
 		safetyPrivilegeName := "Safety"
-		safetyPrivilegeType := string(models.PrivilegeSearchTypeSafety)
+		safetyPrivilegeType := string(roles.PrivilegeSearchTypeSafety)
 		contractingOfficerRoleName := "Contracting Officer"
 		contractingOfficerRoleType := string(roles.RoleTypeContractingOfficer)
 
