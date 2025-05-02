@@ -69,7 +69,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		return subtestData
 	}
 
-	setUpForFinalIncentiveTests := func(finalIncentiveAmount *unit.Cents, finalIncentiveError error, estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
+	setUpForFinalIncentiveTests := func(finalIncentiveAmount *unit.Cents, finalIncentiveError error, estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error, maxIncentiveAmount *unit.Cents, maxIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmEstimator.
 			On(
@@ -96,7 +96,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				mock.AnythingOfType("models.PPMShipment"),
 				mock.AnythingOfType("*models.PPMShipment"),
 			).
-			Return(nil, nil)
+			Return(maxIncentiveAmount, maxIncentiveError)
 
 		addressCreator := address.NewAddressCreator()
 		addressUpdater := address.NewAddressUpdater()
@@ -1147,7 +1147,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	suite.Run("Can successfully update a PPMShipment - final incentive and actual move date", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
-		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil)
+		subtestData := setUpForFinalIncentiveTests(nil, nil, nil, nil, nil, nil, nil)
 
 		today := time.Now()
 
@@ -1652,5 +1652,38 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		// Verify estimated incentive is capped at the max
 		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
+	})
+	suite.Run("Can successfully update a PPMShipment - cap final incentive to max incentive value", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		newFakeFinalIncentive := models.CentPointer(unit.Cents(8000000))
+		newFakeMaxIncentive := models.CentPointer(unit.Cents(5000000))
+
+		subtestData := setUpForFinalIncentiveTests(newFakeFinalIncentive, nil, nil, nil, nil, newFakeMaxIncentive, nil)
+		today := time.Now()
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+					SITExpected:           models.BoolPointer(false),
+					EstimatedWeight:       models.PoundPointer(4000),
+					HasProGear:            models.BoolPointer(false),
+					FinalIncentive:        newFakeFinalIncentive,
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
+			SITExpected:           models.BoolPointer(true),
+			ActualMoveDate:        &today,
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Verify estimated incentive is capped at the max
+		suite.Equal(*newFakeMaxIncentive, *updatedPPM.FinalIncentive)
 	})
 }
