@@ -17,7 +17,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zap_scan
-          path: zap_output/
+          path: zap_output_my/
 
   zap_scan_office:
     name: Scan Office
@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zap-scan-office-results
-          path: zap_output/
+          path: zap_output_office/
 
   zap_scan_admin:
     name: Scan admin
@@ -47,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zap-scan-admin-results
-          path: zap_output/
+          path: zap_output_admin/
