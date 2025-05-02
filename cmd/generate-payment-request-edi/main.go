@@ -141,4 +141,20 @@ func main() {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
+	notificationSender, notificationErr := notifications.InitEmail(v, logger)
+	if notificationErr != nil {
+		logger.Error("notification sender initialization failed", zap.Error(notificationErr))
+	} else { // Create a notification for payment request generation
+		// You can use an appropriate notification type here
+		paymentRequestNotifier := notifications.NewPaymentRequestFailed(paymentRequest)
+
+		// Send the notification
+		err = notificationSender.SendNotification(appCtx, paymentRequestNotifier)
+		if err != nil {
+			logger.Error("problem sending email notification", zap.Error(err))
+		} else {
+			logger.Info("payment request notification sent successfully")
+		}
+
+	}
 }
