@@ -10,6 +10,7 @@ import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS, BRANCH_OPTIONS } from 'constants/queues';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { APPROVAL_REQUEST_TYPES } from 'constants/approvalRequestTypes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -212,6 +213,16 @@ const GetMountedComponent = (queueTypeToMount) => {
   );
   return wrapper;
 };
+
+moveData[0].approvalRequestTypes = [
+  APPROVAL_REQUEST_TYPES.EXCESS_WEIGHT,
+  APPROVAL_REQUEST_TYPES.IBHF,
+  APPROVAL_REQUEST_TYPES.IOASIT,
+  APPROVAL_REQUEST_TYPES.DDSHUT,
+];
+moveData[1].approvalRequestTypes = [APPROVAL_REQUEST_TYPES.IOASIT, APPROVAL_REQUEST_TYPES.AMENDED_ORDERS];
+moveData[2].approvalRequestTypes = [APPROVAL_REQUEST_TYPES.IOASIT, APPROVAL_REQUEST_TYPES.NEW_SHIPMENT];
+
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
 describe('MoveQueue & DestinationRequestsQueue', () => {
   afterEach(() => {
@@ -338,7 +349,8 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.edipi,
     );
-    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('Approvals requested');
+    expect(currentMove.find({ 'data-testid': `approvalRequestTypes-${currentIndex}` }).text()).toBe('Shuttle');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
