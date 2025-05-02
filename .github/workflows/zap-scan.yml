@@ -17,6 +17,7 @@ jobs:
         with:
           name: zap-scan-mymove-results-${{ github.run_id }}
           path: zap_output_my/
+          overwrite: true
 
   zap_scan_office:
     name: Scan Office
@@ -32,6 +33,7 @@ jobs:
         with:
           name: zap-scan-office-results-${{ github.run_id }}
           path: zap_output_office/
+          overwrite: true
 
   zap_scan_admin:
     name: Scan admin
@@ -47,3 +49,4 @@ jobs:
         with:
           name: zap-scan-admin-results-${{ github.run_id }}
           path: zap_output_admin/
+          overwrite: true
