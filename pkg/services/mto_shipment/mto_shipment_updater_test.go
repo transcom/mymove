@@ -4435,34 +4435,50 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 			shouldError  bool
 		}{
 			// HHG
+			{nil, models.MTOShipmentTypeHHG, false},
+			{&time.Time{}, models.MTOShipmentTypeHHG, false},
 			{&yesterday, models.MTOShipmentTypeHHG, true},
 			{&now, models.MTOShipmentTypeHHG, true},
 			{&tomorrow, models.MTOShipmentTypeHHG, false},
 			// NTS
+			{nil, models.MTOShipmentTypeHHGIntoNTS, false},
+			{&time.Time{}, models.MTOShipmentTypeHHGIntoNTS, false},
 			{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
 			{&now, models.MTOShipmentTypeHHGIntoNTS, true},
 			{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
 			// NTSR
+			{nil, models.MTOShipmentTypeHHGOutOfNTS, false},
+			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTS, false},
 			{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
 			{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
 			{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
 			// BOAT HAUL AWAY
+			{nil, models.MTOShipmentTypeBoatHaulAway, false},
+			{&time.Time{}, models.MTOShipmentTypeBoatHaulAway, false},
 			{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
 			{&now, models.MTOShipmentTypeBoatHaulAway, true},
 			{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
 			// BOAT TOW AWAY
+			{nil, models.MTOShipmentTypeBoatTowAway, false},
+			{&time.Time{}, models.MTOShipmentTypeBoatTowAway, false},
 			{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
 			{&now, models.MTOShipmentTypeBoatTowAway, true},
 			{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
 			// MOBILE HOME
+			{nil, models.MTOShipmentTypeMobileHome, false},
+			{&time.Time{}, models.MTOShipmentTypeMobileHome, false},
 			{&yesterday, models.MTOShipmentTypeMobileHome, true},
 			{&now, models.MTOShipmentTypeMobileHome, true},
 			{&tomorrow, models.MTOShipmentTypeMobileHome, false},
 			// UB
+			{nil, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+			{&time.Time{}, models.MTOShipmentTypeUnaccompaniedBaggage, false},
 			{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
 			{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
 			{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
-			//PPM - should always pass validation
+			// PPM - should always pass validation
+			{nil, models.MTOShipmentTypePPM, false},
+			{&time.Time{}, models.MTOShipmentTypePPM, false},
 			{&yesterday, models.MTOShipmentTypePPM, false},
 			{&now, models.MTOShipmentTypePPM, false},
 			{&tomorrow, models.MTOShipmentTypePPM, false},
@@ -4529,12 +4545,23 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 			session.Roles = append(session.Roles, too.User.Roles...)
 			shipment, err := shipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
-			if testCase.shouldError {
-				suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, *testCase.input)
-				suite.Error(err)
-				suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
+			testCaseInputString := ""
+			if testCase.input == nil {
+				testCaseInputString = "nil"
 			} else {
-				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, *testCase.input)
+				testCaseInputString = (*testCase.input).String()
+			}
+
+			if testCase.shouldError {
+				suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, testCaseInputString)
+				suite.Error(err)
+				if testCase.input != nil && !(*testCase.input).IsZero() {
+					suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
+				} else {
+					suite.Contains(err.Error(), fmt.Sprintf("RequestedPickupDate is required to create or modify %s %s shipment", GetAorAnByShipmentType(testCase.shipmentType), testCase.shipmentType))
+				}
+			} else {
+				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, testCaseInputString)
 				suite.NotNil(shipment)
 			}
 		}
