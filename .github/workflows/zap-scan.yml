@@ -16,7 +16,7 @@ jobs:
       - name: Upload ZAP Scan Results - mymove
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-mymove-results
+          name: zap-scan-mymove-results-${{ github.run_id }}
           path: zap_output_my/
 
   zap_scan_office:
@@ -31,7 +31,7 @@ jobs:
       - name: Upload ZAP Scan Results - office
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-office-results
+          name: zap-scan-office-results-${{ github.run_id }}
           path: zap_output_office/
 
   zap_scan_admin:
@@ -46,5 +46,5 @@ jobs:
       - name: Upload ZAP Scan Results - admin
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-admin-results
+          name: zap-scan-admin-results-${{ github.run_id }}
           path: zap_output_admin/
