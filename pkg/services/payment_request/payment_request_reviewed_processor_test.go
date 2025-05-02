@@ -17,7 +17,6 @@ import (
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
@@ -196,10 +195,11 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
-	mockNotificationSender := notifications.NewStubNotificationSender("")
+
 	var responseFailure = http.Response{}
 	responseFailure.StatusCode = http.StatusInternalServerError
 	responseFailure.Status = "500 Internal Server Error"
+
 	suite.Run("process reviewed payment request successfully (0 Payments to review)", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
@@ -212,7 +212,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(SFTPSessionError)
 		gexSender := services.GexSender(nil)
 		sendToSyncada := false
-		mockNotificationSender := notifications.NewStubNotificationSender("")
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -220,9 +219,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			generator,
 			sendToSyncada,
 			gexSender,
-			SFTPSession,
-			mockNotificationSender,
-		)
+			SFTPSession)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		var ediProcessing models.EDIProcessing
@@ -259,7 +256,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(SFTPSessionError)
 		gexSender := services.GexSender(nil)
 		sendToSyncada := false
-		mockNotificationSender := notifications.NewStubNotificationSender("")
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -267,8 +263,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			generator,
 			sendToSyncada,
 			gexSender,
-			SFTPSession,
-			mockNotificationSender)
+			SFTPSession)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that payment requst was not sent to gex
@@ -319,8 +314,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			generator,
 			sendToSyncada,
 			gexSender,
-			SFTPSession,
-			mockNotificationSender)
+			SFTPSession)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that sent_to_gex_at timestamp has been added
@@ -375,8 +369,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
-			SFTPSession,
-			mockNotificationSender)
+			SFTPSession)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
@@ -465,8 +458,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			ediGenerator,
 			sendToSyncada,
 			mockGexSender,
-			SFTPSender,
-			mockNotificationSender)
+			SFTPSender)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
@@ -534,8 +526,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
-			SFTPSession,
-			mockNotificationSender)
+			SFTPSession)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
@@ -588,8 +579,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
-			sftpSender,
-			mockNotificationSender)
+			sftpSender)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
@@ -641,8 +631,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			ediGenerator,
 			sendToSyncada,
 			gexSender,
-			sftpSender,
-			mockNotificationSender)
+			sftpSender)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
@@ -675,7 +664,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailedGEXMock() {
-	mockNotificationSender := notifications.NewStubNotificationSender("")
 
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
@@ -709,8 +697,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 			ediGenerator,
 			sendToSyncada,
 			mockGexSender,
-			sftpSender,
-			mockNotificationSender)
+			sftpSender)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
