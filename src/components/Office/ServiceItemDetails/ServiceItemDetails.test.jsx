@@ -7,6 +7,9 @@ const sitStatus = {
   currentSIT: {
     sitAuthorizedEndDate: '2024-03-17',
   },
+  totalSITDaysUsed: 15,
+  totalDaysRemaining: 15,
+  calculatedTotalDaysInSIT: 15,
 };
 
 const shipment = {
@@ -720,7 +723,7 @@ describe('ServiceItemDetails Crating Rejected', () => {
   });
 });
 
-describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK, ISLH, IHPK, IHUPK, IUBPK, IUBUPK, POEFSC, PODFSC, UBP', () => {
+describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, DUPK, ISLH, IHPK, IHUPK, IUBPK, IUBUPK, POEFSC, INPK, PODFSC, UBP', () => {
   it.each([
     ['DLH'],
     ['DSH'],
@@ -735,6 +738,7 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     ['IUBPK'],
     ['IUBUPK'],
     ['POEFSC'],
+    ['INPK'],
     ['PODFSC'],
     ['UBP'],
   ])('renders the formatted estimated price field for the service item: %s', (code) => {
@@ -768,6 +772,7 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     ['IUBPK'],
     ['IUBUPK'],
     ['POEFSC'],
+    ['INPK'],
     ['PODFSC'],
     ['UBP'],
   ])('renders - for estimated price when price is not in details for the service item: %s', (code) => {

@@ -176,6 +176,7 @@ const SERVICE_ITEM_CODES = {
   IDSFSC: 'IDSFSC',
   IUBPK: 'IUBPK',
   IUBUPK: 'IUBUPK',
+  INPK: 'INPK',
   UBP: 'UBP',
 };
 

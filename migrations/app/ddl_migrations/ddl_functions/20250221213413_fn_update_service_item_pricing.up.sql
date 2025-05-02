@@ -1,4 +1,5 @@
 --B-22462  M.Inthavongsay Adding initial migration file for update_service_item_pricing stored procedure using new migration process.
+--B-22662  C.Jewell added INPK estimate pricing
 --Also updating to allow IOSFSC and IDSFSC SIT service items.
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
     shipment_id UUID,
@@ -12,7 +13,11 @@ DECLARE
     estimated_price NUMERIC;
     o_rate_area_id UUID;
     d_rate_area_id UUID;
-    contract_id UUID;
+    declared_contract_id UUID;
+    declared_escalation_factor NUMERIC;
+    declared_oconus_factor NUMERIC;
+    declared_market_code TEXT;
+    declared_is_oconus BOOLEAN;
     service_code TEXT;
     o_zip_code TEXT;
     d_zip_code TEXT;
@@ -50,11 +55,50 @@ BEGIN
         WHERE id = service_item.re_service_id;
 
         CASE
+            WHEN service_code = ''INPK'' THEN
+                -- INPK requires the base price for an origin rate area and a requested pickup date
+                -- get the base price for the origin rate area from IHPK (iHHG into iNTS means use IHPK base price)
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                -- Use IHPK for the escalated price for the INPK case
+                -- This is because the scenario is iHHG -> iNTS
+                escalated_price := calculate_escalated_price(
+                    o_rate_area_id,
+                    NULL,
+                    (SELECT id FROM re_services WHERE code = ''IHPK''),
+                    declared_contract_id,
+                    ''IHPK'',
+                    shipment.requested_pickup_date
+                );
+                -- Now that we have the escalated price, we multiply it by the
+                -- NTS INPK market code factor. This time we pass in INPK,
+                -- because this is an NTS scenario
+                declared_oconus_factor := get_market_code_factor_escalation(
+                    o_rate_area_id,
+                    declared_contract_id,
+                    service_item.re_service_id
+                );
+                -- Okay, now that we have all of our numbers. We just gotta calc
+                -- the final price
+                -- Final estimated price = escalated price * factor * 110% of estimated weight
+                estimated_price := ROUND(
+                    ( escalated_price * declared_oconus_factor * ((shipment.prime_estimated_weight * 1.1) / 100.0) )::numeric,
+                    2
+                ) * 100;
+                RAISE NOTICE ''INPK: esc=%, factor=%, cwt=%, final=% (service_item id=%)'',
+                    escalated_price,
+                    declared_oconus_factor,
+                    (shipment.prime_estimated_weight / 100.0),
+                    estimated_price,
+                    service_item.id;
+                UPDATE mto_service_items
+                SET pricing_estimate = estimated_price
+                WHERE id = service_item.id;
             WHEN service_code IN (''ISLH'', ''UBP'') THEN
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
                     -- multiply by 110% of estimated weight
@@ -68,9 +112,9 @@ BEGIN
 
             WHEN service_code IN (''IHPK'', ''IUBPK'', ''IOSHUT'') THEN
                 -- perform IHPK/IUBPK-specific logic (no destination rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
                     -- multiply by 110% of estimated weight
@@ -84,9 +128,9 @@ BEGIN
 
             WHEN service_code IN (''IHUPK'', ''IUBUPK'', ''IDSHUT'') THEN
                 -- perform IHUPK/IUBUPK-specific logic (no origin rate area)
-                contract_id := get_contract_id(shipment.requested_pickup_date);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
                     -- multiply by 110% of estimated weight

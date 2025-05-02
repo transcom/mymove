@@ -19,8 +19,8 @@ const (
 	dnpkTestServicesScheduleOrigin = 1
 	dnpkTestContractYearName       = "DNPK Test Year"
 	dnpkTestBasePriceCents         = unit.Cents(6544)
-	dnpkTestFactor                 = 1.35
-	dnpkTestPriceCents             = unit.Cents(193064)
+	dnpkTestFactor                 = 1.32000
+	dnpkTestPriceCents             = unit.Cents(201358)
 )
 
 var dnpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 5, 5, 5, 5, time.UTC)
@@ -29,7 +29,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticNTSPackPricer() {
 	pricer := NewDomesticNTSPackPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticNTSPackServiceItem()
 
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
@@ -104,38 +103,4 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackServiceItem() models
 			},
 		}, nil, nil,
 	)
-}
-
-func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int, isPeakPeriod bool, priceCents unit.Cents, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Name:                 contractYearName,
-				EscalationCompounded: escalationCompounded,
-			},
-		})
-
-	packService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
-
-	factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
-		{
-			Model: models.ReDomesticOtherPrice{
-				ContractID:   contractYear.Contract.ID,
-				ServiceID:    packService.ID,
-				IsPeakPeriod: isPeakPeriod,
-				Schedule:     schedule,
-				PriceCents:   priceCents,
-			},
-		},
-	}, nil)
-
-	ntsPackService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDNPK)
-	shipmentTypePrice := models.ReShipmentTypePrice{
-		ContractID: contractYear.Contract.ID,
-		ServiceID:  ntsPackService.ID,
-		Market:     market,
-		Factor:     factor,
-	}
-
-	suite.MustSave(&shipmentTypePrice)
 }
