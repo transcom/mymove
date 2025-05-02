@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/notifications"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -40,7 +39,6 @@ type paymentRequestReviewedProcessor struct {
 	runSendToSyncada              bool // if false, do not send to Syncada, e.g. UT shouldn't send to Syncada
 	gexSender                     services.GexSender
 	sftpSender                    services.SyncadaSFTPSender
-	notifications                 notifications.NotificationSender
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
@@ -49,16 +47,14 @@ func NewPaymentRequestReviewedProcessor(
 	generator services.GHCPaymentRequestInvoiceGenerator,
 	runSendToSyncada bool,
 	gexSender services.GexSender,
-	sftpSender services.SyncadaSFTPSender,
-	notificationSender notifications.NotificationSender) services.PaymentRequestReviewedProcessor {
+	sftpSender services.SyncadaSFTPSender) services.PaymentRequestReviewedProcessor {
 
 	return &paymentRequestReviewedProcessor{
 		reviewedPaymentRequestFetcher: fetcher,
 		ediGenerator:                  generator,
 		gexSender:                     gexSender,
 		sftpSender:                    sftpSender,
-		runSendToSyncada:              runSendToSyncada,
-		notifications:                 notificationSender}
+		runSendToSyncada:              runSendToSyncada}
 }
 
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
@@ -77,14 +73,15 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 			return nil, err
 		}
 	}
+
 	return NewPaymentRequestReviewedProcessor(
 		reviewedPaymentRequestFetcher,
 		generator,
 		sendToSyncada,
 		gexSender,
-		sftpSession,
-		nil), nil
+		sftpSession), nil
 }
+
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var lockedPR models.PaymentRequest
@@ -157,8 +154,6 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 
 		return nil
 	})
-	paymentRequestNotifier := notifications.NewPaymentRequestFailed(pr)
-
 	if transactionError != nil {
 		errDescription := transactionError.Error()
 
@@ -185,14 +180,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 				zap.Error(verrs),
 			)
 		}
-		//send email to open HDT for review for payment requests that failed to send to GEX
-		err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
-		if err != nil {
-			appCtx.Logger().Error(
-				"failed to send notification for payment request that failed to send to GEX",
-				zap.String("PaymentRequestID", pr.ID.String()),
-				zap.Error(verrs))
-		}
+
 		switch transactionError.(type) {
 		case GexSendError:
 			// if we failed in sending there is nothing to do here but retry later so keep the status the same
@@ -217,8 +205,8 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		return transactionError
 	}
 	return nil
-
 }
+
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx appcontext.AppContext) {
 	// Store/log metrics about EDI processing upon exiting this method.
 	numProcessed := 0
