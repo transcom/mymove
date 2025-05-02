@@ -65,10 +65,11 @@ const UserEdit = () => {
   const inactivateUserHandler = async () => {
     const userUpdates = {
       active: false,
+      oktaEmail: userData.oktaEmail,
     };
     await updateUser(userData.id, userUpdates)
       .then(() => {
-        redirect('/');
+        redirect('./show');
       })
       .catch((error) => {
         setServerError(error);
