@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useDispatch, connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
-import { Button } from '@trussworks/react-uswds';
 import { useNavigate } from 'react-router';
 
 import MultiMovesMoveInfoList from '../MultiMovesMoveInfoList/MultiMovesMoveInfoList';
@@ -21,6 +20,7 @@ import { ppmShipmentStatuses } from 'constants/shipments';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
 import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 
 const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -141,19 +141,14 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
           {m.status === MOVE_STATUSES.CANCELED ? (
             <div className={styles.specialMoves}>Canceled</div>
           ) : (
-            <>
-              &nbsp;
-              {CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) ? (
-                <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
-              ) : null}
-            </>
+            CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) && (
+              <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
+            )
           )}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
-              secondary
-              outline
               onClick={() => {
                 handleGoToMoveClick(m.id);
               }}

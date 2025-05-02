@@ -1,0 +1,19 @@
+@use 'shared/styles/variables';
+@use 'sass:map';
+@use 'sass:list';
+
+$media-breaks-tablet: (prefix: t1, value: "(#{variables.$mobile} < width <= #{variables.$tablet})");
+$media-breaks-mobile: (prefix: m1, value: "(width <= #{variables.$mobile})");
+
+$get: (
+    regular: (null),
+    tablet-a:
+        $media-breaks-tablet,
+    mobile-a:
+        $media-breaks-mobile,
+);
+
+@function get-all-breaks($breaks){
+    $values: map-values($breaks);
+    @return $values;
+}

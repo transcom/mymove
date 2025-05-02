@@ -1,0 +1,104 @@
+// styling for positioning children of elements, or their contents.
+@use '../variables/spatial';
+@use 'sass:selector';
+@use  'shared/standardUI/Generic/build' as build;
+
+$displayProperty: flex;
+$default-flex-direction: row;
+
+@mixin mix-place-styles ($_prefix: null) {
+    $prefix: $_prefix;
+    @if($prefix == null){
+        $prefix: normal;
+    }
+
+    $place-selector: #{$prefix}-place;
+
+    %#{$place-selector} {
+        &--items-center-aligned{
+            @extend %#{$place-selector};
+            align-items: center;
+        }
+        &--items-center-justified{
+            @extend %#{$place-selector};
+            justify-items: center;
+        }
+        &--content-center-aligned{
+            @extend %#{$place-selector};
+            align-content: center;
+        }
+        &--content-center-justified{
+            @extend %#{$place-selector};
+            justify-content: center;
+        }
+        &--content-start-justified{
+            @extend %#{$place-selector};
+            justify-content: start;
+        }
+        &--content-space-between-justified{
+            @extend %#{$place-selector};
+            justify-content: space-between;
+        }
+    }
+
+    $display-selector: #{$prefix}-display-as;
+    %#{$display-selector} {
+        &--grid,
+        &--flex {
+            @extend %#{$place-selector};
+        }
+
+        &--flex {
+            display: flex;
+
+            // contents in buttons should be separated by a gap of 0.5rem (8px);
+            gap: spatial.$button-gap;
+
+            &--column{
+                @extend %#{$display-selector}--flex;
+                flex-direction: column;
+            }
+            &--row{
+                @extend %#{$display-selector}--flex;
+                flex-direction: row;
+            }
+        }
+
+        &--grid{
+            display: grid;
+        }
+    }
+
+    %#{$prefix}-flex-row-content-center-justified {
+        @extend %#{$display-selector}--flex--row, %#{$place-selector}--content-center-justified;
+    }
+    %#{$prefix}-flex-row-items-center-aligned {
+        @extend %#{$display-selector}--flex--row, %#{$place-selector}--items-center-aligned;
+    }
+
+    @content($place-selector,$display-selector);
+}
+
+@include mix-place-styles();
+
+@include build.mix-at-media() using ($selector, $media-break) {
+    @include mix-place-styles($selector) using ($place-selector, $display-selector){
+        @at-root {
+            %place {
+                @extend %#{$display-selector};
+            }
+
+            %display-as {
+                @extend %#{$display-selector};
+            }
+
+            %flex-row-content-center-justified {
+                @extend %#{$selector}-flex-row-content-center-justified;
+            }
+
+            %flex-row-items-center-aligned {
+                @extend %#{$selector}-flex-row-items-center-aligned;
+            }
+        }
+    }
+}

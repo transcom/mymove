@@ -3,7 +3,8 @@
 @import 'shared/styles/colors.scss';
 
 .usa-button {
-  @include u-bg('primary-vivid');
+  // remove color styles
+  // @include u-bg('primary-vivid');
   @include u-padding-x(3);
   @include u-padding-y('105');
   @include u-font-size('body', 'xs');
@@ -11,75 +12,75 @@
   align-items: center;
   justify-content: center;
   height: 42px;
-  @include u-margin-y(1);
-  .icon svg path,
-  .icon svg polygon {
-    fill: white;
-  }
-  &:hover,
-  &:focus,
-  .hover &,
-  .focus & {
-    @include u-bg('primary-dark');
-  }
-  .focus & {
-    outline: 0.26667rem solid #2491ff;
-    outline-offset: 0.26667rem;
-  }
-  &:active,
-  .active & {
-    @include u-bg('primary-darker');
-  }
-  &--secondary,
-  &--tertiary {
-    @include u-radius('md');
-    @include u-text('primary-vivid');
-    @include u-bg('transparent');
-    box-shadow: inset 0 0 0 2px color('primary-vivid');
-    .icon svg path {
-      fill: $primary;
-    }
-    &:hover,
-    &:focus,
-    .hover &,
-    .focus & {
-      @include u-text('primary-dark');
-      @include u-bg('transparent');
-      box-shadow: inset 0 0 0 2px color('primary-dark');
-      .icon svg path {
-        fill: $primary-dark;
-      }
-    }
-    &:active,
-    .active & {
-      @include u-text('primary-darker');
-      @include u-bg('transparent');
-      box-shadow: inset 0 0 0 2px color('primary-darker');
-      .icon svg path {
-        fill: $primary-darker;
-      }
-    }
-    &:disabled,
-    .disabled & {
-      @include u-text('base-light');
-      @include u-bg('transparent');
-      box-shadow: inset 0 0 0 2px color('base-light');
-      .icon svg path {
-        fill: $base-light;
-      }
-    }
-  } //close &--secondary
-  &--tertiary {
-    box-shadow: inset 0 0 0 2px #dcdee0;
-  }
-  &--destructive {
-    background-color: $error;
-    &:hover,
-    &:active,
-    &:focus {
-      background-color: $error-dark;
-    }
-  }
+  // @include u-margin-y(1);
+  // .icon svg path,
+  // .icon svg polygon {
+  //   fill: white;
+  // }
+  // &:hover,
+  // &:focus,
+  // .hover &,
+  // .focus & {
+  //   @include u-bg('primary-dark');
+  // }
+  // .focus & {
+  //   outline: 0.26667rem solid #2491ff;
+  //   outline-offset: 0.26667rem;
+  // }
+  // &:active,
+  // .active & {
+  //   @include u-bg('primary-darker');
+  // }
+  // &--secondary,
+  // &--tertiary {
+  //   @include u-radius('md');
+  //   @include u-text('primary-vivid');
+  //   @include u-bg('transparent');
+  //   box-shadow: inset 0 0 0 2px color('primary-vivid');
+  //   .icon svg path {
+  //     fill: $primary;
+  //   }
+  //   &:hover,
+  //   &:focus,
+  //   .hover &,
+  //   .focus & {
+  //     @include u-text('primary-dark');
+  //     @include u-bg('transparent');
+  //     box-shadow: inset 0 0 0 2px color('primary-dark');
+  //     .icon svg path {
+  //       fill: $primary-dark;
+  //     }
+  //   }
+  //   &:active,
+  //   .active & {
+  //     @include u-text('primary-darker');
+  //     @include u-bg('transparent');
+  //     box-shadow: inset 0 0 0 2px color('primary-darker');
+  //     .icon svg path {
+  //       fill: $primary-darker;
+  //     }
+  //   }
+  //   &:disabled,
+  //   .disabled & {
+  //     @include u-text('base-light');
+  //     @include u-bg('transparent');
+  //     box-shadow: inset 0 0 0 2px color('base-light');
+  //     .icon svg path {
+  //       fill: $base-light;
+  //     }
+  //   }
+  // } //close &--secondary
+  // &--tertiary {
+  //   box-shadow: inset 0 0 0 2px #dcdee0;
+  // }
+  // &--destructive {
+  //   background-color: $error;
+  //   &:hover,
+  //   &:active,
+  //   &:focus {
+  //     background-color: $error-dark;
+  //   }
+  // }
   &--icon {
     .icon {
       @include u-padding-right('05');
@@ -93,8 +94,8 @@
     height: 34px;
   }
   &.usa-button--unstyled {
-    @include u-bg('transparent');
-    @include u-text('primary-vivid');
+    // @include u-bg('transparent');
+    // @include u-text('primary-vivid');
     @include u-text('no-underline');
     @include u-margin(0);
     @include u-padding-y(0);
@@ -103,32 +104,32 @@
     .icon {
       @include u-padding-right('05');
       @include u-margin(0);
-      svg path {
-        fill: $primary;
-      }
+      // svg path {
+      //   fill: $primary;
+      // }
     }
-    &:hover,
-    &:focus,
-    .hover &,
-    .focus & {
-      @include u-text('primary-dark');
-      .icon svg path {
-        fill: $primary-dark;
-      }
-    }
-    &:disabled {
-      @include u-text('base-light');
-      .icon svg path {
-        fill: $base-light;
-      }
-    }
-    &:active,
-    .active & {
-      @include u-text('primary-darker');
-      .icon svg path {
-        fill: $primary-darker;
-      }
-    }
+    // &:hover,
+    // &:focus,
+    // .hover &,
+    // .focus & {
+    //   // @include u-text('primary-dark');
+    //   .icon svg path {
+    //     fill: $primary-dark;
+    //   }
+    // }
+    // &:disabled {
+    //   // @include u-text('base-light');
+    //   .icon svg path {
+    //     fill: $base-light;
+    //   }
+    // }
+    // &:active,
+    // .active & {
+    //   // @include u-text('primary-darker');
+    //   .icon svg path {
+    //     fill: $primary-darker;
+    //   }
+    // }
   }
 } //close usa-button
 
@@ -319,14 +320,14 @@
   }
 
   .usa-button {
-    margin-top: 0;
-    margin-right:0.5rem;
+    // margin-top: 0;
+    // margin-right:0.5rem;
   }
 }
 
 .usa-button {
-  margin-top: 0;
-  margin-right:0.5rem;
+  // margin-top: 0;
+  // margin-right:0.5rem;
 }
 
 //Modals

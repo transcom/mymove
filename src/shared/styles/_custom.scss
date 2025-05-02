@@ -186,8 +186,8 @@ table {
     @include u-margin-x('105');
   }
   .usa-button--unstyled {
-    @include u-margin(0);
-    @include u-padding-x(0);
+    // @include u-margin(0);
+    // @include u-padding-x(0);
     .icon {
       @include u-padding-left('05');
     }

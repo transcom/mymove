@@ -1,5 +1,8 @@
+@use 'shared/standardUI/' as *;
+
 @media (max-width:1240px) {
   body{
+
     min-width: 375px;
     overflow-x: scroll;
   }
@@ -8,14 +11,15 @@
   }
 }
 
-button.signInButton {
-  display: inline-flex;
+.signInButton {
   width: 100%;
+  @extend  .usa-button--primary;
 }
 
 :global(.usa-button-group) {
   justify-content: center;
 }
+
 .center {
   justify-content: center;
   align-items: center;

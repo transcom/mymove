@@ -1,23 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import qs from 'query-string';
-import { bool, shape, string } from 'prop-types';
-import { Button, ButtonGroup } from '@trussworks/react-uswds';
-import { useLocation, useNavigate } from 'react-router-dom';
-import '../../styles/signinImports.scss';
+import { ButtonGroup } from '@trussworks/react-uswds';
 import classNames from 'classnames';
+import { bool, shape, string } from 'prop-types';
+import qs from 'query-string';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import styles from './SignIn.module.scss';
+import '../../styles/signinImports.scss';
 
+import * as Buttons from 'shared/standardUI/Buttons';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import '@trussworks/react-uswds/lib/index.css';
-
-import { withContext } from 'shared/AppContext';
-import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
-import { FEATURE_FLAG_KEYS, isDevelopment } from 'shared/constants';
-import { useTitle } from 'hooks/custom';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 import { generalRoutes } from 'constants/routes';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { useTitle } from 'hooks/custom';
+import Alert from 'shared/Alert';
+import { withContext } from 'shared/AppContext';
+import { FEATURE_FLAG_KEYS, isDevelopment } from 'shared/constants';
+import { isBooleanFlagEnabledUnauthenticated } from 'utils/featureFlags';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
@@ -132,7 +133,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
             <ButtonGroup type="default">
               <Button
                 aria-label="Sign In"
-                className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+                className={styles.signInButton}
                 data-testid="signin"
                 onClick={() => {
                   setIsSigningUp(false);
@@ -146,7 +147,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
               {siteName === 'my.move.mil' && customerRegistrationFF ? (
                 <Button
                   aria-label="Create account"
-                  className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+                  className={styles.signInButton}
                   data-testid="createAccount"
                   onClick={() => {
                     setIsSigningIn(false);
@@ -160,14 +161,22 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
               ) : null}
 
               {showLocalDevLogin && (
-                <a className="usa-button" data-testid="devlocal-signin" href="/devlocal-auth/login">
+                <Buttons.Basic.WithNavAction
+                  className={styles.signInButton}
+                  data-testid="devlocal-signin"
+                  href="/devlocal-auth/login"
+                >
                   Local Sign In
-                </a>
+                </Buttons.Basic.WithNavAction>
               )}
               {showTestharnessList && (
-                <a className="usa-button" data-testid="devlocal-testharnesslist" href="/testharness/list">
+                <Buttons.Basic.WithNavAction
+                  className={styles.signInButton}
+                  data-testid="devlocal-testharnesslist"
+                  href="/testharness/list"
+                >
                   View Testharness Data Scenarios
-                </a>
+                </Buttons.Basic.WithNavAction>
               )}
             </ButtonGroup>
           </div>

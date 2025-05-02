@@ -1,7 +1,5 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
-
+@use 'sass:selector';
+@use 'shared/standardUI/' as *;
 
 .grid-container {
   margin-left: auto;
@@ -13,14 +11,6 @@
   @media (min-width: $tablet) {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-  }
-
-  .secondaryBtn {
-    box-shadow: inset 0 0 0 2px $primary;
-
-    &:disabled {
-      box-shadow: none;
-    }
   }
 }
 
@@ -57,29 +47,13 @@
 }
 
 .centeredContainer {
-    display: flex;
-    justify-content: center;
-  }
+    @extend %flex-row-content-center-justified;
+}
 
 .createMoveBtn {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     @include u-margin-top(-1);
-    span {
-      @include u-margin-right(.5em)
-    }
-
-    @media (max-width: $tablet) {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      span {
-        @include u-margin-right(0);
-      }
-    }
-  }
+    @extend  .usa-button--primary, %flex-row-content-center-justified, %flex-row-items-center-aligned;
+}
 
 .movesContainer {
     border: 1px solid $base-lighter;
