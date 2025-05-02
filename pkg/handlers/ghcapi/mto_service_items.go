@@ -269,8 +269,8 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 					if shipmentApprovable(*shipment) {
 						shipmentWithSITInfo.Status = models.MTOShipmentStatusApproved
-						//approvedDate := time.Now()
-						shipmentWithSITInfo.ApprovedDate = models.TimePointer(time.Now())
+						approvedDate := time.Now()
+						shipmentWithSITInfo.ApprovedDate = &approvedDate
 					}
 					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
 					if err != nil {
