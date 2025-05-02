@@ -16,14 +16,14 @@ const (
 	doasitTestServiceArea          = "789"
 	doasitTestIsPeakPeriod         = false
 	doasitTestBasePriceCents       = unit.Cents(747)
-	doasitTestContractYearName     = "DOASIT Test Year"
-	doasitTestEscalationCompounded = 1.042
+	doasitTestContractYearName     = testdatagen.DefaultContractYearName
+	doasitTestEscalationCompounded = 1.11000
 	doasitTestWeight               = unit.Pound(4200)
 	doasitTestNumberOfDaysInSIT    = 29
-	doasitTestPriceCents           = unit.Cents(947604)
+	doasitTestPriceCents           = unit.Cents(1009722)
 )
 
-var doasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
+var doasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.February, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPricer() {
 	pricer := NewDomesticOriginAdditionalDaysSITPricer()
@@ -84,7 +84,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
-		twoYearsLaterPickupDate := doasitTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := doasitTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
