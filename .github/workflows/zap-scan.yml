@@ -12,10 +12,10 @@ jobs:
         with:
           target: 'https://my.stg.move.mil'
           allow_issue_writing: 'false'
+          artifact_name: 'zap-scan-mymove-results'
       - name: Upload ZAP Scan Results - mymove
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-mymove-results-${{ github.run_id }}
           path: zap_output_my/
           overwrite: true
 
@@ -28,13 +28,13 @@ jobs:
         with:
           target: 'https://office.stg.move.mil'
           allow_issue_writing: 'false'
+          artifact_name: 'zap-scan-office-results'
+
       - name: Upload ZAP Scan Results - office
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-office-results-${{ github.run_id }}
           path: zap_output_office/
           overwrite: true
-
   zap_scan_admin:
     name: Scan admin
     runs-on: ubuntu-latest
@@ -44,9 +44,9 @@ jobs:
         with:
           target: 'https://admin.stg.move.mil'
           allow_issue_writing: 'false'
+          artifact_name: 'zap-scan-admin-results'
       - name: Upload ZAP Scan Results - admin
         uses: actions/upload-artifact@v4
         with:
-          name: zap-scan-admin-results-${{ github.run_id }}
           path: zap_output_admin/
           overwrite: true
