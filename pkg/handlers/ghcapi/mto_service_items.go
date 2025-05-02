@@ -256,6 +256,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 					"MTOServiceItems.SITEntryDate",
 					"MTOServiceItems.ReService",
 					"SITDurationUpdates",
+					"DeliveryAddressUpdate",
 				}
 				shipment, err := mtoshipment.FindShipment(appCtx, mtoshipmentID, eagerAssociations...)
 				if shipment != nil {
@@ -266,6 +267,11 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
+					if shipmentApprovable(*shipment) {
+						shipmentWithSITInfo.Status = models.MTOShipmentStatusApproved
+						approvedDate := time.Now()
+						shipmentWithSITInfo.ApprovedDate = &approvedDate
+					}
 					_, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
 					if err != nil {
 						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", mtoshipmentID, err))
@@ -293,6 +299,27 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 			payload := payloads.MTOServiceItemModel(updatedMTOServiceItem, h.FileStorer())
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload), nil
 		})
+}
+
+func shipmentApprovable(dbShipment models.MTOShipment) bool {
+	// check if any service items on current shipment still need to be reviewed
+	for _, serviceItem := range dbShipment.MTOServiceItems {
+		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+			return false
+		}
+	}
+	// check if all SIT Extensions are reviewed
+	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+		if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+			return false
+		}
+	}
+	// check if all Delivery Address updates are reviewed
+	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+		return false
+	}
+
+	return true
 }
 
 // ListMTOServiceItemsHandler struct that describes listing service items for the move task order

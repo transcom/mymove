@@ -99,6 +99,8 @@ const (
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 	// MTOShipmentTerminatedForCause indicates that a shipment has been terminated for cause by a COR
 	MTOShipmentStatusTerminatedForCause MTOShipmentStatus = "TERMINATED_FOR_CAUSE"
+	// MoveStatusAPPROVALSREQUESTED is the approvals requested status type for MTO Shipments
+	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS_REQUESTED"
 )
 
 // LOAType represents the possible TAC and SAC types for a mto shipment
@@ -216,6 +218,7 @@ func (m *MTOShipment) Validate(db *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusCanceled),
 		string(MTOShipmentStatusDiversionRequested),
 		string(MTOShipmentStatusTerminatedForCause),
+		string(MTOShipmentStatusApprovalsRequested),
 	}})
 	// Check if the status of the original shipment is terminated
 	if m.ID != uuid.Nil && db != nil {

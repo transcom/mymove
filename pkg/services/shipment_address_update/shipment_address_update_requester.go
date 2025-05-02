@@ -452,6 +452,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 		existingMoveStatus := move.Status
 		if updateNeedsTOOReview {
+			shipment.Status = models.MTOShipmentStatusApprovalsRequested
+
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
@@ -496,6 +498,27 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	return &addressUpdate, nil
+}
+
+func shipmentApprovable(dbShipment models.MTOShipment) bool {
+	// check if any service items on current shipment still need to be reviewed
+	for _, serviceItem := range dbShipment.MTOServiceItems {
+		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+			return false
+		}
+	}
+	// check if all SIT Extensions are reviewed
+	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+		if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+			return false
+		}
+	}
+	// check if all Delivery Address updates are reviewed
+	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+		return false
+	}
+
+	return true
 }
 
 func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
@@ -662,6 +685,12 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
 		addressUpdate.OfficeRemarks = &tooRemarks
+	}
+
+	if shipmentApprovable(shipment) {
+		shipment.Status = models.MTOShipmentStatusApproved
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
 	}
 
 	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {

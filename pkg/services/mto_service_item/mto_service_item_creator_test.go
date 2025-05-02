@@ -97,6 +97,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		},
 		{
 			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApprovalsRequested,
 				PrimeEstimatedWeight: models.PoundPointer(1500),
 			},
 		},
@@ -137,6 +138,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidIDFSITServiceItemWithValidMov
 		{
 			Model: models.MTOShipment{
 				MarketCode: models.MarketCodeInternational,
+				Status:     models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}, nil)
