@@ -203,21 +203,32 @@ describe('RequestAccountForm component', () => {
     expect(screen.getAllByText('Domain must be .mil, .gov or .edu').length).toBe(1);
   });
 
-  it('shows error when no roles are selected', async () => {
-    renderWithRouter(<RequestAccountForm {...testProps} />);
+  describe('Role selection validation', () => {
+    const checkboxTestIds = [
+      'headquartersCheckBox',
+      'taskOrderingOfficerCheckBox',
+      'taskInvoicingOfficerCheckBox',
+      'transportationContractingOfficerCheckBox',
+      'servicesCounselorCheckBox',
+      'qualityAssuranceEvaluatorCheckBox',
+      'customerSupportRepresentativeCheckBox',
+      'governmentSurveillanceRepresentativeCheckbox',
+    ];
 
-    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+    it.each(checkboxTestIds)('shows and clears error for %s', async (testId) => {
+      renderWithRouter(<RequestAccountForm {...testProps} />);
 
-    // check/uncheck the TOO checkbox
-    await userEvent.click(tooCheckbox);
-    await userEvent.click(tooCheckbox);
+      const checkbox = screen.getByTestId(testId);
 
-    const policyVerrs = await screen.findAllByText('You must select at least one role.');
-    expect(policyVerrs.length).toBe(1);
+      await userEvent.click(checkbox); // check
+      await userEvent.click(checkbox); // uncheck to trigger validation
 
-    // validation should go away when checking box again
-    await userEvent.click(tooCheckbox);
-    expect(screen.queryByText('You must select at least one role.')).not.toBeInTheDocument();
+      const error = await screen.findByText('You must select at least one role.');
+      expect(error).toBeInTheDocument();
+
+      await userEvent.click(checkbox); // check again
+      expect(screen.queryByText('You must select at least one role.')).not.toBeInTheDocument();
+    });
   });
 
   it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
