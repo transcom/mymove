@@ -156,7 +156,11 @@ func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc RawEmai
 func formatRawEmailMessage(email emailContent, domain string) ([]byte, error) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", senderEmail(domain))
-	m.SetHeader("To", email.recipientEmail)
+	if len(email.recipientEmails) > 0 {
+		m.SetHeader("To", email.recipientEmails...)
+	} else {
+		m.SetHeader("To", email.recipientEmail)
+	}
 	m.SetHeader("Subject", email.subject)
 	m.SetBody(uploader.FileTypeText, email.textBody)
 	m.AddAlternative("text/html", email.htmlBody)

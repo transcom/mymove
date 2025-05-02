@@ -268,8 +268,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that payment requst was not sent to gex
@@ -321,8 +320,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that sent_to_gex_at timestamp has been added
@@ -378,8 +376,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
@@ -469,8 +466,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			mockGexSender,
 			SFTPSender,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
@@ -539,8 +535,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
@@ -594,8 +589,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			sftpSender,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
@@ -648,8 +642,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			sftpSender,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
@@ -717,8 +710,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 			sendToSyncada,
 			mockGexSender,
 			sftpSender,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
