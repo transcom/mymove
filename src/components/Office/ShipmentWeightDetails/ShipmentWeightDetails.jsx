@@ -63,7 +63,7 @@ const ShipmentWeightDetails = ({
           ]}
         />
         <DataTable
-          columnHeaders={[reweighHeader, 'Actual shipment weight']}
+          columnHeaders={[shipmentIsPPM ? '' : reweighHeader, 'Actual shipment weight']}
           dataRow={[
             shipmentInfo.reweighWeight ? formatWeight(shipmentInfo.reweighWeight) : emDash,
             lowestWeight ? formatWeight(lowestWeight) : emDash,
