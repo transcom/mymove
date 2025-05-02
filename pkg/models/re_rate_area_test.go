@@ -71,7 +71,7 @@ func (suite *ModelSuite) TestFetchRateArea() {
 	})
 
 	suite.Run("failure - required parameters", func() {
-		_, err := models.FetchRateArea(suite.DB(), uuid.Nil, uuid.Nil, uuid.Nil)
+		_, err := models.FetchRateArea(suite.DB(), uuid.Must(uuid.NewV4()), uuid.Nil, uuid.Nil)
 		suite.NotNil(err)
 		suite.Contains(err.Error(), "error fetching rate area - required parameters not provided")
 	})

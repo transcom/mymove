@@ -1,4 +1,4 @@
--- function to get the rate area for any address
+-- B-22468 M.Inthavongsay function to get the rate area for any address
 CREATE OR REPLACE FUNCTION get_rate_area(
     address_id UUID,
     service_item_id UUID,

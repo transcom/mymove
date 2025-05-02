@@ -32,7 +32,7 @@ variables:
   # Specify the environment: loadtest, demo, exp
   DP3_ENV: &dp3_env placeholder_env
 
-  # Specify the branch to deploy TODO: this might be not needed. So far useless
+  # Specify the branch to deploy
   DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
@@ -641,8 +641,8 @@ compile_app_client:
       policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "4"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_MEMORY_REQUEST: "12Gi"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
   before_script:
   - *setup_milmove_env
   - *install_yarn
@@ -676,8 +676,8 @@ compile_app_server:
       policy: pull
   variables:
     KUBERNETES_CPU_REQUEST: "3"
-    KUBERNETES_MEMORY_REQUEST: "8Gi"
-    KUBERNETES_MEMORY_LIMIT: "8Gi"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   needs:
     - pre_deps_golang
     - pre_deps_yarn

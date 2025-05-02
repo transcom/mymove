@@ -16,7 +16,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRateAreaLookup() {
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func(code models.ReServiceCode) {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				StartDate: time.Now().Add(-24 * time.Hour),
 				EndDate:   time.Now().Add(24 * time.Hour),

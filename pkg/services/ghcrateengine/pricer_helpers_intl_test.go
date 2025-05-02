@@ -19,7 +19,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 		suite.Equal(ioshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ioshutTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ioshutTestBasePriceCents)},
 		}
@@ -56,8 +56,8 @@ func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
+		tenYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(10, 0, 0)
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, tenYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
@@ -216,7 +216,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 		suite.Equal(icrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(icrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(icrtTestBasePriceCents)},
 			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
@@ -254,7 +254,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeICRT, icrtTestMarket, icrtTestBasePriceCents, testdatagen.DefaultContractCode, icrtTestEscalationCompounded)
 
-		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := priceIntlCratingUncrating(suite.AppContextForTest(), models.ReServiceCodeICRT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, icrtTestBilledCubicFeet, icrtTestStandaloneCrate, icrtTestStandaloneCrateCap, icrtTestExternalCrate, icrtTestMarket)
 
 		suite.Error(err)
@@ -340,6 +340,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlPickupDeliverySIT() {
 		cy := testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
+					StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+					EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
 					EscalationCompounded: iopsitTestEscalationCompounded,
 				},
 			})
@@ -381,10 +383,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlPickupDeliverySIT() {
 		cy := testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
+					StartDate:            time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
+					EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
 					EscalationCompounded: iopsitTestEscalationCompounded,
 				},
 			})
-		outOfBoundRequestTime := time.Date(2028, time.July, 5, 10, 22, 11, 456, time.UTC)
+		outOfBoundRequestTime := time.Date(2010, time.July, 5, 10, 22, 11, 456, time.UTC)
 		_, _, err := priceIntlPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeIOPSIT, cy.Contract.Code, outOfBoundRequestTime, iopsitTestWeight, int(iopsitTestPerUnitCents))
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price")
