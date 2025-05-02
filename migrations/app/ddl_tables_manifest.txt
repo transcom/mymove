@@ -17,3 +17,4 @@
 20250407153103_tbl_ppm_closeouts_B-22656.up.sql
 20250408195326_tr_sit_extensions_B-22924.up.sql
 20250415153046_tbl_create_reflagged_payment_requests.up.sql
+20250502172414_tbl_create_intl_city_countries.up.sql
