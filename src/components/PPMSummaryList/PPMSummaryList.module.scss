@@ -48,6 +48,11 @@
     @include u-margin-bottom(2);
   }
 
+  #uploadPPMDocumentsBtn {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
   .bold {
     font-weight: bold;
   }
