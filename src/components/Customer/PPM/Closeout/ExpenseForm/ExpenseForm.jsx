@@ -328,7 +328,7 @@ const ExpenseForm = ({
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-                  Return To Homepage
+                  Cancel
                 </Button>
                 <Button
                   className={ppmStyles.saveButton}
