@@ -28,7 +28,7 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
-import { saveBulkAssignmentData } from 'services/ghcApi';
+import { saveBulkAssignmentData, checkForLockedMovesAndUnlock } from 'services/ghcApi';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 const defaultPageSize = 20;
@@ -343,6 +343,7 @@ const TableQueue = ({
 
   const handleCloseBulkAssignModal = () => {
     setIsBulkAssignModalVisible(false);
+    checkForLockedMovesAndUnlock(officeUser.id);
   };
 
   const onSubmitBulk = (bulkAssignmentSaveData) => {
@@ -376,7 +377,12 @@ const TableQueue = ({
             <h1>{`${title} (${totalCount})`}</h1>
             <div className={styles.queueButtonWrapper}>
               {isSupervisor && isBulkAssignmentFFEnabled && (
-                <Button className={styles.bulkModal} type="button" onClick={handleShowBulkAssignMoveModal}>
+                <Button
+                  className={styles.bulkModal}
+                  type="button"
+                  onClick={handleShowBulkAssignMoveModal}
+                  data-testid="bulk-assignment-button"
+                >
                   Bulk Assignment
                 </Button>
               )}
