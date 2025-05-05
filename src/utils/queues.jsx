@@ -34,7 +34,6 @@ export function getQueue(queueName) {
 }
 
 export const formatApprovalRequestTypes = (queueType, requestTypes) => {
-  // chose to use an object here to avoid an extra iteration where we would need to filter out duplicate requestTypes
   const requestLabels = {};
 
   if (getQueue(queueType) === QUEUE_TYPES.TASK_ORDER) {
