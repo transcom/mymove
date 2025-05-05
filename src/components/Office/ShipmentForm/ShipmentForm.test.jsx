@@ -2,21 +2,29 @@
 import React from 'react';
 import { render, screen, waitFor, within, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
 
 import ShipmentForm from './ShipmentForm';
 
-import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { PPM_TYPES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
-import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, boatShipmentTypes, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
+import { dateSelectionIsWeekendHoliday } from 'services/ghcApi';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const mockMutateFunction = jest.fn();
@@ -31,12 +39,15 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const tomorrow = formatDateWithUTC(moment().add(1, 'days').toDate(), 'YYYY-MM-DD');
+const tomorrowDatePicker = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+
 const mockMtoShipment = {
   id: 'shipment123',
   moveTaskOrderId: 'mock move id',
   customerRemarks: 'mock customer remarks',
   counselorRemarks: 'mock counselor remarks',
-  requestedPickupDate: '2020-03-01',
+  requestedPickupDate: tomorrow,
   requestedDeliveryDate: '2020-03-30',
   hasSecondaryDeliveryAddress: false,
   hasSecondaryPickupAddress: false,
@@ -169,7 +180,7 @@ const mockUBShipment = {
   moveTaskOrderId: 'mock move id',
   customerRemarks: 'mock customer remarks',
   counselorRemarks: 'mock counselor remarks',
-  requestedPickupDate: '2020-03-01',
+  requestedPickupDate: tomorrow,
   requestedDeliveryDate: '2020-03-30',
   hasSecondaryDeliveryAddress: false,
   hasSecondaryPickupAddress: false,
@@ -713,7 +724,7 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -797,7 +808,7 @@ describe('ShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -1104,8 +1115,8 @@ describe('ShipmentForm component', () => {
       );
 
       await act(async () => {
-        screen.getByLabelText('Requested pickup date').focus();
-        await userEvent.paste('26 Mar 2022');
+        await userEvent.clear(screen.getByLabelText('Requested pickup date'));
+        await userEvent.paste(tomorrow);
         await userEvent.click(screen.getByTestId('useCurrentResidence'));
       });
 
@@ -1378,7 +1389,7 @@ describe('ShipmentForm component', () => {
             },
           ],
           requestedDeliveryDate: '2020-03-30',
-          requestedPickupDate: '2020-03-01',
+          requestedPickupDate: tomorrow,
           shipmentType: SHIPMENT_OPTIONS.HHG,
         },
         shipmentID: 'shipment123',
@@ -2540,5 +2551,217 @@ describe('ShipmentForm component', () => {
 
       expect(screen.queryByText('Where and when should the movers deliver your mobile home?')).not.toBeInTheDocument();
     });
+  });
+
+  describe('requestedPickupDate validation when creating and editing non-PPM shipments', () => {
+    const mockHHGShipment = {
+      ...mockMtoShipment,
+      requestedPickupDate: '2020-03-01',
+    };
+
+    const mockNtsShipment = {
+      ...mockHHGShipment,
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      storageFacility: {
+        facilityName: 'Storage Facility',
+        address: {
+          city: 'Anytown',
+          country: 'USA',
+          postalCode: '90210',
+          state: 'OK',
+          streetAddress1: '555 Main Ave',
+          streetAddress2: 'Apartment 900',
+        },
+      },
+      tacType: 'HHG',
+      sacType: 'NTS',
+      tac: '123',
+      sac: '456',
+      serviceOrderNumber: '12341234',
+    };
+
+    const mockNtsrShipment = {
+      ...mockNtsShipment,
+      ntsRecordedWeight: 2000,
+    };
+
+    const mockBoatShipment = (boatShipmentType) => ({
+      ...mockHHGShipment,
+      boatShipment: {
+        type: boatShipmentType,
+        year: 2020,
+        make: 'Yamaha',
+        model: '242X E-Series',
+        lengthInInches: 276,
+        widthInInches: 102,
+        heightInInches: 120,
+        hasTrailer: true,
+        isRoadworthy: true,
+      },
+    });
+
+    const mockMobileHomeShipment = {
+      ...mockHHGShipment,
+      mobileHomeShipment: {
+        year: 2020,
+        make: 'Yamaha',
+        model: '242X E-Series',
+        lengthInInches: 276,
+        widthInInches: 102,
+        heightInInches: 120,
+      },
+    };
+
+    const mockedUB = {
+      ...mockUBShipment,
+      requestedPickupDate: '2020-03-01',
+    };
+
+    const shipmentTypesSource = [
+      [SHIPMENT_TYPES.HHG, mockHHGShipment],
+      [SHIPMENT_TYPES.NTS, mockNtsShipment],
+      [SHIPMENT_TYPES.NTSR, mockNtsrShipment],
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY, mockBoatShipment(boatShipmentTypes.HAUL_AWAY)],
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY, mockBoatShipment(boatShipmentTypes.TOW_AWAY)],
+      [SHIPMENT_TYPES.MOBILE_HOME, mockMobileHomeShipment],
+      [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE, mockedUB],
+    ];
+
+    const shipmentTypesToTest = [
+      ...shipmentTypesSource.map((v) => [true].concat(v)),
+      ...shipmentTypesSource.map((v) => [false].concat(v)),
+    ];
+
+    it.each(shipmentTypesToTest)(
+      'requestedPickupDate (isCreate:%s | %s) - validation errors show',
+      async (isCreate, shipmentType, mockShipment) => {
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultProps}
+            shipmentType={shipmentType}
+            mtoShipment={isCreate ? {} : mockShipment}
+            isCreatePage={isCreate}
+            userRole={roleTypes.TOO}
+          />,
+        );
+
+        if (isCreate) {
+          // Trigger error with empty date, field touched
+          await act(async () => {
+            const node = screen.getByLabelText(/Requested pickup date/);
+            await userEvent.clear(node);
+            node.blur();
+          });
+
+          const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
+            'formGroup',
+          );
+          await waitFor(() => {
+            expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent('Required');
+          });
+        } else {
+          // Trigger error with invalid date, field changed
+          await act(async () => {
+            const node = screen.getByLabelText(/Requested pickup date/);
+            await userEvent.clear(node);
+            await userEvent.paste('22 Mar 2022');
+            node.blur();
+          });
+          const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
+            'formGroup',
+          );
+          await waitFor(() => {
+            expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent(
+              'Requested pickup date must be in the future.',
+            );
+          });
+        }
+
+        // Trigger invalid date error - cannot be today
+        const now = formatDateForDatePicker(formatDateWithUTC(new Date()));
+        await act(async () => {
+          const node = screen.getByLabelText(/Requested pickup date/);
+          await userEvent.clear(node);
+          await userEvent.paste(now);
+          node.blur();
+        });
+        expect(await screen.findByLabelText(/Requested pickup date/)).toHaveValue(now);
+        const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent(
+            'Requested pickup date must be in the future.',
+          );
+        });
+      },
+    );
+
+    it.each(shipmentTypesToTest)(
+      'requestedPickupDate (isCreate:%s | %s) - validation errors hide when valid and holiday alert shows',
+      async (isCreate, shipmentType, mockShipment) => {
+        const expectedDateSelectionIsWeekendHolidayResponse = {
+          country_code: 'US',
+          country_name: 'United States',
+          is_weekend: true,
+          is_holiday: true,
+        };
+        dateSelectionIsWeekendHoliday.mockImplementation(() =>
+          Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+        );
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultProps}
+            shipmentType={shipmentType}
+            mtoShipment={isCreate ? {} : mockShipment}
+            isCreatePage={isCreate}
+            userRole={roleTypes.TOO}
+          />,
+        );
+
+        // Trigger invalid date error - must be in the future
+        await act(async () => {
+          const node = screen.getByLabelText('Requested pickup date');
+          await userEvent.clear(node);
+          await userEvent.paste('26 Mar 2022');
+          node.blur();
+        });
+        expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('26 Mar 2022');
+        const dateRequiredParent = within(await screen.findByTestId('requestedPickupDateFieldSet')).queryByTestId(
+          'formGroup',
+        );
+        await waitFor(() => {
+          expect(within(dateRequiredParent).queryByTestId('errorMessage')).toHaveTextContent(
+            'Requested pickup date must be in the future.',
+          );
+        });
+        // should hide holiday alert
+        expect(screen.queryByTestId('requestedPickupDateAlert')).not.toBeInTheDocument();
+
+        // Valid date, hides errors
+        await act(async () => {
+          const node = screen.getByLabelText('Requested pickup date');
+          await userEvent.clear(node);
+          await userEvent.paste(tomorrowDatePicker);
+          node.blur();
+        });
+        expect(await screen.findByLabelText('Requested pickup date')).toHaveValue(tomorrowDatePicker);
+        await waitFor(() => {
+          expect(screen.queryByTestId('requestedPickupDateErrorAlert')).not.toBeInTheDocument();
+          expect(
+            within(screen.getByTestId('requestedPickupDateFieldSet')).queryByTestId('errorMessage'),
+          ).not.toBeInTheDocument();
+          expect(screen.getByTestId('requestedPickupDateAlert')).toBeVisible();
+        });
+      },
+    );
   });
 });

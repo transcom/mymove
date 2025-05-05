@@ -3,12 +3,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
 
 import BoatShipmentLocationInfo from './BoatShipmentLocationInfo';
 
 import { customerRoutes } from 'constants/routes';
 import { patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { MockProviders } from 'testUtils';
 
@@ -27,6 +29,8 @@ jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
+
+const tomorrow = formatDateWithUTC(moment().add(1, 'days').toDate(), 'YYYY-MM-DD');
 
 const shipmentEditPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
   moveId: mockMoveId,
@@ -74,7 +78,7 @@ const mockMTOShipment = {
   eTag: window.btoa(new Date()),
   createdAt: '2021-06-11T18:12:11.918Z',
   customerRemarks: 'mock remarks',
-  requestedPickupDate: '2021-08-01',
+  requestedPickupDate: tomorrow,
   requestedDeliveryDate: '2021-08-11',
   pickupAddress: {
     id: uuidv4(),
@@ -152,7 +156,9 @@ describe('Pickup info page', () => {
 
       renderBoatShipmentLocationInfo();
 
-      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      const tomorrowDatePicker = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
+
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue(tomorrowDatePicker);
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
