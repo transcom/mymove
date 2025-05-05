@@ -1741,6 +1741,8 @@ paths:
           description: Must be authenticated to use this end point
         '403':
           description: Not authorized to update an Office User
+        '404':
+          description: Office User not found
         '500':
           description: Server error
     delete:
