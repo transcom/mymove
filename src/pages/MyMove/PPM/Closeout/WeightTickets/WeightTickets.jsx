@@ -74,6 +74,7 @@ const WeightTickets = () => {
           dispatch(updateMTOShipment(mtoShipment));
         })
         .catch(() => {
+          // console.log(err);
           setErrorMessage('Failed to create trip record');
         });
     }
