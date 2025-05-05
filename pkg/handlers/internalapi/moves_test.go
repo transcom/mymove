@@ -198,9 +198,16 @@ func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 }
 
 func (suite *HandlerSuite) TestShowMoveHandler() {
+	someTime := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
 
 	// Given: a set of orders, a move, user and servicemember
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				LockExpiresAt: &someTime,
+			},
+		},
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -221,6 +228,8 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	// And: Returned query to include our added move
 	suite.Assertions.Equal(move.OrdersID.String(), okResponse.Payload.OrdersID.String())
 
+	// should have a lockExpiresAt field if passed in by request
+	suite.Equal(handlers.FmtDateTime(someTime), &okResponse.Payload.LockExpiresAt)
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {

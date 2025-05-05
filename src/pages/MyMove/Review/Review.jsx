@@ -15,7 +15,7 @@ import { customerRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
 import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
-import { MOVE_LOCKED_WARNING, SHIPMENT_TYPES } from 'shared/constants';
+import { checkIfMoveIsLocked, MOVE_LOCKED_WARNING, SHIPMENT_TYPES } from 'shared/constants';
 import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
 import { useTitle } from 'hooks/custom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -65,8 +65,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   }
 
   useEffect(() => {
-    const now = new Date();
-    if (move?.status === MOVE_STATUSES.DRAFT && now < new Date(move?.lockExpiresAt)) {
+    if (checkIfMoveIsLocked(move)) {
       setIsMoveLocked(true);
     }
   }, [move]);

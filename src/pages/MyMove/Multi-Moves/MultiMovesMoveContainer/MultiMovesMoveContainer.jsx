@@ -20,7 +20,7 @@ import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/interna
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
-import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
+import { checkIfMoveIsLocked, MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
 
 const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -133,8 +133,6 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
     scrollToTop();
   };
 
-  const now = new Date();
-
   const moveList = moves.map((m, index) => (
     <React.Fragment key={index}>
       <div className={styles.moveContainer}>
@@ -151,7 +149,7 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
             </>
           )}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            {m?.status === MOVE_STATUSES.DRAFT && now < new Date(m?.lockExpiresAt) ? (
+            {checkIfMoveIsLocked ? (
               <Button data-testid="moveLockedBtn" className={styles.moveLockedBtn} secondary disabled>
                 Move Locked
               </Button>

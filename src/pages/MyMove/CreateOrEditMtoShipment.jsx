@@ -7,7 +7,7 @@ import MobileHomeShipmentCreate from 'pages/MyMove/MobileHome/MobileHomeShipment
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { checkIfMoveIsLocked, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   updateMTOShipment as updateMTOShipmentAction,
@@ -49,9 +49,8 @@ export class CreateOrEditMtoShipment extends Component {
     const { type } = qs.parse(location.search);
 
     const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
-    const now = new Date();
     let isMoveLocked = false;
-    if (move?.status === MOVE_STATUSES.DRAFT && now < new Date(move?.lockExpiresAt)) {
+    if (checkIfMoveIsLocked(move)) {
       isMoveLocked = true;
     }
     let mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
