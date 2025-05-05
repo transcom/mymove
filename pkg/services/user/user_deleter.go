@@ -51,6 +51,12 @@ func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) err
 			return err
 		}
 
+		var serviceMember models.ServiceMember
+		err = o.builder.FetchOne(txnAppCtx, &serviceMember, userIdFilter)
+		if err == nil {
+			serviceMemberIdFilter := []services.QueryFilter{query.NewQueryFilter("service_member_id", "=", serviceMember.ID.String())}
+			err = o.builder.DeleteMany(txnAppCtx, &[]models.BackupContact{}, serviceMemberIdFilter)
+		}
 		err = o.builder.DeleteMany(txnAppCtx, &[]models.ServiceMember{}, userIdFilter)
 		if err != nil {
 			return handleError(id, err)
