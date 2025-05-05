@@ -29,7 +29,7 @@ func (suite *ModelSuite) TestEmptyHHGAllowanceInstantiation() {
 		"pay_grade_id": {"PayGradeID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(&newHHGAllowance, expErrors)
+	suite.verifyValidationErrors(&newHHGAllowance, expErrors, nil)
 }
 
 // Test validation fields that pass when empty but fail with faulty values
@@ -49,5 +49,5 @@ func (suite *ModelSuite) TestFaultyHHGAllowanceInstantiation() {
 		"pro_gear_weight_spouse":            {"-1 is not greater than -1."},
 	}
 
-	suite.verifyValidationErrors(&newHHGAllowance, expErrors)
+	suite.verifyValidationErrors(&newHHGAllowance, expErrors, nil)
 }

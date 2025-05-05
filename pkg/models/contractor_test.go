@@ -13,7 +13,7 @@ func (suite *ModelSuite) TestContractorValidation() {
 		}
 
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&newContractor, expErrors)
+		suite.verifyValidationErrors(&newContractor, expErrors, nil)
 	})
 
 	suite.Run("test empty Contractor", func() {
@@ -23,6 +23,6 @@ func (suite *ModelSuite) TestContractorValidation() {
 			"type":            {"Type can not be blank."},
 			"contract_number": {"ContractNumber can not be blank."},
 		}
-		suite.verifyValidationErrors(&emptyContractor, expErrors)
+		suite.verifyValidationErrors(&emptyContractor, expErrors, nil)
 	})
 }

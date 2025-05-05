@@ -19,7 +19,7 @@ func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
 		"user_id": {"UserID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(servicemember, expErrors)
+	suite.verifyValidationErrors(servicemember, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {

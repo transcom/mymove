@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"database/sql"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -20,13 +21,17 @@ type mtoShipmentAddressUpdater struct {
 	planner        route.Planner
 	addressCreator services.AddressCreator
 	addressUpdater services.AddressUpdater
+	checks         []addressUpdateValidator
 }
 
 // NewMTOShipmentAddressUpdater updates the address for an MTO Shipment
 func NewMTOShipmentAddressUpdater(planner route.Planner, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.MTOShipmentAddressUpdater {
-	return mtoShipmentAddressUpdater{planner: planner,
+	return mtoShipmentAddressUpdater{
+		planner:        planner,
 		addressCreator: addressCreator,
-		addressUpdater: addressUpdater}
+		addressUpdater: addressUpdater,
+		checks:         []addressUpdateValidator{checkAddressUpdateAllowed()},
+	}
 }
 
 // isAddressOnShipment returns true if address is associated with the shipment, false if not
@@ -145,7 +150,7 @@ func UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(mtoServiceItems 
 // If mustBeAvailableToPrime is set, update will not happen unless the mto with which the address + shipment is associated
 // is also availableToPrime and not an external vendor shipment.
 func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.AppContext, newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error) {
-
+	var verrs *validate.Errors
 	// Find the mtoShipment based on id, so we can pull the uuid for the move
 	mtoShipment := models.MTOShipment{}
 	oldAddress := models.Address{}
@@ -164,6 +169,24 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		default:
 			return nil, apperror.NewQueryError("MTOShipment", err, "")
 		}
+	}
+
+	if newAddress != nil {
+		for _, check := range f.checks {
+			if err = check.Validate(appCtx, newAddress, &mtoShipment); err != nil {
+				switch e := err.(type) {
+				case *validate.Errors:
+					// Accumulate all validation errors
+					verrs.Append(e)
+				default:
+					// Non-validation errors have priority and short-circuit doing any further checks
+					return nil, err
+				}
+			}
+		}
+	}
+	if verrs.HasAny() {
+		return nil, verrs
 	}
 
 	if mustBeAvailableToPrime {

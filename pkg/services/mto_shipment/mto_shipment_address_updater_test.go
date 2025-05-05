@@ -93,7 +93,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 				Model: models.MTOShipment{
 					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
 					UsesExternalVendor: true,
-					Status:             models.MTOShipmentStatusApproved,
+					Status:             models.MTOShipmentStatusSubmitted,
 				},
 			},
 			{
@@ -134,6 +134,59 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		suite.Equal(4, len(*mtoServiceItems))
 		for _, mtoServiceItem := range *mtoServiceItems {
 			suite.Equal(externalShipment.DestinationAddressID, mtoServiceItem.SITDestinationFinalAddressID)
+		}
+	})
+
+	suite.Run("Updating address validators", func() {
+		testCases := map[string]struct {
+			status    models.MTOShipmentStatus
+			happyPath bool
+		}{
+			"Terminated shipment is a bad path": {
+				models.MTOShipmentStatusTerminatedForCause,
+				false,
+			},
+			"Submitted shipment is a happy path": {
+				models.MTOShipmentStatusSubmitted,
+				true,
+			},
+		}
+		for _, tc := range testCases {
+			availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+			address := factory.BuildAddress(suite.DB(), nil, nil)
+			externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    availableToPrimeMove,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:       models.MTOShipmentTypeHHGOutOfNTS,
+						UsesExternalVendor: true,
+						Status:             tc.status,
+					},
+				},
+				{
+					Model:    address,
+					Type:     &factory.Addresses.DeliveryAddress,
+					LinkOnly: true,
+				},
+			}, nil)
+			eTag := etag.GenerateEtag(address.UpdatedAt)
+
+			updatedAddress := address
+			updatedAddress.StreetAddress1 = "123 Somewhere Ln"
+
+			returnAddress, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, externalShipment.ID, eTag, false)
+			// If an error occurred when one isn't expected
+			if tc.happyPath {
+				suite.FatalNoError(err, "Happy path scenario failed, the validators should have been satisfied and no error returned")
+				suite.Equal(updatedAddress.StreetAddress1, returnAddress.StreetAddress1)
+			}
+			// If an error didn't occur when it is expected
+			if !tc.happyPath {
+				suite.Error(err, "No error occurred when the validator should have returned an error for the test case")
+			}
 		}
 	})
 

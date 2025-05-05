@@ -17,7 +17,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaPriceValidations() {
 			PriceCents:            unit.Cents(375),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReDomesticServiceAreaPrice, expErrors)
+		suite.verifyValidationErrors(&validReDomesticServiceAreaPrice, expErrors, nil)
 	})
 
 	suite.Run("test empty ReDomesticServiceAreaPrice", func() {
@@ -28,6 +28,6 @@ func (suite *ModelSuite) TestReDomesticServiceAreaPriceValidations() {
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
 			"price_cents":              {"PriceCents can not be blank.", "0 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&emptyReDomesticServiceAreaPrice, expErrors)
+		suite.verifyValidationErrors(&emptyReDomesticServiceAreaPrice, expErrors, nil)
 	})
 }

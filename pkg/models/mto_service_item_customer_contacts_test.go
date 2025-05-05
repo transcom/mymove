@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestMTOServiceItemCustomerContactValidation() {
 			FirstAvailableDeliveryDate: time.Now(),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
+		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors, nil)
 	})
 
 	suite.Run("test invalid MTOServiceItemCustomerContact", func() {
@@ -31,6 +31,6 @@ func (suite *ModelSuite) TestMTOServiceItemCustomerContactValidation() {
 			"time_military":                 {"TimeMilitary can not be blank."},
 			"first_available_delivery_date": {"FirstAvailableDeliveryDate can not be blank."},
 		}
-		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
+		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors, nil)
 	})
 }
