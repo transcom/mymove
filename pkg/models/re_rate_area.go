@@ -77,7 +77,7 @@ func FetchRateArea(db *pop.Connection, addressID uuid.UUID, serviceID uuid.UUID,
 		}
 		return &reRateArea, nil
 	}
-	return nil, fmt.Errorf("error fetching rate area - required parameters not provided")
+	return nil, fmt.Errorf("error fetching rate area - required parameters not provided - addressID: %s, serviceID: %s, contractID: %s", addressID, serviceID, contractID)
 }
 
 func FetchConusRateAreaByPostalCode(db *pop.Connection, zip string, contractID uuid.UUID) (*ReRateArea, error) {
