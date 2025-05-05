@@ -54,7 +54,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
         return (
           <div className={classnames(styles.EstimatedWeightsProGearForm, ppmStyles.formContainer)}>
             <Form className={(formStyles.form, ppmStyles.form)}>
-              <Alert headingLevel="h4" type="info">{`Remember: Your standard weight allowance is: ${formatWeight(
+              <Alert headingLevel="h4" type="info">{`Remember: Your standard weight allowance 3 is: ${formatWeight(
                 weightAuthorized,
               )}. If you are moving to an administratively restricted HHG weight location this amount may be less. You will not be reimbursed for any excess weight you move.`}</Alert>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
