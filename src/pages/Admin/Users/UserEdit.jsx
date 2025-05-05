@@ -43,23 +43,21 @@ const UserEdit = () => {
     );
   };
 
-  // hard deletes a user and associated roles/privileges
-  // cannot be undone, but the user is shown a confirmation modal to avoid oopsies
+  // hard deletes a user and associated roles/privileges/backupContacts
   const deleteUserHandler = async () => {
-    await deleteUser(userData.id)
-      .then(() => {
-        redirect('/');
-      })
-      .catch((err) => {
-        if (err?.statusCode === 409) {
-          setInactivateOpen(true);
-        } else if (err?.statusCode === 403) {
-          setServerError('This is an Admin User and cannot be deleted.');
-        } else {
-          setServerError(err?.message);
-        }
-        redirect(false);
-      });
+    try {
+      await deleteUser(userData.id);
+      redirect('/');
+    } catch (err) {
+      if (err?.statusCode === 409) {
+        setInactivateOpen(true);
+      } else if (err?.statusCode === 403) {
+        setServerError('This is an Admin User and cannot be deleted.');
+      } else {
+        setServerError(err?.message);
+      }
+      redirect(false);
+    }
   };
 
   const inactivateUserHandler = async () => {
@@ -67,14 +65,13 @@ const UserEdit = () => {
       active: false,
       oktaEmail: userData.oktaEmail,
     };
-    await updateUser(userData.id, userUpdates)
-      .then(() => {
-        redirect('./show');
-      })
-      .catch((error) => {
-        setServerError(error);
-        redirect(false);
-      });
+    try {
+      await updateUser(userData.id, userUpdates);
+      redirect('./show');
+    } catch (err) {
+      setServerError(err);
+      redirect(false);
+    }
   };
 
   const handleDeleteConfirm = () => {

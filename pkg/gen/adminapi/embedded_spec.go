@@ -1201,6 +1201,9 @@ func init() {
           "403": {
             "description": "Not authorized to update an Office User"
           },
+          "404": {
+            "description": "Office User not found"
+          },
           "500": {
             "description": "Server error"
           }
@@ -1970,7 +1973,7 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a single user in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "description": "Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
         "produces": [
           "application/json"
         ],
@@ -5268,6 +5271,9 @@ func init() {
           "403": {
             "description": "Not authorized to update an Office User"
           },
+          "404": {
+            "description": "Office User not found"
+          },
           "500": {
             "description": "Server error"
           }
@@ -6037,7 +6043,7 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a single user in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
+        "description": "Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.",
         "produces": [
           "application/json"
         ],
