@@ -106,8 +106,13 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 			setUpPPMShipperRouterMock(nil),
 		)
 
+		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		})
+
 		updatedPPMShipment, err := submitter.SubmitNewCustomerCloseOut(
-			suite.AppContextForTest(),
+			appCtx,
 			nonexistentPPMShipmentID,
 			models.SignedCertification{},
 		)
@@ -281,6 +286,83 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 
 		suite.NoError(txErr)
 	})
+
+	// suite.Run("Incentive-based PPM: Can create a signed certification, route the PPMShipment, and calculate allowable weight properly without signature if an office user is submitting for the customer", func() {
+	// 	existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
+
+	// 	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+	// 		UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+	// 	})
+
+	// 	inputSignedCertification := models.SignedCertification{}
+
+	// 	creator := setUpSignedCertificationCreatorMock(nil, nil)
+
+	// 	router := setUpPPMShipperRouterMock(
+	// 		func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
+	// 			ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
+
+	// 			return nil
+	// 		})
+
+	// 	expectedShipment := refectchPPMShipment(existingPPMShipment.ID)
+	// 	mockFetcher := setUpPPMShipmentFetcherMock(expectedShipment, nil)
+
+	// 	submitter := NewPPMShipmentNewSubmitter(
+	// 		mockFetcher,
+	// 		creator,
+	// 		router,
+	// 	)
+
+	// 	// starting a transaction so that the txAppCtx can be used to check the mock call
+	// 	txErr := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
+	// 		txAppCtx.Session()
+	// 		updatedPPMShipment, err := submitter.SubmitNewCustomerCloseOut(
+	// 			txAppCtx,
+	// 			existingPPMShipment.ID,
+	// 			inputSignedCertification,
+	// 		)
+
+	// 		if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
+	// 			suite.Equal(models.PPMShipmentStatusNeedsCloseout, updatedPPMShipment.Status)
+
+	// 			if suite.NotNil(updatedPPMShipment.SignedCertification) {
+	// 				suite.Equal(models.SignedCertification{}, updatedPPMShipment.SignedCertification)
+	// 			}
+
+	// 			creator.(*mocks.SignedCertificationCreator).AssertCalled(
+	// 				suite.T(),
+	// 				"CreateSignedCertification",
+	// 				txAppCtx,
+	// 				models.SignedCertification{},
+	// 			)
+
+	// 			router.(*mocks.PPMShipmentRouter).AssertCalled(
+	// 				suite.T(),
+	// 				"SubmitCloseOutDocumentation",
+	// 				txAppCtx,
+	// 				mock.AnythingOfType("*models.PPMShipment"),
+	// 			)
+
+	// 			var expectedAllowableWeight = unit.Pound(0)
+	// 			if len(existingPPMShipment.WeightTickets) >= 1 {
+	// 				for _, weightTicket := range existingPPMShipment.WeightTickets {
+	// 					expectedAllowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+	// 				}
+	// 			}
+	// 			if suite.NotNil(updatedPPMShipment.AllowableWeight) {
+	// 				suite.Equal(*updatedPPMShipment.AllowableWeight, expectedAllowableWeight)
+	// 			}
+
+	// 			return nil
+	// 		}
+
+	// 		// just fulfilling the return type at this point since we already checked for an error
+	// 		return err
+	// 	})
+
+	// 	suite.NoError(txErr)
+	// })
 
 	suite.Run("Small package PPM: Can create a signed certification, route the PPMShipment, and calculate allowable weight properly", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)

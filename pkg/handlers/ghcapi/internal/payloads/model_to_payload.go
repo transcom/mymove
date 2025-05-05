@@ -2952,12 +2952,3 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 	}
 	return nil
 }
-
-// ClientError describes errors in a standard structure to be returned in the payload
-func ClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
-	return &ghcmessages.ClientError{
-		Title:    handlers.FmtString(title),
-		Detail:   handlers.FmtString(detail),
-		Instance: handlers.FmtUUID(instance),
-	}
-}

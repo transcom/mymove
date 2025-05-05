@@ -251,14 +251,22 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppm.SubmitPPMShipme
 				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return ppm.NewGetPPMSITEstimatedCostNotFound().WithPayload(payload), err
+					return ppm.NewSubmitPPMShipmentDocumentationNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
-					return ppm.NewGetPPMSITEstimatedCostForbidden().WithPayload(payload), err
+					return ppm.NewSubmitPPMShipmentDocumentationForbidden().WithPayload(payload), err
 				case apperror.QueryError:
-					return ppm.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
+					return ppm.NewSubmitPPMShipmentDocumentationInternalServerError().WithPayload(payload), err
+				case apperror.ConflictError:
+					return ppm.NewSubmitPPMShipmentDocumentationConflict().WithPayload(payload), err
 				default:
-					return ppm.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
+					return ppm.NewSubmitPPMShipmentDocumentationInternalServerError().WithPayload(payload), err
 				}
+			}
+
+			if !appCtx.Session().IsOfficeApp() {
+				errInstance := "Request should come from the office app."
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return ppm.NewSubmitPPMShipmentDocumentationForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
 
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
@@ -267,7 +275,8 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppm.SubmitPPMShipme
 				return handleError(err)
 			} else if ppmShipmentID.IsNil() {
 				appCtx.Logger().Error("nil PPM Shipment ID")
-				return nil, errors.New("nil PPM shipment ID")
+				payload := &ghcmessages.Error{Message: handlers.FmtString("nil PPM shipment ID")}
+				return ppm.NewSubmitPPMShipmentDocumentationBadRequest().WithPayload(payload), errors.New("nil PPM shipment ID")
 			}
 
 			ppmShipment, err := h.PPMShipmentNewSubmitter.SubmitNewCustomerCloseOut(appCtx, ppmShipmentID, models.SignedCertification{})
