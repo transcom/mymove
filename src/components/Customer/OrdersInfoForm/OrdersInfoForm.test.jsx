@@ -8,8 +8,9 @@ import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
+import { MockProviders } from 'testUtils';
 
 jest.setTimeout(60000);
 
@@ -197,6 +198,37 @@ const testProps = {
   ],
 };
 
+const civilianTDYTestProps = {
+  onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+  initialValues: {
+    orders_type: ORDERS_TYPE_OPTIONS.TEMPORARY_DUTY,
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    uploaded_orders: [],
+    grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+    origin_duty_location: { name: 'Luke AFB', address: { isOconus: false } },
+    new_duty_location: { name: 'Luke AFB', provides_services_counseling: false, address: { isOconus: true } },
+  },
+  onCancel: jest.fn(),
+  onUploadComplete: jest.fn(),
+  createUpload: jest.fn(),
+  onDelete: jest.fn(),
+  filePond: {},
+  ordersTypeOptions: [
+    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'LOCAL_MOVE', value: 'Local Move' },
+    { key: 'RETIREMENT', value: 'Retirement' },
+    { key: 'SEPARATION', value: 'Separation' },
+    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+    { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+    { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
+  ],
+  currentDutyLocation: { name: 'Luke AFB', address: { isOconus: false } },
+  grade: ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE,
+  orders_type: ORDERS_TYPE.TEMPORARY_DUTY,
+};
+
 const mockStore = configureStore({});
 
 describe('OrdersInfoForm component', () => {
@@ -219,6 +251,19 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText(/New duty location/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/Pay grade/)).toBeInstanceOf(HTMLSelectElement);
       expect(getByLabelText(/Current duty location/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+
+      // check for asterisks on required fields
+      const formGroups = screen.getAllByTestId('formGroup');
+
+      formGroups.forEach((group) => {
+        const hasRequiredField = group.querySelector('[required]') !== null;
+
+        if (hasRequiredField) {
+          expect(group.textContent).toContain('*');
+        }
+      });
     });
   });
 
@@ -745,6 +790,57 @@ describe('OrdersInfoForm component', () => {
       expect(hasDependentsNoLocalMove).not.toBeChecked();
       expect(hasDependentsNoLocalMove).toBeEnabled();
     });
+  });
+
+  it('does not render civilian TDY UB Allowance field if orders type is not TDY', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    render(
+      <MockProviders>
+        <OrdersInfoForm
+          {...civilianTDYTestProps}
+          initialValues={{
+            ...civilianTDYTestProps.initialValues,
+          }}
+        />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+    });
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+    await waitFor(() =>
+      expect(
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('does not render civilian TDY UB Allowance field if grade is not CIVILIAN_EMPLOYEE', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
+
+    render(
+      <MockProviders>
+        <OrdersInfoForm
+          {...civilianTDYTestProps}
+          initialValues={{
+            ...civilianTDYTestProps.initialValues,
+          }}
+        />
+      </MockProviders>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
+    });
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await waitFor(() =>
+      expect(
+        screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   afterEach(jest.restoreAllMocks);

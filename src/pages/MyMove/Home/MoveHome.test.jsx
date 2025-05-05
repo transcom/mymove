@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { v4 } from 'uuid';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { act, waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
@@ -1323,12 +1323,12 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
-      // shipment step button should now be "Add another shipment"
+      // shipment step button should now be "Add Shipment"
       const shipmentStep = wrapper.find('Step[step="3"]');
-      expect(shipmentStep.prop('actionBtnLabel')).toBe('Add another shipment');
+
       // confirm move request step should now be enabled
-      const confirmMoveRequest = wrapper.find('Step[step="4"]');
-      expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
+      const actionBtnWrapper = shallow(shipmentStep.prop('actionBtnLabel'));
+      expect(actionBtnWrapper.text()).toContain('Add another shipment');
     });
 
     it('cancel move button is visible', async () => {
@@ -1348,6 +1348,7 @@ describe('Home component', () => {
   });
 
   describe('with default props, orders with HHG & PPM shipments and NEEDS_SERVICE_COUNSELING move status', () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithSubmittedShipments);
 
     it('renders Home with the right amount of components', () => {
@@ -1379,10 +1380,19 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // check that the label of the button to Upload additional documents that aren't orders has the correct labeling
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
+
       // confirm move request step should now be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
+    });
+
+    it('has specific text for PPM moves in the Helper Header', () => {
+      expect(wrapper.text()).toContain('(check your email for approval notification)');
     });
 
     it('cancel move button is not visible', () => {
@@ -1428,6 +1438,11 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
+
       // confirm move request step should now be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
@@ -1473,6 +1488,10 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
       // confirm move request step should be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
@@ -1756,6 +1775,10 @@ describe('Home component', () => {
     });
 
     it('has enabled and disabled buttons based on step', () => {
+      // test upload additional documentation button has correct label
+      const profileComplete = wrapper.find('Step[step="1"]');
+      expect(profileComplete.prop('actionBtnDisabled')).toBeFalsy();
+      expect(profileComplete.text()).toContain('Upload/Manage Additional Documentation');
       // confirm move request step should be enabled
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();

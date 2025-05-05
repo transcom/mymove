@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -47,14 +46,16 @@ func (o *officeUserCreator) CreateOfficeUser(
 		return existingOfficeUser, nil, nil
 	}
 
-	// A user may already exist with that email from a previous user (admin, service member, ...)
+	// looking for an existing user with the email the office user provided
+	// if the user is an existing admin/service member, we want to use their existing user not create a new one
 	var user models.User
 	userEmailFilter := query.NewQueryFilter("okta_email", "=", officeUser.Email)
 	fetchErr = o.builder.FetchOne(appCtx, &user, []services.QueryFilter{userEmailFilter})
 
+	// if we can't find an existing user, we will create one
 	if fetchErr != nil {
 		user = models.User{
-			OktaEmail: strings.ToLower(officeUser.Email),
+			OktaEmail: officeUser.Email,
 			Active:    true,
 		}
 

@@ -3,9 +3,10 @@ import path from 'path';
 import moment from 'moment';
 import numeral from 'numeral';
 
+import { ASSIGNMENT_IDS, ASSIGNMENT_NAMES } from 'constants/MoveHistory/officeUserAssignment';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 
@@ -327,20 +328,20 @@ export const formatAgeToDays = (age) => {
  */
 export function formatReviewShipmentWeightsDate(date) {
   if (!date) return DEFAULT_EMPTY_VALUE;
-  return moment(date).format('MMM DD YYYY');
+  return moment.utc(date).format('MMM DD YYYY');
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
   if (!date) return DEFAULT_EMPTY_VALUE;
-  return moment(date).format('DD MMM YYYY');
+  return moment.utc(date).format('DD MMM YYYY');
 }
 // Format dates for customer remarks in the office app (ex. 25 Dec 2020 8:00)
 export function formatCustomerSupportRemarksDate(date) {
-  return moment(date).format('DD MMM YYYY HH:mm');
+  return moment.utc(date).format('DD MMM YYYY HH:mm');
 }
 
 export function formatSignatureDate(date) {
-  return moment(date).format('YYYY-MM-DD');
+  return moment.utc(date).format('YYYY-MM-DD');
 }
 
 // Translate boolean (true/false) into capitalized "Yes"/"No" string
@@ -569,6 +570,8 @@ export function formatDistanceUnitMiles(distance) {
 export const constructSCOrderOconusFields = (values) => {
   const isOconus = values.originDutyLocation?.address?.isOconus || values.newDutyLocation?.address?.isOconus;
   const dependents = values.hasDependents;
+  const isCivilianTDYMove =
+    values.ordersType === ORDERS_TYPE.TEMPORARY_DUTY && values.grade === ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE;
   // The `hasDependents` check within accompanied tour is due to
   // the dependents section being possible to conditionally render
   // and then un-render while still being OCONUS
@@ -598,33 +601,55 @@ export const constructSCOrderOconusFields = (values) => {
           Number(values.dependentsTwelveAndOver) ?? 0
         : // If CONUS or no dependents, omit this field altogether
           null,
+    civilianTdyUbAllowance:
+      isOconus && isCivilianTDYMove
+        ? // If OCONUS
+          // then provide the civilian TDY UB allowance. Default to 0 if not present
+          Number(values.civilianTdyUbAllowance) ?? 0
+        : // If CONUS, omit this field altogether
+          null,
   };
 };
 
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
-  const newValues = {};
-  if (!context) return newValues;
+  if (!context || context.length === 0) return {};
 
   const name = `${context[0].assigned_office_user_last_name}, ${context[0].assigned_office_user_first_name}`;
+  const newValues = {};
+  const isServiceCounseling = oldValues.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
 
-  if (changedValues?.sc_assigned_id) {
-    if (oldValues.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING) {
-      if (oldValues.sc_assigned_id === null) newValues.assigned_sc = name;
-      if (oldValues.sc_assigned_id !== null) newValues.re_assigned_sc = name;
-    } else {
-      if (oldValues.sc_assigned_id === null) newValues.assigned_sc_ppm = name;
-      if (oldValues.sc_assigned_id !== null) newValues.re_assigned_sc_ppm = name;
+  const assignOfficeUser = (key, assignedKey, reassignedKey) => {
+    if (changedValues?.[key]) {
+      newValues[oldValues[key] === null ? assignedKey : reassignedKey] = name;
     }
-  }
-  if (changedValues?.too_assigned_id) {
-    if (oldValues.too_assigned_id === null) newValues.assigned_too = name;
-    if (oldValues.too_assigned_id !== null) newValues.re_assigned_too = name;
-  }
-  if (changedValues?.tio_assigned_id) {
-    if (oldValues.tio_assigned_id === null) newValues.assigned_tio = name;
-    if (oldValues.tio_assigned_id !== null) newValues.re_assigned_tio = name;
-  }
+  };
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.SERVICE_COUNSELOR,
+    isServiceCounseling ? ASSIGNMENT_NAMES.SERVICE_COUNSELOR.ASSIGNED : ASSIGNMENT_NAMES.SERVICE_COUNSELOR_PPM.ASSIGNED,
+    isServiceCounseling
+      ? ASSIGNMENT_NAMES.SERVICE_COUNSELOR.RE_ASSIGNED
+      : ASSIGNMENT_NAMES.SERVICE_COUNSELOR_PPM.RE_ASSIGNED,
+  ); // counseling/ppm queues
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.TASK_ORDERING_OFFICER,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.RE_ASSIGNED,
+  ); // task order queue
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.TASK_INVOICING_OFFICER,
+    ASSIGNMENT_NAMES.TASK_INVOICING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.TASK_INVOICING_OFFICER.RE_ASSIGNED,
+  ); // payment request queue
+
+  assignOfficeUser(
+    ASSIGNMENT_IDS.TASK_ORDERING_OFFICER_DESTINATION,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.ASSIGNED,
+    ASSIGNMENT_NAMES.TASK_ORDERING_OFFICER.RE_ASSIGNED,
+  ); // destination request queue
   return newValues;
 };
 
