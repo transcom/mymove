@@ -4334,7 +4334,23 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hhg := models.MTOShipmentTypeHHG
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator, false)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeIntlHHGMoveNeedsSC creates an fully ready move needing SC approval - has existing iHHG shipment
+func MakeIntlHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhg := models.MTOShipmentTypeHHG
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator, true)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4500,7 +4516,7 @@ func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4518,7 +4534,7 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hos := models.DestinationTypeHomeOfSelection
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db

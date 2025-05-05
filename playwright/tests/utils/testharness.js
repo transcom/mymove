@@ -463,6 +463,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build international hhg move needing SC approval
+   * @returns {Promise<Move>}
+   */
+  async buildIntlHHGMoveNeedsSC() {
+    return this.buildDefault('IntlHHGMoveNeedsSC');
+  }
+
+  /**
    * Use testharness to build hhg move needing SC approval in a non-default GBLOC
    * @returns {Promise<Move>}
    */
