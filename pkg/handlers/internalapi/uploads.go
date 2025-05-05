@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -314,6 +315,13 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				}
+				// if isWeightEstimatorFile is false, throw an error, and send message to front end to let user know.
+				if !isWeightEstimatorFile {
+					return ppmop.NewCreatePPMUploadIncorrectXlsxFormat().WithPayload(&internalmessages.IncorrectXlsxFormatError{
+						Message: "The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file.",
+					}), nil
+
 				}
 
 				_, err = file.Data.Seek(0, io.SeekStart)
