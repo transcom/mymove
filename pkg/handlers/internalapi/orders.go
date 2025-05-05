@@ -757,7 +757,7 @@ type GetRanksHandler struct {
 func (h GetRanksHandler) Handle(params ordersop.GetRanksParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			ranks, err := models.GetPayGradeRankDropdownOptions(appCtx.DB(), params.Affiliation)
+			ranks, err := payloads.GetPayGradeRankDropdownOptions(appCtx, params.Affiliation)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}

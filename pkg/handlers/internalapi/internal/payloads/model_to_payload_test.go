@@ -335,3 +335,29 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 		suite.Equal(proGearDescription, result.ProGearDescription, "ProGearDescription should match")
 	})
 }
+
+func (suite *PayloadsSuite) TestGetPayGradeRankDropdownOptions() {
+	testCases := [6]models.ServiceMemberAffiliation{
+		models.ServiceMemberAffiliation(models.AffiliationARMY),
+		models.ServiceMemberAffiliation(models.AffiliationNAVY),
+		models.ServiceMemberAffiliation(models.AffiliationMARINES),
+		models.ServiceMemberAffiliation(models.AffiliationAIRFORCE),
+		models.ServiceMemberAffiliation(models.AffiliationCOASTGUARD),
+		models.ServiceMemberAffiliation(models.AffiliationSPACEFORCE),
+	}
+	for _, testCase := range testCases {
+		suite.Run("No errors for all affiliations", func() {
+			options, err := GetPayGradeRankDropdownOptions(suite.AppContextForTest(), string(testCase))
+			suite.NoError(err)
+
+			suite.Greater(len(options), 0)
+		})
+	}
+	suite.Run("Fetch a affiliations Pay Grade/Ranks", func() {
+		options, err := GetPayGradeRankDropdownOptions(suite.AppContextForTest(), string(models.AffiliationARMY))
+		suite.NoError(err)
+
+		suite.NotNil(options)
+		suite.Equal(33, len(options))
+	})
+}

@@ -426,15 +426,15 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			PackingAndShippingInstructions: packingAndShippingInstructions,
 		}
 
-		var rank PayGradeRank
+		var rank Rank
 		if pRank != nil {
 			err = txnAppCtx.DB().Find(&rank, pRank)
 			if err != nil {
 				return err
 			}
 
-			newOrders.PayGradeRankID = UUIDPointer(rank.ID)
-			newOrders.PayGradeRank = rank
+			newOrders.RankID = UUIDPointer(rank.ID)
+			newOrders.Rank = rank
 		}
 
 		verrs, err = txnAppCtx.DB().ValidateAndCreate(&newOrders)
