@@ -25,7 +25,6 @@ export default function BillableWeightCard({
   isMoveLocked,
 }) {
   const includesDivertedShipment = shipments.filter((s) => s.diversion).length > 0;
-
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
