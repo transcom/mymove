@@ -82,8 +82,8 @@ func (suite *GHCRateEngineServiceSuite) setupIntlPackServiceItem(code models.ReS
 			ContractID:           contract.ID,
 			StartDate:            startDate,
 			EndDate:              endDate,
-			Escalation:           1.0,
-			EscalationCompounded: 1.0,
+			Escalation:           1.11,
+			EscalationCompounded: 1.11,
 		},
 	})
 	availableToPrimeAt := time.Date(2018, time.September, 14, 0, 0, 0, 0, time.UTC)

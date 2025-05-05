@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"math"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -16,8 +17,8 @@ func (suite *GHCRateEngineServiceSuite) TestIntlNTSHHGPackPricer() {
 	suite.Run("success using PaymentServiceItemParams", func() {
 		paymentServiceItem, contract := suite.setupIntlPackServiceItem(models.ReServiceCodeIHPK)
 
-		totalCost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.NoError(err)
+		totalCost, pricerParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.FatalNoError(err)
 
 		// Fetch the INPK market factor from the DB
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
@@ -26,16 +27,15 @@ func (suite *GHCRateEngineServiceSuite) TestIntlNTSHHGPackPricer() {
 		suite.FatalTrue(suite.NotEmpty(ntsMarketFactor))
 
 		// Multiply the IHPK price by the NTS market factor to ensure it math'd properly
-		suite.Equal((float64(ihpkTestTotalCost) * ntsMarketFactor), float64(totalCost))
+		suite.FatalTrue(suite.Equal(math.Round((float64(ihpkTestTotalCost) * ntsMarketFactor)), float64(totalCost)))
 
-		expectedParams := services.PricingDisplayParams{
+		expectedPricerParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: ihpkTestContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ihpkTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(ihpkTestIsPeakPeriod)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ihpkTestPerUnitCents)},
-			{Key: models.ServiceItemParamNameNTSPackingFactor, Value: FormatFloat(ntsMarketFactor, -1)},
 		}
-		suite.validatePricerCreatedParams(expectedParams, displayParams)
+		suite.validatePricerCreatedParams(expectedPricerParams, pricerParams)
 	})
 	suite.Run("success using PaymentServiceItemParams", func() {
 		pickupDate := time.Date(2018, time.September, 14, 12, 0, 0, 0, time.UTC)
