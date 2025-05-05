@@ -234,6 +234,25 @@ begin
 
 end ';
 
+--update grade and rank on orders
+update orders
+   set grade = 'O_1',
+       rank_id = '2cf8e36a-20fb-41fe-9268-d3d1f0219d1a' --O_1/AFC
+ where grade in ('ACADEMY_CADET','O_1_ACADEMY_GRADUATE')
+   and service_member_id in (select id from service_members where affiliation = 'AIR_FORCE');
+
+update orders
+   set grade = 'O_1',
+       rank_id = 'd447b93a-d0ae-4943-af1c-39830f5e7278' --O_1/CDT
+ where grade in ('ACADEMY_CADET','O_1_ACADEMY_GRADUATE')
+   and service_member_id in (select id from service_members where affiliation = 'ARMY');
+
+update orders
+   set grade = 'O_1',
+       rank_id = '0dc31054-0939-44ff-80c4-114b80f40895' --O_1/MID
+ where grade = 'MIDSHIPMAN'
+   and service_member_id in (select id from service_members where affiliation = 'NAVY');
+
 --remove unused pay grades
 delete from pay_grades where grade in
 ('O_1_ACADEMY_GRADUATE',
