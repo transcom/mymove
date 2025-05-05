@@ -52,6 +52,7 @@ func (p *intlNTSHHGPackPricer) Price(
 	}
 
 	// Now we get the factor itself
+	// Params have not been created yet so we need to find and append the market factor param
 	factor, err := models.FetchMarketFactor(appCtx, contract.ID, inpk.ID, models.MarketOconus.String())
 	if err != nil {
 		return 0, nil, err
