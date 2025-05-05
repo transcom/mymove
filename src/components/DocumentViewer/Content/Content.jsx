@@ -5,13 +5,6 @@ import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Content.module.scss';
-// TODO
-/*
-import { ReactComponent as RotateLeft } from 'shared/icon/rotate-counter-clockwise.svg';
-import { ReactComponent as RotateRight } from 'shared/icon/rotate-clockwise.svg';
-import { ReactComponent as ArrowLeft } from 'shared/icon/arrow-left.svg';
-import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
-*/
 
 const DocViewerContent = ({
   fileType,
@@ -52,23 +45,21 @@ const DocViewerContent = ({
                   <FontAwesomeIcon icon="rotate-right" title="Rotate right" aria-label="Rotate right" />
                   Rotate right
                 </Button>
-                {fileType !== 'pdf' && (
-                  <Button type="button" unstyled disabled={disableSaveButton} onClick={saveRotation}>
-                    <svg
-                      height="24"
-                      viewBox="0 0 24 24"
-                      style={{
-                        textDecoration: 'none',
-                        color: disableSaveButton ? 'transparent' : 'inherit',
-                        visibility: disableSaveButton ? 'hidden' : 'visible',
-                      }}
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M21 12.5L16.5 17L11 12.5L16.5 8L21 12.5Z" />
-                    </svg>
-                    <span style={{ textDecoration: 'none' }}>Save</span>
-                  </Button>
-                )}
+                <Button type="button" unstyled disabled={disableSaveButton} onClick={saveRotation}>
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    style={{
+                      textDecoration: 'none',
+                      color: disableSaveButton ? 'transparent' : 'inherit',
+                      visibility: disableSaveButton ? 'hidden' : 'visible',
+                    }}
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M21 12.5L16.5 17L11 12.5L16.5 8L21 12.5Z" />
+                  </svg>
+                  <span style={{ textDecoration: 'none' }}>Save</span>
+                </Button>
               </>
             )}
           </div>
