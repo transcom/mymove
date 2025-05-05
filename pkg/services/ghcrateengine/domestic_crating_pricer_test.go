@@ -13,13 +13,13 @@ import (
 
 const (
 	dcrtTestServiceSchedule      = 3
-	dcrtTestBasePriceCents       = unit.Cents(2300)
-	dcrtTestEscalationCompounded = 1.125
+	dcrtTestBasePriceCents       = unit.Cents(2369)
+	dcrtTestEscalationCompounded = 1.11000
 	dcrtTestBilledCubicFeet      = unit.CubicFeet(10)
-	dcrtTestPriceCents           = unit.Cents(25880)
+	dcrtTestPriceCents           = unit.Cents(26300)
 	dcrtTestStandaloneCrate      = false
 	dcrtTestStandaloneCrateCap   = unit.Cents(1000000)
-	dcrtTestUncappedRequestTotal = unit.Cents(25880)
+	dcrtTestUncappedRequestTotal = unit.Cents(31730)
 )
 
 var dcrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -36,10 +36,10 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 		suite.Equal(dcrtTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
-			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestUncappedRequestTotal)},
+			{Key: models.ServiceItemParamNameUncappedRequestTotal, Value: FormatCents(dcrtTestPriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -83,8 +83,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
-		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
+		tenYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(10, 0, 0)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, tenYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule, dcrtTestStandaloneCrate, dcrtTestStandaloneCrateCap)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
