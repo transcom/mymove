@@ -23,16 +23,14 @@ type ShowLoggedInUserHandler struct {
 	officeUserFetcherPop services.OfficeUserFetcherPop
 }
 
-// decoratePayloadWithRoles will add session roles to the logged in user payload and return it
+// decoratePayloadWithRoles will add session role to the logged in user payload and return it
 func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
-	for _, role := range s.Roles {
-		p.Roles = append(p.Roles, &internalmessages.Role{
-			ID:        handlers.FmtUUID(s.UserID),
-			RoleType:  handlers.FmtString(string(role.RoleType)),
-			CreatedAt: handlers.FmtDateTime(role.CreatedAt),
-			UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
-		})
-	}
+	p.Roles = append(p.Roles, &internalmessages.Role{
+		ID:        handlers.FmtUUID(s.UserID),
+		RoleType:  handlers.FmtString(string(s.CurrentRole.RoleType)),
+		CreatedAt: handlers.FmtDateTime(s.CurrentRole.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(s.CurrentRole.UpdatedAt),
+	})
 }
 
 // decoratePayloadWithPermissions will add session permissions to the logged in user payload and return it

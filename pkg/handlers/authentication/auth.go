@@ -444,7 +444,7 @@ func PrimeSimulatorAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
-			if session == nil || !session.Roles.HasRole(roles.RoleTypePrimeSimulator) {
+			if session == nil || !(session.CurrentRole.RoleType == roles.RoleTypePrimeSimulator) {
 				logger.Error("forbidden user for prime simulator")
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
@@ -1079,7 +1079,17 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 			zap.String("user_id", appCtx.Session().UserID.String()))
 		return authorizationResultUnauthorized
 	}
-	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
+
+	defaultRole, err := userIdentity.Roles.Default()
+	if err != nil {
+		appCtx.Logger().Warn("Active user requesting authentication as a known user but could not find a default role, proceeding without a role",
+			zap.String("application_name", string(appCtx.Session().ApplicationName)),
+			zap.String("hostname", appCtx.Session().Hostname),
+			zap.String("user_id", appCtx.Session().UserID.String()))
+	} else {
+		appCtx.Session().CurrentRole = *defaultRole
+	}
+
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
 
 	appCtx.Session().UserID = userIdentity.ID
@@ -1343,7 +1353,13 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		appCtx.Session().AdminUserID = adminUser.ID
 	}
 
-	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
+	defaultRole, err := user.Roles.Default()
+	if err != nil {
+		// Customers will be created without a role
+		appCtx.Logger().Warn("Authenticating unknown user, cannot get default role from session manager, proceeding without a role")
+	} else {
+		appCtx.Session().CurrentRole = *defaultRole
+	}
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
 
 	if sessionManager == nil {

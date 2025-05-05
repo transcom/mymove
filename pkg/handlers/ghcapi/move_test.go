@@ -1218,7 +1218,7 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 	setupLockedMove := func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           validOfficeUser.User.Roles,
+			CurrentRole:     roles.Role{},
 			OfficeUserID:    validOfficeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

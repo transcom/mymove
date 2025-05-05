@@ -506,7 +506,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			CurrentRole:     roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -825,7 +825,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			CurrentRole:     roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 

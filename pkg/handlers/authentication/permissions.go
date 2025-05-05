@@ -155,46 +155,18 @@ func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, pe
 	return false, nil
 }
 
-// for a given user return the permissions associated with their roles
+// for a given user return the permissions associated with their roles given the current session role
 func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []string {
 	var userPermissions []string
 
-	// check the users roles
-	userRoles, err := getRolesForUser(appCtx, userID)
-	// if there's an error looking up roles return an empty permission array
-	if err != nil {
-		return userPermissions
-	}
-
-	for _, ur := range userRoles {
+	session := appCtx.Session()
+	if session != nil {
 		for _, rp := range AllRolesPermissions {
-
-			if ur == rp.RoleType {
+			if appCtx.Session().CurrentRole.RoleType == rp.RoleType {
 				userPermissions = append(userPermissions, rp.Permissions...)
 			}
 		}
 	}
 
 	return userPermissions
-}
-
-// load the [user.role] given a valid user ID
-// what we care about here is the string, so we can look it up for permissions --> roles.role_type
-func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.RoleType, error) {
-	logger := appCtx.Logger()
-	userRoles, err := roles.FetchRolesForUser(appCtx.DB(), userID)
-
-	var userRoleTypes []roles.RoleType
-	for i := range userRoles {
-		userRoleTypes = append(userRoleTypes, userRoles[i].RoleType)
-	}
-
-	if err != nil {
-		logger.Warn("Error while looking up user roles: ", zap.String("user role lookup error: ", err.Error()))
-		return nil, err
-	}
-
-	logger.Info("User has the following roles: ", zap.Any("user roles", userRoleTypes))
-
-	return userRoleTypes, nil
 }

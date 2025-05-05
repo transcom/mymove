@@ -236,7 +236,9 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 		ServiceMemberID: serviceMember.ID,
 		Email:           serviceMember.User.OktaEmail,
 	}
-	session.Roles = append(session.Roles, serviceMember.User.Roles...)
+	defaultRole, err := serviceMember.User.Roles.Default()
+	suite.FatalNoError(err)
+	session.CurrentRole = *defaultRole
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
@@ -260,7 +262,9 @@ func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, 
 		IDToken:         "fake token",
 		OfficeUserID:    user.ID,
 	}
-	session.Roles = append(session.Roles, user.User.Roles...)
+	defaultRole, err := user.User.Roles.Default()
+	suite.FatalNoError(err)
+	session.CurrentRole = *defaultRole
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
