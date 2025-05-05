@@ -32,7 +32,7 @@ variables:
   # Specify the environment: loadtest, demo, exp
   DP3_ENV: &dp3_env placeholder_env
 
-  # Specify the branch to deploy TODO: this might be not needed. So far useless
+  # Specify the branch to deploy
   DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
