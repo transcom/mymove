@@ -1137,22 +1137,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
-	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-		{
-			Model: models.PostalCodeToGBLOC{
-				PostalCode: "90210",
-				GBLOC:      "KKFA",
-			},
-		},
-	}, nil)
-	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-		{
-			Model: models.PostalCodeToGBLOC{
-				PostalCode: "35023",
-				GBLOC:      "CNNQ",
-			},
-		},
-	}, nil)
 
 	firstAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	updatedAddress := factory.BuildAddress(suite.DB(), []factory.Customization{

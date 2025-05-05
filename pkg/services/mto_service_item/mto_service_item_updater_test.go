@@ -1403,13 +1403,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
@@ -2164,6 +2157,111 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForMoveWithUnacknowled
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 
 	return eTag, serviceItem, move
+}
+
+func (suite *MTOServiceItemServiceSuite) setupAssignmentTestData() (models.MTOServiceItems, []models.OfficeUser, models.Move) {
+	officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	officeUser2 := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVALSREQUESTED,
+			},
+		},
+		{
+			Model:    officeUser1,
+			LinkOnly: true,
+			Type:     &factory.OfficeUsers.TOOAssignedUser,
+		},
+		{
+			Model:    officeUser2,
+			LinkOnly: true,
+			Type:     &factory.OfficeUsers.TOODestinationAssignedUser,
+		},
+	}, nil)
+
+	now := time.Now()
+	originServiceItem1 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDCRT,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				Status:     models.MTOServiceItemStatusSubmitted,
+				ApprovedAt: &now,
+			},
+		},
+	}, nil)
+	originServiceItem2 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDUCRT,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				Status:     models.MTOServiceItemStatusSubmitted,
+				ApprovedAt: &now,
+			},
+		},
+	}, nil)
+	destinationServiceItem1 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDDSIT,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				Status:     models.MTOServiceItemStatusSubmitted,
+				ApprovedAt: &now,
+			},
+		},
+	}, nil)
+	destinationServiceItem2 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDDSHUT,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				Status:     models.MTOServiceItemStatusSubmitted,
+				ApprovedAt: &now,
+			},
+		},
+	}, nil)
+
+	serviceItems := models.MTOServiceItems{
+		originServiceItem1,
+		originServiceItem2,
+		destinationServiceItem1,
+		destinationServiceItem2,
+	}
+	officeUsers := models.OfficeUsers{
+		officeUser1,
+		officeUser2,
+	}
+
+	return serviceItems, officeUsers, move
 }
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
@@ -3113,6 +3211,69 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("Handles TOO unassignment properly", func() {
+		serviceItems, officeUsers, move := suite.setupAssignmentTestData()
+
+		officeUser1 := officeUsers[0]
+		officeUser2 := officeUsers[1]
+
+		originServiceItem1 := serviceItems[0]
+		originServiceItem2 := serviceItems[1]
+		eTag1 := etag.GenerateEtag(originServiceItem1.UpdatedAt)
+		eTag2 := etag.GenerateEtag(originServiceItem2.UpdatedAt)
+
+		// confirm move has origin and destination assignments
+		suite.Equal(officeUser1.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
+
+		_, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), originServiceItem1.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag1)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+
+		// confirm assignments have not changed
+		suite.Equal(officeUser1.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
+
+		_, err = updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), originServiceItem2.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag2)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+
+		// confirm origin TOO is now unassigned and destination TOO remains assigned
+		suite.Nil(move.TOOAssignedID)
+		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
+
+		destinationServiceItem1 := serviceItems[2]
+		destinationServiceItem2 := serviceItems[3]
+		eTag3 := etag.GenerateEtag(destinationServiceItem1.UpdatedAt)
+		eTag4 := etag.GenerateEtag(destinationServiceItem2.UpdatedAt)
+
+		_, err = updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), destinationServiceItem1.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag3)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+
+		// confirm destination TOO remains assigned
+		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
+
+		_, err = updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), destinationServiceItem2.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag4)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+
+		// confirm destination TOO is now unassigned
+		suite.Nil(move.TOODestinationAssignedID)
 	})
 }
 
