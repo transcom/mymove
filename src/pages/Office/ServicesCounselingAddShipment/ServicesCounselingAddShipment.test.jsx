@@ -2,6 +2,7 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
 
 import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
@@ -9,6 +10,7 @@ import { createMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { formatDateWithUTC, formatDateForDatePicker } from 'shared/dates';
 
 // Explicitly setup navigate mock so we can verify it was called with correct pathing in tests
 const mockNavigate = jest.fn();
@@ -210,12 +212,12 @@ describe('ServicesCounselingAddShipment component', () => {
         expect(saveButton).toBeDisabled();
       });
 
+      const tomorrow = formatDateForDatePicker(formatDateWithUTC(moment().add(1, 'days').toDate()));
       await act(async () => {
         await user.click(screen.getByLabelText('Use pickup address'));
+        await userEvent.type(screen.getByLabelText('Requested pickup date'), tomorrow);
+        await userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
       });
-
-      await userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
-      await userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
 
       await waitFor(() => {
         expect(saveButton).not.toBeDisabled();
