@@ -1,13 +1,14 @@
 # This is the migrations manifest.
 # If a migration is not recorded here, then it will error.
 # Naming convention: 202502201325_B-123456_update_some_table.up.sql  running <milmove gen migration -n B-123456_update_some_table> will create this file.
+20250120191945_add_re_intl_other_prices_prod.up.sql
 20250222194826_B-22770_upd_duty_locs.up.sql
 20250225155257_B-22770_upd_pobox_zips.up.sql
 20250226190448_B-21661_add_intl_param_values_to_service_params.up.sql
 20250227160358_B-21966_add_data_to_office_users.up.sql
 20250227211521_update_re_countries.up.sql
 20250227211534_update_re_country_prn_divisions.up.sql
-20250303210036_B-22462_service_params_add_param_and_remove_ones__not_needed.up.sql
+20250305204911_B-22483_init_mappings_on_roles_privileges.up.sql
 20250306215742_B-22770_upd_base_names.up.sql
 20250312122657_B-22839_upd_pobox_zips.up.sql
 20250314180812_B-22770_upd_base_names_again.up.sql
@@ -15,3 +16,6 @@
 20250319173601_B-22839_upd_duty_locs.up.sql
 20250319174432_B-22839_upd_counseling_office.up.sql
 20250320153050_B-22816_update_lines_of_accounting_valid_loa_for_tac.up.sql
+20250325190721_B-22914_upd_pobox_zips.up.sql
+20250402213810_B-22761_add_cron_schedule.up.sql
+20250418132629_B-22761_add_flagSentToGexStaleInterval_to_application_parameters.up.sql

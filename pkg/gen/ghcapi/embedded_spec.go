@@ -2922,6 +2922,63 @@ func init() {
         }
       }
     },
+    "/office-users/{officeUserId}": {
+      "patch": {
+        "description": "This endpoint updates a single Office User by ID. This is to be used by office users to update their profile.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "officeUsers"
+        ],
+        "summary": "Updates an Office User",
+        "operationId": "updateOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Office User",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/open/requested-office-users": {
       "post": {
         "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
@@ -4290,6 +4347,65 @@ func init() {
           "$ref": "#/parameters/proGearWeightTicketId"
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/send-to-customer": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once a Service Counselor has reviewed the submitted PPM. Status is updated to waiting on customer so the customer may move the shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after a Service Counselor sends it to customer for moving",
+        "operationId": "sendPPMToCustomer",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully sent PPM to customer",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
       "get": {
@@ -8549,7 +8665,7 @@ func init() {
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean"
         },
         "hasSecondaryDestinationAddress": {
@@ -11542,6 +11658,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -11563,6 +11684,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -11643,11 +11773,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -11857,6 +11999,20 @@ func init() {
         }
       }
     },
+    "OfficeUserUpdate": {
+      "type": "object",
+      "required": [
+        "telephone"
+      ],
+      "properties": {
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "example": "212-555-5555"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -11869,7 +12025,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -11878,6 +12035,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -13478,6 +13636,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -13558,6 +13722,12 @@ func init() {
         "submittedWeight": {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -15292,8 +15462,23 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "movingExpenseType": {
           "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string",
+          "x-nullable": true
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
@@ -15335,6 +15520,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -15504,7 +15701,7 @@ func init() {
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
@@ -20105,6 +20302,78 @@ func init() {
         }
       }
     },
+    "/office-users/{officeUserId}": {
+      "patch": {
+        "description": "This endpoint updates a single Office User by ID. This is to be used by office users to update their profile.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "officeUsers"
+        ],
+        "summary": "Updates an Office User",
+        "operationId": "updateOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Office User",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/open/requested-office-users": {
       "post": {
         "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
@@ -21883,6 +22152,91 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/send-to-customer": {
+      "patch": {
+        "description": "Updates a PPM shipment's status once a Service Counselor has reviewed the submitted PPM. Status is updated to waiting on customer so the customer may move the shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's status after a Service Counselor sends it to customer for moving",
+        "operationId": "sendPPMToCustomer",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully sent PPM to customer",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.shipment"
+        ]
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
       "get": {
@@ -26735,7 +27089,7 @@ func init() {
           "format": "date"
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean"
         },
         "hasSecondaryDestinationAddress": {
@@ -29728,6 +30082,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "missingReceipt": {
           "description": "Indicates if the service member is missing the receipt with the proof of expense amount",
           "type": "boolean",
@@ -29749,6 +30108,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string"
         },
         "reason": {
           "$ref": "#/definitions/PPMDocumentStatusReason"
@@ -29829,11 +30197,23 @@ func init() {
           "x-omitempty": false,
           "example": "2022-04-26"
         },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -30043,6 +30423,20 @@ func init() {
         }
       }
     },
+    "OfficeUserUpdate": {
+      "type": "object",
+      "required": [
+        "telephone"
+      ],
+      "properties": {
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "example": "212-555-5555"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -30055,7 +30449,8 @@ func init() {
         "RENTAL_EQUIPMENT",
         "STORAGE",
         "TOLLS",
-        "WEIGHING_FEE"
+        "WEIGHING_FEE",
+        "SMALL_PACKAGE"
       ],
       "x-display-value": {
         "CONTRACTED_EXPENSE": "Contracted expense",
@@ -30064,6 +30459,7 @@ func init() {
         "OTHER": "Other",
         "PACKING_MATERIALS": "Packing materials",
         "RENTAL_EQUIPMENT": "Rental equipment",
+        "SMALL_PACKAGE": "Small package reimbursement",
         "STORAGE": "Storage",
         "TOLLS": "Tolls",
         "WEIGHING_FEE": "Weighing fee"
@@ -31738,6 +32134,12 @@ func init() {
         "document"
       ],
       "properties": {
+        "amount": {
+          "description": "The total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "belongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
           "type": "boolean",
@@ -31819,6 +32221,12 @@ func init() {
           "description": "Customer submitted weight of the pro-gear.",
           "type": "integer",
           "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
           "x-nullable": true,
           "x-omitempty": false
         },
@@ -33610,8 +34018,23 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isProGear": {
+          "description": "Indicates if the customer is claiming an expense as pro-gear or not",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "movingExpenseType": {
           "$ref": "#/definitions/OmittableMovingExpenseType"
+        },
+        "proGearBelongsToSelf": {
+          "description": "Indicates if the pro-gear belongs to the customer or their spouse",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearDescription": {
+          "description": "A brief description of the pro-gear",
+          "type": "string",
+          "x-nullable": true
         },
         "reason": {
           "description": "The reason the services counselor has excluded or rejected the item.",
@@ -33653,6 +34076,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PPMDocumentStatus"
+        },
+        "trackingNumber": {
+          "description": "Tracking number for a small package expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "weightShipped": {
+          "description": "The total weight shipped for a small package",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "weightStored": {
           "description": "The total weight stored in PPM SIT",
@@ -33823,7 +34258,7 @@ func init() {
           "x-nullable": true
         },
         "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear.\n",
+          "description": "Indicates whether PPM shipment has pro-gear.\n",
           "type": "boolean",
           "x-nullable": true
         },
