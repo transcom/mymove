@@ -103,6 +103,12 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
+	var rank internalmessages.Rank
+	if order.Rank != nil {
+		rank.ID = strfmt.UUID(order.Rank.ID.String())
+		rank.PaygradeID = strfmt.UUID(order.Rank.PayGradeID.String())
+	}
+
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                         handlers.FmtUUID(order.ID),
@@ -130,6 +136,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		AuthorizedWeight:           dBAuthorizedWeight,
 		Entitlement:                &entitlement,
 		ProvidesServicesCounseling: originDutyLocation.ProvidesServicesCounseling,
+		Rank:                       &rank,
 	}
 
 	return payload, nil
@@ -634,6 +641,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			}
 			order.Grade = payload.Grade
+
+			var rank models.Rank
+			err = appCtx.DB().Find(&rank, payload.Rank)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			order.Rank = &rank
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))

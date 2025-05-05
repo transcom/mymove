@@ -434,7 +434,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			}
 
 			newOrders.RankID = UUIDPointer(rank.ID)
-			newOrders.Rank = rank
+			newOrders.Rank = &rank
 		}
 
 		verrs, err = txnAppCtx.DB().ValidateAndCreate(&newOrders)

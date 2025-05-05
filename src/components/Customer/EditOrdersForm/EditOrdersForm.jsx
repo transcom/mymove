@@ -30,13 +30,15 @@ import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
+import { formatLabelReportByDate, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
-import { showCounselingOffices } from 'services/internalApi';
+import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
+import { sortRankPayGradeOptions } from 'shared/utils';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 
 const EditOrdersForm = ({
   createUpload,
@@ -48,6 +50,7 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  affiliation,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -119,8 +122,6 @@ const EditOrdersForm = ({
     return isValuePresent;
   };
 
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-
   let originMeta;
   let newDutyMeta = '';
 
@@ -135,6 +136,27 @@ const EditOrdersForm = ({
     };
     checkUBFeatureFlag();
   }, []);
+
+  const [rankOptions, setRankOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankGradeOptions(affiliation);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [affiliation, setShowLoadingSpinner]);
 
   useEffect(() => {
     const fetchCounselingOffices = async () => {
@@ -298,6 +320,12 @@ const EditOrdersForm = ({
 
         const toggleCivilianTDYUBTooltip = () => {
           setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
+
+        const handleGradeRankChange = (e) => {
+          const paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+          setGrade(paygrade);
+          setValues({ ...values, rank: e.target.value, grade: paygrade });
         };
 
         return (
@@ -533,15 +561,14 @@ const EditOrdersForm = ({
               )}
 
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
+                label="Rank / Pay grade"
+                name="rank"
+                id="rank"
                 required
-                options={payGradeOptions}
+                options={rankOptions}
                 showRequiredAsterisk
                 onChange={(e) => {
-                  setGrade(e.target.value);
-                  handleChange(e);
+                  handleGradeRankChange(e);
                 }}
               />
 
@@ -650,8 +677,14 @@ EditOrdersForm.defaultProps = {
   filePondEl: null,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(EditOrdersForm);
+export default connect(mapStateToProps, mapDispatchToProps)(EditOrdersForm);

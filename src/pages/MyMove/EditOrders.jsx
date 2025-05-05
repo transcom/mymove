@@ -94,6 +94,7 @@ const EditOrders = ({
     uploaded_orders: currentOrder?.uploaded_orders?.uploads || [],
     move_status: move?.status,
     grade: currentOrder?.grade || null,
+    rank: currentOrder?.rank?.id || null,
     origin_duty_location: currentOrder?.origin_duty_location || {},
     counseling_office_id: move?.counselingOffice?.id || undefined,
     accompanied_tour: formatYesNoInputValue(allowances.accompanied_tour) || '',
@@ -286,6 +287,7 @@ const EditOrders = ({
                 ordersTypeOptions={ordersTypeOptions}
                 currentDutyLocation={currentOrder?.origin_duty_location}
                 onCancel={handleCancel}
+                affiliation={currentOrder}
               />
             </div>
           )}
