@@ -28,9 +28,9 @@ func MakeReDomesticServiceArea(db *pop.Connection, assertions Assertions) models
 	reDomesticServiceArea := models.ReDomesticServiceArea{
 		ContractID:       reContract.ID,
 		Contract:         reContract,
-		ServiceArea:      "004",
-		ServicesSchedule: 2,
-		SITPDSchedule:    2,
+		ServiceArea:      "056",
+		ServicesSchedule: 3,
+		SITPDSchedule:    3,
 	}
 
 	// Overwrite values with those from assertions
@@ -42,16 +42,6 @@ func MakeReDomesticServiceArea(db *pop.Connection, assertions Assertions) models
 }
 
 func FetchOrMakeReDomesticServiceArea(db *pop.Connection, assertions Assertions) models.ReDomesticServiceArea {
-	var contractID uuid.UUID
-	if assertions.ReDomesticServiceArea.ContractID != uuid.Nil {
-		contractID = assertions.ReDomesticServiceArea.ContractID
-	} else if assertions.ReContract.ID != uuid.Nil {
-		contractID = assertions.ReContract.ID
-	}
-
-	if contractID == uuid.Nil || assertions.ReDomesticServiceArea.ServiceArea == "" {
-		return MakeReDomesticServiceArea(db, assertions)
-	}
 
 	var reDomesticServiceArea models.ReDomesticServiceArea
 	if assertions.ReDomesticServiceArea.ServiceArea != "" {
@@ -60,10 +50,14 @@ func FetchOrMakeReDomesticServiceArea(db *pop.Connection, assertions Assertions)
 			log.Panic(err)
 		}
 	} else {
-		err := db.Where("re_domestic_service_areas.contract_id = ? AND re_domestic_service_areas.service_area = ?", contractID, assertions.ReDomesticServiceArea.ServiceArea).First(&reDomesticServiceArea)
+		err := db.Where("re_domestic_service_areas.contract_id = ? AND re_domestic_service_areas.service_area = ?", assertions.ReDomesticServiceArea.ContractID, assertions.ReDomesticServiceArea.ServiceArea).First(&reDomesticServiceArea)
 		if err != nil && err != sql.ErrNoRows {
 			log.Panic(err)
 		}
+	}
+
+	if assertions.ReDomesticServiceArea.ServiceArea == "" {
+		return MakeReDomesticServiceArea(db, assertions)
 	}
 
 	if reDomesticServiceArea.ID == uuid.Nil {
