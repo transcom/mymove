@@ -68,10 +68,11 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText(originLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.getByLabel('Counseling office').selectOption({ label: 'PPPO Tinker AFB - USAF' });
-
-      const pickupLocation = 'Elmendorf AFB, AK 99506';
-      await page.getByLabel('New duty location').fill('99506');
-      await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
+      const counselingOffice = page.locator('#counselingOfficeId');
+      await counselingOffice.selectOption('PPPO Tinker AFB - USAF');
+      const dutyLocation = 'Elmendorf AFB, AK 99506';
+      await page.getByLabel('New duty location').fill('ELMENDORF AFB');
+      await expect(page.getByText(dutyLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('label[for="hasDependentsNo"]').click();
       await page.getByLabel('Pay grade').selectOption({ label: 'E-7' });
