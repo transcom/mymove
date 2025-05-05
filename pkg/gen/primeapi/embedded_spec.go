@@ -289,6 +289,27 @@ func init() {
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.",
+            "name": "acknowledged",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged after this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedAfter",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedBefore",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2510,6 +2531,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -3272,7 +3298,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -3285,6 +3312,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -4001,7 +4038,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {
@@ -4721,6 +4761,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -5645,6 +5690,27 @@ func init() {
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "When set to true, only moves where both the move and all its shipments are acknowledged will be included in the results. When set to false, only moves where either the move or any one (or more) of its shipments are NOT acknowledged will be included in the results.",
+            "name": "acknowledged",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged after this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedAfter",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves where the move or any one (or more) of its shipments was acknowledged before this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "acknowledgedBefore",
+            "in": "query"
           }
         ],
         "responses": {
@@ -8186,6 +8252,11 @@ func init() {
               "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -8948,7 +9019,8 @@ func init() {
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
-            "DIVERSION_REQUESTED"
+            "DIVERSION_REQUESTED",
+            "TERMINATION_FOR_CAUSE"
           ],
           "readOnly": true
         },
@@ -8961,6 +9033,16 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "terminatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "terminationComments": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -9677,7 +9759,10 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB"
+        "NSTUB",
+        "PODFSC",
+        "POEFSC",
+        "UBP"
       ]
     },
     "Reweigh": {
@@ -10402,6 +10487,11 @@ func init() {
                 "DDSHUT",
                 "DOSHUT"
               ]
+            },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }

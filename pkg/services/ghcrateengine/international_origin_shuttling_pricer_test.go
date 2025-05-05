@@ -13,10 +13,10 @@ import (
 
 const (
 	ioshutTestMarket               = "O"
-	ioshutTestBasePriceCents       = unit.Cents(353)
-	ioshutTestEscalationCompounded = 1.125
+	ioshutTestBasePriceCents       = unit.Cents(15623)
+	ioshutTestEscalationCompounded = 1.11000
 	ioshutTestWeight               = unit.Pound(4000)
-	ioshutTestPriceCents           = unit.Cents(15880)
+	ioshutTestPriceCents           = unit.Cents(693680)
 )
 
 var ioshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -33,7 +33,7 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalOriginShuttlingPricer()
 		suite.Equal(ioshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ioshutTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ioshutTestBasePriceCents)},
 		}
@@ -71,7 +71,7 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalOriginShuttlingPricer()
 
 	suite.Run("not finding a contract year record", func() {
 		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestMarket, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
-		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(10, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ioshutTestWeight, ioshutTestMarket)
 		suite.Error(err)
 

@@ -127,6 +127,58 @@ const serviceRequestDocs = [
   },
 ];
 
+const reserviceCodes = [
+  'IOPSIT',
+  'ISLH',
+  'IDSFSC',
+  'IUBUPK',
+  'IUBPK',
+  'DUPK',
+  'DOSHUT',
+  'DPK',
+  'DDP',
+  'DLH',
+  'DDSFSC',
+  'DOFSIT',
+  'IHPK',
+  'DOSFSC',
+  'IUCRT',
+  'IOSFSC',
+  'DSH',
+  'UBP',
+  'DDFSIT',
+  'IOSHUT',
+  'INPK',
+  'MS',
+  'IDSHUT',
+  'DDSHUT',
+  'DOP',
+  'CS',
+  'DUCRT',
+  'DDASIT',
+  'DOPSIT',
+  'FSC',
+  'DOASIT',
+  'ICRT',
+  'IDASIT',
+  'IBHF',
+  'IDFSIT',
+  'IOASIT',
+  'IHUPK',
+  'IOFSIT',
+  'DBTF',
+  'DCRT',
+  'DNPK',
+  'PODFSC',
+  'IDDSIT',
+  'IBTF',
+  'DMHF',
+  'DBHF',
+  'POEFSC',
+  'DCRTSA',
+  'DDDSIT',
+];
+
 const detailsRejectedServiceItem = { ...details, rejectionReason: 'some rejection reason' };
 
 const nilDetails = {
@@ -792,5 +844,22 @@ describe('ServiceItemDetails Price for MS, CS', () => {
 
     expect(screen.getByText('Price:')).toBeInTheDocument();
     expect(screen.getByText('$28.00')).toBeInTheDocument();
+  });
+});
+
+describe('ServiceItemDetails rejection reason ', () => {
+  reserviceCodes.forEach((code) => {
+    it(`renders correctly for code: ${code}`, () => {
+      render(
+        <ServiceItemDetails
+          id="1"
+          code={code}
+          details={detailsRejectedServiceItem}
+          serviceRequestDocs={serviceRequestDocs}
+        />,
+      );
+
+      expect(screen.getByText('some rejection reason')).toBeInTheDocument();
+    });
   });
 });

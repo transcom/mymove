@@ -63,6 +63,7 @@ export const HelperSubmittedMove = () => (
       </p>
       <p>
         You can start packing, but do not move any of your personal property until you hear that your move is approved
+        <strong> (check your email for approval notification)</strong>
       </p>
     </div>
     <div>
