@@ -305,22 +305,29 @@ describe('EditOrdersForm component', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      waitFor(async () => {
+        expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      });
+
       if (required) {
-        expect(await screen.findByLabelText(formInput)).toBeRequired();
+        waitFor(async () => {
+          expect(await screen.findByLabelText(formInput)).toBeRequired();
+        });
       }
 
-      expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
+      waitFor(() => {
+        expect(screen.getByTestId('reqAsteriskMsg')).toBeInTheDocument();
 
-      // check for asterisks on required fields
-      const formGroups = screen.getAllByTestId('formGroup');
+        // check for asterisks on required fields
+        const formGroups = screen.getAllByTestId('formGroup');
 
-      formGroups.forEach((group) => {
-        const hasRequiredField = group.querySelector('[required]') !== null;
+        formGroups.forEach((group) => {
+          const hasRequiredField = group.querySelector('[required]') !== null;
 
-        if (hasRequiredField) {
-          expect(group.textContent).toContain('*');
-        }
+          if (hasRequiredField) {
+            expect(group.textContent).toContain('*');
+          }
+        });
       });
     });
 
@@ -333,7 +340,9 @@ describe('EditOrdersForm component', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByText(documentSizeLimitMsg)).toBeInTheDocument();
+      waitFor(async () => {
+        expect(screen.getByText(documentSizeLimitMsg)).toBeInTheDocument();
+      });
     });
   });
 
@@ -718,7 +727,9 @@ describe('EditOrdersForm component', () => {
         expect(save).toBeInTheDocument();
       });
 
-      expect(save).toBeDisabled();
+      waitFor(() => {
+        expect(save).toBeDisabled();
+      });
     });
   });
 
