@@ -2166,3 +2166,4 @@ deploy_app_prd:
   after_script:
     - *announce_failure
   rules:
+    - *check_main
