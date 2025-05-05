@@ -444,7 +444,7 @@ func PrimeSimulatorAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
-			if session == nil || !(session.CurrentRole.RoleType == roles.RoleTypePrimeSimulator) {
+			if session == nil || !(session.ActiveRole.RoleType == roles.RoleTypePrimeSimulator) {
 				logger.Error("forbidden user for prime simulator")
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
@@ -1087,7 +1087,7 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 			zap.String("hostname", appCtx.Session().Hostname),
 			zap.String("user_id", appCtx.Session().UserID.String()))
 	} else {
-		appCtx.Session().CurrentRole = *defaultRole
+		appCtx.Session().ActiveRole = *defaultRole
 	}
 
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
@@ -1358,7 +1358,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		// Customers will be created without a role
 		appCtx.Logger().Warn("Authenticating unknown user, cannot get default role from session manager, proceeding without a role")
 	} else {
-		appCtx.Session().CurrentRole = *defaultRole
+		appCtx.Session().ActiveRole = *defaultRole
 	}
 	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
 

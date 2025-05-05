@@ -238,7 +238,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 	}
 	defaultRole, err := serviceMember.User.Roles.Default()
 	suite.FatalNoError(err)
-	session.CurrentRole = *defaultRole
+	session.ActiveRole = *defaultRole
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
@@ -264,7 +264,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, 
 	}
 	defaultRole, err := user.User.Roles.Default()
 	suite.FatalNoError(err)
-	session.CurrentRole = *defaultRole
+	session.ActiveRole = *defaultRole
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }

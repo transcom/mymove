@@ -165,7 +165,7 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return err
 		}
 
-		if appCtx.Session().CurrentRole.RoleType == roles.RoleTypeServicesCounselor {
+		if appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor {
 			mtoShipment.Status = models.MTOShipmentStatusApproved
 			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 			now := time.Now()

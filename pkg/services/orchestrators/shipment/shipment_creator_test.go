@@ -229,7 +229,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				CurrentRole:     roles.Role{},
+				ActiveRole:      roles.Role{},
 			}
 
 			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), &tc.shipment)
@@ -261,7 +261,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		}
 		defaultRole, err := identity.Roles.Default()
 		suite.FatalNoError(err)
-		session.CurrentRole = *defaultRole
+		session.ActiveRole = *defaultRole
 		appCtx := suite.AppContextWithSessionForTest(session)
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
@@ -303,7 +303,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				CurrentRole:     roles.Role{},
+				ActiveRole:      roles.Role{},
 			}
 
 			appCtx := suite.AppContextWithSessionForTest(session)
@@ -367,7 +367,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			CurrentRole:     roles.Role{},
+			ActiveRole:      roles.Role{},
 		}
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), shipment)
@@ -434,7 +434,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			}
 			defaultRole, err := identity.Roles.Default()
 			suite.FatalNoError(err)
-			session.CurrentRole = *defaultRole
+			session.ActiveRole = *defaultRole
 			appCtx := suite.AppContextWithSessionForTest(session)
 
 			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)

@@ -17,7 +17,7 @@ func (suite *MoveLockerServiceSuite) TestMoveUnlocker() {
 		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -54,7 +54,7 @@ func (suite *MoveLockerServiceSuite) TestCheckForLockedMovesAndUnlock() {
 		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -115,7 +115,7 @@ func (suite *MoveLockerServiceSuite) TestCheckForLockedMovesAndUnlock() {
 		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

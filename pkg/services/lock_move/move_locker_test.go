@@ -21,7 +21,7 @@ func (suite *MoveLockerServiceSuite) TestLockMove() {
 		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -48,7 +48,7 @@ func (suite *MoveLockerServiceSuite) TestLockMove() {
 		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -75,7 +75,7 @@ func (suite *MoveLockerServiceSuite) TestLockMoves() {
 		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -127,7 +127,7 @@ func (suite *MoveLockerServiceSuite) TestLockMoves() {
 		suite.FatalNoError(err)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    tooUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

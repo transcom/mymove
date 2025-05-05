@@ -239,7 +239,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *servicesCounselor.UserID,
 			OfficeUserID:    servicesCounselor.ID,
-			CurrentRole:     servicesCounselor.User.Roles[0],
+			ActiveRole:      servicesCounselor.User.Roles[0],
 		}
 
 		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -247,7 +247,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
-			CurrentRole:     too.User.Roles[0],
+			ActiveRole:      too.User.Roles[0],
 		}
 
 		tio := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
@@ -255,7 +255,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          *tio.UserID,
 			OfficeUserID:    tio.ID,
-			CurrentRole:     tio.User.Roles[0],
+			ActiveRole:      tio.User.Roles[0],
 		}
 
 		testCases := map[string]struct {
@@ -343,7 +343,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 				appContext := suite.AppContextWithSessionForTest(&auth.Session{
-					CurrentRole:     officeUser.User.Roles[0],
+					ActiveRole:      officeUser.User.Roles[0],
 					ApplicationName: auth.OfficeApp,
 				})
 
@@ -374,7 +374,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		appContext := suite.AppContextWithSessionForTest(&auth.Session{
-			CurrentRole:     officeUser.User.Roles[0],
+			ActiveRole:      officeUser.User.Roles[0],
 			ApplicationName: auth.OfficeApp,
 		})
 
@@ -415,7 +415,7 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 				officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 				appContext := suite.AppContextWithSessionForTest(&auth.Session{
-					CurrentRole:     officeUser.User.Roles[0],
+					ActiveRole:      officeUser.User.Roles[0],
 					ApplicationName: auth.OfficeApp,
 				})
 

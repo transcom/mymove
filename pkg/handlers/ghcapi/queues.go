@@ -36,7 +36,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeTOO) && !(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TOO or HQ office role",
 				)
@@ -96,7 +96,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && ((appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -195,7 +195,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeTOO)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTOO)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TOO role",
 				)
@@ -253,7 +253,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && ((appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -402,7 +402,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeTIO) && !(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeTIO) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with TIO or HQ office role",
 				)
@@ -459,7 +459,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && ((appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -558,7 +558,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				(!(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeServicesCounselor) && !(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ)) {
+				(!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) && !(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with Services Counselor or HQ office role",
 				)
@@ -629,7 +629,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && ((appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -997,7 +997,7 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!(appCtx.Session().CurrentRole.RoleType == roles.RoleTypeServicesCounselor) {
+				!(appCtx.Session().ActiveRole.RoleType == roles.RoleTypeServicesCounselor) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with an office role",
 				)
@@ -1027,7 +1027,7 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && ((appCtx.Session().CurrentRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 

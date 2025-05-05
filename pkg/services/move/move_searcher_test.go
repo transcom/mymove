@@ -19,7 +19,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -50,7 +50,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -83,7 +83,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -116,7 +116,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -155,7 +155,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -190,7 +190,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -207,7 +207,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -269,7 +269,7 @@ func (suite *MoveServiceSuite) TestMoveSearch() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -478,7 +478,7 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -518,7 +518,7 @@ func (suite *MoveServiceSuite) TestMoveSearchOrdering() {
 		suite.FatalNoError(err)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			CurrentRole:     *defaultRole,
+			ActiveRole:      *defaultRole,
 			OfficeUserID:    qaeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

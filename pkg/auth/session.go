@@ -233,7 +233,7 @@ type Session struct {
 	// Note for future devs, in B-23278 it was decided by the PO to drop support for multi-role session use
 	// It is still possible and allowed for an office user to have multiple roles, just not utilize them all
 	// in the same session. They must swap roles on the frontend to receive a new role for the session
-	CurrentRole     roles.Role
+	ActiveRole      roles.Role
 	Permissions     []string
 	AccessToken     string
 	ClientID        string

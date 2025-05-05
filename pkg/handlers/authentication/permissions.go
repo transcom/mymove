@@ -162,7 +162,7 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []str
 	session := appCtx.Session()
 	if session != nil {
 		for _, rp := range AllRolesPermissions {
-			if appCtx.Session().CurrentRole.RoleType == rp.RoleType {
+			if appCtx.Session().ActiveRole.RoleType == rp.RoleType {
 				userPermissions = append(userPermissions, rp.Permissions...)
 			}
 		}

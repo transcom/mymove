@@ -4812,7 +4812,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			CurrentRole:     roles.Role{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -5003,7 +5003,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			CurrentRole:     roles.Role{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -5174,7 +5174,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			CurrentRole:     roles.Role{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 

@@ -1231,7 +1231,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 			zap.String("user_id", session.UserID.String()),
 			zap.String("email", session.Email))
 	} else {
-		session.CurrentRole = *defaultRole
+		session.ActiveRole = *defaultRole
 	}
 
 	session.Permissions = getPermissionsForUser(appCtx, userIdentity.ID)

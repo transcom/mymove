@@ -78,7 +78,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			CurrentRole:     roles.Role{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -145,7 +145,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			CurrentRole:     roles.Role{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -257,7 +257,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				CurrentRole:     roles.Role{},
+				ActiveRole:      roles.Role{},
 			}
 
 			appCtx := suite.AppContextWithSessionForTest(session)
@@ -288,7 +288,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		}
 		defaultRole, err := identity.Roles.Default()
 		suite.FatalNoError(err)
-		session.CurrentRole = *defaultRole
+		session.ActiveRole = *defaultRole
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 

@@ -467,7 +467,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 
 	defaultRole, err := identity.Roles.Default()
 	suite.FatalNoError(err)
-	handlerSession.CurrentRole = *defaultRole
+	handlerSession.ActiveRole = *defaultRole
 
 	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
 	req = req.WithContext(ctx)
@@ -511,7 +511,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 
 	defaultRole, err := identity.Roles.Default()
 	suite.FatalNoError(err)
-	handlerSession.CurrentRole = *defaultRole
+	handlerSession.ActiveRole = *defaultRole
 
 	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
 	req = req.WithContext(ctx)
@@ -715,10 +715,10 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	// Office app, so should only have office ID information
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	// Make sure session contains roles and permissions
-	suite.NotEmpty(session.CurrentRole)
+	suite.NotEmpty(session.ActiveRole)
 	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeTIO)
 	suite.True(hasRole)
-	sessionRole := session.CurrentRole
+	sessionRole := session.ActiveRole
 	suite.True(hasRole)
 	suite.Equal(userRole.ID, sessionRole.ID)
 	suite.NotEmpty(session.Permissions)
@@ -1568,7 +1568,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	suite.Equal(uuid.Nil, session.AdminUserID)
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 	// this user was created without roles or permissions
-	suite.Empty(session.CurrentRole)
+	suite.Empty(session.ActiveRole)
 	suite.Empty(session.Permissions)
 }
 
@@ -1622,10 +1622,10 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	suite.Equal(uuid.Nil, session.AdminUserID)
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 	// Make sure session contains roles and permissions
-	suite.NotEmpty(session.CurrentRole)
+	suite.NotEmpty(session.ActiveRole)
 	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQae)
 	suite.True(hasRole)
-	sessionRole := session.CurrentRole
+	sessionRole := session.ActiveRole
 	suite.True(hasRole)
 	suite.Equal(userRole.ID, sessionRole.ID)
 	suite.NotEmpty(session.Permissions)
