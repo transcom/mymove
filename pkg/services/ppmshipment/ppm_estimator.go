@@ -503,10 +503,14 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	} else {
 		if ppmShipment.PickupAddress != nil && ppmShipment.PickupAddress.PostalCode != "" {
 			pickupPostal = ppmShipment.PickupAddress.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " no pickup address or zip on PPM - unable to calculate incentive")
 		}
 
 		if ppmShipment.DestinationAddress != nil && ppmShipment.DestinationAddress.PostalCode != "" {
 			destPostal = ppmShipment.DestinationAddress.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " no destination address or zip on PPM - unable to calculate incentive")
 		}
 	}
 
@@ -648,11 +652,15 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	// Check different address values for a postal code
 	if ppmShipment.PickupAddress != nil && ppmShipment.PickupAddress.PostalCode != "" {
 		pickupPostal = ppmShipment.PickupAddress.PostalCode
+	} else {
+		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, apperror.NewNotFoundError(ppmShipment.ID, " no pickup address or zip on PPM - unable to calculate incentive")
 	}
 
 	// Same for destination
 	if ppmShipment.DestinationAddress != nil && ppmShipment.DestinationAddress.PostalCode != "" {
 		destPostal = ppmShipment.DestinationAddress.PostalCode
+	} else {
+		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, apperror.NewNotFoundError(ppmShipment.ID, " no destination address or zip on PPM - unable to calculate incentive")
 	}
 
 	// if the ZIPs are the same, we need to replace the DLH service item with DSH
