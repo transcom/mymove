@@ -232,7 +232,7 @@ export const LocationSearchBoxComponent = ({
   return (
     <FormGroup>
       <div className="labelWrapper">
-        <Label hint={hint} htmlFor={inputId} className={labelClasses}>
+        <Label hint={hint} htmlFor={inputId} className={labelClasses} data-testid={`${name}-label`}>
           <span>
             {title} {showRequiredAsterisk && <RequiredAsterisk />}
           </span>
