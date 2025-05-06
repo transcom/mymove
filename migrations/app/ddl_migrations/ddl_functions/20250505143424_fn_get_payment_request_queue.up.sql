@@ -24,12 +24,12 @@ CREATE OR REPLACE FUNCTION get_payment_request_queue(
   sort_direction            TEXT                     DEFAULT NULL
 )
 RETURNS TABLE (
-  payment_request   JSONB,   -- all columns from payment_requests
-  move              JSONB,   -- minimal move fields
-  orders            JSONB,   -- minimal orders + service_member + origin_duty_location
-  origin_to_office  JSONB,   -- origin transportation office
-  tio_user          JSONB,   -- TIOAssignedUser
-  counseling_office JSONB,   -- CounselingOffice
+  payment_request   JSONB,
+  move              JSONB,
+  orders            JSONB,
+  origin_to_office  JSONB,
+  tio_user          JSONB,
+  counseling_office JSONB,
   total_count       BIGINT
 ) LANGUAGE plpgsql AS $$
 DECLARE
@@ -106,6 +106,7 @@ BEGIN
         ''id'',                         o.id,
         ''orders_type'',                o.orders_type,
         ''origin_duty_location_gbloc'', o.gbloc,
+        ''department_indicator'',       o.department_indicator,
         ''service_member'', json_build_object(
           ''id'',           sm.id,
           ''first_name'',   sm.first_name,
@@ -115,19 +116,31 @@ BEGIN
           ''affiliation'',  sm.affiliation
         ),
         ''origin_duty_location'', json_build_object(
-          ''id'',   origin_dl.id,
-          ''name'', origin_dl.name
+            ''id'',   origin_dl.id,
+            ''name'', origin_dl.name,
+            ''address'', json_build_object(
+                ''street_address_1'', addr.street_address_1,
+                ''street_address_2'', addr.street_address_2,
+                ''city'',           addr.city,
+                ''state'',          addr.state,
+                ''postal_code'',     addr.postal_code
+            )
         )
       )::JSONB AS orders,
       json_build_object(
         ''id'',   origin_to.id,
         ''name'', origin_to.name
       )::JSONB AS origin_to_office,
-      json_build_object(
-        ''id'',         tio.id,
-        ''first_name'', tio.first_name,
-        ''last_name'',  tio.last_name
-      )::JSONB AS tio_user,
+      CASE
+        WHEN tio.id IS NULL THEN
+            ''null''::JSONB
+        ELSE
+            json_build_object(
+            ''id'',         tio.id,
+            ''first_name'', tio.first_name,
+            ''last_name'',  tio.last_name
+            )::JSONB
+      END AS tio_user,
       json_build_object(
         ''id'',   co.id,
         ''name'', co.name
@@ -147,6 +160,8 @@ BEGIN
          ON m.tio_assigned_id = tio.id
     LEFT JOIN transportation_offices co
          ON m.counseling_transportation_office_id = co.id
+    LEFT JOIN addresses addr
+        ON origin_dl.address_id = addr.id
     WHERE m.show = TRUE
   ';
 
@@ -192,12 +207,15 @@ BEGIN
   IF status IS NOT NULL THEN
     sql_query := sql_query || ' AND pr.status = ANY($8)';
   END IF;
+
   IF submitted_at IS NOT NULL THEN
-    sql_query := sql_query || ' AND pr.requested_at::DATE = $9::DATE';
+    sql_query := sql_query || ' AND pr.created_at::DATE = $9::DATE';
   END IF;
+
   IF tio_assigned_user IS NOT NULL THEN
     sql_query := sql_query || ' AND (tio.first_name || '' '' || tio.last_name) ILIKE ''%'' || $10 || ''%''';
   END IF;
+
   IF p_counseling_office IS NOT NULL THEN
     sql_query := sql_query || ' AND co.name ILIKE ''%'' || $11 || ''%''';
   END IF;
@@ -247,7 +265,6 @@ BEGIN
   END IF;
 
   sql_query := sql_query || format(' LIMIT %s OFFSET %s', per_page, offset_val);
-
 
   RETURN QUERY EXECUTE sql_query
   USING
