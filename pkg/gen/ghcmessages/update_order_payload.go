@@ -76,7 +76,9 @@ type UpdateOrderPayload struct {
 	OriginDutyLocationID *strfmt.UUID `json:"originDutyLocationId"`
 
 	// rank
-	Rank *Rank `json:"rank,omitempty"`
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	Rank *strfmt.UUID `json:"rank,omitempty"`
 
 	// Report-by date
 	//
@@ -318,15 +320,8 @@ func (m *UpdateOrderPayload) validateRank(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.Rank != nil {
-		if err := m.Rank.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rank")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
-			}
-			return err
-		}
+	if err := validate.FormatOf("rank", "body", "uuid", m.Rank.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -403,10 +398,6 @@ func (m *UpdateOrderPayload) ContextValidate(ctx context.Context, formats strfmt
 	}
 
 	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateRank(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -528,27 +519,6 @@ func (m *UpdateOrderPayload) contextValidateOrdersTypeDetail(ctx context.Context
 				return ve.ValidateName("ordersTypeDetail")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("ordersTypeDetail")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Rank != nil {
-
-		if swag.IsZero(m.Rank) { // not required
-			return nil
-		}
-
-		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rank")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("rank")
 			}
 			return err
 		}

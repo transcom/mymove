@@ -445,6 +445,7 @@ const ServicesCounselingMoveDetails = ({
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
     payGrade: order.grade,
+    rank: order.rank.rankGradeName,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
   };

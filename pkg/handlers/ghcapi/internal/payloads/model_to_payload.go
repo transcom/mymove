@@ -649,6 +649,14 @@ func Order(order *models.Order) *ghcmessages.Order {
 		grade = ghcmessages.Grade(*order.Grade)
 	}
 	//
+
+	var rank ghcmessages.Rank
+	if order.Rank != nil {
+		rank.ID = strfmt.UUID(order.Rank.ID.String())
+		rank.RankGradeName = &order.Rank.RankAbbv
+		rank.PaygradeID = strfmt.UUID(order.Rank.ID.String())
+	}
+
 	var affiliation ghcmessages.Affiliation
 	if order.ServiceMember.Affiliation != nil {
 		affiliation = ghcmessages.Affiliation(*order.ServiceMember.Affiliation)
@@ -695,6 +703,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		MoveTaskOrderID:                moveTaskOrderID,
 		OriginDutyLocationGBLOC:        ghcmessages.GBLOC(swag.StringValue(order.OriginDutyLocationGBLOC)),
 		HasDependents:                  order.HasDependents,
+		Rank:                           &rank,
 	}
 
 	return &payload
@@ -2924,4 +2933,26 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 		}
 	}
 	return nil
+}
+
+// get pay grade / rank for orders drop down
+func GetPayGradeRankDropdownOptions(appCtx appcontext.AppContext, affiliation string) ([]*ghcmessages.Rank, error) {
+	var dropdownOptions []*ghcmessages.Rank
+
+	err := appCtx.DB().Q().RawQuery(`
+		select
+			pay_grade_ranks.rank_abbv || ' / ' || pay_grades.grade as RankGradeName,
+			pay_grade_ranks.id,
+			pay_grade_ranks.pay_grade_id as PaygradeID,
+			pay_grade_ranks.rank_order as RankOrder
+		from pay_grade_ranks
+		join pay_grades on pay_grade_ranks.pay_grade_id = pay_grades.id
+		where affiliation = $1
+		order by pay_grade_ranks.rank_order DESC
+	`, affiliation).All(&dropdownOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	return dropdownOptions, nil
 }

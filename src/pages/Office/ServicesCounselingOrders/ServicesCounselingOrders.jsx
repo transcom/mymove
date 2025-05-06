@@ -13,16 +13,11 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import {
-  ORDERS_TYPE_DETAILS_OPTIONS,
-  ORDERS_TYPE_OPTIONS,
-  ORDERS_PAY_GRADE_OPTIONS,
-  ORDERS_TYPE,
-} from 'constants/orders';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, getLoa, counselingUpdateOrder, getOrder } from 'services/ghcApi';
+import { getTacValid, getLoa, counselingUpdateOrder, getOrder, getRankGradeOptions } from 'services/ghcApi';
 import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -32,10 +27,12 @@ import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialT
 import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
+import { setShowLoadingSpinner } from 'store/general/actions';
+import { sortRankPayGradeOptions } from 'shared/utils';
+import retryPageLoading from 'utils/retryPageLoading';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
 const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
   const navigate = useNavigate();
@@ -271,6 +268,26 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     };
     checkAlaskaFeatureFlag();
   }, [orderTypeOptions]);
+  const [rankOptions, setRankOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankGradeOptions(order.agency);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks.body);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [order.agency]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -288,7 +305,8 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
-      grade: values.payGrade,
+      payGrade: values.payGrade,
+      rank: values.payGradeRank,
       hasDependents:
         values.ordersType === ORDERS_TYPE.STUDENT_TRAVEL || values.ordersType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
           ? formatYesNoAPIValue('yes')
@@ -311,6 +329,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     payGrade: order?.grade,
+    payGradeRank: order?.rank?.id,
     dependentsAuthorized: order?.entitlement?.dependentsAuthorized,
   };
 
@@ -323,7 +342,6 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
 
   const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
-
   return (
     <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
@@ -349,7 +367,12 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
           } else if (!loaValidationState[LOA_TYPE.NTS].isValid) {
             ntsLoaWarning = loaInvalidWarningMsg;
           }
-
+          const handleGradeRankChange = (e) => {
+            // because element text is both grade and rank we gotta split and grab only the grade
+            const paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+            formik.setValues({ ...formik.values, rank: e.target.value, grade: paygrade });
+            formik.handleChange(e);
+          };
           return (
             <form onSubmit={formik.handleSubmit}>
               <div className={styles.content}>
@@ -407,10 +430,11 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
                     validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
                     validateNTSTac={handleNTSTacValidation}
-                    payGradeOptions={payGradeDropdownOptions}
+                    payGradeOptions={rankOptions} // change these values
                     formIsDisabled={!counselorCanEdit}
                     hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
+                    handleGradeRankChange={handleGradeRankChange}
                   />
                 </div>
                 <div className={styles.bottom}>
