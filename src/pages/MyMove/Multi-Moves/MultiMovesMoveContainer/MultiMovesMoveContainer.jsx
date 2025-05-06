@@ -149,7 +149,7 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
             </>
           )}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            {checkIfMoveIsLocked ? (
+            {checkIfMoveIsLocked(m) ? (
               <Button data-testid="moveLockedBtn" className={styles.moveLockedBtn} secondary disabled>
                 Move Locked
               </Button>
