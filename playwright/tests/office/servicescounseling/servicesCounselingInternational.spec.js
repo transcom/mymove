@@ -83,6 +83,9 @@ test.describe('Services counselor user', () => {
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
+      await expect(page.getByTestId('documentAlertMessage')).toContainText('Uploading');
+      await expect(page.getByTestId('documentAlertMessage')).not.toBeVisible();
+      await expect(page.getByText('Upload complete')).not.toBeVisible();
       await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
       await page.getByRole('button', { name: 'Done' }).click();
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
