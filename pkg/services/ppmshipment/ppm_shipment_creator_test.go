@@ -166,7 +166,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fairbanks",
+				City:           "ANCHORAGE",
 				State:          "AK",
 				PostalCode:     "99507",
 			},
