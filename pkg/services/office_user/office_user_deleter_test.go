@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -110,6 +111,7 @@ func (suite *OfficeUserServiceSuite) TestDeleteOfficeUser() {
 
 		err := deleter.DeleteOfficeUser(suite.AppContextForTest(), testOfficeUser.ID)
 		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
 		suite.ErrorContains(err, "violates foreign key constraint \"moves_too_assigned_id_fkey\" on table \"moves\"")
 
 		var user models.User

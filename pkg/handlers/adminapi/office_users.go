@@ -669,6 +669,8 @@ func (h DeleteOfficeUserHandler) Handle(params officeuserop.DeleteOfficeUserPara
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return officeuserop.NewDeleteOfficeUserNotFound(), err
+				case apperror.ConflictError:
+					return officeuserop.NewDeleteOfficeUserConflict(), err
 				default:
 					return officeuserop.NewDeleteOfficeUserInternalServerError(), err
 				}

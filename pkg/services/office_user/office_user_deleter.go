@@ -2,6 +2,7 @@ package officeuser
 
 import (
 	"database/sql"
+	"regexp"
 
 	"github.com/gofrs/uuid"
 
@@ -15,6 +16,8 @@ import (
 type officeUserDeleter struct {
 	builder officeUserQueryBuilder
 }
+
+var foreignKeyPattern = regexp.MustCompile("violates foreign key constraint")
 
 func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) error {
 	// need to fetch the office user and any downstream associations (roles, privileges)
@@ -47,13 +50,13 @@ func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uu
 		// delete the office user (office_users)
 		err = o.builder.DeleteOne(txnAppCtx, &officeUser)
 		if err != nil {
-			return err
+			return handleError(id, err)
 		}
 
 		// finally, delete the user (user)
 		err = o.builder.DeleteOne(txnAppCtx, &user)
 		if err != nil {
-			return err
+			return handleError(id, err)
 		}
 
 		return nil
@@ -70,4 +73,11 @@ func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uu
 // NewOfficeUserDeleter returns a new office user deleter builder
 func NewOfficeUserDeleter(builder officeUserQueryBuilder) services.OfficeUserDeleter {
 	return &officeUserDeleter{builder}
+}
+
+func handleError(id uuid.UUID, rawError error) error {
+	if foreignKeyPattern.MatchString(rawError.Error()) {
+		return apperror.NewConflictError(id, rawError.Error())
+	}
+	return rawError
 }

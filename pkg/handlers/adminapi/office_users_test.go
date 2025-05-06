@@ -1089,6 +1089,62 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 
 		suite.IsType(&officeuserop.DeleteOfficeUserUnauthorized{}, response)
 	})
+
+	suite.Run("get an error when the office user has a move assigned", func() {
+		status := models.OfficeUserStatusAPPROVED
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Active: true,
+					Status: &status,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+		_ = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					TOOAssignedID: &officeUser.ID,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+		}, nil)
+		userID := officeUser.UserID
+		officeUserID := officeUser.ID
+
+		params := officeuserop.DeleteOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("DELETE", fmt.Sprintf("/office_users/%s", officeUserID)),
+			OfficeUserID: *handlers.FmtUUID(officeUserID),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := DeleteOfficeUserHandler{
+			HandlerConfig:     suite.HandlerConfig(),
+			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.DeleteOfficeUserConflict{}, response)
+
+		var dbUser models.User
+		err := suite.DB().Where("id = ?", userID).First(&dbUser)
+		suite.NoError(err)
+		suite.NotEmpty(dbUser, "User should remain after failed delete.")
+
+		var dbOfficeUser models.OfficeUser
+		err = suite.DB().Where("user_id = ?", userID).First(&dbOfficeUser)
+		suite.NoError(err)
+		suite.NotEmpty(dbOfficeUser, "OfficeUser should remain after failed delete.")
+
+		// .All does not return a sql no rows error, so we will verify that the struct is empty
+		var userRoles []models.UsersRoles
+		err = suite.DB().Where("user_id = ?", userID).All(&userRoles)
+		suite.NoError(err)
+		suite.NotEmpty(userRoles, "Roles should remain after failed delete.")
+	})
 }
 
 func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
