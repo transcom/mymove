@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/countries"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
@@ -332,6 +333,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsSaveEvaluationReportHandler: evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
+		}),
+		CountriesSearchCountriesHandler: countries.SearchCountriesHandlerFunc(func(params countries.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation countries.SearchCountries has not yet been implemented")
 		}),
 		CustomerSearchCustomersHandler: customer.SearchCustomersHandlerFunc(func(params customer.SearchCustomersParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.SearchCustomers has not yet been implemented")
@@ -656,6 +660,8 @@ type MymoveAPI struct {
 	QueuesSaveBulkAssignmentDataHandler queues.SaveBulkAssignmentDataHandler
 	// EvaluationReportsSaveEvaluationReportHandler sets the operation handler for the save evaluation report operation
 	EvaluationReportsSaveEvaluationReportHandler evaluation_reports.SaveEvaluationReportHandler
+	// CountriesSearchCountriesHandler sets the operation handler for the search countries operation
+	CountriesSearchCountriesHandler countries.SearchCountriesHandler
 	// CustomerSearchCustomersHandler sets the operation handler for the search customers operation
 	CustomerSearchCustomersHandler customer.SearchCustomersHandler
 	// MoveSearchMovesHandler sets the operation handler for the search moves operation
@@ -1067,6 +1073,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsSaveEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SaveEvaluationReportHandler")
+	}
+	if o.CountriesSearchCountriesHandler == nil {
+		unregistered = append(unregistered, "countries.SearchCountriesHandler")
 	}
 	if o.CustomerSearchCustomersHandler == nil {
 		unregistered = append(unregistered, "customer.SearchCustomersHandler")
@@ -1608,6 +1617,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewSaveEvaluationReport(o.context, o.EvaluationReportsSaveEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/countries"] = countries.NewSearchCountries(o.context, o.CountriesSearchCountriesHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

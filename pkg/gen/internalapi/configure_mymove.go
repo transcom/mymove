@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/countries"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
@@ -265,6 +266,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmResubmitPPMShipmentDocumentationHandler == nil {
 		api.PpmResubmitPPMShipmentDocumentationHandler = ppm.ResubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.ResubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ResubmitPPMShipmentDocumentation has not yet been implemented")
+		})
+	}
+	if api.CountriesSearchCountriesHandler == nil {
+		api.CountriesSearchCountriesHandler = countries.SearchCountriesHandlerFunc(func(params countries.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation countries.SearchCountries has not yet been implemented")
 		})
 	}
 	if api.DutyLocationsSearchDutyLocationsHandler == nil {

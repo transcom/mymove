@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/addresses"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/countries"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -91,6 +92,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderListMovesHandler: move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
+		}),
+		CountriesSearchCountriesHandler: countries.SearchCountriesHandlerFunc(func(params countries.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation countries.SearchCountries has not yet been implemented")
 		}),
 		MtoShipmentUpdateMTOAgentHandler: mto_shipment.UpdateMTOAgentHandlerFunc(func(params mto_shipment.UpdateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOAgent has not yet been implemented")
@@ -192,6 +196,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
 	MoveTaskOrderListMovesHandler move_task_order.ListMovesHandler
+	// CountriesSearchCountriesHandler sets the operation handler for the search countries operation
+	CountriesSearchCountriesHandler countries.SearchCountriesHandler
 	// MtoShipmentUpdateMTOAgentHandler sets the operation handler for the update m t o agent operation
 	MtoShipmentUpdateMTOAgentHandler mto_shipment.UpdateMTOAgentHandler
 	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
@@ -332,6 +338,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveTaskOrderListMovesHandler == nil {
 		unregistered = append(unregistered, "move_task_order.ListMovesHandler")
+	}
+	if o.CountriesSearchCountriesHandler == nil {
+		unregistered = append(unregistered, "countries.SearchCountriesHandler")
 	}
 	if o.MtoShipmentUpdateMTOAgentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOAgentHandler")
@@ -505,6 +514,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves"] = move_task_order.NewListMoves(o.context, o.MoveTaskOrderListMovesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/countries"] = countries.NewSearchCountries(o.context, o.CountriesSearchCountriesHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
