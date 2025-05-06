@@ -532,24 +532,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                         </PrivateRoute>
                       }
                     />
-                    <Route
-                      key="primeSimulatorAcknowledgeMovePath"
-                      path={primeSimulatorRoutes.ACKNOWLEDGE_MOVE_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeUIAcknowledgeMove />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorAcknowledgeShipmentPath"
-                      path={primeSimulatorRoutes.ACKNOWLEDGE_SHIPMENT_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeUIAcknowledgeShipment />
-                        </PrivateRoute>
-                      }
-                    />
 
                     {/* QAE/CSR/GSR */}
                     <Route
