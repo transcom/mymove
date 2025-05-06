@@ -16,6 +16,7 @@ import (
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -357,6 +358,28 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 
 	if newPPMShipment.AllowableWeight != nil && *newPPMShipment.AllowableWeight < newTotalWeight {
 		newTotalWeight = *newPPMShipment.AllowableWeight
+	}
+
+	// we have access to the MoveTaskOrderID in the ppmShipment object so we can use that to get the orders and allotment
+	// This allows us to ensure the final incentive calculates with the actual weight, allowable weight, or total weight,
+	// whichever is lowest.
+	var move models.Move
+	err = appCtx.DB().Q().Eager(
+		"Orders.Entitlement",
+	).Where("show = TRUE").Find(&move, newPPMShipment.Shipment.MoveTaskOrderID)
+	if err != nil {
+		return nil, apperror.NewNotFoundError(newPPMShipment.ID, " error querying move")
+	}
+	waf := entitlements.NewWeightAllotmentFetcher()
+	entitlements, err := waf.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	if err != nil {
+		return nil, err
+	}
+
+	allotment := entitlements.TotalWeightSelfPlusDependents
+
+	if newTotalWeight > unit.Pound(allotment) {
+		newTotalWeight = unit.Pound(allotment)
 	}
 
 	contractDate := newPPMShipment.ExpectedDepartureDate
