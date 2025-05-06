@@ -1245,3 +1245,24 @@ func VLocations(vLocations models.VLocations) primemessages.VLocations {
 	}
 	return payload
 }
+
+// VCountry payload
+func VCountry(country *models.Country) *primemessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &primemessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func VCountries(countries models.Countries) primemessages.Countries {
+	payload := make(primemessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = VCountry(&copyOfCountry)
+	}
+	return payload
+}

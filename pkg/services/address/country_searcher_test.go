@@ -1,4 +1,4 @@
-package country
+package address
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -6,7 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *CountrySuite) TestCountrySearch() {
+func (suite *AddressSuite) TestCountrySearch() {
 	suite.Run("Successfully search for US", func() {
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		countrySearcher := NewCountrySearcher()

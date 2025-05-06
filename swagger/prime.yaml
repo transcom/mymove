@@ -2094,15 +2094,18 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /countries:
+  /addresses/countries:
     get:
       summary: Returns the countries matching the search query
-      description: >-
-        Search API using search string that returns list of country and country
-        name.
+      description: >
+        Search API using search string that returns list of countries containing
+        its code and name. Will return all if 'search' query string parameter is
+        not available/empty. If 2 chars are provided search will do an exact
+        match on country code and also do a starts with match on country name.
+        If not 2 characters search will do a starts with match on country name.
       operationId: searchCountries
       tags:
-        - countries
+        - addresses
       parameters:
         - in: query
           name: search

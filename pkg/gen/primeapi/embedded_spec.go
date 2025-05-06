@@ -36,6 +36,44 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
+    "/addresses/countries": {
+      "get": {
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search string for countries",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "countries matching the search query",
+            "schema": {
+              "$ref": "#/definitions/Countries"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -57,44 +95,6 @@ func init() {
             "description": "the requested list of city, state, county, and postal code matches",
             "schema": {
               "$ref": "#/definitions/VLocations"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/countries": {
-      "get": {
-        "description": "Search API using search string that returns list of country and country name.",
-        "tags": [
-          "countries"
-        ],
-        "summary": "Returns the countries matching the search query",
-        "operationId": "searchCountries",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Search string for countries",
-            "name": "search",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "countries matching the search query",
-            "schema": {
-              "$ref": "#/definitions/Countries"
             }
           },
           "400": {
@@ -5978,27 +5978,27 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
-    "/addresses/zip-city-lookup/{search}": {
+    "/addresses/countries": {
       "get": {
-        "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
+        "description": "Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.\n",
         "tags": [
           "addresses"
         ],
-        "summary": "Returns city, state, postal code, and county associated with the specified full/partial postal code or city state string",
-        "operationId": "getLocationByZipCityState",
+        "summary": "Returns the countries matching the search query",
+        "operationId": "searchCountries",
         "parameters": [
           {
             "type": "string",
+            "description": "Search string for countries",
             "name": "search",
-            "in": "path",
-            "required": true
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "the requested list of city, state, county, and postal code matches",
+            "description": "countries matching the search query",
             "schema": {
-              "$ref": "#/definitions/VLocations"
+              "$ref": "#/definitions/Countries"
             }
           },
           "400": {
@@ -6028,27 +6028,27 @@ func init() {
         }
       }
     },
-    "/countries": {
+    "/addresses/zip-city-lookup/{search}": {
       "get": {
-        "description": "Search API using search string that returns list of country and country name.",
+        "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
         "tags": [
-          "countries"
+          "addresses"
         ],
-        "summary": "Returns the countries matching the search query",
-        "operationId": "searchCountries",
+        "summary": "Returns city, state, postal code, and county associated with the specified full/partial postal code or city state string",
+        "operationId": "getLocationByZipCityState",
         "parameters": [
           {
             "type": "string",
-            "description": "Search string for countries",
             "name": "search",
-            "in": "query"
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "countries matching the search query",
+            "description": "the requested list of city, state, county, and postal code matches",
             "schema": {
-              "$ref": "#/definitions/Countries"
+              "$ref": "#/definitions/VLocations"
             }
           },
           "400": {

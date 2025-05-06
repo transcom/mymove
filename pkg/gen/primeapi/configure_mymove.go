@@ -12,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/addresses"
-	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/countries"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -122,9 +121,9 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
 		})
 	}
-	if api.CountriesSearchCountriesHandler == nil {
-		api.CountriesSearchCountriesHandler = countries.SearchCountriesHandlerFunc(func(params countries.SearchCountriesParams) middleware.Responder {
-			return middleware.NotImplemented("operation countries.SearchCountries has not yet been implemented")
+	if api.AddressesSearchCountriesHandler == nil {
+		api.AddressesSearchCountriesHandler = addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOAgentHandler == nil {
