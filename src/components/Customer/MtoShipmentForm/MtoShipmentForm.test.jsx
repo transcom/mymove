@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { generatePath } from 'react-router-dom';
-import { waitFor, screen, act, within, fireEvent } from '@testing-library/react';
+import { waitFor, screen, fireEvent, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
