@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -42,6 +44,130 @@ func NewPaymentRequestListFetcher() services.PaymentRequestListFetcher {
 type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests
+// func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
+// 	var gbloc string
+// 	if params.ViewAsGBLOC != nil {
+// 		gbloc = *params.ViewAsGBLOC
+// 	} else {
+// 		var gblocErr error
+// 		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+// 		gbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+// 		if gblocErr != nil {
+// 			return &models.PaymentRequests{}, 0, gblocErr
+// 		}
+// 	}
+
+// 	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+// 	if err != nil {
+// 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+// 	}
+
+// 	paymentRequests := models.PaymentRequests{}
+// 	query := appCtx.DB().Q().EagerPreload(
+// 		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
+// 		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
+// 		"MoveTaskOrder.TIOAssignedUser",
+// 		"MoveTaskOrder.TIOAssignedUser.TransportationOfficeID",
+// 		"MoveTaskOrder.CounselingOffice",
+// 		// See note further below about having to do this in a separate Load call due to a Pop issue.
+// 		// "MoveTaskOrder.Orders.ServiceMember",
+// 	).
+// 		InnerJoin("moves", "payment_requests.move_id = moves.id").
+// 		InnerJoin("orders", "orders.id = moves.orders_id").
+// 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
+// 		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
+// 		// Need to use left join because some duty locations do not have transportation offices
+// 		LeftJoin("transportation_offices as origin_to", "duty_locations.transportation_office_id = origin_to.id").
+// 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+// 		// and we don't want it to get hidden from services counselors.
+// 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
+// 		LeftJoin("office_users as assigned_user", "moves.tio_assigned_id = assigned_user.id").
+// 		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
+// 		Where("moves.show = ?", models.BoolPointer(true))
+
+// 	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+// 		query.Where("orders.orders_type != (?)", "SAFETY")
+// 	}
+
+// 	branchQuery := branchFilter(params.Branch)
+// 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
+// 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
+// 	var gblocQuery QueryOption
+// 	if gbloc == "USMC" {
+// 		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)))
+// 		gblocQuery = nil
+// 	} else {
+// 		gblocQuery = shipmentGBLOCFilter(&gbloc)
+// 	}
+// 	locatorQuery := locatorFilter(params.Locator)
+// 	dodIDQuery := dodIDFilter(params.Edipi)
+// 	emplidQuery := emplidFilter(params.Emplid)
+// 	customerNameQuery := customerNameFilter(params.CustomerName)
+// 	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
+// 	statusQuery := paymentRequestsStatusFilter(params.Status)
+// 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
+// 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
+// 	orderQuery := sortOrder(params.Sort, params.Order)
+// 	secondaryOrderQuery := secondarySortOrder(params.Sort)
+// 	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
+// 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
+
+// 	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, secondaryOrderQuery, emplidQuery, tioAssignedUserQuery, counselingQuery}
+
+// 	for _, option := range options {
+// 		if option != nil {
+// 			option(query)
+// 		}
+// 	}
+
+// 	if params.Page == nil {
+// 		params.Page = models.Int64Pointer(1)
+// 	}
+
+// 	if params.PerPage == nil {
+// 		params.PerPage = models.Int64Pointer(20)
+// 	}
+// 	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name, assigned_user.last_name, assigned_user.first_name, transportation_offices.id, transportation_offices.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+// 	if err != nil {
+// 		return nil, 0, err
+// 	}
+// 	// Get the count
+// 	count := query.Paginator.TotalEntriesSize
+
+// 	for i := range paymentRequests {
+// 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
+// 		// where the first 2 levels match.  For example:
+// 		//   "MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
+// 		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+// 		// in the EagerPreload above and request the second one explicitly with a separate Load call.
+// 		//
+// 		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
+// 		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+// 		//   cannot eager load the address as "OriginDutyLocation.Address" because
+// 		//   OriginDutyLocation is a pointer.
+// 		loadErr := appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
+// 		if loadErr != nil {
+// 			return nil, 0, err
+// 		}
+// 		loadErr = appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder, "ShipmentGBLOC")
+// 		if loadErr != nil {
+// 			return nil, 0, err
+// 		}
+// 	}
+
+// 	return &paymentRequests, count, nil
+// }
+
+type paymentRequestRow struct {
+	PaymentRequest   json.RawMessage `db:"payment_request"`
+	Move             json.RawMessage `db:"move"`
+	Orders           json.RawMessage `db:"orders"`
+	OriginToOffice   json.RawMessage `db:"origin_to_office"`
+	TIOUser          json.RawMessage `db:"tio_user"`
+	CounselingOffice json.RawMessage `db:"counseling_office"`
+	TotalCount       int             `db:"total_count"`
+}
+
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
 	var gbloc string
 	if params.ViewAsGBLOC != nil {
@@ -59,101 +185,62 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
+	hasSafetyPrivilege := privileges.HasPrivilege(models.PrivilegeTypeSafety)
 
-	paymentRequests := models.PaymentRequests{}
-	query := appCtx.DB().Q().EagerPreload(
-		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
-		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
-		"MoveTaskOrder.TIOAssignedUser",
-		"MoveTaskOrder.TIOAssignedUser.TransportationOfficeID",
-		"MoveTaskOrder.CounselingOffice",
-		// See note further below about having to do this in a separate Load call due to a Pop issue.
-		// "MoveTaskOrder.Orders.ServiceMember",
-	).
-		InnerJoin("moves", "payment_requests.move_id = moves.id").
-		InnerJoin("orders", "orders.id = moves.orders_id").
-		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
-		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices as origin_to", "duty_locations.transportation_office_id = origin_to.id").
-		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
-		// and we don't want it to get hidden from services counselors.
-		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
-		LeftJoin("office_users as assigned_user", "moves.tio_assigned_id = assigned_user.id").
-		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-		Where("moves.show = ?", models.BoolPointer(true))
-
-	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-		query.Where("orders.orders_type != (?)", "SAFETY")
-	}
-
-	branchQuery := branchFilter(params.Branch)
-	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
-	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	var gblocQuery QueryOption
-	if gbloc == "USMC" {
-		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)))
-		gblocQuery = nil
-	} else {
-		gblocQuery = shipmentGBLOCFilter(&gbloc)
-	}
-	locatorQuery := locatorFilter(params.Locator)
-	dodIDQuery := dodIDFilter(params.Edipi)
-	emplidQuery := emplidFilter(params.Emplid)
-	customerNameQuery := customerNameFilter(params.CustomerName)
-	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
-	statusQuery := paymentRequestsStatusFilter(params.Status)
-	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
-	orderQuery := sortOrder(params.Sort, params.Order)
-	secondaryOrderQuery := secondarySortOrder(params.Sort)
-	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
-	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
-
-	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, secondaryOrderQuery, emplidQuery, tioAssignedUserQuery, counselingQuery}
-
-	for _, option := range options {
-		if option != nil {
-			option(query)
-		}
-	}
-
-	if params.Page == nil {
-		params.Page = models.Int64Pointer(1)
-	}
-
-	if params.PerPage == nil {
-		params.PerPage = models.Int64Pointer(20)
-	}
-	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name, assigned_user.last_name, assigned_user.first_name, transportation_offices.id, transportation_offices.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	var rows []paymentRequestRow
+	err = appCtx.DB().
+		RawQuery(
+			`SELECT * FROM get_payment_request_queue($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
+			gbloc,
+			params.Branch,
+			params.Locator,
+			params.Edipi,
+			params.Emplid,
+			params.CustomerName,
+			params.DestinationDutyLocation,
+			pq.Array(params.Status),
+			params.SubmittedAt,
+			params.TIOAssignedUser,
+			params.CounselingOffice,
+			hasSafetyPrivilege,
+			params.Page,
+			params.PerPage,
+			params.Sort,
+			params.Order,
+		).
+		All(&rows)
 	if err != nil {
 		return nil, 0, err
 	}
-	// Get the count
-	count := query.Paginator.TotalEntriesSize
 
-	for i := range paymentRequests {
-		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
-		// where the first 2 levels match.  For example:
-		//   "MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
-		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
-		// in the EagerPreload above and request the second one explicitly with a separate Load call.
-		//
-		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
-		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		//   cannot eager load the address as "OriginDutyLocation.Address" because
-		//   OriginDutyLocation is a pointer.
-		loadErr := appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
-		if loadErr != nil {
+	moves := make(models.PaymentRequests, len(rows))
+	var total int
+	for i, r := range rows {
+		total = r.TotalCount
+		var pr models.PaymentRequest
+		if err := json.Unmarshal(r.PaymentRequest, &pr); err != nil {
 			return nil, 0, err
 		}
-		loadErr = appCtx.DB().Load(&paymentRequests[i].MoveTaskOrder, "ShipmentGBLOC")
-		if loadErr != nil {
+		if err := json.Unmarshal(r.Move, &pr.MoveTaskOrder); err != nil {
 			return nil, 0, err
 		}
+		if err := json.Unmarshal(r.Orders, &pr.MoveTaskOrder.Orders); err != nil {
+			return nil, 0, err
+		}
+		if err := json.Unmarshal(r.OriginToOffice, &pr.MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice); err != nil {
+			return nil, 0, err
+		}
+		if err := json.Unmarshal(r.TIOUser, &pr.MoveTaskOrder.TIOAssignedUser); err != nil {
+			return nil, 0, err
+		}
+		if err := json.Unmarshal(r.CounselingOffice, &pr.MoveTaskOrder.CounselingOffice); err != nil {
+			return nil, 0, err
+		}
+
+		moves[i] = pr
 	}
 
-	return &paymentRequests, count, nil
+	return &moves, total, nil
 }
 
 // FetchPaymentRequestListByMove returns a payment request by move locator id
