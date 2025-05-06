@@ -107,6 +107,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Rank != nil {
 		rank.ID = strfmt.UUID(order.Rank.ID.String())
 		rank.PaygradeID = strfmt.UUID(order.Rank.PayGradeID.String())
+		rank.RankAbbv = order.Rank.RankAbbv
 	}
 
 	ordersType := order.OrdersType
@@ -647,6 +648,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
+			order.RankID = models.UUIDPointer(rank.ID)
 			order.Rank = &rank
 
 			if payload.DepartmentIndicator != nil {

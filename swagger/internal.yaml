@@ -2728,6 +2728,9 @@ definitions:
       rankGradeName:
         type: string
         x-nullable: true
+        example: Seargent
+      rankAbbv:
+        type: string
         example: SGT
       rankOrder:
         type: integer

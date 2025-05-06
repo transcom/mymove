@@ -14032,10 +14032,14 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
         "rankGradeName": {
           "type": "string",
           "x-nullable": true,
-          "example": "SGT"
+          "example": "Seargent"
         },
         "rankOrder": {
           "type": "integer",
@@ -32572,10 +32576,14 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
         "rankGradeName": {
           "type": "string",
           "x-nullable": true,
-          "example": "SGT"
+          "example": "Seargent"
         },
         "rankOrder": {
           "type": "integer",
