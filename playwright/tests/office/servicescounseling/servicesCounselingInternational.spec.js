@@ -7,8 +7,23 @@ const alaskaFF = process.env.FEATURE_FLAG_ENABLE_ALASKA;
 const LocationLookup1 = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 const LocationLookup2 = 'BEVERLY HILLS, CA 90212 (LOS ANGELES)';
 
+/**
+ * @param {Date} date
+ */
+function formatDate(date) {
+  const day = date.toLocaleString('default', { day: '2-digit' });
+  const month = date.toLocaleString('default', { month: 'short' });
+  const year = date.toLocaleString('default', { year: 'numeric' });
+  return `${day} ${month} ${year}`;
+}
+
 test.describe('Services counselor user', () => {
   test.describe('Can create a customer with an international Alaska move', () => {
+    let pickupDate;
+    let pickupDateStr;
+    let deliveryDate;
+    let deliveryDateStr;
+
     test.beforeEach(async ({ scPage }) => {
       await scPage.signInAsNewServicesCounselorUser();
     });
@@ -89,7 +104,7 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');
       await page.getByLabel('Orders type detail').selectOption('Shipment of HHG Permitted');
-      await page.getByLabel('TAC', { exact: true }).nth(0).fill('TEST');
+      await page.getByLabel('TAC').nth(0).fill('TEST');
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
@@ -97,10 +112,16 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Add a new shipment').selectOption('HHG');
       await expect(page.getByText('Add shipment details')).toBeVisible();
       await expect(page.getByText('Weight allowance: 11,000 lbs')).toBeVisible();
-      await page.getByLabel('Requested pickup date').fill('25 Dec 2024');
+      pickupDate = new Date();
+      pickupDate.setDate(pickupDate.getDate() + 5);
+      pickupDateStr = formatDate(pickupDate);
+      deliveryDate = new Date();
+      deliveryDate.setDate(pickupDate.getDate() + 10);
+      deliveryDateStr = formatDate(deliveryDate);
+      await page.getByLabel('Requested pickup date').fill(pickupDateStr);
       await page.getByLabel('Requested pickup date').blur();
       await page.getByText('Use pickup address').click();
-      await page.getByLabel('Requested delivery date').fill('25 Dec 2022');
+      await page.getByLabel('Requested delivery date').fill(deliveryDateStr);
       await page.getByLabel('Requested delivery date').blur();
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
