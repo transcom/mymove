@@ -229,7 +229,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	suite.Assertions.Equal(move.OrdersID.String(), okResponse.Payload.OrdersID.String())
 
 	// should have a lockExpiresAt field if passed in by request
-	suite.Equal(handlers.FmtDateTime(someTime), &okResponse.Payload.LockExpiresAt)
+	suite.True(someTime.Equal(handlers.FmtDateTimePtrToPop(&okResponse.Payload.LockExpiresAt)))
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
