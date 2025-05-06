@@ -747,15 +747,15 @@ func GetPayGradeRankDropdownOptions(appCtx appcontext.AppContext, affiliation st
 	var dropdownOptions []*internalmessages.Rank
 
 	err := appCtx.DB().Q().RawQuery(`
-		select
-			ranks.rank_abbv || ' / ' || pay_grades.grade as RankGradeName,
+		SELECT
+			ranks.rank_abbv || ' / ' || REPLACE(pay_grades.grade, '_', '-') AS RankGradeName,
 			ranks.id,
-			ranks.pay_grade_id as PaygradeID,
-			ranks.rank_order as RankOrder
-		from ranks
-		join pay_grades on ranks.pay_grade_id = pay_grades.id
-		where affiliation = $1
-		order by ranks.rank_order DESC
+			ranks.pay_grade_id AS PaygradeID,
+			ranks.rank_order AS RankOrder
+		FROM ranks
+		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
+		WHERE affiliation = $1
+		ORDER BY ranks.rank_order DESC
 	`, affiliation).All(&dropdownOptions)
 	if err != nil {
 		return nil, err

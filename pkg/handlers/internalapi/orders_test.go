@@ -36,6 +36,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			},
 		},
 	}, nil)
+	rank := factory.BuildRank(suite.DB(), nil, nil)
+
 	suite.Run("can create conus orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -69,6 +71,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+
 		payload := &internalmessages.CreateUpdateOrders{
 			HasDependents:        handlers.FmtBool(hasDependents),
 			SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
@@ -83,6 +86,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			Sac:                  handlers.FmtString("SacNumber"),
 			DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
 			Grade:                models.ServiceMemberGradeE1.Pointer(),
+			Rank:                 strfmt.UUID(rank.ID.String()),
 		}
 
 		params := ordersop.CreateOrdersParams{
@@ -206,6 +210,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			DependentsTwelveAndOver: models.Int64Pointer(5),
 			DependentsUnderTwelve:   models.Int64Pointer(5),
 			CivilianTdyUbAllowance:  models.Int64Pointer(350),
+			Rank:                    strfmt.UUID(rank.ID.String()),
 		}
 
 		params := ordersop.CreateOrdersParams{
