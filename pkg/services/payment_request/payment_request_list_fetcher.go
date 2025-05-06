@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/pop/v6"
@@ -87,22 +88,22 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		total = r.TotalCount
 		var pr models.PaymentRequest
 		if err := json.Unmarshal(r.PaymentRequest, &pr); err != nil {
-			return nil, 0, err
+			return nil, 0, fmt.Errorf("error unmarshaling payment request JSON: %w", err)
 		}
 		if err := json.Unmarshal(r.Move, &pr.MoveTaskOrder); err != nil {
-			return nil, 0, err
+			return nil, 0, fmt.Errorf("error unmarshaling move task order JSON: %w", err)
 		}
 		if err := json.Unmarshal(r.Orders, &pr.MoveTaskOrder.Orders); err != nil {
-			return nil, 0, err
+			return nil, 0, fmt.Errorf("error unmarshaling orders JSON: %w", err)
 		}
 		if err := json.Unmarshal(r.OriginToOffice, &pr.MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice); err != nil {
-			return nil, 0, err
+			return nil, 0, fmt.Errorf("error unmarshaling origin duty location transportation office JSON: %w", err)
 		}
 		if err := json.Unmarshal(r.TIOUser, &pr.MoveTaskOrder.TIOAssignedUser); err != nil {
-			return nil, 0, err
+			return nil, 0, fmt.Errorf("error unmarshaling assigned TIO user JSON: %w", err)
 		}
 		if err := json.Unmarshal(r.CounselingOffice, &pr.MoveTaskOrder.CounselingOffice); err != nil {
-			return nil, 0, err
+			return nil, 0, fmt.Errorf("error unmarshaling move's counseling office JSON: %w", err)
 		}
 
 		moves[i] = pr
