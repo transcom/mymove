@@ -1,52 +1,36 @@
+name: zap-scan
 on:
   pull_request:
     branches: [ main ]
 
+
 jobs:
   zap_scan:
-    name: Scan mymove
     runs-on: ubuntu-latest
+    name: Scan mymove
     steps:
-      - name: ZAP_scan_mymove
-        uses: zaproxy/action-full-scan@v0.12.0
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
         with:
-          target: 'https://my.stg.move.mil'
+          target: 'https://my.move.mil'
           allow_issue_writing: 'false'
-          artifact_name: 'zap-scan-mymove-results'
-      - name: Upload ZAP Scan Results - mymove
-        uses: actions/upload-artifact@v4
-        with:
-          path: zap_output_my/
-          overwrite: true
 
   zap_scan_office:
+    runs-on: ubuntu-latest
     name: Scan Office
-    runs-on: ubuntu-latest
     steps:
-      - name: ZAP_Scan_office
-        uses: zaproxy/action-full-scan@v0.12.0
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
         with:
-          target: 'https://office.stg.move.mil'
+          target: 'https://office.move.mil'
           allow_issue_writing: 'false'
-          artifact_name: 'zap-scan-office-results'
 
-      - name: Upload ZAP Scan Results - office
-        uses: actions/upload-artifact@v4
-        with:
-          path: zap_output_office/
-          overwrite: true
   zap_scan_admin:
-    name: Scan admin
     runs-on: ubuntu-latest
+    name: Scan admin
     steps:
-      - name: ZAP_Scan_admin
-        uses: zaproxy/action-full-scan@v0.12.0
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
         with:
-          target: 'https://admin.stg.move.mil'
+          target: 'https://admin.move.mil'
           allow_issue_writing: 'false'
-          artifact_name: 'zap-scan-admin-results'
-      - name: Upload ZAP Scan Results - admin
-        uses: actions/upload-artifact@v4
-        with:
-          path: zap_output_admin/
-          overwrite: true
