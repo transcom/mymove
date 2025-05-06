@@ -318,24 +318,31 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 	suite.Run("Returns all payment requests when all status filters are selected", func() {
 		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested", "Reviewed", "Rejected", "Paid", "Deprecated", "Error"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusPending.String(),
+				models.PaymentRequestStatusReviewed.String(),
+				models.PaymentRequestStatusReviewedAllRejected.String(),
+				models.PaymentRequestStatusPaid.String(),
+				models.PaymentRequestStatusDeprecated.String(),
+				models.PaymentRequestStatusEDIError.String(),
+				models.PaymentRequestStatusTppsReceived.String(),
+				models.PaymentRequestStatusSentToGex.String()}})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
 
 	suite.Run("Returns only those payment requests with the exact status", func() {
 		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested"}})
+			&services.FetchPaymentRequestListParams{Status: []string{"PENDING"}})
 		pending := *pendingPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, pendingCount)
 		suite.Equal(pendingPaymentRequest.ID, pending[0].ID)
 
 		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Reviewed"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusReviewed.String()}})
 		reviewed := *reviewedPaymentRequests
 		suite.NoError(err)
-		suite.Equal(3, reviewedCount)
+		suite.Equal(1, reviewedCount)
 
 		reviewedIDs := []uuid.UUID{reviewedPaymentRequest.ID, sentToGexPaymentRequest.ID, recByGexPaymentRequest.ID}
 		for _, pr := range reviewed {
@@ -343,21 +350,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		}
 
 		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Rejected"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusReviewedAllRejected.String()}})
 		rejected := *rejectedPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, rejectedCount)
 		suite.Equal(rejectedPaymentRequest.ID, rejected[0].ID)
 
 		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Paid"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusPaid.String()}})
 		paid := *paidPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, paidCount)
 		suite.Equal(paidPaymentRequest.ID, paid[0].ID)
 
 		deprecatedPaymentRequests, deprecatedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Deprecated"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusDeprecated.String()}})
 
 		deprecated := *deprecatedPaymentRequests
 		suite.NoError(err)
@@ -365,7 +372,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		suite.Equal(deprecatedPaymentRequest.ID, deprecated[0].ID)
 
 		errorPaymentRequests, errorCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"Error"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusEDIError.String()}})
 
 		errorPR := *errorPaymentRequests
 		suite.NoError(err)
@@ -618,7 +625,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	branchNavy := models.AffiliationNAVY
 	paymentRequestListFetcher := NewPaymentRequestListFetcher()
 
-	//
 	suite.PreloadData(func() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
