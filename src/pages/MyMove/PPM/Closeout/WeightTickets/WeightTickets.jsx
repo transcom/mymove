@@ -153,7 +153,9 @@ const WeightTickets = () => {
         return upload;
       })
       .catch(() => {
-        // setErrorMessage('Failed to save the file upload');
+        setErrorMessage('Failed to save the file upload');
+        // console.log('This is an error when wrong xlsx was uploaded');
+        // console.log(err.message);
         setIsErrorModalVisible(true);
       });
   };

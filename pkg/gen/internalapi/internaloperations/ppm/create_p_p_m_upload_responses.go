@@ -321,7 +321,7 @@ type CreatePPMUploadIncorrectXlsxFormat struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.IncorrectXlsxFormatError `json:"body,omitempty"`
+	Payload *internalmessages.Error `json:"body,omitempty"`
 }
 
 // NewCreatePPMUploadIncorrectXlsxFormat creates CreatePPMUploadIncorrectXlsxFormat with default headers values
@@ -331,13 +331,13 @@ func NewCreatePPMUploadIncorrectXlsxFormat() *CreatePPMUploadIncorrectXlsxFormat
 }
 
 // WithPayload adds the payload to the create p p m upload incorrect xlsx format response
-func (o *CreatePPMUploadIncorrectXlsxFormat) WithPayload(payload *internalmessages.IncorrectXlsxFormatError) *CreatePPMUploadIncorrectXlsxFormat {
+func (o *CreatePPMUploadIncorrectXlsxFormat) WithPayload(payload *internalmessages.Error) *CreatePPMUploadIncorrectXlsxFormat {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create p p m upload incorrect xlsx format response
-func (o *CreatePPMUploadIncorrectXlsxFormat) SetPayload(payload *internalmessages.IncorrectXlsxFormatError) {
+func (o *CreatePPMUploadIncorrectXlsxFormat) SetPayload(payload *internalmessages.Error) {
 	o.Payload = payload
 }
 

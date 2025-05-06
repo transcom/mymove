@@ -318,8 +318,11 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				}
 				// if isWeightEstimatorFile is false, throw an error, and send message to front end to let user know.
 				if !isWeightEstimatorFile {
-					return ppmop.NewCreatePPMUploadIncorrectXlsxFormat().WithPayload(&internalmessages.IncorrectXlsxFormatError{
-						Message: "The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file.",
+					title := "Inccorect Xlsx Template"
+					detail := "The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file."
+					return ppmop.NewCreatePPMUploadIncorrectXlsxFormat().WithPayload(&internalmessages.Error{
+						Title:  &title,
+						Detail: &detail,
 					}), nil
 
 				}
