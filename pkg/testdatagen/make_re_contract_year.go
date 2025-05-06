@@ -44,15 +44,18 @@ func MakeDefaultReContractYear(db *pop.Connection) models.ReContractYear {
 func FetchOrMakeReContractYear(db *pop.Connection, assertions Assertions) models.ReContractYear {
 	var existingContractYear models.ReContractYear
 	if !assertions.ReContractYear.StartDate.IsZero() && !assertions.ReContractYear.EndDate.IsZero() {
-		err := db.Where("start_date = ? AND end_date = ?", assertions.ReContractYear.StartDate, assertions.ReContractYear.EndDate).First(&existingContractYear)
+		// converts the start and end dates into a daterange (inclusive bounds) and checks if
+		// it overlaps with the daterange built from the given assertion dates
+		err := db.Eager("Contract").Where(
+			"daterange(start_date, end_date, '[]') && daterange(?, ?, '[]')",
+			assertions.ReContractYear.StartDate, assertions.ReContractYear.EndDate,
+		).First(&existingContractYear)
 		if err != nil && err != sql.ErrNoRows {
-			log.Panic("unexpected query error looking for existing ReContractYear by start and end dates", err)
+			log.Panic("unexpected query error looking for overlapping ReContractYear", err)
 		}
-
 		if existingContractYear.ID != uuid.Nil {
 			return existingContractYear
 		}
 	}
-
 	return MakeReContractYear(db, assertions)
 }

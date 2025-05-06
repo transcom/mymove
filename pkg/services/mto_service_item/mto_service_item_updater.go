@@ -298,17 +298,24 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		if err != nil {
 			return err
 		}
-
-		serviceItemsNeedingReview := false
+		destServiceItemsNeedingReview := false
+		originServiceItemsNeedingReview := false
 		for _, request := range moveWithServiceItems.MTOServiceItems {
 			if request.Status == models.MTOServiceItemStatusSubmitted {
-				serviceItemsNeedingReview = true
-				break
+				if _, isDestination := models.DestinationServiceItemCodesMap[request.ReService.Code]; isDestination {
+					destServiceItemsNeedingReview = true
+				} else if _, isOrigin := models.OriginServiceItemCodesMap[request.ReService.Code]; isOrigin {
+					originServiceItemsNeedingReview = true
+				}
 			}
 		}
 
-		//remove assigned user when all service items have been reviewed
-		if !serviceItemsNeedingReview {
+		if serviceItem.ReService == (models.ReService{}) || serviceItem.ReService.Code == "" {
+			return apperror.NewNotFoundError(move.ID, "ReService or ReService.Code is nil or empty.")
+		}
+		if _, isDestination := models.DestinationServiceItemCodesMap[updatedServiceItem.ReService.Code]; !destServiceItemsNeedingReview && isDestination {
+			move.TOODestinationAssignedID = nil
+		} else if _, isOrigin := models.OriginServiceItemCodesMap[updatedServiceItem.ReService.Code]; !originServiceItemsNeedingReview && isOrigin {
 			move.TOOAssignedID = nil
 		}
 
