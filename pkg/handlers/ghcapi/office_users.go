@@ -26,7 +26,7 @@ type RequestOfficeUserHandler struct {
 	services.NewQueryFilter
 	services.UserRoleAssociator
 	services.RoleAssociater
-	services.TransportaionOfficeAssignmentUpdater
+	services.TransportationOfficeAssignmentUpdater
 }
 
 // Convert internal role model to ghc role model
@@ -203,7 +203,7 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 			}
 
 			createdTransportationOfficeAssignments, err :=
-				h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, createdOfficeUser.ID, transportationOfficeAssignments)
+				h.TransportationOfficeAssignmentUpdater.UpdateTransportationOfficeAssignments(appCtx, createdOfficeUser.ID, transportationOfficeAssignments)
 			if err != nil {
 				appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
 				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err

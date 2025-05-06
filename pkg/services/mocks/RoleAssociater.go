@@ -106,34 +106,6 @@ func (_m *RoleAssociater) FetchRolesPrivileges(appCtx appcontext.AppContext) ([]
 	return r0, r1
 }
 
-// VerifyRolesPrivelegesAllowed provides a mock function with given fields: appCtx, roleType, privilegeType
-func (_m *RoleAssociater) VerifyRolesPrivelegesAllowed(appCtx appcontext.AppContext, roleType *string, privilegeType *string) (bool, error) {
-	ret := _m.Called(appCtx, roleType, privilegeType)
-
-	if len(ret) == 0 {
-		panic("no return value specified for VerifyRolesPrivelegesAllowed")
-	}
-
-	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *string, *string) (bool, error)); ok {
-		return rf(appCtx, roleType, privilegeType)
-	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *string, *string) bool); ok {
-		r0 = rf(appCtx, roleType, privilegeType)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *string, *string) error); ok {
-		r1 = rf(appCtx, roleType, privilegeType)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // NewRoleAssociater creates a new instance of RoleAssociater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewRoleAssociater(t interface {

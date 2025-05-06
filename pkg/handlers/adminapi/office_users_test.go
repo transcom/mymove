@@ -26,7 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	rolesservice "github.com/transcom/mymove/pkg/services/roles"
-	transportaionofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
+	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
@@ -406,7 +406,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 		response := handler.Handle(params)
@@ -415,7 +415,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 	suite.Run("200 - Successfully create Office User with two transportation offices", func() {
 		// Test:				CreateOfficeUserHandler, Fetcher
-		// Set up:				Create a new Office User with two transportaion offices, save new user to the DB
+		// Set up:				Create a new Office User with two transportation offices, save new user to the DB
 		// Expected Outcome:	The office user is created and we get a 200 OK.
 		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
 		secondTransportationOfficeID := factory.BuildTransportationOffice(suite.DB(), nil, nil).ID
@@ -454,7 +454,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 		response := handler.Handle(params)
@@ -510,7 +510,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
@@ -545,7 +545,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
@@ -554,7 +554,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 	suite.Run("Fail create Office User due to no primary transportation office", func() {
 		// Test:				CreateOfficeUserHandler, Fetcher
-		// Set up:				Submit an office user with two non-primary transportaion offices
+		// Set up:				Submit an office user with two non-primary transportation offices
 		// Expected Outcome:	The office user is not created and we get an unprocessible entity error.
 		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
 		secondTransportationOfficeID := factory.BuildTransportationOffice(suite.DB(), nil, nil).ID
@@ -592,7 +592,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
@@ -629,7 +629,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
@@ -678,7 +678,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
@@ -730,14 +730,14 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			userRoleAssociator,
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
 	})
 
-	suite.Run("Failed to create due to Supervisor priveleges not authorized", func() {
+	suite.Run("Failed to create due to Supervisor privileges not authorized", func() {
 		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
 		supervisorPrivilegeName := "Supervisor"
 		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
@@ -779,14 +779,14 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
 	})
 
-	suite.Run("Update fails due to Safety priveleges not authorized", func() {
+	suite.Run("Update fails due to Safety privileges not authorized", func() {
 		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
 		safetyPrivilegeName := "Safety"
 		safetyPrivilegeType := string(roles.PrivilegeSearchTypeSafety)
@@ -828,7 +828,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
@@ -846,7 +846,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(), // a special can of worms, TODO mocked tests
 			usersprivileges.NewUsersPrivilegesCreator(),
 			revoker,
-			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
+			transportationofficeassignments.NewTransportationOfficeAssignmentUpdater(),
 			rolesservice.NewRolesFetcher(),
 		}
 	}
@@ -1019,7 +1019,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		mockRevoker.AssertNumberOfCalls(suite.T(), "RevokeUserSession", 1)
 	})
 
-	suite.Run("Update fails due to Supervisor priveleges not authorized", func() {
+	suite.Run("Update fails due to Supervisor privileges not authorized", func() {
 		officeUser := setupTestData()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		primaryOffice := true
@@ -1078,7 +1078,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
 	})
 
-	suite.Run("Update fails due to Safety priveleges not authorized", func() {
+	suite.Run("Update fails due to Safety privileges not authorized", func() {
 		officeUser := setupTestData()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		primaryOffice := true

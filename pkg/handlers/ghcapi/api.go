@@ -52,7 +52,7 @@ import (
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	transportaionofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
+	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
@@ -81,7 +81,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	newQueryFilter := query.NewQueryFilter
 	newUserRolesCreator := usersroles.NewUsersRolesCreator()
 	newRolesFetcher := roles.NewRolesFetcher()
-	newTransportaionOfficeAssignmentUpdater := transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater()
+	newTransportationOfficeAssignmentUpdater := transportationofficeassignments.NewTransportationOfficeAssignmentUpdater()
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
@@ -764,7 +764,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		newQueryFilter,
 		newUserRolesCreator,
 		newRolesFetcher,
-		newTransportaionOfficeAssignmentUpdater,
+		newTransportationOfficeAssignmentUpdater,
 	}
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
 	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
