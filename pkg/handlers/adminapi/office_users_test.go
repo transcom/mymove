@@ -18,6 +18,7 @@ import (
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -798,6 +799,8 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			},
 		}
 
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, &officeUser)
+
 		params := officeuserop.UpdateOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
@@ -816,7 +819,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		expectedOfficeUser.User.Privileges = models.Privileges{models.Privilege{PrivilegeType: models.PrivilegeSearchTypeSupervisor}}
 
 		mockUpdater := mocks.OfficeUserUpdater{}
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput, transportationOffice.ID).Return(&expectedOfficeUser, nil, nil)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdatesModel, transportationOffice.ID).Return(&expectedOfficeUser, nil, nil)
 		queryBuilder := query.NewQueryBuilder()
 		officeUserUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 
@@ -864,12 +867,15 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
-		expectedInput := *officeUserUpdates
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
+
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.On("UpdateOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			officeUser.ID,
-			&expectedInput,
+			officeUserUpdatesModel,
 			uuid.FromStringOrNil(officeUserUpdates.TransportationOfficeAssignments[0].TransportationOfficeID.String()),
 		).Return(nil, nil, sql.ErrNoRows)
 
@@ -884,6 +890,62 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
+	})
+
+	suite.Run("Returns not found when office user does not exist in DB", func() {
+		officeUser := setupTestData()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		primaryOffice := true
+		firstName := "Riley"
+		middleInitials := "RB"
+		telephone := "865-555-5309"
+		supervisorPrivilegeName := "Supervisor"
+		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		tooRoleName := "Task Ordering Officer"
+		tooRoleType := string(roles.RoleTypeTOO)
+
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
+			FirstName:      &firstName,
+			MiddleInitials: &middleInitials,
+			Telephone:      &telephone,
+			Privileges: []*adminmessages.OfficeUserPrivilege{
+				{
+					Name:          &supervisorPrivilegeName,
+					PrivilegeType: &supervisorPrivilegeType,
+				},
+			},
+			Roles: []*adminmessages.OfficeUserRole{
+				{
+					Name:     &tooRoleName,
+					RoleType: &tooRoleType,
+				},
+			},
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUserDB, err := models.FetchOfficeUserByID(suite.DB(), fakeID)
+		suite.Error(err)
+		suite.Equal(uuid.Nil, officeUserDB.ID)
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
+			OfficeUserID: strfmt.UUID(fakeID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		mockUpdater := mocks.OfficeUserUpdater{}
+		mockRevoker := mocks.UserSessionRevocation{}
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserNotFound{}, response)
 	})
 
 	suite.Run("Office user session is revoked when roles are changed", func() {
@@ -901,9 +963,13 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
+
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.
-			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates, uuid.Nil).
+			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdatesModel, uuid.Nil).
 			Return(&officeUser, nil, nil)
 
 		expectedSessionUpdate := &adminmessages.UserUpdate{
