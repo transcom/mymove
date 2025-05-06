@@ -174,7 +174,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Hawaiir",
+				City:           "Honolulu",
 				State:          "HI",
 				PostalCode:     "96821",
 			},
@@ -433,7 +433,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			SITExpected:           models.BoolPointer(false),
 			PickupAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
-				City:           "Fairbanks",
+				City:           "ANCHORAGE",
 				State:          "AK",
 				PostalCode:     "99507",
 			},
