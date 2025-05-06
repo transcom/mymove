@@ -433,7 +433,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			SITExpected:           models.BoolPointer(false),
 			PickupAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
-				City:           "Fairbanks",
+				City:           "ANCHORAGE",
 				State:          "AK",
 				PostalCode:     "99507",
 			},
