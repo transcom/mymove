@@ -58,8 +58,8 @@ INSERT INTO ranks (id,pay_grade_id,affiliation,rank_abbv,rank_name,rank_order,cr
     ('6a819381-85d6-45fe-ad61-88aeb1d5f91f','6badf8a0-b0ef-4e42-b827-7f63a3987a4b'::uuid,'AIR_FORCE','WO','Warrant Officer 1',15,now(),now()),
     ('85578266-a86c-42ce-b740-e62614361114','a5fc8fd2-6f91-492b-abe2-2157d03ec990'::uuid,'AIR_FORCE','CMSgt','Chief Master Sergeant',17,now(),now()),
     ('dda2b553-99be-439b-b088-b7608b48eff0','1d909db0-602f-4724-bd43-8f90a6660460'::uuid,'AIR_FORCE','SMSgt','Senior Master Sergeant',18,now(),now()),
-    ('43dd0d76-1f2f-45fb-a73e-404fe2ab93f0','523d57a1-529c-4dfd-8c33-9cb169fd29a0'::uuid,'AIR_FORCE','MSGgt','Master Sergeant',19,now(),now()),
-    ('0472a25d-b1a0-451c-9895-110dfe44496a','541aec36-bd9f-4ad2-abb4-d9b63e29dc80'::uuid,'AIR_FORCE','TSGgt','Technical Sergeant',20,now(),now()),
+    ('43dd0d76-1f2f-45fb-a73e-404fe2ab93f0','523d57a1-529c-4dfd-8c33-9cb169fd29a0'::uuid,'AIR_FORCE','MSgt','Master Sergeant',19,now(),now()),
+    ('0472a25d-b1a0-451c-9895-110dfe44496a','541aec36-bd9f-4ad2-abb4-d9b63e29dc80'::uuid,'AIR_FORCE','TSgt','Technical Sergeant',20,now(),now()),
     ('ae9f9d91-b049-4f60-bdc9-e441a7b3cb30','3f142461-dca5-4a77-9295-92ee93371330'::uuid,'AIR_FORCE','SSgt','Staff Sergeant',21,now(),now()),
     ('753f82f9-27e1-4ee7-9b57-bfef3c83656b','bb55f37c-3165-46ba-ad3f-9a477f699990'::uuid,'AIR_FORCE','SrA','Senior Airman',22,now(),now()),
     ('3aca9ba8-3b84-42bf-8f2f-5ef02587ba89','862eb395-86d1-44af-ad47-dec44fbeda30'::uuid,'AIR_FORCE','A1C','Airman First Class',23,now(),now()),
@@ -234,9 +234,49 @@ begin
 
 end ';
 
+--update grade and rank on orders
+update orders
+   set grade = 'O_1',
+       rank_id = '2cf8e36a-20fb-41fe-9268-d3d1f0219d1a' --O_1/AFC
+ where grade in ('ACADEMY_CADET','O_1_ACADEMY_GRADUATE')
+   and service_member_id in (select id from service_members where affiliation = 'AIR_FORCE');
+
+update orders
+   set grade = 'O_1',
+       rank_id = 'd447b93a-d0ae-4943-af1c-39830f5e7278' --O_1/CDT
+ where grade in ('ACADEMY_CADET','O_1_ACADEMY_GRADUATE')
+   and service_member_id in (select id from service_members where affiliation = 'ARMY');
+
+update orders
+   set grade = 'O_1',
+       rank_id = '0dc31054-0939-44ff-80c4-114b80f40895' --O_1/MID
+ where grade = 'MIDSHIPMAN'
+   and service_member_id in (select id from service_members where affiliation = 'NAVY');
+
 --remove unused pay grades
 delete from pay_grades where grade in
 ('O_1_ACADEMY_GRADUATE',
 'ACADEMY_CADET',
 'MIDSHIPMAN',
 'AVIATION_CADET');
+
+INSERT INTO hhg_allowances (
+        id,
+        pay_grade_id,
+        total_weight_self,
+        total_weight_self_plus_dependents,
+        pro_gear_weight,
+        pro_gear_weight_spouse
+    )
+VALUES (
+        '9a892c59-48d5-4eba-b5f9-193716da8827',
+        (
+            SELECT id
+            FROM pay_grades
+            WHERE grade = 'O_1'
+        ),
+        10000,
+        12000,
+        2000,
+        500
+    );
