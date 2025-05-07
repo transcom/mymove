@@ -2,6 +2,7 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
 
 import EditShipmentDetails from './EditShipmentDetails';
 
@@ -9,6 +10,7 @@ import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { renderWithProviders } from 'testUtils';
 import { tooRoutes } from 'constants/routes';
+import { formatDateWithUTC } from 'shared/dates';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -29,6 +31,8 @@ jest.mock('services/ghcApi', () => ({
 jest.mock('hooks/queries', () => ({
   useEditShipmentQueries: jest.fn(),
 }));
+
+const tomorrow = formatDateWithUTC(moment().add(1, 'days').toDate(), 'YYYY-MM-DD');
 
 const useEditShipmentQueriesReturnValue = {
   move: {
@@ -125,7 +129,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
       },
-      requestedPickupDate: '2018-03-15',
+      requestedPickupDate: tomorrow,
       scheduledPickupDate: '2018-03-16',
       requestedDeliveryDate: '2018-04-15',
       scheduledDeliveryDate: '2014-04-16',
@@ -223,7 +227,7 @@ const useEditShipmentQueriesReturnValueNTS = {
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
       id: 'shipment123',
       moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-      requestedPickupDate: '2018-03-15',
+      requestedPickupDate: tomorrow,
       scheduledPickupDate: '2018-03-16',
       shipmentType: 'HHG_INTO_NTS',
       status: 'SUBMITTED',
