@@ -69,13 +69,24 @@ func (suite *ServiceParamValueLookupsSuite) TestShipmentTypePriceLookup() {
 		suite.Equal("1.45", factor) // Hard coded dummy factor not truncated within the db
 	})
 	suite.Run("lookup fail", func() {
-		// Set up IHPK data and then look for it
-		// This will fail because IHPK does not have a market factor
-		move, mtoServiceItem := setupShipmentTypeLookupData(models.ReServiceCodeIHPK)
+		// Set up FSC data and then look for it
+		// This will fail because FSC does not have a market factor
+		move, mtoServiceItem := setupShipmentTypeLookupData(models.ReServiceCodeFSC)
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
 		suite.FatalNoError(err)
 		factor, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
+		suite.Empty(factor)
+	})
+	suite.Run("lookup optional", func() {
+		// IHPK doesn't need the INPK ShipmentTypePrice if
+		// IHPK is the one being priced and not INPK
+		move, mtoServiceItem := setupShipmentTypeLookupData(models.ReServiceCodeIHPK)
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), move.ID, nil)
+		suite.FatalNoError(err)
+
+		factor, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.NoError(err)
 		suite.Empty(factor)
 	})
 }
