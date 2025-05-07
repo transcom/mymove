@@ -401,7 +401,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByTestId('errorMessage').length).toBe(4);
+      expect(getAllByTestId('errorMessage').length).toBe(3);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -558,12 +558,7 @@ describe('OrdersInfoForm component', () => {
             updated_at: '2021-02-11T16:48:04.117Z',
           },
           grade: 'E_5',
-          rank: {
-            id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
-            paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
-            rankGradeName: 'SSgt / E_5',
-            rankOrder: 21,
-          },
+          rank: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
           origin_duty_location: {
             address: {
               city: '',
@@ -695,11 +690,8 @@ describe('OrdersInfoForm component', () => {
         updated_at: '2020-10-19T17:01:16.114Z',
       },
       grade: 'E_1',
-      rank: {
-        id: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
-        payGradeId: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
-        payGradeName: 'SSgt',
-      },
+      rank: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+
       origin_duty_location: {
         address: {
           city: '',
@@ -736,7 +728,7 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText('Yes')).not.toBeChecked();
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
-        expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
+        expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.rank);
         expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
     });

@@ -667,7 +667,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Rank/)).toHaveValue('AB / E-1');
+      expect(screen.getByLabelText(/Rank/)).toHaveTextContent('AB / E-1');
       expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
 

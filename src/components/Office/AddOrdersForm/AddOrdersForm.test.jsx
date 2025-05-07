@@ -13,9 +13,8 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
 
 jest.setTimeout(60000);
-
 jest.mock('services/ghcApi', () => ({
-  ...jest.requireActual('services/ghciApi'),
+  ...jest.requireActual('services/ghcApi'),
   getRankGradeOptions: jest.fn().mockImplementation(() =>
     Promise.resolve([
       {
@@ -182,6 +181,7 @@ const testProps = {
   ordersTypeOptions: dropdownInputOptions(ORDERS_TYPE_OPTIONS),
   onSubmit: jest.fn(),
   onBack: jest.fn(),
+  affiliation: 'AIR_FORCE',
 };
 const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
 const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
@@ -271,7 +271,7 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.click(getByLabelText(/Report by date/));
     await userEvent.click(getByLabelText(/Current duty location/)); // do we want to add an error alert for this field
     await userEvent.click(getByLabelText(/New duty location/));
-    await userEvent.click(getByLabelText(/Rank - Pay grade/));
+    await userEvent.click(getByLabelText(/Rank/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
@@ -300,7 +300,7 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Rank - Pay grade/), ['SSgt / E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt / E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });

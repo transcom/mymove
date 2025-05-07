@@ -486,7 +486,7 @@ const AddOrdersForm = ({
               )}
 
               <DropdownInput
-                label="Rank - Pay grade"
+                label="Rank / Pay grade"
                 name="rank"
                 id="rank"
                 required
