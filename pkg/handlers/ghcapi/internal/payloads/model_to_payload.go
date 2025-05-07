@@ -2926,8 +2926,7 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 	return nil
 }
 
-// VCountry payload
-func VCountry(country *models.Country) *ghcmessages.Country {
+func CountryCodeName(country *models.Country) *ghcmessages.Country {
 	if country == nil || *country == (models.Country{}) {
 		return nil
 	}
@@ -2938,11 +2937,11 @@ func VCountry(country *models.Country) *ghcmessages.Country {
 	}
 }
 
-func VCountries(countries models.Countries) ghcmessages.Countries {
+func Countries(countries models.Countries) ghcmessages.Countries {
 	payload := make(ghcmessages.Countries, len(countries))
 	for i, country := range countries {
 		copyOfCountry := country
-		payload[i] = VCountry(&copyOfCountry)
+		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
 }

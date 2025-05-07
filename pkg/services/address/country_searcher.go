@@ -19,14 +19,14 @@ func NewCountrySearcher() services.CountrySearcher {
 func (o countrySearcher) SearchCountries(appCtx appcontext.AppContext, queryFilter *string) (models.Countries, error) {
 	var countries models.Countries
 
-	filter := ""
+	query := ""
 
 	if queryFilter != nil {
-		filter = strings.ToUpper(strings.TrimSpace(*queryFilter))
+		query = strings.ToUpper(strings.TrimSpace(*queryFilter))
 	}
 
-	// If not filter is provided return all
-	if len(filter) == 0 {
+	// If no query is provided return all.
+	if len(query) == 0 {
 		err := appCtx.DB().Order("country_name asc").All(&countries)
 		if err != nil {
 			return countries, err
@@ -35,14 +35,14 @@ func (o countrySearcher) SearchCountries(appCtx appcontext.AppContext, queryFilt
 		return countries, nil
 	}
 
-	startsWithFilter := fmt.Sprintf("%s%%", filter)
+	startsWithFilter := fmt.Sprintf("%s%%", query)
 
-	// If searchQuery len is 2 chars, search against country code and starts with match on country name
-	if len(filter) == 2 {
+	// If query len is 2 chars: match on country code or starts with match on country name.
+	if len(query) == 2 {
 		sql := `SELECT * FROM re_countries where country = ?
                 union
                 SELECT * FROM re_countries where country_name ILIKE ?`
-		err := appCtx.DB().RawQuery(sql, filter, startsWithFilter).All(&countries)
+		err := appCtx.DB().RawQuery(sql, query, startsWithFilter).All(&countries)
 		if err != nil {
 			return countries, err
 		}
@@ -50,7 +50,7 @@ func (o countrySearcher) SearchCountries(appCtx appcontext.AppContext, queryFilt
 		return countries, nil
 	}
 
-	// If searchQuery len is not 2 chars do starts with match on country name
+	// If query len is not 2 chars do starts with match on country name.
 	err := appCtx.DB().Where("country_name ILIKE ?", startsWithFilter).All(&countries)
 	if err != nil {
 		return countries, err

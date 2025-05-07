@@ -741,8 +741,7 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 	return payload
 }
 
-// VCountry payload
-func VCountry(country *models.Country) *internalmessages.Country {
+func CountryCodeName(country *models.Country) *internalmessages.Country {
 	if country == nil || *country == (models.Country{}) {
 		return nil
 	}
@@ -753,11 +752,11 @@ func VCountry(country *models.Country) *internalmessages.Country {
 	}
 }
 
-func VCountries(countries models.Countries) internalmessages.Countries {
+func Countries(countries models.Countries) internalmessages.Countries {
 	payload := make(internalmessages.Countries, len(countries))
 	for i, country := range countries {
 		copyOfCountry := country
-		payload[i] = VCountry(&copyOfCountry)
+		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
 }

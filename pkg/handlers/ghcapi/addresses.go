@@ -84,7 +84,7 @@ func (h SearchCountriesHandler) Handle(params addressop.SearchCountriesParams) m
 				return addressop.NewSearchCountriesInternalServerError(), err
 			}
 
-			returnPayload := payloads.VCountries(countries)
+			returnPayload := payloads.Countries(countries)
 			return addressop.NewSearchCountriesOK().WithPayload(returnPayload), nil
 		})
 }
