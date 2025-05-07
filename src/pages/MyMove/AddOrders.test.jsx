@@ -12,6 +12,7 @@ import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/e
 import { setCanAddOrders, setMoveId, setShowLoadingSpinner } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_TYPE } from 'constants/orders';
+import { getRankGradeOptions } from 'services/ghcApi';
 
 // Tests are timing out. High assumption it is due to service counseling office drop-down choice not being loaded on initial form load. It's another API call
 jest.setTimeout(60000);
@@ -34,6 +35,43 @@ jest.mock('services/internalApi', () => ({
         },
       ],
     }),
+  ),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  getRankGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve([
+      {
+        id: 'd3aa6931-7858-4123-be0b-f3242a49e9f7',
+        paygradeId: '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9',
+        rankGradeName: 'CIV / CIVILIAN-EMPLOYEE',
+      },
+      {
+        id: 'f6dbd496-8f71-487b-a432-55b60967f474',
+        paygradeId: '6cb785d0-cabf-479a-a36d-a6aec294a4d0',
+        rankGradeName: 'AB / E-1',
+        rankOrder: 25,
+      },
+      {
+        id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+        paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+        rankGradeName: 'Amn / E-2',
+        rankOrder: 24,
+      },
+      {
+        id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+        paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
+        rankGradeName: 'SSgt / E-5',
+        rankOrder: 21,
+      },
+      {
+        id: 'dda2b553-99be-439b-b088-b7608b48eff0',
+        paygradeId: '1d909db0-602f-4724-bd43-8f90a6660460',
+        rankGradeName: 'SMSgt / E-8',
+        rankOrder: 18,
+      },
+    ]),
   ),
 }));
 
@@ -435,7 +473,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E_5']);
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -517,8 +555,14 @@ describe('Add Orders page', () => {
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
+      rank: {
+        id: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+        payGradeId: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+        payGradeName: 'SSgt',
+      },
     };
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    getRankGradeOptions.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
@@ -534,7 +578,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E_5']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -634,7 +678,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });

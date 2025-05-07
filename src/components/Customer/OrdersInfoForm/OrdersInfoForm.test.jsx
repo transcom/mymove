@@ -11,6 +11,7 @@ import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { MockProviders } from 'testUtils';
+import { getRankGradeOptions } from 'services/ghcApi';
 
 jest.setTimeout(60000);
 
@@ -30,6 +31,10 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  getRankGradeOptions: jest.fn(),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -303,6 +308,13 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
+    getRankGradeOptions.mockResolvedValue({
+      id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
+      paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
+      rankGradeName: 'SSgt / E-5',
+      rankOrder: 23,
+    });
+
     render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
@@ -313,7 +325,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -392,7 +404,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E_5']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Scott/);
