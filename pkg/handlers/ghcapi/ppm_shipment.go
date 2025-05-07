@@ -235,14 +235,13 @@ func (h SendPPMToCustomerHandler) Handle(params ppm.SendPPMToCustomerParams) mid
 		})
 }
 
-// SubmitPPMShipmentDocumentationHandler is the handler to save a PPMShipment signature and route the PPM shipment to the office
+// SubmitPPMShipmentDocumentationHandler is the handler to allow an office user to submit a PPMShipment and change it to NEEDS_CLOSEOUT status
 type SubmitPPMShipmentDocumentationHandler struct {
 	handlers.HandlerConfig
 	services.PPMShipmentNewSubmitter
 }
 
-// Handle saves a new customer signature for PPMShipment documentation submission and routes PPM shipment to the
-// service counselor.
+// Handle routes PPM shipment to the service counselor with the NEEDS_CLOSEOUT status.
 func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

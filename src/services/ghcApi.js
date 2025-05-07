@@ -1113,12 +1113,11 @@ export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }
 
-export async function submitPPMShipmentSignedCertification(ppmShipmentId, payload) {
+export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
   return makeGHCRequest(
     'ppm.submitPPMShipmentDocumentation',
     {
       ppmShipmentId,
-      savePPMShipmentSignedCertificationPayload: payload,
     },
     {
       normalize: false,
