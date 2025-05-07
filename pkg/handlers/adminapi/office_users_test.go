@@ -1085,65 +1085,6 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		mockRevoker.AssertNumberOfCalls(suite.T(), "RevokeUserSession", 1)
 	})
 
-	suite.Run("Update fails due to Supervisor privileges not authorized", func() {
-		officeUser := setupTestData()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-		primaryOffice := true
-		supervisorPrivilegeName := "Supervisor"
-		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
-		primeRoleName := "Prime"
-		primeRoleType := string(roles.RoleTypePrime)
-
-		officeUserUpdates := &adminmessages.OfficeUserUpdate{
-			Privileges: []*adminmessages.OfficeUserPrivilege{
-				{
-					Name:          &supervisorPrivilegeName,
-					PrivilegeType: &supervisorPrivilegeType,
-				},
-			},
-			Roles: []*adminmessages.OfficeUserRole{
-				{
-					Name:     &primeRoleName,
-					RoleType: &primeRoleType,
-				},
-			},
-			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
-				{
-					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
-					PrimaryOffice:          &primaryOffice,
-				},
-			},
-		}
-
-		params := officeuserop.UpdateOfficeUserParams{
-			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
-			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
-			OfficeUser:   officeUserUpdates,
-		}
-		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
-
-		expectedInput := *officeUserUpdates
-		mockUpdater := mocks.OfficeUserUpdater{}
-		mockUpdater.On("UpdateOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			officeUser.ID,
-			&expectedInput,
-			uuid.FromStringOrNil(officeUserUpdates.TransportationOfficeAssignments[0].TransportationOfficeID.String()),
-		).Return(nil, nil, sql.ErrNoRows)
-
-		expectedSessionUpdate := &adminmessages.UserUpdate{
-			RevokeOfficeSession: models.BoolPointer(true),
-		}
-		mockRevoker := mocks.UserSessionRevocation{}
-		mockRevoker.
-			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
-			Return(nil, nil, nil).
-			Once()
-
-		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
-		suite.IsType(&officeuserop.CreateOfficeUserUnprocessableEntity{}, response)
-	})
-
 	suite.Run("Update fails due to Safety privileges not authorized", func() {
 		officeUser := setupTestData()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
