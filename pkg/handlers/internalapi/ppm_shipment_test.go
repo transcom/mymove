@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 
 	setUpHandler := func(submitter services.PPMShipmentNewSubmitter) SubmitPPMShipmentDocumentationHandler {
 		return SubmitPPMShipmentDocumentationHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			submitter,
 		}
 	}
@@ -559,7 +559,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 
 	setUpHandler := func(submitter services.PPMShipmentUpdatedSubmitter) ResubmitPPMShipmentDocumentationHandler {
 		return ResubmitPPMShipmentDocumentationHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			submitter,
 		}
 	}
@@ -993,7 +993,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -1030,7 +1030,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -1062,7 +1062,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -1092,7 +1092,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,

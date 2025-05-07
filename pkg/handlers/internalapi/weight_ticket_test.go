@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		}
 
 		subtestData.handler = CreateWeightTicketHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			weightTicketCreator,
 		}
 
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketHandler() {
 		).Return(nil, serverErr)
 
 		handler := CreateWeightTicketHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 		}
 
@@ -276,7 +276,7 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		).Return(nil, err)
 
 		handler := UpdateWeightTicketHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockUpdater,
 		}
 

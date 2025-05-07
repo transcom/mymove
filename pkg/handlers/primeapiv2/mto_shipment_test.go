@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	setupTestData := func(ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		if ubFeatureFlag {
 			expectedFeatureFlag := services.FeatureFlag{
 				Key:   "unaccompanied_baggage",

@@ -186,7 +186,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	fakeToken := "some_token"
 	fakeAccessToken := "some_access_token"
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	baseReq := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", appnames.OfficeServername), nil)
@@ -248,7 +248,7 @@ func (suite *AuthSuite) TestLogoutOktaRedirectHandler() {
 	fakeToken := "some_token"
 	fakeAccessToken := "some_access_token"
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	baseReq := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logoutOktaRedirect", appnames.MilServername), nil)
@@ -354,7 +354,7 @@ func (suite *AuthSuite) TestCustomerAPIAuthMiddleware() {
 	}
 
 	setUpHandlerAndMiddleware := func() http.Handler {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		api := internalapi.NewInternalAPI(handlerConfig)
 
@@ -472,7 +472,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
 	req = req.WithContext(ctx)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
 	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
@@ -516,7 +516,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
 	req = req.WithContext(ctx)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
 	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
@@ -670,7 +670,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 		Active: false,
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -696,7 +696,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.OktaID)
 	suite.Assert().NoError(err)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -752,7 +752,7 @@ func (suite *AuthSuite) TestAuthSameKnownUserForAllApps() {
 	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.OktaID)
 	suite.Assert().NoError(err)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -811,7 +811,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 		OfficeActive: &officeActive,
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -848,7 +848,7 @@ func (suite *AuthSuite) TestRedirectOktaErrorMsg() {
 		OfficeUserID: &officeUserID,
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback", appnames.OfficeServername), nil)
 
@@ -925,7 +925,7 @@ func (suite *AuthSuite) TestRedirectFromOktaForValidUser() {
 	// Mock the necessary Okta endpoints
 	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -993,7 +993,7 @@ func (suite *AuthSuite) TestCallbackThatRequiresOktaParamsRedirect() {
 	// Mock the necessary Okta endpoints
 	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	session := auth.Session{
@@ -1060,7 +1060,7 @@ func (suite *AuthSuite) TestCallbackThatLogsUserOutOfOkta() {
 	// Mock the necessary Okta endpoints
 	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	session := auth.Session{
@@ -1189,7 +1189,7 @@ func (suite *AuthSuite) TestRedirectFromOktaForInvalidUser() {
 	// Mock the necessary Okta endpoints
 	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -1272,7 +1272,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 		Roles:         roles.Roles{roles.Role{RoleType: roles.RoleTypeServicesCounselor}},
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -1308,7 +1308,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 		Roles:           roles.Roles{roles.Role{RoleType: roles.RoleTypeServicesCounselor}},
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -1359,7 +1359,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Set up: Prepare the session, goth.User, callback handler, http response
 	//         and request, landing URL, and pass them into authorizeUnknownUser
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	// Prepare the session and session manager
@@ -1424,7 +1424,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 		AdminUserActive: &adminUserActive,
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -1462,7 +1462,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -1488,7 +1488,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -1535,7 +1535,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 		},
 	}, nil)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	fakeToken := "some_token"
 
@@ -1589,7 +1589,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 		},
 	}, []roles.RoleType{roles.RoleTypeQae})
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 
 	fakeToken := "some_token"
@@ -1644,7 +1644,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,
@@ -1669,7 +1669,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	// user not admin_users and has never logged into the app
 	fakeToken := "some_token"
@@ -1699,7 +1699,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	// user exists in the DB, but not as an admin user
 	fakeToken := "some_token"
@@ -1750,7 +1750,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	})
 	user := adminUser.User
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -1802,7 +1802,7 @@ func (suite *AuthSuite) TestoktaAuthenticatedRedirect() {
 
 	fakeToken := "some_token"
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
@@ -1835,7 +1835,7 @@ func (suite *AuthSuite) TestoktaAuthenticatedRedirect() {
 func (suite *AuthSuite) TestAuthorizePrime() {
 	clientCert := factory.FetchOrBuildDevlocalClientCert(suite.DB())
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/prime/v1", appnames.PrimeServername), nil)
 
@@ -1860,7 +1860,7 @@ func (suite *AuthSuite) TestAuthorizePrime() {
 func (suite *AuthSuite) TestAuthorizePPTAS() {
 	clientCert := factory.FetchOrBuildDevlocalClientCert(suite.DB())
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/pptas/v1", appnames.PrimeServername), nil)
 

@@ -25,7 +25,7 @@ func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandler() {
 		HTTPRequest:    req,
 		DutyLocationID: *handlers.FmtUUID(location.ID),
 	}
-	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.HandlerConfig()}
+	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.NewHandlerConfig()}
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&transportationofficeop.ShowDutyLocationTransportationOfficeOK{}, response)
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestShowDutyLocationTransportationOfficeHandlerNoOffi
 		HTTPRequest:    req,
 		DutyLocationID: *handlers.FmtUUID(location.ID),
 	}
-	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.HandlerConfig()}
+	showHandler := ShowDutyLocationTransportationOfficeHandler{suite.NewHandlerConfig()}
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandler() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerUnauthorized() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	// Request without authentication
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
 	}
 
 	handler := GetTransportationOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 	}
 
 	handler := ShowCounselingOfficesHandler{
-		HandlerConfig:                suite.HandlerConfig(),
+		HandlerConfig:                suite.NewHandlerConfig(),
 		TransportationOfficesFetcher: fetcher}
 
 	response := handler.Handle(params)

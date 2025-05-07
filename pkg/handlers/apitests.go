@@ -68,11 +68,11 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 	}
 }
 
-// HandlerConfig returns a mostly empty handler config for
+// NewHandlerConfig returns a mostly empty handler config for
 // testing.
 // NOTE: it returns the Config implementation, not the
-// HandlerConfig interface, so overrides can be made to the config
-func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
+// NewHandlerConfig interface, so overrides can be made to the config
+func (suite *BaseHandlerTestSuite) NewHandlerConfig() *Config {
 	// create a mock feature flag fetcher that always returns enabled
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 	mockGetFlagFunc := func(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string) (services.FeatureFlag, error) {

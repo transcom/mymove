@@ -82,7 +82,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	// ensure the routing config is reset when the test context is finished
 	suite.T().Cleanup(func() { suite.routingConfig = nil })
 	// Test that we can initialize routing and serve the index file
-	handlerConfig := suite.BaseHandlerTestSuite.HandlerConfig()
+	handlerConfig := suite.BaseHandlerTestSuite.NewHandlerConfig()
 	handlerConfig.SetAppNames(handlers.ApplicationTestServername())
 	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 	handlerConfig.SetNotificationReceiver(suite.TestNotificationReceiver())

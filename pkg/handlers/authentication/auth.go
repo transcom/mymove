@@ -675,11 +675,20 @@ func NewActiveRoleUpdateHandler(ac Context, hc handlers.HandlerConfig, rf servic
 }
 
 func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	appCtx := h.AppContextFromRequest(r)
+
+	// Attempting to use a session manager with a faulty context will panic
+	defer func() {
+		if r := recover(); r != nil {
+			appCtx.Logger().Error("Panic: patching server side session, it is likely there is more than one session manager causing a context conflict", zap.Any("panic", r))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+	}()
+
 	var body struct {
 		RoleType string `json:"roleType"`
 	}
-
-	appCtx := h.AppContextFromRequest(r)
 
 	if appCtx.Session() == nil {
 		appCtx.Logger().Error("request to update server session current role but context had no session to update")
@@ -729,10 +738,6 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Set new active role in the session memory
-	appCtx.Session().ActiveRole = userNewlyAssignedActiveRole
-	appCtx.Session().Permissions = newPermissions
-
 	// As we are going to change their privileges with this request, generate
 	// a new session token to prevent fixation attacks
 	ctx := r.Context()
@@ -743,30 +748,11 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Persist in the session store
-	// The scs session manager Get call will return an empty
-	// Session if an existing one is not found in the store
-	hostname := strings.Split(r.Host, ":")[0]
-	app, err := auth.ApplicationName(hostname, h.AppNames())
-	if err != nil {
-		appCtx.Logger().Error("Bad Hostname", zap.Error(err))
-		http.Error(w, http.StatusText(400), http.StatusBadRequest)
-		return
-	}
-	obj := sessionManager.Get(r.Context(), "session")
-	session, ok := obj.(auth.Session)
-	if ok {
-		appCtx.Logger().Info("Existing session", zap.Any("session.user_id", session.UserID),
-			zap.Any("session.appname", session.ApplicationName))
-	} else {
-		session = auth.Session{
-			ApplicationName: app,
-			Hostname:        strings.ToLower(hostname),
-		}
-		appCtx.Logger().Info("Creating new session", zap.Any("session.user_id", session.UserID),
-			zap.Any("session.appname", session.ApplicationName))
-	}
+	// Set new active role in the session memory
+	appCtx.Session().ActiveRole = userNewlyAssignedActiveRole
+	appCtx.Session().Permissions = newPermissions
 
+	// Persist in the session store
 	sessionManager.Put(ctx, "session", appCtx.Session())
 
 	// 200
