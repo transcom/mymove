@@ -36,7 +36,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			},
 		},
 	}, nil)
-	rank := factory.BuildRank(suite.DB(), nil, nil)
+
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
 
 	suite.Run("can create conus orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -361,7 +362,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 			LinkOnly: true,
 		},
 	}, nil)
-	rank := factory.BuildRank(suite.DB(), nil, nil)
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
@@ -412,11 +413,17 @@ func (suite *HandlerSuite) TestPayloadForOrdersModel() {
 			LinkOnly: true,
 		},
 	}, nil)
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				RankID: &rank.ID,
+			},
 		},
 	}, nil)
 
@@ -733,6 +740,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	suite.Run("Can update CONUS orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -753,7 +761,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		rank := factory.BuildRank(suite.DB(), nil, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocation,
@@ -877,7 +884,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			},
 		}, nil)
 
-		rank := factory.BuildRank(suite.DB(), nil, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocation,
@@ -1014,7 +1020,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	})
 
 	suite.Run("Updating order grade to civilian changes PPM type to ACTUAL_EXPENSE", func() {
-		rank := factory.BuildRank(suite.DB(), nil, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
@@ -1089,7 +1094,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	})
 
 	suite.Run("Updating order grade FROM civilian to non-civilian changes PPM type to INCENTIVE_BASED", func() {
-		rank := factory.BuildRank(suite.DB(), nil, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
@@ -1196,7 +1200,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 	}, nil)
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
-	rank := factory.BuildRank(suite.DB(), nil, nil)
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -1346,7 +1350,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 			},
 		},
 	}, nil)
-
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    originDutyLocation,
@@ -1381,6 +1385,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 		MoveID:               *handlers.FmtUUID(move.ID),
 		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 		ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+		Rank:                 strfmt.UUID(rank.ID.String()),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())

@@ -46,11 +46,15 @@ func BuildRank(db *pop.Connection, customs []Customization, traits []Trait) mode
 // lookup a privilege by privilege type, if it doesn't exist make it
 func FetchOrBuildRankByPayGradeAndAffiliation(db *pop.Connection, payGrade string, affiliation string) models.Rank {
 	var rank models.Rank
-	err := db.RawQuery(`
-		SELECT * FROM ranks
-		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
-		WHERE pay_grades.grade = $1 AND ranks.affiliation = $2
-	`, payGrade, affiliation).First(&rank)
+	var pg models.PayGrade
+
+	// doesn't work if you try to fetch rank and join pay grade for some reason
+	err := db.Q().Where("grade = $1", payGrade).First(&pg)
+	if err != nil {
+		log.Panic(fmt.Errorf("database is not configured properly and is missing static pay grade data. pay grade: %s err: %w", payGrade, err))
+	}
+
+	err = db.Q().Where("pay_grade_id = $1", pg.ID).First(&rank)
 	if err != nil && err != sql.ErrNoRows {
 		log.Panic(fmt.Errorf("database is not configured properly and is missing static pay grade data. pay grade: %s err: %w", payGrade, err))
 	} else if err == nil {

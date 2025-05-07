@@ -548,6 +548,7 @@ describe('Add Orders page', () => {
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
       grade: 'E_5',
+      rank: '3f142461-dca5-4a77-9295-92ee93371330',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
