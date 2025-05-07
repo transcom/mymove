@@ -1079,7 +1079,18 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 		// Test:				GetOfficeUserHandler, Fetcher - Unauthorized
 		// Set up:				Run request when NOT logged in as admin user
 		// Expected Outcome:	Unauthorized response returned, no data
-		requestUser := factory.BuildOfficeUser(nil, nil, nil)
+		requestUser := factory.BuildOfficeUser(nil, []factory.Customization{
+			{
+				Model: models.User{
+					Roles: roles.Roles{
+						{
+							RoleType: roles.RoleTypeTOO,
+						},
+					},
+				},
+			},
+		}, nil)
+
 		req := httptest.NewRequest("GET", "/office_users/roles-privileges", nil) // We never need to set a body this endpoint
 
 		params := officeuserop.GetRolesPrivilegesParams{

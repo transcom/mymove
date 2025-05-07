@@ -458,26 +458,43 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	// using an arbitrary ID here for the shipment
 	req := httptest.NewRequest("POST", "/ghc/v1/shipments/123456/approve", nil)
 
+	var activeRole roles.Role
+	for _, userRole := range tooOfficeUser.User.Roles {
+		if userRole.RoleType == TOO.RoleType {
+			activeRole = userRole
+		}
+	}
+	suite.NotEmpty(activeRole)
+	tooPerms := GetPermissionsForRole(TOO.RoleType)
+	suite.NotEmpty(tooPerms)
+
 	// And: the context contains the auth values
 	handlerSession := auth.Session{
 		UserID:          tooOfficeUser.User.ID,
+		ActiveRole:      activeRole,
+		Permissions:     tooPerms,
 		IDToken:         "fake Token",
 		ApplicationName: "mil",
 	}
+
+	handlerConfig := suite.NewHandlerConfig()
+
+	sessionMgr := handlerConfig.SessionManagers().Office
 
 	defaultRole, err := identity.Roles.Default()
 	suite.FatalNoError(err)
 	handlerSession.ActiveRole = *defaultRole
 
 	ctx := auth.SetSessionInRequestContext(req, &handlerSession)
+	appCtx := suite.AppContextWithSessionForTest(&handlerSession)
 	req = req.WithContext(ctx)
+	req = suite.SetupSessionRequest(req, &handlerSession, sessionMgr)
 
-	handlerConfig := suite.NewHandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
 	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
-	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
+	middleware := PermissionsMiddleware(appCtx, api)
 
 	root := chi.NewRouter()
 	root.Mount("/ghc/v1", api.Serve(middleware))
