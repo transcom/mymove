@@ -255,8 +255,11 @@ const AddOrdersForm = ({
         };
 
         const handleGradeRankChange = (e) => {
-          // because element text is both grade and rank we gotta split and grab only the grade
-          const paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+          let paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+          // app is filled with hardcoded values for pay grades, need to replace the dash with an underscore for the app to continue working
+          if (paygrade !== ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE) {
+            paygrade = paygrade.replace('-', '_');
+          }
           setGrade(paygrade);
           setValues({ ...values, rank: e.target.value, grade: paygrade });
         };

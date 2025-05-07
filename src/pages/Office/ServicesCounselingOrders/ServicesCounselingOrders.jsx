@@ -13,7 +13,7 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_TYPE, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -306,7 +306,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
       payGrade: values.payGrade,
-      rank: values.payGradeRank,
+      rank: values.rank,
       hasDependents:
         values.ordersType === ORDERS_TYPE.STUDENT_TRAVEL || values.ordersType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
           ? formatYesNoAPIValue('yes')
@@ -369,7 +369,10 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
           }
           const handleGradeRankChange = (e) => {
             // because element text is both grade and rank we gotta split and grab only the grade
-            const paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+            let paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+            if (paygrade !== ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE) {
+              paygrade = paygrade.replace('-', '_');
+            }
             formik.setValues({ ...formik.values, rank: e.target.value, grade: paygrade });
             formik.handleChange(e);
           };
