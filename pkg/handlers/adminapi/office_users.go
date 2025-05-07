@@ -325,7 +325,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
-			privilegesAllowed, verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
 
 			if err != nil {
 				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
@@ -333,7 +333,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
-			if !privilegesAllowed {
+			if verrs.HasAny() {
 				validationError := &adminmessages.ValidationError{
 					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
 						Title:    handlers.FmtString(handlers.ValidationErrMessage),
@@ -469,7 +469,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
-			privilegesAllowed, verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
 
 			if err != nil {
 				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
@@ -477,7 +477,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
-			if !privilegesAllowed {
+			if verrs.HasAny() {
 				validationError := &adminmessages.ValidationError{
 					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
 						Title:    handlers.FmtString(handlers.ValidationErrMessage),

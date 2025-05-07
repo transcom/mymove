@@ -15,5 +15,5 @@ import (
 //go:generate mockery --name UserPrivilegeAssociator
 type UserPrivilegeAssociator interface {
 	UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, privileges []roles.PrivilegeType) ([]models.UsersPrivileges, error)
-	VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (bool, *validate.Errors, error)
+	VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (*validate.Errors, error)
 }

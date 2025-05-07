@@ -144,7 +144,7 @@ func (suite *UsersPrivilegesServiceSuite) TestUserPrivilegesAllowed() {
 	}
 
 	usersPrivilegesCreator := NewUsersPrivilegesCreator()
-	_, verrs, err := usersPrivilegesCreator.VerifyUserPrivilegeAllowed(suite.AppContextForTest(), params.OfficeUser.Roles, params.OfficeUser.Privileges)
+	verrs, err := usersPrivilegesCreator.VerifyUserPrivilegeAllowed(suite.AppContextForTest(), params.OfficeUser.Roles, params.OfficeUser.Privileges)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
