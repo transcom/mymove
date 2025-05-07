@@ -116,26 +116,26 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 	return userPrivilegesToDelete, nil
 }
 
-func (u usersPrivilegesCreator) VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (bool, *validate.Errors, error) {
+func (u usersPrivilegesCreator) VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (*validate.Errors, error) {
 	for _, privilege := range privileges {
 		for _, role := range roles {
 
-			var result []string
-			err := appCtx.DB().RawQuery("SELECT * FROM is_role_privilege_allowed($1, $2)", role.RoleType, privilege.PrivilegeType).All(&result)
+			var allowed bool
+			err := appCtx.DB().RawQuery("SELECT * FROM is_role_privilege_allowed($1, $2)", role.RoleType, privilege.PrivilegeType).First(&allowed)
 
 			if err != nil {
-				return false, nil, err
+				return nil, err
 			}
 
-			if result[0] == "false" {
+			if !allowed {
 				err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
 				appCtx.Logger().Error(err.Error())
 				verrs := validate.NewErrors()
 				verrs.Add("Validation Error", err.Error())
-				return false, verrs, nil
+				return verrs, nil
 			}
 		}
 	}
 
-	return true, nil, nil
+	return nil, nil
 }

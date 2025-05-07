@@ -290,7 +290,7 @@ type CreateOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.RoleAssociater
 	services.UserPrivilegeAssociator
-	services.TransportaionOfficeAssignmentUpdater
+	services.TransportationOfficeAssignmentUpdater
 }
 
 // Handle creates an office user
@@ -326,7 +326,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
-			privilegesAllowed, verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
 
 			if err != nil {
 				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
@@ -334,7 +334,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
-			if !privilegesAllowed {
+			if verrs.HasAny() {
 				validationError := &adminmessages.ValidationError{
 					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
 						Title:    handlers.FmtString(handlers.ValidationErrMessage),
@@ -420,7 +420,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 			}
 
 			transportationOfficeAssignments, err :=
-				h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, createdOfficeUser.ID, updatedTransportationOfficeAssignments)
+				h.TransportationOfficeAssignmentUpdater.UpdateTransportationOfficeAssignments(appCtx, createdOfficeUser.ID, updatedTransportationOfficeAssignments)
 			if err != nil {
 				appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
@@ -446,7 +446,7 @@ type UpdateOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.UserPrivilegeAssociator
 	services.UserSessionRevocation
-	services.TransportaionOfficeAssignmentUpdater
+	services.TransportationOfficeAssignmentUpdater
 	services.RoleAssociater
 }
 
@@ -470,7 +470,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
-			privilegesAllowed, verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
+			verrs, err := h.UserPrivilegeAssociator.VerifyUserPrivilegeAllowed(appCtx, payload.Roles, payload.Privileges)
 
 			if err != nil {
 				appCtx.Logger().Error("Error verifying user privileges allowed", zap.Error(err))
@@ -478,7 +478,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
-			if !privilegesAllowed {
+			if verrs.HasAny() {
 				validationError := &adminmessages.ValidationError{
 					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors, ClientError: adminmessages.ClientError{
 						Title:    handlers.FmtString(handlers.ValidationErrMessage),
@@ -489,7 +489,6 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
 			}
-
 			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
 
 			if err != nil {
@@ -592,7 +591,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 
 				updatedTransportationOfficeAssignments, err :=
-					h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, updatedOfficeUser.ID, transportationOfficeAssignmentsFromPayload)
+					h.TransportationOfficeAssignmentUpdater.UpdateTransportationOfficeAssignments(appCtx, updatedOfficeUser.ID, transportationOfficeAssignmentsFromPayload)
 				if err != nil {
 					appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
 					return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
