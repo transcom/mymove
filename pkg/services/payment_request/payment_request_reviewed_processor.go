@@ -67,7 +67,8 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
-	notificationSender, notificationErr := notifications.InitEmail(viper.GetViper(), appCtx.Logger())
+	v := viper.New()
+	notificationSender, notificationErr := notifications.InitEmail(v, appCtx.Logger())
 	if notificationErr != nil {
 		appCtx.Logger().Error("notification sender initialization failed", zap.Error(notificationErr))
 	}
