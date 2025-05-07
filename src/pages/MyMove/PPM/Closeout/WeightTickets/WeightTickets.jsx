@@ -156,7 +156,9 @@ const WeightTickets = () => {
       })
       .catch((err) => {
         if (err.response.obj.title === 'Incorrect Xlsx Template') {
-          setErrorModalMessage(err.response.obj.detail);
+          setErrorModalMessage(
+            'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+          );
           setIsErrorModalVisible(true);
         } else {
           setDisplayHelpDeskLink(true);
