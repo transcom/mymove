@@ -43,6 +43,7 @@ export const columns = (
   setRefetchQueue,
   showBranchFilter = true,
 ) => {
+  const isDestinationQueue = queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE;
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -110,18 +111,32 @@ export const columns = (
       id: 'locator',
       isFilterable: true,
     }),
-    createHeader(
-      'Requested move date',
-      (row) => {
-        return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
-      },
-      {
-        id: 'requestedMoveDate',
-        isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <DateSelectFilter dateTime {...props} />,
-      },
-    ),
+    // destination queue will show multiple dates that the backend returns as comma separated strings
+    !isDestinationQueue
+      ? createHeader(
+          'Requested move date',
+          (row) => {
+            return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+          },
+          {
+            id: 'requestedMoveDate',
+            isFilterable: true,
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            Filter: (props) => <DateSelectFilter dateTime {...props} />,
+          },
+        )
+      : createHeader(
+          'Requested move date(s)',
+          (row) => {
+            return row.requestedMoveDates;
+          },
+          {
+            id: 'requestedMoveDates',
+            isFilterable: true,
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            Filter: (props) => <DateSelectFilter dateTime {...props} />,
+          },
+        ),
     createHeader(
       'Date submitted',
       (row) => {
@@ -149,14 +164,24 @@ export const columns = (
       },
     ),
     createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
-    createHeader('Origin duty location', 'originDutyLocation.name', {
-      id: 'originDutyLocation',
-      isFilterable: true,
-      exportValue: (row) => {
-        return row.originDutyLocation?.name;
-      },
-    }),
-    createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    !isDestinationQueue
+      ? createHeader('Origin duty location', 'originDutyLocation.name', {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
+        })
+      : createHeader('Destination duty location', 'destinationDutyLocation.name', {
+          id: 'destinationDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.newDutyLocation?.name;
+          },
+        }),
+    !isDestinationQueue
+      ? createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true })
+      : createHeader('Destination GBLOC', 'destinationGBLOC', { disableSortBy: true }),
     createHeader('Counseling office', 'counselingOffice', {
       id: 'counselingOffice',
       isFilterable: true,

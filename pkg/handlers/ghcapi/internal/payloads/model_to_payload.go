@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -2409,6 +2410,21 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
+		var allDates []string
+		for _, shipment := range move.MTOShipments {
+			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
+				if d := findEarliestDateForRequestedMoveDate(shipment); d != nil {
+					allDates = append(allDates, d.Format("Jan 2 2006"))
+				}
+			}
+		}
+		sort.Strings(allDates)
+		var requestedDatesStr *string
+		if len(allDates) > 0 {
+			s := strings.Join(allDates, ", ")
+			requestedDatesStr = &s
+		}
+
 		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
@@ -2427,6 +2443,11 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
 			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+		}
+
+		var destinationGbloc string
+		if move.Orders.DestinationGBLOC != nil {
+			destinationGbloc = swag.StringValue(move.Orders.DestinationGBLOC)
 		}
 
 		var closeoutLocation string
@@ -2515,11 +2536,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
 			AppearedInTooAt:         handlers.FmtDateTimePtr(findLastSentToTOO(move)),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			RequestedMoveDates:      requestedDatesStr,
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
+			DestinationGBLOC:        ghcmessages.GBLOC(destinationGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
