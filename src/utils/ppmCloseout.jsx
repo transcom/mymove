@@ -220,26 +220,31 @@ export const calculateTotalMovingExpensesAmount = (movingExpenses = []) => {
 };
 
 export const getNonProGearWeightSPR = (expenses) => {
+  if (!expenses) return 0;
   return expenses
     .filter((expense) => expense.isProGear !== true)
     .reduce((total, expense) => total + (expense.weightShipped || 0), 0);
 };
 
 export const getProGearWeightSPR = (expenses) => {
+  if (!expenses) return 0;
   return expenses
     .filter((expense) => expense.isProGear === true)
     .reduce((total, expense) => total + (expense.weightShipped || 0), 0);
 };
 
 export const getTotalPackageWeightSPR = (expenses) => {
+  if (!expenses) return 0;
   return expenses.reduce((total, expense) => total + (expense.weightShipped || 0), 0);
 };
 
 export const hasProGearSPR = (expenses) => {
+  if (!expenses) return 'No';
   return expenses.some((expense) => expense.isProGear === true) ? 'Yes' : 'No';
 };
 
 export const hasSpouseProGearSPR = (expenses) => {
+  if (!expenses) return 'No';
   return expenses.some((expense) => expense.isProGear === true && expense.proGearBelongsToSelf === false)
     ? 'Yes'
     : 'No';
