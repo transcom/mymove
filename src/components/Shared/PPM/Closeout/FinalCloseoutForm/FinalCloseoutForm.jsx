@@ -5,7 +5,7 @@ import { Formik } from 'formik';
 
 import styles from './FinalCloseoutForm.module.scss';
 
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -15,8 +15,9 @@ import {
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import affiliations from 'content/serviceMemberAgencies';
+import { APP_NAME } from 'constants/apps';
 
-const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove }) => {
+const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove, appName }) => {
   const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
@@ -97,7 +98,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
 
           <div className={ppmStyles.buttonContainer}>
             <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-              Return To Homepage
+              {appName === APP_NAME.OFFICE ? 'Back' : 'Return To Homepage'}
             </Button>
             <Button
               className={ppmStyles.saveButton}

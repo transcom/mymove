@@ -17,6 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage } from 'store/flash/actions';
+import { APP_NAME } from 'constants/apps';
 
 const FinalCloseout = () => {
   const navigate = useNavigate();
@@ -81,6 +82,7 @@ const FinalCloseout = () => {
                   onSubmit={handleSubmit}
                   affiliation={order.agency}
                   selectedMove={selectedMove}
+                  appName={APP_NAME.OFFICE}
                 />
               </div>
             </Grid>
