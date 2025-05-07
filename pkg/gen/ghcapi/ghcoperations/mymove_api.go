@@ -405,6 +405,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmUpdateMovingExpenseHandler: ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		}),
+		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
+		}),
 		OrderUpdateOrderHandler: order.UpdateOrderHandlerFunc(func(params order.UpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateOrder has not yet been implemented")
 		}),
@@ -707,6 +710,8 @@ type MymoveAPI struct {
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
 	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
+	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
+	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
 	// OrderUpdateOrderHandler sets the operation handler for the update order operation
 	OrderUpdateOrderHandler order.UpdateOrderHandler
 	// PpmUpdatePPMSITHandler sets the operation handler for the update p p m s i t operation
@@ -1144,6 +1149,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmUpdateMovingExpenseHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateMovingExpenseHandler")
+	}
+	if o.OfficeUsersUpdateOfficeUserHandler == nil {
+		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
 	}
 	if o.OrderUpdateOrderHandler == nil {
 		unregistered = append(unregistered, "order.UpdateOrderHandler")
@@ -1712,6 +1720,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/office-users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
