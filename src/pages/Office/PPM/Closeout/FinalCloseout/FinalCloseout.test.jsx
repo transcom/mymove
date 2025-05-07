@@ -355,7 +355,7 @@ describe('Final Closeout page', () => {
     );
 
     await waitFor(async () => {
-      await userEvent.click(screen.getByText('Return To Homepage'));
+      await userEvent.click(screen.getByText('Back'));
     });
 
     expect(mockNavigate).toHaveBeenCalledWith(ppmReviewPath);
