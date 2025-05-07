@@ -92,14 +92,10 @@ BEGIN
         ''lock_expires_at'',to_char(m.lock_expires_at, ''YYYY-MM-DD"T"HH24:MI:SS.US"Z"''),
         ''ShipmentGBLOC'',
           COALESCE(
-          (
-            SELECT jsonb_agg(
-            jsonb_build_object(''gbloc'', sub.gbloc)
-            )
-            FROM move_to_gbloc AS sub
-            WHERE sub.move_id = m.id
-          ),
-          ''[]''::jsonb
+            jsonb_build_array(
+              jsonb_build_object(''gbloc'', mtg.gbloc)
+            ),
+            ''[]''::JSONB
           )
       )::jsonb AS move,
       json_build_object(
