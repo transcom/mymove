@@ -3,7 +3,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer, Link } from '@trussworks/react-uswds';
 
-import { IncorrectXlsxErrorModal } from 'components/IncorrectXlsxErrorModal/IncorrectXlsxErrorModal';
 import {
   selectMTOShipmentById,
   selectServiceMemberFromLoggedInUser,
@@ -31,9 +30,7 @@ import { APP_NAME } from 'constants/apps';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  // const [xlsxErrorMessage, setXlsxErrorMessage] = useState(null);
-  const xlsxErrorMessage =
-    'The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file.';
+  const [displayHelpDeskLink, setDisplayHelpDeskLink] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -52,16 +49,11 @@ const WeightTickets = () => {
     setIsErrorModalVisible((prev) => !prev);
   };
 
-  // Write state for deploying the incorrectxlsxerrormodal
-  const [isIncorrectXlsxErrorModalVisible, setIsIncorrectXlsxErrorModalVisible] = useState(false);
-  const toggleIncorrectXlsxErrorModal = () => {
-    setIsIncorrectXlsxErrorModalVisible((previous) => !previous);
-  };
-
   const appName = APP_NAME.MYMOVE;
 
-  const errorModalMessage =
-    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
+  const [errorModalMessage, setErrorModalMessage] = useState(
+    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ",
+  );
 
   useEffect(() => {
     if (!weightTicketId) {
@@ -159,22 +151,17 @@ const WeightTickets = () => {
         mtoShipment.ppmShipment.weightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         setFieldTouched(fieldName, true);
-        setIsIncorrectXlsxErrorModalVisible(false);
         setIsErrorModalVisible(false);
         return upload;
       })
       .catch((err) => {
         if (err.response.obj.title === 'Incorrect Xlsx Template') {
-          // console.log('err is: ', err.response.obj.title);
-          // setXlsxErrorMessage(err.response.obj.detail);
-          setIsIncorrectXlsxErrorModalVisible(true);
-          // console.log('is incorrect xlsx modal visible ', isIncorrectXlsxErrorModalVisible);
+          setErrorModalMessage(err.response.obj.detail);
+          setIsErrorModalVisible(true);
         } else {
-          setErrorMessage('Failed to save the file upload');
+          setDisplayHelpDeskLink(true);
           setIsErrorModalVisible(true);
         }
-        // setErrorMessage('Failed to save the file upload');
-        // setIsErrorModalVisible(true);
       });
   };
 
@@ -252,8 +239,6 @@ const WeightTickets = () => {
   if (!mtoShipment || !currentWeightTicket) {
     return renderError() || <LoadingPlaceholder />;
   }
-  // console.log('err Message', xlsxErrorMessage);
-  // console.log('is incorrect xlsx modal visible ', isIncorrectXlsxErrorModalVisible);
 
   return (
     <div className={ppmPageStyles.ppmPageStyle}>
@@ -274,11 +259,11 @@ const WeightTickets = () => {
               onBack={handleBack}
               appName={appName}
             />
-            <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
-            <IncorrectXlsxErrorModal
-              isOpen={isIncorrectXlsxErrorModalVisible}
-              closeModal={toggleIncorrectXlsxErrorModal}
-              errorMessage={xlsxErrorMessage}
+            <ErrorModal
+              isOpen={isErrorModalVisible}
+              closeModal={toggleErrorModal}
+              errorMessage={errorModalMessage}
+              displayHelpDeskLink={displayHelpDeskLink}
             />
           </Grid>
         </Grid>
