@@ -1486,8 +1486,8 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     # - echo "Deploy post to GEX service"
     # - ./scripts/ecs-deploy-task-container post-file-to-gex "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-    # - echo "Deploy process EDIs service"
-    # - ./scripts/ecs-deploy-task-container process-edis "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploy process EDIs service"
+    - ./scripts/ecs-deploy-task-container process-edis "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
