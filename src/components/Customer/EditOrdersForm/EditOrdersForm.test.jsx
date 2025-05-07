@@ -631,6 +631,7 @@ describe('EditOrdersForm component', () => {
         },
       ],
       grade: 'E_1',
+      rank: 'AB',
       origin_duty_location: {
         address: {
           city: '',

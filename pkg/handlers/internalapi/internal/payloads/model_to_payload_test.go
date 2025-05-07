@@ -337,20 +337,20 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 }
 
 func (suite *PayloadsSuite) TestGetPayGradeRankDropdownOptions() {
-	testCases := [6]models.ServiceMemberAffiliation{
-		models.ServiceMemberAffiliation(models.AffiliationARMY),
-		models.ServiceMemberAffiliation(models.AffiliationNAVY),
-		models.ServiceMemberAffiliation(models.AffiliationMARINES),
-		models.ServiceMemberAffiliation(models.AffiliationAIRFORCE),
-		models.ServiceMemberAffiliation(models.AffiliationCOASTGUARD),
-		models.ServiceMemberAffiliation(models.AffiliationSPACEFORCE),
+	testCases := map[models.ServiceMemberAffiliation]int{
+		models.ServiceMemberAffiliation(models.AffiliationARMY):       33,
+		models.ServiceMemberAffiliation(models.AffiliationNAVY):       27,
+		models.ServiceMemberAffiliation(models.AffiliationMARINES):    28,
+		models.ServiceMemberAffiliation(models.AffiliationAIRFORCE):   28,
+		models.ServiceMemberAffiliation(models.AffiliationCOASTGUARD): 25,
+		models.ServiceMemberAffiliation(models.AffiliationSPACEFORCE): 21,
 	}
-	for _, testCase := range testCases {
+	for affiliation, count := range testCases {
 		suite.Run("No errors for all affiliations", func() {
-			options, err := GetPayGradeRankDropdownOptions(suite.AppContextForTest(), string(testCase))
+			options, err := GetPayGradeRankDropdownOptions(suite.AppContextForTest(), string(affiliation))
 			suite.NoError(err)
 
-			suite.Greater(len(options), 0)
+			suite.Equal(count, len(options))
 		})
 	}
 	suite.Run("Fetch a affiliations Pay Grade/Ranks", func() {
