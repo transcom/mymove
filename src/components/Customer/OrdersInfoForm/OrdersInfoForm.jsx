@@ -23,16 +23,17 @@ import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
-import { showCounselingOffices } from 'services/internalApi';
+import { formatLabelReportByDate } from 'utils/formatters';
+import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
+import { sortRankPayGradeOptions } from 'shared/utils';
 
 let originMeta;
 let newDutyMeta = '';
-const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -119,6 +120,27 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
     };
     fetchCounselingOffices();
   }, [counselingOfficeOptions, currentDutyLocation.id, setShowLoadingSpinner]);
+
+  const [rankOptions, setRankOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankGradeOptions(affiliation);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [affiliation, setShowLoadingSpinner]);
 
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
@@ -250,6 +272,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
         const toggleCivilianTDYUBTooltip = () => {
           setShowCivilianTDYUBTooltip((prev) => !prev);
+        };
+
+        const handleGradeRankChange = (e) => {
+          let paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+          // app is filled with hardcoded values for pay grades, need to replace the dash with an underscore for the app to continue working
+          if (paygrade !== ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE) {
+            paygrade = paygrade.replace('-', '_');
+          }
+          setGrade(paygrade);
+          setValues({ ...values, rank: e.target.value, grade: paygrade });
         };
 
         return (
@@ -488,15 +520,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
               )}
 
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
+                label="Rank / Pay grade"
+                name="rank"
+                id="rank"
                 required
                 showRequiredAsterisk
-                options={payGradeOptions}
+                options={rankOptions}
                 onChange={(e) => {
-                  setGrade(e.target.value);
-                  handleChange(e);
+                  handleGradeRankChange(e);
                 }}
               />
 
@@ -573,8 +604,14 @@ OrdersInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
+const mapStateToProps = (state) => {
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
+};
+
 const mapDispatchToProps = {
   setShowLoadingSpinner: setShowLoadingSpinnerAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(OrdersInfoForm);
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfoForm);

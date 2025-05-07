@@ -2812,6 +2812,41 @@ func init() {
         }
       }
     },
+    "/ranks/{affiliation}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/rate_engine_postal_codes/{postal_code}": {
       "get": {
         "description": "Verifies if a zipcode is valid for origin or destination location for a move.",
@@ -4225,9 +4260,6 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
-        "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
-        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -4252,6 +4284,9 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -4463,6 +4498,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -6262,6 +6302,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -7244,6 +7287,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankGradeName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -7534,6 +7607,9 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -8856,6 +8932,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -12260,6 +12353,55 @@ func init() {
         }
       }
     },
+    "/ranks/{affiliation}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/rate_engine_postal_codes/{postal_code}": {
       "get": {
         "description": "Verifies if a zipcode is valid for origin or destination location for a move.",
@@ -13688,9 +13830,6 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
-        "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
-        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -13715,6 +13854,9 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -13926,6 +14068,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -15729,6 +15876,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -16714,6 +16864,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankGradeName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -17004,6 +17184,9 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -18338,6 +18521,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
