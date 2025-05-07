@@ -439,10 +439,8 @@ func DeleteOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaI
 	   Calling delete on a user that is in any status other than DEPROVISIONED will result in the account being deactivated (DEPROVISIONED).
 	   Therefore in order to actually delete an ACTIVE user (or any status other than DEPROVISIONED), we will need to call delete twice.
 	*/
-	var deleteAttempts int
-	if OktaStatus(existingOktaUser.Status) == OktaStatusDeprovisioned {
-		deleteAttempts = 1
-	} else {
+	deleteAttempts := 1
+	if OktaStatus(existingOktaUser.Status) != OktaStatusDeprovisioned {
 		deleteAttempts = 2
 	}
 
