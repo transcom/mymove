@@ -106,7 +106,7 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesRemove() {
 func (suite *UsersPrivilegesServiceSuite) TestUserPrivilegesAllowed() {
 	supervisorPrivilege := "supervisor"
 	supervisorName := "Supervisor"
-	safetyPrvilegeType := "safety"
+	safetyPrivilegeType := "safety"
 	safetyPrivilegeName := "Safety Moves"
 	scRoleType := "services_counselor"
 	scRoleName := "Services Counselor"
@@ -125,7 +125,7 @@ func (suite *UsersPrivilegesServiceSuite) TestUserPrivilegesAllowed() {
 					Name:          &supervisorName,
 				},
 				{
-					PrivilegeType: &safetyPrvilegeType,
+					PrivilegeType: &safetyPrivilegeType,
 					Name:          &safetyPrivilegeName,
 				},
 			},
