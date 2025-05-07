@@ -29,8 +29,12 @@ type Rank struct {
 	// Format: uuid
 	PaygradeID strfmt.UUID `json:"paygradeId,omitempty"`
 
-	// rank grade name
+	// rank abbv
 	// Example: SGT
+	RankAbbv string `json:"rankAbbv,omitempty"`
+
+	// rank grade name
+	// Example: Seargent
 	RankGradeName *string `json:"rankGradeName,omitempty"`
 
 	// rank order

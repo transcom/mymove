@@ -82,7 +82,7 @@ type CreateOrders struct {
 	// rank
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	Rank *strfmt.UUID `json:"rank,omitempty"`
+	Rank strfmt.UUID `json:"rank,omitempty"`
 
 	// Report-by date
 	//

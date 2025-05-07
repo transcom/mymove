@@ -17,6 +17,7 @@ import (
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -431,7 +432,16 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
-			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload, primaryTransportationOfficeID)
+			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching office user", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserNotFound(), err
+			}
+
+			newOfficeUser := payloads.OfficeUserModelFromUpdate(payload, officeUserDB)
+
+			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, newOfficeUser, primaryTransportationOfficeID)
 
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))

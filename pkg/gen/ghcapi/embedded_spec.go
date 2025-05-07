@@ -2922,6 +2922,63 @@ func init() {
         }
       }
     },
+    "/office-users/{officeUserId}": {
+      "patch": {
+        "description": "This endpoint updates a single Office User by ID. This is to be used by office users to update their profile.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "officeUsers"
+        ],
+        "summary": "Updates an Office User",
+        "operationId": "updateOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Office User",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/open/requested-office-users": {
       "post": {
         "description": "This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.\nRequest the creation of an office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
@@ -8590,7 +8647,6 @@ func init() {
         "rank": {
           "type": "string",
           "format": "uuid",
-          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
@@ -11991,6 +12047,20 @@ func init() {
         }
       }
     },
+    "OfficeUserUpdate": {
+      "type": "object",
+      "required": [
+        "telephone"
+      ],
+      "properties": {
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "example": "212-555-5555"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -14002,10 +14072,14 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
         "rankGradeName": {
           "type": "string",
           "x-nullable": true,
-          "example": "SGT"
+          "example": "Seargent"
         },
         "rankOrder": {
           "type": "integer",
@@ -20321,6 +20395,78 @@ func init() {
             "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/office-users/{officeUserId}": {
+      "patch": {
+        "description": "This endpoint updates a single Office User by ID. This is to be used by office users to update their profile.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "officeUsers"
+        ],
+        "summary": "Updates an Office User",
+        "operationId": "updateOfficeUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Office User information",
+            "name": "officeUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OfficeUserUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Office User",
+            "schema": {
+              "$ref": "#/definitions/OfficeUser"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -27043,7 +27189,6 @@ func init() {
         "rank": {
           "type": "string",
           "format": "uuid",
-          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "reportByDate": {
@@ -30444,6 +30589,20 @@ func init() {
         }
       }
     },
+    "OfficeUserUpdate": {
+      "type": "object",
+      "required": [
+        "telephone"
+      ],
+      "properties": {
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "example": "212-555-5555"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -32531,10 +32690,14 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
         "rankGradeName": {
           "type": "string",
           "x-nullable": true,
-          "example": "SGT"
+          "example": "Seargent"
         },
         "rankOrder": {
           "type": "integer",

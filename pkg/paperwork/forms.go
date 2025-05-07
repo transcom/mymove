@@ -26,7 +26,6 @@ var rankDisplayValue = map[internalmessages.OrderPayGrade]string{
 	models.ServiceMemberGradeE8:                      "E-8",
 	models.ServiceMemberGradeE9:                      "E-9",
 	models.ServiceMemberGradeE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
-	models.ServiceMemberGradeO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
 	models.ServiceMemberGradeO2:                      "O-2",
 	models.ServiceMemberGradeO3:                      "O-3",
 	models.ServiceMemberGradeO4:                      "O-4",
@@ -41,10 +40,7 @@ var rankDisplayValue = map[internalmessages.OrderPayGrade]string{
 	models.ServiceMemberGradeW3:                      "W-3",
 	models.ServiceMemberGradeW4:                      "W-4",
 	models.ServiceMemberGradeW5:                      "W-5",
-	models.ServiceMemberGradeAVIATIONCADET:           "Aviation Cadet",
 	models.ServiceMemberGradeCIVILIANEMPLOYEE:        "Civilian Employee",
-	models.ServiceMemberGradeACADEMYCADET:            "Service Academy Cadet",
-	models.ServiceMemberGradeMIDSHIPMAN:              "Midshipman",
 }
 
 var affiliationDisplayValue = map[internalmessages.Affiliation]string{

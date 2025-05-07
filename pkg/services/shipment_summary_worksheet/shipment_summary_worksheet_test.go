@@ -894,7 +894,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
 	page3Map, err := formatAdditionalHHG(page3Map, i, hhg)
 	suite.NoError(err)
 	suite.Equal(*hhg.ShipmentLocator+" HHG", page3Map["AddShipmentNumberAndTypes1"])
-	suite.Equal("16-Mar-2020 Actual", page3Map["AddShipmentPickUpDates1"])
+	suite.Equal("16-Mar-2024 Actual", page3Map["AddShipmentPickUpDates1"])
 	suite.Equal("980 Actual", page3Map["AddShipmentWeights1"])
 	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
 }
@@ -1207,10 +1207,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentPPMStatus() 
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 	e9 := models.ServiceMemberGradeE9
-	multipleGrades := models.ServiceMemberGradeO1ACADEMYGRADUATE
+	o5 := models.ServiceMemberGradeO5
 
 	suite.Equal("E-9", FormatGrade(&e9))
-	suite.Equal("O-1 or Service Academy Graduate", FormatGrade(&multipleGrades))
+	suite.Equal("O-5", FormatGrade(&o5))
 }
 
 // This is the test

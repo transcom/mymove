@@ -104,8 +104,8 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
-	RankID                         *uuid.UUID                         `db:"pay_grade_rank_id"`
-	Rank                           *PayGradeRank                      `belongs_to:"pay_grade_ranks" fk_id:"pay_grade_rank_id"`
+	RankID                         *uuid.UUID                         `db:"rank_id"`
+	Rank                           *Rank                              `belongs_to:"ranks" fk_id:"rank_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -216,7 +216,8 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.CloseoutOffice.Address",
 		"Entitlement",
 		"OriginDutyLocation",
-		"OriginDutyLocation.ProvidesServicesCounseling").
+		"OriginDutyLocation.ProvidesServicesCounseling",
+		"Rank").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

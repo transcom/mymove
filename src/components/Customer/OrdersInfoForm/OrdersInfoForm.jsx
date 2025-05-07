@@ -26,8 +26,7 @@ import Callout from 'components/Callout';
 import { formatLabelReportByDate } from 'utils/formatters';
 import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
-import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { sortRankPayGradeOptions } from 'shared/utils';
@@ -275,6 +274,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
           setShowCivilianTDYUBTooltip((prev) => !prev);
         };
 
+        const handleGradeRankChange = (e) => {
+          let paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+          // app is filled with hardcoded values for pay grades, need to replace the dash with an underscore for the app to continue working
+          if (paygrade !== ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE) {
+            paygrade = paygrade.replace('-', '_');
+          }
+          setGrade(paygrade);
+          setValues({ ...values, rank: e.target.value, grade: paygrade });
+        };
+
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
@@ -511,15 +520,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
               )}
 
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
+                label="Rank / Pay grade"
+                name="rank"
+                id="rank"
                 required
                 showRequiredAsterisk
                 options={rankOptions}
                 onChange={(e) => {
-                  setGrade(e.target.value);
-                  handleChange(e);
+                  handleGradeRankChange(e);
                 }}
               />
 
@@ -597,10 +605,9 @@ OrdersInfoForm.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectLoggedInUser(state);
-  const affiliation = selectServiceMember(state, user?.service_member);
-
-  return affiliation;
+  return {
+    affiliation: selectServiceMemberAffiliation(state) || '',
+  };
 };
 
 const mapDispatchToProps = {

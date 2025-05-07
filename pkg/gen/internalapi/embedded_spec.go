@@ -4260,9 +4260,6 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
-        "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
-        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -4287,6 +4284,9 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -4500,7 +4500,9 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -7294,10 +7296,14 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
         "rankGradeName": {
           "type": "string",
           "x-nullable": true,
-          "example": "SGT"
+          "example": "Seargent"
         },
         "rankOrder": {
           "type": "integer",
@@ -13819,9 +13825,6 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
-        "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
-        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -13846,6 +13849,9 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -14059,7 +14065,9 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "$ref": "#/definitions/Rank"
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -16860,10 +16868,14 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
         "rankGradeName": {
           "type": "string",
           "x-nullable": true,
-          "example": "SGT"
+          "example": "Seargent"
         },
         "rankOrder": {
           "type": "integer",

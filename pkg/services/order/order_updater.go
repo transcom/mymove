@@ -428,7 +428,7 @@ func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder mode
 		}
 		order.Entitlement.DBAuthorizedWeight = &weight
 
-		var rank models.PayGradeRank
+		var rank models.Rank
 		if payload.Rank != nil {
 			err = appCtx.DB().Find(&rank, payload.Rank)
 			if err != nil {

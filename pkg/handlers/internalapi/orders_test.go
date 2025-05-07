@@ -36,6 +36,9 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			},
 		},
 	}, nil)
+
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
+
 	suite.Run("can create conus orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -69,6 +72,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+
 		payload := &internalmessages.CreateUpdateOrders{
 			HasDependents:        handlers.FmtBool(hasDependents),
 			SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
@@ -83,6 +87,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			Sac:                  handlers.FmtString("SacNumber"),
 			DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
 			Grade:                models.ServiceMemberGradeE1.Pointer(),
+			Rank:                 strfmt.UUID(rank.ID.String()),
 		}
 
 		params := ordersop.CreateOrdersParams{
@@ -121,6 +126,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.Nil(createdEntitlement.AccompaniedTour)
 		suite.Nil(createdEntitlement.DependentsTwelveAndOver)
 		suite.Nil(createdEntitlement.DependentsUnderTwelve)
+		suite.Assertions.Equal(rank.RankAbbv, okResponse.Payload.Rank.RankAbbv)
 	})
 
 	suite.Run("can create oconus orders", func() {
@@ -206,6 +212,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			DependentsTwelveAndOver: models.Int64Pointer(5),
 			DependentsUnderTwelve:   models.Int64Pointer(5),
 			CivilianTdyUbAllowance:  models.Int64Pointer(350),
+			Rank:                    strfmt.UUID(rank.ID.String()),
 		}
 
 		params := ordersop.CreateOrdersParams{
@@ -355,13 +362,20 @@ func (suite *HandlerSuite) TestShowOrder() {
 			LinkOnly: true,
 		},
 	}, nil)
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
+		{
+			Model: models.Order{
+				RankID: models.UUIDPointer(rank.ID),
+			},
+		},
 	}, nil)
+
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
@@ -389,6 +403,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
 	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
+	suite.Assertions.Equal(rank.RankAbbv, okResponse.Payload.Rank.RankAbbv)
 }
 
 func (suite *HandlerSuite) TestPayloadForOrdersModel() {
@@ -398,11 +413,17 @@ func (suite *HandlerSuite) TestPayloadForOrdersModel() {
 			LinkOnly: true,
 		},
 	}, nil)
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				RankID: &rank.ID,
+			},
 		},
 	}, nil)
 
@@ -719,6 +740,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	waf := entitlements.NewWeightAllotmentFetcher()
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	suite.Run("Can update CONUS orders", func() {
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -744,6 +766,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Model:    originDutyLocation,
 				LinkOnly: true,
 				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: models.Order{
+					RankID: models.UUIDPointer(rank.ID),
+				},
 			},
 		}, nil)
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -774,6 +801,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			MoveID:               *handlers.FmtUUID(move.ID),
 			CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 			ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+			Rank:                 strfmt.UUID(rank.ID.String()),
 		}
 
 		path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -862,6 +890,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				LinkOnly: true,
 				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
+			{
+				Model: models.Order{
+					RankID: models.UUIDPointer(rank.ID),
+				},
+			},
 		}, nil)
 
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -922,6 +955,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			MoveID:               *handlers.FmtUUID(move.ID),
 			CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 			ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+			Rank:                 strfmt.UUID(rank.ID.String()),
 		}
 
 		payload.AccompaniedTour = models.BoolPointer(true)
@@ -989,7 +1023,8 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
-					Grade: models.ServiceMemberGradeE7.Pointer(),
+					Grade:  models.ServiceMemberGradeE7.Pointer(),
+					RankID: models.UUIDPointer(rank.ID),
 				},
 			},
 		}, nil)
@@ -1027,6 +1062,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			MoveID:               *handlers.FmtUUID(ppmShipment.Shipment.MoveTaskOrderID),
 			CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 			ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+			Rank:                 strfmt.UUID(rank.ID.String()),
 		}
 
 		path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -1095,10 +1131,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			DepartmentIndicator:  &deptIndicator,
 			HasDependents:        handlers.FmtBool(false),
 			SpouseHasProGear:     handlers.FmtBool(false),
-			Grade:                models.ServiceMemberGradeE7.Pointer(),
+			Grade:                models.ServiceMemberGradeE4.Pointer(),
 			MoveID:               *handlers.FmtUUID(ppmShipment.Shipment.MoveTaskOrderID),
 			CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 			ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+			Rank:                 strfmt.UUID(rank.ID.String()),
 		}
 
 		path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -1132,22 +1169,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
-	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-		{
-			Model: models.PostalCodeToGBLOC{
-				PostalCode: "90210",
-				GBLOC:      "KKFA",
-			},
-		},
-	}, nil)
-	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-		{
-			Model: models.PostalCodeToGBLOC{
-				PostalCode: "35023",
-				GBLOC:      "CNNQ",
-			},
-		},
-	}, nil)
 
 	firstAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
@@ -1179,6 +1200,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 	}, nil)
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -1222,6 +1244,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 		SpouseHasProGear:     handlers.FmtBool(false),
 		ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
 		Grade:                models.ServiceMemberGradeE4.Pointer(),
+		Rank:                 strfmt.UUID(rank.ID.String()),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -1327,7 +1350,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 			},
 		},
 	}, nil)
-
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), models.AffiliationAIRFORCE.String())
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    originDutyLocation,
@@ -1362,6 +1385,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 		MoveID:               *handlers.FmtUUID(move.ID),
 		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 		ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+		Rank:                 strfmt.UUID(rank.ID.String()),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -1389,4 +1413,52 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
 	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
 
+}
+
+func (suite *HandlerSuite) TestGetRanksHandler() {
+	suite.Run("happy path", func() {
+		order := factory.BuildOrder(suite.DB(), nil, nil)
+		affiliation := internalmessages.AffiliationAIRFORCE
+		path := fmt.Sprintf("/ranks/%v", affiliation)
+		req := httptest.NewRequest("GET", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := ordersop.GetRanksParams{
+			HTTPRequest: req,
+			Affiliation: string(affiliation),
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		showHandler := GetRanksHandler{handlerConfig}
+
+		response := showHandler.Handle(params)
+
+		suite.Assertions.IsType(&ordersop.GetRanksOK{}, response)
+		okResponse := response.(*ordersop.GetRanksOK)
+
+		suite.Assertions.Equal(28, len(okResponse.Payload))
+	})
+
+	suite.Run("test a bad affiliation", func() {
+		order := factory.BuildOrder(suite.DB(), nil, nil)
+		path := fmt.Sprintf("/ranks/%v", "FAKE")
+		req := httptest.NewRequest("GET", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := ordersop.GetRanksParams{
+			HTTPRequest: req,
+			Affiliation: "FAKE",
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		showHandler := GetRanksHandler{handlerConfig}
+
+		response := showHandler.Handle(params)
+
+		suite.Assertions.IsType(&ordersop.GetRanksNotFound{}, response)
+	})
 }

@@ -496,7 +496,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 // the move service item's status.
 func FetchMoveByMoveIDWithServiceItems(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
-	err := db.Q().Eager().Where("show = TRUE").Find(&move, moveID)
+	err := db.Q().Eager("MTOServiceItems.ReService").Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -601,6 +601,16 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 	}
 
 	moves[0].Orders.UploadedOrders.UserUploads = userUploads
+
+	// fetch Rank
+	if order.RankID != nil {
+		var rank Rank
+		err = db.Q().Find(&rank, order.RankID)
+		if err != nil {
+			return moves, err
+		}
+		moves[0].Orders.Rank = &rank
+	}
 
 	// Eager loading of nested has_many associations is broken
 	if order.UploadedAmendedOrders != nil {

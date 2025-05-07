@@ -426,7 +426,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			PackingAndShippingInstructions: packingAndShippingInstructions,
 		}
 
-		var rank PayGradeRank
+		var rank Rank
 		if pRank != nil {
 			err = txnAppCtx.DB().Find(&rank, pRank)
 			if err != nil {

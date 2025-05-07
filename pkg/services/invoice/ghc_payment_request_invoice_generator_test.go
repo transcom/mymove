@@ -474,7 +474,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ActualValue   *edisegment.N9
 		}{
 			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
-			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+			{TestName: "contract code", Qualifier: "CT", ExpectedValue: testdatagen.DefaultContractCode, ActualValue: &result.Header.ContractCode},
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
@@ -507,7 +507,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			ActualValue   *edisegment.N9
 		}{
 			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
-			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+			{TestName: "contract code", Qualifier: "CT", ExpectedValue: testdatagen.DefaultContractCode, ActualValue: &result.Header.ContractCode},
 			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
 			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
 			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
@@ -2361,7 +2361,6 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			{models.ServiceMemberGradeE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
 			{models.ServiceMemberGradeE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
 			{models.ServiceMemberGradeE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
@@ -2376,10 +2375,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			{models.ServiceMemberGradeW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
-			{models.ServiceMemberGradeACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 		}
 
 		for _, testCase := range gradeTestCases {
