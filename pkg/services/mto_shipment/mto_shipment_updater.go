@@ -1260,6 +1260,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 		} else {
 			if destinationIsAlaska {
+				// Each AK rate area has the same transit time regardless of the other location
 				err = appCtx.DB().Where("destination_rate_area_id = $1", destinationAddressRateAreaID).First(&intlTransTime)
 				if err != nil {
 					switch err {
@@ -1285,6 +1286,40 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 
 			if intlTransTime.HhgTransitTime != nil {
 				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
+			}
+		}
+	}
+
+	if destinationIsAlaska && pickupIsAlaska {
+		var intlTransTime models.InternationalTransitTime
+
+		contract, err := models.FetchContractForMove(appCtx, moveID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching contract for move ID: %s", moveID)
+		}
+
+		pickupAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
+		}
+
+		destinationAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching destination rate area id for address ID: %s", destinationAddress.ID)
+		}
+
+		intlTransTime, err = models.FetchInternationalTransitTime(appCtx.DB(), pickupAddressRateAreaID, destinationAddressRateAreaID)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching intl transit record for origin rate area ID: %s and destination rate area ID: %s", pickupAddressRateAreaID, destinationAddressRateAreaID)
+		}
+
+		if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			if intlTransTime.UbTransitTime != nil {
+				requiredDeliveryDate = pickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
+			}
+		} else {
+			if intlTransTime.HhgTransitTime != nil {
+				requiredDeliveryDate = pickupDate.AddDate(0, 0, *intlTransTime.HhgTransitTime)
 			}
 		}
 	}
