@@ -195,6 +195,13 @@ const ServicesCounselingMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
+        end: true,
+      },
+      pathname,
     );
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) {

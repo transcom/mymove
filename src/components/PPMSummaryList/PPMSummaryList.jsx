@@ -110,9 +110,8 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
       actionButtons = isFeedbackAvailable(shipment?.ppmShipment) ? (
         [
           <div>
-            <Button onClick={onButtonClick} style={{ marginLeft: 'auto', marginRight: 0 }}>
-              Upload PPM Documents
-            </Button>
+            <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
+            <Button onClick={onButtonClick}>Upload PPM Documents</Button>
           </div>,
         ]
       ) : (
