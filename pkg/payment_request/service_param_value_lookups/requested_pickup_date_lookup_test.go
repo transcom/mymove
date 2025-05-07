@@ -19,12 +19,6 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	var mtoServiceItem models.MTOServiceItem
 
 	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
