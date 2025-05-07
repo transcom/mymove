@@ -7,8 +7,6 @@ import { generatePath } from 'react-router';
 import FinalCloseout from 'pages/Office/PPM/Closeout/FinalCloseout/FinalCloseout';
 import { updateMTOShipment } from 'store/entities/actions';
 import { MockProviders } from 'testUtils';
-import { ppmSubmissionCertificationText } from 'scenes/Legalese/legaleseText';
-import { formatDateForSwagger } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { submitPPMShipmentSignedCertification } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
@@ -387,11 +385,6 @@ describe('Final Closeout page', () => {
     await waitFor(() =>
       expect(submitPPMShipmentSignedCertification).toHaveBeenCalledWith(
         useEditShipmentQueriesReturnValue.mtoShipments[0].ppmShipment.id,
-        {
-          certification_text: ppmSubmissionCertificationText,
-          signature: '',
-          date: formatDateForSwagger(new Date()),
-        },
       ),
     );
     expect(mockNavigate).toHaveBeenCalledWith(`/counseling/moves/${testMoveCode}/details`);
