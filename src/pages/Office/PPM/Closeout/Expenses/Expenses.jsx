@@ -183,29 +183,31 @@ const Expenses = () => {
   }
 
   return (
-    <div className={ppmPageStyles.tabContent}>
-      <div className={ppmPageStyles.container}>
-        <NotificationScrollToTop dependency={errorMessage} />
-        <GridContainer className={ppmPageStyles.gridContainer}>
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              <ShipmentTag shipmentType={shipmentTypes.PPM} />
-              <h1>Expenses</h1>
-              {renderError()}
-              <ExpenseForm
-                ppmType={ppmType}
-                expense={currentExpense}
-                receiptNumber={currentIndex + 1}
-                onBack={handleBack}
-                onSubmit={handleSubmit}
-                onCreateUpload={handleCreateUpload}
-                onUploadComplete={handleUploadComplete}
-                onUploadDelete={handleUploadDelete}
-                appName={appName}
-              />
+    <div className={ppmPageStyles.closeoutPageWrapper}>
+      <div className={ppmPageStyles.tabContent}>
+        <div className={ppmPageStyles.container}>
+          <NotificationScrollToTop dependency={errorMessage} />
+          <GridContainer className={ppmPageStyles.gridContainer}>
+            <Grid row>
+              <Grid col desktop={{ col: 8, offset: 2 }}>
+                <ShipmentTag shipmentType={shipmentTypes.PPM} />
+                <h1>Expenses</h1>
+                {renderError()}
+                <ExpenseForm
+                  ppmType={ppmType}
+                  expense={currentExpense}
+                  receiptNumber={currentIndex + 1}
+                  onBack={handleBack}
+                  onSubmit={handleSubmit}
+                  onCreateUpload={handleCreateUpload}
+                  onUploadComplete={handleUploadComplete}
+                  onUploadDelete={handleUploadDelete}
+                  appName={appName}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-        </GridContainer>
+          </GridContainer>
+        </div>
       </div>
     </div>
   );

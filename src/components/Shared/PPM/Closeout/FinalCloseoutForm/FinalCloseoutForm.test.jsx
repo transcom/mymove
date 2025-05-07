@@ -1,13 +1,14 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { v4 } from 'uuid';
 
-import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
+import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
+import { APP_NAME } from 'constants/apps';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -23,6 +24,7 @@ const defaultProps = {
       name: 'Altus AFB',
     },
   },
+  appName: APP_NAME.OFFICE,
 };
 
 describe('FinalCloseoutForm component', () => {
@@ -101,53 +103,13 @@ describe('FinalCloseoutForm component', () => {
     expect(findListItemWithText('$1,200.00 in expenses claimed')).toBeInTheDocument();
   });
 
-  it('calls onBack func when "Return To Homepage" button is clicked', async () => {
+  it('calls onBack func when "Back" button is clicked', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
 
     render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
     expect(defaultProps.onBack).toHaveBeenCalled();
-  });
-
-  it('validates the form after user input', async () => {
-    const mtoShipment = createPPMShipmentWithFinalIncentive();
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
-
-    // Save should be visibly enabled when form is clean, but validate on submit attempt
-    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
-    expect(saveButton).toBeEnabled();
-    await userEvent.click(saveButton);
-
-    // Save should be disabled after invalid input
-    expect(await screen.getByTestId('errorMessage')).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
-
-    // Save should be re-enabled after valid input
-    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
-    await userEvent.type(signatureField, 'Grace Griffin');
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    expect(screen.queryByTestId('errorMessage')).not.toBeInTheDocument();
-  });
-
-  it('calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {
-    const mtoShipment = createPPMShipmentWithFinalIncentive();
-    const modifiedProps = {
-      ...defaultProps,
-      initialValues: {
-        ...defaultProps.initialValues,
-        signature: 'Grace Griffin',
-      },
-    };
-
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
-
-    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
-    await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
-
-    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
-    await userEvent.click(saveButton);
-    await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
   });
 });

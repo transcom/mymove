@@ -223,29 +223,31 @@ const ProGear = () => {
     return renderError() || <LoadingPlaceholder />;
   }
   return (
-    <div className={ppmPageStyles.tabContent}>
-      <div className={ppmPageStyles.container}>
-        <GridContainer>
-          <Grid row>
-            <Grid col desktop={{ col: 8, offset: 2 }}>
-              <ShipmentTag shipmentType={shipmentTypes.PPM} />
-              <h1>Pro-gear</h1>
-              {renderError()}
-              <ProGearForm
-                entitlements={entitlements}
-                proGear={currentProGearWeightTicket}
-                setNumber={currentIndex + 1}
-                onCreateUpload={handleCreateUpload}
-                onUploadComplete={handleUploadComplete}
-                onUploadDelete={handleUploadDelete}
-                onBack={handleBack}
-                onSubmit={handleSubmit}
-                isSubmitted={isSubmitted}
-                appName={appName}
-              />
+    <div className={ppmPageStyles.closeoutPageWrapper}>
+      <div className={ppmPageStyles.tabContent}>
+        <div className={ppmPageStyles.container}>
+          <GridContainer>
+            <Grid row>
+              <Grid col desktop={{ col: 8, offset: 2 }}>
+                <ShipmentTag shipmentType={shipmentTypes.PPM} />
+                <h1>Pro-gear</h1>
+                {renderError()}
+                <ProGearForm
+                  entitlements={entitlements}
+                  proGear={currentProGearWeightTicket}
+                  setNumber={currentIndex + 1}
+                  onCreateUpload={handleCreateUpload}
+                  onUploadComplete={handleUploadComplete}
+                  onUploadDelete={handleUploadDelete}
+                  onBack={handleBack}
+                  onSubmit={handleSubmit}
+                  isSubmitted={isSubmitted}
+                  appName={appName}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-        </GridContainer>
+          </GridContainer>
+        </div>
       </div>
     </div>
   );
