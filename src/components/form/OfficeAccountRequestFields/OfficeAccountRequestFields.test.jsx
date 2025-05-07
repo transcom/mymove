@@ -112,4 +112,40 @@ describe('OfficeAccountRequestFields component', () => {
 
     expect(screen.queryByText('Emails must match')).not.toBeInTheDocument();
   });
+
+  it('shows a validation error if no roles are selected after interaction', async () => {
+    render(
+      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+        <OfficeAccountRequestFields />
+      </Formik>,
+    );
+
+    const headquartersCheckbox = screen.getByTestId('headquartersCheckBox');
+
+    await userEvent.click(headquartersCheckbox); // check
+    await userEvent.click(headquartersCheckbox); // uncheck
+    await userEvent.tab();
+
+    expect(await screen.findByText('You must select at least one role.')).toBeInTheDocument();
+  });
+
+  it('shows a validation error if both Task Ordering and Task Invoicing Officer are selected', async () => {
+    render(
+      <Formik initialValues={initialValues} validationSchema={officeAccountRequestSchema}>
+        <OfficeAccountRequestFields />
+      </Formik>,
+    );
+
+    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+    const tioCheckbox = screen.getByTestId('taskInvoicingOfficerCheckBox');
+
+    await userEvent.click(tooCheckbox);
+    await userEvent.click(tioCheckbox);
+
+    expect(
+      await screen.findByText(
+        'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
+      ),
+    ).toBeInTheDocument();
+  });
 });
