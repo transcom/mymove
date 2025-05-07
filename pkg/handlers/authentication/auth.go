@@ -659,6 +659,120 @@ func (h LogoutOktaRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+type ActiveRoleUpdateHandler struct {
+	Context
+	handlers.HandlerConfig
+	services.RoleAssociater
+}
+
+func NewActiveRoleUpdateHandler(ac Context, hc handlers.HandlerConfig, rf services.RoleAssociater) ActiveRoleUpdateHandler {
+	handler := ActiveRoleUpdateHandler{
+		Context:        ac,
+		HandlerConfig:  hc,
+		RoleAssociater: rf,
+	}
+	return handler
+}
+
+func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		RoleType string `json:"roleType"`
+	}
+
+	appCtx := h.AppContextFromRequest(r)
+
+	if appCtx.Session() == nil {
+		appCtx.Logger().Error("request to update server session current role but context had no session to update")
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.RoleType == "" {
+		appCtx.Logger().Error("invalid roleType payload", zap.Error(err))
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	requestedRole := roles.RoleType(body.RoleType)
+
+	userRoles, err := h.RoleAssociater.FetchRolesForUser(appCtx, appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("failed to fetcher roles for user when updating server session current role", zap.Error(err))
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	hasRole := false
+	userNewlyAssignedActiveRole := roles.Role{}
+	for _, r := range userRoles {
+		if r.RoleType == requestedRole {
+			hasRole = true
+			userNewlyAssignedActiveRole = r
+			break
+		}
+	}
+
+	if !hasRole {
+		appCtx.Logger().Warn("user attempted to switch to unauthorized role",
+			zap.String("requestedRole", string(requestedRole)))
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	// We have the role, now fetch the permissions
+	newPermissions := GetPermissionsForRole(userNewlyAssignedActiveRole.RoleType)
+
+	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+	if sessionManager == nil {
+		appCtx.Logger().Error("Updating user current role in session, cannot get session manager from request")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	// Set new active role in the session memory
+	appCtx.Session().ActiveRole = userNewlyAssignedActiveRole
+	appCtx.Session().Permissions = newPermissions
+
+	// As we are going to change their privileges with this request, generate
+	// a new session token to prevent fixation attacks
+	ctx := r.Context()
+	err = sessionManager.RenewToken(ctx)
+	if err != nil {
+		appCtx.Logger().Error("Error renewing session token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	// Persist in the session store
+	// The scs session manager Get call will return an empty
+	// Session if an existing one is not found in the store
+	hostname := strings.Split(r.Host, ":")[0]
+	app, err := auth.ApplicationName(hostname, h.AppNames())
+	if err != nil {
+		appCtx.Logger().Error("Bad Hostname", zap.Error(err))
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+		return
+	}
+	obj := sessionManager.Get(r.Context(), "session")
+	session, ok := obj.(auth.Session)
+	if ok {
+		appCtx.Logger().Info("Existing session", zap.Any("session.user_id", session.UserID),
+			zap.Any("session.appname", session.ApplicationName))
+	} else {
+		session = auth.Session{
+			ApplicationName: app,
+			Hostname:        strings.ToLower(hostname),
+		}
+		appCtx.Logger().Info("Creating new session", zap.Any("session.user_id", session.UserID),
+			zap.Any("session.appname", session.ApplicationName))
+	}
+
+	sessionManager.Put(ctx, "session", appCtx.Session())
+
+	// 200
+	w.WriteHeader(http.StatusOK)
+}
+
 // loginStateCookieName is the name given to the cookie storing the encrypted okta.mil state nonce.
 const loginStateCookieName = "okta_state"
 const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through okta.mil.
