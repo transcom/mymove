@@ -22,6 +22,8 @@ import {
 import affiliations from 'content/serviceMemberAgencies';
 import { APP_NAME } from 'constants/apps';
 import { PPM_TYPES } from 'shared/constants';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
+import TextField from 'components/form/fields/TextField/TextField';
 
 const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove, appName }) => {
   const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
@@ -122,6 +124,28 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
               </p>
             )}
           </div>
+
+          {appName === APP_NAME.MYMOVE && (
+            <SectionWrapper>
+              <h2>Customer agreement</h2>
+              <p>I certify that any expenses claimed in this application were legitimately incurred during my PPM.</p>
+              <p>
+                Failure to furnish data may result in partial or total denial of claim and/or improper tax application.
+              </p>
+              <p>
+                I understand the penalty for willfully making a false statement of claim is a maximum fine of $10,000,
+                maximum imprisonment of five years, or both (U.S.C, Title 18, Section 287).
+              </p>
+              <div>
+                <div className={styles.signatureField}>
+                  <TextField label="Signature" id="signature" name="signature" />
+                </div>
+                <div className={styles.dateField}>
+                  <TextField label="Date" id="date" name="date" disabled />
+                </div>
+              </div>
+            </SectionWrapper>
+          )}
 
           <div className={ppmStyles.buttonContainer}>
             <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
