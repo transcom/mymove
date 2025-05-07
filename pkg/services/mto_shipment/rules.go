@@ -356,7 +356,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 				weight = older.NTSRecordedWeight
 			}
 			requiredDeliveryDate, err := CalculateRequiredDeliveryDate(appCtx, planner, *latestPickupAddress,
-				*latestDestinationAddress, *latestSchedPickupDate, weight.Int(), older.MarketCode, older.MoveTaskOrderID, older.ShipmentType)
+				*latestDestinationAddress, *latestSchedPickupDate, weight.Int(), older.MoveTaskOrderID, older.ShipmentType)
 			if err != nil {
 				verrs.Add("requiredDeliveryDate", err.Error())
 			}
