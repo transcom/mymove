@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { bool, PropTypes } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import moment from 'moment';
@@ -18,12 +18,6 @@ import { filenameFromPath } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS, UPLOAD_DOC_STATUS_DISPLAY_MESSAGE } from 'shared/constants';
 import Alert from 'shared/Alert';
-
-/**
- * TODO
- * - implement next/previous pages instead of scroll through pages
- * - implement rotate left/right
- */
 
 const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploading }) => {
   const [selectedFileIndex, selectFile] = useState(0);
@@ -85,10 +79,30 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     selectFile(0);
   }, [files.length]);
 
+  const fileTypeMap = useMemo(
+    () => ({
+      'application/pdf': 'pdf',
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/gif': 'gif',
+    }),
+    [],
+  );
+
+  const fileType = useRef(selectedFile?.contentType);
+
   useEffect(() => {
     setShowContentError(false);
-    setRotationValue(selectedFile?.rotation || 0);
 
+    fileType.current = fileTypeMap[selectedFile?.contentType] || '';
+    let initialRotation = selectedFile?.rotation || 0;
+    if (fileType.current === 'pdf') {
+      // translate rotation from 0-3 back to degrees for pdfs
+      initialRotation *= 90;
+    }
+
+    setRotationValue(initialRotation);
     const handleFileProcessing = async (status) => {
       switch (status) {
         case UPLOAD_SCAN_STATUS.PROCESSING:
@@ -130,7 +144,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     return () => {
       sse?.close();
     };
-  }, [selectedFile, isFileUploading, isJustUploadedFile]);
+  }, [selectedFile, isFileUploading, isJustUploadedFile, fileTypeMap]);
   useEffect(() => {
     if (fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING) {
       setTimeout(() => {
@@ -138,7 +152,6 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
       }, 2000);
     }
   }, [fileStatus]);
-  const fileType = useRef(selectedFile?.contentType);
 
   const getStatusMessage = (currentFileStatus, currentSelectedFile) => {
     switch (currentFileStatus) {
@@ -182,16 +195,6 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
     closeMenu();
   };
 
-  const fileTypeMap = {
-    'application/pdf': 'pdf',
-    'image/png': 'png',
-    'image/jpeg': 'jpg',
-    'image/jpg': 'jpg',
-    'image/gif': 'gif',
-  };
-
-  fileType.current = fileTypeMap[selectedFile?.contentType] || '';
-
   const selectedFilename = filenameFromPath(selectedFile?.filename);
 
   const selectedFileDate = formatDate(moment(selectedFile?.createdAt), 'DD MMM YYYY');
@@ -202,10 +205,15 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
   };
 
   const saveRotation = () => {
-    if (fileType.current !== 'pdf' && mountedRef.current === true) {
-      const uploadBody = {
-        rotation: rotationValue,
-      };
+    if (mountedRef.current === true) {
+      let uploadBody;
+      if (fileType.current === 'pdf') {
+        // convert from degrees to 0–3 for pdfs
+        const normalizedRotation = (rotationValue / 90) % 4;
+        uploadBody = { rotation: normalizedRotation };
+      } else {
+        uploadBody = { rotation: rotationValue };
+      }
       mutateUploads({ uploadID: selectedFile?.id, body: uploadBody });
       setDisableSaveButton(true);
     }
