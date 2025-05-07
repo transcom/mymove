@@ -2,11 +2,11 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
+import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 
 export default {
-  title: 'Customer Components / PPM Closeout / Final Closeout Form',
+  title: 'Shared Components / PPM Closeout / Final Closeout Form',
   component: FinalCloseoutForm,
 };
 
