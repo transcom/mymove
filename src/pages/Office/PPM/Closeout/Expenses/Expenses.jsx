@@ -57,8 +57,8 @@ const Expenses = () => {
   });
 
   const { mutate: mutatePatchMovingExpense } = useMutation(patchExpense, {
-    onSuccess: () => {
-      queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
     },
     onError: () => {

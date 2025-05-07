@@ -67,6 +67,7 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
+	var notificationSender notifications.NotificationSender
 	var sftpSession services.SyncadaSFTPSender
 	if gexSender == nil {
 		var err error
@@ -83,7 +84,8 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 		sendToSyncada,
 		gexSender,
 		sftpSession,
-		nil), nil
+		notificationSender,
+	), nil
 }
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
