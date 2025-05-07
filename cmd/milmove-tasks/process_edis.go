@@ -82,6 +82,8 @@ func initProcessEDIsFlags(flag *pflag.FlagSet) {
 	flag.String(ProcessEDILastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
 	flag.Bool(ProcessEDIDeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
 
+	cli.InitEmailFlags(flag)
+
 	// Don't sort flags
 	flag.SortFlags = false
 }
