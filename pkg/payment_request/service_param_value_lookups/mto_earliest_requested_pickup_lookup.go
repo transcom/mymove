@@ -41,10 +41,6 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 		}
 	}
 
-	if earliestPickupDate == nil {
-		return "", apperror.NewConflictError(moveTaskOrderID, "This move task order has no shipments with a requested pickup date")
-	}
-
 	utcMidnight := models.TimePointer(time.Date(
 		earliestPickupDate.Year(),
 		earliestPickupDate.Month(),
