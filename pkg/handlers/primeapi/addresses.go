@@ -60,3 +60,24 @@ func (h GetLocationByZipCityStateHandler) Handle(params addressop.GetLocationByZ
 			return addressop.NewGetLocationByZipCityStateOK().WithPayload(returnPayload), nil
 		})
 }
+
+// SearchCountriesHandler returns a list of countries
+type SearchCountriesHandler struct {
+	handlers.HandlerConfig
+	services.CountrySearcher
+}
+
+// Handle returns a list of locations based on the search query
+func (h SearchCountriesHandler) Handle(params addressop.SearchCountriesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			countries, err := h.CountrySearcher.SearchCountries(appCtx, params.Search)
+			if err != nil {
+				appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
+				return addressop.NewSearchCountriesInternalServerError(), err
+			}
+
+			returnPayload := payloads.Countries(countries)
+			return addressop.NewSearchCountriesOK().WithPayload(returnPayload), nil
+		})
+}
