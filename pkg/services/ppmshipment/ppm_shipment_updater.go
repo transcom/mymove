@@ -232,15 +232,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			updatedPPMShipment.SITEstimatedCost = estimatedSITCost
 		}
 
-		// if the actual move date is being provided, we need to calculate the final incentive
-		if updatedPPMShipment.ActualMoveDate != nil {
-			finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
-			if err != nil {
-				return err
-			}
-			updatedPPMShipment.FinalIncentive = finalIncentive
-		}
-
 		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
 		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
 			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
@@ -256,12 +247,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			if updatedPPMShipment.EstimatedIncentive != nil && updatedPPMShipment.MaxIncentive != nil &&
 				*updatedPPMShipment.EstimatedIncentive > *updatedPPMShipment.MaxIncentive {
 				updatedPPMShipment.EstimatedIncentive = updatedPPMShipment.MaxIncentive
-			}
-
-			// Final Incentive cannot be more than maxIncentive
-			if updatedPPMShipment.FinalIncentive != nil && updatedPPMShipment.MaxIncentive != nil &&
-				*updatedPPMShipment.FinalIncentive > *updatedPPMShipment.MaxIncentive {
-				updatedPPMShipment.FinalIncentive = updatedPPMShipment.MaxIncentive
 			}
 		}
 
@@ -296,6 +281,14 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 					}
 				}
 			}
+		}
+
+		if updatedPPMShipment.ActualMoveDate != nil {
+			finalIncentive, err := f.estimator.FinalIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			updatedPPMShipment.FinalIncentive = finalIncentive
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)

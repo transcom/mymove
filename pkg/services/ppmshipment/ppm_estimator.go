@@ -403,6 +403,9 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				if err != nil {
 					return nil, err
 				}
+				if *finalIncentive > *oldPPMShipment.MaxIncentive {
+					finalIncentive = oldPPMShipment.MaxIncentive
+				}
 				return finalIncentive, nil
 			}
 		} else {
@@ -411,6 +414,9 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			return finalIncentive, nil
 		}
 
+		if *finalIncentive > *oldPPMShipment.MaxIncentive {
+			finalIncentive = oldPPMShipment.MaxIncentive
+		}
 		return finalIncentive, nil
 	} else {
 		pickupAddress := newPPMShipment.PickupAddress
@@ -421,6 +427,9 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			finalIncentive, err := f.CalculateOCONUSIncentive(appCtx, newPPMShipment.ID, *pickupAddress, *destinationAddress, contractDate, newTotalWeight.Int(), false, true, false)
 			if err != nil {
 				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
+			}
+			if *finalIncentive > *oldPPMShipment.MaxIncentive {
+				finalIncentive = oldPPMShipment.MaxIncentive
 			}
 			return finalIncentive, nil
 		} else {
