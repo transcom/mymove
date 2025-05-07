@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	iofsitTestContractYearName     = "Base Period Year 1"
+	iofsitTestContractYearName     = testdatagen.DefaultContractYearName
 	iofsitTestPerUnitCents         = unit.Cents(15000)
-	iofsitTestTotalCost            = unit.Cents(315000)
+	iofsitTestTotalCost            = unit.Cents(349650)
 	iofsitTestIsPeakPeriod         = true
-	iofsitTestEscalationCompounded = 1.0000
+	iofsitTestEscalationCompounded = 1.11000
 	iofsitTestWeight               = unit.Pound(2100)
 	iofsitTestPriceCents           = unit.Cents(500)
 	iofsitNumerDaysInSIT           = 5

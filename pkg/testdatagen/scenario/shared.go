@@ -5650,7 +5650,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 					},
 					{
 						IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-						Value:       "2022-03-16",
+						Value:       "2024-03-16",
 					},
 				},
 				Status: models.PaymentServiceItemStatusRequested,

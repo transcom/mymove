@@ -929,6 +929,21 @@ export async function createOfficeAccountRequest({ body }) {
   return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
 }
 
+export async function patchOfficeUser(officeUserId, body) {
+  const operationPath = 'officeUsers.updateOfficeUser';
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      officeUserId,
+      officeUser: body,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeGHCRequest(
     'uploads.createUpload',
@@ -1056,7 +1071,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, qu
   });
 }
 
-export async function checkForLockedMovesAndUnlock(key, officeUserID) {
+export async function checkForLockedMovesAndUnlock(officeUserID) {
   return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
