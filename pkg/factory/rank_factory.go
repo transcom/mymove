@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -40,4 +41,21 @@ func BuildRank(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	return rank
+}
+
+// lookup a privilege by privilege type, if it doesn't exist make it
+func FetchOrBuildRankByPayGradeAndAffiliation(db *pop.Connection, payGrade string, affiliation string) models.Rank {
+	var rank models.Rank
+	err := db.RawQuery(`
+		SELECT * FROM ranks
+		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
+		WHERE pay_grades.grade = $1 AND ranks.affiliation = $2
+	`, payGrade, affiliation).First(&rank)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(fmt.Errorf("database is not configured properly and is missing static pay grade data. pay grade: %s err: %w", payGrade, err))
+	} else if err == nil {
+		return rank
+	}
+
+	return BuildRank(db, nil, nil)
 }

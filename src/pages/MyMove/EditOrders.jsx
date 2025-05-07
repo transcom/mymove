@@ -289,7 +289,6 @@ const EditOrders = ({
                 ordersTypeOptions={ordersTypeOptions}
                 currentDutyLocation={currentOrder?.origin_duty_location}
                 onCancel={handleCancel}
-                affiliation={currentOrder}
               />
             </div>
           )}
