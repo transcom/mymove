@@ -38,7 +38,7 @@ import { roleTypes } from 'constants/userRoles';
 import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
-import { RouterShape, UserRoleShape, UserRolesShape } from 'types/index';
+import { RouterShape, UserRolesShape } from 'types/index';
 import {
   servicesCounselingRoutes,
   primeSimulatorRoutes,
@@ -628,7 +628,6 @@ OfficeApp.propTypes = {
   loginIsLoading: PropTypes.bool,
   userIsLoggedIn: PropTypes.bool,
   userPermissions: PropTypes.arrayOf(PropTypes.string),
-  userActiveRole: UserRoleShape,
   userInactiveRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
@@ -646,7 +645,6 @@ OfficeApp.defaultProps = {
   loginIsLoading: false,
   userIsLoggedIn: false,
   userPermissions: [],
-  userActiveRole: null,
   userInactiveRoles: [],
   activeRole: null,
   userPrivileges: [],
@@ -657,6 +655,7 @@ OfficeApp.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
+  // TODO: Investigate user state not matching server session
   const user = selectLoggedInUser(state);
   return {
     swaggerError: state.swaggerInternal?.hasErrored,
@@ -664,7 +663,6 @@ const mapStateToProps = (state) => {
     loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
-    userActiveRole: user?.activeRole,
     userInactiveRoles: user?.inactiveRoles || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
