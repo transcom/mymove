@@ -10,7 +10,7 @@ import { roleTypes } from 'constants/userRoles';
 import { UserRolesShape } from 'types';
 import getRoleTypesFromRoles from 'utils/user';
 
-const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
+const SelectApplication = ({ userInactiveRoles, setActiveRole, activeRole }) => {
   const navigate = useNavigate();
 
   const handleSelectRole = (roleType) => {
@@ -18,7 +18,7 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
     navigate('/');
   };
 
-  const userRoleTypes = getRoleTypesFromRoles(userRoles);
+  const userRoleTypes = getRoleTypesFromRoles(userInactiveRoles);
 
   return (
     <GridContainer>
@@ -57,7 +57,7 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
 SelectApplication.propTypes = {
   activeRole: PropTypes.string,
   setActiveRole: PropTypes.func.isRequired,
-  userRoles: UserRolesShape.isRequired,
+  userInactiveRoles: UserRolesShape.isRequired,
 };
 
 SelectApplication.defaultProps = {
@@ -69,7 +69,7 @@ const mapStateToProps = (state) => {
 
   return {
     activeRole: state.auth.activeRole,
-    userRoles: user.roles || [],
+    userInactiveRoles: user.inactiveRoles || [],
   };
 };
 

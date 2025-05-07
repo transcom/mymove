@@ -38,7 +38,7 @@ import { roleTypes } from 'constants/userRoles';
 import { pageNames } from 'constants/signInPageNames';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
-import { RouterShape, UserRolesShape } from 'types/index';
+import { RouterShape, UserRoleShape, UserRolesShape } from 'types/index';
 import {
   servicesCounselingRoutes,
   primeSimulatorRoutes,
@@ -124,7 +124,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const location = useLocation();
   const displayChangeRole =
     props.userIsLoggedIn &&
-    props.userRoles?.length > 1 &&
+    props.userInactiveRoles?.length > 1 &&
     !matchPath(
       {
         path: '/select-application',
@@ -628,7 +628,8 @@ OfficeApp.propTypes = {
   loginIsLoading: PropTypes.bool,
   userIsLoggedIn: PropTypes.bool,
   userPermissions: PropTypes.arrayOf(PropTypes.string),
-  userRoles: UserRolesShape,
+  userActiveRole: UserRoleShape,
+  userInactiveRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
@@ -645,7 +646,8 @@ OfficeApp.defaultProps = {
   loginIsLoading: false,
   userIsLoggedIn: false,
   userPermissions: [],
-  userRoles: [],
+  userActiveRole: null,
+  userInactiveRoles: [],
   activeRole: null,
   userPrivileges: [],
   underMaintenance: false,
@@ -662,7 +664,8 @@ const mapStateToProps = (state) => {
     loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
-    userRoles: user?.roles || [],
+    userActiveRole: user?.activeRole,
+    userInactiveRoles: user?.inactiveRoles || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
