@@ -39,7 +39,7 @@ jest.mock('services/ghcApi', () => ({
     }),
   ),
   getRankGradeOptions: jest.fn().mockImplementation(() => {
-    return Promise.resolve([
+    Promise.resolve([
       {
         id: 'd3aa6931-7858-4123-be0b-f3242a49e9f7',
         paygradeId: '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9',
@@ -370,7 +370,7 @@ const mockParams = { customerId: 'ea51dab0-4553-4732-b843-1f33407f77bd' };
 const mockPath = servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH;
 
 const renderWithMocks = () => {
-  const testProps = { customer, setCanAddOrders: jest.fn(), affiliation: 'AIR_FORCE' };
+  const testProps = { customer, setCanAddOrders: jest.fn() };
   render(
     <MockProviders path={mockPath} params={mockParams}>
       <ServicesCounselingAddOrders {...testProps} />
