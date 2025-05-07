@@ -1,12 +1,23 @@
 package utils_test
 
 import (
+	"regexp"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/utils"
 )
 
 type UtilitySuite struct {
-	*testingsuite.PopTestSuite
+	testingsuite.BaseTestSuite
+}
+
+func TestUtilitySuite(t *testing.T) {
+	suite.Run(t, &UtilitySuite{})
 }
 
 func (suite *UtilitySuite) TestStringIsNilEmptyOrWhitespace() {
@@ -30,5 +41,50 @@ func (suite *UtilitySuite) TestStringIsNilEmptyOrWhitespace() {
 		testString := "hello"
 		actual := utils.IsNullOrWhiteSpace(&testString)
 		suite.False(actual)
+	})
+}
+
+func (suite *UtilitySuite) TestAppendTimestampToFilename() {
+	suite.Run("Produces correct formatting", func() {
+		originalFilename := "example.txt"
+		result := utils.AppendTimestampToFilename(originalFilename)
+
+		expectedPattern := `^example-\d{14}\.txt$`
+		matched, err := regexp.MatchString(expectedPattern, result)
+		suite.NoError(err, "Error in regex matching")
+		suite.True(matched, "Format must match expected pattern")
+	})
+
+	suite.Run("Current timestamp", func() {
+		originalFilename := "example.txt"
+		result := utils.AppendTimestampToFilename(originalFilename)
+
+		parts := regexp.MustCompile(`-(\d{14})\.`).FindStringSubmatch(result)
+
+		suite.Len(parts, 2, "Could not extract timestamp from result")
+
+		timestamp, err := time.Parse(utils.VersionTimeFormat, parts[1])
+		suite.NoError(err, "Error parsing timestamp")
+
+		timeWithin2Seconds := time.Since(timestamp) <= 2*time.Second
+		suite.True(timeWithin2Seconds, "Timestamp should be now()")
+	})
+
+	suite.Run("Preserve original name and extension", func() {
+		originalFilename := "example.txt"
+		result := utils.AppendTimestampToFilename(originalFilename)
+
+		suite.True(strings.HasPrefix(result, "example-"), "Prefix does not match original filename")
+		suite.True(strings.HasSuffix(result, ".txt"), "Suffix does not match original filename extension")
+	})
+
+	suite.Run("Handle filename without extension", func() {
+		originalFilename := "noextension"
+		result := utils.AppendTimestampToFilename(originalFilename)
+
+		expectedPattern := `^noextension-\d{14}$`
+		matched, err := regexp.MatchString(expectedPattern, result)
+		suite.NoError(err, "Error matching regex")
+		suite.True(matched, "Result does not match expected pattern")
 	})
 }
