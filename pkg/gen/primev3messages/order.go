@@ -41,6 +41,10 @@ type Order struct {
 	// entitlement
 	Entitlement *Entitlements `json:"entitlement,omitempty"`
 
+	// grade
+	// Example: E_5
+	Grade string `json:"grade,omitempty"`
+
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
@@ -77,7 +81,7 @@ type Order struct {
 	PackingAndShippingInstructions string `json:"packingAndShippingInstructions,omitempty"`
 
 	// rank
-	// Example: E_5
+	// Example: General
 	// Required: true
 	Rank *string `json:"rank"`
 

@@ -24,7 +24,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
 import { MoveOrderDocumentType } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import { formatWeight } from 'utils/formatters';
+import { formatWeight, payGradeFormat } from 'utils/formatters';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -211,6 +211,10 @@ const MoveDetails = ({ setFlashMessage }) => {
                   <div className={descriptionListStyles.row}>
                     <dt>Move Id:</dt>
                     <dd>{moveTaskOrder.id}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Rank / PayGrade:</dt>
+                    <dd>{`${moveTaskOrder.order.rank} / ${payGradeFormat(moveTaskOrder.order.grade)}`}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
                     <dt>Gun Safe:</dt>

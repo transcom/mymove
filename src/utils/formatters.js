@@ -167,6 +167,13 @@ export const filenameFromPath = (filePath) => {
   return path.basename(filePath);
 };
 
+export const payGradeFormat = (payGradeRaw) => {
+  if (payGradeRaw !== undefined) {
+    return payGradeRaw.replace('_', '-');
+  }
+  return '';
+};
+
 export const formatAddressShort = (address) => {
   const { city, state, postalCode } = address;
   return `${city}, ${state} ${postalCode}`;

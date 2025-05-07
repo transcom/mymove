@@ -628,10 +628,10 @@ definitions:
       special-purpose: Special Purpose Reimbursable
       training: Training
       unit-move: Unit Move
-  Rank:
+  Grade:
     type: string
     description: >-
-      DoD paygrade or rank of the service member. Some of these ranks will have
+      DoD paygrade of the service member. Some of these ranks will have
       identical entitlements.
     enum:
       - aviation-cadet
@@ -693,6 +693,11 @@ definitions:
       w-3: W-3
       w-4: W-4
       w-5: W-5
+  Rank:
+    type: string
+    description: |
+      DoD paygrade of the service member. Some of these ranks will have
+      identical entitlements.
   Accounting:
     type: object
     properties:
