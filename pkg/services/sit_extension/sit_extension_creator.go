@@ -23,6 +23,7 @@ func NewSitExtensionCreator(moveRouter services.MoveRouter) services.SITExtensio
 			checkShipmentID(),
 			checkRequiredFields(),
 			checkSITExtensionPending(),
+			checkDepartureDates(),
 		},
 		moveRouter,
 	}

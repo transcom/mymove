@@ -105,3 +105,21 @@ func checkMinimumSITDuration() sitExtensionValidator {
 	},
 	)
 }
+
+// TODO: give docs and more informative error message
+func checkDepartureDates() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITDurationUpdate, shipment *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if shipment.DestinationSITAuthEndDate != nil {
+			if shipment.ActualDeliveryDate.Before(*shipment.DestinationSITAuthEndDate) || shipment.ActualDeliveryDate.Equal(*shipment.DestinationSITAuthEndDate) {
+				verrs.Add(shipment.ID.String(), "To create a SIT extention the SIT delivery date cannot be prior or equal to the SIT end date.")
+			}
+		} else if shipment.OriginSITAuthEndDate != nil {
+			if shipment.ActualDeliveryDate.Before(*shipment.OriginSITAuthEndDate) || shipment.ActualDeliveryDate.Equal(*shipment.OriginSITAuthEndDate) {
+				verrs.Add(shipment.ID.String(), "To create a SIT extention the SIT delivery date cannot be prior or equal to the SIT end date.")
+			}
+		}
+		return verrs
+	},
+	)
+}
