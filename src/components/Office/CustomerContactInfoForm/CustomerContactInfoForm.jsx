@@ -9,7 +9,7 @@ import styles from './CustomerContactInfoForm.module.scss';
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
 import { CustomerAltContactInfoFields } from 'components/form/CustomerAltContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
