@@ -269,7 +269,7 @@ const AddOrdersForm = ({
             <SectionWrapper className={formStyles.formSection}>
               {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders type"
+                label="Orders typessss"
                 name="ordersType"
                 options={filteredOrderTypeOptions}
                 required
@@ -483,7 +483,7 @@ const AddOrdersForm = ({
               )}
 
               <DropdownInput
-                label="Rank / Pay grade"
+                label="Rank - Pay grade"
                 name="rank"
                 id="rank"
                 required

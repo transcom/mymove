@@ -40,7 +40,7 @@ jest.mock('services/internalApi', () => ({
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
-  getRankGradeOptions: jest.fn().mockImplementation(() =>
+  getRankGradeOptions: jest.fn(() =>
     Promise.resolve([
       {
         id: 'd3aa6931-7858-4123-be0b-f3242a49e9f7',
