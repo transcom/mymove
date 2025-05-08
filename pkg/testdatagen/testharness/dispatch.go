@@ -50,6 +50,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSC(appCtx)
 	},
+	"IntlHHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeIntlHHGMoveNeedsSC(appCtx)
+	},
 	"HHGMoveNeedsSCOtherGBLOC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSCOtherGBLOC(appCtx)
 	},
