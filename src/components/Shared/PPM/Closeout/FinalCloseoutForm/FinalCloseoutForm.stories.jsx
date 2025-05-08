@@ -5,6 +5,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { PPM_TYPES } from 'shared/constants';
+import { APP_NAME } from 'constants/apps';
 
 export default {
   title: 'Shared Components / PPM Closeout / Final Closeout Form',
@@ -29,6 +30,7 @@ export const Blank = () => {
             mtoShipment={createPPMShipmentWithFinalIncentive()}
             affiliation="ARMY"
             selectedMove={exampleMove}
+            appName={APP_NAME.MYMOVE}
           />
         </Grid>
       </Grid>
@@ -48,6 +50,7 @@ export const WithSignature = () => {
             mtoShipment={createPPMShipmentWithFinalIncentive()}
             affiliation="ARMY"
             selectedMove={exampleMove}
+            appName={APP_NAME.MYMOVE}
           />
         </Grid>
       </Grid>
@@ -67,6 +70,7 @@ export const NoCloseoutHelperText = () => {
             mtoShipment={createPPMShipmentWithFinalIncentive()}
             affiliation="COAST_GUARD"
             selectedMove={exampleMove}
+            appName={APP_NAME.MYMOVE}
           />
         </Grid>
       </Grid>
@@ -94,6 +98,27 @@ export const SmallPackagePPM = () => {
             })}
             affiliation="ARMY"
             selectedMove={exampleMove}
+            appName={APP_NAME.MYMOVE}
+          />
+        </Grid>
+      </Grid>
+    </GridContainer>
+  );
+};
+
+export const OfficeUserNoAgreement = () => {
+  return (
+    <GridContainer>
+      <Grid row>
+        <Grid desktop={{ col: 8, offset: 2 }}>
+          <FinalCloseoutForm
+            initialValues={{ date: '2022-11-01' }}
+            onBack={action('back button clicked')}
+            onSubmit={action('submit button clicked')}
+            mtoShipment={createPPMShipmentWithFinalIncentive()}
+            affiliation="ARMY"
+            selectedMove={exampleMove}
+            appName={APP_NAME.OFFICE}
           />
         </Grid>
       </Grid>
