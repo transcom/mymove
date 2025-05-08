@@ -2197,6 +2197,60 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(tertiaryPickupAddress.ID, *newShipment.TertiaryPickupAddressID)
 		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 	})
+
+	suite.Run("Successfully delete pending SIT extension", func() {
+		setupTestData()
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					ScheduledPickupDate:  nil,
+					OriginSITAuthEndDate: &now,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    oldShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		var rowCount int
+		// check if sitExtension was successfully added
+		suite.AppContextForTest().DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", oldShipment.ID).First(&rowCount)
+		suite.Equal(rowCount, 1)
+
+		requestedPickupDate := now.Add(time.Hour * 24 * 3)
+		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
+		updatedShipment := models.MTOShipment{
+			ID:                    oldShipment.ID,
+			DestinationAddress:    &newDestinationAddress,
+			DestinationAddressID:  &newDestinationAddress.ID,
+			PickupAddress:         &newPickupAddress,
+			PickupAddressID:       &newPickupAddress.ID,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+			ActualPickupDate:      &actualPickupDate,
+			ActualDeliveryDate:    &now,
+		}
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+		suite.Require().NoError(err)
+
+		// check if sitExtension was successfully removed
+		suite.AppContextForTest().DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", newShipment.ID).First(&rowCount)
+		suite.Equal(rowCount, 0)
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {

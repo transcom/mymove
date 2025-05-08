@@ -364,10 +364,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
+	// If there are any existing SIT extensions for the shipment and the ActualDeliveryDate is
+	// on or before the authorized end date than any PENDING SIT extensions will be removed.
 	updatedActualDeliveryDate := mtoShipment.ActualDeliveryDate
 	originSITAuthEndDate := oldShipment.OriginSITAuthEndDate
 	destSITAuthEndDate := oldShipment.DestinationSITAuthEndDate
-
 	if hasSITExtension(appCtx, mtoShipment.ID) {
 		if updatedActualDeliveryDate != nil && originSITAuthEndDate != nil {
 			if updatedActualDeliveryDate.Before(*originSITAuthEndDate) || updatedActualDeliveryDate.Equal(*originSITAuthEndDate) {
@@ -441,13 +442,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 
 func hasSITExtension(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) bool {
 	var rowCount int
-	var hasSitExtension bool
+	hasSitExtension := false
 	appCtx.DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", mtoShipmentID).First(&rowCount)
 
 	if rowCount > 0 {
 		hasSitExtension = true
-	} else {
-		hasSitExtension = false
 	}
 	return hasSitExtension
 }
