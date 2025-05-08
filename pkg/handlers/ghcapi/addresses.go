@@ -78,6 +78,11 @@ type SearchCountriesHandler struct {
 func (h SearchCountriesHandler) Handle(params addressop.SearchCountriesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeApp() && appCtx.Session().OfficeUserID == uuid.Nil {
+				noOfficeUserIDErr := apperror.NewSessionError("No office user ID")
+				return addressop.NewSearchCountriesForbidden(), noOfficeUserIDErr
+			}
+
 			countries, err := h.CountrySearcher.SearchCountries(appCtx, params.Search)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
