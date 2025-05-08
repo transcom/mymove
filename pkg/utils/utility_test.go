@@ -45,10 +45,10 @@ func (suite *UtilitySuite) TestStringIsNilEmptyOrWhitespace() {
 }
 
 func (suite *UtilitySuite) TestAppendTimestampToFilename() {
-	suite.Run("Produces correct formatting", func() {
-		originalFilename := "example.txt"
-		result := utils.AppendTimestampToFilename(originalFilename)
+	originalFilename := "example.txt"
+	result := utils.AppendTimestampToFilename(originalFilename)
 
+	suite.Run("Produces correct formatting", func() {
 		expectedPattern := `^example-\d{14}\.txt$`
 		matched, err := regexp.MatchString(expectedPattern, result)
 		suite.NoError(err, "Error in regex matching")
@@ -56,9 +56,6 @@ func (suite *UtilitySuite) TestAppendTimestampToFilename() {
 	})
 
 	suite.Run("Current timestamp", func() {
-		originalFilename := "example.txt"
-		result := utils.AppendTimestampToFilename(originalFilename)
-
 		parts := regexp.MustCompile(`-(\d{14})\.`).FindStringSubmatch(result)
 
 		suite.Len(parts, 2, "Could not extract timestamp from result")
@@ -71,17 +68,12 @@ func (suite *UtilitySuite) TestAppendTimestampToFilename() {
 	})
 
 	suite.Run("Preserve original name and extension", func() {
-		originalFilename := "example.txt"
-		result := utils.AppendTimestampToFilename(originalFilename)
-
 		suite.True(strings.HasPrefix(result, "example-"), "Prefix does not match original filename")
 		suite.True(strings.HasSuffix(result, ".txt"), "Suffix does not match original filename extension")
 	})
 
 	suite.Run("Handle filename without extension", func() {
-		originalFilename := "noextension"
-		result := utils.AppendTimestampToFilename(originalFilename)
-
+		result := utils.AppendTimestampToFilename("noextension")
 		expectedPattern := `^noextension-\d{14}$`
 		matched, err := regexp.MatchString(expectedPattern, result)
 		suite.NoError(err, "Error matching regex")
