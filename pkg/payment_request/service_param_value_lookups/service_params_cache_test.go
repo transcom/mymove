@@ -598,10 +598,10 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		availToPrimeAt := time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 		subtestData.move.AvailableToPrimeAt = &availToPrimeAt
 		suite.MustSave(&subtestData.move)
-		expectedAvailToPrimeDate := subtestData.move.AvailableToPrimeAt.String()[:10]
+		expectedRequestedPickupDate := subtestData.mtoShipment1.RequestedPickupDate.String()[:10]
 		var availToPrimeDateStr string
 		availToPrimeDateStr, err = paramLookupService3.ServiceParamValue(suite.AppContextForTest(), subtestData.paramKeyMTOEarliestRequestedPickup.Key)
 		suite.FatalNoError(err)
-		suite.Equal(expectedAvailToPrimeDate, availToPrimeDateStr[:10])
+		suite.Equal(expectedRequestedPickupDate, availToPrimeDateStr[:10])
 	})
 }
