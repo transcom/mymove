@@ -12,6 +12,28 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// Returns a validation error if ActualDeliveryDate is on or before the shipment's authorized end date.
+func checkDepartureDates() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, _ models.SITDurationUpdate, shipment *models.MTOShipment) error {
+		format := "02/01/06"
+		actualDeliveryDate := shipment.ActualDeliveryDate
+		destEndDate := shipment.DestinationSITAuthEndDate
+		originEndDate := shipment.OriginSITAuthEndDate
+		shipmentID := shipment.ID.String()
+		verrs := validate.NewErrors()
+		if shipment.DestinationSITAuthEndDate != nil {
+			if actualDeliveryDate.Before(*destEndDate) || actualDeliveryDate.Equal(*destEndDate) {
+				verrs.Add(shipmentID, fmt.Sprintf("The SIT delivery date %s cannot be prior or equal to the SIT end date %s.", actualDeliveryDate.Format(format), destEndDate.Format(format)))
+			}
+		} else if shipment.OriginSITAuthEndDate != nil {
+			if actualDeliveryDate.Before(*originEndDate) || actualDeliveryDate.Equal(*originEndDate) {
+				verrs.Add(shipmentID, fmt.Sprintf("The SIT delivery date %s cannot be prior or equal to the SIT end date %s.", actualDeliveryDate.Format(format), originEndDate.Format(format)))
+			}
+		}
+		return verrs
+	})
+}
+
 // checkShipmentID checks that a shipmentID is not nil and returns a verification error if it is
 func checkShipmentID() sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, sitExtension models.SITDurationUpdate, _ *models.MTOShipment) error {

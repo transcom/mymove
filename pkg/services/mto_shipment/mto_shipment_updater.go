@@ -371,6 +371,34 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
+	// If there are any existing SIT extensions for the shipment and the ActualDeliveryDate is
+	// on or before the authorized end date than any PENDING SIT extensions will be removed.
+	updatedActualDeliveryDate := mtoShipment.ActualDeliveryDate
+	originSITAuthEndDate := oldShipment.OriginSITAuthEndDate
+	destSITAuthEndDate := oldShipment.DestinationSITAuthEndDate
+	hasSITExtension, err := hasSITExtension(appCtx, mtoShipment.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if hasSITExtension {
+		if updatedActualDeliveryDate != nil && originSITAuthEndDate != nil {
+			if updatedActualDeliveryDate.Before(*originSITAuthEndDate) || updatedActualDeliveryDate.Equal(*originSITAuthEndDate) {
+				err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
+				if err != nil {
+					return nil, err
+				}
+			}
+		} else if updatedActualDeliveryDate != nil && destSITAuthEndDate != nil {
+			if updatedActualDeliveryDate.Before(*destSITAuthEndDate) || updatedActualDeliveryDate.Equal(*destSITAuthEndDate) {
+				err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
 	var agents []models.MTOAgent
 	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
 	if err != nil {
@@ -428,6 +456,20 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	}
 
 	return updatedShipment, nil
+}
+
+func hasSITExtension(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
+	var rowCount int
+	hasSitExtension := false
+	err := appCtx.DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", mtoShipmentID).First(&rowCount)
+	if err != nil {
+		return hasSitExtension, err
+	}
+
+	if rowCount > 0 {
+		hasSitExtension = true
+	}
+	return hasSitExtension, nil
 }
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
