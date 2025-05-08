@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import styles from './FinalCloseoutForm.module.scss';
 
@@ -26,6 +27,12 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 
 const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove, appName }) => {
+  const isCustomerPage = appName === APP_NAME.MYMOVE;
+
+  const validationSchema = Yup.object().shape({
+    signature: isCustomerPage ? Yup.string().required('Required') : Yup.string(),
+    date: Yup.string(),
+  });
   const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
@@ -45,7 +52,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
   const totalWeightSPR = getTotalPackageWeightSPR(mtoShipment?.ppmShipment?.movingExpenses);
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit}>
+    <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit }) => (
         <div className={styles.FinalCloseoutForm}>
           {ppmType !== PPM_TYPES.SMALL_PACKAGE && (

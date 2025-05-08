@@ -4,6 +4,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 
 import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
+import { PPM_TYPES } from 'shared/constants';
 
 export default {
   title: 'Shared Components / PPM Closeout / Final Closeout Form',
@@ -65,6 +66,33 @@ export const NoCloseoutHelperText = () => {
             onSubmit={action('submit button clicked')}
             mtoShipment={createPPMShipmentWithFinalIncentive()}
             affiliation="COAST_GUARD"
+            selectedMove={exampleMove}
+          />
+        </Grid>
+      </Grid>
+    </GridContainer>
+  );
+};
+
+export const SmallPackagePPM = () => {
+  return (
+    <GridContainer>
+      <Grid row>
+        <Grid desktop={{ col: 8, offset: 2 }}>
+          <FinalCloseoutForm
+            initialValues={{ date: '2022-11-01', signature: '' }}
+            onBack={action('back button clicked')}
+            onSubmit={action('submit button clicked')}
+            mtoShipment={createPPMShipmentWithFinalIncentive({
+              ppmShipment: {
+                ppmType: PPM_TYPES.SMALL_PACKAGE,
+                movingExpenses: [
+                  { isProGear: false, weightShipped: 1000, amount: 30000 },
+                  { isProGear: true, weightShipped: 500, amount: 20000 },
+                ],
+              },
+            })}
+            affiliation="ARMY"
             selectedMove={exampleMove}
           />
         </Grid>

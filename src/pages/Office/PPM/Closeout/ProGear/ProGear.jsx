@@ -223,12 +223,12 @@ const ProGear = () => {
     return renderError() || <LoadingPlaceholder />;
   }
   return (
-    <div className={ppmPageStyles.closeoutPageWrapper}>
-      <div className={ppmPageStyles.tabContent}>
-        <div className={ppmPageStyles.container}>
-          <GridContainer>
-            <Grid row>
-              <Grid col desktop={{ col: 8, offset: 2 }}>
+    <div className={ppmPageStyles.tabContent}>
+      <div className={ppmPageStyles.container}>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <div className={ppmPageStyles.closeoutPageWrapper}>
                 <ShipmentTag shipmentType={shipmentTypes.PPM} />
                 <h1>Pro-gear</h1>
                 {renderError()}
@@ -244,10 +244,10 @@ const ProGear = () => {
                   isSubmitted={isSubmitted}
                   appName={appName}
                 />
-              </Grid>
+              </div>
             </Grid>
-          </GridContainer>
-        </div>
+          </Grid>
+        </GridContainer>
       </div>
     </div>
   );
