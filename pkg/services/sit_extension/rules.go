@@ -15,7 +15,7 @@ import (
 // Returns a validation error if ActualDeliveryDate is on or before the shipment's authorized end date.
 func checkDepartureDates() sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, _ models.SITDurationUpdate, shipment *models.MTOShipment) error {
-		format := "01/02/2006"
+		format := "2006-01-02"
 		actualDeliveryDate := shipment.ActualDeliveryDate
 		destEndDate := shipment.DestinationSITAuthEndDate
 		originEndDate := shipment.OriginSITAuthEndDate
@@ -23,11 +23,11 @@ func checkDepartureDates() sitExtensionValidator {
 		verrs := validate.NewErrors()
 		if shipment.DestinationSITAuthEndDate != nil {
 			if actualDeliveryDate.Before(*destEndDate) || actualDeliveryDate.Equal(*destEndDate) {
-				verrs.Add(shipmentID, fmt.Sprintf("The SIT delivery date %s cannot be prior or equal to the SIT end date %s.", actualDeliveryDate.Format(format), destEndDate.Format(format)))
+				verrs.Add(shipmentID, fmt.Sprintf("The SIT delivery date (%s) cannot be prior or equal to the SIT end date (%s).", actualDeliveryDate.Format(format), destEndDate.Format(format)))
 			}
 		} else if shipment.OriginSITAuthEndDate != nil {
 			if actualDeliveryDate.Before(*originEndDate) || actualDeliveryDate.Equal(*originEndDate) {
-				verrs.Add(shipmentID, fmt.Sprintf("The SIT delivery date %s cannot be prior or equal to the SIT end date %s.", actualDeliveryDate.Format(format), originEndDate.Format(format)))
+				verrs.Add(shipmentID, fmt.Sprintf("The SIT delivery date (%s) cannot be prior or equal to the SIT end date (%s).", actualDeliveryDate.Format(format), originEndDate.Format(format)))
 			}
 		}
 		return verrs
