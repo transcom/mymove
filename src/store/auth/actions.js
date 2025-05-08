@@ -7,13 +7,11 @@ export const setActiveRole = (roleType) => ({
   payload: roleType,
 });
 
-// TODO: Use me after redis is g2g
 export const setActiveRoleSuccess = (roleType) => ({
   type: SET_ACTIVE_ROLE_SUCCESS,
   payload: roleType,
 });
 
-// TODO: Use me after redis is g2g
 export const setActiveRoleFailure = (error) => ({
   type: SET_ACTIVE_ROLE_FAILURE,
   error,

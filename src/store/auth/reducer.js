@@ -1,4 +1,4 @@
-import { LOG_OUT, SET_ACTIVE_ROLE } from './actions';
+import { LOG_OUT, SET_ACTIVE_ROLE, SET_ACTIVE_ROLE_SUCCESS, SET_ACTIVE_ROLE_FAILURE } from './actions';
 
 export const initialState = {
   activeRole: null,
@@ -7,6 +7,7 @@ export const initialState = {
   hasErrored: false,
   isLoading: true,
   underMaintenance: false,
+  isSettingActiveRole: false,
 };
 
 const authReducer = (state = initialState, action = {}) => {
@@ -54,10 +55,22 @@ const authReducer = (state = initialState, action = {}) => {
     case SET_ACTIVE_ROLE: {
       return {
         ...state,
-        activeRole: action.payload,
+        isSettingActiveRole: true,
       };
     }
-
+    case SET_ACTIVE_ROLE_SUCCESS: {
+      return {
+        ...state,
+        activeRole: action.payload,
+        isSettingActiveRole: false,
+      };
+    }
+    case SET_ACTIVE_ROLE_FAILURE: {
+      return {
+        ...state,
+        isSettingActiveRole: false,
+      };
+    }
     default:
       return state;
   }

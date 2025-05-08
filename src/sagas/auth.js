@@ -87,7 +87,7 @@ export function* handleSetActiveRole({ payload: roleType }) {
     yield call(UpdateActiveRoleServerSession, roleType);
     yield put(setActiveRoleSuccess(roleType));
   } catch (e) {
-    yield put(setActiveRoleFailure());
+    yield put(setActiveRoleFailure(e));
     yield put(
       setFlashMessage(
         'USER_ACTIVE_ROLE_SET_ERROR',
