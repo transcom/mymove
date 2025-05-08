@@ -15,7 +15,7 @@ import (
 // Returns a validation error if ActualDeliveryDate is on or before the shipment's authorized end date.
 func checkDepartureDates() sitExtensionValidator {
 	return sitExtensionValidatorFunc(func(_ appcontext.AppContext, _ models.SITDurationUpdate, shipment *models.MTOShipment) error {
-		format := "02/01/06"
+		format := "01/02/2006"
 		actualDeliveryDate := shipment.ActualDeliveryDate
 		destEndDate := shipment.DestinationSITAuthEndDate
 		originEndDate := shipment.OriginSITAuthEndDate
