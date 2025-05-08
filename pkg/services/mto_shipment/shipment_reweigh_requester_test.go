@@ -10,11 +10,13 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
-	requester := NewShipmentReweighRequester()
+	mockSender := mocks.NotificationSender{}
+	requester := NewShipmentReweighRequester(&mockSender)
 
 	suite.Run("If the shipment reweigh is requested successfully, it creates a reweigh in the DB", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
