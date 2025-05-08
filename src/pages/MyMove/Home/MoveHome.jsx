@@ -43,7 +43,7 @@ import {
   cancelMove,
 } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { checkIfMoveIsLocked, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -156,8 +156,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   }
 
   useEffect(() => {
-    const now = new Date();
-    if (now < new Date(move?.lockExpiresAt)) {
+    if (checkIfMoveIsLocked(move)) {
       setIsMoveLocked(true);
     }
   }, [move]);
