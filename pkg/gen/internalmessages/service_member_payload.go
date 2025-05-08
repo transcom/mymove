@@ -90,6 +90,9 @@ type ServiceMemberPayload struct {
 	// Telephone
 	PhoneIsPreferred *bool `json:"phone_is_preferred,omitempty"`
 
+	// rank
+	Rank *Rank `json:"rank,omitempty"`
+
 	// Residential Address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
 
@@ -167,6 +170,10 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePersonalEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -387,6 +394,25 @@ func (m *ServiceMemberPayload) validatePersonalEmail(formats strfmt.Registry) er
 	return nil
 }
 
+func (m *ServiceMemberPayload) validateRank(formats strfmt.Registry) error {
+	if swag.IsZero(m.Rank) { // not required
+		return nil
+	}
+
+	if m.Rank != nil {
+		if err := m.Rank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *ServiceMemberPayload) validateResidentialAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.ResidentialAddress) { // not required
 		return nil
@@ -496,6 +522,10 @@ func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strf
 	}
 
 	if err := m.contextValidateOrders(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRank(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -610,6 +640,27 @@ func (m *ServiceMemberPayload) contextValidateOrders(ctx context.Context, format
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+
+		if swag.IsZero(m.Rank) { // not required
+			return nil
+		}
+
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
+			}
+			return err
+		}
 	}
 
 	return nil
