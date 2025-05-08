@@ -82,6 +82,11 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.county)).toBeInTheDocument();
     expect(screen.getByText('ZIP')).toBeInTheDocument();
     expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.postalCode)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(
+        `${initialValuesDestinationAddress.newAddress.address.city}, ${initialValuesDestinationAddress.newAddress.address.state} ${initialValuesDestinationAddress.newAddress.address.postalCode} (${initialValuesDestinationAddress.newAddress.address.county})`,
+      ),
+    );
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
@@ -120,7 +125,8 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     (await screen.getByLabelText(/Address 1/)).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
+      const requiredAlerts = screen.getByRole('alert');
+      expect(requiredAlerts).toHaveTextContent('Required');
     });
   });
 
