@@ -633,6 +633,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		})
 	}
+	if api.OfficeUsersUpdateOfficeUserHandler == nil {
+		api.OfficeUsersUpdateOfficeUserHandler = office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
+		})
+	}
 	if api.OrderUpdateOrderHandler == nil {
 		api.OrderUpdateOrderHandler = order.UpdateOrderHandlerFunc(func(params order.UpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateOrder has not yet been implemented")

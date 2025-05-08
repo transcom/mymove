@@ -954,6 +954,21 @@ export async function createOfficeAccountRequest({ body }) {
   return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
 }
 
+export async function patchOfficeUser(officeUserId, body) {
+  const operationPath = 'officeUsers.updateOfficeUser';
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      officeUserId,
+      officeUser: body,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeGHCRequest(
     'uploads.createUpload',

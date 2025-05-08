@@ -342,7 +342,7 @@ describe('Review page', () => {
     });
   });
 
-  it('routes to the Move details page when the Back button is clicked', async () => {
+  it('routes to the Move Details page when the Back button is clicked', async () => {
     usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
       isLoading: false,
       mtoShipment: mockMTOShipment,

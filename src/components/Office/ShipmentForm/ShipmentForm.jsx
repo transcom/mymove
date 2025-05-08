@@ -6,6 +6,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio, Label, Tag } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import moment from 'moment';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -27,7 +28,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
-import { Form } from 'components/form/Form';
+import { Form } from 'components/form';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentAccountingCodes from 'components/Office/ShipmentAccountingCodes/ShipmentAccountingCodes';
 import ShipmentCustomerSIT from 'components/Office/ShipmentCustomerSIT/ShipmentCustomerSIT';
@@ -76,7 +77,7 @@ import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
-import { datePickerFormat, formatDate } from 'shared/dates';
+import { datePickerFormat, formatDate, formatDateWithUTC } from 'shared/dates';
 import { isPreceedingAddressComplete, isPreceedingAddressPPMPrimaryDestinationComplete } from 'shared/utils';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { handleAddressToggleChange, blankAddress } from 'utils/shipments';
@@ -141,6 +142,8 @@ const ShipmentForm = (props) => {
   const [isRequestedDeliveryDateAlertVisible, setIsRequestedDeliveryDateAlertVisible] = useState(false);
   const [requestedPickupDateAlertMessage, setRequestedPickupDateAlertMessage] = useState('');
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
+  const [isRequestedPickupDateInvalid, setIsRequestedPickupDateInvalid] = useState(false);
+  const [isRequestedPickupDateChanged, setIsRequestedPickupDateChanged] = useState(false);
   const DEFAULT_COUNTRY_CODE = 'US';
 
   const queryClient = useQueryClient();
@@ -712,6 +715,22 @@ const ShipmentForm = (props) => {
           }
         };
 
+        const validatePickupDate = (e) => {
+          let error = validateDate(e);
+          // requestedPickupDate must be in the future for non-PPM shipments
+          const pickupDate = moment(formatDateWithUTC(e)).startOf('day');
+          const today = moment().startOf('day');
+
+          if (!error && isRequestedPickupDateChanged && !isPPM && !pickupDate.isAfter(today)) {
+            setIsRequestedPickupDateInvalid(true);
+            error = 'Requested pickup date must be in the future.';
+          } else {
+            setIsRequestedPickupDateInvalid(false);
+          }
+
+          return error;
+        };
+
         const handlePickupDateChange = (e) => {
           setValues({
             ...values,
@@ -720,19 +739,24 @@ const ShipmentForm = (props) => {
               requestedDate: formatDate(e, datePickerFormat),
             },
           });
+
+          setIsRequestedPickupDateChanged(true);
+
           const onErrorHandler = (errResponse) => {
             const { response } = errResponse;
             setDatesErrorMessage(response?.body?.detail);
           };
-          dateSelectionWeekendHolidayCheck(
-            dateSelectionIsWeekendHoliday,
-            DEFAULT_COUNTRY_CODE,
-            new Date(e),
-            'Requested pickup date',
-            setRequestedPickupDateAlertMessage,
-            setIsRequestedPickupDateAlertVisible,
-            onErrorHandler,
-          );
+          if (!validatePickupDate(e)) {
+            dateSelectionWeekendHolidayCheck(
+              dateSelectionIsWeekendHoliday,
+              DEFAULT_COUNTRY_CODE,
+              new Date(e),
+              'Requested pickup date',
+              setRequestedPickupDateAlertMessage,
+              setIsRequestedPickupDateAlertVisible,
+              onErrorHandler,
+            );
+          }
         };
 
         const handleDeliveryDateChange = (e) => {
@@ -920,9 +944,14 @@ const ShipmentForm = (props) => {
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
-                    <Fieldset>
-                      {isRequestedPickupDateAlertVisible && (
-                        <Alert type="warning" aria-live="polite" headingLevel="h4">
+                    <Fieldset data-testid="requestedPickupDateFieldSet">
+                      {isRequestedPickupDateAlertVisible && !isRequestedPickupDateInvalid && (
+                        <Alert
+                          type="warning"
+                          aria-live="polite"
+                          headingLevel="h4"
+                          data-testid="requestedPickupDateAlert"
+                        >
                           {requestedPickupDateAlertMessage}
                         </Alert>
                       )}
@@ -930,7 +959,7 @@ const ShipmentForm = (props) => {
                         name="pickup.requestedDate"
                         label="Requested pickup date"
                         id="requestedPickupDate"
-                        validate={validateDate}
+                        validate={validatePickupDate}
                         onChange={handlePickupDateChange}
                       />
                     </Fieldset>
