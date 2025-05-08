@@ -4246,10 +4246,16 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
 	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    mto,
 			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate: futureDate,
+			},
 		},
 	}, nil)
 

@@ -79,16 +79,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	ppmEstimator := &mocks.PPMEstimator{}
 	setupPricerData := func() {
-		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Contract:             contract,
-				ContractID:           contract.ID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 12),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 
