@@ -67,6 +67,11 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 			},
 		}, nil)
 
+		// factory customizations aren't working for status
+		paymentRequest.MoveTaskOrder.MTOShipments[1].Status = models.MTOShipmentStatusApproved
+		err := suite.DB().Save(&paymentRequest.MoveTaskOrder.MTOShipments[1])
+		suite.NoError(err)
+
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -79,7 +84,6 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 			},
 		})
 
-		var err error
 		paramLookup, err = ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 	}

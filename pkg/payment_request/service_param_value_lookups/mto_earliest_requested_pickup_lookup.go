@@ -20,7 +20,7 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 	// Get the MoveTaskOrder
 	moveTaskOrderID := keyData.MoveTaskOrderID
 	var moveTaskOrder models.Move
-	err := db.EagerPreload("MTOShipments").Find(&moveTaskOrder, moveTaskOrderID)
+	err := db.EagerPreload("MTOShipments", "MTOShipments.Status").Find(&moveTaskOrder, moveTaskOrderID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -36,7 +36,7 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 			earliestPickupDate = shipment.RequestedPickupDate
 		}
 
-		if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.RequestedPickupDate.Before(*earliestPickupDate) && shipment.DeletedAt == nil {
+		if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.RequestedPickupDate.Before(*earliestPickupDate) && shipment.DeletedAt == nil && shipment.Status == models.MTOShipmentStatusApproved {
 			earliestPickupDate = shipment.RequestedPickupDate
 		}
 	}
