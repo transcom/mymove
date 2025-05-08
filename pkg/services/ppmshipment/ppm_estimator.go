@@ -364,19 +364,24 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	// This allows us to ensure the final incentive calculates with the actual weight, allowable weight, or total weight,
 	// whichever is lowest.
 	var move models.Move
+	var entitlement models.WeightAllotment
 	err = appCtx.DB().Q().Eager(
 		"Orders.Entitlement",
 	).Where("show = TRUE").Find(&move, newPPMShipment.Shipment.MoveTaskOrderID)
 	if err != nil {
 		return nil, apperror.NewNotFoundError(newPPMShipment.ID, " error querying move")
 	}
-	waf := entitlements.NewWeightAllotmentFetcher()
-	entitlements, err := waf.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	if move.Orders.Grade != nil {
+		waf := entitlements.NewWeightAllotmentFetcher()
+		entitlement, err = waf.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
+	} else {
+		return nil, apperror.NewNotFoundError(move.ID, " error querying orders grade for move")
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	allotment := entitlements.TotalWeightSelfPlusDependents
+	allotment := entitlement.TotalWeightSelfPlusDependents
 
 	if newTotalWeight > unit.Pound(allotment) {
 		newTotalWeight = unit.Pound(allotment)
@@ -403,21 +408,28 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				if err != nil {
 					return nil, err
 				}
-				if *finalIncentive > *oldPPMShipment.MaxIncentive {
-					finalIncentive = oldPPMShipment.MaxIncentive
+				if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
+					if *finalIncentive > *oldPPMShipment.MaxIncentive {
+						finalIncentive = oldPPMShipment.MaxIncentive
+					}
+					return finalIncentive, nil
+				} else {
+					return nil, apperror.NewInternalServerError("Failed to calculate PPM Incentive: Incentives missing")
 				}
-				return finalIncentive, nil
 			}
 		} else {
 			finalIncentive = nil
 
 			return finalIncentive, nil
 		}
-
-		if *finalIncentive > *oldPPMShipment.MaxIncentive {
-			finalIncentive = oldPPMShipment.MaxIncentive
+		if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
+			if *finalIncentive > *oldPPMShipment.MaxIncentive {
+				finalIncentive = oldPPMShipment.MaxIncentive
+			}
+			return finalIncentive, nil
+		} else {
+			return nil, apperror.NewInternalServerError("Failed to calculate PPM Incentive: Incentives missing")
 		}
-		return finalIncentive, nil
 	} else {
 		pickupAddress := newPPMShipment.PickupAddress
 		destinationAddress := newPPMShipment.DestinationAddress
@@ -428,10 +440,14 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			if err != nil {
 				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
-			if *finalIncentive > *oldPPMShipment.MaxIncentive {
-				finalIncentive = oldPPMShipment.MaxIncentive
+			if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
+				if *finalIncentive > *oldPPMShipment.MaxIncentive {
+					finalIncentive = oldPPMShipment.MaxIncentive
+				}
+				return finalIncentive, nil
+			} else {
+				return nil, apperror.NewInternalServerError("Failed to calculate PPM Incentive: Incentives missing")
 			}
-			return finalIncentive, nil
 		} else {
 			return nil, nil
 		}
