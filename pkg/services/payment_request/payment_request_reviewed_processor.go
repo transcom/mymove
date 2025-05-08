@@ -70,6 +70,9 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
 	v := viper.New()
 	flag := pflag.CommandLine
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
 	cli.InitEmailFlags(flag)
 	notificationSender, notificationErr := notifications.InitEmail(v, appCtx.Logger())
 	if notificationErr != nil {

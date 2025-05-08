@@ -14,15 +14,30 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import CertificationText from 'components/CertificationText/CertificationText';
 
 const SubmitMoveForm = (props) => {
-  const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser } = props;
+  const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser, isMoveLocked } = props;
   const [hasReadTheAgreement, setHasReadTheAgreement] = useState(false);
   const [hasAcknowledgedTerms, sethasAcknowledgedTerms] = useState(false);
+
+  const normalizeString = (str) => {
+    return str
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/[^\w\s]/gi, '');
+  };
+
+  const compareSignature = (signature, fullName) => {
+    const normalizedSignature = normalizeString(signature);
+    const normalizedFullName = normalizeString(fullName);
+
+    return normalizedSignature === normalizedFullName;
+  };
 
   const validationSchema = Yup.object().shape({
     signature: Yup.string()
       .required('Required')
       .test('matches-user-name', 'Typed signature must match your exact user name', (signature) => {
-        return signature.toLowerCase() === currentUser.toLowerCase();
+        return compareSignature(signature, currentUser);
       }),
     date: Yup.date().required(),
   });
@@ -139,7 +154,7 @@ const SubmitMoveForm = (props) => {
               <WizardNavigation
                 isLastPage
                 onBackClick={onBack}
-                disableNext={!isValid || isSubmitting || !dirty || !hasAcknowledgedTerms}
+                disableNext={!isValid || isSubmitting || !dirty || !hasAcknowledgedTerms || isMoveLocked}
                 onNextClick={handleSubmit}
               />
             </div>
