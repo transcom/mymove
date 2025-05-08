@@ -49,7 +49,9 @@ const ServiceItemCalculations = ({
 
   function checkItemCode(code) {
     switch (code) {
-      case (SERVICE_ITEM_CODES.FSC, SERVICE_ITEM_CODES.DOSFSC, SERVICE_ITEM_CODES.DDSFSC):
+      case ((SERVICE_ITEM_CODES.FSC, SERVICE_ITEM_CODES.DOSFSC, SERVICE_ITEM_CODES.DDSFSC),
+      SERVICE_ITEM_CODES.IOSFSC,
+      SERVICE_ITEM_CODES.IDSFSC):
         return true;
       default:
         return false;
