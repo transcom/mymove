@@ -37,11 +37,11 @@ const DocViewerContent = ({
             </Button>
             {['jpg', 'jpeg', 'gif', 'png', 'pdf'].includes(fileType) && (
               <>
-                <Button type="button" unstyled onClick={handleRotateLeft}>
+                <Button data-testid="rotateLeftButton" type="button" unstyled onClick={handleRotateLeft}>
                   <FontAwesomeIcon icon="rotate-left" title="Rotate left" aria-label="Rotate left" />
                   Rotate left
                 </Button>
-                <Button type="button" unstyled onClick={handleRotateRight}>
+                <Button data-testid="rotateRightButton" type="button" unstyled onClick={handleRotateRight}>
                   <FontAwesomeIcon icon="rotate-right" title="Rotate right" aria-label="Rotate right" />
                   Rotate right
                 </Button>
