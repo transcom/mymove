@@ -251,11 +251,9 @@ describe('DocumentViewerFileManager', () => {
     fireEvent.click(screen.getByText('Manage Orders'));
 
     const uploadButton = screen.getByTestId('file-upload-input');
-    const mockFile = new File(['content'], 'orders', { type: 'application/pdf' });
+    const mockFile = new File(['content'], 'weight_ticket.pdf', { type: 'application/pdf' });
 
     fireEvent.click(uploadButton);
-
-    await createUploadForDocument(mockFile, 'document-id');
 
     expect(createUploadForDocument).toHaveBeenCalledWith(mockFile, 'document-id');
   });
@@ -268,13 +266,11 @@ describe('DocumentViewerFileManager', () => {
     fireEvent.click(screen.getByText('Show Custom Title'));
 
     const uploadButton = screen.getByTestId('file-upload-input');
-    const mockFile = new File(['content'], 'weight_ticket', { type: 'application/pdf' });
+    const mockFile = new File(['content'], 'weight_ticket.pdf', { type: 'application/pdf' });
 
     fireEvent.click(uploadButton);
 
-    await createUploadForPPMDocument(mockFile, 'mtoShipment-id');
-
-    expect(createUploadForPPMDocument).toHaveBeenCalledWith(mockFile, 'mtoShipment-id');
+    expect(createUploadForPPMDocument).toHaveBeenCalledWith('ppm-id', 'document-id', mockFile, true);
   });
 
   it('uploads an amended orders document successfully', async () => {
@@ -285,13 +281,10 @@ describe('DocumentViewerFileManager', () => {
     fireEvent.click(screen.getByText('Manage Amended Orders'));
 
     const uploadButton = screen.getByTestId('file-upload-input');
-    const mockFile = new File(['content'], 'amended-orders', { type: 'application/pdf' });
-
+    const mockFile = new File(['content'], 'amended-orders.pdf', { type: 'application/pdf' });
     fireEvent.click(uploadButton);
 
-    await createUploadForAmdendedOrders(mockFile, 'document-id');
-
-    expect(createUploadForAmdendedOrders).toHaveBeenCalledWith(mockFile, 'document-id');
+    expect(createUploadForAmdendedOrders).toHaveBeenCalledWith(mockFile, 'order-id');
   });
 
   it('displays an error message when the upload fails', async () => {
