@@ -17,8 +17,9 @@ export function isPPMShipmentComplete(mtoShipment) {
 export function isPPMAboutInfoComplete(ppmShipment) {
   const hasBaseRequiredFields = [
     'actualMoveDate',
-    'actualPickupPostalCode',
-    'actualDestinationPostalCode',
+    'pickupAddress',
+    'destinationAddress',
+    'w2Address',
     'hasReceivedAdvance',
   ].every((fieldName) => ppmShipment[fieldName] !== null);
 
