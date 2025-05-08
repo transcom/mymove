@@ -1,6 +1,6 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 
 
 .grid-container {
@@ -57,38 +57,25 @@
 }
 
 .centeredContainer {
-    display: flex;
-    justify-content: center;
+    @include mix-mm-conditional-centering-container($media-breaks-tablet,$media-breaks-mobile){
+      @include mix-mm-button-standard-placement();
+    }
   }
 
 .createMoveBtn {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    @include u-margin-top(-1);
-    span {
-      @include u-margin-right(.5em)
-    }
-
-    @media (max-width: $tablet) {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      span {
-        @include u-margin-right(0);
-      }
-    }
-  }
+  @include u-margin-top(-1);
+  @extend  .usa-button--primary;
+  @include mix-mm-justify-stretch-within-container();
+}
 
 .movesContainer {
-    border: 1px solid $base-lighter;
-    border-radius: 3px;
-    margin-top: 1rem;
-    padding-top: 1vh;
-    padding-left: 2vw;
-    padding-right: 2vw;
-    padding-bottom: 2vh;
+  border: 1px solid $base-lighter;
+  border-radius: 3px;
+  margin-top: 1rem;
+
+  @include mix-mm-flex-stacking-container-with-gap(){
+    padding: 1.5rem;
+  }
 }
 
 .flashMessage {

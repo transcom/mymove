@@ -1,0 +1,31 @@
+@use 'shared/standardUI/Generic/build' as *;
+@use 'shared/standardUI/Layouts/breaks' as *;
+
+$gap-value: 1rem;
+
+@mixin mix-mm-flex-stacking-container-with-gap(){
+    gap: $gap-value;
+    display: flex;
+    flex-direction: column;
+    @content;
+}
+
+@mixin mix-mm-conditional-centering-container($breaks...){
+    --justify-state: unset;
+    display: block;
+    @each $b in $breaks {
+        @include mix-at-media($b) using ($selector, $media-break){
+            --justify-state: stretch;
+            display: block;
+        }
+    }
+    @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+        @content;
+    }
+}
+
+@mixin mix-mm-justify-stretch-within-container(){
+    justify-self: var(--justify-state, unset);
+    display: block;
+    @content;
+}

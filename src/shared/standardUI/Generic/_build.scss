@@ -1,0 +1,74 @@
+@use "sass:map";
+@use "sass:string";
+@use "sass:selector";
+@use 'sass:list';
+@use 'shared/standardUI/Layouts/breaks' as breaks;
+
+$media-breaks: breaks.get-all-breaks(breaks.$get);
+
+@function get-break-value($media-break-param){
+    @if($media-break-param == null){
+        @return null;
+    }
+    $key: map-get($map: $media-break-param, $key: value);
+    @return "#{$key}";
+}
+
+@function get-break-label($media-break-param){
+    @if($media-break-param == null){
+        @return null;
+    }
+    $prefix: map-get($map: $media-break-param, $key: prefix);
+    @return #{$prefix};
+}
+
+@mixin mix-assign-media($media-break-param) {
+    @if($media-break-param != null){
+        $media-break: #{get-break-value($media-break-param)};
+
+        @media #{$media-break} {
+            @content;
+        }
+    }
+    @if($media-break-param == null){
+            @content;
+    }
+}
+
+@mixin generate_reference_selectors($breaks...){
+    $len: list.length($breaks);
+    @if($len == 0){
+        $breaks: $media-breaks;
+    }
+    @each $media-break in $breaks {
+        @include mix-assign-media($media-break) {
+            $selector: null;
+            @if($media-break == null){
+                $selector: normal;
+            }
+            @if($media-break != null){
+                $selector: get-break-label($media-break);
+            }
+            @content($selector, $media-break);
+        }
+    }
+}
+
+@mixin mix-at-media($breaks...){
+    $len: list.length($breaks);
+    @if($len == 0){
+        $breaks: $media-breaks;
+    }
+    @each $media-break in $breaks {
+        @include mix-assign-media($media-break) {
+            $selector: null;
+            @if($media-break == null){
+                $selector: normal;
+            }
+            @if($media-break != null){
+                $selector: get-break-label($media-break);
+            }
+            @content($selector, $media-break);
+        }
+    }
+}

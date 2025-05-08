@@ -1,0 +1,30 @@
+// styling for positioning children of elements, or their contents.
+@use '../variables/spatial';
+@use 'sass:selector';
+@use  'shared/standardUI/Generic/build' as build;
+
+$displayProperty: flex;
+$default-flex-direction: row;
+
+@mixin mix-grid-row-placement-positioning() {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr;
+    grid-auto-columns: auto;
+}
+
+@mixin mix-grid-column-placement-positioning() {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr;
+    grid-auto-columns: auto;
+}
+
+@mixin mix-justify-all($value){
+    justify-items: $value;
+    justify-content: $value;
+}
+
+@mixin mix-mm-button-standard-placement(){
+    @include mix-justify-all(right);
+}

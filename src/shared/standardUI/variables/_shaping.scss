@@ -1,0 +1,7 @@
+// variable convention
+// <property type prefix> - <size> - <label>
+// <property type prefix> - <typical component>: variable size reference or literal size value.
+
+$border-radius-size-regular: 0.2666666667rem;
+
+$border-radius-button: $border-radius-size-regular;
