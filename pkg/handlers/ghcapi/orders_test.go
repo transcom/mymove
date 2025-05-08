@@ -1191,7 +1191,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		order := subtestData.order
 		body := subtestData.body
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateOrderParams{
@@ -1666,7 +1666,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{

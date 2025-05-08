@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -353,7 +354,15 @@ func (suite *HandlerSuite) TestDeleteWeightTicketHandler() {
 	suite.Run("DELETE failure - 403 - permission denied - wrong application / user", func() {
 		subtestData := makeDeleteSubtestData(false)
 
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{{
+			Model: models.User{
+				Roles: roles.Roles{
+					{
+						RoleType: roles.RoleTypeTOO,
+					},
+				},
+			},
+		}}, nil)
 
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)

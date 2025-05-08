@@ -11,6 +11,7 @@ import (
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/address"
 	transportationofficeservice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
@@ -102,7 +103,15 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerUnauthorized() {
 }
 
 func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
-	officeUser := factory.BuildOfficeUser(nil, nil, nil)
+	officeUser := factory.BuildOfficeUser(nil, []factory.Customization{{
+		Model: models.User{
+			Roles: roles.Roles{
+				{
+					RoleType: roles.RoleTypeTOO,
+				},
+			},
+		},
+	}}, nil)
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
 
 	req := httptest.NewRequest("GET", "/transportation_offices", nil)

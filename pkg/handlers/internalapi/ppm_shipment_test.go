@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -569,7 +570,15 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 
 		request, params := setUpRequestAndParams(ppmShipment, false, false)
 
-		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		officeUser := factory.BuildOfficeUser(nil, []factory.Customization{{
+			Model: models.User{
+				Roles: roles.Roles{
+					{
+						RoleType: roles.RoleTypeTOO,
+					},
+				},
+			},
+		}}, nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params.HTTPRequest = request
 
