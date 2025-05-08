@@ -434,7 +434,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 
 			officeUserDB, err := models.FetchOfficeUserByID(appCtx.DB(), officeUserID)
 
-			if officeUserDB.ID == uuid.Nil || err != nil {
+			if err != nil {
 				appCtx.Logger().Error("Error fetching office user", zap.Error(err))
 				return officeuserop.NewUpdateOfficeUserNotFound(), err
 			}

@@ -204,20 +204,6 @@ export const oktaInfoSchema = Yup.object().shape({
 export const otherUniqueIdErrorMsg = 'Only accepts alphanumeric characters';
 export const middleInitialErrorMsg = 'Must be a single uppercase character';
 
-// Validation method for Office Account Request Form checkbox fields
-const validateRoleRequestedMethod = (value, testContext) => {
-  return (
-    testContext.parent.taskOrderingOfficerCheckBox ||
-    testContext.parent.taskInvoicingOfficerCheckBox ||
-    testContext.parent.servicesCounselorCheckBox ||
-    testContext.parent.transportationContractingOfficerCheckBox ||
-    testContext.parent.qualityAssuranceEvaluatorCheckBox ||
-    testContext.parent.headquartersCheckBox ||
-    testContext.parent.customerSupportRepresentativeCheckBox ||
-    testContext.parent.governmentSurveillanceRepresentativeCheckbox
-  );
-};
-
 const validateOtherUniqueId = (value, testContext) => {
   if (testContext.parent.officeAccountRequestOtherUniqueId || testContext.parent.officeAccountRequestEdipi) {
     return true;
@@ -232,15 +218,6 @@ const validateEdipi = (value, testContext) => {
   }
 
   return false;
-};
-
-// It is TRANSCOM policy that an individual person may only be either a TIO or TOO, never both.
-const validateOnlyOneTransportationOfficerRole = (value, testContext) => {
-  const { taskOrderingOfficerCheckBox, taskInvoicingOfficerCheckBox } = testContext.parent;
-  if (taskOrderingOfficerCheckBox && taskInvoicingOfficerCheckBox) {
-    return false;
-  }
-  return true;
 };
 
 export const officeAccountRequestSchema = Yup.object().shape({
@@ -278,49 +255,44 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .oneOf([Yup.ref('officeAccountRequestEmail'), null], 'Emails must match')
     .required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
-  taskOrderingOfficerCheckBox: Yup.bool()
-    .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
-    .test(
-      'onlyOneTransportationOfficerRole',
-      'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
-      validateOnlyOneTransportationOfficerRole,
-    ),
-  taskInvoicingOfficerCheckBox: Yup.bool()
-    .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
-    .test(
-      'onlyOneTransportationOfficerRole',
-      'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
-      validateOnlyOneTransportationOfficerRole,
-    ),
-  servicesCounselorCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
+  taskOrderingOfficerCheckBox: Yup.bool(),
+  taskInvoicingOfficerCheckBox: Yup.bool(),
+  transportationOfficerRoleConflict: Yup.mixed().test(
+    'onlyOneTransportationOfficerRole',
+    'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.',
+    function validateConflict(_, context) {
+      const { taskOrderingOfficerCheckBox, taskInvoicingOfficerCheckBox } = context.parent;
+      return !(taskOrderingOfficerCheckBox && taskInvoicingOfficerCheckBox);
+    },
   ),
-  transportationContractingOfficerCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
+  requestedRolesGroup: Yup.mixed().test(
+    'atLeastOneRole',
     'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
-  qualityAssuranceEvaluatorCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
-  headquartersCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
-  customerSupportRepresentativeCheckBox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
-  ),
-  governmentSurveillanceRepresentativeCheckbox: Yup.bool().test(
-    'roleRequestedRequired',
-    'You must select at least one role.',
-    validateRoleRequestedMethod,
+    function atLeastOneRoleValidator(_, context) {
+      const {
+        taskOrderingOfficerCheckBox,
+        taskInvoicingOfficerCheckBox,
+        servicesCounselorCheckBox,
+        transportationContractingOfficerCheckBox,
+        qualityAssuranceEvaluatorCheckBox,
+        headquartersCheckBox,
+        customerSupportRepresentativeCheckBox,
+        governmentSurveillanceRepresentativeCheckbox,
+      } = context.parent;
+
+      const values = [
+        taskOrderingOfficerCheckBox,
+        taskInvoicingOfficerCheckBox,
+        servicesCounselorCheckBox,
+        transportationContractingOfficerCheckBox,
+        qualityAssuranceEvaluatorCheckBox,
+        headquartersCheckBox,
+        customerSupportRepresentativeCheckBox,
+        governmentSurveillanceRepresentativeCheckbox,
+      ];
+
+      return values.some(Boolean);
+    },
   ),
 });
 
