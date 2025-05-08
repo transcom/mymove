@@ -33,6 +33,10 @@ export const Modal = ({ title, children, actions, className, onClose }) => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      /** Ignores hidden modals in the DOM */
+      const modal = modalRef.current;
+      if (!modal || modal.offsetParent === null) return;
+
       if (event.key === 'Escape') {
         onClose?.();
         return;
