@@ -29,6 +29,7 @@ DECLARE
     length NUMERIC;
     width NUMERIC;
     height NUMERIC;
+	cubic_feet NUMERIC;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
     INTO shipment
@@ -92,14 +93,14 @@ BEGIN
             WHEN service_code IN (''ICRT'') THEN
                 contract_id := get_contract_id(shipment.requested_pickup_date);
                 o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, NULL);
 
                 SELECT INTO length, height, width length_thousandth_inches, height_thousandth_inches, width_thousandth_inches
                 FROM mto_service_item_dimensions
-                WHERE mto_service_item_id = service_item.id;
+                WHERE mto_service_item_id = service_item.id AND type = ''CRATE'';
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (((length/1000) * (width/1000) * (height/1000)) / 100)), 2) * 100;
+                    estimated_price := ROUND((escalated_price * ((length/100) * (width/100) * (height/100)) / 17280), 2);
 					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
@@ -108,15 +109,15 @@ BEGIN
                 END IF;
             WHEN service_code IN (''IUCRT'') THEN
                 contract_id := get_contract_id(shipment.requested_pickup_date);
-                d_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
-                escalated_price := calculate_escalated_price(d_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date);
+                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
+                escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code, shipment.requested_pickup_date, NULL);
 
                 SELECT INTO length, height, width length_thousandth_inches, height_thousandth_inches, width_thousandth_inches
                 FROM mto_service_item_dimensions
-                WHERE mto_service_item_id = service_item.id;
+                WHERE mto_service_item_id = service_item.id AND type = ''CRATE'';;
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * (((length/1000) * (width/1000) * (height/1000)) / 100)), 2) * 100;
+                    estimated_price := ROUND((escalated_price * ((length/100) * (width/100) * (height/100)) / 17280), 2);
 					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
