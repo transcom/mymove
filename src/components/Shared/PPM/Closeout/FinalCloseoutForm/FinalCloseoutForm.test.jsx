@@ -204,5 +204,55 @@ describe('FinalCloseoutForm component', () => {
       await userEvent.click(saveButton);
       await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
     });
+
+    it('validates the form after user input', async () => {
+      const mtoShipment = createPPMShipmentWithFinalIncentive();
+      render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsCustomer} />);
+
+      // Save should be visibly enabled when form is clean, but validate on submit attempt
+      const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+      expect(saveButton).toBeEnabled();
+      await userEvent.click(saveButton);
+
+      // Save should be disabled after invalid input
+      expect(await screen.getByTestId('errorMessage')).toBeInTheDocument();
+      expect(saveButton).toBeDisabled();
+
+      // Save should be re-enabled after valid input
+      const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+      await userEvent.type(signatureField, 'Grace Griffin');
+      await waitFor(() => expect(saveButton).toBeEnabled());
+      expect(screen.queryByTestId('errorMessage')).not.toBeInTheDocument();
+    });
+
+    it('calls onBack func when "Return To Homepage" button is clicked', async () => {
+      const mtoShipment = createPPMShipmentWithFinalIncentive();
+
+      render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsCustomer} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+
+      expect(defaultPropsCustomer.onBack).toHaveBeenCalled();
+    });
+
+    it('calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {
+      const mtoShipment = createPPMShipmentWithFinalIncentive();
+      const modifiedProps = {
+        ...defaultPropsCustomer,
+        initialValues: {
+          ...defaultPropsCustomer.initialValues,
+          signature: 'Grace Griffin',
+        },
+      };
+
+      render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
+
+      const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+      await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
+
+      const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+      await userEvent.click(saveButton);
+      await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
+    });
   });
 });
