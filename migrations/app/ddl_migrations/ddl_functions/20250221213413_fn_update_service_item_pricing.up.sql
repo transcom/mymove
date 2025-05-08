@@ -26,7 +26,9 @@ DECLARE
     length NUMERIC;
     width NUMERIC;
     height NUMERIC;
-	cubic_feet NUMERIC;
+    standalone BOOLEAN;
+    external BOOLEAN;
+    cubic_feet NUMERIC;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
     INTO shipment
@@ -96,8 +98,23 @@ BEGIN
                 FROM mto_service_item_dimensions
                 WHERE mto_service_item_id = service_item.id AND type = ''CRATE'';
 
+                SELECT INTO standalone, external standalone_crate, external_crate
+                FROM mto_service_items
+                WHERE id = service_item.id;
+
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * ((length/100) * (width/100) * (height/100)) / 17280), 2);
+                    cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
+                    
+                    IF cubic_feet < 4.0 AND external THEN 
+                        cubic_feet := 4.0;
+                    END IF;
+
+                    estimated_price := ROUND((escalated_price * cubic_feet), 2) * 100;
+
+                    IF estimated_price > 100000.00 AND standalone THEN 
+                        estimated_price := 100000.00;
+                    END IF;
+
 					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
@@ -111,10 +128,25 @@ BEGIN
 
                 SELECT INTO length, height, width length_thousandth_inches, height_thousandth_inches, width_thousandth_inches
                 FROM mto_service_item_dimensions
-                WHERE mto_service_item_id = service_item.id AND type = ''CRATE'';;
+                WHERE mto_service_item_id = service_item.id AND type = ''CRATE'';
+
+                SELECT INTO standalone, external standalone_crate, external_crate
+                FROM mto_service_items
+                WHERE id = service_item.id;
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    estimated_price := ROUND((escalated_price * ((length/100) * (width/100) * (height/100)) / 17280), 2);
+                    cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
+                    
+                    IF cubic_feet < 4.0 AND external THEN 
+                        cubic_feet := 4.0;
+                    END IF;
+
+                    estimated_price := ROUND((escalated_price * cubic_feet), 2) * 100;
+
+                    IF estimated_price > 100000.00 AND standalone THEN 
+                        estimated_price := 100000.00;
+                    END IF;
+
 					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
