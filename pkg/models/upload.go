@@ -21,13 +21,13 @@ const (
 	// AVStatusPROCESSING string PROCESSING
 	AVStatusPROCESSING AVStatusType = "PROCESSING"
 	// AVStatusCLEAN string CLEAN
-	AVStatusCLEAN AVStatusType = "CLEAN"
+	AVStatusCLEAN AVStatusType = "NO_THREATS_FOUND"
 	// AVStatusINFECTED string INFECTED
-	AVStatusINFECTED AVStatusType = "INFECTED"
+	AVStatusINFECTED AVStatusType = "THREATS_FOUND"
 )
 
 func GetAVStatusFromTags(tags map[string]string) AVStatusType {
-	if status, exists := tags["av-status"]; exists {
+	if status, exists := tags["GuardDutyMalwareScanStatus"]; exists {
 		return AVStatusType(status)
 	}
 	return AVStatusType(AVStatusPROCESSING)
