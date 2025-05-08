@@ -1,3 +1,5 @@
+-- B-23565 Ricky Mettler initial view creation
+
 CREATE OR REPLACE VIEW v_intl_locations AS
 select icc.id icc_id,
 	   c.city_name,
