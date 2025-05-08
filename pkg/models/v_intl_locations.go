@@ -12,7 +12,7 @@ type VIntlLocation struct {
 	CountryPrnDivName    *string                `db:"country_prn_dv_nm" json:"country_prn_dv_nm" rw:"r"`
 	CountryPrnDivCode    *string                `db:"country_prn_dv_cd" json:"country_prn_dv_cd" rw:"r"`
 	CountryCode          *string                `db:"country" json:"country" rw:"r"`
-	IntlCityId           *uuid.UUID             `db:"cities_id" json:"cities_id" rw:"r"`
+	IntlCityId           *uuid.UUID             `db:"intl_cities_id" json:"intl_cities_id" rw:"r"`
 	IntlCity             *IntlCity              `belongs_to:"re_intl_cities" fk_id:"intl_cities_id" rw:"r"`
 	CountryPrnDivisionID *uuid.UUID             `db:"country_prn_division_id" json:"country_prn_division_id" rw:"r"`
 	CountryPrnDivision   *ReCountryPrnDivisions `belongs_to:"re_country_prn_divisions" fk_id:"country_prn_division_id" rw:"r"`
