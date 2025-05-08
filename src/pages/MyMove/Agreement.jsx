@@ -11,12 +11,12 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import { submitMoveForApproval } from 'services/internalApi';
-import { selectCurrentMove } from 'store/entities/selectors';
+import { selectCurrentMove, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { formatSwaggerDate } from 'utils/formatters';
+import { formatServiceMemberNameToString, formatSwaggerDate } from 'utils/formatters';
 
-export const Agreement = ({ updateMove, setFlashMessage }) => {
+export const Agreement = ({ updateMove, setFlashMessage, serviceMember }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
   const { moveId } = useParams();
@@ -29,6 +29,13 @@ export const Agreement = ({ updateMove, setFlashMessage }) => {
   const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
   const handleBack = () => navigate(reviewPath);
+
+  const getServiceMemberName = (loggedInUser) => {
+    if (loggedInUser) {
+      return formatServiceMemberNameToString(serviceMember);
+    }
+    return '';
+  };
 
   const handleSubmit = (values) => {
     const submitDate = moment().format();
@@ -62,6 +69,7 @@ export const Agreement = ({ updateMove, setFlashMessage }) => {
             onBack={handleBack}
             onSubmit={handleSubmit}
             certificationText={completeCertificationText}
+            currentUser={getServiceMemberName(serviceMember)}
             error={serverError}
           />
         </Grid>
@@ -77,9 +85,11 @@ Agreement.propTypes = {
 
 const mapStateToProps = (state) => {
   const move = selectCurrentMove(state);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
     move,
+    serviceMember,
   };
 };
 
