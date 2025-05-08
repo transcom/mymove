@@ -228,7 +228,7 @@ const TableQueue = ({
     gotoPage(0);
   }, [filters, gotoPage]);
 
-  if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
+  if (isLoading || (title === 'Move History' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
   const isDateFilterValue = (value) => {
     return !Number.isNaN(Date.parse(value));
