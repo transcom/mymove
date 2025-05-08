@@ -39,6 +39,7 @@ const OrdersDetailForm = ({
   formIsDisabled,
   hhgLongLineOfAccounting,
   ntsLongLineOfAccounting,
+  handleGradeRankChange,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -64,13 +65,16 @@ const OrdersDetailForm = ({
       />
       <DropdownInput
         data-testid="payGradeInput"
-        name="payGrade"
-        label="Pay grade"
-        id="payGradeInput"
+        name="payGradeRank"
+        label="Rank / Pay grade"
+        id="payGradeRankInput"
         options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
+        onChange={(e) => {
+          handleGradeRankChange(e);
+        }}
       />
       <DatePickerInput name="issueDate" label="Date issued" showRequiredAsterisk disabled={formIsDisabled} />
       <DatePickerInput name="reportByDate" label={reportDateRowLabel} showRequiredAsterisk disabled={formIsDisabled} />

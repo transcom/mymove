@@ -44,9 +44,6 @@ type CreateServiceMemberPayload struct {
 	// Example: John
 	FirstName *string `json:"first_name,omitempty"`
 
-	// grade
-	Grade *OrderPayGrade `json:"grade,omitempty"`
-
 	// Last name
 	// Example: Donut
 	LastName *string `json:"last_name,omitempty"`
@@ -62,6 +59,9 @@ type CreateServiceMemberPayload struct {
 
 	// Phone
 	PhoneIsPreferred *bool `json:"phone_is_preferred,omitempty"`
+
+	// rank
+	Rank *Rank `json:"rank,omitempty"`
 
 	// residential address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
@@ -106,11 +106,11 @@ func (m *CreateServiceMemberPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateGrade(formats); err != nil {
+	if err := m.validatePersonalEmail(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validatePersonalEmail(formats); err != nil {
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -206,25 +206,6 @@ func (m *CreateServiceMemberPayload) validateEdipi(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *CreateServiceMemberPayload) validateGrade(formats strfmt.Registry) error {
-	if swag.IsZero(m.Grade) { // not required
-		return nil
-	}
-
-	if m.Grade != nil {
-		if err := m.Grade.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grade")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *CreateServiceMemberPayload) validatePersonalEmail(formats strfmt.Registry) error {
 	if swag.IsZero(m.PersonalEmail) { // not required
 		return nil
@@ -232,6 +213,25 @@ func (m *CreateServiceMemberPayload) validatePersonalEmail(formats strfmt.Regist
 
 	if err := validate.Pattern("personal_email", "body", *m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateServiceMemberPayload) validateRank(formats strfmt.Registry) error {
+	if swag.IsZero(m.Rank) { // not required
+		return nil
+	}
+
+	if m.Rank != nil {
+		if err := m.Rank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("rank")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -304,7 +304,7 @@ func (m *CreateServiceMemberPayload) ContextValidate(ctx context.Context, format
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateGrade(ctx, formats); err != nil {
+	if err := m.contextValidateRank(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -360,19 +360,19 @@ func (m *CreateServiceMemberPayload) contextValidateBackupMailingAddress(ctx con
 	return nil
 }
 
-func (m *CreateServiceMemberPayload) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
+func (m *CreateServiceMemberPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.Grade != nil {
+	if m.Rank != nil {
 
-		if swag.IsZero(m.Grade) { // not required
+		if swag.IsZero(m.Rank) { // not required
 			return nil
 		}
 
-		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
+				return ve.ValidateName("rank")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grade")
+				return ce.ValidateName("rank")
 			}
 			return err
 		}

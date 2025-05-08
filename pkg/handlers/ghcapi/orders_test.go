@@ -53,6 +53,9 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
+	customAffiliation := models.AffiliationARMY
+
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
 
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -78,6 +81,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
 		Grade:                ghcmessages.GradeE1.Pointer(),
 		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
+		Rank:                 strfmt.UUID(rank.ID.String()),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -114,6 +118,8 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 
 	customAffiliation := models.AffiliationARMY
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
+
 	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -207,6 +213,7 @@ func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
 		AccompaniedTour:         &accompaniedTour,
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
+		Rank:                    strfmt.UUID(rank.ID.String()),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -270,6 +277,9 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 			},
 		},
 	}, nil)
+	// customAffiliation := models.AffiliationARMY
+
+	rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
 
 	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
@@ -342,6 +352,7 @@ func (suite *HandlerSuite) TestCreateOrderWithCivilianTDYUBAllowanceValues() {
 		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
 		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
 		CivilianTdyUbAllowance:  models.Int64Pointer(350),
+		Rank:                    strfmt.UUID(rank.ID.String()),
 	}
 
 	params := orderop.CreateOrderParams{
@@ -2815,6 +2826,9 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 	orderUpdater := orderservice.NewOrderUpdater(moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher()))
+	// customAffiliation := models.AffiliationARMY
+
+	// rank := factory.FetchOrBuildRankByPayGradeAndAffiliation(suite.DB(), string(models.ServiceMemberGradeE4), customAffiliation.String())
 
 	setUpRequestAndParams := func(orders models.Order) *orderop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())
