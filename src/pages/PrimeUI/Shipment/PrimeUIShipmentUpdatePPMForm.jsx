@@ -36,7 +36,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <AddressFields
         name="ppmShipment.pickupAddress"
         legend="Pickup Address"
-        locationLookup
         formikProps={{
           setFieldTouched,
           setFieldValue,
@@ -78,7 +77,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
               <>
                 <AddressFields
                   name="ppmShipment.secondaryPickupAddress"
-                  locationLookup
                   formikProps={{
                     setFieldTouched,
                     setFieldValue,
@@ -116,7 +114,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                 {hasTertiaryPickupAddress === 'true' && (
                   <AddressFields
                     name="ppmShipment.tertiaryPickupAddress"
-                    locationLookup
                     formikProps={{
                       setFieldTouched,
                       setFieldValue,
@@ -133,7 +130,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         name="ppmShipment.destinationAddress"
         legend="Delivery Address"
         address1LabelHint="Optional"
-        locationLookup
         formikProps={{
           setFieldTouched,
           setFieldValue,
@@ -174,7 +170,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
               <>
                 <AddressFields
                   name="ppmShipment.secondaryDestinationAddress"
-                  locationLookup
                   formikProps={{
                     setFieldTouched,
                     setFieldValue,
@@ -212,7 +207,6 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                 {hasTertiaryDestinationAddress === 'true' && (
                   <AddressFields
                     name="ppmShipment.tertiaryDestinationAddress"
-                    locationLookup
                     formikProps={{
                       setFieldTouched,
                       setFieldValue,
