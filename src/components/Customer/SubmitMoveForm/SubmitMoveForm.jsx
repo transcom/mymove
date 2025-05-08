@@ -14,7 +14,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import CertificationText from 'components/CertificationText/CertificationText';
 
 const SubmitMoveForm = (props) => {
-  const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser } = props;
+  const { initialValues, onPrint, onSubmit, onBack, certificationText, error, currentUser, isMoveLocked } = props;
   const [hasReadTheAgreement, setHasReadTheAgreement] = useState(false);
   const [hasAcknowledgedTerms, sethasAcknowledgedTerms] = useState(false);
 
@@ -154,7 +154,7 @@ const SubmitMoveForm = (props) => {
               <WizardNavigation
                 isLastPage
                 onBackClick={onBack}
-                disableNext={!isValid || isSubmitting || !dirty || !hasAcknowledgedTerms}
+                disableNext={!isValid || isSubmitting || !dirty || !hasAcknowledgedTerms || isMoveLocked}
                 onNextClick={handleSubmit}
               />
             </div>
