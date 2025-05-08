@@ -1291,7 +1291,7 @@ describe('MoveDetails page', () => {
 
       renderComponent();
 
-      expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Move Details', level: 1 })).toBeInTheDocument();
     });
 
     it.each([['Shipments'], ['Orders'], ['Allowances'], ['Customer info']])(
