@@ -26,7 +26,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import { profileStates } from 'constants/customerStates';
 import { getAllMoves } from 'services/internalApi';
-import { milmoveHelpDesk, MULTI_MOVE_LOCKED_WARNING } from 'shared/constants';
+import { milmoveHelpDesk, MOVE_STATUSES, MULTI_MOVE_LOCKED_WARNING } from 'shared/constants';
 
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves, setCanAddOrders }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
@@ -89,7 +89,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
   const now = new Date();
   const lockedMovePresent = [...serviceMemberMoves.currentMove, ...serviceMemberMoves.previousMoves].some((move) => {
     const expires = new Date(move?.lockExpiresAt);
-    return expires > now;
+    return move?.status === MOVE_STATUSES.DRAFT && expires > now;
   });
 
   return (

@@ -5513,6 +5513,11 @@ func init() {
           "type": "string",
           "example": "12432"
         },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
         },
@@ -14941,6 +14946,11 @@ func init() {
         "locator": {
           "type": "string",
           "example": "12432"
+        },
+        "lockExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"

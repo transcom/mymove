@@ -217,6 +217,10 @@ definitions:
         readOnly: true
       additionalDocuments:
         $ref: '#/definitions/Document'
+      lockExpiresAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
