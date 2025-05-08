@@ -153,20 +153,28 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
           const { checked } = e.target;
           if (checked) {
             // use current residence
-            setValues({
-              ...values,
-              pickupAddress: {
-                address: residentialAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  ...values.pickup,
+                  address: residentialAddress,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           } else {
             // Revert address
-            setValues({
-              ...values,
-              pickupAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                pickupAddress: {
+                  ...values.pickup,
+                  address: blankAddress.address,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -177,17 +185,22 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
             setValues({
               ...values,
               destinationAddress: {
+                ...values.destinationAddress,
                 address: destinationDutyAddress,
               },
             });
           } else {
             // Revert address
-            setValues({
-              ...values,
-              destinationAddress: {
-                blankAddress,
+            setValues(
+              {
+                ...values,
+                destinationAddress: {
+                  ...values.destinationAddress,
+                  address: blankAddress.address,
+                },
               },
-            });
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -199,7 +212,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="pickupAddress.address"
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   render={(fields) => (
                     <>
@@ -251,7 +263,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields
                             labelHint="Required"
                             name="secondaryPickupAddress.address"
-                            locationLookup
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -320,7 +331,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <AddressFields
                               labelHint="Required"
                               name="tertiaryPickupAddress.address"
-                              locationLookup
                               formikProps={formikProps}
                             />
                           </>
@@ -334,7 +344,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="destinationAddress.address"
                   labelHint="Required"
-                  locationLookup
                   formikProps={formikProps}
                   // White spaces are used specifically to override incoming labelHint prop
                   // not to display anything.
@@ -396,7 +405,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields
                             name="secondaryDestinationAddress.address"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -466,7 +474,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             <AddressFields
                               name="tertiaryDestinationAddress.address"
                               labelHint="Required"
-                              locationLookup
                               formikProps={formikProps}
                             />
                           </>

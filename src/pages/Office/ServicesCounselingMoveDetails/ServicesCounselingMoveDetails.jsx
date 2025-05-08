@@ -791,7 +791,7 @@ const ServicesCounselingMoveDetails = ({
               </Grid>
             )}
             <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
-              <h1>Move details</h1>
+              <h1>Move Details</h1>
               {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
                 <div>
                   {(counselorCanEdit || counselorCanEditNonPPM) && (
@@ -955,7 +955,7 @@ const ServicesCounselingMoveDetails = ({
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

@@ -92,7 +92,12 @@ func (suite *ModelSuite) TestFetchReIntlOtherPrice() {
 		suite.NoError(err)
 		suite.NotNil(reService)
 
-		contract := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{})
+		contract := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
+			},
+		})
 		moveDate := time.Now()
 
 		// no address
