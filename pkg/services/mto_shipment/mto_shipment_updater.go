@@ -364,26 +364,18 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 
-	var sitExtension models.SITDurationUpdate
-	actualDeliveryDate := oldShipment.ActualDeliveryDate
+	updatedActualDeliveryDate := mtoShipment.ActualDeliveryDate
 	originSITAuthEndDate := oldShipment.OriginSITAuthEndDate
 	destSITAuthEndDate := oldShipment.DestinationSITAuthEndDate
 
 	if hasSITExtension(appCtx, mtoShipment.ID) {
-		appCtx.DB().Q().Where("mto_shipment_id = ?", mtoShipment.ID).First(&sitExtension)
-		if actualDeliveryDate != nil && originSITAuthEndDate != nil {
-			if actualDeliveryDate.Before(*originSITAuthEndDate) || actualDeliveryDate.Equal(*originSITAuthEndDate) {
-				err = removeSitExstension(appCtx, sitExtension, mtoShipment.ID)
-				if err != nil {
-					return nil, err
-				}
+		if updatedActualDeliveryDate != nil && originSITAuthEndDate != nil {
+			if updatedActualDeliveryDate.Before(*originSITAuthEndDate) || updatedActualDeliveryDate.Equal(*originSITAuthEndDate) {
+				appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
 			}
-		} else if actualDeliveryDate != nil && destSITAuthEndDate != nil {
-			if actualDeliveryDate.Before(*destSITAuthEndDate) || actualDeliveryDate.Equal(*destSITAuthEndDate) {
-				err = removeSitExstension(appCtx, sitExtension, mtoShipment.ID)
-				if err != nil {
-					return nil, err
-				}
+		} else if updatedActualDeliveryDate != nil && destSITAuthEndDate != nil {
+			if updatedActualDeliveryDate.Before(*destSITAuthEndDate) || updatedActualDeliveryDate.Equal(*destSITAuthEndDate) {
+				appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
 			}
 		}
 	}
@@ -445,22 +437,6 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	}
 
 	return updatedShipment, nil
-}
-
-func removeSitExstension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, mtoShipmentID uuid.UUID) error {
-	if sitExtension.Status == models.SITExtensionStatusPending {
-		transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
-			appCtx.DB().Q().Where("mto_shipment_id = ?", mtoShipmentID).Delete(sitExtension)
-			return nil
-		})
-		if transactionError != nil {
-			switch transactionError {
-			default:
-				return apperror.NewQueryError("SITExtension", transactionError, "Unable to remove sitExtension")
-			}
-		}
-	}
-	return nil
 }
 
 func hasSITExtension(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) bool {
