@@ -3,11 +3,9 @@ package paperwork
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"syscall"
 
 	"github.com/gofrs/uuid"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -38,7 +36,7 @@ type pdfBatchInfo struct {
 }
 
 // MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool, dirName string) (mergedPdf afero.File, returnErr error) {
+func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, dirName string) (mergedPdf afero.File, returnErr error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
 	var err error
@@ -49,7 +47,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 		}
 		info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderUpload, move.Orders.UploadedOrdersID, dirName)
 		if err != nil {
-			return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for order docs")
+			return nil, errors.Wrap(err, "error building PDF batch information for order docs")
 		}
 		pdfBatchInfos = append(pdfBatchInfos, *info)
 	}
@@ -61,7 +59,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 		if move.Orders.UploadedAmendedOrdersID != nil {
 			info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderAmendmentUpload, *move.Orders.UploadedAmendedOrdersID, dirName)
 			if err != nil {
-				return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for amendment docs")
+				return nil, errors.Wrap(err, "error building PDF batch information for amendment docs")
 			}
 			pdfBatchInfos = append(pdfBatchInfos, *info)
 		}
@@ -80,41 +78,6 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 		return nil, errors.Wrap(err, "error merging PDF files into one")
 	}
 
-	if !addBookmarks {
-		return mergedPdf, nil
-	}
-
-	// *** Build Bookmarks ****
-	// pdfBatchInfos[0] => UploadDocs
-	// pdfBatchInfos[1] => AmendedUploadDocs
-	var bookmarks []pdfcpu.Bookmark
-	index := 0
-	docCounter := 1
-	var lastDocType services.MoveOrderUploadType
-	for i := 0; i < len(pdfBatchInfos); i++ {
-		if lastDocType != pdfBatchInfos[i].UploadDocType {
-			docCounter = 1
-		}
-		for j := 0; j < len(pdfBatchInfos[i].PageCounts); j++ {
-			if pdfBatchInfos[i].UploadDocType == services.MoveOrderUpload {
-				if index == 0 {
-					bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: 1, PageThru: pdfBatchInfos[i].PageCounts[j], Title: fmt.Sprintf("Customer Order for MTO %s Doc #%s", move.Locator, strconv.Itoa(docCounter))})
-				} else {
-					bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: bookmarks[index-1].PageThru + 1, PageThru: bookmarks[index-1].PageThru + pdfBatchInfos[i].PageCounts[j], Title: fmt.Sprintf("Customer Order for MTO %s Doc #%s", move.Locator, strconv.Itoa(docCounter))})
-				}
-			} else {
-				if index == 0 {
-					bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: 1, PageThru: pdfBatchInfos[i].PageCounts[j], Title: fmt.Sprintf("Amendment #%s to Customer Order for MTO %s", strconv.Itoa(docCounter), move.Locator)})
-				} else {
-					bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: bookmarks[index-1].PageThru + 1, PageThru: bookmarks[index-1].PageThru + pdfBatchInfos[i].PageCounts[j], Title: fmt.Sprintf("Amendment #%s to Customer Order for MTO %s", strconv.Itoa(docCounter), move.Locator)})
-				}
-			}
-			lastDocType = pdfBatchInfos[i].UploadDocType
-			index++
-			docCounter++
-		}
-	}
-
 	defer func() {
 		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
 		if r := recover(); r != nil {
@@ -123,8 +86,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 		}
 	}()
 
-	// Decorate master PDF file with bookmarks
-	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks, dirName)
+	return mergedPdf, nil
 }
 
 func (g *moveUserUploadToPDFDownloader) CleanupFile(file afero.File) error {
@@ -164,7 +126,6 @@ func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppC
 	var pdfFileNames []string
 	var pageCounts []int
 	// Document has one or more uploads. Create PDF file for each.
-	// For each PDF gather metadata as pdfBatchInfo type used for Bookmarking.
 	for _, uu := range document.UserUploads {
 		// Build temp array for current userUpload
 		var currentUserUpload []models.UserUpload

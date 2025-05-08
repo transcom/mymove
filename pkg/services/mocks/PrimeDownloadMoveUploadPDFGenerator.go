@@ -35,9 +35,9 @@ func (_m *PrimeDownloadMoveUploadPDFGenerator) CleanupFile(file afero.File) erro
 	return r0
 }
 
-// GenerateDownloadMoveUserUploadPDF provides a mock function with given fields: appCtx, moveOrderUploadType, move, addBookmarks, dirName
-func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, moveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool, dirName string) (afero.File, error) {
-	ret := _m.Called(appCtx, moveOrderUploadType, move, addBookmarks, dirName)
+// GenerateDownloadMoveUserUploadPDF provides a mock function with given fields: appCtx, moveOrderUploadType, move, dirName
+func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, moveOrderUploadType services.MoveOrderUploadType, move models.Move, dirName string) (afero.File, error) {
+	ret := _m.Called(appCtx, moveOrderUploadType, move, dirName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateDownloadMoveUserUploadPDF")
@@ -45,19 +45,19 @@ func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateDownloadMoveUserUploadPDF
 
 	var r0 afero.File
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move, bool, string) (afero.File, error)); ok {
-		return rf(appCtx, moveOrderUploadType, move, addBookmarks, dirName)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move, string) (afero.File, error)); ok {
+		return rf(appCtx, moveOrderUploadType, move, dirName)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move, bool, string) afero.File); ok {
-		r0 = rf(appCtx, moveOrderUploadType, move, addBookmarks, dirName)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move, string) afero.File); ok {
+		r0 = rf(appCtx, moveOrderUploadType, move, dirName)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(afero.File)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move, bool, string) error); ok {
-		r1 = rf(appCtx, moveOrderUploadType, move, addBookmarks, dirName)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move, string) error); ok {
+		r1 = rf(appCtx, moveOrderUploadType, move, dirName)
 	} else {
 		r1 = ret.Error(1)
 	}
