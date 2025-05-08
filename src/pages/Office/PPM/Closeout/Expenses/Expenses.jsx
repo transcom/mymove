@@ -183,13 +183,13 @@ const Expenses = () => {
   }
 
   return (
-    <div className={ppmPageStyles.closeoutPageWrapper}>
-      <div className={ppmPageStyles.tabContent}>
-        <div className={ppmPageStyles.container}>
-          <NotificationScrollToTop dependency={errorMessage} />
-          <GridContainer className={ppmPageStyles.gridContainer}>
-            <Grid row>
-              <Grid col desktop={{ col: 8, offset: 2 }}>
+    <div className={ppmPageStyles.tabContent}>
+      <div className={ppmPageStyles.container}>
+        <NotificationScrollToTop dependency={errorMessage} />
+        <GridContainer className={ppmPageStyles.gridContainer}>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <div className={ppmPageStyles.closeoutPageWrapper}>
                 <ShipmentTag shipmentType={shipmentTypes.PPM} />
                 <h1>Expenses</h1>
                 {renderError()}
@@ -204,10 +204,10 @@ const Expenses = () => {
                   onUploadDelete={handleUploadDelete}
                   appName={appName}
                 />
-              </Grid>
+              </div>
             </Grid>
-          </GridContainer>
-        </div>
+          </Grid>
+        </GridContainer>
       </div>
     </div>
   );
