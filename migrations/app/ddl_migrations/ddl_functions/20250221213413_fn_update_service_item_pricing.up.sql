@@ -28,6 +28,7 @@ DECLARE
     length NUMERIC;
     width NUMERIC;
     height NUMERIC;
+	cubic_feet NUMERIC;
     standalone BOOLEAN;
     external BOOLEAN;
     cubic_feet NUMERIC;

@@ -53,6 +53,18 @@ BEGIN
           AND rip.service_id = re_service_id
           AND rip.contract_id = c_id;
     ELSIF service_code IN ('IUCRT', 'ICRT') THEN
+        IF service_code = 'ICRT' THEN
+        	SELECT ra.is_oconus
+        	INTO is_oconus
+        	FROM re_rate_areas ra
+        	WHERE ra.id = o_rate_area_id;
+		ELSE
+			SELECT ra.is_oconus
+        	INTO is_oconus
+        	FROM re_rate_areas ra
+        	WHERE ra.id = d_rate_area_id;
+		END IF;
+
         SELECT rip.per_unit_cents
         INTO per_unit_cents
         FROM re_intl_accessorial_prices rip
