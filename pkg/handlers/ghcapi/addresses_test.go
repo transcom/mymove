@@ -48,6 +48,8 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 	suite.Run("success", func() {
 		countrySearcher := address.NewCountrySearcher()
 		req := httptest.NewRequest("GET", "/addresses/countries", nil)
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		params := addressop.SearchCountriesParams{
 			HTTPRequest: req,
 			Search:      models.StringPointer("us"),
@@ -67,6 +69,8 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 	suite.Run("success - return all", func() {
 		countrySearcher := address.NewCountrySearcher()
 		req := httptest.NewRequest("GET", "/addresses/countries", nil)
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		params := addressop.SearchCountriesParams{
 			HTTPRequest: req,
 			Search:      nil,
@@ -91,6 +95,8 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		).Return(nil, apperror.QueryError{})
 
 		req := httptest.NewRequest("GET", "/addresses/countries", nil)
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		params := addressop.SearchCountriesParams{
 			HTTPRequest: req,
 			Search:      nil,
@@ -103,5 +109,29 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&addressop.SearchCountriesInternalServerError{}, response)
+	})
+
+	suite.Run("forbidden", func() {
+		mockCountrySearcher := mocks.CountrySearcher{}
+		mockCountrySearcher.On("SearchCountries",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*string"),
+		).Return(nil, apperror.QueryError{})
+
+		req := httptest.NewRequest("GET", "/addresses/countries", nil)
+		notOfficeUser := factory.BuildUser(nil, nil, nil)
+		req = suite.AuthenticateUserRequest(req, notOfficeUser)
+		params := addressop.SearchCountriesParams{
+			HTTPRequest: req,
+			Search:      nil,
+		}
+
+		handler := SearchCountriesHandler{
+			HandlerConfig:   suite.HandlerConfig(),
+			CountrySearcher: &mockCountrySearcher,
+		}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&addressop.SearchCountriesForbidden{}, response)
 	})
 }
