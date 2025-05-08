@@ -131,7 +131,7 @@ export const columns = (
             return row.requestedMoveDates;
           },
           {
-            id: 'requestedMoveDates',
+            id: 'requestedMoveDate',
             isFilterable: true,
             // eslint-disable-next-line react/jsx-props-no-spreading
             Filter: (props) => <DateSelectFilter dateTime {...props} />,
@@ -179,9 +179,7 @@ export const columns = (
             return row.newDutyLocation?.name;
           },
         }),
-    !isDestinationQueue
-      ? createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true })
-      : createHeader('Destination GBLOC', 'destinationGBLOC', { disableSortBy: true }),
+    ...(!isDestinationQueue ? [createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true })] : []),
     createHeader('Counseling office', 'counselingOffice', {
       id: 'counselingOffice',
       isFilterable: true,

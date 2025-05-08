@@ -1,7 +1,7 @@
 -- B-22294 - Alex Lusk - Migrating get_destination_queue function to ddl_migrations
 -- B-21824 - Samay Sofo replaced too_assigned_id with too_destination_assigned_id for destination assigned queue
 -- B-21902 - Samay Sofo added has_safety_privilege parameter to filter out safety orders and also retrieved orders_type
--- B-23545 - Daniel Jordan updating returns to use destination, filtering adjustments
+-- B-23545 - Daniel Jordan updating returns to use destination, filtering adjustments, removing gbloc return
 
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
@@ -71,7 +71,6 @@ BEGIN
             json_build_object(
                 ''id'', orders.id,
                 ''orders_type'', orders.orders_type,
-                ''destination_duty_location_gbloc'', orders.destination_gbloc,
                 ''service_member'', json_build_object(
                     ''id'', service_members.id,
                     ''first_name'', service_members.first_name,
