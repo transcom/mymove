@@ -62,7 +62,7 @@ export const ORDERS_PAY_GRADE_TYPE = {
   E_8: 'E_8',
   E_9: 'E_9',
   E_9_SPECIAL_SENIOR_ENLISTED: 'E_9_SPECIAL_SENIOR_ENLISTED',
-  O_1_ACADEMY_GRADUATE: 'O_1_ACADEMY_GRADUATE',
+  O_1: 'O_1',
   O_2: 'O_2',
   O_3: 'O_3',
   O_4: 'O_4',
@@ -77,10 +77,7 @@ export const ORDERS_PAY_GRADE_TYPE = {
   W_3: 'W_3',
   W_4: 'W_4',
   W_5: 'W_5',
-  AVIATION_CADET: 'AVIATION_CADET',
   CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
-  ACADEMY_CADET: 'ACADEMY_CADET',
-  MIDSHIPMAN: 'MIDSHIPMAN',
 };
 
 export const ORDERS_PAY_GRADE_OPTIONS = {
@@ -94,7 +91,7 @@ export const ORDERS_PAY_GRADE_OPTIONS = {
   E_8: 'E-8',
   E_9: 'E-9',
   E_9_SPECIAL_SENIOR_ENLISTED: 'E-9 (Special Senior Enlisted)',
-  O_1_ACADEMY_GRADUATE: 'O-1 or Service Academy Graduate',
+  O_1: 'O-1',
   O_2: 'O-2',
   O_3: 'O-3',
   O_4: 'O-4',
@@ -109,10 +106,7 @@ export const ORDERS_PAY_GRADE_OPTIONS = {
   W_3: 'W-3',
   W_4: 'W-4',
   W_5: 'W-5',
-  AVIATION_CADET: 'Aviation Cadet',
   CIVILIAN_EMPLOYEE: 'Civilian Employee',
-  ACADEMY_CADET: 'Service Academy Cadet',
-  MIDSHIPMAN: 'Midshipman',
 };
 
 export const ORDERS_BRANCH_OPTIONS = {
