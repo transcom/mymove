@@ -16,18 +16,12 @@ export const appendTimestampToFilenamePrefix = (prefix) => {
 };
 
 /**
- * @returns tomorrow as a formatted "dd mmm yyyy" date string in UTC
+ * @param {Date} date
  */
-export function getTomorrowUTC() {
-  const tomorrow = new Date();
-  tomorrow.setUTCDate(new Date().getUTCDate() + 1);
-
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  const day = String(tomorrow.getUTCDate()).padStart(2, '0');
-  const month = months[tomorrow.getUTCMonth()];
-  const year = tomorrow.getUTCFullYear();
-
+export function formatDate(date) {
+  const day = date.toLocaleString('default', { day: '2-digit' });
+  const month = date.toLocaleString('default', { month: 'short' });
+  const year = date.toLocaleString('default', { year: 'numeric' });
   return `${day} ${month} ${year}`;
 }
 
