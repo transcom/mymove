@@ -997,3 +997,14 @@ func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
 		UsPostRegionCitiesID: &usPostRegionCitiesID,
 	}
 }
+
+func OfficeUserModelFromUpdate(payload *ghcmessages.OfficeUserUpdate, officeUser *models.OfficeUser) *models.OfficeUser {
+	if payload == nil || officeUser == nil {
+		return officeUser
+	}
+
+	if payload.Telephone != nil {
+		officeUser.Telephone = *payload.Telephone
+	}
+	return officeUser
+}
