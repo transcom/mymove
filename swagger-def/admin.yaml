@@ -995,6 +995,35 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  RolePrivilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      roleId:
+        type: string
+        format: uuid
+        example: c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e
+      roleType:
+        type: string
+        example: task_ordering_officer
+      privilegeId:
+        type: string
+        format: uuid
+        example: 463c2034-d197-4d9a-897e-8bbe64893a31
+      privilegeType:
+        type: string
+        example: supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   TransportationOfficeAssignment:
     type: object
     properties:
@@ -1306,6 +1335,39 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  EdiError:
+    type: object
+    required:
+      - id
+      - paymentRequestID
+      - ediType
+    properties:
+      id:
+        type: string
+        format: uuid
+      paymentRequestID:
+        type: string
+        format: uuid
+      paymentRequestNumber:
+        type: string
+        example: '1234-5678-1'
+      code:
+        type: string
+        x-nullable: true
+      description:
+        type: string
+        x-nullable: true
+      ediType:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+
+  EdiErrors:
+    type: array
+    items:
+      $ref: '#/definitions/EdiError'
 
 paths:
   /user:
@@ -1638,6 +1700,8 @@ paths:
           description: Must be authenticated to use this end point
         '403':
           description: Not authorized to update an Office User
+        '404':
+          description: Office User not found
         '500':
           description: Server error
     delete:
@@ -1662,6 +1726,29 @@ paths:
         '404':
           description: Office User not found
         '500':
+          description: server error
+  /office-users/roles-privileges:
+    get:
+      produces:
+        - application/json
+      summary: Retrieve a list of unique role to privilege mappings.
+      description:
+        $ref: paths/office-users/roles-privileges/get/description.md
+      operationId: getRolesPrivileges
+      tags:
+        - Office users
+      responses:
+        "200":
+          description: Successfully retrieved list of unique role privilege mappings
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RolePrivilege'
+        "401":
+          description: request requires user authentication
+        "404":
+          description: No role-privilege mapping found
+        "500":
           description: server error
   /admin-users:
     get:
@@ -2705,5 +2792,67 @@ paths:
           description: request requires user authentication
         '404':
           description: Payment Request EDI Files not found
+        '500':
+          description: server error
+  /edi-errors:
+    get:
+      summary: List of EDI Errors
+      description: >
+        Returns a list of EDI errors tied to payment requests that are in EDI_ERROR status.
+        This endpoint is for Admin UI use only.
+      operationId: fetchEdiErrors
+      tags:
+        - EDI Errors
+      parameters:
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/EdiErrors'
+        '400':
+          description: Invalid request
+        '401':
+          description: Must be authenticated to use this end point
+        '500':
+          description: Server error
+  /edi-errors/{ediErrorId}:
+    get:
+      produces:
+        - application/json
+      summary: Get information on a specific EDI Error by the ID of the EDI Error
+      description: Retrieving a single EDI error for a payment request that is in EDI_ERROR status. This endpoint is used in the Admin UI that will allow the admin user to view specific EDI Error data.
+      operationId: getEdiError
+      tags:
+        - Single EDI Error
+      parameters:
+        - name: ediErrorId
+          in: path
+          description: EDI Error ID
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/EdiError'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: EDI error not found
         '500':
           description: server error

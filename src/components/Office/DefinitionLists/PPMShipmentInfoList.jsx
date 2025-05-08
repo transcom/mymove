@@ -18,6 +18,7 @@ import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
 
 const PPMShipmentInfoList = ({
   className,
@@ -30,6 +31,7 @@ const PPMShipmentInfoList = ({
   onErrorModalToggle,
 }) => {
   const {
+    ppmType,
     hasRequestedAdvance,
     advanceAmountRequested,
     advanceStatus,
@@ -87,10 +89,18 @@ const PPMShipmentInfoList = ({
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
 
+  const ppmTypeElementFlags = getDisplayFlags('ppmType');
+  const ppmTypeElement = (
+    <div className={ppmTypeElementFlags.classes}>
+      <dt>PPM Type</dt>
+      <dd data-testid="ppmType">{getPPMTypeLabel(ppmType)}</dd>
+    </div>
+  );
+
   const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
   const expectedDepartureDateElement = (
     <div className={expectedDepartureDateElementFlags.classes}>
-      <dt>Estimated Departure date</dt>
+      <dt>Estimated {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped' : 'Departure'} date</dt>
       <dd data-testid="expectedDepartureDate">
         {(expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')) || '—'}
       </dd>
@@ -100,7 +110,7 @@ const PPMShipmentInfoList = ({
   const actualDepartureDateElementFlags = getDisplayFlags('actualMoveDate');
   const actualDepartureDateElement = (
     <div className={actualDepartureDateElementFlags.classes}>
-      <dt>Actual Departure date</dt>
+      <dt>Actual {ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped' : 'Departure'} date</dt>
       <dd data-testid="actualDepartureDate">{(actualMoveDate && formatDate(actualMoveDate, 'DD MMM YYYY')) || '—'}</dd>
     </div>
   );
@@ -108,7 +118,7 @@ const PPMShipmentInfoList = ({
   const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
-      <dt>Pickup Address</dt>
+      <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}</dt>
       <dd data-testid="pickupAddress">{pickupAddress ? formatAddress(pickupAddress) : '-'}</dd>
     </div>
   );
@@ -134,7 +144,7 @@ const PPMShipmentInfoList = ({
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
-      <dt>Delivery Address</dt>
+      <dt>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}</dt>
       <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '-'}</dd>
     </div>
   );
@@ -246,6 +256,7 @@ const PPMShipmentInfoList = ({
           label="Download AOA Paperwork (PDF)"
           asyncRetrieval={downloadPPMAOAPacket}
           onFailure={onErrorModalToggle}
+          loadingMessage="Downloading AOA Paperwork (PDF)..."
         />
       </dd>
     </div>
@@ -260,6 +271,7 @@ const PPMShipmentInfoList = ({
           label="Download Payment Packet (PDF)"
           asyncRetrieval={downloadPPMPaymentPacket}
           onFailure={onErrorModalToggle}
+          loadingMessage="Downloading Payment Packet (PDF)..."
         />
       </dd>
     </div>
@@ -283,6 +295,7 @@ const PPMShipmentInfoList = ({
       )}
       data-testid="ppm-shipment-info-list"
     >
+      {ppmTypeElement}
       {!actualMoveDate && expectedDepartureDateElement}
       {actualMoveDate && actualDepartureDateElement}
       {pickupAddressElement}

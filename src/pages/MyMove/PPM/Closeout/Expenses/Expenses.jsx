@@ -4,8 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
-
 import styles from './Expenses.module.scss';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -28,7 +26,6 @@ import { convertDollarsToCents } from 'shared/utils';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
-  const [multiMove, setMultiMove] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -39,10 +36,10 @@ const Expenses = () => {
     selectExpenseAndIndexById(state, mtoShipmentId, expenseId),
   );
 
+  const ppmShipment = mtoShipment?.ppmShipment || {};
+  const { ppmType } = ppmShipment;
+
   useEffect(() => {
-    isBooleanFlagEnabled('multi_move').then((enabled) => {
-      setMultiMove(enabled);
-    });
     if (!expenseId) {
       createMovingExpense(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -120,11 +117,11 @@ const Expenses = () => {
   };
 
   const handleBack = () => {
-    if (multiMove) {
-      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
-    } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
-    }
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
+      moveId,
+      mtoShipmentId,
+    });
+    navigate(path);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -140,6 +137,13 @@ const Expenses = () => {
       SITStartDate: formatDateForSwagger(values.sitStartDate),
       WeightStored: parseInt(values.sitWeight, 10),
       SITLocation: values.sitLocation,
+      weightShipped: parseInt(values.weightShipped, 10),
+      trackingNumber: values.trackingNumber,
+      isProGear: values.isProGear === 'true',
+      ...(values.isProGear === 'true' && {
+        proGearBelongsToSelf: values.proGearBelongsToSelf === 'true',
+        proGearDescription: values.proGearDescription,
+      }),
     };
 
     patchMovingExpense(mtoShipment?.ppmShipment?.id, currentExpense.id, payload, currentExpense.eTag)
@@ -192,6 +196,7 @@ const Expenses = () => {
               <p>Upload one receipt at a time. Please do not put multiple receipts in one image.</p>
             </div>
             <ExpenseForm
+              ppmType={ppmType}
               expense={currentExpense}
               receiptNumber={currentIndex + 1}
               onBack={handleBack}

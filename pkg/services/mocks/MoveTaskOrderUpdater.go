@@ -113,6 +113,24 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 	return r0, r1
 }
 
+// SignCertificationPPMCounselingCompleted provides a mock function with given fields: appCtx, moveID, ppmShipmentID
+func (_m *MoveTaskOrderUpdater) SignCertificationPPMCounselingCompleted(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error {
+	ret := _m.Called(appCtx, moveID, ppmShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignCertificationPPMCounselingCompleted")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r0 = rf(appCtx, moveID, ppmShipmentID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdatePPMType provides a mock function with given fields: appCtx, moveTaskOrderID
 func (_m *MoveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID)
@@ -226,6 +244,36 @@ func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx ap
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
 		r1 = rf(appCtx, moveTaskOrderID, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateStatusServiceCounselingSendPPMToCustomer provides a mock function with given fields: appCtx, ppmShipment, eTag, move
+func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingSendPPMToCustomer(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, eTag string, move *models.Move) (*models.PPMShipment, error) {
+	ret := _m.Called(appCtx, ppmShipment, eTag, move)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateStatusServiceCounselingSendPPMToCustomer")
+	}
+
+	var r0 *models.PPMShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, string, *models.Move) (*models.PPMShipment, error)); ok {
+		return rf(appCtx, ppmShipment, eTag, move)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, string, *models.Move) *models.PPMShipment); ok {
+		r0 = rf(appCtx, ppmShipment, eTag, move)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.PPMShipment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PPMShipment, string, *models.Move) error); ok {
+		r1 = rf(appCtx, ppmShipment, eTag, move)
 	} else {
 		r1 = ret.Error(1)
 	}

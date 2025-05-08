@@ -83,3 +83,12 @@ EditIncentives.args = {
   onSubmit: action('onSubmit'),
   editItemName: 'advanceAmountReceived',
 };
+
+export const EditExpenseType = Basic.bind({});
+EditExpenseType.args = {
+  sectionType: 'shipmentInfo',
+  sectionInfo,
+  onClose: action('onClose'),
+  onSubmit: action('onSubmit'),
+  editItemName: 'expenseType',
+};

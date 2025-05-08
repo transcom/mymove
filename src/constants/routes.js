@@ -12,7 +12,6 @@ export const generalRoutes = {
 export const customerRoutes = {
   MOVE_HOME_PAGE: '/move',
   MOVE_HOME_PATH: '/move/:moveId',
-  VALIDATION_CODE_PATH: '/service-member/validation-code',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
   CONTACT_INFO_PATH: '/service-member/contact-info',
@@ -166,6 +165,10 @@ export const qaeCSRRoutes = {
   CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
 };
 
+export const contractingOfficerRoutes = {
+  MOVE_SEARCH_PATH: '/cor/search',
+};
+
 export const hqRoutes = {
   BASE_MOVE_QUEUE: `/move-queue`,
   MOVE_QUEUE: `move-queue`,
@@ -196,9 +199,16 @@ export const primeSimulatorRoutes = {
   SHIPMENT_UPDATE_REWEIGH_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/reweigh/:reweighId/update`,
   CREATE_SIT_EXTENSION_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/sit-extension-requests/new`,
   SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/updateDestinationAddress`,
+  ACKNOWLEDGE_MOVE_PATH: `${BASE_PRIME_SIMULATOR_PATH}/acknowledge`,
+  ACKNOWLEDGE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/acknowledge`,
 };
 
 export const adminRoutes = {
   HOME_PATH: '/',
   REJECTED_OFFICE_USERS: '/system/rejected-office-users',
+};
+
+export const officeRoutes = {
+  PROFILE_PATH: '/profile',
+  CONTACT_INFO_EDIT_PATH: '/profile/edit/contact-info',
 };

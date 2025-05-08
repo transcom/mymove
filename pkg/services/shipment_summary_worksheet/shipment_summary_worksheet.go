@@ -93,7 +93,7 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 		A. the difference between the GTCC paid expenses and the GCC OR
 		B. the total member-paid expenses plus the member paid SIT
 	**/
-	if shipmentSummaryFormData.IsActualExpenseReimbursement && isPaymentPacket {
+	if (shipmentSummaryFormData.IsActualExpenseReimbursement || shipmentSummaryFormData.IsSmallPackageReimbursement) && isPaymentPacket {
 		if shipmentSummaryFormData.PPMShipment.FinalIncentive == nil {
 			return services.Page1Values{}, services.Page2Values{}, services.Page3Values{}, fmt.Errorf("missing FinalIncentive: required for actual expense reimbursement (Order ID: %s)", shipmentSummaryFormData.Order.ID)
 		}
@@ -199,7 +199,7 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool, ordersType internalmessages.OrdersType) (models.SSWMaxWeightEntitlement, error) {
+func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.OrderPayGrade, orders models.Order, spouseHasProGear bool, ordersType internalmessages.OrdersType) (models.SSWMaxWeightEntitlement, error) {
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	waf := entitlements.NewWeightAllotmentFetcher()
 	entitlements, err := waf.GetWeightAllotment(appCtx, string(grade), ordersType)
@@ -208,10 +208,11 @@ func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.Orde
 	}
 	//entitlements := models.GetWeightAllotment(grade, ordersType)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
-	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
-	if !hasDependents {
+	if orders.Entitlement.DependentsAuthorized == nil || !*orders.Entitlement.DependentsAuthorized {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
 		return models.SSWMaxWeightEntitlement(sswEntitlements), nil
+	} else {
+		sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
 	return models.SSWMaxWeightEntitlement(sswEntitlements), nil
@@ -306,7 +307,12 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
-		page1.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+		page1.GCCExpenseReimbursementType = "Actual Expense Reimbursement"
+	}
+
+	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
+		page1.IsSmallPackageReimbursement = true
+		page1.GCCExpenseReimbursementType = "Small Package Reimbursement"
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
@@ -314,7 +320,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.MaxIncentive
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -334,8 +340,9 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
+	actualExpensePPM := data.PPMShipment.PPMType == models.PPMTypeActualExpense || data.PPMShipment.PPMType == models.PPMTypeSmallPackage
 	if isPaymentPacket {
-		if data.IsActualExpenseReimbursement {
+		if actualExpensePPM {
 			data.PPMRemainingEntitlement = 0.0
 		} else {
 			data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, data.PPMShipment.AdvanceAmountReceived)
@@ -359,7 +366,7 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 		page2.Disbursement = "N/A"
 
-		if data.IsActualExpenseReimbursement {
+		if actualExpensePPM {
 			page2.PPMRemainingEntitlement = "$0.00"
 		} else {
 			page2.PPMRemainingEntitlement = "N/A"
@@ -373,6 +380,8 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.WeighingFeesGTCCPaid = FormatDollars(expensesMap["WeighingFeeGTCCPaid"])
 	page2.RentalEquipmentMemberPaid = FormatDollars(expensesMap["RentalEquipmentMemberPaid"])
 	page2.RentalEquipmentGTCCPaid = FormatDollars(expensesMap["RentalEquipmentGTCCPaid"])
+	page2.SmallPackageExpenseMemberPaid = FormatDollars(expensesMap["SmallPackageMemberPaid"])
+	page2.SmallPackageExpenseGTCCPaid = FormatDollars(expensesMap["SmallPackageGTCCPaid"])
 	page2.TollsMemberPaid = FormatDollars(expensesMap["TollsMemberPaid"])
 	page2.TollsGTCCPaid = FormatDollars(expensesMap["TollsGTCCPaid"])
 	page2.OilMemberPaid = FormatDollars(expensesMap["OilMemberPaid"])
@@ -394,8 +403,14 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.SignatureDate = certificationInfo.DateField
 
 	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
-		page2.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
-		page2.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
+		page2.IncentiveExpenseReimbursementType = "Actual Expense Reimbursement"
+		page2.HeaderExpenseReimbursementType = `This PPM is being processed as actual expense reimbursement for valid expenses not to exceed the
+		government constructed cost (GCC).`
+	}
+
+	if data.PPMShipment.PPMType == models.PPMTypeSmallPackage {
+		page2.IncentiveExpenseReimbursementType = "Small Package Reimbursement"
+		page2.HeaderExpenseReimbursementType = `This PPM is being processed as small package reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
 	}
 
@@ -826,8 +841,6 @@ func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
 }
 
 func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement) unit.Pound {
-
-	var err error
 	var ppmActualWeight unit.Pound
 	var maxLimit unit.Pound
 
@@ -840,10 +853,7 @@ func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipm
 
 	// Get the actual weight of the ppmShipment
 	if len(ppmShipment.WeightTickets) > 0 {
-		ppmActualWeight, err = s.PPMCloseoutFetcher.GetActualWeight(&ppmShipment)
-		if err != nil {
-			return 0
-		}
+		ppmActualWeight = s.PPMCloseoutFetcher.GetActualWeight(&ppmShipment)
 	}
 
 	// If actual weight is less than the lessor of maximum weight entitlement or the allowable weight, then use ppmActualWeight
@@ -1069,6 +1079,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder.Orders.Entitlement",
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
@@ -1121,7 +1132,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
 	}
 
-	weightAllotment, err := SSWGetEntitlement(appCtx, *ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
+	weightAllotment, err := SSWGetEntitlement(appCtx, *ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
 	if err != nil {
 		return nil, err
 	}
@@ -1154,6 +1165,11 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		isActualExpenseReimbursement = true
 	}
 
+	isSmallPackageReimbursement := false
+	if ppmShipment.PPMType == models.PPMTypeSmallPackage {
+		isSmallPackageReimbursement = true
+	}
+
 	ssd := models.ShipmentSummaryFormData{
 		AllShipments:                 ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
 		ServiceMember:                serviceMember,
@@ -1170,6 +1186,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		SignedCertifications:         signedCertifications,
 		MaxSITStorageEntitlement:     maxSit,
 		IsActualExpenseReimbursement: isActualExpenseReimbursement,
+		IsSmallPackageReimbursement:  isSmallPackageReimbursement,
 	}
 	return &ssd, nil
 }
@@ -1249,6 +1266,11 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		isActualExpenseReimbursement = true
 	}
 
+	isSmallPackageReimbursement := false
+	if Page1Values.IsSmallPackageReimbursement {
+		isSmallPackageReimbursement = true
+	}
+
 	var sswCheckbox = []checkbox{
 		{
 			Pages:   []int{2},
@@ -1264,6 +1286,14 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 			Name:    "IsActualExpenseReimbursement",
 			Value:   true,
 			Default: isActualExpenseReimbursement,
+			Locked:  false,
+		},
+		{
+			Pages:   []int{1},
+			ID:      "555",
+			Name:    "IsSmallPackageReimbursement",
+			Value:   true,
+			Default: isSmallPackageReimbursement,
 			Locked:  false,
 		},
 	}

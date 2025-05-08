@@ -3,3 +3,14 @@
 # Naming convention: fn_some_function.up.sql  running <generate-ddl-migration some_function functions> will create this file.
 20250223023132_fn_get_counseling_offices.up.sql
 20250225183302_fn_prime_acknowledge_moves_shipments.up.sql
+20250225233157_fn_get_destination_queue.up.sql
+20250325161602_fn_if_modified_func.up.sql
+20250325161603_fn_fetch_move_history.up.sql
+20250328183455_fn_fetch_moves_for_bulk_assignment_destination.up.sql
+20250402213503_fn_flag_sent_to_gex_for_review.up.sql
+20250409212655_fn_get_duty_location_info.up.sql
+20250409212711_fn_get_service_affiliation.up.sql
+20250409212733_fn_get_department_indicator.up.sql
+20250409212810_fn_get_gbloc_indicator.up.sql
+20250409212825_fn_get_counseling_offices_for_conus.up.sql
+20250409212838_fn_get_counseling_offices_for_oconus.up.sql

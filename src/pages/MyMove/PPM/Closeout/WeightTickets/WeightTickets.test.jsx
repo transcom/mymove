@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
-import { createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
+import { createWeightTicket, deleteUpload, patchWeightTicket, getResponseError } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import WeightTickets from 'pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets';
@@ -129,7 +129,10 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const movePath = generatePath(customerRoutes.MOVE_HOME_PAGE);
+const aboutPath = generatePath(customerRoutes.SHIPMENT_PPM_ABOUT_PATH, {
+  moveId: mockMoveId,
+  mtoShipmentId: mockMTOShipmentId,
+});
 const weightTicketsEditPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
@@ -209,15 +212,6 @@ describe('Weight Tickets page', () => {
     });
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Weight Tickets');
-    expect(
-      screen.getByText(
-        'Weight tickets should include both an empty or full weight ticket for each segment or trip. If you’re missing a weight ticket, you’ll be able to use a government-created spreadsheet to estimate the weight.',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Weight tickets must be certified, legible, and unaltered. Files must be 25MB or smaller.'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('You must upload at least one set of weight tickets to get paid for your PPM.'));
 
     // renders form content
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 1');
@@ -235,17 +229,17 @@ describe('Weight Tickets page', () => {
     });
   });
 
-  it('routes back to home when return to homepage is clicked', async () => {
+  it('routes back to home when cancel is clicked', async () => {
     createWeightTicket.mockResolvedValue(mockWeightTicket);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicket, index: 0 });
 
     renderEditWeightTicketsPage();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
-    expect(mockNavigate).toHaveBeenCalledWith(movePath);
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
   });
 
   it('calls patch weight ticket with the appropriate payload', async () => {
@@ -291,7 +285,7 @@ describe('Weight Tickets page', () => {
     createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
     selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });
     patchWeightTicket.mockRejectedValueOnce('an error occurred');
-
+    getResponseError.mockReturnValue('Failed to save updated trip record');
     renderWeightTicketsPage();
 
     await waitFor(() => {
@@ -307,6 +301,41 @@ describe('Weight Tickets page', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Failed to save updated trip record')).toBeInTheDocument();
+    });
+  });
+
+  // remove this when E-06516 is implemented
+  it('displays a specific error when the DTODFailureErrorMessage is returned, and links the user to the about page', async () => {
+    createWeightTicket.mockResolvedValue(mockWeightTicketWithUploads);
+    selectWeightTicketAndIndexById.mockReturnValue({ weightTicket: mockWeightTicketWithUploads, index: 4 });
+    patchWeightTicket.mockRejectedValueOnce({
+      response: {
+        body: {
+          detail:
+            'We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box.',
+        },
+      },
+    });
+    renderWeightTicketsPage();
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Trip 5');
+    });
+    await userEvent.type(screen.getByLabelText('Vehicle description'), 'DMC Delorean');
+    await userEvent.type(screen.getByLabelText('Empty weight'), '4999');
+    await userEvent.type(screen.getByLabelText('Full weight'), '6999');
+    await userEvent.click(screen.getByLabelText('Yes'));
+    await userEvent.click(screen.getAllByLabelText('Yes')[1]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('pickup and delivery ZIP codes')).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByTestId('ZipLink'));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(aboutPath);
     });
   });
 

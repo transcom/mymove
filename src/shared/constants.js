@@ -18,6 +18,7 @@ export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
 export const technicalHelpDeskURL =
   'https://www.militaryonesource.mil/resources/gov/customer-service-contacts-for-military-pcs/#technical-help-desk';
+export const milmoveHelpDesk = 'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil';
 
 export function serviceName() {
   if (isAdminSite) {
@@ -61,6 +62,12 @@ export const WEIGHT_TICKET_SET_TYPE = {
   CAR_TRAILER: 'CAR_TRAILER',
   BOX_TRUCK: 'BOX_TRUCK',
   PRO_GEAR: 'PRO_GEAR',
+};
+
+export const PPM_DOCUMENT_TYPES = {
+  WEIGHT_TICKET: 'WEIGHT_TICKET',
+  PROGEAR_WEIGHT_TICKET: 'PROGEAR_WEIGHT_TICKET',
+  MOVING_EXPENSE: 'MOVING_EXPENSE',
 };
 
 export const UPLOAD_SCAN_STATUS = {
@@ -124,11 +131,13 @@ export const PPM_TYPES = {
   SMALL_PACKAGE: 'SMALL_PACKAGE',
 };
 
-export const ppmTypeLabels = [
-  { key: PPM_TYPES.INCENTIVE_BASED, label: 'Incentive-based' },
-  { key: PPM_TYPES.ACTUAL_EXPENSE, label: 'Actual Expense' },
-  { key: PPM_TYPES.SMALL_PACKAGE, label: 'Small Package' },
-];
+const PPM_TYPE_LABELS_MAP = {
+  [PPM_TYPES.INCENTIVE_BASED]: 'Incentive-based',
+  [PPM_TYPES.ACTUAL_EXPENSE]: 'Actual Expense Reimbursement',
+  [PPM_TYPES.SMALL_PACKAGE]: 'Small Package Reimbursement',
+};
+
+export const getPPMTypeLabel = (type) => PPM_TYPE_LABELS_MAP[type];
 
 // These constants are used for forming URLs that have the shipment type in
 // them so that they are human readable.
@@ -239,8 +248,10 @@ export const FEATURE_FLAG_KEYS = {
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
   ENABLE_ALASKA: 'enable_alaska',
   BULK_ASSIGNMENT: 'bulk_assignment',
+  BULK_RE_ASSIGNMENT: 'bulk_re_assignment',
   CUSTOMER_REGISTRATION: 'customer_registration',
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
+  TERMINATING_SHIPMENTS: 'terminating_shipments',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
@@ -266,5 +277,11 @@ const ADDRESS_LABELS_MAP = {
   [ADDRESS_TYPES.SECOND_DESTINATION]: 'Second Delivery Address',
   [ADDRESS_TYPES.THIRD_DESTINATION]: 'Third Delivery Address',
 };
+
+export const civilianTDYUBAllowanceWeightWarning =
+  '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on your orders.';
+
+export const civilianTDYUBAllowanceWeightWarningOfficeUser =
+  '350 lbs. is the maximum UB weight allowance for a civilian TDY move unless stated otherwise on the orders.';
 
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];
