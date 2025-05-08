@@ -375,7 +375,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 		waf := entitlements.NewWeightAllotmentFetcher()
 		entitlement, err = waf.GetWeightAllotment(appCtx, string(*move.Orders.Grade), move.Orders.OrdersType)
 	} else {
-		return nil, apperror.NewNotFoundError(move.ID, " error querying orders grade for move")
+		return nil, apperror.NewNotFoundError(move.ID, " orders.grade nil when getting weight allotment")
 	}
 	if err != nil {
 		return nil, err
@@ -414,7 +414,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 					}
 					return finalIncentive, nil
 				} else {
-					return nil, apperror.NewInternalServerError("Failed to calculate PPM Incentive: Incentives missing")
+					return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
 				}
 			}
 		} else {
@@ -428,7 +428,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			}
 			return finalIncentive, nil
 		} else {
-			return nil, apperror.NewInternalServerError("Failed to calculate PPM Incentive: Incentives missing")
+			return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
 		}
 	} else {
 		pickupAddress := newPPMShipment.PickupAddress
@@ -446,7 +446,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				}
 				return finalIncentive, nil
 			} else {
-				return nil, apperror.NewInternalServerError("Failed to calculate PPM Incentive: Incentives missing")
+				return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
 			}
 		} else {
 			return nil, nil
