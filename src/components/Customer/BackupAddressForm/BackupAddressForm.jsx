@@ -36,7 +36,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
             </p>
 
             <SectionWrapper className={formStyles.formSection}>
-              <AddressFields labelHint="Required" name={formFieldsName} locationLookup formikProps={formikProps} />
+              <AddressFields labelHint="Required" name={formFieldsName} formikProps={formikProps} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
