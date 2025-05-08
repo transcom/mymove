@@ -444,7 +444,13 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
-
+				// if isWeightEstimatorFile is false, throw an error, and send message to front end to let user know.
+				if !isWeightEstimatorFile {
+					message := "The uploaded .xlsx file does not match the expected weight estimator file format."
+					return ppmop.NewCreatePPMUploadIncorrectXlsxFormat().WithPayload(&ghcmessages.Error{
+						Message: &message,
+					}), nil
+				}
 				_, err = file.Data.Seek(0, io.SeekStart)
 
 				if err != nil {
