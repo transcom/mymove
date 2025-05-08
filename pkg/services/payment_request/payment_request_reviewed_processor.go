@@ -8,6 +8,7 @@ import (
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -67,7 +68,13 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
-	notificationSender, notificationErr := notifications.InitEmail(viper.GetViper(), appCtx.Logger())
+	v := viper.New()
+	flag := pflag.CommandLine
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	cli.InitEmailFlags(flag)
+	notificationSender, notificationErr := notifications.InitEmail(v, appCtx.Logger())
 	if notificationErr != nil {
 		appCtx.Logger().Error("notification sender initialization failed", zap.Error(notificationErr))
 	}
