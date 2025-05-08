@@ -369,14 +369,25 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	updatedActualDeliveryDate := mtoShipment.ActualDeliveryDate
 	originSITAuthEndDate := oldShipment.OriginSITAuthEndDate
 	destSITAuthEndDate := oldShipment.DestinationSITAuthEndDate
-	if hasSITExtension(appCtx, mtoShipment.ID) {
+	hasSITExtension, err := hasSITExtension(appCtx, mtoShipment.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if hasSITExtension {
 		if updatedActualDeliveryDate != nil && originSITAuthEndDate != nil {
 			if updatedActualDeliveryDate.Before(*originSITAuthEndDate) || updatedActualDeliveryDate.Equal(*originSITAuthEndDate) {
-				appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
+				err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
+				if err != nil {
+					return nil, err
+				}
 			}
 		} else if updatedActualDeliveryDate != nil && destSITAuthEndDate != nil {
 			if updatedActualDeliveryDate.Before(*destSITAuthEndDate) || updatedActualDeliveryDate.Equal(*destSITAuthEndDate) {
-				appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
+				err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
@@ -440,15 +451,18 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	return updatedShipment, nil
 }
 
-func hasSITExtension(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) bool {
+func hasSITExtension(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
 	var rowCount int
 	hasSitExtension := false
-	appCtx.DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", mtoShipmentID).First(&rowCount)
+	err := appCtx.DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", mtoShipmentID).First(&rowCount)
+	if err != nil {
+		return hasSitExtension, err
+	}
 
 	if rowCount > 0 {
 		hasSitExtension = true
 	}
-	return hasSitExtension
+	return hasSitExtension, nil
 }
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the

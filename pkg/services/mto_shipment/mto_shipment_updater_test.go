@@ -2226,7 +2226,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		var rowCount int
 		// check if sitExtension was successfully added
-		suite.AppContextForTest().DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", oldShipment.ID).First(&rowCount)
+		err := suite.AppContextForTest().DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", oldShipment.ID).First(&rowCount)
+		suite.NoError(err)
 		suite.Equal(rowCount, 1)
 
 		requestedPickupDate := now.Add(time.Hour * 24 * 3)
@@ -2248,7 +2249,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 
 		// check if sitExtension was successfully removed
-		suite.AppContextForTest().DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", newShipment.ID).First(&rowCount)
+		err = suite.AppContextForTest().DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", newShipment.ID).First(&rowCount)
+		suite.NoError(err)
 		suite.Equal(rowCount, 0)
 	})
 }
