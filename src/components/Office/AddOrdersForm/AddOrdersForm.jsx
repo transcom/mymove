@@ -16,14 +16,17 @@ import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/Requi
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
-import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { showCounselingOffices } from 'services/ghcApi';
+import { showCounselingOffices, getRankGradeOptions } from 'services/ghcApi';
 import Hint from 'components/Hint';
+import { sortRankPayGradeOptions } from 'shared/utils';
+import { setShowLoadingSpinner } from 'store/general/actions';
+import { milmoveLogger } from 'utils/milmoveLog';
+import retryPageLoading from 'utils/retryPageLoading';
 
 let originMeta;
 let newDutyMeta = '';
@@ -34,8 +37,8 @@ const AddOrdersForm = ({
   onBack,
   isSafetyMoveSelected,
   isBluebarkMoveSelected,
+  affiliation,
 }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
@@ -127,7 +130,26 @@ const AddOrdersForm = ({
       }
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, serviceMemberId]);
+  const [rankOptions, setRankOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getRankGradeOptions(affiliation);
+        if (fetchedRanks) {
+          const formattedOptions = sortRankPayGradeOptions(fetchedRanks.body);
+          setRankOptions(formattedOptions);
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
 
+    fetchRankGradeOptions();
+  }, [affiliation]);
   useEffect(() => {
     if (ordersType && grade && currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
       if (
@@ -232,6 +254,16 @@ const AddOrdersForm = ({
           setShowCivilianTDYUBTooltip((prev) => !prev);
         };
 
+        const handleGradeRankChange = (e) => {
+          let paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
+          // app is filled with hardcoded values for pay grades, need to replace the dash with an underscore for the app to continue working
+          if (paygrade !== ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE) {
+            paygrade = paygrade.replace('-', '_');
+          }
+          setGrade(paygrade);
+          setValues({ ...values, rank: e.target.value, grade: paygrade });
+        };
+
         return (
           <Form className={`${formStyles.form}`}>
             <ConnectedFlashMessage />
@@ -240,7 +272,7 @@ const AddOrdersForm = ({
             <SectionWrapper className={formStyles.formSection}>
               {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders type"
+                label="Orders typessss"
                 name="ordersType"
                 options={filteredOrderTypeOptions}
                 required
@@ -454,15 +486,14 @@ const AddOrdersForm = ({
               )}
 
               <DropdownInput
-                label="Pay grade"
-                name="grade"
-                id="grade"
+                label="Rank / Pay grade"
+                name="rank"
+                id="rank"
                 required
-                options={payGradeOptions}
+                options={rankOptions}
                 showRequiredAsterisk
                 onChange={(e) => {
-                  setGrade(e.target.value);
-                  handleChange(e);
+                  handleGradeRankChange(e);
                 }}
               />
 

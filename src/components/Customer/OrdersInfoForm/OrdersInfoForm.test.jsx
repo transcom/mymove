@@ -11,6 +11,7 @@ import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { MockProviders } from 'testUtils';
+// import { getRankGradeOptions } from 'services/ghcApi';
 
 jest.setTimeout(60000);
 
@@ -29,6 +30,46 @@ jest.mock('services/internalApi', () => ({
         },
       ],
     }),
+  ),
+
+  getRankGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve([
+      {
+        id: 'd3aa6931-7858-4123-be0b-f3242a49e9f7',
+        paygradeId: '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9',
+        rankGradeName: 'CIV / CIVILIAN_EMPLOYEE',
+      },
+      {
+        id: 'f6dbd496-8f71-487b-a432-55b60967f474',
+        paygradeId: '6cb785d0-cabf-479a-a36d-a6aec294a4d0',
+        rankGradeName: 'AB / E-1',
+        rankOrder: 25,
+      },
+      {
+        id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+        paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+        rankGradeName: 'Amn / E-2',
+        rankOrder: 24,
+      },
+      {
+        id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
+        paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
+        rankGradeName: 'A1C / E-3',
+        rankOrder: 23,
+      },
+      {
+        id: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+        paygradeId: 'bb55f37c-3165-46ba-ad3f-9a477f699990',
+        rankGradeName: 'SrA / E-4',
+        rankOrder: 22,
+      },
+      {
+        id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+        paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
+        rankGradeName: 'SSgt / E-5',
+        rankOrder: 21,
+      },
+    ]),
   ),
 }));
 
@@ -176,6 +217,7 @@ jest.mock('../../../utils/featureFlags', () => ({
 }));
 
 const testProps = {
+  // affiliation: 'AIR_FORCE',
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
     orders_type: '',
@@ -303,6 +345,13 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
+    // getRankGradeOptions.mockResolvedValue({
+    //   id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
+    //   paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
+    //   rankGradeName: 'SSgt / E-5',
+    //   rankOrder: 23,
+    // });
+
     render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
@@ -313,7 +362,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -352,7 +401,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByTestId('errorMessage').length).toBe(4);
+      expect(getAllByTestId('errorMessage').length).toBe(3);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -392,7 +441,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Scott/);
@@ -439,7 +488,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
@@ -463,7 +512,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/, { exact: false }), 'AFB', { delay: 100 });
@@ -509,6 +558,7 @@ describe('OrdersInfoForm component', () => {
             updated_at: '2021-02-11T16:48:04.117Z',
           },
           grade: 'E_5',
+          rank: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
           origin_duty_location: {
             address: {
               city: '',
@@ -540,7 +590,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_7']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -578,7 +628,7 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
-          grade: 'E_7',
+          grade: 'E_5',
           origin_duty_location: {
             address: {
               city: '',
@@ -640,6 +690,8 @@ describe('OrdersInfoForm component', () => {
         updated_at: '2020-10-19T17:01:16.114Z',
       },
       grade: 'E_1',
+      rank: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+
       origin_duty_location: {
         address: {
           city: '',
@@ -676,7 +728,7 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText('Yes')).not.toBeChecked();
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
-        expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
+        expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.rank);
         expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
     });
@@ -810,7 +862,7 @@ describe('OrdersInfoForm component', () => {
       expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIV / CIVILIAN_EMPLOYEE');
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
@@ -835,7 +887,7 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'SSgt / E-5');
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),

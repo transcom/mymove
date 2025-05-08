@@ -40,6 +40,32 @@ func (suite *PayloadsSuite) TestOrderWithMove() {
 	Order(&order)
 }
 
+func (suite *PayloadsSuite) TestGetPayGradeRankDropdownOptions() {
+	testCases := map[models.ServiceMemberAffiliation]int{
+		models.ServiceMemberAffiliation(models.AffiliationARMY):       33,
+		models.ServiceMemberAffiliation(models.AffiliationNAVY):       27,
+		models.ServiceMemberAffiliation(models.AffiliationMARINES):    28,
+		models.ServiceMemberAffiliation(models.AffiliationAIRFORCE):   28,
+		models.ServiceMemberAffiliation(models.AffiliationCOASTGUARD): 25,
+		models.ServiceMemberAffiliation(models.AffiliationSPACEFORCE): 21,
+	}
+	for affiliation, count := range testCases {
+		suite.Run("No errors for all affiliations", func() {
+			options, err := GetPayGradeRankDropdownOptions(suite.AppContextForTest(), string(affiliation))
+			suite.NoError(err)
+
+			suite.Equal(count, len(options))
+		})
+	}
+	suite.Run("Fetch a affiliations Pay Grade/Ranks", func() {
+		options, err := GetPayGradeRankDropdownOptions(suite.AppContextForTest(), string(models.AffiliationARMY))
+		suite.NoError(err)
+
+		suite.NotNil(options)
+		suite.Equal(33, len(options))
+	})
+}
+
 func (suite *PayloadsSuite) TestBoatShipment() {
 	suite.Run("Test Boat Shipment", func() {
 		boat := factory.BuildBoatShipment(suite.DB(), nil, nil)

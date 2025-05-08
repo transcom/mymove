@@ -5658,6 +5658,41 @@ func init() {
         }
       }
     },
+    "/ranks/{affiliation}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "order"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/re-service-items": {
       "get": {
         "description": "Get ReServiceItems",
@@ -8072,6 +8107,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -8599,6 +8640,11 @@ func init() {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -9598,6 +9644,7 @@ func init() {
         "E_9",
         "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
+        "O_1",
         "O_2",
         "O_3",
         "O_4",
@@ -9632,6 +9679,7 @@ func init() {
         "E_9": "E-9",
         "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
         "MIDSHIPMAN": "Midshipman",
+        "O_1": "O-1",
         "O_10": "O-10",
         "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
         "O_2": "O-2",
@@ -12173,6 +12221,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -14007,6 +14058,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankGradeName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
       "type": "object",
@@ -15612,6 +15693,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -16532,6 +16619,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -23672,6 +23776,55 @@ func init() {
         }
       }
     },
+    "/ranks/{affiliation}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "order"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/re-service-items": {
       "get": {
         "description": "Get ReServiceItems",
@@ -26496,6 +26649,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -27023,6 +27182,11 @@ func init() {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyLocationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -28022,6 +28186,7 @@ func init() {
         "E_9",
         "E_9_SPECIAL_SENIOR_ENLISTED",
         "O_1_ACADEMY_GRADUATE",
+        "O_1",
         "O_2",
         "O_3",
         "O_4",
@@ -28056,6 +28221,7 @@ func init() {
         "E_9": "E-9",
         "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
         "MIDSHIPMAN": "Midshipman",
+        "O_1": "O-1",
         "O_10": "O-10",
         "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
         "O_2": "O-2",
@@ -30597,6 +30763,9 @@ func init() {
         "packingAndShippingInstructions": {
           "type": "string"
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "type": "string",
           "format": "date",
@@ -32507,6 +32676,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankGradeName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "ReServiceItem": {
       "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
       "type": "object",
@@ -34168,6 +34367,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -35101,6 +35306,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",

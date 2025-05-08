@@ -446,7 +446,7 @@ describe('Orders page', () => {
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
     expect(screen.getByLabelText('No')).toBeChecked();
     expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E_8');
+    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('MSG / E-8');
     expect(screen.queryByText('Altus AFB')).toBeInTheDocument();
   });
 
