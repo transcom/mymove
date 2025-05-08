@@ -1,4 +1,5 @@
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
+import { appendTimestampToFilenamePrefix, getTomorrowUTC } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -62,12 +63,14 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Report by date').fill('1/25/2025');
       await page.getByLabel('Report by date').blur();
       const originLocation = 'Tinker AFB, OK 73145';
-      await page.getByLabel('Current duty location').fill('Tinker');
+      await page.getByLabel('Current duty location').fill(originLocation);
       await expect(page.getByText(originLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
-      const pickupLocation = 'Elmendorf AFB, AK 99506';
-      await page.getByLabel('New duty location').fill('JBER');
-      await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
+      await page.getByTestId('counselingOfficeSelect').selectOption({ label: 'PPPO Tinker AFB - USAF' });
+      await page.keyboard.press('Enter');
+      const newLocation = 'Elmendorf AFB, AK 99506';
+      await page.getByLabel('New duty location').fill(newLocation);
+      await expect(page.getByText(newLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('label[for="hasDependentsNo"]').click();
       await page.getByLabel('Pay grade').selectOption({ label: 'E-7' });
@@ -78,15 +81,18 @@ test.describe('Services counselor user', () => {
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       const filepondContainer = page.locator('.filepond--wrapper');
       await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
-      await expect(page.getByText('Uploading')).toBeVisible();
-      await expect(page.getByText('Uploading')).not.toBeVisible();
-      await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+
+      await expect(filepondContainer.getByText('Uploading')).toBeVisible();
+      await expect(filepondContainer.getByText('Uploading')).not.toBeVisible();
+      await expect(filepondContainer.getByText('Upload complete')).not.toBeVisible();
+      await expect(
+        page.getByTestId('uploads-table').getByText(appendTimestampToFilenamePrefix('AF Orders Sample')),
+      ).toBeVisible();
       await page.getByRole('button', { name: 'Done' }).click();
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');
       await page.getByLabel('Orders type detail').selectOption('Shipment of HHG Permitted');
-      await page.getByLabel('TAC', { exact: true }).nth(0).fill('TEST');
+      await page.getByTestId('hhgTacInput').fill('TEST');
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
@@ -94,7 +100,7 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Add a new shipment').selectOption('HHG');
       await expect(page.getByText('Add shipment details')).toBeVisible();
       await expect(page.getByText('Weight allowance: 11,000 lbs')).toBeVisible();
-      await page.getByLabel('Requested pickup date').fill('25 Dec 2024');
+      await page.getByLabel('Requested pickup date').fill(getTomorrowUTC());
       await page.getByLabel('Requested pickup date').blur();
       await page.getByText('Use pickup address').click();
       await page.getByLabel('Requested delivery date').fill('25 Dec 2022');
