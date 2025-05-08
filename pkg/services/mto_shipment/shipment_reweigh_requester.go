@@ -8,15 +8,17 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type shipmentReweighRequester struct {
+	Sender notifications.NotificationSender
 }
 
 // NewShipmentReweighRequester creates a new struct with the service dependencies
-func NewShipmentReweighRequester() services.ShipmentReweighRequester {
-	return &shipmentReweighRequester{}
+func NewShipmentReweighRequester(sender notifications.NotificationSender) services.ShipmentReweighRequester {
+	return &shipmentReweighRequester{Sender: sender}
 }
 
 // RequestShipmentReweigh Requests the shipment reweigh
@@ -27,6 +29,16 @@ func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppC
 	}
 
 	reweigh, err := f.createReweigh(appCtx, shipment, requester, checkReweighAllowed())
+
+	/* Don't send emails to BLUEBARK moves */
+	if err == nil && shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
+		err := f.Sender.SendNotification(appCtx,
+			notifications.NewReweighRequested(shipment.MoveTaskOrderID, *shipment),
+		)
+		if err != nil {
+			return reweigh, err
+		}
+	}
 
 	return reweigh, err
 }
