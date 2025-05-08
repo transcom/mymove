@@ -119,6 +119,7 @@ describe('CreateMoveCustomerInfo', () => {
       expect(screen.getByText('Beverly Hills')).toHaveTextContent(customerData.current_address.city);
       expect(screen.getByText('CA')).toHaveTextContent(customerData.current_address.state);
       expect(screen.getByText('90210')).toHaveTextContent(customerData.current_address.postalCode);
+      expect(screen.getByText('Beverly Hills, CA 90210 ()'));
       expect(screen.getByDisplayValue('Jane Backup').value).toEqual(customerData.backup_contact.name);
     });
   });

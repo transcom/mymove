@@ -1020,7 +1020,7 @@ export const MoveTaskOrder = (props) => {
       <div className={styles.tabContent}>
         <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
           <div className={styles.pageHeader}>
-            <h1>Move task order</h1>
+            <h1>Move Task Order</h1>
           </div>
           <div className={styles.emptyMessage}>
             <p>This move does not have any approved shipments yet.</p>
@@ -1217,7 +1217,7 @@ export const MoveTaskOrder = (props) => {
             />
           )}
           <div className={styles.pageHeader}>
-            <h1>Move task order</h1>
+            <h1>Move Task Order</h1>
             <div className={styles.pageHeaderDetails}>
               <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #{move?.contractor?.contractNumber}</h6>
