@@ -17,6 +17,7 @@ import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 import RequiredTag from 'components/form/RequiredTag';
+import LoadingButton from 'components/LoadingButton/LoadingButton';
 
 const validationSchema = Yup.object().shape({
   estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
@@ -183,14 +184,15 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
-                <Button
-                  className={ppmStyles.saveButton}
+                <LoadingButton
+                  buttonClassName={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
-                >
-                  Save & Continue
-                </Button>
+                  disabled={isSubmitting || !isValid}
+                  isLoading={isSubmitting}
+                  labelText="Save & Continue"
+                  loadingText="Saving"
+                />
               </div>
             </Form>
           </div>

@@ -134,9 +134,6 @@ const paymentRequestColumns = [
 
 jest.mock('services/ghcApi', () => ({
   getPaymentRequestsQueue: jest.fn().mockImplementation(() => Promise.resolve(paymentRequestsResponse)),
-  getPaymentRequestsNoResultsQueue: jest
-    .fn()
-    .mockImplementation(() => Promise.resolve(paymentRequestsNoResultsResponse)),
 }));
 
 describe('TableCSVExportButton', () => {
@@ -162,6 +159,26 @@ describe('TableCSVExportButton', () => {
     });
 
     expect(getPaymentRequestsQueue).toBeCalled();
+  });
+
+  const delayedResultsProps = {
+    tableColumns: paymentRequestColumns,
+    queueFetcher: () => Promise.resolve(setTimeout(paymentRequestsResponse, 500)),
+    queueFetcherKey: 'queuePaymentRequests',
+    totalCount: 0,
+  };
+
+  it('multi-click calls fetcher once', () => {
+    act(() => {
+      const wrapper = mount(<TableCSVExportButton {...delayedResultsProps} />);
+      const exportButton = wrapper.find('span[data-test-id="csv-export-btn-text"]');
+      exportButton.simulate('click');
+      exportButton.simulate('click');
+      exportButton.simulate('click');
+      wrapper.update();
+    });
+
+    expect(getPaymentRequestsQueue).toHaveBeenCalledTimes(1);
   });
 
   const noResultsProps = {
