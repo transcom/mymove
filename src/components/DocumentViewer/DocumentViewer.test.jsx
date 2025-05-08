@@ -38,6 +38,7 @@ const mockFiles = [
     contentType: 'application/pdf',
     url: samplePDF,
     createdAt: '2021-06-14T15:09:26.979879Z',
+    rotation: 1,
   },
   {
     id: 2,
@@ -81,7 +82,18 @@ jest.mock('services/ghcApi', () => ({
 
 jest.mock('./Content/Content', () => ({
   __esModule: true,
-  default: ({ id, filename, contentType, url, createdAt, rotation, filePath, onError }) => {
+  default: ({
+    id,
+    filename,
+    contentType,
+    url,
+    createdAt,
+    rotation,
+    filePath,
+    onError,
+    disableSaveButton,
+    saveRotation,
+  }) => {
     if (filePath === '404') {
       onError('content error happening');
       return <div>nothing to see here</div>;
@@ -117,6 +129,9 @@ jest.mock('./Content/Content', () => ({
             Toggle
           </button>
         </div>
+        <button type="button" disabled={disableSaveButton} onClick={saveRotation}>
+          Save
+        </button>
       </div>
     );
   },
@@ -235,6 +250,15 @@ describe('DocumentViewer component', () => {
       await waitFor(() => {
         expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe('DocumentViewer', () => {
+    it('disables Save button when no rotation change', async () => {
+      renderWithProviders(<DocumentViewer files={mockFiles} />);
+
+      const saveBtn = await screen.findByRole('button', { name: /save/i });
+      expect(saveBtn).toBeDisabled();
     });
   });
 });
