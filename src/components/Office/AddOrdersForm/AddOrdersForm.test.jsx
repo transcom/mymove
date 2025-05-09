@@ -270,7 +270,6 @@ describe('CreateMoveCustomerInfo Component', () => {
     await userEvent.click(getByLabelText(/Report by date/));
     await userEvent.click(getByLabelText(/Current duty location/)); // do we want to add an error alert for this field
     await userEvent.click(getByLabelText(/New duty location/));
-    await userEvent.click(getByLabelText(/Rank/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);

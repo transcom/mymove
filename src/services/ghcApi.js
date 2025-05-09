@@ -1088,6 +1088,6 @@ export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }
 
-export async function getRankGradeOptions(affiliation) {
-  return makeGHCRequestRaw('order.getRanks', { affiliation }, { normalize: false });
+export async function getRankOptions(affiliation, grade) {
+  return makeGHCRequestRaw('order.getRanks', { affiliation, grade }, { normalize: false });
 }

@@ -15,6 +15,7 @@ import (
 // GetRanksURL generates an URL for the get ranks operation
 type GetRanksURL struct {
 	Affiliation string
+	Grade       string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -40,13 +41,20 @@ func (o *GetRanksURL) SetBasePath(bp string) {
 func (o *GetRanksURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/ranks/{affiliation}"
+	var _path = "/ranks/{affiliation}&{grade}"
 
 	affiliation := o.Affiliation
 	if affiliation != "" {
 		_path = strings.Replace(_path, "{affiliation}", affiliation, -1)
 	} else {
 		return nil, errors.New("affiliation is required on GetRanksURL")
+	}
+
+	grade := o.Grade
+	if grade != "" {
+		_path = strings.Replace(_path, "{grade}", grade, -1)
+	} else {
+		return nil, errors.New("grade is required on GetRanksURL")
 	}
 
 	_basePath := o._basePath

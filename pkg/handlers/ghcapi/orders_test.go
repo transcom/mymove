@@ -2904,3 +2904,49 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 		}
 	})
 }
+
+func (suite *HandlerSuite) TestGetRanksHandler() {
+	suite.Run("happy path", func() {
+		order := factory.BuildOrder(suite.DB(), nil, nil)
+		affiliation := ghcmessages.AffiliationAIRFORCE
+		grade := models.ServiceMemberGradeE2
+		path := fmt.Sprintf("/ranks/%v&%v", affiliation, grade)
+		req := httptest.NewRequest("GET", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := orderop.GetRanksParams{
+			HTTPRequest: req,
+			Affiliation: string(affiliation),
+			Grade:       string(grade),
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		showHandler := GetRanksHandler{handlerConfig}
+		response := showHandler.Handle(params)
+		suite.Assertions.IsType(&orderop.GetRanksOK{}, response)
+		okResponse := response.(*orderop.GetRanksOK)
+
+		suite.Assertions.Equal(1, len(okResponse.Payload))
+	})
+
+	suite.Run("test a bad affiliation", func() {
+		order := factory.BuildOrder(suite.DB(), nil, nil)
+		grade := models.ServiceMemberGradeE2
+		path := fmt.Sprintf("/ranks/%v&%v", "FAKE", grade)
+		req := httptest.NewRequest("GET", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := orderop.GetRanksParams{
+			HTTPRequest: req,
+			Affiliation: "FAKE",
+		}
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		showHandler := GetRanksHandler{handlerConfig}
+		response := showHandler.Handle(params)
+		suite.Assertions.IsType(&orderop.GetRanksNotFound{}, response)
+	})
+}

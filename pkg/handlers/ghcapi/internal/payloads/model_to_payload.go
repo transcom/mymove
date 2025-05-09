@@ -2936,20 +2936,22 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 }
 
 // get pay grade / rank for orders drop down
-func GetPayGradeRankDropdownOptions(appCtx appcontext.AppContext, affiliation string) ([]*ghcmessages.Rank, error) {
+func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*ghcmessages.Rank, error) {
 	var dropdownOptions []*ghcmessages.Rank
 
 	err := appCtx.DB().Q().RawQuery(`
-	SELECT
-		ranks.rank_abbv || ' / ' || REPLACE(pay_grades.grade, '_', '-') AS RankGradeName,
-		ranks.id,
-		ranks.pay_grade_id AS PaygradeID,
-		ranks.rank_order AS RankOrder
-	FROM ranks
-	JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
-	WHERE affiliation = $1
-	ORDER BY ranks.rank_order DESC
-`, affiliation).All(&dropdownOptions)
+		SELECT
+			ranks.rank_abbv || ' / ' || ranks.rank_name AS RankGradeName,
+			-- ranks.rank_abbv AS RankGradeName,
+			ranks.id,
+			ranks.pay_grade_id AS PaygradeID,
+			ranks.rank_order AS RankOrder
+		FROM ranks
+		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
+		WHERE affiliation = $1
+		AND grade = $2
+		ORDER BY ranks.rank_order DESC
+	`, affiliation, grade).All(&dropdownOptions)
 	if err != nil {
 		return nil, err
 	}

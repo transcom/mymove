@@ -1535,7 +1535,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/ranks/{affiliation}"] = order.NewGetRanks(o.context, o.OrderGetRanksHandler)
+	o.handlers["GET"]["/ranks/{affiliation}&{grade}"] = order.NewGetRanks(o.context, o.OrderGetRanksHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
