@@ -90,7 +90,7 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 			return err
 		}
 
-		if shipmentApprovable(shipment) {
+		if models.IsShipmentApprovable(shipment) {
 			shipment.Status = models.MTOShipmentStatusApproved
 			approvedDate := time.Now()
 			shipment.ApprovedDate = &approvedDate

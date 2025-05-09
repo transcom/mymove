@@ -560,3 +560,24 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 	isOCONUS := *shipment.PickupAddress.IsOconus || *shipment.DestinationAddress.IsOconus
 	return &isOCONUS
 }
+
+func IsShipmentApprovable(dbShipment MTOShipment) bool {
+	// check if any service items on current shipment still need to be reviewed
+	for _, serviceItem := range dbShipment.MTOServiceItems {
+		if serviceItem.Status == MTOServiceItemStatusSubmitted {
+			return false
+		}
+	}
+	// check if all SIT Extensions are reviewed
+	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+		if sitDurationUpdate.Status == SITExtensionStatusPending {
+			return false
+		}
+	}
+	// check if all Delivery Address updates are reviewed
+	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == ShipmentAddressUpdateStatusRequested {
+		return false
+	}
+
+	return true
+}
