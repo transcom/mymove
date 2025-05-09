@@ -110,7 +110,7 @@ const OfficeUserEdit = ({ adminUser }) => {
     return errors;
   };
 
-  // hard deletes a user and associated roles/privileges
+  // hard deletes an office user and associated roles/privileges
   const deleteUser = async () => {
     try {
       await deleteOfficeUser(userData.id);
@@ -175,7 +175,7 @@ const OfficeUserEdit = ({ adminUser }) => {
   };
 
   return (
-    <Edit mutationMode="pessimistic">
+    <Edit>
       <Confirm
         isOpen={deleteOpen}
         title={`Delete office user ${userData.firstName} ${userData.lastName}?`}
@@ -204,7 +204,7 @@ const OfficeUserEdit = ({ adminUser }) => {
         toolbar={renderToolBar()}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}
         mode="onSubmit"
-        reValidateMode="onBlur"
+        reValidateMode="onSubmit"
         validate={validateForm}
       >
         <TextInput source="id" disabled />
