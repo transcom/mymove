@@ -32,6 +32,8 @@ DECLARE
     standalone BOOLEAN;
     external BOOLEAN;
     cubic_feet NUMERIC;
+    standalone_crate_cap;
+    external_crate_minimum;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
     INTO shipment
@@ -46,6 +48,16 @@ BEGIN
     IF shipment.prime_estimated_weight IS NULL THEN
         RETURN;
     END IF;
+
+    SELECT parameter_value
+    INTO standalone_crate_cap
+    FROM application_parameters
+    WHERE parameter_name = ''standaloneCrateCap'';
+
+    SELECT parameter_value
+    INTO external_crate_minimum
+    FROM application_parameters
+    WHERE parameter_name = ''externalCrateMinimum'';
 
     -- loop through service items in the shipment
     FOR service_item IN
@@ -108,14 +120,14 @@ BEGIN
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
                     cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
                     
-                    IF cubic_feet < 4.0 AND external THEN 
-                        cubic_feet := 4.0;
+                    IF cubic_feet < external_crate_minimum AND external THEN 
+                        cubic_feet := external_crate_minimum;
                     END IF;
 
                     estimated_price := ROUND((escalated_price * cubic_feet), 2) * 100;
 
-                    IF estimated_price > 100000.00 AND standalone THEN 
-                        estimated_price := 100000.00;
+                    IF estimated_price > standalone_crate_cap AND standalone THEN 
+                        estimated_price := standalone_crate_cap;
                     END IF;
 
 					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
@@ -140,14 +152,14 @@ BEGIN
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
                     cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
                     
-                    IF cubic_feet < 4.0 AND external THEN 
-                        cubic_feet := 4.0;
+                    IF cubic_feet < external_crate_minimum AND external THEN 
+                        cubic_feet := external_crate_minimum;
                     END IF;
 
                     estimated_price := ROUND((escalated_price * cubic_feet), 2) * 100;
 
-                    IF estimated_price > 100000.00 AND standalone THEN 
-                        estimated_price := 100000.00;
+                    IF estimated_price > standalone_crate_cap AND standalone THEN 
+                        estimated_price := standalone_crate_cap;
                     END IF;
 
 					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
