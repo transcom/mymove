@@ -28,6 +28,10 @@ func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppC
 		return nil, err
 	}
 
+	if shipment.ShipmentType == models.MTOShipmentTypePPM {
+		return nil, apperror.NewBadDataError("PPM Shipments are not eligible for reweigh requests")
+	}
+
 	reweigh, err := f.createReweigh(appCtx, shipment, requester, checkReweighAllowed())
 
 	/* Don't send emails to BLUEBARK moves */

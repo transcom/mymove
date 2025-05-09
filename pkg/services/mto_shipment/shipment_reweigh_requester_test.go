@@ -103,4 +103,24 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
+
+	suite.Run("Returns an error if a PPM shipment is sent", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		_, err := requester.RequestShipmentReweigh(session, shipment.ID, models.ReweighRequesterTOO)
+
+		suite.Error(err)
+		suite.IsType(&apperror.BadDataError{}, err)
+	})
 }
