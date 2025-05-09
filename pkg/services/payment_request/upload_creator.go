@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"path"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -15,11 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
-)
-
-const (
-	// VersionTimeFormat is the Go time format for creating a version number.
-	VersionTimeFormat string = "20060102150405"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 type paymentRequestUploadCreator struct {
@@ -44,7 +39,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCtx appconte
 		}
 	}
 
-	newfilename := filename + "-" + time.Now().Format(VersionTimeFormat)
+	newfilename := utils.AppendTimestampToFilename(filename)
 	uploadFilePath := fmt.Sprintf("/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequest.ID)
 	uploadFileName := path.Join(uploadFilePath, newfilename)
 
