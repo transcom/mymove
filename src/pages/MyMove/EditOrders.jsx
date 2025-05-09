@@ -25,7 +25,7 @@ import {
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { formatWeight, formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { FEATURE_FLAG_KEYS, MOVE_LOCKED_WARNING } from 'shared/constants';
+import { checkIfMoveIsLocked, FEATURE_FLAG_KEYS, MOVE_LOCKED_WARNING } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -62,8 +62,7 @@ const EditOrders = ({
   }
 
   useEffect(() => {
-    const now = new Date();
-    if (now < new Date(move?.lockExpiresAt)) {
+    if (checkIfMoveIsLocked(move)) {
       setIsMoveLocked(true);
     }
   }, [move]);
