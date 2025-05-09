@@ -28,6 +28,7 @@ import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { appendTimestampToFilename } from 'shared/utils';
 
 const EditOrders = ({
   serviceMemberId,
@@ -112,24 +113,7 @@ const EditOrders = ({
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    return createUploadForDocument(newFile, documentId);
+    return createUploadForDocument(appendTimestampToFilename(file), documentId);
   };
 
   const handleUploadComplete = async () => {
