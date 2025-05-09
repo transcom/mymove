@@ -97,6 +97,42 @@ describe('EditContactInfoForm component', () => {
     expect(backupAddress2).toBeInstanceOf(HTMLInputElement);
     expect(backupAddress2).toHaveValue(testProps.initialValues.backup_mailing_address.streetAddress2);
 
+    const cityInputs = screen.getAllByTestId(/City/);
+
+    expect(cityInputs.length).toBe(2);
+
+    const [residentialCity, backupCity] = cityInputs;
+
+    expect(residentialCity).toBeInstanceOf(HTMLLabelElement);
+    expect(residentialCity).toHaveTextContent(testProps.initialValues.residential_address.city);
+
+    expect(backupCity).toBeInstanceOf(HTMLLabelElement);
+    expect(backupCity).toHaveTextContent(testProps.initialValues.backup_mailing_address.city);
+
+    const stateInputs = screen.getAllByTestId(/State/);
+
+    expect(stateInputs.length).toBe(2);
+
+    const [residentialState, backupState] = stateInputs;
+
+    expect(residentialState).toBeInstanceOf(HTMLLabelElement);
+    expect(residentialState).toHaveTextContent(testProps.initialValues.residential_address.state);
+
+    expect(backupState).toBeInstanceOf(HTMLLabelElement);
+    expect(backupState).toHaveTextContent(testProps.initialValues.backup_mailing_address.state);
+
+    const zipInputs = screen.getAllByTestId(/ZIP/);
+
+    expect(zipInputs.length).toBe(2);
+
+    const [residentialZIP, backupZIP] = zipInputs;
+
+    expect(residentialZIP).toBeInstanceOf(HTMLLabelElement);
+    expect(residentialZIP).toHaveTextContent(testProps.initialValues.residential_address.postalCode);
+
+    expect(backupZIP).toBeInstanceOf(HTMLLabelElement);
+    expect(backupZIP).toHaveTextContent(testProps.initialValues.backup_mailing_address.postalCode);
+
     expect(
       screen.getAllByText(
         `${testProps.initialValues.residential_address.city}, ${testProps.initialValues.residential_address.state} ${testProps.initialValues.residential_address.postalCode} ()`,

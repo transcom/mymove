@@ -722,7 +722,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidCreateInputError{}, err)
-		suite.Equal("Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
+		suite.Equal("Invalid Create Input Error: Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
 	})
 
 	type generateInvalidMove func() models.Move
@@ -1336,6 +1336,126 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			}
 		}
 	})
+}
+
+func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTS() {
+	testStorageFacilityZip := "30907"
+	testDestinationZip := "78234"
+	testOriginalWeight := unit.Pound(3652)
+	testZip3Distance := 1234
+	//
+	// Test data setup
+	//
+
+	// Make storage facility and destination addresses
+	storageFacilityAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "235 Prospect Valley Road SE",
+				City:           "AUGUSTA",
+				State:          "GA",
+				PostalCode:     testStorageFacilityZip,
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "17 8th St",
+				City:           "San Antonio",
+				State:          "TX",
+				PostalCode:     testDestinationZip,
+			},
+		},
+	}, nil)
+
+	// Make a storage facility
+	storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
+		{
+			Model:    storageFacilityAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Make move and shipment
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	actualPickupDate := time.Date(testdatagen.GHCTestYear, time.February, 15, 0, 0, 0, 0, time.UTC)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
+				PrimeActualWeight:    &testOriginalWeight,
+				ActualPickupDate:     &actualPickupDate,
+				DestinationAddressID: &destinationAddress.ID,
+			},
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
+
+	inpkMTOServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeINPK,
+			},
+		},
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		},
+	}, nil)
+
+	paymentRequestArg := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+		IsFinal:         false,
+		PaymentServiceItems: models.PaymentServiceItems{
+			{
+				MTOServiceItemID: inpkMTOServiceItem.ID,
+				MTOServiceItem:   inpkMTOServiceItem,
+			},
+		},
+	}
+
+	//
+	// Create the payment request
+	//
+
+	// Mock out a planner.
+	mockPlanner := &routemocks.Planner{}
+	mockPlanner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		testStorageFacilityZip,
+		testDestinationZip,
+	).Return(testZip3Distance, nil)
+
+	// Create an initial payment request.
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
+	suite.FatalNoError(err)
+
+	suite.FatalTrue(suite.Len(paymentRequest.PaymentServiceItems, 1))
+	psi := paymentRequest.PaymentServiceItems[0]
+	suite.Equal(models.ReServiceCodeINPK, psi.MTOServiceItem.ReService.Code)
+	ntsPackingFactorParam := getPaymentServiceItemParam(psi.PaymentServiceItemParams, models.ServiceItemParamNameNTSPackingFactor)
+	suite.FatalTrue(suite.Equal("1.45", ntsPackingFactorParam.Value, "NTS Packing Factor does not match the DB non-truncated value for the test database"))
 }
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelease() {

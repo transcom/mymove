@@ -1,6 +1,8 @@
 -- B-22911 Beth introduced a move history sql refactor for us to swapnout with the pop query to be more efficient
 -- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
 -- B 22696 Jon Spight added too destination assignments to history / Audit log
+-- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
+
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
 
@@ -135,8 +137,9 @@ BEGIN
         FROM
             audit_history
         JOIN mto_shipments ON mto_shipments.id = audit_history.object_id
-        JOIN moves ON mto_shipments.move_id = v_move_id
+        JOIN moves ON mto_shipments.move_id = moves.id
         WHERE audit_history.table_name = 'mto_shipments'
+            AND moves.id = v_move_id
             AND NOT (audit_history.event_name = 'updateMTOStatusServiceCounselingCompleted' AND audit_history.changed_data = '{"status": "APPROVED"}')
             AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
             AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE '%shipment_locator%' AND LENGTH(audit_history.changed_data::TEXT) < 35)
