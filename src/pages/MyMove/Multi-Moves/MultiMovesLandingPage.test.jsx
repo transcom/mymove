@@ -10,7 +10,7 @@ import MultiMovesLandingPage from './MultiMovesLandingPage';
 import { MockProviders } from 'testUtils';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
-import { MULTI_MOVE_LOCKED_WARNING } from 'shared/constants';
+import { MOVE_STATUSES, MULTI_MOVE_LOCKED_WARNING } from 'shared/constants';
 
 // Mock external dependencies
 jest.mock('containers/FlashMessage/FlashMessage', () => {
@@ -765,6 +765,7 @@ defaultPropsMultipleMoveWithCurrentMoveLock.serviceMemberMoves.currentMove[0].lo
 const defaultPropsMultipleMoveWithPreviousMoveLock = cloneDeep(defaultPropsMultipleMove);
 defaultPropsMultipleMoveWithPreviousMoveLock.serviceMemberMoves.previousMoves[0].lockExpiresAt =
   '2099-04-07T17:21:30.450Z';
+defaultPropsMultipleMoveWithPreviousMoveLock.serviceMemberMoves.previousMoves[0].status = MOVE_STATUSES.DRAFT;
 
 describe('MultiMovesLandingPage', () => {
   it('renders the component with moves', () => {
