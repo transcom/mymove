@@ -154,7 +154,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	)
 	subtestData.planner = &mocks.Planner{}
 	mockSender := setUpMockNotificationSender()
-	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights, subtestData.mtoUpdater, moveRouter)
 	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights, subtestData.mtoUpdater, moveRouter)
@@ -360,7 +360,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		shipmentRouter := NewShipmentRouter()
 		waf := entitlements.NewWeightAllotmentFetcher()
 		mockSender := setUpMockNotificationSender()
-		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+		moveWeights := moverouter.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 		var serviceItemCreator services.MTOServiceItemCreator
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,

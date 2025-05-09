@@ -5,16 +5,23 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
-	requester := NewShipmentReweighRequester()
+	mockSender := mocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("*notifications.ReweighRequested"),
+	).Return(nil)
+	requester := NewShipmentReweighRequester(&mockSender)
 
 	suite.Run("If the shipment reweigh is requested successfully, it creates a reweigh in the DB", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -97,5 +104,25 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("Returns an error if a PPM shipment is sent", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		_, err := requester.RequestShipmentReweigh(session, shipment.ID, models.ReweighRequesterTOO)
+
+		suite.Error(err)
+		suite.IsType(&apperror.BadDataError{}, err)
 	})
 }
