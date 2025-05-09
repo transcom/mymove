@@ -1,12 +1,12 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
+import ExpenseForm from 'components/Shared/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 export default {
-  title: 'Customer Components / PPM Closeout / Expenses PPM Form',
+  title: 'Shared Components / PPM Closeout / Expenses PPM Form',
   component: ExpenseForm,
   decorators: [
     (Story) => (
