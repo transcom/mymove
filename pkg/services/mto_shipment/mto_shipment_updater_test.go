@@ -5398,7 +5398,7 @@ func (suite *MTOShipmentServiceSuite) TestCalculateRequiredDeliveryDate() {
 					StreetAddress1: "100 Mountain Hemlock St",
 					City:           "JB Elmendorf-Richardson",
 					State:          "AK",
-					PostalCode:     "99506",
+					PostalCode:     "99505",
 					IsOconus:       models.BoolPointer(true),
 				},
 			}}, nil)
