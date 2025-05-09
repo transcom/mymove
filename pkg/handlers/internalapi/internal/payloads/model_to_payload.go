@@ -743,13 +743,13 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 }
 
 // get pay grade / rank for orders drop down
-func GetPayGradeRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*internalmessages.Rank, error) {
+func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*internalmessages.Rank, error) {
 	var dropdownOptions []*internalmessages.Rank
 
 	err := appCtx.DB().Q().RawQuery(`
 		SELECT
-			ranks.rank_abbv || ' / ' || ranks.rank_name AS RankGradeName,
-			-- ranks.rank_abbv AS RankGradeName,
+			ranks.rank_abbv || ' / ' || ranks.rank_name AS RankName,
+			-- ranks.rank_abbv AS RankName,
 			ranks.id,
 			ranks.pay_grade_id AS PaygradeID,
 			ranks.rank_order AS RankOrder

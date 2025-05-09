@@ -337,7 +337,7 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 	})
 }
 
-func (suite *PayloadsSuite) TestGetPayGradeRankDropdownOptions() {
+func (suite *PayloadsSuite) TestGetRankDropdownOptions() {
 	type testCase struct {
 		grade string
 		count int
@@ -356,7 +356,7 @@ func (suite *PayloadsSuite) TestGetPayGradeRankDropdownOptions() {
 
 	for affiliation, tc := range testCases {
 		suite.Run(fmt.Sprintf("Affiliation: %s, Grade: %s", affiliation, tc.grade), func() {
-			options, err := GetPayGradeRankDropdownOptions(suite.AppContextForTest(), string(affiliation), tc.grade)
+			options, err := GetRankDropdownOptions(suite.AppContextForTest(), string(affiliation), tc.grade)
 			suite.NoError(err)
 			suite.Equal(tc.count, len(options))
 		})
