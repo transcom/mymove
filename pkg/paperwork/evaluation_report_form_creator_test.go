@@ -34,7 +34,7 @@ func (suite *PaperworkSuite) TestEvaluationReportFormSmokeTests() {
 		output, err := testFs.Create("test-output.pdf")
 		suite.FatalNil(err)
 
-		err = formFiller.Output(output)
+		err = formFiller.Output(output, report)
 		suite.FatalNil(err)
 	})
 	suite.Run("Counseling report", func() {
@@ -50,7 +50,7 @@ func (suite *PaperworkSuite) TestEvaluationReportFormSmokeTests() {
 		output, err := testFs.Create("test-output.pdf")
 		suite.FatalNil(err)
 
-		err = formFiller.Output(output)
+		err = formFiller.Output(output, report)
 		suite.FatalNil(err)
 	})
 }
