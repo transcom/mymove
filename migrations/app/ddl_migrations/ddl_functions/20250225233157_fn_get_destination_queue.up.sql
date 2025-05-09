@@ -266,7 +266,7 @@ BEGIN
         ' ORDER BY service_members.last_name %s, service_members.first_name %s',
         sort_order, sort_order
       );
-    -- to avoid duplicate moves being returned, we removed shipment dates from the GROUP BY
+    -- to avoid duplicate moves being returned, removed shipment dates (requested/delivery/pickup) from the GROUP BY
     -- if user is sorting asc/desc by requested move dates, we need to append to the ORDER BY
     ELSEIF sort = 'requestedMoveDate' THEN
       sql_query := sql_query || format(
