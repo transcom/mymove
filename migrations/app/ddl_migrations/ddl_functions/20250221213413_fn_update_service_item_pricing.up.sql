@@ -37,8 +37,8 @@ DECLARE
     standalone BOOLEAN;
     external BOOLEAN;
     cubic_feet NUMERIC;
-    standalone_crate_cap;
-    external_crate_minimum;
+    standalone_crate_cap NUMERIC;
+    external_crate_minimum NUMERIC;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
     INTO shipment
