@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
-import { createOrders, getServiceMember, showCounselingOffices } from 'services/internalApi';
+import { createOrders, getRankOptions, getServiceMember, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
@@ -35,36 +35,13 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
-  getRankGradeOptions: jest.fn().mockImplementation(() => {
+  getRankOptions: jest.fn().mockImplementation(() => {
     return Promise.resolve([
-      {
-        id: 'd3aa6931-7858-4123-be0b-f3242a49e9f7',
-        paygradeId: '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9',
-        rankGradeName: 'CIV / CIVILIAN-EMPLOYEE',
-      },
-      {
-        id: 'f6dbd496-8f71-487b-a432-55b60967f474',
-        paygradeId: '6cb785d0-cabf-479a-a36d-a6aec294a4d0',
-        rankGradeName: 'AB / E-1',
-        rankOrder: 25,
-      },
       {
         id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-        rankGradeName: 'Amn / E-2',
+        rankGradeName: 'Amn',
         rankOrder: 24,
-      },
-      {
-        id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
-        paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
-        rankGradeName: 'SSgt / E-5',
-        rankOrder: 21,
-      },
-      {
-        id: 'dda2b553-99be-439b-b088-b7608b48eff0',
-        paygradeId: '1d909db0-602f-4724-bd43-8f90a6660460',
-        rankGradeName: 'SMSgt / E-8',
-        rankOrder: 18,
       },
     ]);
   }),
@@ -469,7 +446,11 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+      getRankOptions.mockImplementation(() =>
+        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankGradeName: 'Amn' }]),
+      );
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -547,8 +528,8 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
-      grade: 'E_5',
-      rank: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+      grade: 'E_2',
+      rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -569,7 +550,11 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+      getRankOptions.mockImplementation(() =>
+        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankGradeName: 'Amn' }]),
+      );
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -648,8 +633,8 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
       },
-      grade: 'E_5',
-      rank: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+      grade: 'E_2',
+      rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -670,7 +655,11 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['SSgt / E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+      getRankOptions.mockImplementation(() =>
+        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankGradeName: 'Amn' }]),
+      );
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });

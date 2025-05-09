@@ -30,7 +30,7 @@ func NewGetRanks(ctx *middleware.Context, handler GetRanksHandler) *GetRanks {
 }
 
 /*
-	GetRanks swagger:route GET /ranks/{affiliation} orders getRanks
+	GetRanks swagger:route GET /ranks/{affiliation}&{grade} orders getRanks
 
 # Get ranks for specified affiliation
 

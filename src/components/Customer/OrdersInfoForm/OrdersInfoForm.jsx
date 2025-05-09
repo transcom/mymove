@@ -23,8 +23,8 @@ import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate } from 'utils/formatters';
-import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
+import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
+import { getRankOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -34,6 +34,7 @@ import { sortRankPayGradeOptions } from 'shared/utils';
 let originMeta;
 let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmit, onBack, setShowLoadingSpinner }) => {
+  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
@@ -64,6 +65,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    rank: Yup.string()
+      .matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+      .required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
@@ -126,7 +130,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
     const fetchRankGradeOptions = async () => {
       setShowLoadingSpinner(true, 'Loading Rank/Grade options');
       try {
-        const fetchedRanks = await getRankGradeOptions(affiliation);
+        const fetchedRanks = await getRankOptions(affiliation, grade);
         if (fetchedRanks) {
           const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
           setRankOptions(formattedOptions);
@@ -139,8 +143,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
       setShowLoadingSpinner(false, null);
     };
 
-    fetchRankGradeOptions();
-  }, [affiliation, setShowLoadingSpinner]);
+    if (grade !== '') fetchRankGradeOptions();
+  }, [affiliation, setShowLoadingSpinner, grade]);
 
   useEffect(() => {
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
@@ -272,16 +276,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
 
         const toggleCivilianTDYUBTooltip = () => {
           setShowCivilianTDYUBTooltip((prev) => !prev);
-        };
-
-        const handleGradeRankChange = (e) => {
-          let paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
-          // app is filled with hardcoded values for pay grades, need to replace the dash with an underscore for the app to continue working
-          if (paygrade !== ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE) {
-            paygrade = paygrade.replace('-', '_');
-          }
-          setGrade(paygrade);
-          setValues({ ...values, rank: e.target.value, grade: paygrade });
         };
 
         return (
@@ -520,16 +514,31 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
               )}
 
               <DropdownInput
-                label="Rank / Pay grade"
-                name="rank"
-                id="rank"
+                label="Pay grade"
+                name="grade"
+                id="grade"
                 required
+                options={payGradeOptions}
                 showRequiredAsterisk
-                options={rankOptions}
                 onChange={(e) => {
-                  handleGradeRankChange(e);
+                  setGrade(e.target.value);
+                  handleChange(e);
                 }}
               />
+
+              {grade !== '' ? (
+                <DropdownInput
+                  label="Rank"
+                  name="rank"
+                  id="rank"
+                  required
+                  options={rankOptions}
+                  showRequiredAsterisk
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                />
+              ) : null}
 
               {isCivilianTDYMove && (
                 <FormGroup>
