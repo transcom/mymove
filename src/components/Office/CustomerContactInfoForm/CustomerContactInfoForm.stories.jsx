@@ -41,6 +41,7 @@ export const WithInitialValues = (argTypes) => (
             city: 'El Paso',
             state: 'TX',
             postalCode: '79912',
+            county: 'El Paso',
           },
           name: 'Leo Spaceman',
           telephone: '555-555-5555',

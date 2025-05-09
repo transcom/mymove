@@ -45,14 +45,14 @@ test.describe('TOO user', () => {
     test('can search for moves using DOD ID', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').fill(testMove.Orders.ServiceMember.edipi);
+      await page.getByTestId('searchText').fill(testMove.Orders.service_member.edipi);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results (1)')).toBeVisible();
-      await expect(page.getByTestId('edipi-0')).toContainText(testMove.Orders.ServiceMember.edipi);
+      await expect(page.getByTestId('edipi-0')).toContainText(testMove.Orders.service_member.edipi);
     });
     test('can search for moves using Customer Name', async ({ page }) => {
-      const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
+      const CustomerName = `${testMove.Orders.service_member.last_name}, ${testMove.Orders.service_member.first_name}`;
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
       await selectedRadio.click();
       await page.getByTestId('searchText').fill(CustomerName);
@@ -485,7 +485,7 @@ test.describe('TOO user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('[data-testid="submitForm"]').click();
@@ -592,7 +592,7 @@ test.describe('TOO user', () => {
 
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
+      await page.locator('input[id="delivery.address-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
