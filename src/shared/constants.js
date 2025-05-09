@@ -34,6 +34,10 @@ export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const checkIfMoveIsLocked = (move) => {
+  return move?.status === MOVE_STATUSES.DRAFT && new Date() < new Date(move?.lockExpiresAt);
+};
+
 export const MOVE_STATUSES = {
   DRAFT: 'DRAFT',
   SUBMITTED: 'SUBMITTED',

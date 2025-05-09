@@ -10,6 +10,7 @@ import MultiMovesMoveContainer from './MultiMovesMoveContainer';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/internalApi';
 import { MockProviders } from 'testUtils';
 import { setShowLoadingSpinner } from 'store/general/actions';
+import { MOVE_STATUSES } from 'shared/constants';
 
 jest.mock('store/general/actions', () => ({
   ...jest.requireActual('store/general/actions'),
@@ -32,6 +33,7 @@ describe('MultiMovesMoveContainer', () => {
   const mockPreviousMoves = mockMovesPCS.previousMoves;
   const mockPreviousMovesWithLock = cloneDeep(mockMovesPCS.previousMoves);
   mockPreviousMovesWithLock[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+  mockPreviousMovesWithLock[0].status = MOVE_STATUSES.DRAFT;
 
   it('renders current move list correctly', () => {
     render(
@@ -45,7 +47,7 @@ describe('MultiMovesMoveContainer', () => {
     expect(screen.getByRole('button', { name: 'Go to Move' })).toBeInTheDocument();
   });
 
-  it('shows "Move Locked" button forc current move if it has been locked by an office user', async () => {
+  it('shows "Move Locked" button for current move if it has been locked by an office user and is in DRAFT status', async () => {
     render(
       <MockProviders>
         <MultiMovesMoveContainer moves={mockCurrentMovesWithLock} />
