@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -181,5 +182,43 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 
 			returnPayload := payloadForUserModel(*updatedUser)
 			return userop.NewUpdateUserOK().WithPayload(returnPayload), nil
+		})
+}
+
+// DeleteUserHandler deletes a user via DELETE /users/{userId}
+type DeleteUserHandler struct {
+	handlers.HandlerConfig
+	services.UserDeleter
+}
+
+func (h DeleteUserHandler) Handle(params userop.DeleteUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// we only allow this to be called from the admin app
+			if !appCtx.Session().IsAdminApp() {
+				return userop.NewDeleteUserUnauthorized(), nil
+			}
+
+			userID, err := uuid.FromString(params.UserID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			err = h.UserDeleter.DeleteUser(appCtx, userID)
+			if err != nil {
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return userop.NewDeleteUserNotFound(), err
+				case apperror.ConflictError:
+					return userop.NewDeleteUserConflict(), err
+				case apperror.ForbiddenError:
+					return userop.NewDeleteUserForbidden(), err
+				default:
+					return userop.NewDeleteUserInternalServerError(), err
+				}
+			}
+
+			return userop.NewDeleteUserNoContent(), nil
 		})
 }
