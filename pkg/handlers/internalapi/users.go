@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -42,7 +43,7 @@ func decoratePayloadWithPermissions(s *auth.Session, p *internalmessages.LoggedI
 }
 
 func decoratePayloadWithPrivileges(appCtx appcontext.AppContext, p *internalmessages.LoggedInUserPayload) {
-	privileges, _ := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, _ := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 
 	for _, privilege := range privileges {
 		p.Privileges = append(p.Privileges, &internalmessages.Privilege{

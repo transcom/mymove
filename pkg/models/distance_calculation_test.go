@@ -48,7 +48,7 @@ func (suite *ModelSuite) Test_DistanceCalculationValidations() {
 		"distance_miles":         {"DistanceMiles can not be blank."},
 	}
 
-	suite.verifyValidationErrors(distanceCalculation, expErrors)
+	suite.verifyValidationErrors(distanceCalculation, expErrors, nil)
 }
 
 func (suite *ModelSuite) Test_NewDistanceCalculationCallsPlanner() {

@@ -24,7 +24,7 @@ import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import Hint from 'components/Hint/index';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedShipmentAddressUpdateReviewRequestModal from 'components/Office/ShipmentAddressUpdateReviewRequestModal/ShipmentAddressUpdateReviewRequestModal';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
@@ -910,7 +910,7 @@ const ShipmentForm = (props) => {
                 ) : (
                   <p data-testid="weightAllowance">
                     <strong>Weight allowance: </strong>
-                    {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
+                    {formatWeight(serviceMember.weightAllotment.authorizedWeight)}
                   </p>
                 )}
               </SectionWrapper>
@@ -920,8 +920,8 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {isMobileHome && (
-                  <MobileHomeShipmentForm
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -933,8 +933,8 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
-                {isBoat && (
-                  <BoatShipmentForm
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}

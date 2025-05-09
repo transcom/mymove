@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import styles from './BoatShipmentForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import { ErrorMessage } from 'components/form/index';

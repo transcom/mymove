@@ -45,7 +45,7 @@ func (suite *ModelSuite) Test_PrimeUploadValidations() {
 		"contractor_id":           {"ContractorID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(primeUpload, expErrors)
+	suite.verifyValidationErrors(primeUpload, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestFetchPrimeUploadWithNoUpload() {

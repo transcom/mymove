@@ -359,7 +359,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	scRoleType := string(roles.RoleTypeServicesCounselor)
 
 	supervisorPrivilegeName := "Supervisor"
-	supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+	supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 
 	suite.Run("200 - Successfully create Office User", func() {
 		// Test:				CreateOfficeUserHandler, Fetcher
@@ -771,7 +771,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		middleInitials := "RB"
 		telephone := "865-555-5309"
 		supervisorPrivilegeName := "Supervisor"
-		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 
@@ -816,7 +816,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		expectedOfficeUser.Telephone = *expectedInput.Telephone
 		expectedOfficeUser.TransportationOfficeID = transportationOffice.ID
 		expectedOfficeUser.User.Roles = roles.Roles{roles.Role{RoleType: roles.RoleTypeTOO}}
-		expectedOfficeUser.User.Privileges = models.Privileges{models.Privilege{PrivilegeType: models.PrivilegeSearchTypeSupervisor}}
+		expectedOfficeUser.User.Privileges = roles.Privileges{roles.Privilege{PrivilegeType: roles.PrivilegeSearchTypeSupervisor}}
 
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdatesModel, transportationOffice.ID).Return(&expectedOfficeUser, nil, nil)
@@ -900,7 +900,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		middleInitials := "RB"
 		telephone := "865-555-5309"
 		supervisorPrivilegeName := "Supervisor"
-		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 
@@ -1105,7 +1105,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			rolesservice.NewRolesFetcher(),
 		}
 
-		rolesPrivs, err := handler.RoleAssociater.FetchRolesPrivileges(suite.AppContextForTest())
+		rolePrivs, err := handler.RoleAssociater.FetchRolesPrivileges(suite.AppContextForTest())
 
 		suite.NoError(err)
 
@@ -1113,19 +1113,36 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 
 		suite.IsType(&officeuserop.GetRolesPrivilegesOK{}, response)
 		okResponse := response.(*officeuserop.GetRolesPrivilegesOK)
-		suite.Len(okResponse.Payload, len(rolesPrivs))
+		suite.Len(okResponse.Payload, len(rolePrivs))
+
+		type privValidation struct {
+			PrivilegeType string
+			PrivilegeName string
+		}
 
 		type rolePrivValidation struct {
-			RoleType      string
-			PrivilegeType string
+			RoleType   string
+			RoleName   string
+			Privileges []privValidation
 		}
 
 		rolePrivEntries := make(map[uuid.UUID]*rolePrivValidation)
 
-		for _, rolePriv := range rolesPrivs {
-			rolePrivEntries[rolePriv.ID] = &rolePrivValidation{
-				RoleType:      string(rolePriv.Role.RoleType),
-				PrivilegeType: string(rolePriv.Privilege.PrivilegeType),
+		for _, rp := range rolePrivs {
+			rid := rp.ID
+
+			if _, ok := rolePrivEntries[rid]; !ok {
+				rolePrivEntries[rid] = &rolePrivValidation{
+					RoleType:   string(rp.RoleType),
+					RoleName:   string(rp.RoleName),
+					Privileges: []privValidation{},
+				}
+			}
+			for _, resPriv := range rp.RolePrivileges {
+				rolePrivEntries[rid].Privileges = append(rolePrivEntries[rid].Privileges, privValidation{
+					PrivilegeType: string(resPriv.Privilege.PrivilegeType),
+					PrivilegeName: string(resPriv.Privilege.PrivilegeName),
+				})
 			}
 		}
 
@@ -1134,11 +1151,15 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			suite.NoError(err)
 			rolePriv, ok := rolePrivEntries[entryKey]
 			suite.NotNil(ok)
-			suite.Equal(rolePriv.RoleType, resRolePriv.RoleType)
-			suite.Equal(rolePriv.PrivilegeType, resRolePriv.PrivilegeType)
-
+			suite.Equal(rolePriv.RoleType, *resRolePriv.RoleType)
+			suite.Equal(rolePriv.RoleName, *resRolePriv.RoleName)
+			for i, priv := range rolePriv.Privileges {
+				suite.Equal(priv.PrivilegeType, resRolePriv.Privileges[i].PrivilegeType)
+				suite.Equal(priv.PrivilegeName, resRolePriv.Privileges[i].PrivilegeName)
+			}
 			delete(rolePrivEntries, entryKey) // remove to ensure unique values
 		}
+		suite.Len(rolePrivEntries, 0, "all entries should have been deleted")
 	})
 
 	suite.Run("401 ERROR - Unauthorized ", func() {

@@ -4,7 +4,7 @@ import { useField } from 'formik';
 
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 
 const ShipmentVendor = () => {
   const [inputProps, , helperProps] = useField('usesExternalVendor');

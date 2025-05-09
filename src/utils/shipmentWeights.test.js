@@ -248,6 +248,10 @@ describe('calculateTotalNetWeightForProGearWeightTickets with a rejected weight 
       calculateTotalNetWeightForProGearWeightTickets([approvedProGearWeightTicket, rejectedProGearWeightTicket]),
     ).toEqual(approvedWeight);
   });
+
+  it('returns 0 if not tickets are passed in', () => {
+    expect(calculateTotalNetWeightForProGearWeightTickets(null)).toEqual(0);
+  });
 });
 
 describe('Calculating shipment net weights', () => {

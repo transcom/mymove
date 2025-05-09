@@ -50,6 +50,11 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		return nil, err
 	}
 
+	var lockExpiresAt strfmt.DateTime
+	if move.LockExpiresAt != nil {
+		lockExpiresAt = *handlers.FmtDateTime(*move.LockExpiresAt)
+	}
+
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:           handlers.FmtDateTime(move.CreatedAt),
 		SubmittedAt:         handlers.FmtDateTime(SubmittedAt),
@@ -62,6 +67,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		Status:              internalmessages.MoveStatus(move.Status),
 		ETag:                &eTag,
 		AdditionalDocuments: additionalDocumentsPayload,
+		LockExpiresAt:       lockExpiresAt,
 	}
 
 	if move.CloseoutOffice != nil {
@@ -105,6 +111,11 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
 		}
 
+		var lockExpiresAt strfmt.DateTime
+		if move.LockExpiresAt != nil {
+			lockExpiresAt = *handlers.FmtDateTime(*move.LockExpiresAt)
+		}
+
 		currentMove := &internalmessages.InternalMove{
 			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
 			ETag:           eTag,
@@ -115,6 +126,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			Orders:         orders,
 			CloseoutOffice: &closeOutOffice,
 			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
+			LockExpiresAt:  lockExpiresAt,
 		}
 
 		if move.PrimeCounselingCompletedAt != nil {

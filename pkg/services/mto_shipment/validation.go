@@ -20,6 +20,16 @@ func (fn validatorFunc) Validate(appCtx appcontext.AppContext, newer *models.MTO
 	return fn(appCtx, newer, older)
 }
 
+type addressUpdateValidator interface {
+	Validate(appCtx appcontext.AppContext, address *models.Address, shipment *models.MTOShipment) error
+}
+
+type addressUpdateValidatorFunc func(appcontext.AppContext, *models.Address, *models.MTOShipment) error
+
+func (fn addressUpdateValidatorFunc) Validate(appCtx appcontext.AppContext, address *models.Address, shipment *models.MTOShipment) error {
+	return fn(appCtx, address, shipment)
+}
+
 func validateShipment(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment, checks ...validator) (result error) {
 	verrs := validate.NewErrors()
 	for _, checker := range checks {

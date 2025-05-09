@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	roles "github.com/transcom/mymove/pkg/models/roles"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -17,7 +19,7 @@ type UserPrivilegeAssociator struct {
 }
 
 // UpdateUserPrivileges provides a mock function with given fields: appCtx, userID, privileges
-func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, privileges []models.PrivilegeType) ([]models.UsersPrivileges, error) {
+func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, privileges []roles.PrivilegeType) ([]models.UsersPrivileges, error) {
 	ret := _m.Called(appCtx, userID, privileges)
 
 	if len(ret) == 0 {
@@ -26,10 +28,10 @@ func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppCon
 
 	var r0 []models.UsersPrivileges
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []models.PrivilegeType) ([]models.UsersPrivileges, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []roles.PrivilegeType) ([]models.UsersPrivileges, error)); ok {
 		return rf(appCtx, userID, privileges)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []models.PrivilegeType) []models.UsersPrivileges); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []roles.PrivilegeType) []models.UsersPrivileges); ok {
 		r0 = rf(appCtx, userID, privileges)
 	} else {
 		if ret.Get(0) != nil {
@@ -37,7 +39,7 @@ func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppCon
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, []models.PrivilegeType) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, []roles.PrivilegeType) error); ok {
 		r1 = rf(appCtx, userID, privileges)
 	} else {
 		r1 = ret.Error(1)

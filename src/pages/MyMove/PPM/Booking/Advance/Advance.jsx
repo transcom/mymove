@@ -29,7 +29,7 @@ const Advance = () => {
     navigate(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
     setErrorMessage(null);
 
     const hasRequestedAdvance = values.hasRequestedAdvance === 'true';
@@ -50,7 +50,6 @@ const Advance = () => {
 
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
-        setSubmitting(false);
         dispatch(updateMTOShipment(response));
         dispatch(
           setFlashMessage(
@@ -61,11 +60,11 @@ const Advance = () => {
           ),
         );
         navigate(generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId }));
+        setSubmitting(false);
       })
       .catch((err) => {
-        setSubmitting(false);
-
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
+        setSubmitting(false);
       });
   };
 

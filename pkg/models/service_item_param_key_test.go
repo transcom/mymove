@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 			Origin:      "PRIME",
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validServiceItemParamKey, expErrors)
+		suite.verifyValidationErrors(&validServiceItemParamKey, expErrors, nil)
 	})
 
 	suite.Run("test empty ServiceItemParamKey", func() {
@@ -33,7 +33,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 			"origin":      {"Origin can not be blank.", fmt.Sprintf("Origin is not in the list [%s].", validServiceItemParamOrigins)},
 		}
 
-		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors)
+		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors, nil)
 	})
 
 	suite.Run("test invalid key name for ServiceItemParamKey", func() {
@@ -46,7 +46,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		expErrors := map[string][]string{
 			"key": {fmt.Sprintf("Key is not in the list [%s].", validServiceItemParamNames)},
 		}
-		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors)
+		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors, nil)
 	})
 
 	suite.Run("test invalid type for ServiceItemParamKey", func() {
@@ -59,7 +59,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		expErrors := map[string][]string{
 			"type": {fmt.Sprintf("Type is not in the list [%s].", validServiceItemParamTypes)},
 		}
-		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors)
+		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors, nil)
 	})
 
 	suite.Run("test invalid origin for ServiceItemParamKey", func() {
@@ -72,6 +72,6 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		expErrors := map[string][]string{
 			"origin": {fmt.Sprintf("Origin is not in the list [%s].", validServiceItemParamOrigins)},
 		}
-		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors)
+		suite.verifyValidationErrors(&invalidServiceItemParamKey, expErrors, nil)
 	})
 }

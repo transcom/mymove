@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -18,7 +19,7 @@ func NewUsersPrivilegesCreator() services.UserPrivilegeAssociator {
 }
 
 // UpdateUserPrivileges associates a given user with a set of privileges
-func (u usersPrivilegesCreator) UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, rs []models.PrivilegeType) ([]models.UsersPrivileges, error) {
+func (u usersPrivilegesCreator) UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.PrivilegeType) ([]models.UsersPrivileges, error) {
 	_, err := u.addUserPrivileges(appCtx, userID, rs)
 	if err != nil {
 		return []models.UsersPrivileges{}, err
@@ -36,7 +37,7 @@ func (u usersPrivilegesCreator) UpdateUserPrivileges(appCtx appcontext.AppContex
 	return usersPrivileges, nil
 }
 
-func (u usersPrivilegesCreator) addUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, rs []models.PrivilegeType) ([]models.UsersPrivileges, error) {
+func (u usersPrivilegesCreator) addUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.PrivilegeType) ([]models.UsersPrivileges, error) {
 	//Having to use somewhat convoluted right join syntax b/c FROM clause in pop is derived from the model
 	//and for the RawQuery was having trouble passing in array into the in clause with additional params
 	//ideally would just be the query below
@@ -68,7 +69,7 @@ func (u usersPrivilegesCreator) addUserPrivileges(appCtx appcontext.AppContext, 
 	return userPrivilegesToAdd, nil
 }
 
-func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, rs []models.PrivilegeType) ([]models.UsersPrivileges, error) {
+func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, rs []roles.PrivilegeType) ([]models.UsersPrivileges, error) {
 	//Having to use somewhat convoluted right join syntax b/c FROM clause in pop is derived from the model
 	//and for the RawQuery was having trouble passing in array into the in clause with additional params
 	//ideally would just be the query below

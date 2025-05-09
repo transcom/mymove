@@ -12,7 +12,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
-import { PPM_TYPES, SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, PPM_TYPES, SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment, updateMove, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
@@ -23,7 +23,7 @@ import { validatePostalCode } from 'utils/validation';
 import { formatAddressForAPI } from 'utils/formatMtoShipment';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
-const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
+const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move, isMoveLocked }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [errorCode, setErrorCode] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
@@ -59,9 +59,6 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   };
 
   const onShipmentSaveSuccess = (response, setSubmitting) => {
-    // Update submitting state
-    setSubmitting(false);
-
     // Update the shipment in the store
     dispatch(updateMTOShipment(response));
 
@@ -72,6 +69,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         mtoShipmentId: response.id,
       }),
     );
+
+    // Update submitting state
+    setSubmitting(false);
   };
 
   const handleSetError = (error, defaultError) => {
@@ -85,7 +85,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     }
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
     setErrorMessage(null);
 
     const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';
@@ -146,18 +146,18 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
                 onShipmentSaveSuccess(shipmentResponse, setSubmitting);
               })
               .catch(() => {
-                setSubmitting(false);
                 // Still need to update the shipment in the store since it had a successful create
                 dispatch(updateMTOShipment(shipmentResponse));
                 setErrorMessage('There was an error attempting to create the move closeout office.');
+                setSubmitting(false);
               });
           } else {
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
         .catch((error) => {
-          setSubmitting(false);
           handleSetError(error, 'There was an error attempting to create your shipment.');
+          setSubmitting(false);
         });
     } else {
       createOrUpdateShipment.id = mtoShipment.id;
@@ -177,58 +177,66 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
                 dispatch(updateAllMoves(allMoves));
               })
               .catch(() => {
-                setSubmitting(false);
                 // Still need to update the shipment in the store since it had a successful update
                 dispatch(updateMTOShipment(shipmentResponse));
                 setErrorMessage('There was an error attempting to update the move closeout office.');
+                setSubmitting(false);
               });
           } else {
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
         .catch((error) => {
-          setSubmitting(false);
           handleSetError(error, 'There was an error attempting to update your shipment.');
+          setSubmitting(false);
         });
     }
   };
 
   return (
-    <div className={ppmPageStyles.ppmPageStyle}>
-      <NotificationScrollToTop dependency={errorMessage} />
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
-            <h1>PPM date & location</h1>
-            {errorMessage && (
-              <Alert headingLevel="h4" slim type="error">
-                {errorCode === 400 ? (
-                  <p>
-                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
-                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
-                      Technical Help Desk
-                    </Link>
-                    .
-                  </p>
-                ) : (
-                  <p>{errorMessage}</p>
-                )}
-              </Alert>
-            )}
-            <DateAndLocationForm
-              mtoShipment={mtoShipment}
-              serviceMember={serviceMember}
-              destinationDutyLocation={destinationDutyLocation}
-              move={move}
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-              postalCodeValidator={validatePostalCode}
-            />
+    <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
+      <div className={ppmPageStyles.ppmPageStyle}>
+        <NotificationScrollToTop dependency={errorMessage} />
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
+              <h1>PPM date & location</h1>
+              {errorMessage && (
+                <Alert headingLevel="h4" slim type="error">
+                  {errorCode === 400 ? (
+                    <p>
+                      {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                      <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                        Technical Help Desk
+                      </Link>
+                      .
+                    </p>
+                  ) : (
+                    <p>{errorMessage}</p>
+                  )}
+                </Alert>
+              )}
+              <DateAndLocationForm
+                mtoShipment={mtoShipment}
+                serviceMember={serviceMember}
+                destinationDutyLocation={destinationDutyLocation}
+                move={move}
+                onSubmit={handleSubmit}
+                onBack={handleBack}
+                postalCodeValidator={validatePostalCode}
+                isMoveLocked={isMoveLocked}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
-    </div>
+        </GridContainer>
+      </div>
+    </>
   );
 };
 

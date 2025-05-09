@@ -178,7 +178,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.WeightTicket":                             WeightTicket,
 	"roles.Role":                                      Role,
 	"models.UsersPrivileges":                          UsersPrivileges,
-	"models.Privilege":                                Privilege,
+	"roles.Privilege":                                 Privilege,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs

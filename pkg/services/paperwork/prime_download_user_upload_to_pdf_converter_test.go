@@ -26,7 +26,7 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGenerator() {
 		Orders:  order,
 	}
 
-	pdfFileTest1, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOnlyOrders, true, "")
+	pdfFileTest1, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOnlyOrders, "")
 	suite.FatalNil(err)
 	// Verify generated files have 3 pages. see setup data for upload count
 	fileInfo, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest1)
@@ -39,21 +39,21 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGenerator() {
 		Locator: locator,
 		Orders:  order,
 	}
-	pdfFileTest2, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOrdersAndAmendments, true, "")
+	pdfFileTest2, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOrdersAndAmendments, "")
 	suite.FatalNil(err)
 	// Verify generated files have (3 x 2) pages for both orders and amendments. see setup data for upload count
 	fileInfoAll, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest2)
 	suite.FatalNil(err)
 	suite.Equal(6, fileInfoAll.PageCount)
 
-	pdfFileTest3, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUpload, customMoveWithOrdersAndAmendments, true, "")
+	pdfFileTest3, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUpload, customMoveWithOrdersAndAmendments, "")
 	suite.FatalNil(err)
 	// Verify generated files have (3 x 1) pages for order. see setup data for upload count
 	fileInfoAll1, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest3)
 	suite.FatalNil(err)
 	suite.Equal(3, fileInfoAll1.PageCount)
 
-	pdfFileTest4, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderAmendmentUpload, customMoveWithOrdersAndAmendments, false, "")
+	pdfFileTest4, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderAmendmentUpload, customMoveWithOrdersAndAmendments, "")
 	suite.FatalNil(err)
 	// Verify only amendments are generated
 	fileInfoOnlyAmendments, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest4)
@@ -83,7 +83,7 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGeneratorUnpro
 		Orders:  models.Order{},
 	}
 
-	outputputTest1, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUpload, testOrder1, true, "")
+	outputputTest1, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUpload, testOrder1, "")
 	suite.FatalNil(outputputTest1)
 	suite.Assertions.IsType(apperror.UnprocessableEntityError{}, err)
 	err = service.CleanupFile(outputputTest1)
@@ -92,7 +92,7 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGeneratorUnpro
 		Locator: locator,
 		Orders:  models.Order{},
 	}
-	testOrder3, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderAmendmentUpload, testOrder2, false, "")
+	testOrder3, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderAmendmentUpload, testOrder2, "")
 	suite.FatalNil(testOrder3)
 	suite.Assertions.IsType(apperror.UnprocessableEntityError{}, err)
 	err = service.CleanupFile(testOrder3)

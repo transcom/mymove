@@ -53,6 +53,20 @@ const officeQueryConfig = new QueryClient({
   },
 });
 
+const adminQueryConfig = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false, // default to no retries for now
+      // do not re-query on window refocus
+      refetchOnWindowFocus: false,
+      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+    },
+    mutations: {
+      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+    },
+  },
+});
+
 const App = () => {
   // We need an error boundary around each of the main apps (Office,
   // SystemAdmin, MyMove) because they are lazy loaded and it's
@@ -85,16 +99,18 @@ const App = () => {
   if (isAdminSite) {
     return (
       <MilMoveErrorBoundary fallback={<SomethingWentWrong />}>
-        <Provider store={store}>
-          <AppContext.Provider value={adminContext}>
-            <BrowserRouter>
-              <Suspense fallback={<LoadingPlaceholder />}>
-                <PageTitle />
-                <SystemAdmin />
-              </Suspense>
-            </BrowserRouter>
-          </AppContext.Provider>
-        </Provider>
+        <QueryClientProvider client={adminQueryConfig}>
+          <Provider store={store}>
+            <AppContext.Provider value={adminContext}>
+              <BrowserRouter>
+                <Suspense fallback={<LoadingPlaceholder />}>
+                  <PageTitle />
+                  <SystemAdmin />
+                </Suspense>
+              </BrowserRouter>
+            </AppContext.Provider>
+          </Provider>
+        </QueryClientProvider>
       </MilMoveErrorBoundary>
     );
   }

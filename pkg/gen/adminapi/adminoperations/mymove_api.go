@@ -76,6 +76,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersDeleteOfficeUserHandler: office_users.DeleteOfficeUserHandlerFunc(func(params office_users.DeleteOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.DeleteOfficeUser has not yet been implemented")
 		}),
+		UsersDeleteUserHandler: users.DeleteUserHandlerFunc(func(params users.DeleteUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.DeleteUser has not yet been implemented")
+		}),
 		EdiErrorsFetchEdiErrorsHandler: e_d_i_errors.FetchEdiErrorsHandlerFunc(func(params e_d_i_errors.FetchEdiErrorsParams) middleware.Responder {
 			return middleware.NotImplemented("operation e_d_i_errors.FetchEdiErrors has not yet been implemented")
 		}),
@@ -237,6 +240,8 @@ type MymoveAPI struct {
 	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
 	// OfficeUsersDeleteOfficeUserHandler sets the operation handler for the delete office user operation
 	OfficeUsersDeleteOfficeUserHandler office_users.DeleteOfficeUserHandler
+	// UsersDeleteUserHandler sets the operation handler for the delete user operation
+	UsersDeleteUserHandler users.DeleteUserHandler
 	// EdiErrorsFetchEdiErrorsHandler sets the operation handler for the fetch edi errors operation
 	EdiErrorsFetchEdiErrorsHandler e_d_i_errors.FetchEdiErrorsHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
@@ -402,6 +407,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OfficeUsersDeleteOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.DeleteOfficeUserHandler")
+	}
+	if o.UsersDeleteUserHandler == nil {
+		unregistered = append(unregistered, "users.DeleteUserHandler")
 	}
 	if o.EdiErrorsFetchEdiErrorsHandler == nil {
 		unregistered = append(unregistered, "e_d_i_errors.FetchEdiErrorsHandler")
@@ -622,6 +630,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/office-users/{officeUserId}"] = office_users.NewDeleteOfficeUser(o.context, o.OfficeUsersDeleteOfficeUserHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/users/{userId}"] = users.NewDeleteUser(o.context, o.UsersDeleteUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -10,7 +10,7 @@ const LABEL = {
   backupMailingAddress: 'Backup Address',
   destinationAddress: 'Delivery Address',
   pickupAddress: 'Pickup Address',
-  residentialAddress: 'Pickup Address',
+  residentialAddress: 'Current Address',
   secondaryDestinationAddress: 'Second Delivery Address',
   secondaryPickupAddress: 'Second Pickup Address',
   tertiaryDestinationAddress: 'Third Delivery Address',
@@ -114,7 +114,7 @@ describe('when given a Update basic service item address history record', () => 
     };
     const updatedTemplate = getTemplate(updatedHistoryRecord);
 
-    it.each([['Pickup Address', ': 1234 New Ave, los angeles, CA 90210']])(
+    it.each([['Current Address', ': 1234 New Ave, los angeles, CA 90210']])(
       'Label `%s` should have the full address `%s`',
       async (label, value) => {
         render(updatedTemplate.getDetails(updatedHistoryRecord));

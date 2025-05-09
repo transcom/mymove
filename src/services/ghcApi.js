@@ -74,6 +74,18 @@ export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload
   );
 }
 
+export async function createMovingExpense(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createMovingExpense',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateMovingExpense',
@@ -82,6 +94,19 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
       movingExpenseId,
       'If-Match': eTag,
       updateMovingExpense: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteMovingExpense({ ppmShipmentId, movingExpenseId }) {
+  return makeGHCRequest(
+    'ppm.deleteMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
     },
     {
       normalize: false,
@@ -1072,7 +1097,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, qu
 }
 
 export async function checkForLockedMovesAndUnlock(officeUserID) {
-  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }
@@ -1086,4 +1111,22 @@ export async function deleteAssignedOfficeUserForMove({ moveID, queueType }) {
 
 export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
+}
+
+export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.submitPPMShipmentDocumentation',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+// Attempt at catch-all error handling
+// TODO improve this function when we have better standardized errors
+export function getResponseError(response, defaultErrorMessage) {
+  return response?.body?.detail || response?.statusText || defaultErrorMessage;
 }

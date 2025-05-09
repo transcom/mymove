@@ -298,6 +298,17 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build terminated hhg move for TOO
+   * They should still be able to approve/deny service items
+   * but not request cancellation, diversion, reweigh, or other shipment-specific
+   * actions. Only actions associated with the shipment
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveInTerminatedStatus() {
+    return this.buildDefault('HHGMoveInTerminatedStatus');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO with Alaska address
    * @returns {Promise<Move>}
    */
@@ -343,6 +354,16 @@ export class TestHarness {
    */
   async buildHHGMoveWithNTSShipmentsForTOO() {
     return this.buildDefault('HHGMoveWithNTSShipmentsForTOO');
+  }
+
+  /**
+   * Use testharness to build iHHG move with iNTS basic accessory service items
+   * for TIO review
+   * eg, INPK
+   * @returns {Promise<Move>}
+   */
+  async buildInternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO() {
+    return this.buildDefault('InternationalHHGIntoInternationalNTSMoveWithServiceItemsandPaymentRequestsForTIO');
   }
 
   /**
@@ -439,6 +460,14 @@ export class TestHarness {
    */
   async buildHHGMoveNeedsSC() {
     return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build international hhg move needing SC approval
+   * @returns {Promise<Move>}
+   */
+  async buildIntlHHGMoveNeedsSC() {
+    return this.buildDefault('IntlHHGMoveNeedsSC');
   }
 
   /**

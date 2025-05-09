@@ -51,9 +51,9 @@ func (_m *PaymentPacketCreator) CleanupPaymentPacketFile(packetDir afero.File, c
 	return r0
 }
 
-// Generate provides a mock function with given fields: appCtx, ppmShipmentID, addBookmarks, addWaterMarks
-func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (afero.File, string, error) {
-	ret := _m.Called(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+// Generate provides a mock function with given fields: appCtx, ppmShipmentID, addWaterMarks
+func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addWaterMarks bool) (afero.File, string, error) {
+	ret := _m.Called(appCtx, ppmShipmentID, addWaterMarks)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Generate")
@@ -62,25 +62,25 @@ func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipme
 	var r0 afero.File
 	var r1 string
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool, bool) (afero.File, string, error)); ok {
-		return rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (afero.File, string, error)); ok {
+		return rf(appCtx, ppmShipmentID, addWaterMarks)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool, bool) afero.File); ok {
-		r0 = rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) afero.File); ok {
+		r0 = rf(appCtx, ppmShipmentID, addWaterMarks)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(afero.File)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool, bool) string); ok {
-		r1 = rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) string); ok {
+		r1 = rf(appCtx, ppmShipmentID, addWaterMarks)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, bool, bool) error); ok {
-		r2 = rf(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
+		r2 = rf(appCtx, ppmShipmentID, addWaterMarks)
 	} else {
 		r2 = ret.Error(2)
 	}

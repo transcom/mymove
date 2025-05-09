@@ -216,6 +216,10 @@ definitions:
         readOnly: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
+      lockExpiresAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -2086,15 +2090,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       destinationAddress:
         $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
@@ -2108,15 +2103,6 @@ definitions:
       hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
-        x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
         x-nullable: true
       w2Address:
         x-nullable: true
@@ -2470,6 +2456,10 @@ definitions:
         type: string
         readOnly: true
       primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      lockExpiresAt:
         format: date-time
         type: string
         readOnly: true

@@ -611,6 +611,38 @@ export const constructSCOrderOconusFields = (values) => {
   };
 };
 
+export const userName = (user) => {
+  let formattedUser = '';
+  if (user.firstName && user.lastName) {
+    formattedUser += `${user.lastName}, `;
+    formattedUser += ` ${user.firstName}`;
+  } else {
+    if (user.firstName) {
+      formattedUser += ` ${user.firstName}`;
+    }
+    if (user.lastName) {
+      formattedUser += ` ${user.lastName}`;
+    }
+  }
+  return formattedUser;
+};
+
+export const formatServiceMemberNameToString = (serviceMember) => {
+  let formattedUser = '';
+  if (serviceMember.first_name && serviceMember.last_name) {
+    formattedUser += `${serviceMember.first_name}`;
+    formattedUser += ` ${serviceMember.last_name}`;
+  } else {
+    if (serviceMember.first_name) {
+      formattedUser += `${serviceMember.first_name}`;
+    }
+    if (serviceMember.last_name) {
+      formattedUser += `${serviceMember.last_name}`;
+    }
+  }
+  return formattedUser;
+};
+
 export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   const { changedValues, context, oldValues } = historyRecord;
   if (!context || context.length === 0) return {};
@@ -652,23 +684,6 @@ export const formatAssignedOfficeUserFromContext = (historyRecord) => {
   ); // destination request queue
   return newValues;
 };
-
-export const userName = (user) => {
-  let formattedUser = '';
-  if (user.firstName && user.lastName) {
-    formattedUser += `${user.lastName}, `;
-    formattedUser += ` ${user.firstName}`;
-  } else {
-    if (user.firstName) {
-      formattedUser += ` ${user.firstName}`;
-    }
-    if (user.lastName) {
-      formattedUser += ` ${user.lastName}`;
-    }
-  }
-  return formattedUser;
-};
-
 /**
  * @description Converts a string to title case (capitalizes the first letter of each word)
  * @param {string} str - The input string to format.

@@ -50,21 +50,23 @@ const TableCSVExportButton = ({
   };
 
   const handleCsvExport = async () => {
-    setIsLoading(true);
-    const response = await queueFetcher(queueFetcherKey, {
-      sort: sortColumn,
-      order: sortOrder ? 'desc' : 'asc',
-      filters: paramFilters,
-      currentPageSize: totalCount,
-      viewAsGBLOC: selectedGbloc,
-      activeRole,
-    });
+    if (!isLoading) {
+      setIsLoading(true);
+      const response = await queueFetcher(queueFetcherKey, {
+        sort: sortColumn,
+        order: sortOrder ? 'desc' : 'asc',
+        filters: paramFilters,
+        currentPageSize: totalCount,
+        viewAsGBLOC: selectedGbloc,
+        activeRole,
+      });
 
-    const formattedData = formatDataForExport(response[queueFetcherKey]);
-    setCsvRows(formattedData);
+      const formattedData = formatDataForExport(response[queueFetcherKey]);
+      setCsvRows(formattedData);
 
-    csvLinkRef.current?.click();
-    setIsLoading(false);
+      csvLinkRef.current?.click();
+      setIsLoading(false);
+    }
   };
 
   return (

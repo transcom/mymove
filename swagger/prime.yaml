@@ -4210,6 +4210,8 @@ definitions:
       - SITScheduleOrigin
       - SITServiceAreaDest
       - SITServiceAreaOrigin
+      - SITRateAreaDest
+      - SITRateAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
@@ -4798,28 +4800,6 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -5315,6 +5295,11 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       terminationComments:
         type: string
         x-nullable: true
@@ -5323,11 +5308,6 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
-      primeAcknowledgedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        readOnly: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

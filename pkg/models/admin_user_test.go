@@ -32,5 +32,5 @@ func (suite *ModelSuite) TestAdminUserCreationWithoutValues() {
 		"role":       {"Role is not in the list [SYSTEM_ADMIN PROGRAM_ADMIN]."},
 	}
 
-	suite.verifyValidationErrors(newAdminUser, expErrors)
+	suite.verifyValidationErrors(newAdminUser, expErrors, nil)
 }

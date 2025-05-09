@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
@@ -55,7 +56,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		}
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -83,7 +84,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 		Where("moves.show = ?", models.BoolPointer(true))
 
-	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+	if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 		query.Where("orders.orders_type != (?)", "SAFETY")
 	}
 
