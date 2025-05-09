@@ -17,3 +17,10 @@ type AddressUpdater interface {
 type VLocation interface {
 	GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, exactMatch ...bool) (*models.VLocations, error)
 }
+
+// CountrySearcher is the exported interface for searching a country
+//
+//go:generate mockery --name CountrySearcher
+type CountrySearcher interface {
+	SearchCountries(appCtx appcontext.AppContext, queryFilter *string) (models.Countries, error)
+}
