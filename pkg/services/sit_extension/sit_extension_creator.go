@@ -64,8 +64,25 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	}
 
 	// If the status is set to pending, then the TOO needs to review the sit extensions
-	// Which means the move status needs to be set to approvals requested
+	// Which means the shipment and move status needs to be set to approvals requested
 	if sitExtension.Status == models.SITExtensionStatusPending {
+		shipment.Status = models.MTOShipmentStatusApprovalsRequested
+
+		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			verrs, err := appCtx.DB().ValidateAndUpdate(shipment)
+
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Invalid input found while updating the shipment")
+			} else if err != nil {
+				return apperror.NewQueryError("MTOShipments", err, "")
+			}
+			return nil
+		})
+
+		if transactionError != nil {
+			return nil, transactionError
+		}
+
 		// Get the move
 		var move models.Move
 		err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
@@ -91,6 +108,7 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 				return nil, err
 			}
 		}
+
 	}
 
 	return sitExtension, nil

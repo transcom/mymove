@@ -95,6 +95,11 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 			Model:    move,
 			LinkOnly: true,
 		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApprovalsRequested,
+			},
+		},
 	}, nil)
 	destAddress := factory.BuildDefaultAddress(suite.DB())
 
@@ -132,6 +137,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidIDFSITServiceItemWithValidMov
 		{
 			Model: models.MTOShipment{
 				MarketCode: models.MarketCodeInternational,
+				Status:     models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}, nil)
