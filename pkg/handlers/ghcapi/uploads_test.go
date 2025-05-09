@@ -646,8 +646,8 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 		response := makePPMRequest(suite, params, officeUser, fakeS3)
 
-		suite.IsType(&ppmop.CreatePPMUploadIncorrectXlsxFormat{}, response)
-		incorrectXlsxResponse, _ := response.(*ppmop.CreatePPMUploadIncorrectXlsxFormat)
+		suite.IsType(&ppmop.CreatePPMUploadForbidden{}, response)
+		incorrectXlsxResponse, _ := response.(*ppmop.CreatePPMUploadForbidden)
 		suite.Equal("The uploaded .xlsx file does not match the expected weight estimator file format.", *incorrectXlsxResponse.Payload.Message)
 	})
 }

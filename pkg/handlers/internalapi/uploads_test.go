@@ -716,8 +716,8 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 
 		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
 
-		suite.IsType(&ppmop.CreatePPMUploadIncorrectXlsxFormat{}, response)
-		incorrectXlsxResponse, _ := response.(*ppmop.CreatePPMUploadIncorrectXlsxFormat)
+		suite.IsType(&ppmop.CreatePPMUploadForbidden{}, response)
+		incorrectXlsxResponse, _ := response.(*ppmop.CreatePPMUploadForbidden)
 		suite.Equal("The uploaded .xlsx file does not match the expected weight estimator file format. Please visit https://www.ustranscom.mil/dp3/weightestimator.cfm to download the weight estimator template file.", *incorrectXlsxResponse.Payload.Detail)
 
 	})
