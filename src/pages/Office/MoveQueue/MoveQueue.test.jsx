@@ -514,7 +514,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
 
     wrapper.update();
-    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
+    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Approvals requested');
   });
 
   it('renders Search, Destination Queue and Move Queue tabs', () => {

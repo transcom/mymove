@@ -17,7 +17,14 @@ import { getDestinationRequestsQueue, getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS, QUEUE_TYPES } from 'constants/queues';
+import {
+  MOVE_STATUS_OPTIONS,
+  GBLOC,
+  MOVE_STATUS_LABELS,
+  BRANCH_OPTIONS,
+  QUEUE_TYPES,
+  MOVE_STATUS_OPTIONS_DEST_QUEUE,
+} from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -103,8 +110,13 @@ export const columns = (
       {
         id: 'status',
         isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+        Filter: (props) => (
+          <MultiSelectCheckBoxFilter
+            options={!isDestinationQueue ? MOVE_STATUS_OPTIONS : MOVE_STATUS_OPTIONS_DEST_QUEUE}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...props}
+          />
+        ),
       },
     ),
     createHeader('Move code', 'locator', {

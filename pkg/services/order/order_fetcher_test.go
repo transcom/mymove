@@ -4078,4 +4078,69 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		suite.Equal("Bob", *moves[1].Orders.ServiceMember.FirstName)
 	})
 
+	suite.Run("sorts by requested move date ascending", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+		now := time.Now().UTC()
+		older := now.Add(-48 * time.Hour)
+		newer := now.Add(48 * time.Hour)
+
+		makeMove := func(locator string, reqDate time.Time) models.Move {
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.Move{
+						Status:  models.MoveStatusAPPROVALSREQUESTED,
+						Locator: locator,
+					},
+				},
+			}, nil)
+
+			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						RequestedPickupDate: &reqDate,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil)
+
+			// attach a destination‑SIT service item so it appears in the queue
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{Model: models.ReService{Code: models.ReServiceCodeDDFSIT}},
+				{Model: move, LinkOnly: true},
+				{Model: shipment, LinkOnly: true},
+				{Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted}},
+			}, nil)
+
+			return move
+		}
+
+		makeMove("OLD1", older)
+		makeMove("NEW1", newer)
+
+		params := services.ListOrderParams{
+			Sort:  swag.String("requestedMoveDate"),
+			Order: swag.String("asc"),
+		}
+		moves, count, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			roles.RoleTypeTOO,
+			&params,
+		)
+		suite.FatalNoError(err)
+		suite.Equal(2, count)
+		suite.Len(moves, 2)
+
+		// oldest‐date move should come first
+		suite.Equal("OLD1", moves[0].Locator)
+		suite.Equal("NEW1", moves[1].Locator)
+	})
+
 }

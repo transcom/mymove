@@ -217,7 +217,7 @@ BEGIN
             WHEN 'customerName' THEN sort_column := 'service_members.last_name, service_members.first_name';
             WHEN 'edipi' THEN sort_column := 'service_members.edipi';
             WHEN 'emplid' THEN sort_column := 'service_members.emplid';
-            WHEN 'requestedMoveDate' THEN sort_column := 'COALESCE(mto_shipments.requested_pickup_date, ppm_shipments.expected_departure_date, mto_shipments.requested_delivery_date)';
+            WHEN 'requestedMoveDate' THEN   sort_column := 'COALESCE(' || 'MIN(mto_shipments.requested_pickup_date),' || 'MIN(ppm_shipments.expected_departure_date),' || 'MIN(mto_shipments.requested_delivery_date)' || ')';
             WHEN 'appearedInTooAt' THEN sort_column := 'COALESCE(moves.submitted_at, moves.approvals_requested_at)';
             WHEN 'branch' THEN sort_column := 'service_members.affiliation';
             WHEN 'newDutyLocation' THEN sort_column := 'new_duty_locations.name';
@@ -247,9 +247,6 @@ BEGIN
             moves.locked_by,
             moves.too_destination_assigned_id,
             moves.counseling_transportation_office_id,
-            mto_shipments.requested_pickup_date,
-            mto_shipments.requested_delivery_date,
-            ppm_shipments.expected_departure_date,
             orders.id,
             service_members.id,
             service_members.first_name,
@@ -262,9 +259,29 @@ BEGIN
             too_user.first_name,
             too_user.last_name,
             too_user.id';
-    sql_query := sql_query || format(' ORDER BY %s %s ', sort_column, sort_order);
-	IF sort_column <> 'moves.locator' THEN
-        sql_query := sql_query || ', moves.locator ASC ';
+
+    -- handling ordering customer name by last, first
+    IF sort = 'customerName' THEN
+      sql_query := sql_query || format(
+        ' ORDER BY service_members.last_name %s, service_members.first_name %s',
+        sort_order, sort_order
+      );
+    -- to avoid duplicate moves being returned, we removed shipment dates from the GROUP BY
+    -- if user is sorting asc/desc by requested move dates, we need to append to the ORDER BY
+    ELSEIF sort = 'requestedMoveDate' THEN
+      sql_query := sql_query || format(
+        ' ORDER BY %s %s',
+        sort_column, sort_order
+      );
+    ELSE
+      sql_query := sql_query || format(
+        ' ORDER BY %s %s',
+        sort_column, sort_order
+      );
+    END IF;
+
+    IF sort_column <> 'moves.locator' OR sort <> 'customerName' OR sort <> 'requestedMoveDate' THEN
+      sql_query := sql_query || ', moves.locator ASC';
     END IF;
     sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';
 
