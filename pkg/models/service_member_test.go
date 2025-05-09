@@ -367,6 +367,50 @@ func (suite *ModelSuite) TestSaveServiceMember() {
 	suite.False(verrs.HasAny())
 }
 
+func (suite *ModelSuite) TestSaveServiceMemberResidentialAddressUSPRCFails() {
+	user1 := factory.BuildDefaultUser(suite.DB())
+
+	firstName := "Billy"
+	lastName := "Bob"
+	sm := m.ServiceMember{
+		User:      user1,
+		UserID:    user1.ID,
+		FirstName: &firstName,
+		LastName:  &lastName,
+	}
+	suite.MustSave(&sm)
+	appCtx := suite.AppContextForTest()
+
+	// updating residential address
+	resAddress := m.Address{
+		StreetAddress1: "987 Other Avenue",
+		City:           "Tulsa",
+		State:          "OK",
+		PostalCode:     "29229",
+	}
+	sm.ResidentialAddress = &resAddress
+	_, err := m.SaveServiceMember(appCtx, &sm)
+	suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city TULSA.")
+
+	resAddress = m.Address{
+		StreetAddress1: "987 Other Avenue",
+		City:           "Tulsa",
+		State:          "OK",
+		PostalCode:     "74133",
+	}
+
+	// updating backup address
+	backupAddress := m.Address{
+		StreetAddress1: "987 Backup Avenue",
+		City:           "Tulsa",
+		State:          "OK",
+		PostalCode:     "29229",
+	}
+	sm.BackupMailingAddress = &backupAddress
+	_, err = m.SaveServiceMember(appCtx, &sm)
+	suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city TULSA.")
+}
+
 func (suite *ModelSuite) TestFetchServiceMemberByUserID() {
 	existingServiceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 

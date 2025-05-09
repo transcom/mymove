@@ -1090,6 +1090,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 				Model:    mto,
 				LinkOnly: true,
 			},
+			{
+				Model: models.Address{
+					City:       "SULPHUR SPGS",
+					PostalCode: "75482",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)

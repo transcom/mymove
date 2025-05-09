@@ -1,6 +1,8 @@
 package customer
 
 import (
+	"strings"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -31,6 +33,27 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+
+		if customer.ResidentialAddress != nil && strings.TrimSpace(customer.ResidentialAddress.PostalCode) != "" && strings.TrimSpace(customer.ResidentialAddress.City) != "" {
+			usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), customer.ResidentialAddress.PostalCode, strings.ToUpper(customer.ResidentialAddress.City))
+			if err != nil {
+				return err
+			}
+
+			customer.ResidentialAddress.UsPostRegionCity = usprc
+			customer.ResidentialAddress.UsPostRegionCityID = &usprc.ID
+		}
+
+		if customer.BackupMailingAddress != nil && strings.TrimSpace(customer.BackupMailingAddress.PostalCode) != "" && strings.TrimSpace(customer.BackupMailingAddress.City) != "" {
+			usprc, err := models.FindByZipCodeAndCity(appCtx.DB(), customer.BackupMailingAddress.PostalCode, strings.ToUpper(customer.BackupMailingAddress.City))
+			if err != nil {
+				return err
+			}
+
+			customer.BackupMailingAddress.UsPostRegionCity = usprc
+			customer.BackupMailingAddress.UsPostRegionCityID = &usprc.ID
+		}
+
 		if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
 			if existingCustomer.ResidentialAddress != nil {
 				existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1

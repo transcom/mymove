@@ -17,10 +17,14 @@ import (
 // makeUserUpload creates a single UserUpload.
 //
 // Deprecated: use factory.BuildUserUpload
-func makeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload {
+func makeUserUpload(db *pop.Connection, assertions Assertions) (models.UserUpload, error) {
 	document := assertions.UserUpload.Document
 	if assertions.UserUpload.DocumentID == nil || isZeroUUID(*assertions.UserUpload.DocumentID) {
-		document = makeDocument(db, assertions)
+		var err error
+		document, err = makeDocument(db, assertions)
+		if err != nil {
+			return models.UserUpload{}, err
+		}
 	}
 
 	uploaderID := assertions.UserUpload.UploaderID
@@ -76,5 +80,5 @@ func makeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 		mustCreate(db, userUpload, assertions.Stub)
 	}
 
-	return *userUpload
+	return *userUpload, nil
 }
