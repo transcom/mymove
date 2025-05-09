@@ -254,11 +254,7 @@ update orders
    and service_member_id in (select id from service_members where affiliation = 'NAVY');
 
 --remove unused pay grades
-delete from pay_grades where grade in
-('O_1_ACADEMY_GRADUATE',
-'ACADEMY_CADET',
-'MIDSHIPMAN',
-'AVIATION_CADET');
+delete from pay_grades where grade = 'O_1_ACADEMY_GRADUATE';
 
 INSERT INTO hhg_allowances (
         id,
