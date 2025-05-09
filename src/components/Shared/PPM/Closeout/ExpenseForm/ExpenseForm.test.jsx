@@ -198,7 +198,7 @@ describe('ExpenseForm component', () => {
     });
 
     it('populates edit form with existing expense values', async () => {
-      render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} />);
+      render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} appName={APP_NAME.MYMOVE} />);
 
       await waitFor(() => {
         expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('bubble wrap');
@@ -230,7 +230,7 @@ describe('ExpenseForm component', () => {
     });
 
     it('populates edit form with SIT values', async () => {
-      render(<ExpenseForm {...defaultProps} {...sitExpenseProps} />);
+      render(<ExpenseForm {...defaultProps} {...sitExpenseProps} appName={APP_NAME.MYMOVE} />);
       await waitFor(() => {
         expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('10x10 storage pod');
       });
@@ -315,7 +315,7 @@ describe('ExpenseForm component', () => {
         expect(defaultProps.onSubmit).toHaveBeenCalled();
       });
     });
-    it('calls the onBack prop when the Cancel button is clicked', async () => {
+    it('calls the onBack prop when the back button is clicked', async () => {
       render(<ExpenseForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));

@@ -1673,11 +1673,11 @@ func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments, 
 func InternalServerError(detail *string, traceID uuid.UUID) *ghcmessages.Error {
 	errDetail := handlers.FmtString(handlers.InternalServerErrDetail)
 
-	if detail == nil {
+	if detail != nil {
 		errDetail = detail
 	}
 
-	msg := fmt.Sprintf("%v | Instance: %v", errDetail, traceID)
+	msg := fmt.Sprintf("%v | Instance: %v", *errDetail, traceID)
 	payload := ghcmessages.Error{Message: &msg}
 
 	return &payload
