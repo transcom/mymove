@@ -3,61 +3,60 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
-import { servicesCounselingRoutes } from 'constants/routes';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
-import WeightTicketForm from 'components/Shared/PPM/Closeout/WeightTicketForm/WeightTicketForm';
-import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
+import ExpenseForm from 'components/Shared/PPM/Closeout/ExpenseForm/ExpenseForm';
+import { servicesCounselingRoutes } from 'constants/routes';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
-  createWeightTicket,
-  patchWeightTicket,
+  createMovingExpense,
+  patchExpense,
   createUploadForPPMDocument,
   deleteUploadForDocument,
 } from 'services/ghcApi';
+import { formatDateForSwagger } from 'shared/dates';
+import { convertDollarsToCents } from 'shared/utils';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import { DOCUMENTS } from 'constants/queryKeys';
 import { APP_NAME } from 'constants/apps';
 
-const WeightTickets = () => {
+const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { moveCode, shipmentId, weightTicketId } = useParams();
+  const { moveCode, shipmentId, expenseId } = useParams();
 
   const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const appName = APP_NAME.OFFICE;
-  const ppmShipment = mtoShipment?.ppmShipment;
-  const weightTickets = documents?.WeightTickets ?? [];
+  const ppmShipment = mtoShipment?.ppmShipment ?? [];
+  const expenses = documents?.MovingExpenses ?? [];
+  const { ppmType } = ppmShipment;
 
-  const currentWeightTicket = weightTickets?.find((item) => item.id === weightTicketId) ?? null;
-  const currentWeightTicketIdx = Array.isArray(weightTickets)
-    ? weightTickets.findIndex((ele) => ele.id === weightTicketId)
-    : -1;
+  const currentExpense = expenses?.find((item) => item.id === expenseId) ?? null;
+  const currentIndex = Array.isArray(expenses) ? expenses.findIndex((ele) => ele.id === expenseId) : -1;
 
   const reviewPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_REVIEW_PATH, { moveCode, shipmentId });
 
-  const { mutate: mutateCreateWeightTicket } = useMutation(createWeightTicket, {
-    onSuccess: (createdWeightTicket) => {
+  const { mutate: mutateCreateMovingExpense } = useMutation(createMovingExpense, {
+    onSuccess: (createdMovingExpense) => {
       queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
-      navigate(
-        generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH, {
-          moveCode,
-          shipmentId,
-          weightTicketId: createdWeightTicket?.id,
-        }),
-        { replace: true },
-      );
+      const path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH, {
+        moveCode,
+        shipmentId,
+        expenseId: createdMovingExpense?.id,
+      });
+      navigate(path, { replace: true });
     },
     onError: () => {
       setErrorMessage(`Failed to create trip record`);
     },
   });
 
-  const { mutate: mutatePatchWeightTicket } = useMutation(patchWeightTicket, {
+  const { mutate: mutatePatchMovingExpense } = useMutation(patchExpense, {
     onSuccess: async () => {
       await queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
@@ -69,13 +68,14 @@ const WeightTickets = () => {
   });
 
   useEffect(() => {
-    if (!weightTicketId) {
-      mutateCreateWeightTicket(ppmShipment?.id);
+    if (!expenseId) {
+      mutateCreateMovingExpense(ppmShipment?.id);
     }
-  }, [mutateCreateWeightTicket, ppmShipment?.id, weightTicketId]);
+  }, [mutateCreateMovingExpense, ppmShipment?.id, expenseId]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
-    const documentId = currentWeightTicket[`${fieldName}Id`];
+    const documentId = currentExpense[`${fieldName}Id`];
+
     // Create a date-time stamp in the format "yyyymmddhh24miss"
     const now = new Date();
     const timestamp =
@@ -85,13 +85,16 @@ const WeightTickets = () => {
       now.getHours().toString().padStart(2, '0') +
       now.getMinutes().toString().padStart(2, '0') +
       now.getSeconds().toString().padStart(2, '0');
+
     // Create a new filename with the timestamp prepended
     const newFileName = `${file.name}-${timestamp}`;
+
     // Create and return a new File object with the new filename
     const newFile = new File([file], newFileName, { type: file.type });
-    createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, true)
+
+    createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, false)
       .then((upload) => {
-        documents?.WeightTickets[currentWeightTicketIdx][fieldName]?.uploads.push(upload);
+        documents?.MovingExpenses[currentIndex][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
         return upload;
       })
@@ -109,10 +112,11 @@ const WeightTickets = () => {
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
     deleteUploadForDocument(uploadId, null, ppmShipment?.id)
       .then(() => {
-        const filteredUploads = documents?.WeightTickets[currentWeightTicketIdx][fieldName]?.uploads.filter(
+        const filteredUploads = documents?.MovingExpenses[currentIndex][fieldName]?.uploads.filter(
           (upload) => upload.id !== uploadId,
         );
-        documents.WeightTickets[currentWeightTicketIdx][fieldName].uploads = filteredUploads;
+        documents.MovingExpenses[currentIndex][fieldName].uploads = filteredUploads;
+
         setFieldValue(fieldName, filteredUploads, true);
         setFieldTouched(fieldName, true, true);
       })
@@ -130,23 +134,31 @@ const WeightTickets = () => {
 
     setIsSubmitted(true);
     setErrorMessage(null);
-    const ownsTrailer = values.ownsTrailer === 'true';
-    const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
     const payload = {
       ppmShipmentId: ppmShipment?.id,
-      vehicleDescription: values.vehicleDescription,
-      emptyWeight: parseInt(values.emptyWeight, 10),
-      missingEmptyWeightTicket: values.missingEmptyWeightTicket,
-      fullWeight: parseInt(values.fullWeight, 10),
-      missingFullWeightTicket: values.missingFullWeightTicket,
-      ownsTrailer,
-      trailerMeetsCriteria,
+      movingExpenseType: values.expenseType,
+      amount: convertDollarsToCents(values.amount),
+      description: values.description,
+      missingReceipt: values.missingReceipt,
+      paidWithGTCC: values.paidWithGTCC === 'true',
+      SITEndDate: formatDateForSwagger(values.sitEndDate),
+      SITStartDate: formatDateForSwagger(values.sitStartDate),
+      WeightStored: parseInt(values.sitWeight, 10),
+      SITLocation: values.sitLocation,
+      weightShipped: parseInt(values.weightShipped, 10),
+      trackingNumber: values.trackingNumber,
+      isProGear: values.isProGear === 'true',
+      ...(values.isProGear === 'true' && {
+        proGearBelongsToSelf: values.proGearBelongsToSelf === 'true',
+        proGearDescription: values.proGearDescription,
+      }),
     };
-    mutatePatchWeightTicket({
-      ppmShipmentId: currentWeightTicket.ppmShipmentId,
-      weightTicketId: currentWeightTicket.id,
+
+    mutatePatchMovingExpense({
+      ppmShipmentId: currentExpense.ppmShipmentId,
+      movingExpenseId: currentExpense.id,
       payload,
-      eTag: currentWeightTicket.eTag,
+      eTag: currentExpense.eTag,
     });
   };
 
@@ -156,15 +168,17 @@ const WeightTickets = () => {
     }
 
     return (
-      <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+      <Alert slim type="error">
         {errorMessage}
       </Alert>
     );
   };
 
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return <SomethingWentWrong />;
+  }
 
-  if (!mtoShipment || !currentWeightTicket) {
+  if (!mtoShipment || !currentExpense) {
     return renderError() || <LoadingPlaceholder />;
   }
 
@@ -175,22 +189,20 @@ const WeightTickets = () => {
         <GridContainer className={ppmPageStyles.gridContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
-              <div className={ppmPageStyles.closeoutPageWrapper}>
-                <ShipmentTag shipmentType={shipmentTypes.PPM} />
-                <h1>Weight Tickets</h1>
-                {renderError()}
-                <WeightTicketForm
-                  weightTicket={currentWeightTicket}
-                  tripNumber={currentWeightTicketIdx + 1}
-                  onCreateUpload={handleCreateUpload}
-                  onUploadComplete={handleUploadComplete}
-                  onUploadDelete={handleUploadDelete}
-                  onSubmit={handleSubmit}
-                  onBack={handleBack}
-                  isSubmitted={isSubmitted}
-                  appName={appName}
-                />
-              </div>
+              <ShipmentTag shipmentType={shipmentTypes.PPM} />
+              <h1>Expenses</h1>
+              {renderError()}
+              <ExpenseForm
+                ppmType={ppmType}
+                expense={currentExpense}
+                receiptNumber={currentIndex + 1}
+                onBack={handleBack}
+                onSubmit={handleSubmit}
+                onCreateUpload={handleCreateUpload}
+                onUploadComplete={handleUploadComplete}
+                onUploadDelete={handleUploadDelete}
+                appName={appName}
+              />
             </Grid>
           </Grid>
         </GridContainer>
@@ -199,4 +211,4 @@ const WeightTickets = () => {
   );
 };
 
-export default WeightTickets;
+export default Expenses;
