@@ -26,7 +26,7 @@ import styles from './OfficeUserEdit.module.scss';
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { roleTypes } from 'constants/userRoles';
 import { selectAdminUser } from 'store/entities/selectors';
-import { deleteOfficeUser, updateUser } from 'services/adminApi';
+import { deleteOfficeUser, updateOfficeUser } from 'services/adminApi';
 
 const OfficeUserEdit = ({ adminUser }) => {
   const dataProvider = useDataProvider();
@@ -128,10 +128,9 @@ const OfficeUserEdit = ({ adminUser }) => {
   const inactivateUser = async () => {
     const userUpdates = {
       active: false,
-      oktaEmail: userData.oktaEmail,
     };
     try {
-      await updateUser(userData.id, userUpdates);
+      await updateOfficeUser(userData.id, userUpdates);
       redirect('./show');
     } catch (err) {
       setServerError(err);
@@ -149,13 +148,18 @@ const OfficeUserEdit = ({ adminUser }) => {
     setInactivateOpen(false);
   };
 
-  // rendering tool bar with added error alert
+  // rendering tool bar with added error alerts
   const renderToolBar = () => {
     return (
       <>
         {serverError && (
           <Alert type="error" slim className={styles.error}>
             {serverError}
+          </Alert>
+        )}
+        {inactivateOpen && !userData.active && (
+          <Alert type="error" slim className={styles.error}>
+            This deletion failed as this user is already tied to existing moves. The user is already inactive.
           </Alert>
         )}
         <Toolbar sx={{ display: 'flex', gap: '10px' }}>
