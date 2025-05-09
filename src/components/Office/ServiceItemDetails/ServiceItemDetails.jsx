@@ -117,8 +117,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
             ) : null}
           </>
         )}
-        {code === SERVICE_ITEM_CODES.DDSFSC || code === SERVICE_ITEM_CODES.IDSFSC
-          ? generateDetailText(
+        {(code === SERVICE_ITEM_CODES.DDSFSC || code === SERVICE_ITEM_CODES.IDSFSC) && (
+          <>
+            {generateDetailText(
               {
                 'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
@@ -130,8 +131,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'Delivery miles out of SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
               },
               id,
-            )
-          : null}
+            )}
+          </>
+        )}
         {code === SERVICE_ITEM_CODES.DDDSIT && (
           <React.Fragment key={`${id}-${code}-DDDSIT`}>
             {generateDetailText(

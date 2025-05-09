@@ -180,16 +180,18 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
           </div>
           {sectionInfo.ppmType !== PPM_TYPES.SMALL_PACKAGE ? (
             <>
-              <div>
-                <Label>Miles</Label>
-                <span className={styles.light}>
-                  {isFetchingItems && isRecalulatedItem('miles') ? (
-                    <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-                  ) : (
-                    sectionInfo.miles
-                  )}
-                </span>
-              </div>
+              {sectionInfo.miles && (
+                <div>
+                  <Label>Miles</Label>
+                  <span className={styles.light}>
+                    {isFetchingItems && isRecalulatedItem('miles') ? (
+                      <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                    ) : (
+                      sectionInfo.miles
+                    )}
+                  </span>
+                </div>
+              )}
               <div>
                 <Label>Estimated Net Weight</Label>
                 <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
@@ -528,13 +530,11 @@ export default function HeaderSection({
       case 'pickupAddress':
         body = {
           pickupAddress: values.pickupAddress,
-          actualPickupPostalCode: values.pickupAddress?.postalCode,
         };
         break;
       case 'destinationAddress':
         body = {
           destinationAddress: values.destinationAddress,
-          actualDestinationPostalCode: values.destinationAddress?.postalCode,
         };
         break;
       case 'expenseType':
