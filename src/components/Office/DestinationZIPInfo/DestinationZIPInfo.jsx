@@ -4,7 +4,7 @@ import { useField } from 'formik';
 
 import styles from './DestinationZIPInfo.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField } from 'components/form/fields';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';

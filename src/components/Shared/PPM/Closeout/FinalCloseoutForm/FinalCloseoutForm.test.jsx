@@ -3,25 +3,26 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { v4 } from 'uuid';
 
-import FinalCloseoutForm from 'components/Customer/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
+import FinalCloseoutForm from 'components/Shared/PPM/Closeout/FinalCloseoutForm/FinalCloseoutForm';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { createCompleteMovingExpense } from 'utils/test/factories/movingExpense';
 import { createCompleteProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
-import { PPM_TYPES } from 'shared/constants';
+import { APP_NAME } from 'constants/apps';
+import { formatCents, formatWeight } from 'utils/formatters';
 import {
   calculateTotalMovingExpensesAmount,
   getNonProGearWeightSPR,
   getProGearWeightSPR,
   getTotalPackageWeightSPR,
 } from 'utils/ppmCloseout';
-import { formatCents, formatWeight } from 'utils/formatters';
+import { PPM_TYPES } from 'shared/constants';
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const defaultProps = {
+const defaultPropsOffice = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
   initialValues: { date: '2022-11-01', signature: '' },
@@ -31,6 +32,20 @@ const defaultProps = {
       name: 'Altus AFB',
     },
   },
+  appName: APP_NAME.OFFICE,
+};
+
+const defaultPropsCustomer = {
+  onSubmit: jest.fn(),
+  onBack: jest.fn(),
+  initialValues: { date: '2022-11-01', signature: '' },
+  affiliation: 'ARMY',
+  selectedMove: {
+    closeout_office: {
+      name: 'Altus AFB',
+    },
+  },
+  appName: APP_NAME.MYMOVE,
 };
 
 describe('FinalCloseoutForm component', () => {
@@ -53,7 +68,7 @@ describe('FinalCloseoutForm component', () => {
       },
     });
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsOffice} />);
 
     expect(
       screen.getByRole('heading', { level: 2, name: 'Your final estimated incentive: $2,000,000.00' }),
@@ -89,7 +104,7 @@ describe('FinalCloseoutForm component', () => {
       },
     });
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsCustomer} />);
 
     const finalIncentiveHeader = screen.queryByText(/Your final estimated incentive:/i);
     expect(finalIncentiveHeader).not.toBeInTheDocument();
@@ -114,7 +129,7 @@ describe('FinalCloseoutForm component', () => {
 
     const mtoShipment = { ppmShipment };
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsCustomer} />);
 
     // checking to confirm details match what was previously calculated in the utility funcs
     expect(screen.getByText(`$${formatCents(totalExpensesClaimed)} in expenses claimed`)).toBeInTheDocument();
@@ -150,7 +165,7 @@ describe('FinalCloseoutForm component', () => {
       },
     });
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsOffice} />);
 
     const findListItemWithText = prepListSearchForItem(screen.getAllByRole('listitem'));
 
@@ -159,63 +174,85 @@ describe('FinalCloseoutForm component', () => {
     expect(findListItemWithText('$1,200.00 in expenses claimed')).toBeInTheDocument();
   });
 
-  it('calls onBack func when "Return To Homepage" button is clicked', async () => {
+  it('calls onBack func when "Back" button is clicked', async () => {
     const mtoShipment = createPPMShipmentWithFinalIncentive();
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsOffice} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
-    expect(defaultProps.onBack).toHaveBeenCalled();
+    expect(defaultPropsOffice.onBack).toHaveBeenCalled();
   });
 
-  it('calls onBack func when "Return To Homepage" button is clicked', async () => {
-    const mtoShipment = createPPMShipmentWithFinalIncentive();
+  describe('Customer side specific tests', () => {
+    it('displays signature box and calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {
+      const mtoShipment = createPPMShipmentWithFinalIncentive();
+      const modifiedProps = {
+        ...defaultPropsCustomer,
+        initialValues: {
+          ...defaultPropsCustomer.initialValues,
+          signature: 'Grace Griffin',
+        },
+      };
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+      render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
+      const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+      await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
 
-    expect(defaultProps.onBack).toHaveBeenCalled();
-  });
+      const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+      await userEvent.click(saveButton);
+      await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
+    });
 
-  it('validates the form after user input', async () => {
-    const mtoShipment = createPPMShipmentWithFinalIncentive();
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultProps} />);
+    it('validates the form after user input', async () => {
+      const mtoShipment = createPPMShipmentWithFinalIncentive();
+      render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsCustomer} />);
 
-    // Save should be visibly enabled when form is clean, but validate on submit attempt
-    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
-    expect(saveButton).toBeEnabled();
-    await userEvent.click(saveButton);
+      // Save should be visibly enabled when form is clean, but validate on submit attempt
+      const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+      expect(saveButton).toBeEnabled();
+      await userEvent.click(saveButton);
 
-    // Save should be disabled after invalid input
-    expect(await screen.getByTestId('errorMessage')).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+      // Save should be disabled after invalid input
+      expect(await screen.getByTestId('errorMessage')).toBeInTheDocument();
+      expect(saveButton).toBeDisabled();
 
-    // Save should be re-enabled after valid input
-    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
-    await userEvent.type(signatureField, 'Grace Griffin');
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    expect(screen.queryByTestId('errorMessage')).not.toBeInTheDocument();
-  });
+      // Save should be re-enabled after valid input
+      const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+      await userEvent.type(signatureField, 'Grace Griffin');
+      await waitFor(() => expect(saveButton).toBeEnabled());
+      expect(screen.queryByTestId('errorMessage')).not.toBeInTheDocument();
+    });
 
-  it('calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {
-    const mtoShipment = createPPMShipmentWithFinalIncentive();
-    const modifiedProps = {
-      ...defaultProps,
-      initialValues: {
-        ...defaultProps.initialValues,
-        signature: 'Grace Griffin',
-      },
-    };
+    it('calls onBack func when "Return To Homepage" button is clicked', async () => {
+      const mtoShipment = createPPMShipmentWithFinalIncentive();
 
-    render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
+      render(<FinalCloseoutForm mtoShipment={mtoShipment} {...defaultPropsCustomer} />);
 
-    const signatureField = screen.getByRole('textbox', { name: 'Signature' });
-    await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
+      await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
-    const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
-    await userEvent.click(saveButton);
-    await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
+      expect(defaultPropsCustomer.onBack).toHaveBeenCalled();
+    });
+
+    it('calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {
+      const mtoShipment = createPPMShipmentWithFinalIncentive();
+      const modifiedProps = {
+        ...defaultPropsCustomer,
+        initialValues: {
+          ...defaultPropsCustomer.initialValues,
+          signature: 'Grace Griffin',
+        },
+      };
+
+      render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
+
+      const signatureField = screen.getByRole('textbox', { name: 'Signature' });
+      await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
+
+      const saveButton = screen.getByRole('button', { name: 'Submit PPM Documentation' });
+      await userEvent.click(saveButton);
+      await waitFor(() => expect(modifiedProps.onSubmit).toHaveBeenCalled());
+    });
   });
 });
