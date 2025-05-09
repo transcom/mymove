@@ -79,7 +79,7 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 			return err
 		}
 
-		if shipmentApprovable(*shipment) {
+		if models.IsShipmentApprovable(*shipment) {
 			shipment.Status = models.MTOShipmentStatusApproved
 			approvedDate := time.Now()
 			shipment.ApprovedDate = &approvedDate
@@ -104,27 +104,6 @@ func (f *sitExtensionApprover) approveSITExtension(appCtx appcontext.AppContext,
 	}
 
 	return &returnedShipment, nil
-}
-
-func shipmentApprovable(dbShipment models.MTOShipment) bool {
-	// check if any service items on current shipment still need to be reviewed
-	for _, serviceItem := range dbShipment.MTOServiceItems {
-		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-			return false
-		}
-	}
-	// check if all SIT Extensions are reviewed
-	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
-		if sitDurationUpdate.Status == models.SITExtensionStatusPending {
-			return false
-		}
-	}
-	// check if all Delivery Address updates are reviewed
-	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
-		return false
-	}
-
-	return true
 }
 
 func (f *sitExtensionApprover) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, approvedDays int, requestReason models.SITDurationUpdateRequestReason, officeRemarks *string, shipment *models.MTOShipment) error {

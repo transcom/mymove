@@ -267,7 +267,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
-					if shipmentApprovable(*shipment) {
+					if models.IsShipmentApprovable(*shipment) {
 						shipmentWithSITInfo.Status = models.MTOShipmentStatusApproved
 						approvedDate := time.Now()
 						shipmentWithSITInfo.ApprovedDate = &approvedDate
@@ -299,27 +299,6 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 			payload := payloads.MTOServiceItemModel(updatedMTOServiceItem, h.FileStorer())
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload), nil
 		})
-}
-
-func shipmentApprovable(dbShipment models.MTOShipment) bool {
-	// check if any service items on current shipment still need to be reviewed
-	for _, serviceItem := range dbShipment.MTOServiceItems {
-		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-			return false
-		}
-	}
-	// check if all SIT Extensions are reviewed
-	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
-		if sitDurationUpdate.Status == models.SITExtensionStatusPending {
-			return false
-		}
-	}
-	// check if all Delivery Address updates are reviewed
-	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
-		return false
-	}
-
-	return true
 }
 
 // ListMTOServiceItemsHandler struct that describes listing service items for the move task order

@@ -500,27 +500,6 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	return &addressUpdate, nil
 }
 
-func shipmentApprovable(dbShipment models.MTOShipment) bool {
-	// check if any service items on current shipment still need to be reviewed
-	for _, serviceItem := range dbShipment.MTOServiceItems {
-		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
-			return false
-		}
-	}
-	// check if all SIT Extensions are reviewed
-	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
-		if sitDurationUpdate.Status == models.SITExtensionStatusPending {
-			return false
-		}
-	}
-	// check if all Delivery Address updates are reviewed
-	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
-		return false
-	}
-
-	return true
-}
-
 func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
@@ -687,7 +666,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		addressUpdate.OfficeRemarks = &tooRemarks
 	}
 
-	if shipmentApprovable(shipment) {
+	if models.IsShipmentApprovable(shipment) {
 		shipment.Status = models.MTOShipmentStatusApproved
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
