@@ -332,7 +332,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 	suite.Run("Returns only those payment requests with the exact status", func() {
 		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
-			&services.FetchPaymentRequestListParams{Status: []string{"PENDING"}})
+			&services.FetchPaymentRequestListParams{Status: []string{models.PaymentRequestStatusPending.String()}})
 		pending := *pendingPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, pendingCount)
