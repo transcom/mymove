@@ -8,7 +8,7 @@ import { Checkbox, FormControlLabel } from '@material-ui/core';
 import styles from './SubmitMoveForm.module.scss';
 
 import { Form } from 'components/form/Form';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import CertificationText from 'components/CertificationText/CertificationText';
@@ -18,11 +18,26 @@ const SubmitMoveForm = (props) => {
   const [hasReadTheAgreement, setHasReadTheAgreement] = useState(false);
   const [hasAcknowledgedTerms, sethasAcknowledgedTerms] = useState(false);
 
+  const normalizeString = (str) => {
+    return str
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/[^\w\s]/gi, '');
+  };
+
+  const compareSignature = (signature, fullName) => {
+    const normalizedSignature = normalizeString(signature);
+    const normalizedFullName = normalizeString(fullName);
+
+    return normalizedSignature === normalizedFullName;
+  };
+
   const validationSchema = Yup.object().shape({
     signature: Yup.string()
       .required('Required')
       .test('matches-user-name', 'Typed signature must match your exact user name', (signature) => {
-        return signature.toLowerCase() === currentUser.toLowerCase();
+        return compareSignature(signature, currentUser);
       }),
     date: Yup.date().required(),
   });

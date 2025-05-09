@@ -3,7 +3,7 @@ import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
 import ReviewSection from '../../components/Customer/ReviewSection';
-import SectionWrapper from '../../components/Customer/SectionWrapper';
+import SectionWrapper from '../../components/Shared/SectionWrapper/SectionWrapper';
 
 import Address from './Address';
 
