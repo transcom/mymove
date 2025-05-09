@@ -126,21 +126,21 @@ paths:
           description: Office User information
           required: true
           schema:
-            $ref: "#/definitions/OfficeUserUpdate"
+            $ref: '#/definitions/OfficeUserUpdate'
       responses:
-        "200":
+        '200':
           description: Successfully updated Office User
           schema:
-            $ref: "#/definitions/OfficeUser"
-        "400":
+            $ref: '#/definitions/OfficeUser'
+        '400':
           $ref: '#/responses/InvalidRequest'
-        "401":
+        '401':
           $ref: '#/responses/PermissionDenied'
-        "403":
+        '403':
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
-        "500":
+        '500':
           $ref: '#/responses/ServerError'
   '/customer/{customerID}':
     parameters:
@@ -7926,6 +7926,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -7935,6 +7939,8 @@ definitions:
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
