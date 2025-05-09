@@ -1223,7 +1223,17 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 		return nil, errors.Wrapf(err, "Unable to fetch user identity from OktaID %s", lgUUID)
 	}
 
-	session.Roles = append(session.Roles, userIdentity.Roles...)
+	defaultRole, err := userIdentity.Roles.Default()
+	if err != nil {
+		appCtx.Logger().Warn("User session creation requesting authentication but could not find default role, proceeding without a role",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
+	} else {
+		session.ActiveRole = *defaultRole
+	}
+
 	session.Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
 
 	// Assign user identity to session
