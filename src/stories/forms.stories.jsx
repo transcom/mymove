@@ -19,7 +19,7 @@ import {
 import { action } from '@storybook/addon-actions';
 
 import formStyles from 'styles/form.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint/index';
 
 export default {

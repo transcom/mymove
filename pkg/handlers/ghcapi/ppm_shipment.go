@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -231,5 +232,60 @@ func (h SendPPMToCustomerHandler) Handle(params ppm.SendPPMToCustomerParams) mid
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
 			return ppm.NewSendPPMToCustomerOK().WithPayload(returnPayload), nil
+		})
+}
+
+// SubmitPPMShipmentDocumentationHandler is the handler to allow an office user to submit a PPMShipment and change it to NEEDS_CLOSEOUT status
+type SubmitPPMShipmentDocumentationHandler struct {
+	handlers.HandlerConfig
+	services.PPMShipmentNewSubmitter
+}
+
+// Handle routes PPM shipment to the service counselor with the NEEDS_CLOSEOUT status.
+func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetPPMSITEstimatedCost error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return ppm.NewSubmitPPMShipmentDocumentationNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return ppm.NewSubmitPPMShipmentDocumentationForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return ppm.NewSubmitPPMShipmentDocumentationInternalServerError().WithPayload(payload), err
+				case apperror.ConflictError:
+					return ppm.NewSubmitPPMShipmentDocumentationConflict().WithPayload(payload), err
+				default:
+					return ppm.NewSubmitPPMShipmentDocumentationInternalServerError().WithPayload(payload), err
+				}
+			}
+
+			if !appCtx.Session().IsOfficeApp() {
+				errInstance := "Request should come from the office app."
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return ppm.NewSubmitPPMShipmentDocumentationForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				appCtx.Logger().Error("error with PPM Shipment ID", zap.Error(err))
+				return handleError(err)
+			} else if ppmShipmentID.IsNil() {
+				appCtx.Logger().Error("nil PPM Shipment ID")
+				payload := &ghcmessages.Error{Message: handlers.FmtString("nil PPM shipment ID")}
+				return ppm.NewSubmitPPMShipmentDocumentationBadRequest().WithPayload(payload), errors.New("nil PPM shipment ID")
+			}
+
+			ppmShipment, err := h.PPMShipmentNewSubmitter.SubmitNewCustomerCloseOut(appCtx, ppmShipmentID, models.SignedCertification{})
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.SubmitPPMShipmentDocumentationHandler", zap.Error(err))
+				return handleError(err)
+			}
+
+			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
+
+			return ppm.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
 }

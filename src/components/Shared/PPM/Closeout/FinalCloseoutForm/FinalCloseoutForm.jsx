@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 
 import styles from './FinalCloseoutForm.module.scss';
 
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -20,17 +20,19 @@ import {
   calculateTotalNetWeightForProGearWeightTickets,
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
-import SectionWrapper from 'components/Customer/SectionWrapper';
-import TextField from 'components/form/fields/TextField/TextField';
 import affiliations from 'content/serviceMemberAgencies';
+import { APP_NAME } from 'constants/apps';
 import { PPM_TYPES } from 'shared/constants';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
+import TextField from 'components/form/fields/TextField/TextField';
 
-const validationSchema = Yup.object().shape({
-  signature: Yup.string().required('Required'),
-  date: Yup.string(),
-});
+const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove, appName }) => {
+  const isCustomerPage = appName === APP_NAME.MYMOVE;
 
-const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove }) => {
+  const validationSchema = Yup.object().shape({
+    signature: isCustomerPage ? Yup.string().required('Required') : Yup.string(),
+    date: Yup.string(),
+  });
   const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
@@ -52,7 +54,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
   return (
     <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit }) => (
-        <div className={styles.FinalCloseoutForm} data-testid="finalCloseoutDetails">
+        <div className={styles.FinalCloseoutForm}>
           {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
             <>
               <h2>Your final estimated incentive: ${formatCents(mtoShipment?.ppmShipment?.finalIncentive || 0)}</h2>
@@ -130,29 +132,31 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             )}
           </div>
 
-          <SectionWrapper>
-            <h2>Customer agreement</h2>
-            <p>I certify that any expenses claimed in this application were legitimately incurred during my PPM.</p>
-            <p>
-              Failure to furnish data may result in partial or total denial of claim and/or improper tax application.
-            </p>
-            <p>
-              I understand the penalty for willfully making a false statement of claim is a maximum fine of $10,000,
-              maximum imprisonment of five years, or both (U.S.C, Title 18, Section 287).
-            </p>
-            <div>
-              <div className={styles.signatureField}>
-                <TextField label="Signature" id="signature" name="signature" />
+          {appName === APP_NAME.MYMOVE && (
+            <SectionWrapper>
+              <h2>Customer agreement</h2>
+              <p>I certify that any expenses claimed in this application were legitimately incurred during my PPM.</p>
+              <p>
+                Failure to furnish data may result in partial or total denial of claim and/or improper tax application.
+              </p>
+              <p>
+                I understand the penalty for willfully making a false statement of claim is a maximum fine of $10,000,
+                maximum imprisonment of five years, or both (U.S.C, Title 18, Section 287).
+              </p>
+              <div>
+                <div className={styles.signatureField}>
+                  <TextField label="Signature" id="signature" name="signature" />
+                </div>
+                <div className={styles.dateField}>
+                  <TextField label="Date" id="date" name="date" disabled />
+                </div>
               </div>
-              <div className={styles.dateField}>
-                <TextField label="Date" id="date" name="date" disabled />
-              </div>
-            </div>
-          </SectionWrapper>
+            </SectionWrapper>
+          )}
 
           <div className={ppmStyles.buttonContainer}>
             <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
-              Return To Homepage
+              {appName === APP_NAME.OFFICE ? 'Back' : 'Return To Homepage'}
             </Button>
             <Button
               className={ppmStyles.saveButton}

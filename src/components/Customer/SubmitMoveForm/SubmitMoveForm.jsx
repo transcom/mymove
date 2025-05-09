@@ -8,7 +8,7 @@ import { Checkbox, FormControlLabel } from '@material-ui/core';
 import styles from './SubmitMoveForm.module.scss';
 
 import { Form } from 'components/form/Form';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import CertificationText from 'components/CertificationText/CertificationText';

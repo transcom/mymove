@@ -6,7 +6,7 @@ import { useField } from 'formik';
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 
 const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEstimatedDepartureDate }) => {

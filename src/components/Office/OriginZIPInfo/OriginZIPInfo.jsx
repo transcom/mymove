@@ -4,7 +4,7 @@ import { useField } from 'formik';
 
 import styles from './OriginZIPInfo.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 import { CheckboxField, DatePickerInput } from 'components/form/fields';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';

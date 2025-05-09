@@ -10,7 +10,7 @@ import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { calculateTotalMovingExpensesAmount, getW2Address } from 'utils/ppmCloseout';
 import { FEEDBACK_DOCUMENT_TYPES, FEEDBACK_TEMPLATES } from 'constants/ppmFeedback';

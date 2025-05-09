@@ -8,7 +8,7 @@ import classnames from 'classnames';
 
 import styles from './UploadsTable.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ExistingUploadsShape } from 'types/uploads';
 
 const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDownloadLink = false }) => {

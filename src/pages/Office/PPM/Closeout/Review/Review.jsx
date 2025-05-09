@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { servicesCounselingRoutes } from 'constants/routes';
 import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import {
