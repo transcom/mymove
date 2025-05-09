@@ -672,6 +672,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		log.Fatalln(err)
 	}
 
+	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(shipmentRouter)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	ghcAPI.PpmSendPPMToCustomerHandler = SendPPMToCustomerHandler{
 		handlerConfig,
 		ppmShipmentFetcher,
