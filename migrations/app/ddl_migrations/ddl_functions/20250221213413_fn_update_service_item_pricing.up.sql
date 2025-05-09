@@ -127,7 +127,7 @@ BEGIN
                         estimated_price := standalone_crate_cap;
                     END IF;
 
-					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
+					RAISE NOTICE ''%: Received estimated price of % cents = %¢/ft³  * %ft³'', service_code, estimated_price, escalated_price, cubic_feet;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
@@ -159,7 +159,7 @@ BEGIN
                         estimated_price := standalone_crate_cap;
                     END IF;
 
-					RAISE NOTICE ''%: Received estimated price of % = (% * (%"L * %"W * %"H) / 100)) cents'', service_code, estimated_price, escalated_price, ROUND(length/1000, 3), ROUND(width/1000, 3), ROUND(height/1000, 3);
+					RAISE NOTICE ''%: Received estimated price of % cents = %¢/ft³  * %ft³'', service_code, estimated_price, escalated_price, cubic_feet;
 			        -- update the pricing_estimate value in mto_service_items
 			        UPDATE mto_service_items
 			        SET pricing_estimate = estimated_price
