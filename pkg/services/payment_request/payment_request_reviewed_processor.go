@@ -197,7 +197,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 				zap.Error(verrs),
 			)
 		}
-		//send email to open HDT for review for payment requests that failed to send to GEX
+		// send email to open HDT for review for payment requests that failed to send to GEX
 		err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
 		if err != nil {
 			appCtx.Logger().Error(
@@ -205,6 +205,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 				zap.String("PaymentRequestID", pr.ID.String()),
 				zap.Error(verrs))
 		}
+
 		switch transactionError.(type) {
 		case GexSendError:
 			// if we failed in sending there is nothing to do here but retry later so keep the status the same
@@ -227,9 +228,9 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		}
 
 		return transactionError
+
 	}
 	return nil
-
 }
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx appcontext.AppContext) {
 	// Store/log metrics about EDI processing upon exiting this method.
