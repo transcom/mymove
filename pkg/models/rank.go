@@ -9,8 +9,8 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// PayGradeRank represents a customer's pay grade (Including civilian)
-type PayGradeRank struct {
+// Rank represents a customer's rank (Including civilian)
+type Rank struct {
 	ID          uuid.UUID `json:"id" db:"id"`
 	PayGradeID  uuid.UUID `json:"pay_grade_id" db:"pay_grade_id"`
 	Affiliation string    `json:"affiliation" db:"affiliation"`
@@ -22,7 +22,7 @@ type PayGradeRank struct {
 }
 
 // Validate gets run every time you call a "pop.Validate*" method
-func (pgr PayGradeRank) Validate(_ *pop.Connection) (*validate.Errors, error) {
+func (pgr Rank) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Name: "Affiliation", Field: pgr.Affiliation},
 		&validators.StringIsPresent{Name: "RankAbbv", Field: pgr.Affiliation},
@@ -30,28 +30,10 @@ func (pgr PayGradeRank) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// PayGradeRanks is a slice of PayGradeRank
-type PayGradeRanks []PayGradeRank
+// Ranks is a slice of Rank
+type Ranks []Rank
 
 // TableName overrides the table name used by Pop.
-func (p PayGradeRank) TableName() string {
-	return "pay_grade_ranks"
-}
-
-// get pay grade / rank for orders drop down
-func GetPayGradeRankDropdownOptions(db *pop.Connection, affiliation string) ([]string, error) {
-	var dropdownOptions []string
-
-	err := db.Q().RawQuery(`
-		select pgr.rank_abbv || ' / ' || pg.grade as rank_name
-		from pay_grade_ranks pgr
-		join pay_grades pg on pgr.pay_grade_id = pg.id
-		where affiliation = $1
-		order by pgr.rank_order ASC
-	`, affiliation).All(&dropdownOptions)
-	if err != nil {
-		return nil, err
-	}
-
-	return dropdownOptions, nil
+func (p Rank) TableName() string {
+	return "ranks"
 }

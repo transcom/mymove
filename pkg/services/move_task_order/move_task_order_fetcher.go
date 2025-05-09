@@ -365,13 +365,13 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 	mto.MTOServiceItems = loadedServiceItems
 
-	if mto.Orders.PayGradeRankID == nil {
+	if mto.Orders.RankID == nil {
 		userPayGrade, err := FindPayGradeRankByGradeAndAffiliation(appCtx, string(*mto.Orders.Grade), string(*mto.Orders.ServiceMember.Affiliation))
 		if err != nil {
 			return &models.Move{}, apperror.NewQueryError("PayGradeWithRank", err, "")
 		}
-		mto.Orders.PayGradeRank = userPayGrade
-		mto.Orders.PayGradeRankID = &userPayGrade.ID
+		mto.Orders.Rank = &userPayGrade
+		mto.Orders.RankID = &userPayGrade.ID
 
 	}
 
@@ -692,12 +692,12 @@ func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.R
 	return reweigh, nil
 }
 
-func FindPayGradeRankByGradeAndAffiliation(appCtx appcontext.AppContext, grade, affiliation string) (models.PayGradeRank, error) {
-	var result models.PayGradeRank
+func FindPayGradeRankByGradeAndAffiliation(appCtx appcontext.AppContext, grade, affiliation string) (models.Rank, error) {
+	var result models.Rank
 
-	query := appCtx.DB().Select("pay_grade_ranks.*").
-		LeftJoin("pay_grades", "pay_grade_ranks.pay_grade_id = pay_grades.id").
-		Where("pay_grades.grade = ? AND pay_grade_ranks.affiliation = ?", grade, affiliation)
+	query := appCtx.DB().Select("ranks.*").
+		LeftJoin("pay_grades", "ranks.pay_grade_id = pay_grades.id").
+		Where("pay_grades.grade = ? AND ranks.affiliation = ?", grade, affiliation)
 
 	err := query.First(&result)
 	return result, err
