@@ -141,7 +141,8 @@ const MoveDetails = ({
           fieldName: 'advanceStatus',
           condition: (mtoShipment) =>
             mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
-            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue &&
+            mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.REJECTED.apiValue,
         },
       ],
     };
