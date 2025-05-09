@@ -13,7 +13,7 @@ import formStyles from 'styles/form.module.scss';
 import WeightTicketUpload, {
   acceptableFileTypes,
 } from 'components/Shared/PPM/Closeout/WeightTicketUpload/WeightTicketUpload';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { CheckboxField } from 'components/form/fields';
 import Hint from 'components/Hint';
 import TextField from 'components/form/fields/TextField/TextField';

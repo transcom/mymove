@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { v4 as uuidv4 } from 'uuid';
 
 import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { formatCents, formatWeight } from 'utils/formatters';
 
 export default {
