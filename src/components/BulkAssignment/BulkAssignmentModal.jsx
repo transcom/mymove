@@ -347,17 +347,13 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                           Any unsaved work will be lost. Are you sure you want to cancel?
                         </small>
                         <div className={styles.confirmButtons}>
-                          <Button
-                            className={styles.cancelNoButton}
-                            data-testid="cancelModalNo"
-                            onClick={() => setShowCancelModal(false)}
-                          >
+                          <Button outline data-testid="cancelModalNo" onClick={() => setShowCancelModal(false)}>
                             No
                           </Button>
                           <Button
-                            className={styles.cancelYesButton}
-                            data-testid="cancelModalYes"
+                            className="usa-button-destructive"
                             secondary
+                            data-testid="cancelModalYes"
                             onClick={onClose}
                           >
                             Discard Changes
@@ -367,21 +363,21 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                     ) : (
                       <ModalActions>
                         <div className={styles.BulkAssignmentButtonsContainer}>
-                          <div className={styles.BulkAssignmentButtonsLeft}>
+                          <div>
                             <Button
                               onClick={handleEqualAssignClick}
                               type="button"
                               data-testid="modalEqualAssignButton"
+                              outline
                               hidden={isBulkReAssignmentMode}
                               disabled={!Object.values(selectedUsers).some(Boolean)}
                             >
                               Equal Assign
                             </Button>
                           </div>
-                          <div>
+                          <div className={styles.BulkAssignmentButtonsRight}>
                             <Button
                               type="button"
-                              className={styles.button}
                               outline
                               onClick={handleCancelClick(values)}
                               data-testid="modalCancelButton"

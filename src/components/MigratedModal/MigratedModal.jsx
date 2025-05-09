@@ -33,6 +33,10 @@ export const Modal = ({ title, children, actions, className, onClose }) => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      /** Ignores hidden modals in the DOM */
+      const modal = modalRef.current;
+      if (!modal || modal.offsetParent === null) return;
+
       if (event.key === 'Escape') {
         onClose?.();
         return;
@@ -42,6 +46,13 @@ export const Modal = ({ title, children, actions, className, onClose }) => {
         const focusableEls = trapFocus(modalRef);
         const firstEl = focusableEls[0];
         const lastEl = focusableEls[focusableEls.length - 1];
+        const activeIndex = focusableEls.indexOf(document.activeElement);
+
+        if (activeIndex === -1) {
+          event.preventDefault();
+          lastEl?.focus();
+          return;
+        }
 
         if (!event.shiftKey && document.activeElement === lastEl) {
           event.preventDefault();
@@ -60,7 +71,7 @@ export const Modal = ({ title, children, actions, className, onClose }) => {
   }, [onClose]);
 
   return (
-    <div data-testid="modal" className={classes} ref={modalRef} tabIndex={-1}>
+    <div data-testid="modal" className={classes} ref={modalRef}>
       <div className={styles.title}>{title}</div>
       <div className={styles.content}>{children}</div>
       <div className={styles.actions}>{actions}</div>
