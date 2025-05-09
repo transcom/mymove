@@ -530,7 +530,7 @@ func (suite *UserServiceSuite) TestDeleteOktaAccount() {
 		deleteEndpoint := oktaUsersURL + user.OktaID
 		deleteCallCount := callInfo[http.MethodDelete+" "+deleteEndpoint]
 
-		suite.Equal(1, getCallCount, "GET Okta user endpoint should not be called")
+		suite.Equal(1, getCallCount, "GET Okta user endpoint should be called once")
 		suite.Equal(2, deleteCallCount, "DELETE Okta user endpoint should be called twice for an active user")
 	})
 
