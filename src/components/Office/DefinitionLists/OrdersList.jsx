@@ -50,7 +50,9 @@ const OrdersList = ({ ordersInfo, moveInfo, showMissingWarnings }) => {
         >
           <dt>Pay grade</dt>
           <dd data-testid="payGrade">
-            {!ordersInfo.payGrade ? missingText : ORDERS_PAY_GRADE_OPTIONS[ordersInfo.payGrade]}
+            {!ordersInfo.payGrade
+              ? missingText
+              : `${ordersInfo.rank} / ${ORDERS_PAY_GRADE_OPTIONS[ordersInfo.payGrade]}`}
           </dd>
         </div>
         <div className={descriptionListStyles.row}>
