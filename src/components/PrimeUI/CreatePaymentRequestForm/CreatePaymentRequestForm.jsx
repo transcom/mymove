@@ -8,7 +8,7 @@ import styles from './CreatePaymentRequestForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import { ErrorMessage } from 'components/form/ErrorMessage';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import Hint from 'components/Hint/index';
