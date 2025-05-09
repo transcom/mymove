@@ -17,7 +17,7 @@ import {
   deleteUploadForDocument,
 } from 'services/ghcApi';
 import { formatDateForSwagger } from 'shared/dates';
-import { convertDollarsToCents } from 'shared/utils';
+import { appendTimestampToFilename, convertDollarsToCents } from 'shared/utils';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import { DOCUMENTS } from 'constants/queryKeys';
@@ -75,24 +75,9 @@ const Expenses = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
+    const filenameWithTimestamp = appendTimestampToFilename(file);
 
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, false)
+    createUploadForPPMDocument(ppmShipment?.id, documentId, filenameWithTimestamp, false)
       .then((upload) => {
         documents?.MovingExpenses[currentIndex][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
