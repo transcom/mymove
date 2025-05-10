@@ -593,7 +593,7 @@ build_storybook:
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
-    - anti_virus
+    # - anti_virus
   cache:
     - <<: *yarn_cache
       policy: pull
