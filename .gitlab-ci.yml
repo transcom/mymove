@@ -584,6 +584,10 @@ check_tls_certificate_prd:
 build_storybook:
   stage: build
   interruptible: true
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "10Gi"
+    KUBERNETES_MEMORY_LIMIT: "10Gi"
   tags:
     - $Gitlab_Runner_Tag
   image: $DOCKER_APP_IMAGE
@@ -603,8 +607,8 @@ build_storybook:
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
-  rules:
-    - *check_main
+  # rules:
+  #   - *check_main
 
 deploy_storybook_dp3:
   stage: deploy
