@@ -593,7 +593,7 @@ build_storybook:
   image: $DOCKER_APP_IMAGE
   needs:
     - pre_deps_yarn
-    # - anti_virus
+    - anti_virus
   cache:
     - <<: *yarn_cache
       policy: pull
@@ -607,8 +607,8 @@ build_storybook:
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
-  # rules:
-  #   - *check_main
+  rules:
+    - *check_main
 
 deploy_storybook_dp3:
   stage: deploy
