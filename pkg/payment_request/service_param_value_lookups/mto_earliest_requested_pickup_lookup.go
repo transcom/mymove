@@ -45,21 +45,6 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 				earliestPickupDate = shipment.RequestedPickupDate
 			}
 		}
-
-		// if shipment.ShipmentType != models.MTOShipmentTypePPM &&
-		// 	earliestPickupDate == nil &&
-		// 	shipment.DeletedAt == nil &&
-		// 	shipment.RequestedPickupDate != nil {
-		// 	earliestPickupDate = shipment.RequestedPickupDate
-		// }
-
-		// if shipment.ShipmentType != models.MTOShipmentTypePPM &&
-		// 	shipment.RequestedPickupDate.Before(*earliestPickupDate) &&
-		// 	shipment.DeletedAt == nil &&
-		// 	shipment.Status == models.MTOShipmentStatusApproved &&
-		// 	shipment.RequestedPickupDate != nil {
-		// 	earliestPickupDate = shipment.RequestedPickupDate
-		// }
 	}
 
 	utcMidnight := models.TimePointer(time.Date(
