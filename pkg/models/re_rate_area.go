@@ -61,7 +61,7 @@ func FetchRateAreaID(db *pop.Connection, addressID uuid.UUID, serviceID *uuid.UU
 		var rateAreaID uuid.UUID
 		err := db.RawQuery("SELECT get_rate_area_id($1, $2, $3)", addressID, serviceID, contractID).First(&rateAreaID)
 		if err != nil {
-			return uuid.Nil, fmt.Errorf("error fetching rate area id for shipment ID: %s, service ID %s, and contract ID: %s: %s", addressID, serviceID, contractID, err)
+			return uuid.Nil, fmt.Errorf("error fetching rate area id for address ID: %s, service ID %s, and contract ID: %s: %s", addressID, serviceID, contractID, err)
 		}
 		return rateAreaID, nil
 	}
