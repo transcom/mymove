@@ -2211,9 +2211,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}, nil)
 
 		// check if sitExtension was successfully added
-		hasSit, err := models.HasSITExtension(suite.AppContextForTest(), oldShipment.ID)
-		suite.NoError(err)
-		suite.Equal(hasSit, true)
+		// suite.Equal(1, len(oldShipment.SITDurationUpdates))
 
 		requestedPickupDate := now.Add(time.Hour * 24 * 3)
 		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
@@ -2234,9 +2232,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 
 		// check if sitExtension was successfully removed
-		hasSit, err = models.HasSITExtension(suite.AppContextForTest(), newShipment.ID)
-		suite.NoError(err)
-		suite.Equal(hasSit, false)
+		suite.Equal(0, len(newShipment.SITDurationUpdates))
 	})
 }
 

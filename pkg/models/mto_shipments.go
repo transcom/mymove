@@ -557,3 +557,14 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 	isOCONUS := *shipment.PickupAddress.IsOconus || *shipment.DestinationAddress.IsOconus
 	return &isOCONUS
 }
+
+func GetAuthorizedSITEndDate(shipment MTOShipment) *time.Time {
+	var endDate time.Time
+	if shipment.OriginSITAuthEndDate != nil {
+		endDate = *shipment.OriginSITAuthEndDate
+	} else if shipment.DestinationSITAuthEndDate != nil {
+		endDate = *shipment.DestinationSITAuthEndDate
+	}
+
+	return &endDate
+}
