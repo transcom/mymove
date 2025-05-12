@@ -138,9 +138,9 @@ const ProGear = () => {
         eTag: currentProGearWeightTicket.eTag,
       },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
-          queryClient.invalidateQueries([MTO_SHIPMENT, shipmentId]);
+        onSuccess: async () => {
+          await queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
+          await queryClient.invalidateQueries([MTO_SHIPMENT, shipmentId]);
           navigate(reviewPath);
         },
         onError: () => {

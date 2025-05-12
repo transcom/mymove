@@ -75,7 +75,6 @@ const Review = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState();
   const [isDeleting, setIsDeleting] = useState();
-  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [alert, setAlert] = useState(null);
   const { moveCode, shipmentId } = useParams();
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
@@ -196,10 +195,7 @@ const Review = () => {
     hasCompletedAllWeightTickets(weightTickets) && hasCompletedAllExpenses(expenses) && hasCompletedAllProGear(proGear);
 
   const showIncompleteError =
-    attemptedSubmit &&
-    (hasIncompleteWeightTicket(weightTickets) ||
-      !hasCompletedAllExpenses(expenses) ||
-      !hasCompletedAllProGear(proGear));
+    hasIncompleteWeightTicket(weightTickets) || !hasCompletedAllExpenses(expenses) || !hasCompletedAllProGear(proGear);
 
   const proGearContents = formatProGearItems(
     proGear,
@@ -228,7 +224,6 @@ const Review = () => {
   };
 
   const handleSubmit = () => {
-    setAttemptedSubmit(true);
     const path = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH, { moveCode, shipmentId });
     navigate(path);
   };
