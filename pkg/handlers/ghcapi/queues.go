@@ -137,7 +137,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
-			moves, count, err := h.OrderFetcher.ListOrders(
+			moves, count, err := h.OrderFetcher.ListOriginRequestsOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
 				roles.RoleTypeTOO,
