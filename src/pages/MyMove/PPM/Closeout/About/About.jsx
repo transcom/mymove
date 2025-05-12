@@ -80,8 +80,6 @@ const About = () => {
         hasSecondaryDestinationAddress: values.hasSecondaryDestinationAddress === 'true',
         secondaryDestinationAddress:
           values.hasSecondaryDestinationAddress === 'true' ? values.secondaryDestinationAddress : null,
-        actualPickupPostalCode: values.pickupAddress.postalCode,
-        actualDestinationPostalCode: values.destinationAddress.postalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
         w2Address: values.w2Address,
