@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { node, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Alert, Button } from '@trussworks/react-uswds';
+import { Alert } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -17,6 +17,7 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
@@ -24,7 +25,7 @@ import ConnectedDestructiveShipmentConfirmationModal from 'components/Confirmati
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import Step from 'components/Customer/Home/Step';
+import Step, { actionButtonStyle } from 'components/Customer/Home/StepAlt';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
@@ -69,6 +70,11 @@ import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import ToolTip from 'shared/ToolTip/ToolTip';
+
+const sectionWrapperStyle = styles['step-section-wrapper'];
+const shipmentListStyle = styles['shipment-list'];
+const printButtonStyle = actionButtonStyle;
+const moveRequestContainerStyle = 'move-request-container';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -566,14 +572,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     onClick={() => {
                       setShowCancelMoveModal(true);
                     }}
-                    unstyled
                     data-testid="cancel-move-button"
                   >
                     Cancel move
                   </Button>
                 </div>
               ) : null}
-              <SectionWrapper>
+              <SectionWrapper className={sectionWrapperStyle}>
                 <Step
                   complete={serviceMember.is_profile_complete}
                   completedHeaderText="Profile complete"
@@ -638,7 +643,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   step="3"
                 >
                   {hasAnyShipments() ? (
-                    <div>
+                    <div className={shipmentListStyle}>
                       <ShipmentList
                         shipments={allSortedShipments}
                         onShipmentClick={handleShipmentClick}
@@ -687,20 +692,21 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
                   complete={hasSubmittedMove()}
                   completedHeaderText="Move request confirmed"
-                  containerClassName="margin-bottom-8"
+                  containerClassName={moveRequestContainerStyle}
                   headerText="Confirm move request"
                   onActionBtnClick={() => handleNewPathClick(confirmationPath)}
                   secondaryBtn={hasSubmittedMove()}
-                  secondaryBtnClassName={styles.secondaryBtn}
                   step="4"
                 >
                   {hasSubmittedMove() ? (
-                    <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
-                      Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.<br />
-                      <Button unstyled onClick={handlePrintLegalese} className={styles.printBtn}>
+                    <>
+                      <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
+                        Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.
+                      </Description>
+                      <Button onClick={handlePrintLegalese} className={printButtonStyle}>
                         Print the legal agreement
                       </Button>
-                    </Description>
+                    </>
                   ) : (
                     <Description>
                       Review your move details and sign the legal paperwork, then send the info on to your move

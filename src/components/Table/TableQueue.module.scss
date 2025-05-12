@@ -1,6 +1,7 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@use 'sass:selector';
+@use 'shared/standardUI/' as *;
+@use 'shared/standardUI/Buttons/mm_buttons' as *;
+
 
 .TableQueue {
   @include u-display(flex);
@@ -26,6 +27,8 @@
     justify-content: space-between;
     align-items: flex-end;
   }
+
+  // TODO B-22876 is this primary outline or danger?
   .queueButtonWrapper {
     display: flex;
     flex-direction: row;
@@ -38,6 +41,7 @@
     cursor: pointer;
   }
 
+  // TODO B-22876 is this primary outline or danger?
   .bulkModal {
     padding: 10.787px;
     cursor: pointer;

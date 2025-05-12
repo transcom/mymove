@@ -1,12 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import styles from './ContactInfoDisplay.module.scss';
 
 import { ResidentialAddressShape } from 'types/address';
 import { BackupContactShape } from 'types/customerShapes';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { LinkButton } from 'shared/standardUI/Buttons';
+
+const editButtonStyle = styles['edit-btn'];
 
 const ContactInfoDisplay = ({
   telephone,
@@ -34,9 +37,9 @@ const ContactInfoDisplay = ({
     <div className={styles.contactInfoContainer}>
       <div className={styles.contactInfoHeader}>
         <h2>Contact info</h2>
-        <Link to={editURL} state={state}>
+        <LinkButton className={editButtonStyle} href={editURL} state={state}>
           Edit
-        </Link>
+        </LinkButton>
       </div>
 
       <div className={styles.contactInfoSection}>

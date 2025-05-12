@@ -1,9 +1,9 @@
 import React from 'react';
 import { arrayOf, bool, func, number } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 
 import styles from './PPMSummaryList.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
@@ -11,6 +11,8 @@ import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { isFeedbackAvailable } from 'constants/ppmFeedback';
+
+const uploadPpmButtonStyle = styles['ppm-upload-btn'];
 
 const toFromAddressDisplay = (pickupAddress, destinationAddress) => {
   return (
@@ -103,7 +105,11 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
 
   switch (status) {
     case ppmShipmentStatuses.SUBMITTED:
-      actionButtons = <Button disabled>Upload PPM Documents</Button>;
+      actionButtons = (
+        <Button className={uploadPpmButtonStyle} disabled>
+          Upload PPM Documents
+        </Button>
+      );
       content = submittedContent;
       break;
     case ppmShipmentStatuses.WAITING_ON_CUSTOMER:
@@ -111,11 +117,15 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
         [
           <div>
             <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
-            <Button onClick={onButtonClick}>Upload PPM Documents</Button>
+            <Button className={uploadPpmButtonStyle} onClick={onButtonClick}>
+              Upload PPM Documents
+            </Button>
           </div>,
         ]
       ) : (
-        <Button onClick={onButtonClick}>Upload PPM Documents</Button>
+        <Button className={uploadPpmButtonStyle} onClick={onButtonClick}>
+          Upload PPM Documents
+        </Button>
       );
       content = approvedContent(approvedAt, pickupAddress, destinationAddress);
       break;

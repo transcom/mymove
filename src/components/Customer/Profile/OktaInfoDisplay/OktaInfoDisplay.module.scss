@@ -1,9 +1,19 @@
-@import 'shared/styles/_variables';
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+.oktaEditLink {
+  @extend %layout-button;
+}
 
 .serviceInfoContainer {
   .header {
+    @include mix-mm-header-layout;
+    @include mix-mm-header-action-button-layout{
+      .oktaEditLink {
+          @extend .usa-button--outline, %layout-button;
+      }
+    }
     h2 {
       flex-shrink: 0;
       @include u-margin(0);
@@ -11,9 +21,6 @@
         @include u-padding-bottom(1);
       }
     }
-
-    display: flex;
-    justify-content: space-between;
   }
 
   .oktaInfoSection {
@@ -34,22 +41,4 @@
     margin-left: -15px;
   }
 
-  .oktaEditLink {
-    align-self: center;
-  }
-
-  a {
-    color: $link;
-    text-decoration: none;
-
-    &:visited {
-      color: $link;
-    }
-
-    &:hover,
-    &:focus {
-      color: $link;
-      @include u-text('no-underline');
-    }
-  }
 }

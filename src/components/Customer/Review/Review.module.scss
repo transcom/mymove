@@ -1,6 +1,11 @@
-@import 'shared/styles/_variables';
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+%action-buttons{
+  @extend .usa-button--outline;
+}
+
 
 @media (min-width: $tablet) {
   .review-container {
@@ -35,9 +40,9 @@
     justify-content: space-between;
 
     .edit-btn {
-      justify-content: flex-end;
-      padding: 0px;
+      @extend %action-buttons;
     }
+
   }
 
   table.review-table {

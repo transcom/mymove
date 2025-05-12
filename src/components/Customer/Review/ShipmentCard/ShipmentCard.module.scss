@@ -1,7 +1,15 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+%action-buttons{
+  @extend .usa-button--outline;
+}
+
+.delete-shipment-btn,
+.edit-shipment-btn{
+  @extend %action-buttons;
+}
 
 @media (max-width: $tablet) {
   .remarksRow {
@@ -15,8 +23,14 @@
 .ShipmentCard {
   @include u-margin-top(3);
   .ShipmentCardHeader {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    align-items: center;
+    @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+      grid-auto-flow: column;
+    }
+    @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+      grid-auto-flow: row;
+    }
     @include u-margin-top('205');
     @include u-padding-x('105');
     @include u-padding-bottom('105');
@@ -38,16 +52,16 @@
     }
 
     .btnContainer {
-      display: inline-flex;
-      flex: 0;
       align-items: center;
       min-width: auto;
       @include u-padding-x(0);
       @include u-font('body', 'xs');
-
-      button {
-        @include u-padding(1.5);
+      @include mix-mm-button-row{
+        %action-buttons{
+          @extend .usa-button--outline, %layout-button;
+        }
       }
+      @include mix-mm-button-row-separator;
     }
   }
 

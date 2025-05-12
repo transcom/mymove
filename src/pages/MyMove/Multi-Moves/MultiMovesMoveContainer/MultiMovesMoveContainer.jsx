@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useDispatch, connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
-import { Button } from '@trussworks/react-uswds';
 import { useNavigate } from 'react-router';
 
 import MultiMovesMoveInfoList from '../MultiMovesMoveInfoList/MultiMovesMoveInfoList';
@@ -10,6 +9,7 @@ import ButtonDropdownMenu from '../../../../components/ButtonDropdownMenu/Button
 
 import styles from './MultiMovesMoveContainer.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
@@ -137,30 +137,24 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage, setShowLoadingSpinner
     <React.Fragment key={index}>
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
-          <h3>#{m.moveCode}</h3>
+          <h3>{`#${m.moveCode}`}</h3>
           {m.status === MOVE_STATUSES.CANCELED ? (
             <div className={styles.specialMoves}>Canceled</div>
           ) : (
-            <>
-              &nbsp;
-              {CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) ? (
-                <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
-              ) : null}
-            </>
+            CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) && (
+              <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
+            )
           )}
-          <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            <Button
-              data-testid="goToMoveBtn"
-              className={styles.goToMoveBtn}
-              secondary
-              outline
-              onClick={() => {
-                handleGoToMoveClick(m.id);
-              }}
-            >
-              Go to Move
-            </Button>
-          </div>
+          <Button
+            data-testid="goToMoveBtn"
+            className={styles.goToMoveBtn}
+            onClick={() => {
+              handleGoToMoveClick(m.id);
+            }}
+          >
+            Go to Move
+          </Button>
+          {/* </div> */}
           <FontAwesomeIcon
             className={styles.icon}
             icon={classnames({

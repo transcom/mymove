@@ -1,9 +1,9 @@
 import { React, useEffect, useState } from 'react';
 import { bool, func, number, oneOf } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
@@ -20,6 +20,9 @@ import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
 import { isPPMShipmentComplete } from 'utils/shipments';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+const deleteShipmentButtonStyle = styles['delete-shipment-btn'];
+const editShipmentButtonStyle = styles['edit-shipment-btn'];
 
 const PPMShipmentCard = ({
   move,
@@ -98,11 +101,21 @@ const PPMShipmentCard = ({
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
-              <Button onClick={() => onDeleteClick(shipment.id)} unstyled>
+              <Button
+                className={deleteShipmentButtonStyle}
+                data-testid="deleteShipmentButton"
+                onClick={() => onDeleteClick(shipment.id)}
+                unstyled
+              >
                 Delete
               </Button>
-              |
-              <Button onClick={() => onEditClick(editPath)} unstyled>
+              <div className={styles.separator} aria-hidden="true" />
+              <Button
+                className={editShipmentButtonStyle}
+                data-testid="edit-ppm-shipment-btn"
+                onClick={() => onEditClick(editPath)}
+                unstyled
+              >
                 Edit
               </Button>
             </div>

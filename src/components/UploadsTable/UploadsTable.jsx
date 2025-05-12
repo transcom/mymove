@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import bytes from 'bytes';
 import moment from 'moment';
-import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import styles from './UploadsTable.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ExistingUploadsShape } from 'types/uploads';
 
@@ -53,7 +53,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
                 </div>
               </div>
               {showDeleteButton && (
-                <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
+                <Button className={styles.deleteBtn} type="button" unstyled onClick={() => onDelete(upload.id)}>
                   Delete
                 </Button>
               )}

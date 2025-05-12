@@ -2,10 +2,11 @@ import React from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Tag, Button } from '@trussworks/react-uswds';
+import { Tag } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { shipmentTypes, WEIGHT_ADJUSTMENT } from 'constants/shipments';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
@@ -14,6 +15,9 @@ import { formatWeight } from 'utils/formatters';
 import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import ToolTip from 'shared/ToolTip/ToolTip';
+
+const deleteShipmentButtonStyle = styles['delete-shipment-btn'];
+const editShipmentButtonStyle = styles['edit-shipment-btn'];
 
 export const ShipmentListItem = ({
   shipment,
@@ -120,12 +124,12 @@ export const ShipmentListItem = ({
       )}
       {canEditOrDelete ? (
         <div className={styles['shipment-buttons']}>
-          <Button className={styles['edit-btn']} onClick={onDeleteClick} type="button">
+          <Button className={deleteShipmentButtonStyle} onClick={onDeleteClick} type="button">
             Delete
           </Button>
-          |
+          <div className={styles.separator} aria-hidden="true" />
           <Button
-            className={styles['edit-btn']}
+            className={editShipmentButtonStyle}
             onClick={onShipmentClick}
             type="button"
             data-testid="editShipmentButton"

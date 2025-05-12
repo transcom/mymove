@@ -12,6 +12,21 @@
     & > *:nth-child(n + 2){
         margin-left: 0.5rem;
     }
+
+    & > *:has(svg) {
+        vertical-align: top;
+        display: inline-block;
+        height: 100%;
+        place-content: center;
+    }
+
+    & > span {
+        display: inline-block;
+        align-self: center;
+        vertical-align: text-top;
+        position: relative;
+        height: 100%;
+    }
 }
 
 @mixin mix-mm-base-buttonlike-properties() {
@@ -22,6 +37,7 @@
     font-weight: $font-weight-button;
     white-space: nowrap;
     display: block;
+    height: calc(42rem / 16);
 }
 
 @mixin mix-mm-standard-scheme(){
@@ -31,6 +47,7 @@
     }
 }
 
+
 @mixin mix-mm-button-style-properties {
     @include u-padding-x(3);
     @include u-padding-y('105');
@@ -39,12 +56,13 @@
     @include u-line-height('body', 1);
     @include u-border(0);
     @include mix-mm-standard-scheme();
-    width: auto !important;
+    width: auto;
     margin: 0 !important;
+    padding: 0.65rem 1.25rem;
 }
 
 @mixin mix-mm-button-colors{
-    --main-color: #{colors.$primary};
+    --main-color: #{#{colors.$color-blue}};
     --alt-color: #{colors.$bg-white};
     color: var(--top-color);
     background-color: var(--bg-color);
@@ -62,9 +80,11 @@
         background-color: var(--bg-color);
     }
 
-    &:disabled{
+    &:disabled,
+    &[disabled]{
         --main-color: #{colors.$base-light};
         background-color: var(--bg-color);
+        cursor: not-allowed;
     }
 }
 
@@ -92,8 +112,8 @@
         }
 
         &--outline{
-            @include mix-control-outline-properties();
             @extend %#{$mm-button-selector};
+            @include mix-control-outline-properties();
             --top-color: var(--main-color);
             --bg-color: var(--alt-color);
         }
@@ -129,10 +149,13 @@
     }
 }
 
+@mixin mix-mm-button-overrides(){
+    display: block;
+}
 
 .usa-button {
-    display: block;
     @include mix-mm-button-associations();
+    @include mix-mm-button-overrides();
 }
 
 :global(.usa-button){

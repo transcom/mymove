@@ -12,6 +12,6 @@ export const Basic = ({ children, mainClassStyles: mainStyles = [mainButtonClass
   );
 };
 
-Basic.WithNavAction = ({ href, ...props }) => {
+export const LinkButton = ({ href, ...props }) => {
   return <Basic onClick={() => (window.location.href = href)} {...props} />;
 };

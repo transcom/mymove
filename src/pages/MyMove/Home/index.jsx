@@ -66,6 +66,8 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
+const printButtonStyle = styles['print-btn'];
+
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
     {children}
@@ -617,7 +619,7 @@ export class Home extends Component {
                     {this.hasSubmittedMove ? (
                       <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
                         Move submitted {formatCustomerDate(move.submitted_at)}.<br />
-                        <Button unstyled onClick={this.handlePrintLegalese} className={styles.printBtn}>
+                        <Button onClick={this.handlePrintLegalese} className={printButtonStyle}>
                           Print the legal agreement
                         </Button>
                       </Description>

@@ -1,12 +1,12 @@
 import { React } from 'react';
 import { bool, func, number } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 
 import PickupDisplay from '../PickupDisplay';
 import DeliveryDisplay from '../DeliveryDisplay';
 
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
@@ -15,6 +15,9 @@ import { ShipmentShape } from 'types/shipment';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { isBoatShipmentComplete } from 'utils/shipments';
+
+const deleteShipmentButtonStyle = styles['delete-shipment-btn'];
+const editShipmentButtonStyle = styles['edit-shipment-btn'];
 
 const BoatShipmentCard = ({
   shipment,
@@ -82,11 +85,21 @@ const BoatShipmentCard = ({
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
-              <Button data-testid="deleteShipmentButton" onClick={() => onDeleteClick(shipment.id)} unstyled>
+              <Button
+                className={deleteShipmentButtonStyle}
+                data-testid="deleteShipmentButton"
+                onClick={() => onDeleteClick(shipment.id)}
+                unstyled
+              >
                 Delete
               </Button>
-              |
-              <Button data-testid="editShipmentButton" onClick={() => onEditClick(editPath)} unstyled>
+              <div className={styles.separator} aria-hidden="true" />
+              <Button
+                className={editShipmentButtonStyle}
+                data-testid="editShipmentButton"
+                onClick={() => onEditClick(editPath)}
+                unstyled
+              >
                 Edit
               </Button>
             </div>

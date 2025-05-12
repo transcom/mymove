@@ -1,8 +1,20 @@
-@import 'shared/styles/_variables';
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 
-.serviceInfoContainer {
+.edit-btn{
+  @extend %layout-button;
+}
+
+.serviceInfoContainer{
+  .serviceInfoHeader {
+    @include mix-mm-header-layout;
+    @include mix-mm-header-action-button-layout{
+      .edit-btn {
+          @extend .usa-button--outline, %layout-button;
+          }
+      }
+  }
   .header {
     h2 {
       flex-shrink: 0;
@@ -31,21 +43,6 @@
         @include u-width(67%);
       }
       @include u-margin-bottom(0);
-    }
-  }
-
-  a {
-    color: $link;
-    text-decoration: none;
-
-    &:visited {
-      color: $link;
-    }
-
-    &:hover,
-    &:focus {
-      color: $link;
-      @include u-text('no-underline');
     }
   }
 }

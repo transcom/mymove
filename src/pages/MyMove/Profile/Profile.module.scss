@@ -1,6 +1,39 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+
+%action-buttons{
+  @extend .usa-button--outline;
+}
+
+.returnToPreviousViewButton,
+.validateProfileBtn,
+.createMoveBtn {
+  @extend %action-buttons;
+}
+
+@mixin mix-mm-button-stack-layout {
+  display: grid;
+  gap: 1rem;
+  @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    %action-buttons{
+      justify-self: stretch;
+      grid-column: 2;
+    }
+  }
+
+  @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+    grid-auto-flow: row;
+  }
+}
+
+.validateProfileBtnContainer {
+  @include mix-mm-button-stack-layout;
+}
+
 
 .profileHeader {
     display: flex;
@@ -8,32 +41,8 @@
     justify-content: space-between;
     margin-bottom: -1rem;
 
-    .createMoveBtn {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      span {
-        @include u-margin-right(.5em)
-      }
-
-      @media (max-width: $tablet) {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: auto;
-        gap: 3px;
-        span {
-          @include u-margin-right(0);
-        }
-      }
-    }
 }
 
 .verifyProfileAlert {
     margin-bottom: -1rem;
-}
-
-.validateProfileBtnContainer {
-  display: flex;
-  justify-content: center;
 }

@@ -1,10 +1,20 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+
+%action-buttons{
+  @extend .usa-button--outline;
+}
+
+.deleteShipmentBtn,
+.editShipmentBtn{
+  @extend %action-buttons;
+}
 
 .shipment-list-item-container {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-auto-flow: column;
   align-items: center;
   border-radius: 0 5px 5px 0;
   border: 1px solid $base-lighter;
@@ -17,11 +27,14 @@
   }
 
   .shipment-buttons {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
     align-items: center;
     margin: 0;
+    @include mix-mm-button-row{
+      %action-buttons{
+        @extend .usa-button--outline, %layout-button;
+      }
+    }
+    @include mix-mm-button-row-separator;
   }
 
   &.shipment-display {
@@ -40,21 +53,6 @@
     font-weight: 100;
     font-size: 16px;
     margin-right: 2px;
-  }
-}
-
-:global(.usa-button).edit-btn {
-  background-color: transparent;
-  color: $primary;
-  font-weight: normal;
-  margin: 0;
-  @include u-padding(1.5);
-
-  &:active,
-  &:hover,
-  &:focus {
-    color: $primary;
-    background-color: white;
   }
 }
 

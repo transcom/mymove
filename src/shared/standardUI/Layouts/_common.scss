@@ -1,0 +1,163 @@
+// @use 'sass:selector';
+// @use 'shared/standardUI/Generic/build' as *;
+// @use 'shared/standardUI/Layouts/breaks' as *;
+// @use 'shared/standardUI/Layouts/layouts' as *;
+// @use 'src/shared/standardUI/Generic/_placement' as *;
+// @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+
+// %description-placeholder{
+//     @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+//         grid-row: 2;
+//     }
+// }
+
+// %ppm-upload-button{
+//     @extend .usa-button--outline;
+// }
+
+
+// @mixin mix-extend-step-buttons(){
+//     @content(step-button);
+// }
+
+// %step-container-wrapper {
+//     display: grid;
+//     gap: 1.4rem;
+// }
+
+// %step-header-wrapper {
+//     > {
+//         %step-button {
+//             justify-self: start;
+//             @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+//                 grid-row: 2;
+//                 width: 100%;
+//             }
+//         }
+//     }
+// }
+
+// @mixin mix-mm-move-request-container-wrapper(){
+//     grid-auto-flow: column;
+
+//     & > *:nth-child(-n + 2){
+//         grid-column: 1;
+//     }
+// }
+
+// @mixin mix-mm-step-container(){
+//     @extend %step-container-wrapper;
+
+//     @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+//         width: 100%;
+//     }
+
+//     > %step-button {
+//         @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+//             grid-column: 1;
+//             justify-self: stretch;
+//         }
+//     }
+
+//     .move-request-container{
+//         @include mix-mm-move-request-container-wrapper();
+
+//         .step-header-container{
+//             grid-column: 1;
+//             %step-button {
+//                 @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+//                     grid-column: 1 / 3;
+//                     justify-self: stretch;
+//                 }
+//             }
+//         }
+
+//         %step-button {
+//             @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+//                 grid-column: 1;
+//                 justify-self: stretch;
+//             }
+//             @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+//                 width: fit-content;
+//             }
+//         }
+
+//         %step-button {
+//             :nth-of-type(1){
+//                 grid-column: 2;
+//                 grid-row: 1;
+//             }
+//             :nth-of-type(2){
+//                 grid-column: 2;
+//             }
+//         }
+//     }
+
+//     & * {
+//         margin: 0;
+//     }
+
+//     &.move-request-container{
+//         %step-button {
+//             @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+//                 justify-self: end;
+//                 grid-column: 1 / span 2;
+//             }
+//         }
+//     }
+
+//     &:not(.move-request-container):not(%step-header-wrapper){
+//         > %step-button {
+//             @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+//                 width: fit-content;
+//                 grid-column: 1;
+//             }
+//         }
+//     }
+
+//     @content;
+// }
+
+// @mixin mix-mm-header-container-with-edit(){
+//     @extend %step-header-wrapper;
+
+//     @include mix-grid-column-placement-positioning(){
+//         grid-template-columns: auto 1fr;
+//         gap: 1rem;
+//     }
+
+//     align-items: center;
+
+//     > {
+//         :not(%step-button){
+//             :nth-child(1){
+//                 grid-column: 1;
+//                 grid-row: 1;
+//             }
+//             :nth-child(2){
+//                 grid-column: 2;
+//                 grid-row: 1;
+//             }
+//             :nth-child(n+3){
+//                 grid-column: 1 / span 3;
+//             }
+//         }
+
+//     }
+// }
+
+// @mixin mix-mm-step-section-wrapper(){
+//     display: grid;
+//     gap: 4rem;
+// }
+
+// @mixin mix-mm-shipment-list-wrapper(){
+//     display: grid;
+//     gap: 0.5rem;
+
+//     & > div {
+//         display: grid;
+//         gap: 0.5rem;
+//     }
+// }

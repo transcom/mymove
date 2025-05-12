@@ -1,0 +1,84 @@
+@use 'sass:selector';
+@use 'shared/standardUI/Generic/build' as *;
+@use 'shared/standardUI/Layouts/breaks' as *;
+@use 'shared/standardUI/Layouts/layouts' as *;
+@use 'src/shared/standardUI/Generic/_placement' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+%description-placeholder{
+    @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+        grid-row: 2;
+    }
+}
+
+%step-button {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    @extend .usa-button--outline;
+}
+
+@mixin mix-step-container-wrapper {
+    display: grid;
+    gap: 1.4rem;
+    grid-column: 1 / 3;
+    > *:not(%step-button){
+        grid-column: 1 / span 2;
+    }
+    > %step-button {
+        @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+            width: 100%;
+            font-size: 0.95rem;
+            grid-column: 1 / span 2;
+        }
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            grid-column: 2;
+            width: fit-content;
+            justify-self: end;
+        }
+    }
+}
+
+@mixin mix-step-container-header-wrapper {
+    @include mix-mm-header-layout;
+    @include mix-mm-header-action-button-layout{
+        %step-button {
+            @extend %layout-button;
+        }
+    }
+    grid-column: 1;
+    & > *:nth-child(1){
+        grid-column: 1;
+    }
+}
+
+@mixin mix-third-column-button-placement {
+    > %step-button {
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            grid-column: 3
+        }
+        &:nth-of-type(1){
+            @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+                grid-row: 1;
+            }
+        }
+    }
+}
+
+@mixin mix-extend-step-buttons(){
+    @content(step-button);
+}
+
+@mixin mix-mm-step-section-wrapper(){
+    display: grid;
+    gap: 4rem;
+}
+
+@mixin mix-mm-shipment-list-wrapper(){
+    display: grid;
+    gap: 0.5rem;
+
+    & > div {
+        display: grid;
+        gap: 0.5rem;
+    }
+}

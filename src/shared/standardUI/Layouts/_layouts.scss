@@ -1,7 +1,15 @@
 @use 'shared/standardUI/Generic/build' as *;
 @use 'shared/standardUI/Layouts/breaks' as *;
+@use 'src/shared/standardUI/Generic/_placement' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons';
 
 $gap-value: 1rem;
+
+%layout-button {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    @extend .usa-button--outline;
+}
 
 @mixin mix-mm-flex-stacking-container-with-gap(){
     gap: $gap-value;
@@ -28,4 +36,66 @@ $gap-value: 1rem;
     justify-self: var(--justify-state, unset);
     display: block;
     @content;
+}
+
+@mixin mix-mm-header-layout {
+    @include mix-grid-column-placement-positioning(){
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+    }
+    align-items: center;
+}
+
+@mixin mix-mm-header-action-button-layout {
+    @content;
+    > %layout-button  {
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            grid-column: 3;
+            width: fit-content;
+        }
+
+        @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+            width: 100%;
+            font-size: 0.95rem;
+            grid-column: 1 / span all;
+            grid-row: 2;
+        }
+    }
+}
+
+@mixin mix-mm-button-row {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0.5rem;
+    align-items: center;
+    height: fit-content;
+    @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+        justify-content: end;
+    }
+    @content;
+    > %layout-button {
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            width: fit-content;
+        }
+
+        @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+            width: 100%;
+            font-size: 0.95rem;
+            grid-column: 1 / span all;
+        }
+    }
+}
+
+@mixin mix-mm-button-row-separator{
+    .separator{
+        @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+            display: none;
+        }
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            width: 0.12rem;
+            z-index: 1;
+            place-self: stretch;
+            background-color: #dfe1e2;
+        }
+      }
 }

@@ -1,0 +1,76 @@
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+@use 'src/shared/standardUI/Layouts/step_layout' as *;
+
+@include mix-extend-step-buttons() using ($step-button){
+  .action-btn,
+  .h-step-btn,
+  .print-btn,
+  .step-btn,
+  .edit-btn{
+    @extend %#{$step-button};
+  }
+}
+
+.step-container {
+  @include mix-step-container-wrapper;
+  &.step-amended-orders {
+    p {
+      margin-bottom: 0;
+    }
+
+    ul {
+      padding: 0 40px;
+      margin-top: 0;
+      font-size: 1rem;
+    }
+
+  }
+}
+
+.move-request-container{
+  @include mix-third-column-button-placement;
+}
+
+.step-container:last-of-type {
+  margin-bottom: 0;
+}
+
+.step-amended-orders {
+  p {
+    margin-bottom: 0;
+  }
+
+  ul {
+    padding: 0 40px;
+    margin-top: 0;
+    font-size: 1rem;
+  }
+}
+
+.step-header-container {
+  font-size: 17px;
+  @include mix-step-container-header-wrapper;
+}
+
+
+.accept {
+  display: inline-block;
+  color: $primary-darker;
+  width: 33px;
+  height: 33px;
+}
+
+.number-circle {
+  display: inline-block;
+  height: 33px;
+  width: 33px;
+  border-radius: 50%;
+  background-color: $primary-darker;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  line-height: 1.4;
+  @include u-text(bold);
+}

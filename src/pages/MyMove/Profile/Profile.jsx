@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
-import { Alert, Button } from '@trussworks/react-uswds';
-import { Link, useLocation, useNavigate, generatePath } from 'react-router-dom';
+import { Alert } from '@trussworks/react-uswds';
+import { useLocation, useNavigate, generatePath } from 'react-router-dom';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import styles from './Profile.module.scss';
 
+import { LinkButton } from 'shared/standardUI/Buttons';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
@@ -79,9 +81,13 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       <div className="grid-row">
         <div className="grid-col-12">
           {needsToVerifyProfile ? (
-            <Link to={generalRoutes.HOME_PATH}>Return to Dashboard</Link>
+            <LinkButton style={styles.returnToPreviousViewButton} href={generalRoutes.HOME_PATH}>
+              Return to Dashboard
+            </LinkButton>
           ) : (
-            <Link to={returnToMovePath}>Return to Move</Link>
+            <LinkButton style={styles.returnToPreviousViewButton} href={returnToMovePath}>
+              Return to Move
+            </LinkButton>
           )}
           <div className={styles.profileHeader}>
             <h1>Profile</h1>
@@ -155,7 +161,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
                 data-testid="createMoveBtn"
                 disabled={!profileValidated}
               >
-                <span>Create a Move</span>
+                Create a Move
               </Button>
             </SectionWrapper>
           )}

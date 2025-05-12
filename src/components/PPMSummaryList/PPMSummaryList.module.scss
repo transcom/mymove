@@ -1,4 +1,11 @@
-@import 'shared/styles/_basics';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+
+.ppm-upload-btn{
+  @extend %layout-button;
+}
 
 .ppm-shipment {
   @include u-padding(3);
@@ -18,14 +25,8 @@
   }
 
   .ppm-shipment__heading-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    button {
-      @include u-margin(0);
-      width: auto;
-    }
+    @include mix-mm-header-layout;
+    @include mix-mm-header-action-button-layout;
 
     div {
       width: 30em;

@@ -1,17 +1,20 @@
 import React from 'react';
 import { string, shape, number, func, bool } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 
 import styles from '../ShipmentCard.module.scss';
 import PickupDisplay from '../PickupDisplay';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { AddressShape } from 'types/address';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { shipmentStatuses } from 'constants/shipments';
 import { customerRoutes } from 'constants/routes';
+
+const deleteShipmentButtonStyle = styles['delete-shipment-btn'];
+const editShipmentButtonStyle = styles['edit-shipment-btn'];
 
 const NTSShipmentCard = ({
   moveId,
@@ -62,11 +65,21 @@ const NTSShipmentCard = ({
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
-              <Button onClick={() => onDeleteClick(shipmentId)} unstyled>
+              <Button
+                className={deleteShipmentButtonStyle}
+                data-testid="deleteShipmentButton"
+                onClick={() => onDeleteClick(shipmentId)}
+                unstyled
+              >
                 Delete
               </Button>
-              |
-              <Button data-testid="edit-nts-shipment-btn" onClick={() => onEditClick(editPath)} unstyled>
+              <div className={styles.separator} aria-hidden="true" />
+              <Button
+                className={editShipmentButtonStyle}
+                data-testid="edit-nts-shipment-btn"
+                onClick={() => onEditClick(editPath)}
+                unstyled
+              >
                 Edit
               </Button>
             </div>

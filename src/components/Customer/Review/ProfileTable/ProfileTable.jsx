@@ -1,10 +1,10 @@
 import React from 'react';
 import classnames from 'classnames';
 import { string, func } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { customerRoutes } from 'constants/routes';
 
 const ProfileTable = ({
