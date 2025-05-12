@@ -72,7 +72,7 @@ type ListOrderParams struct {
 	PPMStatus                  *string
 	ViewAsGBLOC                *string
 	CounselingOffice           *string
-	SCAssignedUser             *string
+	AssignedTo                 *string
 	TOOAssignedUser            *string
 	TOODestinationAssignedUser *string
 }
