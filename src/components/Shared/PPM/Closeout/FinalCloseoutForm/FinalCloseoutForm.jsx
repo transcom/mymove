@@ -28,6 +28,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 
 const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, move, appName }) => {
   const isCustomerPage = appName === APP_NAME.MYMOVE;
+  const closeoutOfficeName = move?.closeoutOffice?.name || move?.closeout_office?.name || '';
 
   const validationSchema = Yup.object().shape({
     signature: isCustomerPage ? Yup.string().required('Required') : Yup.string(),
@@ -125,9 +126,8 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </p>
             {canChoosePPMLocation && (
               <p>
-                Your closeout office for your PPM(s) is {move?.closeoutOffice?.name ? move.closeoutOffice.name : ''}.
-                This is where your PPM paperwork will be reviewed before you can submit it to finance to receive your
-                incentive.
+                Your closeout office for your PPM(s) is {closeoutOfficeName}. This is where your PPM paperwork will be
+                reviewed before you can submit it to finance to receive your incentive.
               </p>
             )}
           </div>
