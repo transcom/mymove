@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // SITDurationUpdateRequestReason type for SIT Duration Update Request Reason
@@ -92,4 +94,18 @@ func (m *SITDurationUpdate) Validate(_ *pop.Connection) (*validate.Errors, error
 	}
 
 	return validate.Validate(vs...), nil
+}
+
+func HasSITExtension(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
+	var rowCount int
+	hasSitExtension := false
+	err := appCtx.DB().RawQuery("SELECT COUNT(*) FROM sit_extensions WHERE mto_shipment_id = ?", mtoShipmentID).First(&rowCount)
+	if err != nil {
+		return hasSitExtension, err
+	}
+
+	if rowCount > 0 {
+		hasSitExtension = true
+	}
+	return hasSitExtension, nil
 }
