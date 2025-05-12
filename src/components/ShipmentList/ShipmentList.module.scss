@@ -7,19 +7,23 @@
   @extend .usa-button--outline;
 }
 
-.deleteShipmentBtn,
-.editShipmentBtn{
+.delete-shipment-btn,
+.edit-shipment-btn{
   @extend %action-buttons;
 }
 
 .shipment-list-item-container {
   display: grid;
-  grid-auto-flow: column;
   align-items: center;
+  @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+    grid-auto-flow: column;
+  }
+  @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+    grid-auto-flow: row;
+  }
   border-radius: 0 5px 5px 0;
   border: 1px solid $base-lighter;
   padding: 12px 12px;
-  height: 52px;
   @include u-margin-bottom(1);
 
   .shipment-info {
