@@ -308,7 +308,8 @@ BEGIN
                     (SELECT id FROM re_services WHERE code = ''IHPK''),
                     declared_contract_id,
                     ''IHPK'',
-                    shipment.requested_pickup_date
+                    shipment.requested_pickup_date,
+                    NULL
                 );
 
                 -- Now that we have the escalated price, we multiply it by the
@@ -374,10 +375,10 @@ BEGIN
 
 				IF service_code = ''IOFSIT'' THEN
                     o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
-                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
                 ELSE
                     d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
-                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
                 END IF;
 
 				IF escalated_price IS NOT NULL THEN
