@@ -2184,7 +2184,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 	})
 
-	suite.Run("Successfully delete pending SIT extension", func() {
+	suite.Run("Successfully delete pending SIT extension if already delivered", func() {
 		setupTestData()
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
