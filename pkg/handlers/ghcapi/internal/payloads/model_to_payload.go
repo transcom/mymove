@@ -3,6 +3,7 @@ package payloads
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -653,7 +654,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 	var rank ghcmessages.Rank
 	if order.Rank != nil {
 		rank.ID = strfmt.UUID(order.Rank.ID.String())
-		rank.RankGradeName = &order.Rank.RankAbbv
+		rank.RankAbbv = order.Rank.RankAbbv
 		rank.PaygradeID = strfmt.UUID(order.Rank.ID.String())
 	}
 
@@ -2938,11 +2939,10 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 // get pay grade / rank for orders drop down
 func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*ghcmessages.Rank, error) {
 	var dropdownOptions []*ghcmessages.Rank
-
+	fmt.Printf("GetRankDropdownOptions affiliation: %s, grade: %s\n", affiliation, grade)
 	err := appCtx.DB().Q().RawQuery(`
 		SELECT
-			ranks.rank_abbv || ' / ' || ranks.rank_name AS RankGradeName,
-			-- ranks.rank_abbv AS RankGradeName,
+			ranks.rank_abbv AS RankAbbv,
 			ranks.id,
 			ranks.pay_grade_id AS PaygradeID,
 			ranks.rank_order AS RankOrder

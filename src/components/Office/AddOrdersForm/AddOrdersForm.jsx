@@ -267,7 +267,7 @@ const AddOrdersForm = ({
             <SectionWrapper className={formStyles.formSection}>
               {requiredAsteriskMessage}
               <DropdownInput
-                label="Orders typessss"
+                label="Orders types"
                 name="ordersType"
                 options={filteredOrderTypeOptions}
                 required

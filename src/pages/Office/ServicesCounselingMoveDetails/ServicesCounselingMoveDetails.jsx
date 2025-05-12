@@ -428,7 +428,6 @@ const ServicesCounselingMoveDetails = ({
     accompaniedTour: allowances.accompaniedTour,
     ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
-
   const ordersInfo = {
     currentDutyLocation: order.originDutyLocation,
     newDutyLocation: order.destinationDutyLocation,
@@ -445,7 +444,7 @@ const ServicesCounselingMoveDetails = ({
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
     payGrade: order.grade,
-    rank: order.rank.rankGradeName,
+    rank: order.rank.rankAbbv,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
   };

@@ -33,9 +33,9 @@ type Rank struct {
 	// Example: SGT
 	RankAbbv string `json:"rankAbbv,omitempty"`
 
-	// rank grade name
+	// rank name
 	// Example: Seargent
-	RankGradeName *string `json:"rankGradeName,omitempty"`
+	RankName *string `json:"rankName,omitempty"`
 
 	// rank order
 	RankOrder *int64 `json:"rankOrder,omitempty"`

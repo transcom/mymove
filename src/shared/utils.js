@@ -245,7 +245,7 @@ export const sortRankPayGradeOptions = (ranks) => {
     ranks.forEach((rank) => {
       options.push({
         key: rank.id,
-        value: rank.rankGradeName,
+        value: rank.rankAbbv,
       });
     });
   }

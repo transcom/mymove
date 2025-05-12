@@ -17,13 +17,12 @@ import {
   ORDERS_TYPE_DETAILS_OPTIONS,
   ORDERS_TYPE_OPTIONS,
   ORDERS_TYPE,
-  ORDERS_PAY_GRADE_TYPE,
   ORDERS_PAY_GRADE_OPTIONS,
 } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, getLoa, counselingUpdateOrder, getOrder, getRankOptions } from 'services/ghcApi';
+import { getTacValid, getLoa, counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -33,9 +32,6 @@ import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialT
 import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
-import { setShowLoadingSpinner } from 'store/general/actions';
-import { sortRankPayGradeOptions } from 'shared/utils';
-import retryPageLoading from 'utils/retryPageLoading';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
@@ -417,6 +413,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
                     affiliation={order.agency}
                     handleChange={formik.handleChange}
+                    currentGrade={formik.values.grade}
                   />
                 </div>
                 <div className={styles.bottom}>

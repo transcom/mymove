@@ -7300,7 +7300,7 @@ func init() {
           "type": "string",
           "example": "SGT"
         },
-        "rankGradeName": {
+        "rankName": {
           "type": "string",
           "x-nullable": true,
           "example": "Seargent"
@@ -16872,7 +16872,7 @@ func init() {
           "type": "string",
           "example": "SGT"
         },
-        "rankGradeName": {
+        "rankName": {
           "type": "string",
           "x-nullable": true,
           "example": "Seargent"
