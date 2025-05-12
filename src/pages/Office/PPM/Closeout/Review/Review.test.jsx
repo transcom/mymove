@@ -380,8 +380,6 @@ describe('Review page', () => {
     });
     renderReviewPage();
 
-    // const saveAndContinueButton = screen.getByTestId('saveAndContinueButton');
-    // await userEvent.click(saveAndContinueButton);
     expect(
       screen.getByText(
         'There are items below that are missing required information. Please select “Edit” to enter all required information or “Delete” to remove the item.',
