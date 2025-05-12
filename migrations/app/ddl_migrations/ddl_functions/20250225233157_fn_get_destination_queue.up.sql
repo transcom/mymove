@@ -220,7 +220,7 @@ BEGIN
             WHEN 'requestedMoveDate' THEN   sort_column := 'COALESCE(' || 'MIN(mto_shipments.requested_pickup_date),' || 'MIN(ppm_shipments.expected_departure_date),' || 'MIN(mto_shipments.requested_delivery_date)' || ')';
             WHEN 'appearedInTooAt' THEN sort_column := 'COALESCE(moves.submitted_at, moves.approvals_requested_at)';
             WHEN 'branch' THEN sort_column := 'service_members.affiliation';
-            WHEN 'newDutyLocation' THEN sort_column := 'new_duty_locations.name';
+            WHEN 'destinationDutyLocation' THEN sort_column := 'new_duty_locations.name';
             WHEN 'counselingOffice' THEN sort_column := 'counseling_offices.name';
             WHEN 'assignedTo' THEN sort_column := 'too_user.last_name';
             ELSE
@@ -265,13 +265,6 @@ BEGIN
       sql_query := sql_query || format(
         ' ORDER BY service_members.last_name %s, service_members.first_name %s',
         sort_order, sort_order
-      );
-    -- to avoid duplicate moves being returned, removed shipment dates (requested/delivery/pickup) from the GROUP BY
-    -- if user is sorting asc/desc by requested move dates, we need to append to the ORDER BY
-    ELSEIF sort = 'requestedMoveDate' THEN
-      sql_query := sql_query || format(
-        ' ORDER BY %s %s',
-        sort_column, sort_order
       );
     ELSE
       sql_query := sql_query || format(
