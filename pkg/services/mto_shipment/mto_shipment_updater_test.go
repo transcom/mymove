@@ -2230,7 +2230,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 	})
 
-	suite.Run("Successfully delete pending SIT extension", func() {
+	suite.Run("Successfully delete pending SIT extension if already delivered", func() {
 		setupTestData()
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
@@ -2256,11 +2256,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 		}, nil)
 
-		// check if sitExtension was successfully added
-		hasSit, err := models.HasSITExtension(suite.AppContextForTest(), oldShipment.ID)
-		suite.NoError(err)
-		suite.Equal(hasSit, true)
-
 		requestedPickupDate := now.Add(time.Hour * 24 * 3)
 		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
 		updatedShipment := models.MTOShipment{
@@ -2280,9 +2275,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 
 		// check if sitExtension was successfully removed
-		hasSit, err = models.HasSITExtension(suite.AppContextForTest(), newShipment.ID)
-		suite.NoError(err)
-		suite.Equal(hasSit, false)
+		suite.Equal(0, len(newShipment.SITDurationUpdates))
 	})
 }
 

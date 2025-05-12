@@ -20,10 +20,10 @@ func checkDepartureDates() sitExtensionValidator {
 		shipmentID := shipment.ID.String()
 		verrs := validate.NewErrors()
 
-		endDate := models.AuthorizedSITEndDate(*shipment)
+		endDate := models.GetAuthorizedSITEndDate(*shipment)
 
 		if actualDeliveryDate != nil &&
-			actualDeliveryDate.Before(endDate) || actualDeliveryDate.Equal(endDate) {
+			actualDeliveryDate.Before(*endDate) || actualDeliveryDate.Equal(*endDate) {
 			verrs.Add(shipmentID, fmt.Sprintf("The SIT delivery date %s cannot be prior or equal to the SIT end date %s.", actualDeliveryDate.Format(format), endDate.Format(format)))
 		}
 		return verrs
