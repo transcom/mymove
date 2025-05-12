@@ -14,7 +14,7 @@ import { numOfDaysBetweenDates } from 'utils/dates';
 import { expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
 import { ExpenseShape } from 'types/shipment';
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';

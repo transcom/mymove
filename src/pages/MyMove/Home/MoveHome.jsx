@@ -26,7 +26,7 @@ import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import Step from 'components/Customer/Home/Step';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
@@ -43,7 +43,7 @@ import {
   cancelMove,
 } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { checkIfMoveIsLocked, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -156,8 +156,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   }
 
   useEffect(() => {
-    const now = new Date();
-    if (now < new Date(move?.lockExpiresAt)) {
+    if (checkIfMoveIsLocked(move)) {
       setIsMoveLocked(true);
     }
   }, [move]);

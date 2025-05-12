@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import requestAccountFormStyles from './RequestAccountForm.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { OfficeAccountRequestFields } from 'components/form/OfficeAccountRequestFields/OfficeAccountRequestFields';
 import '@trussworks/react-uswds/lib/index.css';
@@ -44,14 +44,20 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
             <div className={requestAccountFormStyles.buttonRow}>
               <Button
                 type="button"
+                onClick={() => onCancel()}
+                data-testid="requestOfficeAccountCancelButton"
+                outline
+                secondary
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
                 disabled={!isValid}
                 onClick={() => handleSubmit()}
                 data-testid="requestOfficeAccountSubmitButton"
               >
                 Submit
-              </Button>
-              <Button type="button" onClick={() => onCancel()} data-testid="requestOfficeAccountCancelButton">
-                Cancel
               </Button>
             </div>
           </Form>

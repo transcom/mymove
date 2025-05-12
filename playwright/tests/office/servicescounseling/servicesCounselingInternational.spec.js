@@ -7,8 +7,23 @@ const alaskaFF = process.env.FEATURE_FLAG_ENABLE_ALASKA;
 const LocationLookup1 = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 const LocationLookup2 = 'BEVERLY HILLS, CA 90212 (LOS ANGELES)';
 
+/**
+ * @param {Date} date
+ */
+function formatDate(date) {
+  const day = date.toLocaleString('default', { day: '2-digit' });
+  const month = date.toLocaleString('default', { month: 'short' });
+  const year = date.toLocaleString('default', { year: 'numeric' });
+  return `${day} ${month} ${year}`;
+}
+
 test.describe('Services counselor user', () => {
   test.describe('Can create a customer with an international Alaska move', () => {
+    let pickupDate;
+    let pickupDateStr;
+    let deliveryDate;
+    let deliveryDateStr;
+
     test.beforeEach(async ({ scPage }) => {
       await scPage.signInAsNewServicesCounselorUser();
     });
@@ -17,6 +32,7 @@ test.describe('Services counselor user', () => {
       createCustomerFF === 'false' || alaskaFF === 'false',
       'Skip if the create customer & AK FFs are not enabled.',
     );
+
     test('create a customer and add a basic iHHG shipment with Alaska address', async ({ page, officePage }) => {
       // make sure we see the queue
       await expect(page.getByText('Moves')).toBeVisible();
@@ -66,6 +82,7 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Current duty location').fill('Tinker');
       await expect(page.getByText(originLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
+      await page.getByLabel('Counseling office').selectOption({ label: 'PPPO Tinker AFB - USAF' });
       const counselingOffice = page.locator('#counselingOfficeId');
       await counselingOffice.selectOption('PPPO Tinker AFB - USAF');
       const dutyLocation = 'Elmendorf AFB, AK 99506';
@@ -89,7 +106,7 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');
       await page.getByLabel('Orders type detail').selectOption('Shipment of HHG Permitted');
-      await page.getByLabel('TAC', { exact: true }).nth(0).fill('TEST');
+      await page.getByLabel('TAC').nth(0).fill('TEST');
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
@@ -97,16 +114,65 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Add a new shipment').selectOption('HHG');
       await expect(page.getByText('Add shipment details')).toBeVisible();
       await expect(page.getByText('Weight allowance: 11,000 lbs')).toBeVisible();
-      await page.getByLabel('Requested pickup date').fill('25 Dec 2024');
+      pickupDate = new Date();
+      pickupDate.setDate(pickupDate.getDate() + 5);
+      pickupDateStr = formatDate(pickupDate);
+      deliveryDate = new Date();
+      deliveryDate.setDate(pickupDate.getDate() + 10);
+      deliveryDateStr = formatDate(deliveryDate);
+      await page.getByLabel('Requested pickup date').fill(pickupDateStr);
       await page.getByLabel('Requested pickup date').blur();
       await page.getByText('Use pickup address').click();
-      await page.getByLabel('Requested delivery date').fill('25 Dec 2022');
+      await page.getByLabel('Requested delivery date').fill(deliveryDateStr);
       await page.getByLabel('Requested delivery date').blur();
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 
       // verify we can see the iHHG shipment, submit it to the TOO
       await expect(page.getByText('iHHG')).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Submit move details' })).toBeEnabled();
+      await page.getByRole('button', { name: 'Submit move details' }).click();
+      await expect(page.getByText('Are you sure?')).toBeVisible();
+      await page.getByRole('button', { name: 'Yes, submit' }).click();
+      await expect(page.getByText('Move submitted.')).toBeVisible();
+    });
+
+    test('can create PPM with existing iHHG shipment on move', async ({ page, scPage }) => {
+      const move = await scPage.testHarness.buildIntlHHGMoveNeedsSC();
+      await scPage.navigateToMove(move.locator);
+
+      // adding a PPM shipment
+      await page.getByLabel('Add a new shipment').selectOption('PPM');
+      await expect(page.getByText('Add shipment details')).toBeVisible();
+      await expect(page.getByText('Weight allowance: 8,000 lbs')).toBeVisible();
+      await page.getByLabel('Planned Departure Date').fill('01 May 2025');
+      await page.getByLabel('Planned Departure Date').blur();
+      await page.getByText('Use pickup address').click();
+
+      const deliveryLocation = 'FAIRBANKS, AK 99702 (FAIRBANKS NORTH STAR)';
+      const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
+      await deliveryAddress.getByLabel('Address 1').nth(0).fill('123 Cold St.');
+      await page.locator('input[id="destination.address-location-input"]').fill('99702');
+      await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
+
+      await scPage.selectDutyLocation('JPPSO NORTHWEST', 'closeoutOffice');
+
+      await page.getByTestId('estimatedWeight').fill('2,000');
+
+      await expect(page.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
+      await page.getByRole('button', { name: 'Save and Continue' }).click();
+
+      await expect(page.getByText('Incentive & advance')).toBeVisible();
+      await expect(page.getByText('Estimated incentive')).toBeVisible();
+
+      await page.getByTestId('counselor-remarks').fill('remarks');
+
+      await expect(page.getByRole('button', { name: 'Save and Continue' })).toBeEnabled();
+      await page.getByRole('button', { name: 'Save and Continue' }).click();
+
+      // verify we can see the PPM shipment, submit it to the TOO
+      await expect(page.getByText('iPPM')).toBeVisible();
       await expect(page.getByRole('button', { name: 'Submit move details' })).toBeEnabled();
       await page.getByRole('button', { name: 'Submit move details' }).click();
       await expect(page.getByText('Are you sure?')).toBeVisible();
