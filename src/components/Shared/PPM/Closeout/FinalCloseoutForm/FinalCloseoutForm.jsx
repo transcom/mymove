@@ -26,7 +26,7 @@ import { PPM_TYPES } from 'shared/constants';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import TextField from 'components/form/fields/TextField/TextField';
 
-const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, selectedMove, appName }) => {
+const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affiliation, move, appName }) => {
   const isCustomerPage = appName === APP_NAME.MYMOVE;
 
   const validationSchema = Yup.object().shape({
@@ -125,9 +125,9 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </p>
             {canChoosePPMLocation && (
               <p>
-                Your closeout office for your PPM(s) is{' '}
-                {selectedMove?.closeout_office?.name ? selectedMove.closeout_office.name : ''}. This is where your PPM
-                paperwork will be reviewed before you can submit it to finance to receive your incentive.
+                Your closeout office for your PPM(s) is {move?.closeoutOffice?.name ? move.closeoutOffice.name : ''}.
+                This is where your PPM paperwork will be reviewed before you can submit it to finance to receive your
+                incentive.
               </p>
             )}
           </div>
@@ -183,11 +183,11 @@ FinalCloseoutForm.propTypes = {
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   affiliation: PropTypes.string.isRequired,
-  selectedMove: MoveShape,
+  move: MoveShape,
 };
 
 FinalCloseoutForm.defaultProps = {
-  selectedMove: {},
+  move: {},
 };
 
 export default FinalCloseoutForm;
