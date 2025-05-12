@@ -1201,6 +1201,9 @@ func init() {
           "403": {
             "description": "Not authorized to update an Office User"
           },
+          "404": {
+            "description": "Office User not found"
+          },
           "500": {
             "description": "Server error"
           }
@@ -5203,6 +5206,9 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update an Office User"
+          },
+          "404": {
+            "description": "Office User not found"
           },
           "500": {
             "description": "Server error"

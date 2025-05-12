@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	idasitTestContractYearName     = "Base Period Year 1"
+	idasitTestContractYearName     = testdatagen.DefaultContractYearName
 	idasitTestPerUnitCents         = unit.Cents(15000)
-	idasitTestTotalCost            = unit.Cents(1575000)
+	idasitTestTotalCost            = unit.Cents(1748250)
 	idasitTestIsPeakPeriod         = true
-	idasitTestEscalationCompounded = 1.0000
+	idasitTestEscalationCompounded = 1.11000
 	idasitTestWeight               = unit.Pound(2100)
 	idasitTestPriceCents           = unit.Cents(500)
 	idasitNumerDaysInSIT           = 5
