@@ -207,3 +207,8 @@ export const adminRoutes = {
   HOME_PATH: '/',
   REJECTED_OFFICE_USERS: '/system/rejected-office-users',
 };
+
+export const officeRoutes = {
+  PROFILE_PATH: '/profile',
+  CONTACT_INFO_EDIT_PATH: '/profile/edit/contact-info',
+};
