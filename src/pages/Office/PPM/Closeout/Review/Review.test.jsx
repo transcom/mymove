@@ -8,7 +8,7 @@ import { MockProviders } from 'testUtils';
 import Review from 'pages/Office/PPM/Closeout/Review/Review';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { deleteWeightTicket } from 'services/ghcApi';
+import { deleteWeightTicket, deleteMovingExpense } from 'services/ghcApi';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import { createBaseProGearWeightTicket } from 'utils/test/factories/proGearWeightTicket';
 import { createCompleteMovingExpense, createCompleteSITMovingExpense } from 'utils/test/factories/movingExpense';
@@ -180,6 +180,12 @@ const mockMTOShipmentWithExpenses = {
   eTag: 'dGVzdGluZzIzNDQzMjQ',
 };
 
+const mockDocumentsWithExpenses = {
+  WeightTickets: [weightTicketOne, weightTicketTwo],
+  ProGearWeightTickets: [],
+  MovingExpenses: [expenseOne, expenseTwo],
+};
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -193,6 +199,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   deleteWeightTicket: jest.fn(),
+  deleteMovingExpense: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -335,7 +342,7 @@ describe('Review page', () => {
     });
   });
 
-  it('routes to the Move details page when the Back button is clicked', async () => {
+  it('routes to the Move Details page when the Back button is clicked', async () => {
     usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
       isLoading: false,
       mtoShipment: mockMTOShipment,
@@ -436,6 +443,53 @@ describe('Review page', () => {
     });
     await waitFor(() => {
       expect(screen.getByText('Trip 1 successfully deleted.'));
+    });
+  });
+
+  it('displays the delete confirmation modal when the delete button for Weight Expenses is clicked', async () => {
+    usePPMShipmentAndDocsOnlyQueries.mockReturnValue({
+      isLoading: false,
+      mtoShipment: mockMTOShipmentWithExpenses,
+      documents: mockDocumentsWithExpenses,
+      error: null,
+    });
+    renderReviewPage();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[3]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+      expect(screen.getByText('You are about to delete Receipt 2. This cannot be undone.')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'No, Keep It' }));
+
+    expect(screen.queryByRole('heading', { level: 3, name: 'Delete this?' })).not.toBeInTheDocument();
+  });
+
+  it('calls the delete expenses api when confirm is clicked', async () => {
+    const mockDeleteMovingExpense = jest.fn().mockResolvedValue({});
+    deleteMovingExpense.mockImplementationOnce(mockDeleteMovingExpense);
+
+    renderReviewPage();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[2]);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 3, name: 'Delete this?' })).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, Delete' }));
+
+    const movingExpense = mockMTOShipmentWithExpenses.ppmShipment.movingExpenses[0];
+    await waitFor(() => {
+      expect(mockDeleteMovingExpense).toHaveBeenCalledWith({
+        ppmShipmentId: mockMTOShipmentWithExpenses.ppmShipment.id,
+        movingExpenseId: movingExpense.id,
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Receipt 1 successfully deleted.'));
     });
   });
 });
