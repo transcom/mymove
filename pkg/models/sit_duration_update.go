@@ -109,3 +109,15 @@ func HasSITExtension(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (boo
 	}
 	return hasSitExtension, nil
 }
+
+// Returns the shipment's SIT authorized end date that is not nil
+func AuthorizedSITEndDate(shipment MTOShipment) time.Time {
+	var endDate *time.Time
+	if shipment.OriginSITAuthEndDate != nil {
+		endDate = shipment.OriginSITAuthEndDate
+	} else if shipment.DestinationSITAuthEndDate != nil {
+		endDate = shipment.DestinationSITAuthEndDate
+	}
+
+	return *endDate
+}

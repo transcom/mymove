@@ -405,27 +405,18 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	// If there are any existing SIT extensions for the shipment and the ActualDeliveryDate is
 	// on or before the authorized end date than any PENDING SIT extensions will be removed.
 	updatedActualDeliveryDate := mtoShipment.ActualDeliveryDate
-	originSITAuthEndDate := oldShipment.OriginSITAuthEndDate
-	destSITAuthEndDate := oldShipment.DestinationSITAuthEndDate
+	endDate := models.AuthorizedSITEndDate(*oldShipment)
 	hasSITExtension, err := models.HasSITExtension(appCtx, mtoShipment.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	if hasSITExtension {
-		if updatedActualDeliveryDate != nil && originSITAuthEndDate != nil {
-			if updatedActualDeliveryDate.Before(*originSITAuthEndDate) || updatedActualDeliveryDate.Equal(*originSITAuthEndDate) {
-				err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
-				if err != nil {
-					return nil, err
-				}
-			}
-		} else if updatedActualDeliveryDate != nil && destSITAuthEndDate != nil {
-			if updatedActualDeliveryDate.Before(*destSITAuthEndDate) || updatedActualDeliveryDate.Equal(*destSITAuthEndDate) {
-				err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
-				if err != nil {
-					return nil, err
-				}
+		if updatedActualDeliveryDate != nil &&
+			updatedActualDeliveryDate.Before(endDate) || updatedActualDeliveryDate.Equal(endDate) {
+			err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, mtoShipment.ID).Exec()
+			if err != nil {
+				return nil, err
 			}
 		}
 	}
