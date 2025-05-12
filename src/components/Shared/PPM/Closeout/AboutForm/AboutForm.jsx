@@ -9,7 +9,7 @@ import styles from './AboutForm.module.scss';
 
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Hint from 'components/Hint';
