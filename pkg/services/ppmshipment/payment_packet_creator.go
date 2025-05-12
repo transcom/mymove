@@ -116,8 +116,8 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload, dirName)
 		if perr != nil {
 			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate pdf for upload")
-			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, err)
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(perr))
+			return nil, dirPath, fmt.Errorf("%s: %w", errMsgPrefix, perr)
 		}
 		pdfFileNamesToMerge = append(pdfFileNamesToMerge, pdfFileName)
 	}
@@ -155,7 +155,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	defer func() {
 		// if a panic occurred we set an error message that we can use to check for a recover in the calling method
 		if r := recover(); r != nil {
-			appCtx.Logger().Error("payment packet files panic", zap.Error(err))
+			appCtx.Logger().Error("payment packet files panic", zap.Error(err), zap.Error(perr))
 			returnErr = fmt.Errorf("%s: panic", errMsgPrefix)
 		}
 	}()
