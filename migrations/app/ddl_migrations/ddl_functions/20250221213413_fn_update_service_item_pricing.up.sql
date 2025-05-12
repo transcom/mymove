@@ -116,14 +116,14 @@ BEGIN
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
                     cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
-                    
-                    IF cubic_feet < external_crate_minimum AND external THEN 
+
+                    IF cubic_feet < external_crate_minimum AND external THEN
                         cubic_feet := external_crate_minimum;
                     END IF;
 
                     estimated_price := ROUND((escalated_price * cubic_feet), 2) * 100;
 
-                    IF estimated_price > standalone_crate_cap AND standalone THEN 
+                    IF estimated_price > standalone_crate_cap AND standalone THEN
                         estimated_price := standalone_crate_cap;
                     END IF;
 
@@ -148,14 +148,14 @@ BEGIN
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
                     cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
-                    
-                    IF cubic_feet < external_crate_minimum AND external THEN 
+
+                    IF cubic_feet < external_crate_minimum AND external THEN
                         cubic_feet := external_crate_minimum;
                     END IF;
 
                     estimated_price := ROUND((escalated_price * cubic_feet), 2) * 100;
 
-                    IF estimated_price > standalone_crate_cap AND standalone THEN 
+                    IF estimated_price > standalone_crate_cap AND standalone THEN
                         estimated_price := standalone_crate_cap;
                     END IF;
 
