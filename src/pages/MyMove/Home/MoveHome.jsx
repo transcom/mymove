@@ -25,7 +25,7 @@ import ConnectedDestructiveShipmentConfirmationModal from 'components/Confirmati
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import Step, { actionButtonStyle } from 'components/Customer/Home/StepAlt';
+import Step, { actionButtonStyle, dangerousButtonStyle } from 'components/Customer/Home/StepAlt';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
@@ -689,10 +689,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 <Step
                   actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments()}
                   actionBtnId="review-and-submit-btn"
+                  cla
                   actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
                   complete={hasSubmittedMove()}
                   completedHeaderText="Move request confirmed"
                   containerClassName={moveRequestContainerStyle}
+                  secondaryBtnClassName={dangerousButtonStyle}
                   headerText="Confirm move request"
                   onActionBtnClick={() => handleNewPathClick(confirmationPath)}
                   secondaryBtn={hasSubmittedMove()}

@@ -3,6 +3,9 @@
 @use 'shared/standardUI/Generic/build';
 @use 'shared/styles/colors';
 @use 'buttons';
+@use 'sass:string';
+
+$button-suffixes: --primary, --outline, --destructive;
 
 @mixin mix-mm-button-children() {
     & > * {
@@ -62,8 +65,10 @@
 }
 
 @mixin mix-mm-button-colors{
-    --main-color: #{#{colors.$color-blue}};
+    --main-color: #{colors.$color-blue};
     --alt-color: #{colors.$bg-white};
+    --danger-color: #{colors.$error};
+
     color: var(--top-color);
     background-color: var(--bg-color);
     .focus &,
@@ -117,6 +122,11 @@
             --top-color: var(--main-color);
             --bg-color: var(--alt-color);
         }
+        &--destructive {
+            @extend %#{$mm-button-selector}--outline;
+            --main-color: var(--alt-color);
+            --bg-color: var(--danger-color);
+        }
         .icon svg path {
             fill: var(--main-color);
         }
@@ -127,26 +137,26 @@
 
 @include mix-mm-buttons();
 
+
+@mixin mix-apply-suffixes($selector-base, $suffixes...){
+    @each $suffix in $suffixes {
+        $selector-value: $selector-base+$suffix;
+        &#{$suffix}{
+            @extend #{$selector-value};
+        }
+    }
+}
+
 @include build.mix-at-media() using ($selector, $media-break) {
     @include mix-mm-buttons($selector) using ($mm-button-selector){
         @at-root %mm-button-base {
-            &--primary {
-                @extend %#{$mm-button-selector}--primary;
-            }
-            &--outline {
-                @extend %#{$mm-button-selector}--outline;
-            }
+            @include mix-apply-suffixes('%#{$mm-button-selector}', $button-suffixes...);
         }
     }
 }
 
 @mixin mix-mm-button-associations() {
-    &--primary {
-        @extend %mm-button-base--primary;
-    }
-    &--outline {
-        @extend %mm-button-base--outline;
-    }
+    @include mix-apply-suffixes('%mm-button-base', $button-suffixes...);
 }
 
 @mixin mix-mm-button-overrides(){

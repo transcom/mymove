@@ -9,7 +9,11 @@
   .print-btn,
   .step-btn,
   .edit-btn{
-    @extend %#{$step-button};
+    @extend .usa-button--outline, %#{$step-button};
+  }
+
+  .destructive-btn{
+    @extend .usa-button--outline, %#{$step-button};
   }
 }
 

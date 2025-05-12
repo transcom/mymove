@@ -10,6 +10,7 @@ import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 const NumberCircle = ({ num }) => <div className={styles['number-circle']}>{num}</div>;
 
 export const actionButtonStyle = styles['action-btn'];
+export const dangerousButtonStyle = styles['destructive-btn'];
 
 NumberCircle.propTypes = {
   num: string.isRequired,
@@ -32,7 +33,7 @@ const Step = ({
   secondaryBtnClassName,
   step,
 }) => {
-  const actionBtnClassName = classnames(styles['action-btn'], secondaryBtnClassName);
+  const actionBtnClassName = classnames(actionButtonStyle, secondaryBtnClassName);
 
   const containerCN = classnames(styles['step-container'], styles[containerClassName]);
 

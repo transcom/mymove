@@ -14,7 +14,6 @@
 %step-button {
     text-overflow: ellipsis;
     overflow: hidden;
-    @extend .usa-button--outline;
 }
 
 @mixin mix-step-container-wrapper {
