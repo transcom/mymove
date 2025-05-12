@@ -198,6 +198,56 @@ describe('SubmitMoveForm component', () => {
     expect(mockSubmit).not.toHaveBeenCalled();
   });
 
+  it('does not show validation error if signature has extra spaces', async () => {
+    const mockSubmit = jest.fn();
+    render(<SubmitMoveForm {...testProps} onSubmit={mockSubmit} />);
+
+    // Simulate scroll-to-bottom to enable checkbox
+    const docContainer = screen.getByTestId('certificationTextBox');
+    Object.defineProperty(docContainer, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(docContainer, 'clientHeight', { configurable: true, value: 100 });
+    Object.defineProperty(docContainer, 'scrollTop', { configurable: true, writable: true, value: 200 });
+    fireEvent.scroll(docContainer);
+
+    // Wait for checkbox to be enabled
+    const checkbox = await screen.findByRole('checkbox');
+    await waitFor(() => expect(checkbox).toBeEnabled());
+    await userEvent.click(checkbox);
+
+    // Wait for signature input to become enabled
+    const signatureInput = screen.getByLabelText('SIGNATURE');
+    await waitFor(() => expect(signatureInput).toBeEnabled());
+
+    // Type mismatched signature
+    await userEvent.clear(signatureInput);
+    await userEvent.type(signatureInput, 'Test  User');
+
+    const submitBtn = screen.getByTestId('wizardCompleteButton');
+    await userEvent.click(submitBtn);
+
+    // Expect error message
+    const validationError = await screen.queryByText((text) =>
+      text.includes('Typed signature must match your exact user name'),
+    );
+
+    expect(validationError).not.toBeInTheDocument();
+    expect(mockSubmit).toHaveBeenCalled();
+
+    // Type mismatched signature
+    await userEvent.clear(signatureInput);
+    await userEvent.type(signatureInput, ' Test User ');
+
+    await userEvent.click(submitBtn);
+
+    // Expect error message
+    const validationError2 = await screen.queryByText((text) =>
+      text.includes('Typed signature must match your exact user name'),
+    );
+
+    expect(validationError2).not.toBeInTheDocument();
+    expect(mockSubmit).toHaveBeenCalled();
+  });
+
   it('does not render certification text if certificationText is null', () => {
     render(<SubmitMoveForm {...testProps} certificationText={null} />);
 
