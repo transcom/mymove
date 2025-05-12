@@ -1326,7 +1326,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 
 		pickupAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), pickupAddress.ID, &uuid.Nil, contract.ID)
 		if err != nil {
-			return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s", pickupAddress.ID)
+			return nil, fmt.Errorf("error fetching pickup rate area id for address ID: %s | %s", pickupAddress.ID, err)
 		}
 
 		destinationAddressRateAreaID, err := models.FetchRateAreaID(appCtx.DB(), destinationAddress.ID, &uuid.Nil, contract.ID)
