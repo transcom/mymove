@@ -20,57 +20,67 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOEarliestRequestedPickup() {
 	var mtoServiceItem models.MTOServiceItem
 	var paymentRequest models.PaymentRequest
 	var paramLookup *ServiceItemParamKeyData
+	var err error
 
 	setupTestData := func() {
-		shipment1 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
+				},
+			},
+		}, nil)
+
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					RequestedPickupDate: &earliestRequestedPickup,
+					Status:              models.MTOShipmentStatusApproved,
 				},
 			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
 		}, nil)
-		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					RequestedPickupDate: &laterRequestedPickup,
+					Status:              models.MTOShipmentStatusApproved,
 				},
 			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
 		}, nil)
-		shipment3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					RequestedPickupDate: &earliestRequestedPickup,
 					DeletedAt:           models.TimePointer(time.Now()),
 				},
 			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
 		}, nil)
-
-		shipments := models.MTOShipments{shipment1, shipment2, shipment3}
 
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					AvailableToPrimeAt: models.TimePointer(time.Now()),
-					MTOShipments:       shipments,
-				},
+				Model:    move,
+				LinkOnly: true,
 			},
 		}, nil)
 
 		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
-				Model:    mtoServiceItem.MoveTaskOrder,
-				LinkOnly: true,
-			},
-			{
-				Model:    mtoServiceItem.MTOShipment,
+				Model:    move,
 				LinkOnly: true,
 			},
 		}, nil)
-
-		// factory customizations aren't working for status
-		paymentRequest.MoveTaskOrder.MTOShipments[1].Status = models.MTOShipmentStatusApproved
-		err := suite.DB().Save(&paymentRequest.MoveTaskOrder.MTOShipments[1])
-		suite.NoError(err)
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
