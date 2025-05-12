@@ -239,7 +239,10 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId, isFileUploadin
         {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
       {showContentError && (
-        <div className={styles.errorMessage}>If your document does not display, please refresh your browser.</div>
+        <div className={styles.errorMessage}>
+          MilMove encountered an issue during the scanning phase of this document. Contact the service member. Ask them
+          to upload a photo of the original document instead.
+        </div>
       )}
       <Content
         fileType={fileType.current}

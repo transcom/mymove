@@ -199,7 +199,8 @@ describe('DocumentViewer component', () => {
   });
 
   describe('regarding content errors', () => {
-    const errorMessageText = 'If your document does not display, please refresh your browser.';
+    const errorMessageText =
+      'MilMove encountered an issue during the scanning phase of this document. Contact the service member. Ask them to upload a photo of the original document instead.';
     const downloadLinkText = 'Download file';
     it('no error message normally', async () => {
       renderWithProviders(<DocumentViewer files={mockFiles} />);
