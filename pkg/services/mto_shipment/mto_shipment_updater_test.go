@@ -2210,9 +2210,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 		}, nil)
 
-		// check if sitExtension was successfully added
-		// suite.Equal(1, len(oldShipment.SITDurationUpdates))
-
 		requestedPickupDate := now.Add(time.Hour * 24 * 3)
 		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
 		updatedShipment := models.MTOShipment{
