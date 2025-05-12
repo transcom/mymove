@@ -1103,6 +1103,28 @@ describe('MoveDetails page', () => {
     });
   });
 
+  describe('When there are not any alerts for the Move Details', () => {
+    it('does not render an alert indicator next to Move Details', async () => {
+      useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+
+      const wrapper = mount(
+        <MockProviders>
+          <MoveDetails
+            setUnapprovedShipmentCount={0}
+            setUnapprovedServiceItemCount={0}
+            setExcessWeightRiskCount={0}
+            setUnapprovedSITExtensionCount={0}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={0}
+            setShipmentErrorConcernCount={0}
+          />
+        </MockProviders>,
+      );
+
+      expect(wrapper.find({ 'data-testid': 'too-move-details' }).exists()).toBe(false);
+    });
+  });
+
   describe('retiree move with shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQueryRetiree);
 
