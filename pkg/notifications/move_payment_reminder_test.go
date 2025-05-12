@@ -57,6 +57,28 @@ func (suite *NotificationSuite) CreatePPMShipment(offset int) {
 	})
 }
 
+// Func to create safety move orders PPM
+func (suite *NotificationSuite) CreateSafetyMoveOrdersPPM(offset int) models.PPMShipment {
+	expectedDate := offsetDate(offset)
+	ordersType := internalmessages.OrdersTypeSAFETY
+
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+	return ppm
+}
+
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	ppms := []models.PPMShipment{suite.GetPPMShipment(-9), suite.GetPPMShipment(-14), suite.GetPPMShipment(-15)}
@@ -437,28 +459,6 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmailsForRetireeSepara
 		}
 	}
 	suite.Len(formattedEmails, 5)
-}
-
-// Func to create safety move with
-func (suite *NotificationSuite) CreateSafetyMoveOrdersPPM(offset int) models.PPMShipment {
-	expectedDate := offsetDate(offset)
-	ordersType := internalmessages.OrdersTypeSAFETY
-
-	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.Order{
-				OrdersType: ordersType,
-			},
-		},
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: expectedDate,
-			},
-		},
-	}, []factory.Trait{
-		factory.GetTraitPPMShipmentReadyForPaymentRequest,
-	})
-	return ppm
 }
 
 func (suite *NotificationSuite) TestPaymentReminderGetEmailFuncDoesNotSelectSafetyMoveOrders() {
