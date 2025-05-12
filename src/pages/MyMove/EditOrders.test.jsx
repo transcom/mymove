@@ -464,10 +464,7 @@ describe('EditOrders Page', () => {
     const submitButton = screen.findByRole('button', { name: 'Save' });
 
     waitFor(() => {
-      expect(submitButton).not.toBeDisabled();
-    });
-
-    await act(async () => {
+      expect(submitButton).toBeEnabled();
       userEvent.click(submitButton);
     });
 
