@@ -67,7 +67,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 			params.Edipi,
 			params.Emplid,
 			params.CustomerName,
-			params.DestinationDutyLocation,
+			params.OriginDutyLocation,
 			pq.Array(params.Status),
 			params.SubmittedAt,
 			params.TIOAssignedUser,
