@@ -697,7 +697,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 		{
 			Model: models.MTOShipment{
-				Status:               models.MTOShipmentStatusSubmitted,
+				Status:               models.MTOShipmentStatusApproved,
 				PrimeEstimatedWeight: &testEstWeight,
 				PrimeActualWeight:    &testActualWeight,
 			},

@@ -52,6 +52,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 		},
 		{
 			Model: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
 				RequestedPickupDate: models.TimePointer(time.Now().Add(24 * time.Hour)),
 			},
 		}}, nil)
