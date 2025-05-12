@@ -119,6 +119,47 @@ jest.mock('services/ghcApi', () => ({
   },
   counselingUpdateOrder: jest.fn(),
   getOrder: jest.fn(),
+  getRankGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: 'd3aa6931-7858-4123-be0b-f3242a49e9f7',
+          paygradeId: '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9',
+          rankGradeName: 'CIV / CIVILIAN_EMPLOYEE',
+        },
+        {
+          id: 'f6dbd496-8f71-487b-a432-55b60967f474',
+          paygradeId: '6cb785d0-cabf-479a-a36d-a6aec294a4d0',
+          rankGradeName: 'AB / E_1',
+          rankOrder: 25,
+        },
+        {
+          id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+          paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+          rankGradeName: 'Amn / E_2',
+          rankOrder: 24,
+        },
+        {
+          id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
+          paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
+          rankGradeName: 'A1C / E_3',
+          rankOrder: 23,
+        },
+        {
+          id: '753f82f9-27e1-4ee7-9b57-bfef3c83656b',
+          paygradeId: 'bb55f37c-3165-46ba-ad3f-9a477f699990',
+          rankGradeName: 'SrA / E_4',
+          rankOrder: 22,
+        },
+        {
+          id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+          paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
+          rankGradeName: 'SSgt / E_5',
+          rankOrder: 21,
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -149,7 +190,14 @@ const useOrdersDocumentQueriesReturnValue = {
         totalWeight: 5000,
       },
       first_name: 'Leo',
-      grade: 'E_1',
+      grade: 'E_5',
+      rank: {
+        id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+        paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
+        rankGradeName: 'SSgt / E_5',
+        rankOrder: 21,
+      },
+      payGradeRank: '3f142461-dca5-4a77-9295-92ee93371330',
       id: '1',
       last_name: 'Spacemen',
       order_number: 'ORDER3',
@@ -292,7 +340,7 @@ describe('Orders page', () => {
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
-      expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
+      expect(screen.getByTestId('payGradeInput')).toHaveValue('ae9f9d91-b049-4f60-bdc9-e441a7b3cb30');
     });
 
     it('disables fields for correct statuses', async () => {

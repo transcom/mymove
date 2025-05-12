@@ -31,6 +31,7 @@ const ordersInfo = {
   tacMDC: '9999',
   sacSDN: '999 999999 999',
   payGrade: 'E_7',
+  rank: 'PFC',
 };
 
 const moveInfo = {
@@ -53,7 +54,7 @@ const expectedRenderedOrdersInfo = {
   ordersDocuments: 'File(s) Uploaded',
   tacMDC: '9999',
   sacSDN: '999 999999 999',
-  payGrade: 'E-7',
+  payGrade: 'PFC / E-7',
 };
 
 const ordersInfoMissing = {
