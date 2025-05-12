@@ -5,9 +5,11 @@ import (
 	"regexp"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -32,6 +34,7 @@ func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uu
 	}
 
 	user := officeUser.User
+	oktaID := user.OktaID
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		userIdFilter := []services.QueryFilter{query.NewQueryFilter("user_id", "=", user.ID.String())}
 
@@ -67,6 +70,13 @@ func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uu
 		return transactionError
 	}
 
+	/*
+		Now that we have deleted the user from the milmove db, we will remove their okta account.
+		We are intentionally keeping this process outside the milmove db delete transaction as it should not impact the ability to process a deletion from milmove db.
+		This is considered more of a convenience to clean up the okta account.
+	*/
+	deleteFromOkta(appCtx, oktaID)
+
 	return nil
 }
 
@@ -80,4 +90,26 @@ func handleError(id uuid.UUID, rawError error) error {
 		return apperror.NewConflictError(id, rawError.Error())
 	}
 	return rawError
+}
+
+func deleteFromOkta(appCtx appcontext.AppContext, oktaID string) {
+	if oktaID != "" {
+		req := appCtx.HTTPRequest()
+		if req == nil {
+			appCtx.Logger().Error("failed to retrieve HTTP request from session")
+			return
+		}
+		provider, err := okta.GetOktaProviderForRequest(req)
+		if err != nil {
+			appCtx.Logger().Error("error retrieving Okta provider: %w")
+			return
+		}
+		apiKey := models.GetOktaAPIKey()
+		err = models.DeleteOktaUser(appCtx, provider, oktaID, apiKey)
+		if err != nil {
+			appCtx.Logger().Error("error deleting user from okta: %w", zap.Error(err))
+			return
+		}
+	}
+
 }
