@@ -459,22 +459,12 @@ func (suite *NotificationSuite) CreateSafetyMoveOrdersPPM(offset int) models.PPM
 		factory.GetTraitPPMShipmentReadyForPaymentRequest,
 	})
 	return ppm
-
-	// setup ppm via existing function then add orders model to it
-	// ppm :=
 }
-
-//helper function to extract appcontext for db
 
 func (suite *NotificationSuite) TestPaymentReminderGetEmailFuncDoesNotSelectSafetyMoveOrders() {
 	_ = []models.PPMShipment{suite.CreateSafetyMoveOrdersPPM(-30)}
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	//save the model to the db
-	// suite.DB().Save(safetyppm)
-	//need to create an app context
-	// appCtx := suite.AppContextForTest()
-	// paymentReminderEmailList, err :=
 	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.Len(emailInfo, 0, "A Safety Email was returned in the query")
