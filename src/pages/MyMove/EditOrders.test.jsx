@@ -456,14 +456,16 @@ describe('EditOrders Page', () => {
       });
     });
 
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
-
-    const submitButton = screen.findByRole('button', { name: 'Save' });
+    waitFor(() => {
+      userEvent.click(screen.getByTestId('hasDependentsYes'));
+      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+    });
 
     waitFor(() => {
+      const submitButton = screen.findByRole('button', { name: 'Save' });
+
       expect(submitButton).toBeEnabled();
       userEvent.click(submitButton);
     });
