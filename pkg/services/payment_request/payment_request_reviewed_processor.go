@@ -197,19 +197,20 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 				zap.Error(verrs),
 			)
 		}
-		//send email to open HDT for review for payment requests that failed to send to GEX
-		err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
-		if err != nil {
-			appCtx.Logger().Error(
-				"failed to send notification for payment request that failed to send to GEX",
-				zap.String("PaymentRequestID", pr.ID.String()),
-				zap.Error(verrs))
-		}
+
 		switch transactionError.(type) {
 		case GexSendError:
 			// if we failed in sending there is nothing to do here but retry later so keep the status the same
 		default:
 			pr.Status = models.PaymentRequestStatusEDIError
+			//send email to open HDT for review for payment requests that failed to send to GEX
+			err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
+			if err != nil {
+				appCtx.Logger().Error(
+					"failed to send notification for payment request that failed to send to GEX",
+					zap.String("PaymentRequestID", pr.ID.String()),
+					zap.Error(verrs))
+			}
 		}
 		verrs, err = appCtx.DB().ValidateAndUpdate(&pr)
 		if err != nil {
