@@ -243,6 +243,151 @@ BEGIN
                 ELSE
                     RAISE NOTICE ''service_code: % - Failed to compute pricing[estimated_fsc_multiplier: %, distance: %]'', service_code, estimated_fsc_multiplier, distance;
                 END IF;
+
+            WHEN service_code IN (''IOASIT'', ''IDASIT'') THEN
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+
+                IF service_code = ''IOASIT'' THEN
+                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
+                ELSE
+                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
+                END IF;
+
+                BEGIN
+                    -- Retrieve MAX days in sit allowance value from application parameter table.
+                    days_in_sit := get_application_parameter_value(''maxSitDaysAllowance'')::int - 1;
+                EXCEPTION WHEN OTHERS THEN
+                    RAISE EXCEPTION ''%: unexpected error parsing maxSitDaysAllowance application param value'', service_code;
+                END;
+
+                IF days_in_sit IS NULL THEN
+                    RAISE EXCEPTION ''%: maxSitDaysAllowance application param value not found'', service_code;
+                END IF;
+
+                IF service_item.sit_entry_date IS NOT NULL AND service_item.sit_departure_date IS NOT NULL THEN
+                    days_in_sit := (SELECT (service_item.sit_departure_date::date - (service_item.sit_entry_date::date)) as days);
+                END IF;
+
+                RAISE NOTICE ''days_in_sit = %'', days_in_sit;
+
+                IF escalated_price IS NOT NULL AND days_in_sit IS NOT NULL AND days_in_sit >= 0 THEN
+                    RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
+
+                    -- multiply by 110% of estimated weight
+                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100) * days_in_sit, 2) * 100;
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100) * %) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight, days_in_sit;
+
+                    -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
+                END IF;
+            WHEN service_code = ''INPK'' THEN
+                -- INPK requires the base price for an origin rate area and a requested pickup date
+                -- get the base price for the origin rate area from IHPK (iHHG into iNTS means use IHPK base price)
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+
+                -- Use IHPK for the escalated price for the INPK case
+                -- This is because the scenario is iHHG -> iNTS
+                escalated_price := calculate_escalated_price(
+                    o_rate_area_id,
+                    NULL,
+                    (SELECT id FROM re_services WHERE code = ''IHPK''),
+                    declared_contract_id,
+                    ''IHPK'',
+                    shipment.requested_pickup_date,
+                    NULL
+                );
+
+                -- Now that we have the escalated price, we multiply it by the
+                -- NTS INPK market code factor. This time we pass in INPK,
+                -- because this is an NTS scenario
+                declared_oconus_factor := get_market_code_factor_escalation(
+                    o_rate_area_id,
+                    declared_contract_id,
+                    service_item.re_service_id
+                );
+
+                -- Okay, now that we have all of our numbers. We just gotta calc
+                -- the final price
+
+                -- Final estimated price = escalated price * factor * 110% of estimated weight
+                estimated_price := ROUND(
+                    ( escalated_price * declared_oconus_factor * ((shipment.prime_estimated_weight * 1.1) / 100.0) )::numeric,
+                    2
+                ) * 100;
+
+                RAISE NOTICE ''INPK: esc=%, factor=%, cwt=%, final=% (service_item id=%)'',
+                    escalated_price,
+                    declared_oconus_factor,
+                    (shipment.prime_estimated_weight / 100.0),
+                    estimated_price,
+                    service_item.id;
+
+                UPDATE mto_service_items
+                SET pricing_estimate = estimated_price
+                WHERE id = service_item.id;
+            WHEN service_code IN (''IOPSIT'', ''IDDSIT'') THEN
+                declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+
+                distance = service_item.sit_delivery_miles;
+                RAISE NOTICE ''SIT mileage = %'', distance;
+
+                IF service_code = ''IOPSIT'' THEN
+                    o_rate_area_id := get_rate_area_id(service_item.sit_origin_hhg_actual_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, distance);
+                ELSE
+                    d_rate_area_id := get_rate_area_id(service_item.sit_destination_final_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, distance);
+                END IF;
+
+                IF escalated_price IS NOT NULL AND shipment.prime_estimated_weight IS NOT NULL THEN
+                    RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
+
+                    -- multiply by 110% of estimated weight
+                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
+
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
+
+                    -- update the pricing_estimate value in mto_service_items
+                    UPDATE mto_service_items
+                    SET pricing_estimate = estimated_price
+                    WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, prime_estimated_weight: %]'', service_code, escalated_price, shipment.prime_estimated_weight;
+                END IF;
+
+			WHEN service_code IN (''IOFSIT'', ''IDFSIT'') THEN
+				declared_contract_id := get_contract_id(shipment.requested_pickup_date);
+
+				IF service_code = ''IOFSIT'' THEN
+                    o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
+                ELSE
+                    d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, declared_contract_id);
+                    escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, NULL);
+                END IF;
+
+				IF escalated_price IS NOT NULL THEN
+                    RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
+
+                    -- multiply by 110% of estimated weight
+                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
+
+                    -- update the pricing_estimate value in mto_service_items
+			        UPDATE mto_service_items
+			        SET pricing_estimate = estimated_price
+			        WHERE id = service_item.id;
+                ELSE
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, days_in_sit: %]'', service_code, escalated_price, days_in_sit;
+                END IF;
+
             ELSE
                 RAISE warning ''Unsupported service code: %'', service_code;
         END CASE;
