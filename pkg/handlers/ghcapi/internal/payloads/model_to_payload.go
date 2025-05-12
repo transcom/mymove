@@ -2322,16 +2322,6 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 }
 
 func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []models.OfficeUser, officeUser models.OfficeUser, ppmCloseoutGblocs bool, isCloseoutQueue bool) []models.OfficeUser {
-	// if the office user currently assigned to the move works outside of the logged in users counseling office
-	// add them to the set
-	// if !isCloseoutQueue && move.SCCounselingAssignedUser != nil && move.SCCounselingAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-	// 	officeUsers = append(officeUsers, *move.SCCounselingAssignedUser)
-	// }
-
-	// if isCloseoutQueue && move.SCCloseoutAssignedUser != nil && move.SCCloseoutAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-	// 	officeUsers = append(officeUsers, *move.SCCloseoutAssignedUser)
-	// }
-
 	var onlySelfAssign bool
 
 	// if there is no counseling office
@@ -2478,17 +2468,16 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 
 		// determine if there is an assigned user
 		var assignedToUser *ghcmessages.AssignedOfficeUser
-		// test HQ STUFF!!
-		if (activeRole == string(roles.RoleTypeServicesCounselor) && queueType == string(models.QueueTypeCounseling) || activeRole == string(roles.RoleTypeHQ)) && move.SCCounselingAssignedUser != nil {
+		if queueType == string(models.QueueTypeCounseling) && move.SCCounselingAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCCounselingAssignedUser)
 		}
-		if (activeRole == string(roles.RoleTypeServicesCounselor) && queueType == string(models.QueueTypeCloseout) || activeRole == string(roles.RoleTypeHQ)) && move.SCCloseoutAssignedUser != nil {
+		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCCloseoutAssignedUser)
 		}
-		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
-		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
 		}
 		// these branches have their own closeout specific offices

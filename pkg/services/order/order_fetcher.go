@@ -375,7 +375,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		params.Branch,
 		strings.Join(params.OriginDutyLocation, " "),
 		params.CounselingOffice,
-		params.TOODestinationAssignedUser,
+		params.AssignedTo,
 		hasSafetyPrivilege,
 		params.Page,
 		params.PerPage,
