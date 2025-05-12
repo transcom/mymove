@@ -62,7 +62,7 @@ export const ORDERS_PAY_GRADE_TYPE = {
   E_8: 'E_8',
   E_9: 'E_9',
   E_9_SPECIAL_SENIOR_ENLISTED: 'E_9_SPECIAL_SENIOR_ENLISTED',
-  O_1: 'O_1',
+  O_1_ACADEMY_GRADUATE: 'O_1_ACADEMY_GRADUATE',
   O_2: 'O_2',
   O_3: 'O_3',
   O_4: 'O_4',
