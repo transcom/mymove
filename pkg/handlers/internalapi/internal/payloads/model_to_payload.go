@@ -748,8 +748,8 @@ func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, gr
 
 	err := appCtx.DB().Q().RawQuery(`
 		SELECT
-			ranks.rank_abbv || ' / ' || ranks.rank_name AS RankName,
-			-- ranks.rank_abbv AS RankName,
+			ranks.rank_name AS RankName,
+			ranks.rank_abbv AS RankAbbv,
 			ranks.id,
 			ranks.pay_grade_id AS PaygradeID,
 			ranks.rank_order AS RankOrder
