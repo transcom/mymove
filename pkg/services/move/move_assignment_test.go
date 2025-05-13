@@ -382,8 +382,8 @@ func (suite *MoveServiceSuite) TestBulkMoveAssignment() {
 		suite.NoError(suite.DB().Reload(&move1))
 		suite.NoError(suite.DB().Reload(&move2))
 
-		suite.Equal(officeUser.ID, *move1.TIOAssignedID)
-		suite.Equal(officeUser.ID, *move2.TIOAssignedID)
-		suite.Nil(move3.TIOAssignedID)
+		suite.Equal(officeUser.ID, *move1.TIOPaymentRequestAssignedID)
+		suite.Equal(officeUser.ID, *move2.TIOPaymentRequestAssignedID)
+		suite.Nil(move3.TIOPaymentRequestAssignedID)
 	})
 }

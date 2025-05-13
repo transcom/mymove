@@ -64,8 +64,8 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	query := appCtx.DB().Q().EagerPreload(
 		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
 		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
-		"MoveTaskOrder.TIOAssignedUser",
-		"MoveTaskOrder.TIOAssignedUser.TransportationOfficeID",
+		"MoveTaskOrder.TIOPaymentRequestAssignedUser",
+		"MoveTaskOrder.TIOPaymentRequestAssignedUser.TransportationOfficeID",
 		"MoveTaskOrder.CounselingOffice",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
@@ -79,7 +79,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
-		LeftJoin("office_users as assigned_user", "moves.tio_assigned_id = assigned_user.id").
+		LeftJoin("office_users as assigned_user", "moves.tio_payment_request_assigned_id = assigned_user.id").
 		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 		Where("moves.show = ?", models.BoolPointer(true))
 
@@ -107,10 +107,10 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 	secondaryOrderQuery := secondarySortOrder(params.Sort)
-	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
+	assignedToQuery := assignedUserFilter(params.AssignedTo)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 
-	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, secondaryOrderQuery, emplidQuery, tioAssignedUserQuery, counselingQuery}
+	options := [14]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, secondaryOrderQuery, emplidQuery, assignedToQuery, counselingQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -435,10 +435,10 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 
 }
 
-func tioAssignedUserFilter(tioAssigned *string) QueryOption {
+func assignedUserFilter(user *string) QueryOption {
 	return func(query *pop.Query) {
-		if tioAssigned != nil {
-			nameSearch := fmt.Sprintf("%s%%", *tioAssigned)
+		if user != nil {
+			nameSearch := fmt.Sprintf("%s%%", *user)
 			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
 		}
 	}

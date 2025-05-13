@@ -39,7 +39,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TIOAssignedUser,
+				Type:     &factory.OfficeUsers.TIOPaymentRequestAssignedUser,
 			},
 		}, nil)
 
@@ -48,8 +48,8 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		updatedPr, err := updater.UpdatePaymentRequestStatus(suite.AppContextForTest(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 
 		suite.NoError(err)
-		suite.Nil(updatedPr.MoveTaskOrder.TIOAssignedID)
-		suite.Nil(updatedPr.MoveTaskOrder.TIOAssignedUser)
+		suite.Nil(updatedPr.MoveTaskOrder.TIOPaymentRequestAssignedID)
+		suite.Nil(updatedPr.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 	})
 
 	suite.Run("If we get a payment request pointer with a status it should update and return no error", func() {

@@ -5938,7 +5938,7 @@ definitions:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TIOAssignedUser:
+      TIOPaymentRequestAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOODestinationAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
