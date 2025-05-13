@@ -8,7 +8,7 @@ select icc.id icc_id,
 	   cpd.country_prn_dv_cd,
 	   r.country,
 	   c.id intl_cities_id,
-	   cpd.id country_prn_division_id,
+	   cpd.id re_country_prn_division_id,
 	   c.country_id
   from intl_city_countries icc
   join re_intl_cities c on icc.intl_cities_id = c.id
