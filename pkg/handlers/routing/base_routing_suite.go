@@ -56,9 +56,9 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 	}
 }
 
-// override HandlerConfig to use the version saved in routing config
+// override NewHandlerConfig to use the version saved in routing config
 // so the same session manager(s) are used
-func (suite *BaseRoutingSuite) HandlerConfig() handlers.HandlerConfig {
+func (suite *BaseRoutingSuite) NewHandlerConfig() handlers.HandlerConfig {
 	return suite.RoutingConfig().HandlerConfig
 }
 

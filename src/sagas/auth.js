@@ -3,6 +3,7 @@ import { normalize } from 'normalizr';
 
 import {
   LOAD_USER,
+  loadUser,
   SET_ACTIVE_ROLE,
   getLoggedInUserStart,
   getLoggedInUserSuccess,
@@ -86,6 +87,7 @@ export function* handleSetActiveRole({ payload: roleType }) {
   try {
     yield call(UpdateActiveRoleServerSession, roleType);
     yield put(setActiveRoleSuccess(roleType));
+    yield put(loadUser()); // Trigger redux to update entity state
   } catch (e) {
     yield put(setActiveRoleFailure(e));
     yield put(

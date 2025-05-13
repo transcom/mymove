@@ -1832,7 +1832,8 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		},
 	}, nil)
 
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	suite.NotEmpty(officeUser.User.Roles)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		ActiveRole:      officeUser.User.Roles[0],

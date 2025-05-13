@@ -11,6 +11,7 @@ import {
   SET_ACTIVE_ROLE,
   setActiveRoleSuccess,
   setActiveRoleFailure,
+  loadUser,
 } from 'store/auth/actions';
 import { setAdminUser } from 'shared/Entities/actions';
 import { serviceName } from 'shared/constants';
@@ -201,6 +202,11 @@ describe('handleSetActiveRole saga', () => {
     it('dispatches setActiveRoleSuccess', () => {
       // next() simulates the API having resolved
       expect(gen.next().value).toEqual(put(setActiveRoleSuccess(roleType)));
+    });
+
+    it('dispatches loadUser', () => {
+      // this makes sure the entity state fetches the latest session from the server
+      expect(gen.next().value).toEqual(put(loadUser()));
     });
 
     it('then finishes', () => {
