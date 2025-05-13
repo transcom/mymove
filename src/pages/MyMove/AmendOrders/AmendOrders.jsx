@@ -28,7 +28,7 @@ import {
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { customerRoutes } from 'constants/routes';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   const [isLoading, setLoading] = useState(true);

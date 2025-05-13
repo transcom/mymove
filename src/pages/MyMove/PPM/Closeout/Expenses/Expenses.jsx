@@ -23,7 +23,8 @@ import {
 } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
-import { convertDollarsToCents, appendTimestampToFilename } from 'shared/utils';
+import { convertDollarsToCents } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 import { APP_NAME } from 'constants/apps';
 
 const Expenses = () => {

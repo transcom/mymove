@@ -10,7 +10,7 @@ import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import { selectOrdersForLoggedInUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),

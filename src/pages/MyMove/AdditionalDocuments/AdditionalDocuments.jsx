@@ -18,7 +18,7 @@ import { updateMove as updateMoveAction } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const AdditionalDocuments = ({ moves, updateMove }) => {
   const { moveId } = useParams();

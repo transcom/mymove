@@ -28,7 +28,7 @@ import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm'
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const ProGear = () => {
   const dispatch = useDispatch();
