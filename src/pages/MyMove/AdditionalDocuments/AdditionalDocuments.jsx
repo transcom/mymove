@@ -3,6 +3,7 @@ import { GridContainer, Grid, Alert, Button } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 
+import appendTimestampToFilename from 'utils/fileUpload';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
@@ -18,7 +19,6 @@ import { updateMove as updateMoveAction } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { appendTimestampToFilename } from 'shared/utils';
 
 const AdditionalDocuments = ({ moves, updateMove }) => {
   const { moveId } = useParams();

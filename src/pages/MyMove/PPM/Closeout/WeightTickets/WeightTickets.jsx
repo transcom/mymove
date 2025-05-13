@@ -27,7 +27,7 @@ import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);

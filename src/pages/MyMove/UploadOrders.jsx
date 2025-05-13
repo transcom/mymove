@@ -18,7 +18,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { withContext } from 'shared/AppContext';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId }) => {
   const filePondEl = useRef();

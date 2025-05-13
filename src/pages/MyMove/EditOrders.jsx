@@ -7,7 +7,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import scrollToTop from 'shared/scrollToTop';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 import {
   getResponseError,
   patchOrders,
