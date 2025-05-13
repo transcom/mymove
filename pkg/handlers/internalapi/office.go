@@ -10,7 +10,6 @@ import (
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -109,18 +108,6 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 			verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(logger, verrs, err), err
-			}
-
-			/* Don't send emails to BLUEBARK/SAFETY moves */
-			if move.Orders.CanSendEmailWithOrdersType() {
-				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewMoveCanceled(moveID),
-				)
-			}
-
-			if err != nil {
-				logger.Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
 			}
 
 			movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
