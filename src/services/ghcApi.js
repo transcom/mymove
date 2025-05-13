@@ -74,6 +74,18 @@ export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload
   );
 }
 
+export async function createMovingExpense(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createMovingExpense',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateMovingExpense',
@@ -82,6 +94,19 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
       movingExpenseId,
       'If-Match': eTag,
       updateMovingExpense: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteMovingExpense({ ppmShipmentId, movingExpenseId }) {
+  return makeGHCRequest(
+    'ppm.deleteMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
     },
     {
       normalize: false,
@@ -927,6 +952,21 @@ export async function sendPPMToCustomer(params) {
 
 export async function createOfficeAccountRequest({ body }) {
   return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
+}
+
+export async function patchOfficeUser(officeUserId, body) {
+  const operationPath = 'officeUsers.updateOfficeUser';
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      officeUserId,
+      officeUser: body,
+    },
+    {
+      normalize: false,
+    },
+  );
 }
 
 export async function createUploadForDocument(file, documentId) {

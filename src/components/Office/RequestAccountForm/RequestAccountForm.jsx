@@ -44,14 +44,20 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
             <div className={requestAccountFormStyles.buttonRow}>
               <Button
                 type="button"
+                onClick={() => onCancel()}
+                data-testid="requestOfficeAccountCancelButton"
+                outline
+                secondary
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
                 disabled={!isValid}
                 onClick={() => handleSubmit()}
                 data-testid="requestOfficeAccountSubmitButton"
               >
                 Submit
-              </Button>
-              <Button type="button" onClick={() => onCancel()} data-testid="requestOfficeAccountCancelButton">
-                Cancel
               </Button>
             </div>
           </Form>
