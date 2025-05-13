@@ -229,8 +229,8 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 
 		return transactionError
 	}
-	
 	return nil
+
 }
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx appcontext.AppContext) {
 	// Store/log metrics about EDI processing upon exiting this method.

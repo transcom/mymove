@@ -10,4 +10,4 @@ Insert into application_parameters (id,  created_at, updated_at, parameter_name,
 values ('d4252473-00ff-4d2e-9842-c2016310a7e1',  now(), now(), 'transcom_distro_email', 'your_email@example.com');
 
 Insert into application_parameters (id,  created_at, updated_at, parameter_name, parameter_value)
-values ('b600af46-c295-4d85-aacd-65ccf065e941',  now(), now(), 'milmove_ops_email', 'your_email@example.com');
+values ('b600af46-c295-4d85-aacd-65ccf065e941', now(), now(), 'milmove_ops_email', 'your_email@example.com');
