@@ -8364,6 +8364,7 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+        x-nullable: true
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
