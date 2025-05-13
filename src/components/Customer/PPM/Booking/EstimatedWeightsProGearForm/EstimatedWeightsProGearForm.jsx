@@ -39,16 +39,11 @@ const validationSchema = Yup.object().shape({
     .min(0, 'Enter a weight 0 lbs or greater')
     .max(500, 'Enter a weight 500 lbs or less'),
   hasGunSafe: Yup.boolean().required('Required'),
-  gunSafeWeight: Yup.number()
-    .min(0, 'Enter a weight 0 lbs or greater')
-    .when('hasGunSafe', {
-      is: true,
-      then: (schema) =>
-        schema
-          .min(0, 'Enter a weight 0 lbs or greater')
-          .max(500, 'Enter a weight 500 lbs or less')
-          .required('Required'),
-    }),
+  gunSafeWeight: Yup.number().when('hasGunSafe', {
+    is: true,
+    then: (schema) =>
+      schema.min(1, 'Enter a weight 1 lbs or greater').max(500, 'Enter a weight 500 lbs or less').required('Required'),
+  }),
 });
 
 const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) => {
