@@ -477,7 +477,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		params.RequestedMoveDate,
 		params.AppearedInTOOAt,
 		params.Branch,
-		strings.Join(params.OriginDutyLocation, " "),
+		params.DestinationDutyLocation,
 		params.CounselingOffice,
 		params.TOODestinationAssignedUser,
 		hasSafetyPrivilege,
