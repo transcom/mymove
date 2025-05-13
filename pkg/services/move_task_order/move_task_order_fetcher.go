@@ -365,6 +365,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 	mto.MTOServiceItems = loadedServiceItems
 
+	if mto.Orders.RankID == nil {
+		userPayGrade, err := FindPayGradeRankByGradeAndAffiliation(appCtx, string(*mto.Orders.Grade), string(*mto.Orders.ServiceMember.Affiliation))
+		if err != nil {
+			return &models.Move{}, apperror.NewQueryError("PayGradeWithRank", err, "")
+		}
+		mto.Orders.Rank = &userPayGrade
+		mto.Orders.RankID = &userPayGrade.ID
+
+	}
+
 	if mto.Orders.DestinationGBLOC == nil {
 		var newDutyLocationGBLOC *string
 		if *mto.Orders.NewDutyLocation.Address.IsOconus {
@@ -680,4 +690,15 @@ func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.R
 		}
 	}
 	return reweigh, nil
+}
+
+func FindPayGradeRankByGradeAndAffiliation(appCtx appcontext.AppContext, grade, affiliation string) (models.Rank, error) {
+	var result models.Rank
+
+	query := appCtx.DB().Select("ranks.*").
+		LeftJoin("pay_grades", "ranks.pay_grade_id = pay_grades.id").
+		Where("pay_grades.grade = ? AND ranks.affiliation = ?", grade, affiliation)
+
+	err := query.First(&result)
+	return result, err
 }
