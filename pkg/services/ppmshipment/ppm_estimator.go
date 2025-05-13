@@ -408,28 +408,14 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				if err != nil {
 					return nil, err
 				}
-				if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
-					if *finalIncentive > *oldPPMShipment.MaxIncentive {
-						finalIncentive = oldPPMShipment.MaxIncentive
-					}
-					return finalIncentive, nil
-				} else {
-					return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
-				}
+				return capFinalIncentive(finalIncentive, oldPPMShipment)
 			}
 		} else {
 			finalIncentive = nil
 
 			return finalIncentive, nil
 		}
-		if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
-			if *finalIncentive > *oldPPMShipment.MaxIncentive {
-				finalIncentive = oldPPMShipment.MaxIncentive
-			}
-			return finalIncentive, nil
-		} else {
-			return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
-		}
+		return capFinalIncentive(finalIncentive, oldPPMShipment)
 	} else {
 		pickupAddress := newPPMShipment.PickupAddress
 		destinationAddress := newPPMShipment.DestinationAddress
@@ -440,18 +426,23 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			if err != nil {
 				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
-			if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
-				if *finalIncentive > *oldPPMShipment.MaxIncentive {
-					finalIncentive = oldPPMShipment.MaxIncentive
-				}
-				return finalIncentive, nil
-			} else {
-				return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
-			}
+			return capFinalIncentive(finalIncentive, oldPPMShipment)
 		} else {
 			return nil, nil
 		}
 	}
+}
+
+func capFinalIncentive(finalIncentive *unit.Cents, oldPPMShipment models.PPMShipment) (*unit.Cents, error) {
+	if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
+		if *finalIncentive > *oldPPMShipment.MaxIncentive {
+			finalIncentive = oldPPMShipment.MaxIncentive
+		}
+		return finalIncentive, nil
+	} else {
+		return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
+	}
+
 }
 
 // SumWeights return the total weight of all weightTickets associated with a PPMShipment, returns 0 if there is no valid weight
