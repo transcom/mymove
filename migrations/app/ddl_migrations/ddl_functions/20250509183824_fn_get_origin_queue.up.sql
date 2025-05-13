@@ -32,6 +32,7 @@ RETURNS TABLE (
     counseling_transportation_office_id UUID,
     orders JSONB,
     mto_shipments JSONB,
+    mto_service_items JSONB,
     counseling_transportation_office JSONB,
     too_assigned JSONB,
     total_count BIGINT
@@ -55,11 +56,11 @@ BEGIN
         CASE sort
             WHEN 'locator' THEN sort_column := 'base.locator';
             WHEN 'status' THEN sort_column := 'base.status';
-            WHEN 'customerName' THEN sort_column := 'base.sm_last_name';
+            WHEN 'customerName' THEN sort_column := 'base.sm_last_name, base.sm_first_name';
             WHEN 'edipi' THEN sort_column := 'base.sm_edipi';
             WHEN 'emplid' THEN sort_column := 'base.sm_emplid';
             WHEN 'requestedMoveDate' THEN sort_column := 'base.earliest_requested_pickup_date';
-            WHEN 'appearedInTooAt' THEN sort_column := 'base.submitted_at';
+            WHEN 'appearedInTooAt' THEN sort_column := 'GREATEST(base.submitted_at, base.service_counseling_completed_at, base.approvals_requested_at)';
             WHEN 'branch' THEN sort_column := 'base.sm_affiliation';
             WHEN 'originDutyLocation' THEN sort_column := 'base.origin_duty_location_name';
             WHEN 'counselingOffice' THEN sort_column := 'base.counseling_office_name';
@@ -77,7 +78,7 @@ BEGIN
     END IF;
 
     IF sort_column IS NULL THEN
-    sort_column := 'id';
+        sort_column := 'status';
     END IF;
 
     IF sort_order IS NULL THEN
@@ -96,8 +97,11 @@ BEGIN
             moves.locked_by,
             moves.too_assigned_id,
             moves.counseling_transportation_office_id,
+            moves.service_counseling_completed_at,
+            moves.approvals_requested_at,
             orders.id AS orders_id_inner,
             orders.orders_type,
+            orders.department_indicator AS orders_department_indicator,
             orders.gbloc,
             service_members.id AS sm_id,
             service_members.first_name AS sm_first_name,
@@ -105,7 +109,13 @@ BEGIN
             service_members.edipi AS sm_edipi,
             service_members.emplid AS sm_emplid,
             service_members.affiliation AS sm_affiliation,
+            origin_duty_locations.id AS origin_duty_location_id,
             origin_duty_locations.name AS origin_duty_location_name,
+            addr.street_address_1 AS origin_duty_location_street_address_1,
+            addr.street_address_2 AS origin_duty_location_street_address_2,
+            addr.city AS origin_duty_location_city,
+            addr.state AS origin_duty_location_state,
+            addr.postal_code AS origin_duty_location_postal_code,
             counseling_offices.name AS counseling_office_name,
             too_user.first_name AS too_user_first_name,
             too_user.last_name AS too_user_last_name,
@@ -113,11 +123,13 @@ BEGIN
             shipments.mto_shipments,
             shipments.earliest_requested_pickup_date,
             shipments.earliest_requested_delivery_date,
-            ppm_dates.earliest_expected_departure_date
+            ppm_dates.earliest_expected_departure_date,
+            service_items.mto_service_items
         FROM moves
         JOIN orders ON moves.orders_id = orders.id
         JOIN service_members ON orders.service_member_id = service_members.id
         JOIN duty_locations AS origin_duty_locations ON orders.origin_duty_location_id = origin_duty_locations.id
+        LEFT JOIN addresses AS addr ON origin_duty_locations.address_id = addr.id
         LEFT JOIN office_users AS too_user ON moves.too_assigned_id = too_user.id
         LEFT JOIN transportation_offices AS counseling_offices ON moves.counseling_transportation_office_id = counseling_offices.id
         JOIN move_to_gbloc ON move_to_gbloc.move_id = moves.id
@@ -145,16 +157,46 @@ BEGIN
             JOIN mto_shipments ms ON ppm.shipment_id = ms.id
             WHERE ms.move_id = moves.id
         ) ppm_dates ON TRUE
+        LEFT JOIN LATERAL (
+            SELECT
+                json_agg(
+                    json_build_object(
+                        ''id'', si.id,
+                        ''status'', si.status,
+                        ''re_service'', json_build_object(
+                            ''code'', rs.code
+                        )
+                    )
+                )::JSONB AS mto_service_items
+            FROM mto_service_items si
+            JOIN re_services rs ON si.re_service_id = rs.id
+            WHERE si.mto_shipment_id IN (
+                SELECT ms.id FROM mto_shipments ms WHERE ms.move_id = moves.id
+            )
+        ) service_items ON TRUE
         WHERE moves.show = TRUE ';
 
     IF user_gbloc IS NOT NULL THEN
-        sql_query := sql_query || ' AND move_to_gbloc.gbloc = $1 ';
+        sql_query := sql_query || '
+        AND EXISTS (
+            SELECT 1 FROM mto_shipments ms
+            WHERE ms.move_id = moves.id
+            AND (
+                (ms.shipment_type != ''HHG_OUTOF_NTS'' AND move_to_gbloc.gbloc = $1)
+                OR (ms.shipment_type = ''HHG_OUTOF_NTS'' AND orders.gbloc = $1)
+            )
+        )';
+    END IF;
+
+    IF user_gbloc IS NOT NULL AND user_gbloc != 'USMC' THEN
+        sql_query := sql_query || ' AND service_members.affiliation != ''MARINES'' ';
     END IF;
 
     IF customer_name IS NOT NULL THEN
         sql_query := sql_query || ' AND (
             service_members.first_name || '' '' || service_members.last_name ILIKE ''%'' || $2 || ''%''
             OR service_members.last_name || '' '' || service_members.first_name ILIKE ''%'' || $2 || ''%''
+            OR service_members.last_name || '', '' || service_members.first_name ILIKE ''%'' || $2 || ''%''
         )';
     END IF;
 
@@ -189,7 +231,10 @@ BEGIN
     END IF;
 
     IF date_submitted IS NOT NULL THEN
-        sql_query := sql_query || ' AND submitted_at::DATE = $8::DATE ';
+        sql_query := sql_query || ' AND (
+            moves.submitted_at::DATE = $8::DATE OR
+            moves.service_counseling_completed_at::DATE = $8::DATE OR
+            moves.approvals_requested_at::DATE = $8::DATE) ';
     END IF;
 
     IF branch IS NOT NULL THEN
@@ -304,6 +349,7 @@ BEGIN
             ''id'', orders_id_inner,
             ''orders_type'', orders_type,
             ''origin_duty_location_gbloc'', gbloc,
+            ''department_indicator'', orders_department_indicator,
             ''service_member'', json_build_object(
                 ''id'', sm_id,
                 ''first_name'', sm_first_name,
@@ -312,15 +358,38 @@ BEGIN
                 ''emplid'', sm_emplid,
                 ''affiliation'', sm_affiliation
             ),
-            ''origin_duty_location'', json_build_object(''name'', origin_duty_location_name)
+            ''origin_duty_location'', json_build_object(
+                ''id'',   origin_duty_location_id,
+                ''name'', origin_duty_location_name,
+                ''address'', json_build_object(
+                    ''street_address_1'', origin_duty_location_street_address_1,
+                    ''street_address_2'', origin_duty_location_street_address_2,
+                    ''city'',             origin_duty_location_city,
+                    ''state'',            origin_duty_location_state,
+                    ''postal_code'',      origin_duty_location_postal_code
+                )
+            )
         )::JSONB AS orders,
         COALESCE(mto_shipments, ''[]''::JSONB) AS mto_shipments,
+        COALESCE(mto_service_items, ''[]''::JSONB) AS mto_service_items,
         json_build_object(''name'', counseling_office_name)::JSONB AS counseling_transportation_office,
         json_build_object(''first_name'', too_user_first_name, ''last_name'', too_user_last_name, ''id'', too_user_id)::JSONB AS too_assigned,
         COUNT(*) OVER() AS total_count
-    FROM base
-    ORDER BY ' || sort_column || ' ' || sort_order || ', locator ASC
-    LIMIT $14 OFFSET $15 ';
+        FROM base ';
+
+    IF sort = 'customerName' THEN
+        sql_query := sql_query || format(
+            ' ORDER BY sm_last_name %s, sm_first_name %s, locator ASC ',
+            sort_order, sort_order
+        );
+    ELSE
+        sql_query := sql_query || format(
+            ' ORDER BY %s %s, locator ASC ',
+            sort_column, sort_order
+        );
+    END IF;
+
+    sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';
 
     RETURN QUERY EXECUTE sql_query
     USING user_gbloc, customer_name, edipi, emplid, m_status, move_code, requested_move_date, date_submitted,

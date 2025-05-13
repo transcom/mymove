@@ -315,13 +315,15 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
-// this is a custom/temporary struct used in the below service object to get destination queue moves
+// this is a custom/temporary struct used in the below service object to convert moves consumed from the db into Go structs
 type MoveWithCount struct {
 	models.Move
 	OrdersRaw                     json.RawMessage              `json:"orders" db:"orders"`
 	Orders                        *models.Order                `json:"-"`
 	MTOShipmentsRaw               json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
 	MTOShipments                  *models.MTOShipments         `json:"-"`
+	MTOServiceItemsRaw            json.RawMessage              `json:"mto_service_items" db:"mto_service_items"`
+	MTOServiceItems               *models.MTOServiceItems      `json:"-"`
 	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
 	CounselingOffice              *models.TransportationOffice `json:"-"`
 	TOODAssignedUserRaw           json.RawMessage              `json:"too_assigned" db:"too_assigned"`
@@ -407,6 +409,13 @@ func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, off
 		}
 		movesWithCount[i].MTOShipmentsRaw = nil
 		movesWithCount[i].MTOShipments = &shipments
+
+		var serviceItems models.MTOServiceItems
+		if err := json.Unmarshal(movesWithCount[i].MTOServiceItemsRaw, &serviceItems); err != nil {
+			return nil, 0, fmt.Errorf("error unmarshaling service items JSON: %w", err)
+		}
+		movesWithCount[i].MTOServiceItemsRaw = nil
+		movesWithCount[i].MTOServiceItems = &serviceItems
 
 		var counselingTransportationOffice models.TransportationOffice
 		if err := json.Unmarshal(movesWithCount[i].CounselingOfficeRaw, &counselingTransportationOffice); err != nil {
