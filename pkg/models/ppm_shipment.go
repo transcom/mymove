@@ -260,6 +260,8 @@ type PPMShipment struct {
 	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
 	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
 	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
+	HasGunSafe                     *bool                `json:"has_gun_safe" db:"has_gun_safe"`
+	GunSafeWeight                  *unit.Pound          `json:"gun_safe_weight" db:"gun_safe_weight"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -299,6 +301,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
+		&OptionalPoundIsNonNegative{Name: "GunSafeWeight", Field: p.GunSafeWeight},
 		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
 		&OptionalCentIsNotNegative{Name: "MaxIncentive", Field: p.MaxIncentive},
 		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},
