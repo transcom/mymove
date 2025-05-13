@@ -13,7 +13,7 @@ export default {
   getDetails: (historyRecord) => (
     <>
       <LabeledDetails historyRecord={historyRecord} />
-      {(historyRecord?.changedValues?.too_assigned_id !== undefined ||
+      {(historyRecord?.changedValues?.too_task_order_assigned_id !== undefined ||
         historyRecord?.changedValues?.too_destination_assigned_id !== undefined) && (
         <>
           <div>Service Items Addressed</div>
