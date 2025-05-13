@@ -484,6 +484,7 @@ const AddOrdersForm = ({
                 label="Pay grade"
                 name="grade"
                 id="grade"
+                data-testid="paygradeDropDown"
                 required
                 options={payGradeOptions}
                 showRequiredAsterisk
@@ -498,6 +499,7 @@ const AddOrdersForm = ({
                   label="Rank"
                   name="rank"
                   id="rank"
+                  data-testid="rankDropDown"
                   required
                   options={rankOptions}
                   showRequiredAsterisk

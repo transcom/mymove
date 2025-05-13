@@ -34,7 +34,7 @@ jest.mock('services/internalApi', () => ({
       {
         id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-        rankName: 'Amn',
+        rankAbbv: 'Amn',
         rankOrder: 24,
       },
     ]);
@@ -198,7 +198,8 @@ const testProps = {
     { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
   ],
   currentDutyLocation: {},
-  grade: '',
+  grade: 'E_2',
+  rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
   affiliation: 'AIR_FORCE',
 };
 
@@ -433,7 +434,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
 
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
@@ -503,7 +504,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
 
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -617,8 +618,8 @@ describe('EditOrdersForm component', () => {
           contentType: 'application/pdf',
         },
       ],
-      grade: 'E_1',
-      rank: 'f6dbd496-8f71-487b-a432-55b60967f474',
+      grade: 'E_2',
+      rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location: {
         address: {
           city: '',
@@ -655,7 +656,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
       expect(screen.getByLabelText(/Pay grade/)).toHaveTextContent('E-2');
-      expect(screen.getByLabelText(/Rank/)).toHaveTextContent('Amn');
+      expect(screen.getByLabelText(/Rank/)).toHaveValue('cb0ee2b8-e852-40fe-b972-2730b53860c7');
       expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
 
@@ -793,7 +794,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 

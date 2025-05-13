@@ -43,10 +43,11 @@ const OrdersDetailForm = ({
   ntsLongLineOfAccounting,
   affiliation,
   handleChange,
+  currentGrade,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
-  const [grade, setGrade] = useState('');
+  const [grade, setGrade] = useState(currentGrade);
 
   const [rankOptions, setRankOptions] = useState([]);
   useEffect(() => {
@@ -63,7 +64,6 @@ const OrdersDetailForm = ({
         // milmoveLogger.error({ message, info: null });
         // retryPageLoading(error);
       }
-      // setShowLoadingSpinner(false, null);
     };
 
     fetchRankGradeOptions();

@@ -36,7 +36,7 @@ jest.mock('services/internalApi', () => ({
       {
         id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-        rankName: 'Amn',
+        rankAbbv: 'Amn',
         rankOrder: 24,
       },
     ]);
@@ -316,13 +316,6 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
-    // getRankGradeOptions.mockResolvedValue({
-    //   id: '3aca9ba8-3b84-42bf-8f2f-5ef02587ba89',
-    //   paygradeId: '862eb395-86d1-44af-ad47-dec44fbeda30',
-    //   rankGradeName: 'SSgt / E-5',
-    //   rankOrder: 23,
-    // });
-
     render(
       <Provider store={mockStore.store}>
         <OrdersInfoForm {...testProps} />
@@ -335,7 +328,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -376,7 +369,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByTestId('errorMessage').length).toBe(3);
+      expect(getAllByTestId('errorMessage').length).toBe(4);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -419,7 +412,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -471,7 +464,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -499,7 +492,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -580,7 +573,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -855,7 +848,7 @@ describe('OrdersInfoForm component', () => {
       expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
     });
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE_OPTIONS.LOCAL_MOVE);
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIV / CIVILIAN_EMPLOYEE');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'CIVILIAN_EMPLOYEE');
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
@@ -882,7 +875,7 @@ describe('OrdersInfoForm component', () => {
     });
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
     await waitFor(() =>
