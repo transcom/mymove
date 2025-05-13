@@ -71,7 +71,7 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await this.page.locator('label[for="yes-secondary-pickup-address"]').click();
 
     await this.page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').fill('1234 Street');
-    await this.page.locator('input[id="secondaryPickupAddress.address-location-input"]').fill('90212');
+    await this.page.locator('input[id="secondaryPickupAddress.address-input"]').fill('90212');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 

@@ -122,6 +122,31 @@ paths:
           description: >-
             Only return moves updated since this time. Formatted like
             "2021-07-23T18:30:47.116Z"
+        - in: query
+          name: acknowledged
+          type: boolean
+          x-nullable: true
+          description: >-
+            When set to true, only moves where both the move and all its
+            shipments are acknowledged will be included in the results. When set
+            to false, only moves where either the move or any one (or more) of
+            its shipments are NOT acknowledged will be included in the results.
+        - in: query
+          name: acknowledgedAfter
+          type: string
+          format: date-time
+          description: >-
+            Only return moves where the move or any one (or more) of its
+            shipments was acknowledged after this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
+        - in: query
+          name: acknowledgedBefore
+          type: string
+          format: date-time
+          description: >-
+            Only return moves where the move or any one (or more) of its
+            shipments was acknowledged before this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
       responses:
         '200':
           description: >-
@@ -1795,6 +1820,43 @@ paths:
           ]
         ```
 
+
+        **IUBPK - International UB Pack**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **IUBUPK - International UB Unpack**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **UBP - International UB**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
         ---
 
 
@@ -2319,6 +2381,11 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       ppmType:
         type: string
         enum:
@@ -2435,6 +2502,11 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+        readOnly: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
         readOnly: true
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
@@ -2921,6 +2993,10 @@ definitions:
               movers, based on weight tickets.
             x-nullable: true
             x-omitempty: false
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
         required:
           - reason
           - reServiceCode
@@ -3145,6 +3221,10 @@ definitions:
             enum:
               - DDSHUT
               - DOSHUT
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
   UpdateMTOServiceItemInternationalShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
@@ -5191,6 +5271,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - TERMINATION_FOR_CAUSE
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:
@@ -5234,6 +5315,19 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      terminationComments:
+        type: string
+        x-nullable: true
+        readOnly: true
+      terminatedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      primeAcknowledgedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -5536,6 +5630,9 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+      - PODFSC
+      - POEFSC
+      - UBP
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating

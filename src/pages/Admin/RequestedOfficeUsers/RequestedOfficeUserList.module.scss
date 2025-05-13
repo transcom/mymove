@@ -1,0 +1,14 @@
+@import 'shared/styles/colors.scss';
+
+.searchContainer {
+  display: flex;
+  align-items: flex-end;
+
+  .searchBar {
+    float: left;
+  }
+
+  .filters {
+    padding-bottom: 5px;
+  }
+}

@@ -74,6 +74,18 @@ export async function patchWeightTicket({ ppmShipmentId, weightTicketId, payload
   );
 }
 
+export async function createMovingExpense(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createMovingExpense',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateMovingExpense',
@@ -89,6 +101,31 @@ export async function patchExpense({ ppmShipmentId, movingExpenseId, payload, eT
   );
 }
 
+export async function deleteMovingExpense({ ppmShipmentId, movingExpenseId }) {
+  return makeGHCRequest(
+    'ppm.deleteMovingExpense',
+    {
+      ppmShipmentId,
+      movingExpenseId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createProGearWeightTicket(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.createProGearWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId, payload, eTag }) {
   return makeGHCRequest(
     'ppm.updateProGearWeightTicket',
@@ -97,6 +134,19 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
       proGearWeightTicketId,
       'If-Match': eTag,
       updateProGearWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteProGearWeightTicket({ ppmShipmentId, proGearWeightTicketId }) {
+  return makeGHCRequest(
+    'ppm.deleteProGearWeightTicket',
+    {
+      ppmShipmentId,
+      proGearWeightTicketId,
     },
     {
       normalize: false,
@@ -657,6 +707,18 @@ export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shi
   );
 }
 
+export function terminateShipment({ shipmentID, normalize = false, schemaKey = 'shipment', body }) {
+  const operationPath = 'shipment.createTermination';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export async function getMovesQueue(
   key,
   { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
@@ -675,7 +737,7 @@ export async function getMovesQueue(
 
 export async function getDestinationRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC, activeRole },
 ) {
   const operationPath = 'queues.getDestinationRequestsQueue';
   const paramFilters = {};
@@ -684,7 +746,7 @@ export async function getDestinationRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, activeRole, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
@@ -876,8 +938,35 @@ export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
 
+export async function sendPPMToCustomer(params) {
+  const operationPath = 'ppm.sendPPMToCustomer';
+  return makeGHCRequest(
+    operationPath,
+    {
+      ppmShipmentId: params.ppmShipmentId,
+      'If-Match': params.eTag,
+    },
+    { normalize: false },
+  );
+}
+
 export async function createOfficeAccountRequest({ body }) {
   return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
+}
+
+export async function patchOfficeUser(officeUserId, body) {
+  const operationPath = 'officeUsers.updateOfficeUser';
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      officeUserId,
+      officeUser: body,
+    },
+    {
+      normalize: false,
+    },
+  );
 }
 
 export async function createUploadForDocument(file, documentId) {
@@ -1000,23 +1089,23 @@ export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   );
 }
 
-export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType }) {
+export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, queueType }) {
   return makeGHCRequest('move.updateAssignedOfficeUser', {
     moveID,
-    body: { officeUserId, roleType },
+    body: { officeUserId, queueType },
   });
 }
 
-export async function checkForLockedMovesAndUnlock(key, officeUserID) {
+export async function checkForLockedMovesAndUnlock(officeUserID) {
   return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }
 
-export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
+export async function deleteAssignedOfficeUserForMove({ moveID, queueType }) {
   return makeGHCRequest('move.deleteAssignedOfficeUser', {
     moveID,
-    body: { roleType },
+    body: { queueType },
   });
 }
 

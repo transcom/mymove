@@ -1,0 +1,16 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/colors';
+@import 'styles/office.scss';
+
+.MoveSearchPage {
+  @include u-padding-y(3);
+  @include u-padding-x(4);
+  width: 100%;
+}
+
+.MoveSearchWrapper {
+  @include u-display(flex);
+  flex-direction: column;
+  flex: auto;
+  background-color: $bg-gray;
+}

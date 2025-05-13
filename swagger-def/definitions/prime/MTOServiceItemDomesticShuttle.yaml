@@ -29,6 +29,10 @@ allOf:
         description: A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
         x-nullable: true
         x-omitempty: false
+      requestApprovalsRequestedStatus:
+        description: Indicates if "Approvals Requested" status is being requested.
+        type: boolean
+        x-nullable: true
     required:
       - reason
       - reServiceCode

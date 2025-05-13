@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
 
@@ -722,6 +722,18 @@ const mockedPPMComponent = (
   </MockProviders>
 );
 
+const ppmMockedComponent = (
+  <MockProviders
+    path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
+    params={{
+      ...routingParams,
+      shipmentId: ppmShipmentId,
+    }}
+  >
+    <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
+  </MockProviders>
+);
+
 const readyReturnValue = {
   ...approvedMoveTaskOrder,
   isLoading: false,
@@ -861,15 +873,15 @@ expect(
 
     render(mockedPPMComponent);
 
-    expect(screen.getByText(/Beverly Hills/)).toBeInTheDocument();
-    expect(screen.getByText(/CA/)).toBeInTheDocument();
-    expect(screen.getByText(/Los Angeles/)).toBeInTheDocument();
-    expect(screen.getByText(/90210/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Beverly Hills/).length).toBe(2);
+    expect(screen.getAllByText(/CA/).length).toBe(2);
+    expect(screen.getAllByText(/Los Angeles/).length).toBe(2);
+    expect(screen.getAllByText(/90210/).length).toBe(2);
 
-    expect(screen.getByText(/Fairfield/)).toBeInTheDocument();
-    expect(screen.getByText(/CO/)).toBeInTheDocument();
-    expect(screen.getByText(/Solano/)).toBeInTheDocument();
-    expect(screen.getByText(/94535/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Fairfield/).length).toBe(2);
+    expect(screen.getAllByText(/CO/).length).toBe(2);
+    expect(screen.getAllByText(/Solano/).length).toBe(2);
+    expect(screen.getAllByText(/94535/).length).toBe(2);
   });
 });
 
@@ -956,17 +968,58 @@ describe('successful submission of form', () => {
   });
 });
 
-const ppmMockedComponent = (
-  <MockProviders
-    path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
-    params={{
-      ...routingParams,
-      shipmentId: ppmShipmentId,
-    }}
-  >
-    <PrimeUIShipmentUpdate setFlashMessage={jest.fn()} />
-  </MockProviders>
-);
+describe('Date input validation', () => {
+  const testCases = [
+    { label: 'Scheduled pickup', validInput: '03 Jan 2025', invalidInput: 'X' },
+    { label: 'Actual pickup', validInput: '24 Dec 2025', invalidInput: 'Invalid' },
+    { label: 'Scheduled delivery', validInput: '15 Jun 2025', invalidInput: '2025-02-29' },
+    { label: 'Actual delivery', validInput: '25 Dec 2025', invalidInput: '0' },
+  ];
+
+  beforeEach(async () => {
+    usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  testCases.forEach(({ label, validInput, invalidInput }) => {
+    describe(`${label} input`, () => {
+      it('displays an error when an invalid date is entered', async () => {
+        render(mockedComponent);
+        const input = screen.getByLabelText(label);
+        await userEvent.clear(input);
+        await userEvent.type(input, invalidInput);
+        await userEvent.click(document.body);
+
+        expect(screen.getByText('Invalid date. Must be in the format: DD MMM YYYY')).toBeInTheDocument();
+      });
+
+      it('removes an error when an input is cleared', async () => {
+        render(mockedComponent);
+        const input = screen.getByLabelText(label);
+        await userEvent.clear(input);
+        await userEvent.type(input, invalidInput);
+        await userEvent.click(document.body);
+
+        expect(screen.getByText('Invalid date. Must be in the format: DD MMM YYYY')).toBeInTheDocument();
+        await userEvent.clear(input);
+        expect(screen.queryByText('Invalid date. Must be in the format: DD MMM YYYY')).not.toBeInTheDocument();
+      });
+
+      it('does not display an error when a valid date is entered', async () => {
+        render(mockedComponent);
+        const input = screen.getByLabelText(label);
+        await userEvent.clear(input);
+        await userEvent.type(input, validInput);
+        await userEvent.click(document.body);
+
+        expect(screen.queryByText('Invalid date. Must be in the format: DD MMM YYYY')).not.toBeInTheDocument();
+      });
+    });
+  });
+});
 
 describe('Update Shipment Page for PPM', () => {
   it('renders the page without errors', async () => {

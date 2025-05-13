@@ -822,6 +822,11 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *ghcmessages.UpdateP
 		Status:           (*models.PPMDocumentStatus)(handlers.FmtString(string(progearWeightTicket.Status))),
 		Reason:           handlers.FmtString(progearWeightTicket.Reason),
 	}
+
+	if progearWeightTicket.Description != "" {
+		model.Description = handlers.FmtString(progearWeightTicket.Description)
+	}
+
 	return model
 }
 
@@ -876,6 +881,14 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
 	}
 
+	if movingExpense.PaidWithGTCC != nil {
+		model.PaidWithGTCC = handlers.FmtBool(*movingExpense.PaidWithGTCC)
+	}
+
+	if movingExpense.MissingReceipt != nil {
+		model.MissingReceipt = handlers.FmtBool(*movingExpense.MissingReceipt)
+	}
+
 	model.Amount = handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount)
 	model.SITStartDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate)
 	model.SITEndDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate)
@@ -884,6 +897,12 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	model.WeightStored = handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored)
 	model.SITEstimatedCost = handlers.FmtInt64PtrToPopPtr(movingExpense.SitEstimatedCost)
 	model.SITReimburseableAmount = handlers.FmtInt64PtrToPopPtr(movingExpense.SitReimburseableAmount)
+
+	model.TrackingNumber = handlers.FmtStringPtr(movingExpense.TrackingNumber)
+	model.WeightShipped = handlers.PoundPtrFromInt64Ptr(movingExpense.WeightShipped)
+	model.IsProGear = handlers.FmtBoolPtr(movingExpense.IsProGear)
+	model.ProGearBelongsToSelf = handlers.FmtBoolPtr(movingExpense.ProGearBelongsToSelf)
+	model.ProGearDescription = handlers.FmtStringPtr(movingExpense.ProGearDescription)
 
 	return &model
 }
@@ -985,4 +1004,15 @@ func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
 		UsprcCountyNm:        *vLocation.County,
 		UsPostRegionCitiesID: &usPostRegionCitiesID,
 	}
+}
+
+func OfficeUserModelFromUpdate(payload *ghcmessages.OfficeUserUpdate, officeUser *models.OfficeUser) *models.OfficeUser {
+	if payload == nil || officeUser == nil {
+		return officeUser
+	}
+
+	if payload.Telephone != nil {
+		officeUser.Telephone = *payload.Telephone
+	}
+	return officeUser
 }

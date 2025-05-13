@@ -11,8 +11,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PPMShipmentSuite) TestPPMEstimator() {
@@ -480,7 +482,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 	}
 
-	suite.Run("Price Breakdown", func() {
+	suite.Run("Price Breakdown - Incentive-based PPM", func() {
 		ppmShipment := factory.BuildPPMShipmentWithApprovedDocuments(suite.DB())
 
 		setupPricerData()
@@ -502,15 +504,54 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
-		suite.Equal(unit.Cents(43384128), linehaul)
-		suite.Equal(unit.Cents(3004), fuel)
-		suite.Equal(unit.Cents(21760), origin)
-		suite.Equal(unit.Cents(33280), dest)
-		suite.Equal(unit.Cents(290000), packing)
-		suite.Equal(unit.Cents(23880), unpacking)
+		suite.Equal(unit.Cents(48155648), linehaul)
+		suite.Equal(unit.Cents(-641), fuel)
+		suite.Equal(unit.Cents(24160), origin)
+		suite.Equal(unit.Cents(36960), dest)
+		suite.Equal(unit.Cents(321920), packing)
+		suite.Equal(unit.Cents(26520), unpacking)
 
 		total := linehaul + fuel + origin + dest + packing + unpacking
-		suite.Equal(unit.Cents(43756052), total)
+		suite.Equal(unit.Cents(48564567), total)
+	})
+
+	suite.Run("Price Breakdown - Small package PPM", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, uploader.MaxCustomerUserUploadFileSizeLimit)
+		suite.FatalNoError(uploaderErr)
+
+		// this factory has two moving expenses that total 4000 pounds
+		// pricing should be the same as the above test
+		ppmShipment := factory.BuildPPMSPRShipmentWithoutPaymentPacketTwoExpenses(suite.DB(), userUploader)
+
+		setupPricerData()
+
+		mockedPaymentRequestHelper.On(
+			"FetchServiceParamsForServiceItems",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813").Return(2294, nil)
+
+		linehaul, fuel, origin, dest, packing, unpacking, _, err := ppmEstimator.PriceBreakdown(suite.AppContextForTest(), &ppmShipment)
+		suite.NilOrNoVerrs(err)
+
+		mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813")
+		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
+		suite.Equal(unit.Cents(48155648), linehaul)
+		suite.Equal(unit.Cents(-641), fuel)
+		suite.Equal(unit.Cents(24160), origin)
+		suite.Equal(unit.Cents(36960), dest)
+		suite.Equal(unit.Cents(321920), packing)
+		suite.Equal(unit.Cents(26520), unpacking)
+
+		total := linehaul + fuel + origin + dest + packing + unpacking
+		suite.Equal(unit.Cents(48564567), total)
 	})
 
 	suite.Run("Estimated Incentive", func() {
@@ -548,7 +589,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(80249474), *ppmEstimate)
+			suite.Equal(unit.Cents(89071179), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success using db authorize weight and not estimated incentive", func() {
@@ -619,7 +660,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(80249474), *ppmEstimate)
+			suite.Equal(unit.Cents(89071179), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success when old Estimated Incentive is zero", func() {
@@ -653,7 +694,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(80249474), *ppmEstimate)
+			suite.Equal(unit.Cents(89071179), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
@@ -684,7 +725,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 			suite.Nil(newPPM.HasRequestedAdvance)
 			suite.Nil(newPPM.AdvanceAmountRequested)
-			suite.Equal(unit.Cents(43754569), *ppmEstimate)
+			suite.Equal(unit.Cents(48564567), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
@@ -774,7 +815,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			suite.Equal(unit.Cents(128398858), *maxIncentive)
+			suite.Equal(unit.Cents(142513951), *maxIncentive)
 		})
 
 		suite.Run("Max Incentive - Success - is skipped when Estimated Weight is missing", func() {
@@ -837,7 +878,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -887,7 +928,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -938,7 +979,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight = SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight = SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(5000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 
@@ -994,7 +1035,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.ActualPickupPostalCode, newPPM.ActualPickupPostalCode)
 			suite.NotEqual(*oldPPMShipment.ActualMoveDate, newPPM.ActualMoveDate)
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 			suite.Equal(unit.Cents(80249474), *ppmFinal)
@@ -1049,7 +1090,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(0), newWeight)
 			suite.Nil(ppmFinal)
@@ -1111,10 +1152,10 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(8000), originalWeight)
 			suite.Equal(unit.Pound(4000), newWeight)
-			suite.Equal(unit.Cents(43756052), *ppmFinal)
+			suite.Equal(unit.Cents(48564567), *ppmFinal)
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
@@ -1181,10 +1222,10 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(8000), originalWeight)
 			suite.Equal(unit.Pound(3000), newWeight)
-			suite.Equal(unit.Cents(32817790), *ppmFinal)
+			suite.Equal(unit.Cents(36423265), *ppmFinal)
 			suite.NotEqual(oldPPMShipment.FinalIncentive, *ppmFinal)
 		})
 
@@ -1221,7 +1262,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1}
 
 			//Both PPM's have valid weight tickets so both should return properly calculated totals
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 		})
@@ -1269,7 +1310,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in newWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			suite.Equal(unit.Pound(5000), newWeight)
 		})
@@ -1320,7 +1361,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(0), originalWeight)
 			suite.Equal(unit.Pound(13000), newWeight)
 		})
@@ -1373,7 +1414,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			//13000 comes from the full & empty weights being summed which we do not want in this scenario
 			suite.NotEqual(unit.Pound(13000), newWeight)
@@ -1429,11 +1470,95 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPM.WeightTickets = models.WeightTickets{newWeightTicket1, newWeightTicket2}
 
 			//Weight for rejected ticket should NOT be included in oldWeight total
-			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
 			suite.Equal(unit.Pound(4000), originalWeight)
 			//13000 comes from the full & empty weights being summed which we do not want in this scenario
 			suite.NotEqual(unit.Pound(13000), newWeight)
 			suite.Equal(unit.Pound(4000), newWeight)
+		})
+
+		suite.Run("Sum Weights - sum weights for original shipment and new shipment with 2 adjusted moving expense statuses - PPM-SPR", func() {
+			trackingNumber := "TRK1234"
+			isProGear := true
+			proGearBelongsToSelf := true
+			proGearDescription := "Pro gear updated description"
+			weightShipped := 1000
+			ppmSpr := models.PPMTypeSmallPackage
+			spr := models.MovingExpenseReceiptTypeSmallPackage
+			approvedStatus := models.PPMDocumentStatusApproved
+			rejectedStatus := models.PPMDocumentStatusRejected
+			moveDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+				{
+					Model: models.PPMShipment{
+						PPMType:                     ppmSpr,
+						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualDestinationPostalCode: models.StringPointer("30813"),
+						ActualMoveDate:              models.TimePointer(moveDate),
+					},
+				},
+			})
+
+			expense1 := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    oldPPMShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MovingExpense{
+						MovingExpenseType:    &spr,
+						Status:               &rejectedStatus,
+						PaidWithGTCC:         models.BoolPointer(false),
+						MissingReceipt:       models.BoolPointer(false),
+						Amount:               models.CentPointer(unit.Cents(8675309)),
+						TrackingNumber:       &trackingNumber,
+						IsProGear:            &isProGear,
+						ProGearBelongsToSelf: &proGearBelongsToSelf,
+						ProGearDescription:   &proGearDescription,
+						WeightShipped:        (*unit.Pound)(&weightShipped),
+					},
+				},
+			}, nil)
+
+			expense2 := factory.BuildMovingExpense(suite.DB(), []factory.Customization{
+				{
+					Model:    oldPPMShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MovingExpense{
+						MovingExpenseType:    &spr,
+						Status:               &rejectedStatus,
+						PaidWithGTCC:         models.BoolPointer(false),
+						MissingReceipt:       models.BoolPointer(false),
+						Amount:               models.CentPointer(unit.Cents(8675309)),
+						TrackingNumber:       &trackingNumber,
+						IsProGear:            &isProGear,
+						ProGearBelongsToSelf: &proGearBelongsToSelf,
+						ProGearDescription:   &proGearDescription,
+						WeightShipped:        (*unit.Pound)(&weightShipped),
+					},
+				},
+			}, nil)
+
+			oldPPMShipment.MovingExpenses = models.MovingExpenses{expense1, expense2}
+			oldPPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+			newPPM := oldPPMShipment
+
+			// changing moving expense statuses to be approved
+			newMovingExpense1 := newPPM.MovingExpenses[0]
+			newMovingExpense1.Status = &approvedStatus
+
+			newMovingExpense2 := newPPM.MovingExpenses[1]
+			newMovingExpense2.Status = &approvedStatus
+
+			newPPM.MovingExpenses = models.MovingExpenses{newMovingExpense1, newMovingExpense2}
+
+			originalWeight, newWeight := SumWeights(oldPPMShipment, newPPM)
+			// should be 0 because both were rejected
+			suite.Equal(unit.Pound(0), originalWeight)
+			// should be 2000 because both are now accepted so we add them together
+			suite.Equal(unit.Pound(2000), newWeight)
 		})
 
 		suite.Run("Should Skip Calculating Final Incentive - should return false when the move date is changed", func() {
@@ -1465,7 +1590,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			updatedMoveDate := time.Date(2020, time.March, 25, 0, 0, 0, 0, time.UTC)
 			newPPMShipment.ActualMoveDate = models.TimePointer(updatedMoveDate)
 
-			originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, newPPMShipment)
+			originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, newPPMShipment)
 			skipCalculateFinalIncentive := shouldSkipCalculatingFinalIncentive(&newPPMShipment, &oldPPMShipment, originalTotalWeight, newTotalWeight)
 			suite.Equal(false, skipCalculateFinalIncentive)
 		})
@@ -1499,7 +1624,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPMShipment1 := oldPPMShipment
 			newPPMShipment1.ActualDestinationPostalCode = models.StringPointer("99011")
 
-			originalTotalWeight1, newTotalWeight1 := SumWeightTickets(oldPPMShipment, newPPMShipment1)
+			originalTotalWeight1, newTotalWeight1 := SumWeights(oldPPMShipment, newPPMShipment1)
 			skipCalculateFinalIncentive1 := shouldSkipCalculatingFinalIncentive(&newPPMShipment1, &oldPPMShipment, originalTotalWeight1, newTotalWeight1)
 			suite.Equal(false, skipCalculateFinalIncentive1)
 
@@ -1507,7 +1632,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newPPMShipment2 := oldPPMShipment
 			newPPMShipment2.ActualPickupPostalCode = models.StringPointer("99011")
 
-			originalTotalWeight2, newTotalWeight2 := SumWeightTickets(oldPPMShipment, newPPMShipment2)
+			originalTotalWeight2, newTotalWeight2 := SumWeights(oldPPMShipment, newPPMShipment2)
 			skipCalculateFinalIncentive2 := shouldSkipCalculatingFinalIncentive(&newPPMShipment2, &oldPPMShipment, originalTotalWeight2, newTotalWeight2)
 			suite.Equal(false, skipCalculateFinalIncentive2)
 		})
@@ -1550,7 +1675,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			newWeightTicket.Status = &approved
 			newPPMShipment.WeightTickets = models.WeightTickets{newWeightTicket}
 
-			originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, newPPMShipment)
+			originalTotalWeight, newTotalWeight := SumWeights(oldPPMShipment, newPPMShipment)
 			suite.Equal(unit.Pound(4000), originalTotalWeight)
 			suite.Equal(unit.Pound(6000), newTotalWeight)
 
@@ -1675,7 +1800,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(56660, estimatedSITCost.Int())
+			suite.Equal(62720, estimatedSITCost.Int())
 		})
 
 		suite.Run("Success - Destination First Day and Additional Day SIT", func() {
@@ -1737,7 +1862,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(65240, estimatedSITCost.Int())
+			suite.Equal(72380, estimatedSITCost.Int())
 		})
 
 		suite.Run("Success - same entry and departure dates only prices first day SIT", func() {
@@ -1775,7 +1900,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(32240, estimatedSITCost.Int())
+			suite.Equal(35780, estimatedSITCost.Int())
 		})
 
 		suite.Run("SIT cost is not calculated when required fields are missing", func() {
@@ -2095,7 +2220,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"74133", "98421")
-			suite.Equal(unit.Cents(459178), *ppmEstimate)
+			suite.Equal(unit.Cents(504512), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success using estimated weight and not db authorized weight for OCONUS -> CONUS", func() {
@@ -2142,7 +2267,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "74133")
-			suite.Equal(unit.Cents(423178), *ppmEstimate)
+			suite.Equal(unit.Cents(464562), *ppmEstimate)
 		})
 	})
 
@@ -2224,7 +2349,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "98421")
-			suite.Equal(unit.Cents(656532), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(720983), *ppmMaxIncentive)
 		})
 
 		suite.Run("Max Incentive - Success using db authorized weight and not estimated for OCONUS -> CONUS", func() {
@@ -2304,7 +2429,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			// it should've called from the pickup -> port and NOT pickup -> dest
 			planner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"98421", "30813")
-			suite.Equal(unit.Cents(676692), *ppmMaxIncentive)
+			suite.Equal(unit.Cents(743383), *ppmMaxIncentive)
 		})
 	})
 
@@ -2489,7 +2614,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(24360), *estimatedSITCost)
+			suite.Equal(unit.Cents(27040), *estimatedSITCost)
 		})
 
 		suite.Run("CalculateSITCost - Success using estimated weight for CONUS -> OCONUS", func() {
@@ -2540,7 +2665,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), ppm, &newPPM)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(41080), *estimatedSITCost)
+			suite.Equal(unit.Cents(46160), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCost - Success for OCONUS PPM", func() {
@@ -2591,7 +2716,7 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			estimatedSITCost, err := ppmEstimator.CalculatePPMSITEstimatedCost(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(estimatedSITCost)
-			suite.Equal(unit.Cents(20540), *estimatedSITCost)
+			suite.Equal(unit.Cents(23080), *estimatedSITCost)
 		})
 
 		suite.Run("CalculatePPMSITEstimatedCostBreakdown - Success for OCONUS PPM", func() {
@@ -2642,9 +2767,9 @@ func (suite *PPMShipmentSuite) TestInternationalPPMEstimator() {
 			sitCosts, err := ppmEstimator.CalculatePPMSITEstimatedCostBreakdown(suite.AppContextForTest(), &ppm)
 			suite.NilOrNoVerrs(err)
 			suite.NotNil(sitCosts)
-			suite.Equal(unit.Cents(20540), *sitCosts.EstimatedSITCost)
-			suite.Equal(unit.Cents(12140), *sitCosts.PriceFirstDaySIT)
-			suite.Equal(unit.Cents(8400), *sitCosts.PriceAdditionalDaySIT)
+			suite.Equal(unit.Cents(23080), *sitCosts.EstimatedSITCost)
+			suite.Equal(unit.Cents(13480), *sitCosts.PriceFirstDaySIT)
+			suite.Equal(unit.Cents(9600), *sitCosts.PriceAdditionalDaySIT)
 		})
 	})
 }
