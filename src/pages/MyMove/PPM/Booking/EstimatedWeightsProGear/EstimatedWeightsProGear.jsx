@@ -34,7 +34,7 @@ const EstimatedWeightsProGear = () => {
     navigate(generatePath(customerRoutes.SHIPMENT_EDIT_PATH, { moveId, mtoShipmentId }));
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
     setErrorMessage(null);
 
     const hasProGear = values.hasProGear === 'true';
@@ -55,14 +55,14 @@ const EstimatedWeightsProGear = () => {
 
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
-        setSubmitting(false);
         dispatch(updateMTOShipment(response));
         navigate(generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH, { moveId, mtoShipmentId }));
+        setSubmitting(false);
       })
       .catch((err) => {
-        setSubmitting(false);
         setErrorCode(err?.response?.status);
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
+        setSubmitting(false);
       });
   };
 
