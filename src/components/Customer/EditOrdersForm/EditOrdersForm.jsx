@@ -37,7 +37,7 @@ import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/gene
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
-import { sortRankPayGradeOptions } from 'shared/utils';
+import { sortRankOptions } from 'shared/utils';
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 
 const EditOrdersForm = ({
@@ -146,7 +146,7 @@ const EditOrdersForm = ({
       try {
         const fetchedRanks = await getRankOptions(affiliation, grade);
         if (fetchedRanks) {
-          const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
+          const formattedOptions = sortRankOptions(fetchedRanks);
           setRankOptions(formattedOptions);
         }
       } catch (error) {
