@@ -591,6 +591,6 @@ export async function cancelMove(moveId) {
   return makeInternalRequestRaw('office.cancelMove', { moveId });
 }
 
-export async function getRankGradeOptions(affiliation) {
-  return makeInternalRequest('orders.getRanks', { affiliation }, { normalize: false });
+export async function getRankOptions(affiliation, grade) {
+  return makeInternalRequest('orders.getRanks', { affiliation, grade }, { normalize: false });
 }

@@ -80,7 +80,7 @@ type CreateOrders struct {
 	OriginDutyLocationID strfmt.UUID `json:"originDutyLocationId,omitempty"`
 
 	// rank
-	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
 	// Format: uuid
 	Rank strfmt.UUID `json:"rank,omitempty"`
 

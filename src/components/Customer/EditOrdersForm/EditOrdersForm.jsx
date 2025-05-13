@@ -30,9 +30,9 @@ import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/fo
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, formatYesNoAPIValue } from 'utils/formatters';
+import { dropdownInputOptions, formatLabelReportByDate, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
-import { getRankGradeOptions, showCounselingOffices } from 'services/internalApi';
+import { getRankOptions, showCounselingOffices } from 'services/internalApi';
 import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -122,6 +122,8 @@ const EditOrdersForm = ({
     return isValuePresent;
   };
 
+  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+
   let originMeta;
   let newDutyMeta = '';
 
@@ -142,7 +144,7 @@ const EditOrdersForm = ({
     const fetchRankGradeOptions = async () => {
       setShowLoadingSpinner(true, 'Loading Rank/Grade options');
       try {
-        const fetchedRanks = await getRankGradeOptions(affiliation);
+        const fetchedRanks = await getRankOptions(affiliation, grade);
         if (fetchedRanks) {
           const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
           setRankOptions(formattedOptions);
@@ -156,7 +158,7 @@ const EditOrdersForm = ({
     };
 
     fetchRankGradeOptions();
-  }, [affiliation, setShowLoadingSpinner]);
+  }, [affiliation, setShowLoadingSpinner, grade]);
 
   useEffect(() => {
     const fetchCounselingOffices = async () => {
@@ -320,16 +322,6 @@ const EditOrdersForm = ({
 
         const toggleCivilianTDYUBTooltip = () => {
           setShowCivilianTDYUBTooltip((prev) => !prev);
-        };
-
-        const handleGradeRankChange = (e) => {
-          let paygrade = e.target?.selectedOptions[0]?.label.split('/')[1].trim();
-          // app is filled with hardcoded values for pay grades, need to replace the dash with an underscore for the app to continue working
-          if (paygrade !== ORDERS_PAY_GRADE_TYPE.CIVILIAN_EMPLOYEE) {
-            paygrade = paygrade.replace('-', '_');
-          }
-          setGrade(paygrade);
-          setValues({ ...values, rank: e.target.value, grade: paygrade });
         };
 
         return (
@@ -565,16 +557,31 @@ const EditOrdersForm = ({
               )}
 
               <DropdownInput
-                label="Rank / Pay grade"
-                name="rank"
-                id="rank"
+                label="Pay grade"
+                name="grade"
+                id="grade"
                 required
-                options={rankOptions}
+                options={payGradeOptions}
                 showRequiredAsterisk
                 onChange={(e) => {
-                  handleGradeRankChange(e);
+                  setGrade(e.target.value);
+                  handleChange(e);
                 }}
               />
+
+              {grade !== '' ? (
+                <DropdownInput
+                  label="Rank"
+                  name="rank"
+                  id="rank"
+                  required
+                  options={rankOptions}
+                  showRequiredAsterisk
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                />
+              ) : null}
 
               <p>Uploads:</p>
               <UploadsTable

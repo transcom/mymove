@@ -5,14 +5,13 @@ import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
-import { createOrders, getServiceMember, showCounselingOffices } from 'services/internalApi';
+import { createOrders, getRankOptions, getServiceMember, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setCanAddOrders, setMoveId, setShowLoadingSpinner } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_TYPE } from 'constants/orders';
-import { getRankOptions } from 'services/ghcApi';
 
 // Tests are timing out. High assumption it is due to service counseling office drop-down choice not being loaded on initial form load. It's another API call
 jest.setTimeout(60000);
@@ -39,27 +38,13 @@ jest.mock('services/internalApi', () => ({
   getRankOptions: jest.fn().mockImplementation(() => {
     return Promise.resolve([
       {
-        id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
-        paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
-        rankGradeName: 'E-5',
-        rankOrder: 21,
+        id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+        paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+        rankName: 'Amn',
+        rankOrder: 24,
       },
     ]);
   }),
-}));
-
-jest.mock('services/ghcApi', () => ({
-  ...jest.requireActual('services/ghcApi'),
-  getRankOptions: jest.fn(() =>
-    Promise.resolve([
-      {
-        id: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
-        paygradeId: '3f142461-dca5-4a77-9295-92ee93371330',
-        rankName: 'E-5',
-        rankOrder: 21,
-      },
-    ]),
-  ),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -461,11 +446,11 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
       getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankGradeName: 'SSgt' }]),
+        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
       );
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -543,8 +528,8 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
-      grade: 'E_5',
-      rank: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+      grade: 'E_2',
+      rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -565,11 +550,11 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
       getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankGradeName: 'SSgt' }]),
+        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
       );
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -648,8 +633,8 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
       },
-      grade: 'E_5',
-      rank: 'ae9f9d91-b049-4f60-bdc9-e441a7b3cb30',
+      grade: 'E_2',
+      rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -670,11 +655,11 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
       getRankOptions.mockImplementation(() =>
-        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankGradeName: 'SSgt' }]),
+        Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
       );
-      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['SSgt']);
+      await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });

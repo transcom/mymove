@@ -743,20 +743,22 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 }
 
 // get pay grade / rank for orders drop down
-func GetPayGradeRankDropdownOptions(appCtx appcontext.AppContext, affiliation string) ([]*internalmessages.Rank, error) {
+func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*internalmessages.Rank, error) {
 	var dropdownOptions []*internalmessages.Rank
 
 	err := appCtx.DB().Q().RawQuery(`
 		SELECT
-			ranks.rank_abbv || ' / ' || REPLACE(pay_grades.grade, '_', '-') AS RankGradeName,
+			ranks.rank_abbv || ' / ' || ranks.rank_name AS RankName,
+			-- ranks.rank_abbv AS RankName,
 			ranks.id,
 			ranks.pay_grade_id AS PaygradeID,
 			ranks.rank_order AS RankOrder
 		FROM ranks
 		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
 		WHERE affiliation = $1
+		AND grade = $2
 		ORDER BY ranks.rank_order DESC
-	`, affiliation).All(&dropdownOptions)
+	`, affiliation, grade).All(&dropdownOptions)
 	if err != nil {
 		return nil, err
 	}

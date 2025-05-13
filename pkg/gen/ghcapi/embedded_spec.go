@@ -8650,7 +8650,7 @@ func init() {
         "rank": {
           "type": "string",
           "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -27330,7 +27330,7 @@ func init() {
         "rank": {
           "type": "string",
           "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "reportByDate": {
           "description": "Report By Date",

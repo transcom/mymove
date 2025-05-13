@@ -4856,7 +4856,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/ranks/{affiliation}':
+  '/ranks/{affiliation}&{grade}':
     get:
       summary: Get ranks for specified affiliation
       description: Get ranks for specified affiliation
@@ -4865,6 +4865,7 @@ paths:
         - orders
       parameters:
         - $ref: 'definitions/AffiliationParam.yaml'
+        - $ref: 'definitions/OrderPayGradeParam.yaml'
       responses:
         '200':
           description: list all ranks for specified affiliation

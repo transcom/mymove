@@ -36,6 +36,11 @@ type GetRanksParams struct {
 	  In: path
 	*/
 	Affiliation string
+	/*
+	  Required: true
+	  In: path
+	*/
+	Grade string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -49,6 +54,11 @@ func (o *GetRanksParams) BindRequest(r *http.Request, route *middleware.MatchedR
 
 	rAffiliation, rhkAffiliation, _ := route.Params.GetOK("affiliation")
 	if err := o.bindAffiliation(rAffiliation, rhkAffiliation, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	rGrade, rhkGrade, _ := route.Params.GetOK("grade")
+	if err := o.bindGrade(rGrade, rhkGrade, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -79,6 +89,34 @@ func (o *GetRanksParams) bindAffiliation(rawData []string, hasKey bool, formats 
 func (o *GetRanksParams) validateAffiliation(formats strfmt.Registry) error {
 
 	if err := validate.EnumCase("affiliation", "path", o.Affiliation, []interface{}{"ARMY", "NAVY", "MARINES", "AIR_FORCE", "COAST_GUARD", "SPACE_FORCE", "OTHER"}, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// bindGrade binds and validates parameter Grade from path.
+func (o *GetRanksParams) bindGrade(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
+	o.Grade = raw
+
+	if err := o.validateGrade(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateGrade carries on validations for parameter Grade
+func (o *GetRanksParams) validateGrade(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("grade", "path", o.Grade, []interface{}{"E_1", "E_2", "E_3", "E_4", "E_5", "E_6", "E_7", "E_8", "E_9", "E_9_SPECIAL_SENIOR_ENLISTED", "O_1_ACADEMY_GRADUATE", "O_2", "O_3", "O_4", "O_5", "O_6", "O_7", "O_8", "O_9", "O_10", "W_1", "W_2", "W_3", "W_4", "W_5", "AVIATION_CADET", "CIVILIAN_EMPLOYEE", "ACADEMY_CADET", "MIDSHIPMAN"}, true); err != nil {
 		return err
 	}
 
