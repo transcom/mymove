@@ -602,6 +602,16 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 
 	moves[0].Orders.UploadedOrders.UserUploads = userUploads
 
+	// fetch Rank
+	if order.RankID != nil {
+		var rank Rank
+		err = db.Q().Find(&rank, order.RankID)
+		if err != nil {
+			return moves, err
+		}
+		moves[0].Orders.Rank = &rank
+	}
+
 	// Eager loading of nested has_many associations is broken
 	if order.UploadedAmendedOrders != nil {
 		var amendedUserUploads UserUploads
