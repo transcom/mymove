@@ -1,6 +1,7 @@
 -- B-22911 Beth introduced a move history sql refactor for us to swapnout with the pop query to be more efficient
 -- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
 -- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
+-- B-23581 Paul Stonebraker updated assigned office user counselor columns
 
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
