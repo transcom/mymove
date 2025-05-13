@@ -40,7 +40,7 @@ const validationSchema = Yup.object().shape({
     .max(500, 'Enter a weight 500 lbs or less'),
   hasGunSafe: Yup.boolean().required('Required'),
   gunSafeWeight: Yup.number()
-    .min(0, 'Enter a weight 0 lbs or greater')
+    .min(1, 'Enter a weight 1 lbs or greater')
     .when('hasGunSafe', {
       is: true,
       then: (schema) =>
