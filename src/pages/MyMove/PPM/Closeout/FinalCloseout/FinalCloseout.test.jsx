@@ -4,13 +4,15 @@ import userEvent from '@testing-library/user-event';
 
 import { customerRoutes } from 'constants/routes';
 import FinalCloseout from 'pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout';
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectServiceMemberAffiliation } from 'store/entities/selectors';
 import { updateMTOShipment } from 'store/entities/actions';
+import { selectMove } from 'shared/Entities/modules/moves';
 import { MockProviders } from 'testUtils';
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { getMTOShipmentsForMove, submitPPMShipmentSignedCertification } from 'services/internalApi';
 import { ppmSubmissionCertificationText } from 'scenes/Legalese/legaleseText';
 import { formatDateForSwagger } from 'shared/dates';
+import affiliations from 'content/serviceMemberAgencies';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -34,11 +36,17 @@ jest.mock('services/internalApi', () => ({
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(),
+  selectServiceMemberAffiliation: jest.fn(),
 }));
 
 jest.mock('store/entities/actions', () => ({
   ...jest.requireActual('store/entities/actions'),
   updateMTOShipment: jest.fn(),
+}));
+
+jest.mock('shared/Entities/modules/moves', () => ({
+  ...jest.requireActual('store/entities/actions'),
+  selectMove: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -48,15 +56,21 @@ beforeEach(() => {
 describe('Final Closeout page', () => {
   const setUpMocks = (mtoShipment) => {
     const shipment = mtoShipment || createPPMShipmentWithFinalIncentive();
-
+    const move = {
+      closeout_office: {
+        name: 'Altus AFB',
+      },
+    };
     selectMTOShipmentById.mockReturnValue(shipment);
+    selectMove.mockReturnValue(move);
+    selectServiceMemberAffiliation.mockReturnValue(affiliations.ARMY);
     getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
 
-    return shipment;
+    return { shipment, move };
   };
 
   it('loads the selected shipment from redux', async () => {
-    const shipment = setUpMocks();
+    const { shipment } = setUpMocks();
 
     const mockRoutingConfig = {
       path: customerRoutes.SHIPMENT_PPM_COMPLETE_PATH,
@@ -74,8 +88,8 @@ describe('Final Closeout page', () => {
     });
   });
 
-  it('renders the page headings', async () => {
-    const shipment = setUpMocks();
+  it('renders the page headings and closeout office name', async () => {
+    const { shipment, move } = setUpMocks();
 
     const mockRoutingConfig = {
       path: customerRoutes.SHIPMENT_PPM_COMPLETE_PATH,
@@ -94,10 +108,11 @@ describe('Final Closeout page', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Complete PPM' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: /Your final estimated incentive: \$/ })).toBeInTheDocument();
+    expect(screen.getByText(move.closeout_office.name, { exact: false }));
   });
 
   it('routes to the home page when the return to homepage link is clicked', async () => {
-    const shipment = setUpMocks();
+    const { shipment } = setUpMocks();
 
     const mockRoutingConfig = {
       path: customerRoutes.SHIPMENT_PPM_COMPLETE_PATH,
