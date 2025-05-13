@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
@@ -139,20 +138,14 @@ var GSR = RolePermissions{
 var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, CustomerServiceRepresentative, HQ, GSR, ContractingOfficer}
 
 // check if a [user.role] has permissions on a given object
-func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
-
-	logger := appCtx.Logger()
-	userPermissions := getPermissionsForUser(appCtx, session.UserID)
-
-	for _, perm := range userPermissions {
+func checkUserPermission(session auth.Session, permission string) bool {
+	for _, perm := range session.Permissions {
 		if permission == perm {
-			logger.Info("PERMISSION GRANTED: ", zap.String("permission", permission))
-			return true, nil
+			return true
 		}
 	}
 
-	logger.Warn("Permission not granted for user, ", zap.String("permission denied to user with session IDToken: ", session.IDToken))
-	return false, nil
+	return false
 }
 
 // for a given user return the permissions associated with their roles given the current session role

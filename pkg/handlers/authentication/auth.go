@@ -80,6 +80,12 @@ func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) fun
 
 			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
+			if session == nil {
+				// No auth session present
+				logger.Warn("No auth session found")
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
+			}
 
 			route, r, _ := api.Context().RouteInfo(r)
 			if route == nil {
@@ -104,14 +110,7 @@ func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) fun
 			for _, v := range permissionsRequiredAsInterfaceArray {
 				permission := v.(string)
 				logger.Info("Permission required: ", zap.String("permission", permission))
-				access, err := checkUserPermission(appCtx, session, permission)
-
-				if err != nil {
-					logger.Error("Unexpected error looking up permissions", zap.String("permission error", err.Error()))
-					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-					return
-				}
-
+				access := checkUserPermission(*session, permission)
 				if !access {
 					logger.Warn("Permission denied", zap.String("permission", permission))
 					http.Error(w, http.StatusText(401), http.StatusUnauthorized)
