@@ -35,7 +35,7 @@ jest.mock('services/internalApi', () => ({
       {
         id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
         paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
-        rankName: 'Amn',
+        rankAbbv: 'Amn',
         rankOrder: 24,
       },
     ]);
@@ -326,7 +326,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -410,7 +410,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -462,7 +462,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -490,7 +490,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -571,7 +571,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
 
@@ -871,7 +871,7 @@ describe('OrdersInfoForm component', () => {
     });
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
     getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankName: 'Amn' }]),
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
     );
     await userEvent.selectOptions(screen.getByLabelText(/Rank/), ['Amn']);
     await waitFor(() =>

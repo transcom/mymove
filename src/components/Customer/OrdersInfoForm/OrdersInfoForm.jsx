@@ -29,7 +29,7 @@ import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/gene
 import { selectServiceMemberAffiliation } from 'store/entities/selectors';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { sortRankPayGradeOptions } from 'shared/utils';
+import { sortRankOptions } from 'shared/utils';
 
 let originMeta;
 let newDutyMeta = '';
@@ -132,7 +132,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, affiliation, initialValues, onSubmi
       try {
         const fetchedRanks = await getRankOptions(affiliation, grade);
         if (fetchedRanks) {
-          const formattedOptions = sortRankPayGradeOptions(fetchedRanks);
+          const formattedOptions = sortRankOptions(fetchedRanks);
           setRankOptions(formattedOptions);
         }
       } catch (error) {
