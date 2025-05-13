@@ -1,13 +1,17 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import reactQuery from '@tanstack/react-query';
+import routeData from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 
 import EvaluationReports from './EvaluationReports';
 
-import { MockProviders, renderWithProviders } from 'testUtils';
 import { useEvaluationReportsQueries } from 'hooks/queries';
+import { MockProviders, renderWithProviders } from 'testUtils';
 import { qaeCSRRoutes } from 'constants/routes';
 import { permissionTypes } from 'constants/permissions';
+import { COUNSELING_EVALUATION_REPORTS, SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -15,13 +19,19 @@ jest.mock('hooks/queries', () => ({
   useEvaluationReportsQueries: jest.fn(),
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
-    state: { showDeleteSuccess: true },
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useMutation: () => ({
+    mutate: (_, handlers) => {
+      handlers.onSuccess();
+    },
+  }),
+  useQueryClient: () => ({
+    refetchQueries: jest.fn(),
+    invalidateQueries: jest.fn(),
   }),
 }));
+
 const mockRoutingOptions = {
   path: qaeCSRRoutes.BASE_EVALUATION_REPORTS_PATH,
   params: { moveCode: mockRequestedMoveCode },
@@ -100,20 +110,138 @@ describe('EvaluationReports', () => {
     });
   });
 
-  describe('check the delete report confirmation', () => {
+  describe('deleting report path', () => {
+    it('refetches queries', async () => {
+      const mockedQueryClient = {
+        refetchQueries: jest.fn(),
+        invalidateQueries: jest.fn(),
+      };
+
+      jest.spyOn(reactQuery, 'useQueryClient').mockReturnValue(mockedQueryClient);
+
+      jest.spyOn(reactQuery, 'useMutation').mockImplementation((_, mutationHandlers) => ({
+        mutate: (__, handlers) => {
+          mutationHandlers.onSuccess();
+          handlers.onSuccess();
+        },
+      }));
+
+      useEvaluationReportsQueries.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        shipmentEvaluationReports: [],
+        counselingEvaluationReports: [
+          {
+            createdAt: '2025-05-12T20:27:55.009Z',
+            eTag: 'MjAyNS0wNS0xMlQyMDoyNzo1NS4wMDk4ODFa',
+            id: 'ce13d5db-1263-474b-830a-00a0107370be',
+            moveID: 'd70641a9-9225-4f5b-887b-dc4304dbaa31',
+            moveReferenceID: '6589-0333',
+            officeUser: {
+              email: 'multi-role-20250512201621-8b4da589efbd@example.com',
+              firstName: 'Alice',
+              id: 'deb9a8f8-79de-4963-b08f-88be7585c428',
+              lastName: 'Bob',
+              phone: '333-333-3333',
+            },
+            type: 'COUNSELING',
+            updatedAt: '2025-05-12T20:27:55.009Z',
+          },
+        ],
+        shipments: [],
+      });
+
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+
+      await userEvent.click(screen.getByTestId('deleteReport'));
+      await screen.findByText(/You cannot undo this action./);
+
+      await userEvent.click(screen.getByRole('button', { name: /yes, delete/i }));
+
+      expect(mockedQueryClient.refetchQueries).toBeCalledTimes(2);
+      expect(mockedQueryClient.refetchQueries).toBeCalledWith([COUNSELING_EVALUATION_REPORTS], mockRequestedMoveCode);
+      expect(mockedQueryClient.refetchQueries).toBeCalledWith([SHIPMENT_EVALUATION_REPORTS], mockRequestedMoveCode);
+    });
+  });
+
+  describe('check the report status text', () => {
     it('renders the "report has been deleted" alert', async () => {
+      jest.spyOn(routeData, 'useLocation').mockReturnValue({
+        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
+        state: { showDeleteSuccess: true },
+      });
+
       useEvaluationReportsQueries.mockReturnValue({
         isLoading: false,
         isError: false,
         shipmentEvaluationReports: [],
         counselingEvaluationReports: [],
         shipments: [],
-        showDeleteSuccess: true,
       });
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const alert = await screen.getByText(/Your report has been deleted/);
+      const alert = screen.getByText(/Your report has been deleted/);
+      expect(alert).toBeInTheDocument();
+    });
+
+    it('renders the "report has been canceled" alert', async () => {
+      jest.spyOn(routeData, 'useLocation').mockReturnValue({
+        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
+        state: { showCanceledSuccess: true },
+      });
+
+      useEvaluationReportsQueries.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        shipmentEvaluationReports: [],
+        counselingEvaluationReports: [],
+        shipments: [],
+      });
+
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+
+      const alert = await screen.getByText(/Your report has been canceled/);
+      expect(alert).toBeInTheDocument();
+    });
+
+    it('renders the "draft report has been saved" alert', async () => {
+      jest.spyOn(routeData, 'useLocation').mockReturnValue({
+        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
+        state: { showSaveDraftSuccess: true },
+      });
+
+      useEvaluationReportsQueries.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        shipmentEvaluationReports: [],
+        counselingEvaluationReports: [],
+        shipments: [],
+      });
+
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+
+      const alert = await screen.getByText(/Your draft report has been saved/);
+      expect(alert).toBeInTheDocument();
+    });
+
+    it('renders the "report has been successfully submitted" alert', async () => {
+      jest.spyOn(routeData, 'useLocation').mockReturnValue({
+        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
+        state: { showSubmitSuccess: true },
+      });
+
+      useEvaluationReportsQueries.mockReturnValue({
+        isLoading: false,
+        isError: false,
+        shipmentEvaluationReports: [],
+        counselingEvaluationReports: [],
+        shipments: [],
+      });
+
+      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+
+      const alert = await screen.getByText(/Your report has been successfully submitted/);
       expect(alert).toBeInTheDocument();
     });
   });
