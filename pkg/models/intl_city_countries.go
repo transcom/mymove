@@ -20,5 +20,5 @@ type IntlCityCountries struct {
 
 // TableName overrides the table name used by Pop.
 func (c IntlCityCountries) TableName() string {
-	return "re_cities"
+	return "intl_city_countries"
 }
