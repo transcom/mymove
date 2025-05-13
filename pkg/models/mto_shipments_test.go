@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -676,4 +678,34 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 		isOCONUS := models.IsShipmentOCONUS(shipment)
 		suite.Nil(isOCONUS)
 	})
+}
+
+func (suite *ModelSuite) TestGetAuthorizedSITEndDateOrigin() {
+	today := time.Now()
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				OriginSITAuthEndDate: &today,
+			},
+		},
+	}, nil)
+
+	test := models.GetAuthorizedSITEndDate(shipment)
+
+	suite.Equal(&today, test)
+}
+
+func (suite *ModelSuite) TestGetAuthorizedSITEndDateDestination() {
+	today := time.Now()
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				DestinationSITAuthEndDate: &today,
+			},
+		},
+	}, nil)
+
+	test := models.GetAuthorizedSITEndDate(shipment)
+
+	suite.Equal(&today, test)
 }
