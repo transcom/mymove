@@ -270,6 +270,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetPaymentRequestsQueueHandler: queues.GetPaymentRequestsQueueHandlerFunc(func(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetPaymentRequestsQueue has not yet been implemented")
 		}),
+		OrderGetRanksHandler: order.GetRanksHandlerFunc(func(params order.GetRanksParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.GetRanks has not yet been implemented")
+		}),
 		ReportViolationsGetReportViolationsByReportIDHandler: report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
 		}),
@@ -626,6 +629,8 @@ type MymoveAPI struct {
 	PaymentRequestsGetPaymentRequestsForMoveHandler payment_requests.GetPaymentRequestsForMoveHandler
 	// QueuesGetPaymentRequestsQueueHandler sets the operation handler for the get payment requests queue operation
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
+	// OrderGetRanksHandler sets the operation handler for the get ranks operation
+	OrderGetRanksHandler order.GetRanksHandler
 	// ReportViolationsGetReportViolationsByReportIDHandler sets the operation handler for the get report violations by report ID operation
 	ReportViolationsGetReportViolationsByReportIDHandler report_violations.GetReportViolationsByReportIDHandler
 	// QueuesGetServicesCounselingOriginListHandler sets the operation handler for the get services counseling origin list operation
@@ -1024,6 +1029,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesGetPaymentRequestsQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetPaymentRequestsQueueHandler")
+	}
+	if o.OrderGetRanksHandler == nil {
+		unregistered = append(unregistered, "order.GetRanksHandler")
 	}
 	if o.ReportViolationsGetReportViolationsByReportIDHandler == nil {
 		unregistered = append(unregistered, "report_violations.GetReportViolationsByReportIDHandler")
@@ -1556,6 +1564,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/payment-requests"] = queues.NewGetPaymentRequestsQueue(o.context, o.QueuesGetPaymentRequestsQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ranks/{affiliation}&{grade}"] = order.NewGetRanks(o.context, o.OrderGetRanksHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

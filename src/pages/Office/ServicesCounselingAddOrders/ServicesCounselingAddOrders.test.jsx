@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
 
 import { MockProviders } from 'testUtils';
-import { counselingCreateOrder } from 'services/ghcApi';
+import { counselingCreateOrder, getRankOptions } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -38,6 +38,18 @@ jest.mock('services/ghcApi', () => ({
       ],
     }),
   ),
+  getRankOptions: jest.fn().mockImplementation(() => {
+    return Promise.resolve({
+      body: [
+        {
+          id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
+          paygradeId: '5f871c82-f259-43cc-9245-a6e18975dde0',
+          rankAbbv: 'Amn',
+          rankOrder: 24,
+        },
+      ],
+    });
+  }),
 }));
 
 jest.mock('services/internalApi', () => ({
@@ -297,7 +309,8 @@ const fakeResponse = {
         totalWeight: 14000,
       },
       first_name: 'TioT',
-      grade: 'E_8',
+      grade: 'E_2',
+      rank: 'cb0ee2b8-e852-40fe-b972-2730b53860c7',
       id: '80ac4b6b-96a9-40d0-a897-b6ae6891854a',
       last_name: 'Tester',
       methodOfPayment: 'Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System',
@@ -365,8 +378,11 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
-
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    await user.selectOptions(screen.getByLabelText(/Rank/), ['cb0ee2b8-e852-40fe-b972-2730b53860c7']);
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText('Altus');
@@ -403,8 +419,6 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '29 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
-
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText(/Hill/);
@@ -427,17 +441,15 @@ describe('ServicesCounselingAddOrders component', () => {
 
   it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    renderWithMocks();
-
     counselingCreateOrder.mockImplementation(() => Promise.resolve(fakeResponse));
 
+    renderWithMocks();
     const user = userEvent.setup();
 
     await user.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-5']);
 
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText('Altus');
@@ -451,6 +463,16 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.click(screen.getByTestId('isAnAccompaniedTourYes'));
     await user.type(screen.getByTestId('dependentsUnderTwelve'), '2');
     await user.type(screen.getByTestId('dependentsTwelveAndOver'), '1');
+
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
+    getRankOptions.mockImplementation(() =>
+      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
+    );
+    expect(getRankOptions).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId('rankDropDown')).toBeInTheDocument();
+      user.selectOptions(screen.getByLabelText(/Rank/), ['cb0ee2b8-e852-40fe-b972-2730b53860c7']);
+    });
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     await waitFor(() => {

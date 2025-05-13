@@ -237,3 +237,18 @@ export function isPreceedingAddressPPMPrimaryDestinationComplete(addressValues) 
   }
   return false;
 }
+
+export const sortRankPayGradeOptions = (ranks) => {
+  const options = [];
+
+  if (ranks.length > 0) {
+    ranks.forEach((rank) => {
+      options.push({
+        key: rank.id,
+        value: rank.rankAbbv,
+      });
+    });
+  }
+
+  return options;
+};
