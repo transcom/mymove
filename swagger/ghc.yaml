@@ -5319,6 +5319,28 @@ paths:
         - move
       description: Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
+  /ranks/{affiliation}:
+    get:
+      summary: Get ranks for specified affiliation
+      description: Get ranks for specified affiliation
+      operationId: getRanks
+      tags:
+        - order
+      parameters:
+        - $ref: '#/parameters/AffiliationParam'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Rank'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 definitions:
   ApplicationParameters:
     type: object
@@ -6018,6 +6040,7 @@ definitions:
       - E_9
       - E_9_SPECIAL_SENIOR_ENLISTED
       - O_1_ACADEMY_GRADUATE
+      - O_1
       - O_2
       - O_3
       - O_4
@@ -6048,6 +6071,7 @@ definitions:
       E_9: E-9
       E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
       O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
+      O_1: O-1
       O_2: O-2
       O_3: O-3
       O_4: O-4
@@ -6459,6 +6483,8 @@ definitions:
         readOnly: true
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        $ref: '#/definitions/Rank'
       agency:
         $ref: '#/definitions/Affiliation'
       entitlement:
@@ -6630,6 +6656,10 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       originDutyLocationId:
         type: string
         format: uuid
@@ -6730,6 +6760,11 @@ definitions:
         $ref: '#/definitions/NullableString'
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6815,6 +6850,11 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       dependentsAuthorized:
         type: boolean
         x-nullable: true
@@ -9393,6 +9433,29 @@ definitions:
       - officeUserId
       - transportationOfficeId
       - primaryOffice
+  Rank:
+    type: object
+    x-nullable: true
+    title: Rank
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      paygradeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      rankGradeName:
+        type: string
+        x-nullable: true
+        example: Seargent
+      rankAbbv:
+        type: string
+        example: SGT
+      rankOrder:
+        type: integer
+        x-nullable: true
   DutyLocation:
     type: object
     properties:
@@ -12932,3 +12995,18 @@ parameters:
     format: uuid
     required: true
     description: UUID of the pro-gear weight ticket
+  AffiliationParam:
+    name: affiliation
+    in: path
+    required: true
+    type: string
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-nullable: true
+    description: Military branch of service

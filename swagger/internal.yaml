@@ -722,6 +722,8 @@ definitions:
       grade:
         $ref: '#/definitions/OrderPayGrade'
         title: Grade
+      rank:
+        $ref: '#/definitions/Rank'
       first_name:
         type: string
         example: John
@@ -814,8 +816,8 @@ definitions:
         title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
-      grade:
-        $ref: '#/definitions/OrderPayGrade'
+      rank:
+        $ref: '#/definitions/Rank'
       first_name:
         type: string
         example: John
@@ -1374,6 +1376,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        $ref: '#/definitions/Rank'
       issue_date:
         type: string
         description: The date and time that these orders were cut.
@@ -1588,6 +1592,10 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: '#/definitions/OrderPayGrade'
+      rank:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
       origin_duty_location_id:
         type: string
         format: uuid
@@ -2704,6 +2712,29 @@ definitions:
       - match
       - variant
       - namespace
+  Rank:
+    type: object
+    x-nullable: true
+    title: Rank
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      paygradeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      rankGradeName:
+        type: string
+        x-nullable: true
+        example: Seargent
+      rankAbbv:
+        type: string
+        example: SGT
+      rankOrder:
+        type: integer
+        x-nullable: true
   OrdersType:
     type: string
     title: Orders type
@@ -6939,6 +6970,28 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /ranks/{affiliation}:
+    get:
+      summary: Get ranks for specified affiliation
+      description: Get ranks for specified affiliation
+      operationId: getRanks
+      tags:
+        - orders
+      parameters:
+        - $ref: '#/parameters/AffiliationParam'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Rank'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 responses:
   InvalidRequest:
     description: The request payload is invalid.
@@ -7010,3 +7063,18 @@ parameters:
     format: uuid
     required: true
     description: UUID of the weight ticket
+  AffiliationParam:
+    name: affiliation
+    in: path
+    required: true
+    type: string
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - OTHER
+    x-nullable: true
+    description: Military branch of service

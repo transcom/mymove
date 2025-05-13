@@ -847,5 +847,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		serviceItemFetcher,
 	}
 
+	ghcAPI.OrderGetRanksHandler = GetRanksHandler{handlerConfig}
+
 	return ghcAPI
 }

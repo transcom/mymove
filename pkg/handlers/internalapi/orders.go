@@ -103,6 +103,13 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		grade = internalmessages.OrderPayGrade(*order.Grade)
 	}
 
+	var rank internalmessages.Rank
+	if order.Rank != nil {
+		rank.ID = strfmt.UUID(order.Rank.ID.String())
+		rank.PaygradeID = strfmt.UUID(order.Rank.PayGradeID.String())
+		rank.RankAbbv = order.Rank.RankAbbv
+	}
+
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                         handlers.FmtUUID(order.ID),
@@ -130,6 +137,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		AuthorizedWeight:           dBAuthorizedWeight,
 		Entitlement:                &entitlement,
 		ProvidesServicesCounseling: originDutyLocation.ProvidesServicesCounseling,
+		Rank:                       &rank,
 	}
 
 	return payload, nil
@@ -315,6 +323,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				deptIndicator,
 				&originDutyLocation,
 				grade,
+				&payload.Rank,
 				&entitlement,
 				originDutyLocationGBLOC,
 				packingAndShippingInstructions,
@@ -634,6 +643,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 			order.Grade = payload.Grade
 
+			var rank models.Rank
+			err = appCtx.DB().Find(&rank, payload.Rank)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			order.RankID = models.UUIDPointer(rank.ID)
+			order.Rank = &rank
+
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
@@ -745,5 +762,26 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+type GetRanksHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle retrieves orders in the system belonging to the logged in user given order ID
+func (h GetRanksHandler) Handle(params ordersop.GetRanksParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			ranks, err := payloads.GetPayGradeRankDropdownOptions(appCtx, params.Affiliation)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			if len(ranks) < 1 {
+				return ordersop.NewGetRanksNotFound(), nil
+			}
+
+			return ordersop.NewGetRanksOK().WithPayload(ranks), nil
 		})
 }

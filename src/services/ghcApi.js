@@ -1112,3 +1112,7 @@ export async function deleteAssignedOfficeUserForMove({ moveID, queueType }) {
 export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }
+
+export async function getRankGradeOptions(affiliation) {
+  return makeGHCRequestRaw('order.getRanks', { affiliation }, { normalize: false });
+}
