@@ -3,6 +3,7 @@
 -- B 22696 Jon Spight added too destination assignments to history / Audit log
 -- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
 -- B-23623  Beth Grohmann  fetch_move_history - update final query to pull from all user tables
+-- B-23581 Paul Stonebraker updated assigned office user counselor columns
 
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
