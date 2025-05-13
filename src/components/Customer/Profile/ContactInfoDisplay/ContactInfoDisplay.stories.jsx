@@ -26,6 +26,7 @@ const baseProps = {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
+    county: 'El Paso',
   },
   backupMailingAddress: {
     streetAddress1: '448 Washington Blvd NE',
@@ -33,6 +34,7 @@ const baseProps = {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79936',
+    county: 'El Paso',
   },
   backupContact: {
     name: 'Gabriela Sáenz Perez',

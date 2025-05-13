@@ -27,7 +27,7 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
         return (
           <Form className={classnames(formStyles.form, requestAccountFormStyles.form)}>
             <SectionWrapper className={sectionStyles}>
-              <h2>Request Office Account</h2>
+              <h2 className={requestAccountFormStyles.center}>Request Office Account</h2>
               <p>
                 To request an office acount, please fill out the form below with all required fields. Once submitted, a
                 MilMove admin will review your account. If approved, you will be notified and allowed to log in.
@@ -44,14 +44,20 @@ const RequestAccountForm = ({ initialValues, onSubmit, onCancel }) => {
             <div className={requestAccountFormStyles.buttonRow}>
               <Button
                 type="button"
+                onClick={() => onCancel()}
+                data-testid="requestOfficeAccountCancelButton"
+                outline
+                secondary
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
                 disabled={!isValid}
                 onClick={() => handleSubmit()}
                 data-testid="requestOfficeAccountSubmitButton"
               >
                 Submit
-              </Button>
-              <Button type="button" onClick={() => onCancel()} data-testid="requestOfficeAccountCancelButton">
-                Cancel
               </Button>
             </div>
           </Form>

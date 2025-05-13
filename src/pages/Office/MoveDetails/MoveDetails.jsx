@@ -583,7 +583,7 @@ const MoveDetails = ({
               )}
             </Grid>
             <Grid col={12} className={styles.tooMoveDetailsHeadingFlexbox}>
-              <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+              <h1 className={styles.tooMoveDetailsH1}>Move Details</h1>
               <Restricted to={permissionTypes.updateFinancialReviewFlag}>
                 <div>
                   <FinancialReviewButton
@@ -740,7 +740,7 @@ const MoveDetails = ({
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} isOconusMove={isOconusMove} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

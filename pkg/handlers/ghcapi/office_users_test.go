@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"time"
 
@@ -13,9 +14,12 @@ import (
 	officeuserop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -277,5 +281,131 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 		suite.NotEmpty(verrResponse.Payload.ClientError, "expected validation errors from missing identification param")
 		verrDetail := "Data received from requester is bad: BAD_DATA: Either an EDIPI or Other Unique ID must be provided"
 		suite.Contains(*verrResponse.Payload.ClientError.Detail, verrDetail)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
+	setupHandler := func(updater services.OfficeUserUpdater) UpdateOfficeUserHandler {
+		handlerConfig := suite.HandlerConfig()
+		return UpdateOfficeUserHandler{
+			handlerConfig,
+			updater,
+		}
+	}
+
+	setupTestData := func() models.OfficeUser {
+		return factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name: "Random Office",
+				},
+			},
+		}, nil)
+	}
+
+	suite.Run("Office user is successfully updated", func() {
+		officeUser := setupTestData()
+		telephone := "865-555-1234"
+
+		officeUserUpdates := &ghcmessages.OfficeUserUpdate{
+			Telephone: &telephone,
+		}
+
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  request,
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		// Mock DB update:
+		expectedInput := *officeUserUpdates // make a copy so we can ensure our expected values don't change
+		expectedOfficeUser := officeUser
+		expectedOfficeUser.Telephone = *expectedInput.Telephone
+
+		mockUpdater := mocks.OfficeUserUpdater{}
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdatesModel, uuid.Nil).Return(&expectedOfficeUser, nil, nil)
+		queryBuilder := query.NewQueryBuilder()
+		officeUserUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
+
+		response := setupHandler(officeUserUpdater).Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
+
+		okResponse := response.(*officeuserop.UpdateOfficeUserOK)
+
+		// Should not have been updated
+		suite.Equal(officeUser.FirstName, *okResponse.Payload.FirstName)
+		suite.Equal(officeUser.MiddleInitials, okResponse.Payload.MiddleInitials)
+		suite.Equal(officeUser.LastName, *okResponse.Payload.LastName)
+		suite.Equal(officeUser.Email, *okResponse.Payload.Email)
+
+		// Updated
+		suite.Equal(telephone, *okResponse.Payload.Telephone)
+	})
+
+	suite.Run("Returns not found when office user does not exist in DB", func() {
+		fakeID := uuid.Must(uuid.NewV4())
+		officeUser := setupTestData()
+		officeUser.ID = fakeID
+		telephone := "865-555-5309"
+
+		officeUserUpdates := &ghcmessages.OfficeUserUpdate{
+			Telephone: &telephone,
+		}
+
+		officeUserDB, err := models.FetchOfficeUserByID(suite.DB(), fakeID)
+		suite.Error(err)
+		suite.Equal(uuid.Nil, officeUserDB.ID)
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/office_users/%s", fakeID), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  request,
+			OfficeUserID: strfmt.UUID(fakeID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		mockUpdater := mocks.OfficeUserUpdater{}
+
+		response := setupHandler(&mockUpdater).Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserNotFound{}, response)
+	})
+
+	suite.Run("Returns unauthorized when session OfficeUserID does not match the one in params", func() {
+		fakeID := uuid.Must(uuid.NewV4())
+		officeUser := setupTestData()
+		telephone := "865-555-5309"
+
+		officeUserUpdates := &ghcmessages.OfficeUserUpdate{
+			Telephone: &telephone,
+		}
+
+		officeUserDB, err := models.FetchOfficeUserByID(suite.DB(), fakeID)
+		suite.Error(err)
+		suite.Equal(uuid.Nil, officeUserDB.ID)
+
+		request := httptest.NewRequest("PUT", fmt.Sprintf("/office_users/%s", fakeID), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  request,
+			OfficeUserID: strfmt.UUID(fakeID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		mockUpdater := mocks.OfficeUserUpdater{}
+
+		response := setupHandler(&mockUpdater).Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserUnauthorized{}, response)
 	})
 }

@@ -269,9 +269,9 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 		},
 		{
 			Model: models.User{
-				Privileges: []models.Privilege{
+				Privileges: []roles.Privilege{
 					{
-						PrivilegeType: models.PrivilegeTypeSupervisor,
+						PrivilegeType: roles.PrivilegeTypeSupervisor,
 					},
 				},
 				Roles: []roles.Role{
@@ -1637,7 +1637,7 @@ func (suite *PayloadsSuite) TestPaymentServiceItems() {
 
 func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
 	suite.Run("transforms PaymentServiceItemParam", func() {
-		paramKey := factory.BuildServiceItemParamKey(suite.DB(), nil, nil)
+		paramKey := factory.FetchOrBuildServiceItemParamKey(suite.DB(), nil, nil)
 		param := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
 			{Model: paramKey},
 		}, nil)
