@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
@@ -17,6 +17,8 @@ import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 import RequiredTag from 'components/form/RequiredTag';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 const validationSchema = Yup.object().shape({
   estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
@@ -35,6 +37,17 @@ const validationSchema = Yup.object().shape({
   spouseProGearWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')
     .max(500, 'Enter a weight 500 lbs or less'),
+  hasGunSafe: Yup.boolean().required('Required'),
+  gunSafeWeight: Yup.number()
+    .min(0, 'Enter a weight 0 lbs or greater')
+    .when('hasGunSafe', {
+      is: true,
+      then: (schema) =>
+        schema
+          .min(0, 'Enter a weight 0 lbs or greater')
+          .max(500, 'Enter a weight 500 lbs or less')
+          .required('Required'),
+    }),
 });
 
 const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) => {
@@ -43,7 +56,18 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
     hasProGear: mtoShipment?.ppmShipment?.hasProGear?.toString() || 'false',
     proGearWeight: mtoShipment?.ppmShipment?.proGearWeight?.toString() || '',
     spouseProGearWeight: mtoShipment?.ppmShipment?.spouseProGearWeight?.toString() || '',
+    hasGunSafe: mtoShipment?.ppmShipment?.hasGunSafe?.toString() || 'false',
+    gunSafeWeight: mtoShipment?.ppmShipment?.gunSafeWeight?.toString() || '',
   };
+
+  const [isGunSafeEnabled, setIsGunSafeEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsGunSafeEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.GUN_SAFE));
+    };
+    fetchData();
+  }, []);
 
   const weightAuthorized = orders.authorizedWeight;
 
@@ -128,6 +152,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                   <Field
                     as={Radio}
                     id="hasProGearYes"
+                    data-testid="hasProGearYes"
                     label="Yes"
                     name="hasProGear"
                     value="true"
@@ -136,6 +161,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                   <Field
                     as={Radio}
                     id="hasProGearNo"
+                    data-testid="hasProGearNo"
                     label="No"
                     name="hasProGear"
                     value="false"
@@ -179,6 +205,55 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                   </>
                 )}
               </SectionWrapper>
+              {isGunSafeEnabled && (
+                <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                  <h2>Gun safe</h2>
+                  <Fieldset>
+                    <legend className="usa-label">Do you have a gun safe that you&apos;ll move in this PPM?</legend>
+                    <RequiredTag />
+                    <Field
+                      as={Radio}
+                      id="hasGunSafeYes"
+                      data-testid="hasGunSafeYes"
+                      label="Yes"
+                      name="hasGunSafe"
+                      value="true"
+                      checked={values.hasGunSafe === 'true'}
+                    />
+                    <Field
+                      as={Radio}
+                      id="hasGunSafeNo"
+                      data-testid="hasGunSafeNo"
+                      label="No"
+                      name="hasGunSafe"
+                      value="false"
+                      checked={values.hasGunSafe === 'false'}
+                    />
+                  </Fieldset>
+                  {values.hasGunSafe === 'true' && (
+                    <div>
+                      <MaskedTextField
+                        defaultValue="0"
+                        name="gunSafeWeight"
+                        label="Estimated weight of your gun safe"
+                        labelHint="Required"
+                        id="gunSafeWeight"
+                        mask={Number}
+                        scale={0} // digits after point, 0 for integers
+                        signed={false} // disallow negative
+                        thousandsSeparator=","
+                        lazy={false} // immediate masking evaluation
+                        suffix="lbs"
+                      />
+                      <Hint>
+                        The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against
+                        the authorized weight entitlement. Any weight over 500 lbs. is charged against the weight
+                        entitlement. NOTE: O-6 and higher ranks are NOT authorized gun safes.
+                      </Hint>
+                    </div>
+                  )}
+                </SectionWrapper>
+              )}
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
