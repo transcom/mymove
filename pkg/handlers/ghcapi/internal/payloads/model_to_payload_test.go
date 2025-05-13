@@ -2062,8 +2062,8 @@ func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
 		{
 			Model: models.Move{
 				ID:                         uuid.Must(uuid.NewV4()),
-				TOOAssignedUser:            userTOO,
-				TOOAssignedID:              &idTOO,
+				TOOTaskOrderAssignedUser:   userTOO,
+				TOOTaskOrderAssignedID:     &idTOO,
 				TOODestinationAssignedUser: userTOODestination,
 				TOODestinationAssignedID:   &idTOODestination,
 				SCCounselingAssignedUser:   userSC,

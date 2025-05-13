@@ -124,7 +124,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	assignedToQuery := assignedUserFilter(params.AssignedTo)
 	// scCounselingAssignedUserQuery := assignedUserFilter(params.SCCounselingAssignedUser)
 	// scCloseoutAssignedUserQuery := assignedUserFilter(params.SCCloseoutAssignedUser)
-	// tooAssignedUserQuery := assignedUserFilter(params.TOOAssignedUser)
+	// TOOTaskOrderAssignedUserQuery := assignedUserFilter(params.TOOTaskOrderAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	secondarySortOrderQuery := secondarySortOrder(params.Sort)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
@@ -180,7 +180,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"CounselingOffice",
 			"SCCounselingAssignedUser",
 			"SCCloseoutAssignedUser",
-			"TOOAssignedUser",
+			"TOOTaskOrderAssignedUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -199,7 +199,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
 		if role == roles.RoleTypeTOO {
-			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
+			query.LeftJoin("office_users as assigned_user", "moves.too_task_order_assigned_id  = assigned_user.id")
 		}
 
 		if params.NeedsPPMCloseout != nil {

@@ -756,7 +756,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentTOO() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 		}, nil)
 

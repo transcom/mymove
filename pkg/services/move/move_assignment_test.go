@@ -335,8 +335,8 @@ func (suite *MoveServiceSuite) TestBulkMoveAssignment() {
 		suite.NoError(suite.DB().Reload(&move2))
 		suite.NoError(suite.DB().Reload(&move3))
 
-		suite.Equal(officeUser.ID, *move1.TOOAssignedID)
-		suite.Equal(officeUser.ID, *move2.TOOAssignedID)
+		suite.Equal(officeUser.ID, *move1.TOOTaskOrderAssignedID)
+		suite.Equal(officeUser.ID, *move2.TOOTaskOrderAssignedID)
 		suite.Nil(move3.SCCounselingAssignedID)
 	})
 

@@ -69,8 +69,8 @@ describe('When given a move that has been assigned', () => {
       expect(screen.getByText(': Daniels, Jayden')).toBeInTheDocument();
     });
     it('assignment of a task ordering officer', () => {
-      historyRecord.changedValues = { too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
-      historyRecord.oldValues = { too_assigned_id: null };
+      historyRecord.changedValues = { too_task_order_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
+      historyRecord.oldValues = { too_task_order_assigned_id: null };
       historyRecord.context = [
         { assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' },
       ];
@@ -82,8 +82,8 @@ describe('When given a move that has been assigned', () => {
       expect(screen.getByText(': Robinson, Brian')).toBeInTheDocument();
     });
     it('reassignment of a task ordering officer', () => {
-      historyRecord.changedValues = { too_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
-      historyRecord.oldValues = { too_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64' };
+      historyRecord.changedValues = { too_task_order_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
+      historyRecord.oldValues = { too_task_order_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64' };
       historyRecord.context = [
         { assigned_office_user_last_name: 'Robinson', assigned_office_user_first_name: 'Brian' },
       ];

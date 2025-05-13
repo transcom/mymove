@@ -122,7 +122,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		AdditionalDocuments:                            additionalDocumentsPayload,
 		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
 		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
-		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
+		TOOTaskOrderAssignedUser:                       AssignedOfficeUser(move.TOOTaskOrderAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
@@ -2347,7 +2347,7 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 func getAssignedUserAndID(queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
 	switch queueType {
 	case string(models.QueueTypeTaskOrder):
-		return move.TOOAssignedUser, move.TOOAssignedID
+		return move.TOOTaskOrderAssignedUser, move.TOOTaskOrderAssignedID
 	case string(models.QueueTypeDestinationRequest):
 		return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
 	case string(models.QueueTypeCounseling):
@@ -2474,8 +2474,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCCloseoutAssignedUser)
 		}
-		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
-			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOTaskOrderAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOOTaskOrderAssignedUser)
 		}
 		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)

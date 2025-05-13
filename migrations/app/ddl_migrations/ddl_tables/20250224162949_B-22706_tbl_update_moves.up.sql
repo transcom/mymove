@@ -15,8 +15,13 @@ BEGIN
                WHERE table_name = 'moves' AND column_name = 'sc_assigned_id') THEN
         ALTER TABLE moves RENAME COLUMN sc_assigned_id TO sc_counseling_assigned_id;
     END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns
+               WHERE table_name = 'moves' AND column_name = 'too_assigned_id') THEN
+        ALTER TABLE moves RENAME COLUMN too_assigned_id TO too_task_order_assigned_id;
+    END IF;
 END $$;
 
-COMMENT ON COLUMN moves.too_destination_assigned_id IS 'A foreign key that points to the ID of the Task Ordering Officer on the office_users table';
 COMMENT ON COLUMN moves.sc_counseling_assigned_id IS 'A foreign key that points to the ID on the office_users table of the counseling queue assigned office user';
 COMMENT ON COLUMN moves.sc_closeout_assigned_id IS 'A foreign key that points to the ID on the office_users table of the closeout queue assigned office user';
+COMMENT ON COLUMN moves.too_task_order_assigned_id IS 'A foreign key that points to the ID on the office_users table of the task order queue assigned office user';
+COMMENT ON COLUMN moves.too_destination_assigned_id IS 'A foreign key that points to the ID of the Task Ordering Officer on the office_users table';
