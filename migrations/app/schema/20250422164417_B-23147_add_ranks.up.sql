@@ -185,7 +185,7 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
 INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order, created_at, updated_at) VALUES
     ('5324bc17-9c46-486e-9d7f-1ed9f1f76dcb', '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN', 'CIV', 'Civilian', 1, now(), now());
 
---add pay_grade_rank_id to orders table
+--add rank_id to orders table
 alter table orders drop if exists rank_id;
 alter table ranks drop constraint if exists rank_id;
 
