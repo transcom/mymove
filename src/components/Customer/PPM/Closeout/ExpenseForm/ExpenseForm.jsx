@@ -1,7 +1,7 @@
 import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@trussworks/react-uswds';
+import { ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@trussworks/react-uswds';
 import { func, number } from 'prop-types';
 import * as Yup from 'yup';
 
@@ -9,6 +9,7 @@ import SmallPackageForm from '../SmallPackageForm/SmallPackageForm';
 
 import styles from './ExpenseForm.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { formatCents } from 'utils/formatters';
 import { numOfDaysBetweenDates } from 'utils/dates';
 import { expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
@@ -326,12 +327,12 @@ const ExpenseForm = ({
                   </FormGroup>
                 )}
               </SectionWrapper>
-              <div className={ppmStyles.buttonContainer}>
-                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={formStyles.buttonContainer}>
+                <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Cancel
                 </Button>
                 <Button
-                  className={ppmStyles.saveButton}
+                  className={formStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}

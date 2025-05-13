@@ -1,11 +1,13 @@
-@use 'sass:selector';
 @use 'src/shared/standardUI/' as *;
 @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 
 %action-buttons{
-  @extend .usa-button--outline;
+  @extend .usa-button;
 }
 
+.edit-btn {
+  @extend %action-buttons, .usa-button--outline;
+}
 
 @media (min-width: $tablet) {
   .review-container {
@@ -35,14 +37,13 @@
   }
 
   .review-header {
-    @include u-margin-bottom(3);
-    display: flex;
-    justify-content: space-between;
-
-    .edit-btn {
-      @extend %action-buttons;
+    @include mix-mm-header-layout;
+    @include mix-mm-header-action-button-layout{
+      %action-buttons{
+          @extend %layout-button;
+      }
     }
-
+    @include u-margin-bottom(3);
   }
 
   table.review-table {

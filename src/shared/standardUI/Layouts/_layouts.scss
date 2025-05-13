@@ -8,7 +8,6 @@ $gap-value: 1rem;
 %layout-button {
     text-overflow: ellipsis;
     overflow: hidden;
-    @extend .usa-button--outline;
 }
 
 @mixin mix-mm-flex-stacking-container-with-gap(){
@@ -98,4 +97,15 @@ $gap-value: 1rem;
             background-color: #dfe1e2;
         }
       }
+}
+
+%inert-button{
+    @extend .usa-button--outline;
+}
+
+@mixin mix-mm-simple-grid-column-shrink-to-row{
+    display: grid;
+    grid-auto-flow: column;
+
+    @content;
 }

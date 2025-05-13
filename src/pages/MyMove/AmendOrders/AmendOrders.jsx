@@ -90,6 +90,17 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
 
   const additionalText = uploads && uploads.length > 0 ? 'additional ' : '';
 
+  const desktopFileUploadActionElement = (
+    <div className>
+      Drag {additionalText}files here or <span className="filepond--label-action">choose from folder</span>
+    </div>
+  );
+  const mobileFileUploadActionElement = (
+    <div>
+      <span className="filepond--label-action">Upload ${additionalText}files</span>
+    </div>
+  );
+
   return (
     <GridContainer>
       <NotificationScrollToTop dependency={serverError} />
@@ -129,8 +140,8 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={onChange}
-                labelIdle={`Drag ${additionalText}files here or <span class="filepond--label-action">choose from folder</span>`}
-                labelIdleMobile={`<span class="filepond--label-action">Upload ${additionalText}files</span>`}
+                labelIdle={desktopFileUploadActionElement}
+                labelIdleMobile={mobileFileUploadActionElement}
               />
             </div>
             <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />

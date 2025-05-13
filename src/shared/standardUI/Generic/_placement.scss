@@ -1,6 +1,4 @@
-// styling for positioning children of elements, or their contents.
 @use '../variables/spatial';
-@use 'sass:selector';
 @use  'shared/standardUI/Generic/build' as build;
 
 $displayProperty: flex;

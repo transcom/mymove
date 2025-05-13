@@ -1,6 +1,4 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'src/shared/standardUI/' as *;
 
 .ppmPageStyle {
   @include at-media('tablet') {

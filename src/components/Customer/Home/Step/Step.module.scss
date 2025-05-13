@@ -1,5 +1,4 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
+@use 'src/shared/standardUI/' as *;
 
 .step-container {
   @include u-margin-bottom(6);

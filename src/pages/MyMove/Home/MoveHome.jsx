@@ -71,6 +71,7 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import ToolTip from 'shared/ToolTip/ToolTip';
 
+const cancelMoveButtonStyle = styles['cancel-btn'];
 const sectionWrapperStyle = styles['step-section-wrapper'];
 const shipmentListStyle = styles['shipment-list'];
 const printButtonStyle = actionButtonStyle;
@@ -288,10 +289,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     }
     if (hasAnyShipments()) {
       return (
-        <div className={styles.addShipmentIcon}>
+        <>
           <FontAwesomeIcon icon="plus" />
-          &nbsp;&nbsp;Add another shipment
-        </div>
+          <span>Add another shipment</span>
+        </>
       );
     }
     return 'Set up your shipments';
@@ -569,6 +570,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
               {!hasSubmittedMove() && !showCancelSuccessAlert ? (
                 <div className={styles.cancelMoveContainer}>
                   <Button
+                    className={cancelMoveButtonStyle}
                     onClick={() => {
                       setShowCancelMoveModal(true);
                     }}
@@ -689,7 +691,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 <Step
                   actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments()}
                   actionBtnId="review-and-submit-btn"
-                  cla
                   actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
                   complete={hasSubmittedMove()}
                   completedHeaderText="Move request confirmed"

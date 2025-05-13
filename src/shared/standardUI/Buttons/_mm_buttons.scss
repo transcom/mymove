@@ -3,9 +3,8 @@
 @use 'shared/standardUI/Generic/build';
 @use 'shared/styles/colors';
 @use 'buttons';
-@use 'sass:string';
 
-$button-suffixes: --primary, --outline, --destructive;
+$button-suffixes: --primary, --outline, --destructive, --destructive-outline;
 
 @mixin mix-mm-button-children() {
     & > * {
@@ -26,6 +25,8 @@ $button-suffixes: --primary, --outline, --destructive;
     & > span {
         display: inline-block;
         align-self: center;
+        place-items: center;
+        place-content: center;
         vertical-align: text-top;
         position: relative;
         height: 100%;
@@ -67,6 +68,8 @@ $button-suffixes: --primary, --outline, --destructive;
 @mixin mix-mm-button-colors{
     --main-color: #{colors.$color-blue};
     --alt-color: #{colors.$bg-white};
+    --interactive-color: #{colors.$primary-dark};
+    --active-color: #{colors.$primary-darker};
     --danger-color: #{colors.$error};
 
     color: var(--top-color);
@@ -74,21 +77,23 @@ $button-suffixes: --primary, --outline, --destructive;
     .focus &,
     &:focus,
     .hover &,
-    &:hover
-    {
-        --main-color: #{colors.$primary-dark};
+    &:hover{
+        --main-color: var(--interactive-color);
         background-color: var(--bg-color);
+        color: var(--top-color);
     }
     &:active,
     .active & {
-        --main-color: #{colors.$primary-darker};
+        --main-color: var(--active-color);
         background-color: var(--bg-color);
+        color: var(--top-color);
     }
 
     &:disabled,
     &[disabled]{
         --main-color: #{colors.$base-light};
         background-color: var(--bg-color);
+        color: var(--top-color);
         cursor: not-allowed;
     }
 }
@@ -123,9 +128,21 @@ $button-suffixes: --primary, --outline, --destructive;
             --bg-color: var(--alt-color);
         }
         &--destructive {
-            @extend %#{$mm-button-selector}--outline;
-            --main-color: var(--alt-color);
-            --bg-color: var(--danger-color);
+            --interactive-color: #{colors.$error-dark};
+            --active-color: #{colors.$error-dark};
+            @extend %#{$mm-button-selector};
+            --main-color: var(--danger-color);
+            --top-color: var(--alt-color);
+            --bg-color: var(--main-color);
+        }
+        &--destructive-outline {
+            --interactive-color: #{colors.$error-dark};
+            --active-color: #{colors.$error-dark};
+            @extend %#{$mm-button-selector};
+            @include mix-control-outline-properties();
+            --main-color: var(--danger-color);
+            --bg-color: var(--alt-color);
+            --top-color: var(--main-color);
         }
         .icon svg path {
             fill: var(--main-color);
@@ -136,7 +153,6 @@ $button-suffixes: --primary, --outline, --destructive;
 }
 
 @include mix-mm-buttons();
-
 
 @mixin mix-apply-suffixes($selector-base, $suffixes...){
     @each $suffix in $suffixes {

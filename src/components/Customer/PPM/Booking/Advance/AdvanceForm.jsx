@@ -2,10 +2,11 @@ import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
-import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
+import { Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { CheckboxField } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -149,12 +150,12 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                   </>
                 )}
               </SectionWrapper>
-              <div className={ppmStyles.buttonContainer}>
-                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={formStyles.buttonContainer}>
+                <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button
-                  className={ppmStyles.saveButton}
+                  className={formStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}

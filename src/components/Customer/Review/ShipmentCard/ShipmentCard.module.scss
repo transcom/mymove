@@ -1,14 +1,20 @@
-@use 'sass:selector';
 @use 'src/shared/standardUI/' as *;
 @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 
 %action-buttons{
-  @extend .usa-button--outline;
 }
 
 .delete-shipment-btn,
 .edit-shipment-btn{
   @extend %action-buttons;
+}
+
+.edit-shipment-btn{
+  @extend .usa-button--outline;
+}
+
+.delete-shipment-btn{
+  @extend .usa-button--destructive-outline;
 }
 
 @media (max-width: $tablet) {
@@ -58,7 +64,7 @@
       @include u-font('body', 'xs');
       @include mix-mm-button-row{
         %action-buttons{
-          @extend .usa-button--outline, %layout-button;
+          @extend %layout-button;
         }
       }
       @include mix-mm-button-row-separator;

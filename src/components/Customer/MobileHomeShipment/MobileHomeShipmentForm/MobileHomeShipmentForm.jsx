@@ -2,11 +2,12 @@ import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import { Button, Form, Label, Textarea } from '@trussworks/react-uswds';
+import { Form, Label, Textarea } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import styles from './MobileHomeShipmentForm.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
@@ -291,11 +292,11 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   </Hint>
                 </Fieldset>
               </SectionWrapper>
-              <div className={styles.buttonContainer}>
-                <Button className={styles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={formStyles.buttonContainer}>
+                <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
-                <Button className={styles.saveButton} type="button" onClick={handleSubmit} disabled={!isValid}>
+                <Button className={formStyles.saveButton} type="button" onClick={handleSubmit} disabled={!isValid}>
                   Continue
                 </Button>
               </div>

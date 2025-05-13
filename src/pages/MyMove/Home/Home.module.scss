@@ -1,4 +1,3 @@
-@use 'sass:selector';
 @use 'src/shared/standardUI/' as *;
 @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 @use 'src/shared/standardUI/Layouts/step_layout' as *;
@@ -199,14 +198,18 @@
     @include mix-mm-button-standard-placement();
   }
 
-  button {
-    @extend  .usa-button--primary;
+  .cancel-btn {
+    @extend  .usa-button--destructive-outline;
     @include mix-mm-justify-stretch-within-container();
   }
 }
 
-.addShipmentIcon {
+.addShipmentBtnLabel {
   margin: 0;
+  gap: 1rem;
+  > *{
+    appearance: button;
+  }
 }
 
 .step-section-wrapper{

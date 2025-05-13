@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { Link, useParams, generatePath } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import classnames from 'classnames';
@@ -40,6 +40,7 @@ import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { PPM_TYPES } from 'shared/constants';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;

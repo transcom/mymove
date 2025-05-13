@@ -1,9 +1,9 @@
 import React from 'react';
 import { string, arrayOf, bool, shape, func } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 

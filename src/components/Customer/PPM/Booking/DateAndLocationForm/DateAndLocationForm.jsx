@@ -2,10 +2,11 @@ import { React, useEffect, useState } from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import { Button, Form, Checkbox, Radio, FormGroup } from '@trussworks/react-uswds';
+import { Form, Checkbox, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint';
@@ -556,12 +557,12 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   ask for your actual departure date when you document and complete your PPM.
                 </Hint>
               </SectionWrapper>
-              <div className={ppmStyles.buttonContainer}>
-                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={formStyles.buttonContainer}>
+                <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <Button
-                  className={ppmStyles.saveButton}
+                  className={formStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={!isValid || isSubmitting}

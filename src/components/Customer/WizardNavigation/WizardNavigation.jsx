@@ -1,9 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './WizardNavigation.module.scss';
+
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
+
+export const wizardActionButtonStyle = styles['wizard-action-button'];
+export const wizardMainButtonStyle = styles['wizard-main-button'];
 
 const WizardNavigation = ({
   isReviewPage,
@@ -21,7 +25,12 @@ const WizardNavigation = ({
   if (readOnly) {
     return (
       <div className={styles.WizardNavigation}>
-        <Button type="button" className={styles.Button} onClick={onCancelClick} data-testid="wizardCancelButton">
+        <Button
+          type="button"
+          className={wizardActionButtonStyle}
+          onClick={onCancelClick}
+          data-testid="wizardCancelButton"
+        >
           Return home
         </Button>
       </div>
@@ -38,7 +47,13 @@ const WizardNavigation = ({
   return (
     <div className={styles.WizardNavigation}>
       {!isFirstPage && !editMode && (
-        <Button type="button" className={styles.button} secondary onClick={onBackClick} data-testid="wizardBackButton">
+        <Button
+          type="button"
+          className={wizardActionButtonStyle}
+          secondary
+          onClick={onBackClick}
+          data-testid="wizardBackButton"
+        >
           Back
         </Button>
       )}
@@ -47,7 +62,7 @@ const WizardNavigation = ({
         <Button
           type="button"
           secondary
-          className={styles.button}
+          className={wizardActionButtonStyle}
           onClick={onCancelClick}
           data-testid="wizardCancelButton"
         >
@@ -56,16 +71,21 @@ const WizardNavigation = ({
       )}
 
       {isReviewPage && (
-        <Button type="button" onClick={onAddShipment} className={styles.button} data-testid="wizardAddShipmentButton">
+        <Button
+          type="button"
+          onClick={onAddShipment}
+          className={wizardActionButtonStyle}
+          data-testid="wizardAddShipmentButton"
+        >
           <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />
-          &nbsp;&nbsp;Add shipment
+          <span>Add shipment</span>
         </Button>
       )}
 
       <Button
         type="button"
         onClick={onNextClick}
-        className={styles.button}
+        className={wizardMainButtonStyle}
         data-testid={isLastPage ? 'wizardCompleteButton' : 'wizardNextButton'}
         disabled={disableNext}
       >

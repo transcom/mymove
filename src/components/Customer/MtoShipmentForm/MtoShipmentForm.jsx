@@ -12,15 +12,13 @@ import {
   Label,
   Radio,
   Textarea,
-  Button,
 } from '@trussworks/react-uswds';
 import moment from 'moment';
-
-import boatShipmentstyles from '../BoatShipment/BoatShipmentForm/BoatShipmentForm.module.scss';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { RouterShape } from 'types';
 import Callout from 'components/Callout';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -792,9 +790,9 @@ class MtoShipmentForm extends Component {
                       </Hint>
 
                       {isBoat || isMobileHome ? (
-                        <div className={boatShipmentstyles.buttonContainer}>
+                        <div className={formStyles.buttonContainer}>
                           <Button
-                            className={boatShipmentstyles.backButton}
+                            className={formStyles.backButton}
                             type="button"
                             onClick={handleBack}
                             secondary
@@ -803,7 +801,7 @@ class MtoShipmentForm extends Component {
                             Back
                           </Button>
                           <Button
-                            className={boatShipmentstyles.saveButton}
+                            className={formStyles.saveButton}
                             type="button"
                             onClick={handleSubmit}
                             disabled={!isValid || isSubmitting}

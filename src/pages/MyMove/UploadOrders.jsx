@@ -5,8 +5,6 @@ import { generatePath, useNavigate, useParams } from 'react-router';
 
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 
-import './UploadOrders.css';
-
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -100,6 +98,11 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
     navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
 
+  const desktopFileUploadActionElement = `<div class='upload-wrapper'>
+      <span>Drag & drop or</span>
+      <button class='filepond-style'>Upload orders</button>
+    </div>`;
+
   return (
     <GridContainer>
       <Grid row>
@@ -121,7 +124,7 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
               ref={filePondEl}
               createUpload={handleUploadFile}
               onChange={onChange}
-              labelIdle='Drag & drop or <span class="filepond--label-action">click to upload orders</span>'
+              labelIdle={desktopFileUploadActionElement}
             />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>

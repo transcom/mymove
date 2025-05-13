@@ -606,7 +606,7 @@ export class Home extends Component {
                   <Step
                     actionBtnDisabled={this.hasIncompleteShipment || !this.hasAnyShipments}
                     actionBtnId="review-and-submit-btn"
-                    actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
+                    actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review2 your request'}
                     complete={this.hasSubmittedMove}
                     completedHeaderText="Move request confirmed"
                     containerClassName="margin-bottom-8"

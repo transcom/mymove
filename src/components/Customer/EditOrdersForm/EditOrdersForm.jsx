@@ -38,6 +38,11 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
 
+const desktopFileUploadActionElement = `<div class='upload-wrapper'>
+      <span>Drag & drop or</span>
+      <button class='filepond-style'>Upload orders</button>
+    </div>`;
+
 const EditOrdersForm = ({
   createUpload,
   onDelete,
@@ -558,7 +563,7 @@ const EditOrdersForm = ({
                   ref={filePondEl}
                   createUpload={createUpload}
                   onChange={onUploadComplete}
-                  labelIdle='Drag & drop or <span class="filepond--label-action">click to upload orders</span>'
+                  labelIdle={desktopFileUploadActionElement}
                 />
               </div>
 

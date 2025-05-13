@@ -1,19 +1,18 @@
-@use 'sass:selector';
 @use 'src/shared/standardUI/' as *;
 @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 
-%delete-button{
+%action-buttons{
   align-self: start;
-  @extend .usa-button--outline;
 }
+
 .deleteBtn {
-  @extend %delete-button;
+  @extend .usa-button--destructive-outline, %action-buttons;
 }
 
 .uploadListItem {
   @include mix-mm-header-layout;
   @include mix-mm-header-action-button-layout{
-      %delete-button{
+      %action-buttons{
           @extend %layout-button;
       }
   }

@@ -1,6 +1,10 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
+@use 'sass:selector';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+.hideForPrint{
+  @extend .usa-button--outline;
+}
 
 .SubmitMoveForm {
   :global(.usa-button--unstyled) {
