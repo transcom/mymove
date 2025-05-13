@@ -5295,7 +5295,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					StreetAddress1: "1 some street",
 					City:           "Charlotte",
 					State:          "NC",
-					PostalCode:     "282903443",
+					PostalCode:     "28290",
 					IsOconus:       models.BoolPointer(false),
 				},
 			}}, nil)
@@ -5411,7 +5411,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					StreetAddress3: models.StringPointer("c/o Another Person"),
 					City:           "Cordova",
 					State:          "AK",
-					PostalCode:     "99677898",
+					PostalCode:     "99677",
 					IsOconus:       models.BoolPointer(true),
 				},
 			}}, nil)
