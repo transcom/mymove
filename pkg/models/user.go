@@ -16,17 +16,17 @@ import (
 
 // User is an entity with a registered profile ID and email in Okta
 type User struct {
-	ID                     uuid.UUID   `json:"id" db:"id"`
-	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
-	OktaID                 string      `json:"okta_id" db:"okta_id"`
-	OktaEmail              string      `json:"okta_email" db:"okta_email"`
-	Active                 bool        `json:"active" db:"active"`
-	Roles                  roles.Roles `many_to_many:"users_roles"`
-	Privileges             Privileges  `many_to_many:"users_privileges"`
-	CurrentAdminSessionID  string      `json:"current_admin_session_id" db:"current_admin_session_id"`
-	CurrentOfficeSessionID string      `json:"current_office_session_id" db:"current_office_session_id"`
-	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
+	ID                     uuid.UUID        `json:"id" db:"id"`
+	CreatedAt              time.Time        `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time        `json:"updated_at" db:"updated_at"`
+	OktaID                 string           `json:"okta_id" db:"okta_id"`
+	OktaEmail              string           `json:"okta_email" db:"okta_email"`
+	Active                 bool             `json:"active" db:"active"`
+	Roles                  roles.Roles      `many_to_many:"users_roles"`
+	Privileges             roles.Privileges `many_to_many:"users_privileges"`
+	CurrentAdminSessionID  string           `json:"current_admin_session_id" db:"current_admin_session_id"`
+	CurrentOfficeSessionID string           `json:"current_office_session_id" db:"current_office_session_id"`
+	CurrentMilSessionID    string           `json:"current_mil_session_id" db:"current_mil_session_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -133,7 +133,7 @@ type UserIdentity struct {
 	AdminUserLastName               *string                         `db:"au_lname"`
 	AdminUserActive                 *bool                           `db:"au_active"`
 	Roles                           roles.Roles                     `many_to_many:"users_roles" primary_id:"user_id"`
-	Privileges                      Privileges                      `many_to_many:"users_privileges" primary_id:"user_id"`
+	Privileges                      roles.Privileges                `many_to_many:"users_privileges" primary_id:"user_id"`
 	TransportationOfficeAssignments TransportationOfficeAssignments `many_to_many:"transportation_office_assignmentss" primary_id:"id"`
 }
 
