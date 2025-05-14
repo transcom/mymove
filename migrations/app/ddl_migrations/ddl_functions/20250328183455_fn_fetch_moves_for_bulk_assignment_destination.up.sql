@@ -68,6 +68,7 @@ BEGIN
             )
         )
         AND move_to_dest_gbloc.gbloc  = v_gbloc
+
     GROUP BY moves.id
     ORDER BY earliest_date;
 END

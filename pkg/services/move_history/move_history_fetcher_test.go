@@ -1367,6 +1367,80 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			})
 		}
 	})
+
+	suite.Run("has audit history records for sit extensions", func() {
+		for _, tc := range procFeatureFlagCases {
+			suite.Run(tc.testScenario, func() {
+				move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+				shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+
+				sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+					{
+						Model:    shipment,
+						LinkOnly: true,
+					},
+					{
+						Model: models.SITDurationUpdate{
+							Status: models.SITExtensionStatusPending,
+						},
+					},
+				}, nil)
+				suite.NotNil(sitExtension)
+
+				parameters := services.FetchMoveHistoryParams{
+					Locator: move.Locator,
+					Page:    models.Int64Pointer(1),
+					PerPage: models.Int64Pointer(100),
+				}
+				moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &parameters, tc.useDbProc)
+				suite.NotNil(moveHistoryData)
+				suite.NoError(err)
+
+				foundSitExtension := false
+				for _, h := range moveHistoryData.AuditHistories {
+					if h.AuditedTable == "sit_extensions" && *h.ObjectID == sitExtension.ID {
+						foundSitExtension = true
+						break
+					}
+				}
+
+				suite.True(foundSitExtension, "AuditHistories contains an AuditHistory with sit extension creation")
+			})
+		}
+	})
+
+	suite.Run("has audit history records for terminated shipments", func() {
+		for _, tc := range procFeatureFlagCases {
+			terminator := mtoshipment.NewShipmentTermination()
+
+			shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						Status: models.MTOShipmentStatusApproved,
+					},
+				},
+			}, nil)
+
+			terminatedShipment, err := terminator.TerminateShipment(suite.AppContextForTest(), shipment.ID, "get in the choppuh")
+			suite.NoError(err)
+			suite.Equal(shipment.ID, terminatedShipment.ID)
+
+			params := services.FetchMoveHistoryParams{Locator: shipment.MoveTaskOrder.Locator, Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(100)}
+			moveHistoryData, _, err := moveHistoryFetcher.FetchMoveHistory(suite.AppContextForTest(), &params, tc.useDbProc)
+			suite.NotNil(moveHistoryData)
+			suite.NoError(err)
+
+			terminationFound := false
+			for _, h := range moveHistoryData.AuditHistories {
+				if h.AuditedTable == "mto_shipments" && *h.ObjectID == terminatedShipment.ID {
+					terminationFound = true
+					break
+				}
+			}
+			suite.True(terminationFound, "AuditHistories contains an AuditHistory with a terminated shipment")
+		}
+	})
+
 }
 
 func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
@@ -1461,7 +1535,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1478,7 +1552,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal("Prime", *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1495,7 +1569,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1512,7 +1586,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, userID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(userID, *auditHistoriesForUser[0].SessionUserID)
 			})
 		}
 	})
@@ -1528,7 +1602,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveFetcherUserInfo() {
 				suite.Nil(err)
 				auditHistoriesForUser := filterAuditHistoryByUserID(moveHistory.AuditHistories, user.ID)
 				suite.Equal(1, len(auditHistoriesForUser))
-				suite.Equal(userName, *auditHistoriesForUser[0].SessionUserFirstName)
+				suite.Equal(user.ID, *auditHistoriesForUser[0].SessionUserID)
 				suite.Equal(fakeEventName, *auditHistoriesForUser[0].EventName)
 			})
 		}

@@ -187,6 +187,14 @@ const MoveDetails = ({ setFlashMessage }) => {
                     {!moveTaskOrder.primeCounselingCompletedAt && (
                       <Button onClick={handleCompleteCounseling}>Complete Counseling</Button>
                     )}
+                    <Link
+                      to="../acknowledge"
+                      relative="path"
+                      aria-label="Acknowledge Move"
+                      className="usa-button usa-button-secondary"
+                    >
+                      Acknowledge Move
+                    </Link>
                   </div>
                   {errorMessage?.detail && (
                     <div className={primeStyles.errorContainer}>

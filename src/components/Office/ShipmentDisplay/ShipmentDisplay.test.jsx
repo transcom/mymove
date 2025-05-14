@@ -22,6 +22,7 @@ import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import { PPM_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { shipmentStatuses } from 'constants/shipments';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -40,13 +41,16 @@ describe('Shipment Container', () => {
   describe('HHG Shipment', () => {
     it('renders the container successfully', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={hhgInfo}
-          ordersLOA={ordersLOA}
-          onChange={jest.fn()}
-          isSubmitted={false}
-        />,
+        <MockProviders>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={hhgInfo}
+            ordersLOA={ordersLOA}
+            onChange={jest.fn()}
+            isSubmitted={false}
+          />
+          ,
+        </MockProviders>,
       );
       expect(screen.getByTestId('shipment-display')).toHaveTextContent('HHG');
       expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(hhgInfo.shipmentLocator);
@@ -54,24 +58,35 @@ describe('Shipment Container', () => {
 
     it('renders the container with a heading that has a market code and shipment type', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={hhgInfo}
-          ordersLOA={ordersLOA}
-          onChange={jest.fn()}
-          isSubmitted={false}
-        />,
+        <MockProviders>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={hhgInfo}
+            ordersLOA={ordersLOA}
+            onChange={jest.fn()}
+            isSubmitted={false}
+          />
+          ,
+        </MockProviders>,
       );
       expect(screen.getByTestId('shipment-display')).toHaveTextContent(`${hhgInfo.marketCode}HHG`);
     });
 
     it('renders the container successfully with postal only address', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={postalOnlyInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(
+        <MockProviders>
+          <ShipmentDisplay shipmentId="1" displayInfo={postalOnlyInfo} onChange={jest.fn()} isSubmitted={false} />
+        </MockProviders>,
+      );
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
     });
 
     it('renders with comments', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(
+        <MockProviders>
+          <ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />
+        </MockProviders>,
+      );
       expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
     });
 
@@ -90,15 +105,27 @@ describe('Shipment Container', () => {
       });
     });
     it('renders without edit button when user does not have permissions', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(
+        <MockProviders>
+          <ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />
+        </MockProviders>,
+      );
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
     });
     it('renders with diversion tag', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={diversionInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(
+        <MockProviders>
+          <ShipmentDisplay shipmentId="1" displayInfo={diversionInfo} onChange={jest.fn()} isSubmitted={false} />
+        </MockProviders>,
+      );
       expect(screen.getByText('diversion')).toBeInTheDocument();
     });
     it('renders with canceled tag', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(
+        <MockProviders>
+          <ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />
+        </MockProviders>,
+      );
       expect(screen.getByText('canceled')).toBeInTheDocument();
     });
     it('renders a disabled button when move is locked', () => {
@@ -118,6 +145,27 @@ describe('Shipment Container', () => {
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeVisible();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).toBeDisabled();
     });
+    it('renders the terminated for cause tag when shipment status allows', async () => {
+      const hhgInfoTerminated = { ...hhgInfo, shipmentStatus: shipmentStatuses.TERMINATED_FOR_CAUSE };
+
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={hhgInfoTerminated}
+            shipmentType={SHIPMENT_OPTIONS.HHG}
+            isSubmitted
+            allowApproval={false}
+          />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        const tag = screen.getByTestId('terminatedTag');
+        expect(tag).toBeInTheDocument();
+        expect(tag).toHaveTextContent(/terminated for cause/i);
+      });
+    });
   });
 
   describe('NTS shipment', () => {
@@ -135,12 +183,14 @@ describe('Shipment Container', () => {
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={{ ...ntsInfo, usesExternalVendor: true }}
-          onChange={jest.fn()}
-          isSubmitted={false}
-        />,
+        <MockProviders>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={{ ...ntsInfo, usesExternalVendor: true }}
+            onChange={jest.fn()}
+            isSubmitted={false}
+          />
+        </MockProviders>,
       );
       expect(screen.queryByTestId('checkbox')).not.toBeInTheDocument();
       expect(screen.getByText('external vendor')).toBeInTheDocument();
@@ -160,7 +210,11 @@ describe('Shipment Container', () => {
       expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
     });
     it('renders with canceled tag', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(
+        <MockProviders>
+          <ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />
+        </MockProviders>,
+      );
       expect(screen.getByText('canceled')).toBeInTheDocument();
     });
   });
@@ -188,30 +242,38 @@ describe('Shipment Container', () => {
     });
     it('renders without the approval checkbox for external vendor shipments', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
-          ordersLOA={ordersLOA}
-          onChange={jest.fn()}
-          isSubmitted
-        />,
+        <MockProviders>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
+            ordersLOA={ordersLOA}
+            onChange={jest.fn()}
+            isSubmitted
+          />
+        </MockProviders>,
       );
       expect(screen.queryByTestId('checkbox')).not.toBeInTheDocument();
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
 
     it('renders with canceled tag', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(
+        <MockProviders>
+          <ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />
+        </MockProviders>,
+      );
       expect(screen.getByText('canceled')).toBeInTheDocument();
     });
     it('renders with external vendor tag', () => {
       render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
-          onChange={jest.fn()}
-          isSubmitted={false}
-        />,
+        <MockProviders>
+          <ShipmentDisplay
+            shipmentId="1"
+            displayInfo={{ ...ntsReleaseInfo, usesExternalVendor: true }}
+            onChange={jest.fn()}
+            isSubmitted={false}
+          />
+        </MockProviders>,
       );
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
@@ -287,6 +349,29 @@ describe('Shipment Container', () => {
       expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
       expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
     });
+    it('renders the Send PPM to the Customer button successfully', async () => {
+      await act(async () => {
+        render(
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
+            <ShipmentDisplay
+              displayInfo={ppmInfo}
+              sendPpmToCustomer={jest.fn()}
+              counselorCanEdit={false}
+              ordersLOA={ordersLOA}
+              shipmentType={SHIPMENT_OPTIONS.PPM}
+              isSubmitted
+              allowApproval={false}
+              warnIfMissing={['counselorRemarks']}
+              completePpmForCustomerURL="/"
+            />
+          </MockProviders>,
+        );
+      });
+
+      expect(screen.queryByRole('button', { name: 'Send PPM to the Customer' })).toBeVisible();
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
+      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
+    });
     it('renders the Complete PPM on behalf of the Customer button successfully', async () => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       await act(async () => {
@@ -327,7 +412,11 @@ describe('Shipment Container', () => {
         expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
       it('renders with canceled tag', () => {
-        render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+        render(
+          <MockProviders>
+            <ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />
+          </MockProviders>,
+        );
         expect(screen.getByText('canceled')).toBeInTheDocument();
       });
       it('excluded', () => {

@@ -61,5 +61,11 @@ describe('When given a move that has been unassigned', () => {
       render(template.getDetails(historyRecord));
       expect(screen.getByText('Task invoicing officer unassigned')).toBeInTheDocument();
     });
+    it('task ordering officer for destination request queue', () => {
+      historyRecord.changedValues = { too_destination_assigned_id: null };
+      const template = getTemplate(historyRecord);
+      render(template.getDetails(historyRecord));
+      expect(screen.getByText('Task ordering officer unassigned')).toBeInTheDocument();
+    });
   });
 });

@@ -1,6 +1,8 @@
--- B-22911 Beth introduced a move history sql refactor for us to swap
--- out with the pop query to be more efficient
+-- B-22911 Beth introduced a move history sql refactor for us to swapnout with the pop query to be more efficient
+-- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
+-- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
 -- B 22696 Jon Spight added too destination assignments to history / Audit log
+
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
 
@@ -135,8 +137,9 @@ BEGIN
         FROM
             audit_history
         JOIN mto_shipments ON mto_shipments.id = audit_history.object_id
-        JOIN moves ON mto_shipments.move_id = v_move_id
+        JOIN moves ON mto_shipments.move_id = moves.id
         WHERE audit_history.table_name = 'mto_shipments'
+            AND moves.id = v_move_id
             AND NOT (audit_history.event_name = 'updateMTOStatusServiceCounselingCompleted' AND audit_history.changed_data = '{"status": "APPROVED"}')
             AND NOT (audit_history.event_name = 'submitMoveForApproval' AND audit_history.changed_data = '{"status": "SUBMITTED"}')
             AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE '%shipment_locator%' AND LENGTH(audit_history.changed_data::TEXT) < 35)
@@ -1815,6 +1818,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ======================================================
+-- Sub-function: populate sit extension updates
+-- ======================================================
+CREATE OR REPLACE FUNCTION fn_populate_sit_extensions(p_move_id UUID)
+RETURNS void AS
+$$
+DECLARE v_count INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO v_count
+  FROM audit_history
+  JOIN sit_extensions ON sit_extensions.id = audit_history.object_id
+  JOIN mto_shipments ON mto_shipments.id = sit_extensions.mto_shipment_id
+  JOIN moves ON mto_shipments.move_id = moves.id
+  WHERE moves.id = p_move_id
+    AND audit_history.table_name = 'sit_extensions';
+
+  IF v_count > 0 THEN
+    INSERT INTO audit_hist_temp
+    SELECT audit_history.*,
+           jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+             'shipment_type', mto_shipments.shipment_type,
+             'shipment_id_abbr', LEFT(mto_shipments.id::TEXT, 5),
+             'shipment_locator', mto_shipments.shipment_locator
+           )))::TEXT AS context,
+           moves.id AS move_id
+    FROM audit_history
+    JOIN sit_extensions ON sit_extensions.id = audit_history.object_id
+    JOIN mto_shipments ON mto_shipments.id = sit_extensions.mto_shipment_id
+    JOIN moves ON mto_shipments.move_id = moves.id
+    WHERE moves.id = p_move_id
+      AND audit_history.table_name = 'sit_extensions'
+    GROUP BY audit_history.id, moves.id;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 
 -- ============================================
 -- ============================================
@@ -1910,6 +1949,7 @@ BEGIN
     PERFORM fn_populate_move_history_payment_requests(v_move_id);
     PERFORM fn_populate_move_history_service_item_dimensions(v_move_id);
     PERFORM fn_populate_move_history_service_item_customer_contacts(v_move_id);
+    PERFORM fn_populate_sit_extensions(v_move_id);
 
     -- adding a CTE here to stop duplicate entries because of duplicate user_id values
     -- with this CTE we get one consolidated row of user details
