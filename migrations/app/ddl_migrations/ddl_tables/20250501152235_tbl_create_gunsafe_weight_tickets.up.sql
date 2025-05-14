@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	    REFERENCES ppm_shipments,
 	has_weight_tickets bool,
 	description varchar,
-	weight int,
+	weight int CHECK (weight >= 0),
 	document_id uuid NOT NULL
 	    CONSTRAINT gunsafe_weight_tickets_document_id_fkey
 	    REFERENCES documents,
