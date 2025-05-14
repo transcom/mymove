@@ -302,6 +302,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "GunSafeWeight", Field: p.GunSafeWeight},
+		&OptionalPoundIsMax{Name: "GunSafeWeight", Field: p.GunSafeWeight, Max: 500},
 		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
 		&OptionalCentIsNotNegative{Name: "MaxIncentive", Field: p.MaxIncentive},
 		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},

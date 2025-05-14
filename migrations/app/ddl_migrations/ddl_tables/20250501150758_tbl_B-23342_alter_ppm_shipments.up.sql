@@ -1,6 +1,6 @@
-alter table ppm_shipments
-  add column if not exists has_gun_safe bool,
-  add column if not exists gun_safe_weight int4;
+ALTER TABLE ppm_shipments
+  ADD COLUMN IF NOT EXISTS has_gun_safe bool,
+  ADD COLUMN IF NOT EXISTS gun_safe_weight int4 CHECK (gun_safe_weight >= 0);
 
-comment on column ppm_shipments.has_gun_safe is 'Flag to indicate if PPM shipment has a gun safe';
-comment on column ppm_shipments.gun_safe_weight is 'Customer estimated gun safe weight';
+COMMENT ON COLUMN ppm_shipments.has_gun_safe IS 'Flag to indicate if PPM shipment has a gun safe';
+COMMENT ON COLUMN ppm_shipments.gun_safe_weight IS 'Customer estimated gun safe weight';
