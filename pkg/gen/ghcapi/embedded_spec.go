@@ -13908,6 +13908,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "id": {
           "type": "string",
           "format": "uuid"
@@ -13954,6 +13957,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -32558,6 +32566,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "id": {
           "type": "string",
           "format": "uuid"
@@ -32604,6 +32615,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
