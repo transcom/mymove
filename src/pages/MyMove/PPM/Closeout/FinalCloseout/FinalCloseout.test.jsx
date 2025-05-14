@@ -133,12 +133,12 @@ describe('Final Closeout page', () => {
   });
 
   it('submits the ppm signed certification', async () => {
-    const mockShipment = setUpMocks();
-    submitPPMShipmentSignedCertification.mockResolvedValueOnce(mockShipment.ppmShipment);
+    const { shipment } = setUpMocks();
+    submitPPMShipmentSignedCertification.mockResolvedValueOnce(shipment.ppmShipment);
 
     const mockRoutingConfig = {
       path: customerRoutes.SHIPMENT_PPM_COMPLETE_PATH,
-      params: { mtoShipmentId: mockShipment.id, moveId: mockShipment.moveTaskOrderId },
+      params: { mtoShipmentId: shipment.id, moveId: shipment.moveTaskOrderId },
     };
 
     render(
@@ -154,14 +154,14 @@ describe('Final Closeout page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit PPM Documentation' }));
 
     await waitFor(() =>
-      expect(submitPPMShipmentSignedCertification).toHaveBeenCalledWith(mockShipment.ppmShipment.id, {
+      expect(submitPPMShipmentSignedCertification).toHaveBeenCalledWith(shipment.ppmShipment.id, {
         certification_text: ppmSubmissionCertificationText,
         signature: 'Grace Griffin',
         date: formatDateForSwagger(new Date()),
       }),
     );
 
-    expect(updateMTOShipment).toHaveBeenCalledWith(mockShipment);
+    expect(updateMTOShipment).toHaveBeenCalledWith(shipment);
     expect(mockDispatch).toHaveBeenCalledTimes(2);
 
     expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.MOVE_HOME_PAGE);
