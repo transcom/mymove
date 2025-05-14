@@ -244,7 +244,8 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                       <Hint>
                         The government authorizes the shipment of a gun safe up to 500 lbs. This is not charged against
                         the authorized weight entitlement. Any weight over 500 lbs. is charged against the weight
-                        entitlement. NOTE: O-6 and higher ranks are NOT authorized gun safes.
+                        entitlement. The gun safe weight cannot be added to overall entitlement for O-6 and higher
+                        ranks.
                       </Hint>
                     </div>
                   )}
