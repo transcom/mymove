@@ -33,7 +33,7 @@ func NewSITExtensionApprover(moveRouter services.MoveRouter) services.SITExtensi
 
 // ApproveSITExtension approves the SIT Extension and also updates the shipment's SIT days allowance
 func (f *sitExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, requestReason models.SITDurationUpdateRequestReason, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
-	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID, "MoveTaskOrder", "MTOServiceItems")
+	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID, "MoveTaskOrder", "MTOServiceItems", "DeliveryAddressUpdate")
 	if err != nil {
 		return nil, err
 	}
