@@ -17,7 +17,8 @@ import {
   deleteUploadForDocument,
 } from 'services/ghcApi';
 import { formatDateForSwagger } from 'shared/dates';
-import { appendTimestampToFilename, convertDollarsToCents } from 'shared/utils';
+import { convertDollarsToCents } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMShipmentAndDocsOnlyQueries } from 'hooks/queries';
 import { DOCUMENTS } from 'constants/queryKeys';

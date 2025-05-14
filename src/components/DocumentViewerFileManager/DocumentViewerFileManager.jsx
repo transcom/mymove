@@ -21,7 +21,7 @@ import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import DeleteDocumentFileConfirmationModal from 'components/ConfirmationModals/DeleteDocumentFileConfirmationModal';
 import { PPM_DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 import { ShipmentShape } from 'types';
 
 const DocumentViewerFileManager = ({

@@ -20,7 +20,7 @@ import {
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import { APP_NAME } from 'constants/apps';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);

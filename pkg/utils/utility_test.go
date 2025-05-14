@@ -19,7 +19,6 @@ type UtilitySuite struct {
 func TestUtilitySuite(t *testing.T) {
 	suite.Run(t, &UtilitySuite{})
 }
-
 func (suite *UtilitySuite) TestStringIsNilEmptyOrWhitespace() {
 	suite.Run("nil string", func() {
 		actual := utils.IsNullOrWhiteSpace(nil)
