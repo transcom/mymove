@@ -5,7 +5,6 @@ set -eu -o pipefail
 
 psql_url="postgres://${DB_USER}:${PGPASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable"
 
-
 exec psql "${psql_url}" -c "
 DO \$\$ DECLARE
     r RECORD;
@@ -51,7 +50,7 @@ BEGIN
                                     'ub_allowances',
                                     'us_post_region_cities',
                                     'zip3_distances',
-                                    'ranks'
+                                    'pay_grade_ranks'
                                     ) order by tablename ) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
