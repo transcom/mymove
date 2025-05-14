@@ -159,7 +159,7 @@ export class CustomerPpmPage extends CustomerPage {
   async fillOutAboutPage(options = { selectAdvance: false }) {
     // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
     // this helps debounce the API calls that would be triggered in quick succession
-    await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
+    await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2025');
 
     const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
 
@@ -358,9 +358,71 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
+  async submitIncorrectXlsxFileForWeightTicketPage() {
+    await expect(this.page.getByRole('heading', { name: 'Weight Tickets' })).toBeVisible();
+    await this.submitIncorrectXlsxFile();
+  }
+
+  async submitIncorrectXlsxFile() {
+    await this.page.locator('input[name="vehicleDescription"]').fill('Kia Forte');
+    await this.page.locator('input[name="vehicleDescription"]').blur();
+
+    await this.page.getByLabel('Empty weight').clear();
+    await this.page.getByLabel('Empty weight').fill('1000');
+    await this.page.getByLabel('Empty weight').blur();
+
+    // find the label, then find the filepond wrapper. Not sure why
+    // getByLabel doesn't work
+    const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
+    await expect(emptyWeightLabel).toBeVisible();
+    const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(emptyFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(emptyFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the an incorrect file to not be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    await this.page.getByLabel('Full Weight').clear();
+    await this.page.getByLabel('Full Weight').fill('3000');
+
+    // find the label, then find the filepond wrapper. Not sure why
+    // getByLabel doesn't work
+    const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
+    await expect(fullWeightLabel).toBeVisible();
+    const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(fullFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the file not to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 Files Uploaded' })).not.toBeVisible();
+
+    // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
+    await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
+    // wait for the file to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
+  }
   /**
    * returns {Promise<void>}
    */
+
   async navigateFromHomePageToExistingPPMDateAndLocationPage() {
     if (multiMoveEnabled) {
       await this.page.getByRole('button', { name: 'Go to Move' }).click();
