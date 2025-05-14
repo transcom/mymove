@@ -1731,7 +1731,7 @@ describe('MoveHistory', () => {
 
       screen.logTestingPlaygroundURL(baseElement);
 
-      expect(screen.getByText('Move history (29)')).toBeInTheDocument();
+      expect(screen.getByText('Move History (29)')).toBeInTheDocument();
       expect(screen.getByRole('table')).toBeInTheDocument();
 
       // expect(screen.getByTestId('move-history-date-time-0')).toHaveTextContent('09 Mar 22 15:33');
