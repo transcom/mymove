@@ -404,9 +404,9 @@ func (suite *MoveServiceSuite) TestBulkMoveAssignment() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{

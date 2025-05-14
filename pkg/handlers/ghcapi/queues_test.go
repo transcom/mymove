@@ -1898,8 +1898,8 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.NotNil(moves[0].LockedByOfficeUserID)
 		suite.NotNil(moves[0].LockExpiresAt)
 	})
-  
-suite.Run("Destination Request: returns properly formatted bulk assignment data", func() {
+
+	suite.Run("Destination Request: returns properly formatted bulk assignment data", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		postalCode := "90210"
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
