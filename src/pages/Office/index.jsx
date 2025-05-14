@@ -45,6 +45,7 @@ import {
   tooRoutes,
   qaeCSRRoutes,
   contractingOfficerRoutes,
+  officeRoutes,
 } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
@@ -102,6 +103,7 @@ const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
   import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateDestinationAddress'),
 );
 const PrimeUIAcknowledgeMove = lazy(() => import('pages/PrimeUI/MoveTaskOrder/AcknowledgeMove'));
+const PrimeUIAcknowledgeShipment = lazy(() => import('pages/PrimeUI/Shipment/AcknowledgeShipment'));
 
 const MoveSearch = lazy(() => import('pages/Office/MoveSearch/MoveSearch'));
 const CreateCustomerForm = lazy(() => import('pages/Office/CustomerOnboarding/CreateCustomerForm'));
@@ -110,6 +112,8 @@ const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo')
 const ServicesCounselingAddOrders = lazy(() =>
   import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
 );
+const OfficeUserProfile = lazy(() => import('pages/Office/Profile/Profile'));
+const OfficeUserEditContactInfo = lazy(() => import('pages/Office/Profile/ContactInfo'));
 
 const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props }) => {
   // Local state for feature flags and Okta booleans
@@ -519,6 +523,15 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                         </PrivateRoute>
                       }
                     />
+                    <Route
+                      key="primeSimulatorAcknowledgeShipmentPath"
+                      path={primeSimulatorRoutes.ACKNOWLEDGE_SHIPMENT_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIAcknowledgeShipment />
+                        </PrivateRoute>
+                      }
+                    />
 
                     {/* QAE/CSR/GSR */}
                     <Route
@@ -596,6 +609,8 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       <Route end path="/*" element={<InvalidPermissions />} />
                     )}
 
+                    <Route end path={officeRoutes.PROFILE_PATH} element={<OfficeUserProfile />} />
+                    <Route end path={officeRoutes.CONTACT_INFO_EDIT_PATH} element={<OfficeUserEditContactInfo />} />
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
