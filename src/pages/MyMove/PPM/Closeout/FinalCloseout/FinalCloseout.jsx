@@ -126,7 +126,7 @@ const FinalCloseout = () => {
               onBack={handleBack}
               onSubmit={handleSubmit}
               affiliation={affiliation}
-              selectedMove={selectedMove}
+              move={selectedMove}
               appName={APP_NAME.MYMOVE}
             />
           </Grid>
