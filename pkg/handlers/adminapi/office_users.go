@@ -413,6 +413,15 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
+			privileges, err := h.UserPrivilegeAssociator.FetchPrivilegesForUser(appCtx, *createdOfficeUser.UserID)
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user privileges", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+
+			createdOfficeUser.User.Privileges = privileges
+
 			updatedTransportationOfficeAssignments, err := transportationOfficeAssignmentsPayloadToModel(payload.TransportationOfficeAssignments)
 			if err != nil {
 				appCtx.Logger().Error("UUID parsing error for transportation office assignments", zap.Error(err))

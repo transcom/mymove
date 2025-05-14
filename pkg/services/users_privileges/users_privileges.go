@@ -117,6 +117,7 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 }
 
 func (u usersPrivilegesCreator) VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, roles []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (*validate.Errors, error) {
+	verrs := validate.NewErrors()
 	for _, privilege := range privileges {
 		for _, role := range roles {
 
@@ -130,12 +131,23 @@ func (u usersPrivilegesCreator) VerifyUserPrivilegeAllowed(appCtx appcontext.App
 			if !allowed {
 				err = apperror.NewBadDataError(fmt.Sprintf("%s is not an authorized role for %s privileges", *role.Name, *privilege.Name))
 				appCtx.Logger().Error(err.Error())
-				verrs := validate.NewErrors()
 				verrs.Add("Validation Error", err.Error())
-				return verrs, nil
 			}
 		}
 	}
 
+	if verrs.HasAny() {
+		return verrs, nil
+
+	}
+
 	return nil, nil
+}
+
+func (f usersPrivilegesCreator) FetchPrivilegesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Privileges, error) {
+	var privileges roles.Privileges
+	err := appCtx.DB().Q().Join("users_privileges", "users_privileges.privilege_id = privileges.id").
+		Where("users_privileges.deleted_at IS NULL AND users_privileges.user_id = ?", (userID)).
+		All(&privileges)
+	return privileges, err
 }
