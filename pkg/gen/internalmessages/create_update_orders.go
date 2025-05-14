@@ -85,6 +85,11 @@ type CreateUpdateOrders struct {
 	// Format: uuid
 	OriginDutyLocationID strfmt.UUID `json:"origin_duty_location_id,omitempty"`
 
+	// rank
+	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+	// Format: uuid
+	Rank strfmt.UUID `json:"rank,omitempty"`
+
 	// Report-by date
 	//
 	// Report By Date
@@ -153,6 +158,10 @@ func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginDutyLocationID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -320,6 +329,18 @@ func (m *CreateUpdateOrders) validateOriginDutyLocationID(formats strfmt.Registr
 	}
 
 	if err := validate.FormatOf("origin_duty_location_id", "body", "uuid", m.OriginDutyLocationID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateUpdateOrders) validateRank(formats strfmt.Registry) error {
+	if swag.IsZero(m.Rank) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("rank", "body", "uuid", m.Rank.String(), formats); err != nil {
 		return err
 	}
 
