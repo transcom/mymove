@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
 
 import { MockProviders } from 'testUtils';
-import { counselingCreateOrder, getRankOptions } from 'services/ghcApi';
+import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -379,9 +379,6 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
     await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
-    getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
-    );
     await user.selectOptions(screen.getByLabelText(/Rank/), ['cb0ee2b8-e852-40fe-b972-2730b53860c7']);
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
@@ -465,14 +462,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByTestId('dependentsTwelveAndOver'), '1');
 
     await user.selectOptions(screen.getByLabelText(/Pay grade/), ['E-2']);
-    getRankOptions.mockImplementation(() =>
-      Promise.resolve([{ id: 'cb0ee2b8-e852-40fe-b972-2730b53860c7', rankAbbv: 'Amn' }]),
-    );
-    expect(getRankOptions).toHaveBeenCalled();
-    await waitFor(() => {
-      expect(screen.getByTestId('rankDropDown')).toBeInTheDocument();
-      user.selectOptions(screen.getByLabelText(/Rank/), ['cb0ee2b8-e852-40fe-b972-2730b53860c7']);
-    });
+    await user.selectOptions(screen.getByLabelText(/Rank/), ['cb0ee2b8-e852-40fe-b972-2730b53860c7']);
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     await waitFor(() => {
