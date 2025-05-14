@@ -1586,7 +1586,7 @@ jobs:
       - when:
           condition:
             and:
-              - equal: [integrationTesting, << pipeline.git.branch >>]
+              - equal: [main, << pipeline.git.branch >>]
               - when: always
           steps:
             - run:
