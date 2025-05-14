@@ -59,6 +59,14 @@ const config = {
         ...devices['Desktop Chrome'],
       },
     },
+    {
+      name: 'webkit',
+      testMatch: 'office/**/*.spec.js',
+      use: {
+        baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:3000',
+        ...devices['Desktop Safari'],
+      },
+    },
 
     {
       // ahobson 2022-12-08: for now, only test desktop chrome for my
