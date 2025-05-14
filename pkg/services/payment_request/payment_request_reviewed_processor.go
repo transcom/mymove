@@ -8,6 +8,7 @@ import (
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -67,6 +68,16 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New(), loaFetcher)
+	v := viper.New()
+	flag := pflag.CommandLine
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	cli.InitEmailFlags(flag)
+	notificationSender, notificationErr := notifications.InitEmail(v, appCtx.Logger())
+	if notificationErr != nil {
+		appCtx.Logger().Error("notification sender initialization failed", zap.Error(notificationErr))
+	}
 	var sftpSession services.SyncadaSFTPSender
 	if gexSender == nil {
 		var err error
@@ -84,7 +95,8 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 		sendToSyncada,
 		gexSender,
 		sftpSession,
-		nil), nil
+		notificationSender,
+	), nil
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
@@ -186,20 +198,20 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 				zap.Error(verrs),
 			)
 		}
-		//send email to open HDT for review for payment requests that failed to send to GEX
-		err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
-		if err != nil {
-			appCtx.Logger().Error(
-				"failed to send notification for payment request that failed to send to GEX",
-				zap.String("PaymentRequestID", pr.ID.String()),
-				zap.Error(verrs))
-		}
 
 		switch transactionError.(type) {
 		case GexSendError:
 			// if we failed in sending there is nothing to do here but retry later so keep the status the same
 		default:
 			pr.Status = models.PaymentRequestStatusEDIError
+			//send email to open HDT for review for payment requests that failed to send to GEX
+			err = p.notifications.SendNotification(appCtx, paymentRequestNotifier)
+			if err != nil {
+				appCtx.Logger().Error(
+					"failed to send notification for payment request that failed to send to GEX",
+					zap.String("PaymentRequestID", pr.ID.String()),
+					zap.Error(verrs))
+			}
 		}
 		verrs, err = appCtx.DB().ValidateAndUpdate(&pr)
 		if err != nil {
