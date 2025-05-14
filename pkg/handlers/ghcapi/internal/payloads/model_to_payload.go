@@ -120,9 +120,10 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:                             OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                                  handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:                            additionalDocumentsPayload,
-		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
+		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
+		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
 		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
-		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
+		TIOPaymentRequestAssignedUser:                  AssignedOfficeUser(move.TIOPaymentRequestAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
 		CounselingOffice:                               TransportationOffice(move.CounselingOffice),
 		TOODestinationAssignedUser:                     AssignedOfficeUser(move.TOODestinationAssignedUser),
@@ -2321,12 +2322,6 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 }
 
 func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []models.OfficeUser, officeUser models.OfficeUser, ppmCloseoutGblocs bool, isCloseoutQueue bool) []models.OfficeUser {
-	// if the office user currently assigned to the move works outside of the logged in users counseling office
-	// add them to the set
-	if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-		officeUsers = append(officeUsers, *move.SCAssignedUser)
-	}
-
 	var onlySelfAssign bool
 
 	// if there is no counseling office
@@ -2349,17 +2344,16 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	return officeUsers
 }
 
-func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
-	switch activeRole {
-	case string(roles.RoleTypeTOO):
-		switch queueType {
-		case string(models.QueueTypeTaskOrder):
-			return move.TOOAssignedUser, move.TOOAssignedID
-		case string(models.QueueTypeDestinationRequest):
-			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
-		}
-	case string(roles.RoleTypeServicesCounselor):
-		return move.SCAssignedUser, move.SCAssignedID
+func getAssignedUserAndID(queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
+	switch queueType {
+	case string(models.QueueTypeTaskOrder):
+		return move.TOOAssignedUser, move.TOOAssignedID
+	case string(models.QueueTypeDestinationRequest):
+		return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
+	case string(models.QueueTypeCounseling):
+		return move.SCCounselingAssignedUser, move.SCCounselingAssignedID
+	case string(models.QueueTypeCloseout):
+		return move.SCCloseoutAssignedUser, move.SCCloseoutAssignedID
 	}
 	return nil, nil
 }
@@ -2474,13 +2468,16 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 
 		// determine if there is an assigned user
 		var assignedToUser *ghcmessages.AssignedOfficeUser
-		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
-			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
+		if queueType == string(models.QueueTypeCounseling) && move.SCCounselingAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.SCCounselingAssignedUser)
 		}
-		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
+		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.SCCloseoutAssignedUser)
+		}
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
-		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
 		}
 		// these branches have their own closeout specific offices
@@ -2502,7 +2499,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 
 			// Determine the assigned user and ID based on active role and queue type
-			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
+			assignedUser, assignedID := getAssignedUserAndID(queueType, move)
 			// Ensure assignedUser and assignedID are not nil before proceeding
 			if assignedUser != nil && assignedID != nil {
 				userFound := false
@@ -2645,8 +2642,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
 		}
 
-		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
-			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 		}
 
 		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
@@ -2677,16 +2674,16 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			}
 
 			// if the assigned user is not in the returned list of available users append them to the end
-			if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			if paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser != nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOAssignedUser.ID {
+					if officeUser.ID == paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser.ID {
 						userFound = true
 						break
 					}
 				}
 				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOAssignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TIOPaymentRequestAssignedUser)
 				}
 			}
 

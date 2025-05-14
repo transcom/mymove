@@ -31,7 +31,7 @@ describe('When given a completed services counseling for a move', () => {
   it('displays correct details when a TIO is unassigned', () => {
     historyRecord.changedValues = {
       ...historyRecord.changedValues,
-      tio_assigned_id: null,
+      tio_payment_request_assigned_id: null,
     };
     const template = getTemplate(historyRecord);
 
