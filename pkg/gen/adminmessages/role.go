@@ -7,6 +7,7 @@ package adminmessages
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -31,6 +32,9 @@ type Role struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// privileges
+	Privileges []*Privilege `json:"privileges"`
+
 	// role name
 	// Example: Task Ordering Officer
 	// Required: true
@@ -40,6 +44,9 @@ type Role struct {
 	// Example: customer
 	// Required: true
 	RoleType *string `json:"roleType"`
+
+	// sort
+	Sort int32 `json:"sort,omitempty"`
 
 	// updated at
 	// Required: true
@@ -57,6 +64,10 @@ func (m *Role) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrivileges(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -104,6 +115,32 @@ func (m *Role) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Role) validatePrivileges(formats strfmt.Registry) error {
+	if swag.IsZero(m.Privileges) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Privileges); i++ {
+		if swag.IsZero(m.Privileges[i]) { // not required
+			continue
+		}
+
+		if m.Privileges[i] != nil {
+			if err := m.Privileges[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (m *Role) validateRoleName(formats strfmt.Registry) error {
 
 	if err := validate.Required("roleName", "body", m.RoleName); err != nil {
@@ -143,6 +180,10 @@ func (m *Role) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePrivileges(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -157,6 +198,31 @@ func (m *Role) contextValidateCreatedAt(ctx context.Context, formats strfmt.Regi
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *Role) contextValidatePrivileges(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Privileges); i++ {
+
+		if m.Privileges[i] != nil {
+
+			if swag.IsZero(m.Privileges[i]) { // not required
+				return nil
+			}
+
+			if err := m.Privileges[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
