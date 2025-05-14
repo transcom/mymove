@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -51,7 +52,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				}
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
@@ -81,7 +82,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 
-			if moveOrders.OrdersType == "SAFETY" && !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			if moveOrders.OrdersType == "SAFETY" && !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 				appCtx.Logger().Error("Invalid permissions")
 				errMsg := "Page is inaccessible"
 				return moveop.NewGetMoveNotFound().WithPayload(&ghcmessages.Error{Message: &errMsg}), apperror.NewNotFoundError(uuid.Nil, "Page is inaccessible")
