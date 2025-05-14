@@ -164,8 +164,8 @@ func Order(order *models.Order) *primev3messages.Order {
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 
 	var rank string
-	if order.PayGradeRank.RankName != "" {
-		rank = string(order.PayGradeRank.RankAbbv)
+	if order.Rank.RankName != "" {
+		rank = string(order.Rank.RankAbbv)
 	}
 
 	var grade string
