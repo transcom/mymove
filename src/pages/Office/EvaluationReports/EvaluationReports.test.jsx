@@ -201,7 +201,7 @@ describe('EvaluationReports', () => {
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const alert = await screen.getByText(/Your report has been canceled/);
+      const alert = screen.getByText(/Your report has been canceled/);
       expect(alert).toBeInTheDocument();
     });
 
@@ -221,7 +221,7 @@ describe('EvaluationReports', () => {
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const alert = await screen.getByText(/Your draft report has been saved/);
+      const alert = screen.getByText(/Your draft report has been saved/);
       expect(alert).toBeInTheDocument();
     });
 
@@ -241,7 +241,7 @@ describe('EvaluationReports', () => {
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const alert = await screen.getByText(/Your report has been successfully submitted/);
+      const alert = screen.getByText(/Your report has been successfully submitted/);
       expect(alert).toBeInTheDocument();
     });
   });
