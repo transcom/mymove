@@ -165,84 +165,28 @@ describe('EvaluationReports', () => {
   });
 
   describe('check the report status text', () => {
-    it('renders the "report has been deleted" alert', async () => {
-      jest.spyOn(routeData, 'useLocation').mockReturnValue({
-        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
-        state: { showDeleteSuccess: true },
+    const testCases = [
+      { state: { showDeleteSuccess: true }, expectedText: /Your report has been deleted/ },
+      { state: { showCanceledSuccess: true }, expectedText: /Your report has been canceled/ },
+      { state: { showSaveDraftSuccess: true }, expectedText: /Your draft report has been saved/ },
+      { state: { showSubmitSuccess: true }, expectedText: /Your report has been successfully submitted/ },
+    ];
+    testCases.forEach(({ state, expectedText }) => {
+      it(`renders "${expectedText.source}" alert`, async () => {
+        jest.spyOn(routeData, 'useLocation').mockReturnValue({
+          pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
+          state,
+        });
+        useEvaluationReportsQueries.mockReturnValue({
+          isLoading: false,
+          isError: false,
+          shipmentEvaluationReports: [],
+          counselingEvaluationReports: [],
+          shipments: [],
+        });
+        renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
+        expect(screen.getByText(expectedText)).toBeInTheDocument();
       });
-
-      useEvaluationReportsQueries.mockReturnValue({
-        isLoading: false,
-        isError: false,
-        shipmentEvaluationReports: [],
-        counselingEvaluationReports: [],
-        shipments: [],
-      });
-
-      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
-
-      const alert = screen.getByText(/Your report has been deleted/);
-      expect(alert).toBeInTheDocument();
-    });
-
-    it('renders the "report has been canceled" alert', async () => {
-      jest.spyOn(routeData, 'useLocation').mockReturnValue({
-        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
-        state: { showCanceledSuccess: true },
-      });
-
-      useEvaluationReportsQueries.mockReturnValue({
-        isLoading: false,
-        isError: false,
-        shipmentEvaluationReports: [],
-        counselingEvaluationReports: [],
-        shipments: [],
-      });
-
-      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
-
-      const alert = screen.getByText(/Your report has been canceled/);
-      expect(alert).toBeInTheDocument();
-    });
-
-    it('renders the "draft report has been saved" alert', async () => {
-      jest.spyOn(routeData, 'useLocation').mockReturnValue({
-        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
-        state: { showSaveDraftSuccess: true },
-      });
-
-      useEvaluationReportsQueries.mockReturnValue({
-        isLoading: false,
-        isError: false,
-        shipmentEvaluationReports: [],
-        counselingEvaluationReports: [],
-        shipments: [],
-      });
-
-      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
-
-      const alert = screen.getByText(/Your draft report has been saved/);
-      expect(alert).toBeInTheDocument();
-    });
-
-    it('renders the "report has been successfully submitted" alert', async () => {
-      jest.spyOn(routeData, 'useLocation').mockReturnValue({
-        pathname: `/moves/${mockRequestedMoveCode}/evaluation-reports`,
-        state: { showSubmitSuccess: true },
-      });
-
-      useEvaluationReportsQueries.mockReturnValue({
-        isLoading: false,
-        isError: false,
-        shipmentEvaluationReports: [],
-        counselingEvaluationReports: [],
-        shipments: [],
-      });
-
-      renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
-
-      const alert = screen.getByText(/Your report has been successfully submitted/);
-      expect(alert).toBeInTheDocument();
     });
   });
 });
