@@ -64,13 +64,20 @@ const ShipmentWeightDetails = ({
             initialWeight ? formatWeight(initialWeight) : emDash,
           ]}
         />
-        <DataTable
-          columnHeaders={[reweighHeader, 'Actual shipment weight']}
-          dataRow={[
-            shipmentInfo.reweighWeight ? formatWeight(shipmentInfo.reweighWeight) : emDash,
-            lowestWeight ? formatWeight(lowestWeight) : emDash,
-          ]}
-        />
+        {shipmentIsPPM ? (
+          <DataTable
+            columnHeaders={['', 'Actual shipment weight']}
+            dataRow={['', lowestWeight ? formatWeight(lowestWeight) : emDash]}
+          />
+        ) : (
+          <DataTable
+            columnHeaders={[reweighHeader, 'Actual shipment weight']}
+            dataRow={[
+              shipmentInfo.reweighWeight ? formatWeight(shipmentInfo.reweighWeight) : emDash,
+              lowestWeight ? formatWeight(lowestWeight) : emDash,
+            ]}
+          />
+        )}
         {!shipmentIsPPM && (
           <DataTable
             columnHeaders={['Actual pro gear weight', 'Actual spouse pro gear weight']}
