@@ -150,6 +150,15 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.SubmittedWeight)
 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.SubmittedBelongsToSelf)
 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.SubmittedHasWeightTickets)
+
+		var ppm models.PPMShipment
+		err := suite.DB().
+			Q().
+			EagerPreload("Shipment").
+			Find(&ppm, originalProgearWeightTicket.PPMShipmentID)
+		suite.NoError(err)
+		suite.Equal(int(*desiredProgearWeightTicket.Weight), ppm.Shipment.ActualProGearWeight.Int())
+		suite.Nil(ppm.Shipment.ActualSpouseProGearWeight)
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
@@ -462,4 +471,72 @@ func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDe
 		suite.Nil(progear)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
+}
+
+func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicketTotalsSumsCorrectly() {
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{Model: serviceMember, LinkOnly: true},
+	}, nil)
+	document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+	// Build 1st progear weight ticket for 100 lbs for self
+	factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+		{Model: serviceMember, LinkOnly: true},
+		{Model: ppmShipment, LinkOnly: true},
+		{Model: document, LinkOnly: true},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight:        models.PoundPointer(100),
+				BelongsToSelf: models.BoolPointer(true),
+			},
+		},
+	}, nil)
+	// Build 2nd progear weight ticket for 200 lbs for self
+	factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+		{Model: serviceMember, LinkOnly: true},
+		{Model: ppmShipment, LinkOnly: true},
+		{Model: document, LinkOnly: true},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight:        models.PoundPointer(200),
+				BelongsToSelf: models.BoolPointer(true),
+			},
+		},
+	}, nil)
+	// Build 3rd progear weight ticket for 50 lbs for spouse
+	factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+		{Model: serviceMember, LinkOnly: true},
+		{Model: ppmShipment, LinkOnly: true},
+		{Model: document, LinkOnly: true},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight:        models.PoundPointer(50),
+				BelongsToSelf: models.BoolPointer(false),
+			},
+		},
+	}, nil)
+	// Build 4th progear weight ticket for 25 lbs for spouse
+	factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+		{Model: serviceMember, LinkOnly: true},
+		{Model: ppmShipment, LinkOnly: true},
+		{Model: document, LinkOnly: true},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight:        models.PoundPointer(25),
+				BelongsToSelf: models.BoolPointer(false),
+			},
+		},
+	}, nil)
+
+	// Use DB function to sum up the totals
+	err := suite.DB().RawQuery("SELECT update_actual_progear_weight_totals($1)", ppmShipment.ID).Exec()
+	suite.NoError(err)
+
+	var shipment models.MTOShipment
+	err = suite.DB().Q().Find(&shipment, ppmShipment.ShipmentID)
+	suite.NoError(err)
+
+	suite.Equal(300, shipment.ActualProGearWeight.Int())
+	suite.Equal(75, shipment.ActualSpouseProGearWeight.Int())
 }
