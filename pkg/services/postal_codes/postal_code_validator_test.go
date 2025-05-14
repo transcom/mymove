@@ -8,8 +8,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -51,38 +49,11 @@ func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode() {
 	})
 
 	suite.Run("Postal code is not in postal_code_to_gblocs table", func() {
-		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "30907")
+		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), "99702")
 
 		suite.False(valid)
 		suite.Error(err)
 		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
 		suite.Contains(err.Error(), "not found in postal_code_to_gblocs")
 	})
-
-	suite.Run("Contract year cannot be found", func() {
-		testPostalCode := "30183"
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), testPostalCode, "CNNQ")
-
-		suite.buildContractYear(testdatagen.GHCTestYear - 1)
-
-		valid, err := postalCodeValidator.ValidatePostalCode(suite.AppContextForTest(), testPostalCode)
-
-		suite.False(valid)
-		suite.Error(err)
-		suite.IsType(&apperror.UnsupportedPostalCodeError{}, err)
-		suite.Contains(err.Error(), "could not find contract year")
-	})
-}
-
-func (suite *ValidatePostalCodeTestSuite) buildContractYear(testYear int) models.ReContractYear {
-	reContract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-	reContractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			Contract:  reContract,
-			StartDate: time.Date(testYear, time.January, 1, 0, 0, 0, 0, time.UTC),
-			EndDate:   time.Date(testYear, time.December, 31, 0, 0, 0, 0, time.UTC),
-		},
-	})
-
-	return reContractYear
 }

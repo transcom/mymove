@@ -18,7 +18,7 @@ test.describe('Additional Documents', () => {
     await customerPage.waitForPage.home();
 
     // Go to the Upload Additional Documents page
-    await page.getByRole('button', { name: 'Upload Additional Documents' }).click();
+    await page.getByRole('button', { name: 'Upload/Manage Additional Documentation' }).click();
 
     // Upload document
     const filepondContainer = page.locator('.filepond--wrapper');
