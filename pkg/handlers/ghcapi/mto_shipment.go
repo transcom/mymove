@@ -1272,7 +1272,8 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			}
 
 			/* Don't send emails for BLUEBARK/SAFETY moves */
-			if move.Orders.CanSendEmailWithOrdersType() {
+			/* Don't send reweigh emails to PPM shipments */
+			if move.Orders.CanSendEmailWithOrdersType() && shipment.CanSendReweighEmailForShipmentType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewReweighRequested(moveID, *shipment),
 				)

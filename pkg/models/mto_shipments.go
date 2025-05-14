@@ -583,6 +583,10 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 	return &isOCONUS
 }
 
+func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
+	return m.ShipmentType != MTOShipmentTypePPM
+}
+
 func IsShipmentApprovable(dbShipment MTOShipment) bool {
 	// check if any service items on current shipment still need to be reviewed
 	for _, serviceItem := range dbShipment.MTOServiceItems {
