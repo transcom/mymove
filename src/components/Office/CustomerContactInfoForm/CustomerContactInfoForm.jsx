@@ -66,7 +66,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                       )}
                     />
                     <h3 className={styles.sectionHeader}>Current Address</h3>
-                    <AddressFields name="customerAddress" locationLookup formikProps={formikProps} />
+                    <AddressFields name="customerAddress" formikProps={formikProps} />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
                     <AddressFields name="backupAddress" formikProps={formikProps} />
                   </SectionWrapper>
