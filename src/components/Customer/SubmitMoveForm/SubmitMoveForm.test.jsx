@@ -13,6 +13,15 @@ describe('SubmitMoveForm component', () => {
     initialValues: { signature: '', date: '2021-01-20' },
   };
 
+  const testPropsWithLock = {
+    onSubmit: jest.fn(),
+    onPrint: jest.fn(),
+    onBack: jest.fn(),
+    currentUser: 'Test User',
+    initialValues: { signature: '', date: '2021-01-20' },
+    isMoveLocked: true,
+  };
+
   it('renders the signature and date inputs', () => {
     const { getByLabelText } = render(<SubmitMoveForm {...testProps} />);
     expect(getByLabelText('SIGNATURE')).toBeInTheDocument();
@@ -68,6 +77,50 @@ describe('SubmitMoveForm component', () => {
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
     });
+  });
+
+  it('disables the submit button when the move has been locked by a services counselor', async () => {
+    await act(async () => {
+      render(<SubmitMoveForm {...testPropsWithLock} />);
+    });
+
+    const docContainer = screen.getByTestId('certificationTextBox');
+
+    // Mock scroll values to simulate reaching the bottom
+    Object.defineProperty(docContainer, 'scrollHeight', {
+      configurable: true,
+      value: 300,
+    });
+    Object.defineProperty(docContainer, 'clientHeight', {
+      configurable: true,
+      value: 100,
+    });
+    Object.defineProperty(docContainer, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 200,
+    });
+
+    // Trigger scroll event on the correct element
+    fireEvent.scroll(docContainer);
+
+    // Wait for checkbox to become enabled
+    const checkbox = await screen.findByRole('checkbox', {
+      name: /i have read and understand/i,
+    });
+    await waitFor(() => expect(checkbox).toBeEnabled());
+
+    // Click the checkbox
+    userEvent.click(checkbox);
+
+    // Type into the signature input (should now be enabled)
+    const signatureInput = await screen.findByLabelText('SIGNATURE');
+    await waitFor(() => expect(signatureInput).toBeEnabled());
+    await userEvent.type(signatureInput, testProps.currentUser);
+
+    // Click the complete button
+    const submitBtn = screen.getByTestId('wizardCompleteButton');
+    expect(submitBtn).toBeDisabled();
   });
 
   it('implements the onPrint handler', async () => {
@@ -143,6 +196,56 @@ describe('SubmitMoveForm component', () => {
 
     expect(validationError).toBeInTheDocument();
     expect(mockSubmit).not.toHaveBeenCalled();
+  });
+
+  it('does not show validation error if signature has extra spaces', async () => {
+    const mockSubmit = jest.fn();
+    render(<SubmitMoveForm {...testProps} onSubmit={mockSubmit} />);
+
+    // Simulate scroll-to-bottom to enable checkbox
+    const docContainer = screen.getByTestId('certificationTextBox');
+    Object.defineProperty(docContainer, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(docContainer, 'clientHeight', { configurable: true, value: 100 });
+    Object.defineProperty(docContainer, 'scrollTop', { configurable: true, writable: true, value: 200 });
+    fireEvent.scroll(docContainer);
+
+    // Wait for checkbox to be enabled
+    const checkbox = await screen.findByRole('checkbox');
+    await waitFor(() => expect(checkbox).toBeEnabled());
+    await userEvent.click(checkbox);
+
+    // Wait for signature input to become enabled
+    const signatureInput = screen.getByLabelText('SIGNATURE');
+    await waitFor(() => expect(signatureInput).toBeEnabled());
+
+    // Type mismatched signature
+    await userEvent.clear(signatureInput);
+    await userEvent.type(signatureInput, 'Test  User');
+
+    const submitBtn = screen.getByTestId('wizardCompleteButton');
+    await userEvent.click(submitBtn);
+
+    // Expect error message
+    const validationError = await screen.queryByText((text) =>
+      text.includes('Typed signature must match your exact user name'),
+    );
+
+    expect(validationError).not.toBeInTheDocument();
+    expect(mockSubmit).toHaveBeenCalled();
+
+    // Type mismatched signature
+    await userEvent.clear(signatureInput);
+    await userEvent.type(signatureInput, ' Test User ');
+
+    await userEvent.click(submitBtn);
+
+    // Expect error message
+    const validationError2 = await screen.queryByText((text) =>
+      text.includes('Typed signature must match your exact user name'),
+    );
+
+    expect(validationError2).not.toBeInTheDocument();
+    expect(mockSubmit).toHaveBeenCalled();
   });
 
   it('does not render certification text if certificationText is null', () => {

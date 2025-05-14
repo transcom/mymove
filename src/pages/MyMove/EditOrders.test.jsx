@@ -1,7 +1,6 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 import { cloneDeep } from 'lodash';
 
 import EditOrders from './EditOrders';
@@ -17,7 +16,7 @@ import {
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ORDERS_TYPE } from 'constants/orders';
 import { setShowLoadingSpinner } from 'store/general/actions';
-import { MOVE_LOCKED_WARNING } from 'shared/constants';
+import { MOVE_LOCKED_WARNING, MOVE_STATUSES } from 'shared/constants';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -339,6 +338,7 @@ describe('EditOrders Page', () => {
   it('save button disabled for orders when move is locked by office user', async () => {
     const movesWithLock = cloneDeep(testProps.serviceMemberMoves);
     movesWithLock.currentMove[0].lockExpiresAt = '2099-04-07T17:21:30.450Z';
+    movesWithLock.currentMove[0].status = MOVE_STATUSES.DRAFT;
     selectAllMoves.mockImplementation(() => movesWithLock);
     renderWithProviders(<EditOrders {...testProps} />, {
       path: customerRoutes.ORDERS_EDIT_PATH,
@@ -454,19 +454,22 @@ describe('EditOrders Page', () => {
         origin_duty_location: 'Fort Gregg-Adams, VA 23801',
       });
     });
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
-    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
 
-    const submitButton = await screen.findByRole('button', { name: 'Save' });
-    expect(submitButton).not.toBeDisabled();
+    waitFor(() => {
+      userEvent.click(screen.getByTestId('hasDependentsYes'));
+      userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+      userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+      userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+    });
 
-    await act(async () => {
+    waitFor(() => {
+      const submitButton = screen.findByRole('button', { name: 'Save' });
+
+      expect(submitButton).toBeEnabled();
       userEvent.click(submitButton);
     });
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(patchOrders).toHaveBeenCalledWith(
         expect.objectContaining({
           accompanied_tour: true,
