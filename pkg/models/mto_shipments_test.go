@@ -677,3 +677,127 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 		suite.Nil(isOCONUS)
 	})
 }
+
+func (suite *ModelSuite) TestIsShipmentApprovable() {
+	suite.Run("test a shipment that can be approved", func() {
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
+		// add approved service items
+		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
+
+		result := models.IsShipmentApprovable(shipment)
+		suite.NoError(err)
+		suite.Equal(result, true)
+	})
+
+	suite.Run("test a shipment that is not approvable due to service item in submitted status", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+
+		estimatedPrimeWeight := unit.Pound(6000)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedPrimeWeight,
+					Status:               models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
+
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MTOShipmentID: &shipment.ID,
+				},
+			},
+		}, nil)
+		shipment.MTOServiceItems = models.MTOServiceItems{serviceItem}
+
+		suite.Equal(serviceItem.Status, models.MTOServiceItemStatusSubmitted)
+		result := models.IsShipmentApprovable(shipment)
+		suite.Equal(result, false)
+
+	})
+	suite.Run("test a shipment that is not approvable due to pending SIT Extension request", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+
+		estimatedPrimeWeight := unit.Pound(6000)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedPrimeWeight,
+					Status:               models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
+
+		id := uuid.Must(uuid.NewV4())
+		sitDurationUpdate := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.SITDurationUpdate{
+					ID:     id,
+					Status: models.SITExtensionStatusPending,
+				},
+				LinkOnly: true,
+			},
+		}, nil)
+		shipment.SITDurationUpdates = models.SITDurationUpdates{sitDurationUpdate}
+
+		suite.Equal(shipment.SITDurationUpdates[0].Status, models.SITExtensionStatusPending)
+		result := models.IsShipmentApprovable(shipment)
+		suite.Equal(result, false)
+
+	})
+	suite.Run("test a shipment that is not approvable due to delivery address in requested status", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+
+		estimatedPrimeWeight := unit.Pound(6000)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedPrimeWeight,
+					Status:               models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
+
+		shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ShipmentAddressUpdate{
+					NewAddressID: uuid.Must(uuid.NewV4()),
+				},
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+		shipment.DeliveryAddressUpdate = &shipmentAddressUpdate
+
+		suite.Equal(shipmentAddressUpdate.Status, models.ShipmentAddressUpdateStatusRequested)
+		result := models.IsShipmentApprovable(shipment)
+		suite.Equal(result, false)
+
+	})
+}
