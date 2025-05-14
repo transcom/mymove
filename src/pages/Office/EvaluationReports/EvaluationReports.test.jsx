@@ -56,7 +56,7 @@ describe('EvaluationReports', () => {
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const h2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
 
@@ -65,7 +65,7 @@ describe('EvaluationReports', () => {
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -82,11 +82,11 @@ describe('EvaluationReports', () => {
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const h1 = await screen.getByRole('heading', { name: 'Quality assurance reports', level: 1 });
+      const h1 = screen.getByRole('heading', { name: 'Quality assurance reports', level: 1 });
       expect(h1).toBeInTheDocument();
 
-      expect(await screen.getByRole('heading', { name: 'Shipment QAE reports (0)', level: 2 })).toBeInTheDocument();
-      expect(await screen.getByRole('heading', { name: 'Counseling QAE reports (0)', level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Shipment QAE reports (0)', level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Counseling QAE reports (0)', level: 2 })).toBeInTheDocument();
     });
 
     it('create report button is disabled when move is locked', async () => {
