@@ -1264,22 +1264,6 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 			moveID := shipment.MoveTaskOrderID
 			h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
-			move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), shipment.MoveTaskOrderID)
-			if err != nil {
-				return nil, err
-			}
-
-			/* Don't send emails for BLUEBARK/SAFETY moves */
-			if move.Orders.CanSendEmailWithOrdersType() {
-				err = h.NotificationSender().SendNotification(appCtx,
-					notifications.NewReweighRequested(moveID, *shipment),
-				)
-				if err != nil {
-					appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-			}
-
 			shipmentSITStatus, _, err := h.CalculateShipmentSITStatus(appCtx, reweigh.Shipment)
 			if err != nil {
 				return handleError(err), err
