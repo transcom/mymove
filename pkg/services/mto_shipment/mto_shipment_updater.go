@@ -1279,13 +1279,12 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 
 			if intlTransTime.UbTransitTime != nil {
-				// For CONUS -> AK UB use the unmodified transit time from the DB
+				// For CONUS -> AK UB add the unmodified transit time from the DB to the pickup date
 				requiredDeliveryDate = pickupDate.AddDate(0, 0, *intlTransTime.UbTransitTime)
 			}
 		} else {
 			if destinationIsAlaska {
-				// Each AK rate area has the same transit time regardless of the other location
-				err = appCtx.DB().Where("destination_rate_area_id = $1", destinationAddressRateAreaID).First(&intlTransTime)
+				intlTransTime, err = models.FetchInternationalTransitTime(appCtx.DB(), pickupAddressRateAreaID, destinationAddressRateAreaID)
 				if err != nil {
 					switch err {
 					case sql.ErrNoRows:
@@ -1297,7 +1296,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			}
 
 			if pickupIsAlaska {
-				err = appCtx.DB().Where("origin_rate_area_id = $1", pickupAddressRateAreaID).First(&intlTransTime)
+				intlTransTime, err = models.FetchInternationalTransitTime(appCtx.DB(), pickupAddressRateAreaID, destinationAddressRateAreaID)
 				if err != nil {
 					switch err {
 					case sql.ErrNoRows:
