@@ -5,19 +5,20 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivileges() {
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
-	privilege := models.Privilege{
+	privilege := roles.Privilege{
 		ID:            id1,
 		PrivilegeType: "supervisor1",
 	}
 
-	privileges := models.Privileges{privilege}
+	privileges := roles.Privileges{privilege}
 	err := suite.DB().Create(privileges)
-	var privilegeTypes []models.PrivilegeType
+	var privilegeTypes []roles.PrivilegeType
 	for _, p := range privileges {
 		privilegeTypes = append(privilegeTypes, p.PrivilegeType)
 	}
@@ -41,13 +42,13 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivileges() {
 func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesTwice() {
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
-	privilege := models.Privilege{
+	privilege := roles.Privilege{
 		ID:            id1,
 		PrivilegeType: "privilege1",
 	}
-	privileges := models.Privileges{privilege}
+	privileges := roles.Privileges{privilege}
 	err := suite.DB().Create(privileges)
-	var privilegeTypes []models.PrivilegeType
+	var privilegeTypes []roles.PrivilegeType
 	for _, p := range privileges {
 		privilegeTypes = append(privilegeTypes, p.PrivilegeType)
 	}
@@ -75,14 +76,14 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesTwice() {
 func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesRemove() {
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	id1, _ := uuid.NewV4()
-	privilege := models.Privilege{
+	privilege := roles.Privilege{
 		ID:            id1,
 		PrivilegeType: "privilege1",
 	}
 
-	privileges := models.Privileges{privilege}
+	privileges := roles.Privileges{privilege}
 	err := suite.DB().Create(privileges)
-	origPrivilegeTypes := []models.PrivilegeType{privilege.PrivilegeType}
+	origPrivilegeTypes := []roles.PrivilegeType{privilege.PrivilegeType}
 	suite.NoError(err)
 	usersPrivilegesCreator := NewUsersPrivilegesCreator()
 
@@ -90,7 +91,7 @@ func (suite *UsersPrivilegesServiceSuite) TestAssociateUserPrivilegesRemove() {
 	suite.NoError(err)
 
 	// soft delete privilege1
-	newPrivilegeTypes := []models.PrivilegeType{privilege.PrivilegeType}
+	newPrivilegeTypes := []roles.PrivilegeType{privilege.PrivilegeType}
 	_, err = usersPrivilegesCreator.UpdateUserPrivileges(suite.AppContextForTest(), *officeUser.UserID, newPrivilegeTypes)
 	suite.NoError(err)
 

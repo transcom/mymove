@@ -3,6 +3,7 @@ package payloads
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -1667,6 +1668,21 @@ func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments, 
 	return &payload
 }
 
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *ghcmessages.Error {
+	errDetail := handlers.FmtString(handlers.InternalServerErrDetail)
+
+	if detail != nil {
+		errDetail = detail
+	}
+
+	msg := fmt.Sprintf("%v | Instance: %v", *errDetail, traceID)
+	payload := ghcmessages.Error{Message: &msg}
+
+	return &payload
+}
+
 // MTOAgent payload
 func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 	payload := &ghcmessages.MTOAgent{
@@ -2277,7 +2293,7 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 		isAssignable = true
 	}
 
-	isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+	isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 	// in TOO queues, all moves are assignable for supervisor users
 	if activeRole == string(roles.RoleTypeTOO) && isSupervisor {
 		isAssignable = true
@@ -2474,7 +2490,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		// determine if the move is assignable
 		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, officeUser, ppmCloseoutGblocs, activeRole)
 
-		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 		// only need to attach available office users if move is assignable
 		var apiAvailableOfficeUsers ghcmessages.AvailableOfficeUsers
 		if assignable {
@@ -2642,7 +2658,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			isAssignable = true
 		}
 
-		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 		if isSupervisor {
 			isAssignable = true
 		}

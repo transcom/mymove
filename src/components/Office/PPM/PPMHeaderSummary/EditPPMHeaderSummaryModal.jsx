@@ -92,7 +92,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             initialValues={initialValues}
             onSubmit={onSubmit}
           >
-            {({ isValid, handleChange, setFieldTouched, values, ...formikProps }) => {
+            {({ isValid, handleChange, values, ...formikProps }) => {
               return (
                 <Form>
                   <div>
@@ -102,7 +102,10 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         label="Actual move start date"
                         id="actualMoveDate"
                         disabledDays={{ after: new Date() }}
-                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        formikFunctionsToValidatePostalCodeOnChange={{
+                          handleChange,
+                          setFieldTouched: formikProps.setFieldTouched,
+                        }}
                       />
                     )}
                     {editItemName === 'advanceAmountReceived' && (
@@ -124,7 +127,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="pickupAddress"
                         legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                         className={styles.AddressFieldSet}
-                        locationLookup
                         formikProps={formikProps}
                       />
                     )}
@@ -133,7 +135,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="destinationAddress"
                         legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                         className={styles.AddressFieldSet}
-                        locationLookup
                         formikProps={formikProps}
                       />
                     )}
