@@ -326,7 +326,7 @@ type MoveWithCount struct {
 	MTOServiceItems               *models.MTOServiceItems      `json:"-"`
 	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
 	CounselingOffice              *models.TransportationOffice `json:"-"`
-	TOODAssignedUserRaw           json.RawMessage              `json:"too_assigned" db:"too_assigned"`
+	TOOAssignedUserRaw            json.RawMessage              `json:"too_assigned" db:"too_assigned"`
 	TOOAssignedUser               *models.OfficeUser           `json:"-"`
 	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
 	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
@@ -340,7 +340,7 @@ func (j *JSONB) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
+func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	var moves []models.Move
 	var movesWithCount []MoveWithCount
 
@@ -425,10 +425,10 @@ func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, off
 		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
 
 		var tooAssigned models.OfficeUser
-		if err := json.Unmarshal(movesWithCount[i].TOODAssignedUserRaw, &tooAssigned); err != nil {
+		if err := json.Unmarshal(movesWithCount[i].TOOAssignedUserRaw, &tooAssigned); err != nil {
 			return nil, 0, fmt.Errorf("error unmarshaling too_assigned JSON: %w", err)
 		}
-		movesWithCount[i].TOODAssignedUserRaw = nil
+		movesWithCount[i].TOOAssignedUserRaw = nil
 		movesWithCount[i].TOOAssignedUser = &tooAssigned
 	}
 

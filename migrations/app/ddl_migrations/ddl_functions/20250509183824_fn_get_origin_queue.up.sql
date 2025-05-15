@@ -143,12 +143,19 @@ BEGIN
                         ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                        ''prime_estimated_weight'', ms.prime_estimated_weight
-                    )
+                        ''prime_estimated_weight'', ms.prime_estimated_weight,
+                        ''ppm_shipment'', CASE
+                            WHEN ppm.id IS NOT NULL THEN json_build_object(
+                                ''expected_departure_date'', TO_CHAR(ppm.expected_departure_date, ''YYYY-MM-DD"T00:00:00Z"'')
+                            )
+                            ELSE NULL
+                        END
+                        )
                 )::JSONB AS mto_shipments,
                 MIN(ms.requested_pickup_date) AS earliest_requested_pickup_date,
                 MIN(ms.requested_delivery_date) AS earliest_requested_delivery_date
             FROM mto_shipments ms
+            LEFT JOIN ppm_shipments ppm ON ppm.shipment_id = ms.id
             WHERE ms.move_id = moves.id
         ) shipments ON TRUE
         LEFT JOIN LATERAL (
@@ -219,7 +226,7 @@ BEGIN
             OR ppm_dates.earliest_expected_departure_date::DATE = $7::DATE
             OR EXISTS (
                 SELECT 1 FROM mto_shipments ms2
-                WHERE ms2.move_id = id
+                WHERE ms2.move_id = moves.id
                 AND ms2.shipment_type = ''HHG_OUTOF_NTS''
                 AND ms2.requested_delivery_date::DATE = $7::DATE
             )
