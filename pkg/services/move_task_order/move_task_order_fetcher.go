@@ -173,6 +173,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Orders.DestinationGBLOC",
 		"Orders.NewDutyLocation.Address.Country",
 		"Orders.OriginDutyLocation.Address.Country", // this line breaks Eager, but works with EagerPreload
+		"Orders.Rank",
 		"ShipmentGBLOC",
 	)
 
@@ -368,7 +369,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	if mto.Orders.RankID == nil {
 		userPayGrade, err := FindPayGradeRankByGradeAndAffiliation(appCtx, string(*mto.Orders.Grade), string(*mto.Orders.ServiceMember.Affiliation))
 		if err != nil {
-			return &models.Move{}, apperror.NewQueryError("PayGradeWithRank", err, "")
+			return &models.Move{}, apperror.NewQueryError("Rank", err, "")
 		}
 		mto.Orders.Rank = &userPayGrade
 		mto.Orders.RankID = &userPayGrade.ID
