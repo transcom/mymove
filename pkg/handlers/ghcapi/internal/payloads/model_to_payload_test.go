@@ -2482,6 +2482,28 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 	})
 }
 
+func (suite *PayloadsSuite) TestCountriesPayload() {
+	suite.Run("Correctly transform array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		countries = append(countries, models.Country{Country: "US", CountryName: "UNITED STATES"})
+		payload := Countries(countries)
+		suite.True(len(payload) == 1)
+		suite.Equal(payload[0].Code, "US")
+		suite.Equal(payload[0].Name, "UNITED STATES")
+	})
+
+	suite.Run("empty array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		payload := Countries(countries)
+		suite.True(len(payload) == 0)
+	})
+
+	suite.Run("nil countries into payload", func() {
+		payload := Countries(nil)
+		suite.True(len(payload) == 0)
+	})
+}
+
 func (suite *PayloadsSuite) TestQueueMoves_RequestedMoveDates() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
