@@ -1,3 +1,4 @@
+--B-22923 Cory Kleinjan updated item.estimated_weight and item.actual_weight to default to null instead of zero
 CREATE OR REPLACE PROCEDURE create_accessorial_service_items_for_shipment (
     IN shipment_id UUID,
     IN service_items mto_service_item_type[],
