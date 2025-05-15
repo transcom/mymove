@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
+	"regexp"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -2305,9 +2306,13 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
-		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderOK)
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderOK{}, response)
+		contentDisposition := response.(*movetaskorderops.DownloadMoveOrderOK).ContentDisposition
 
-		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderOK{}, downloadMoveOrderResponse)
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(fmt.Sprintf(`inline; filename=\"Customer-ORDERS,AMENDMENTS-for-MTO-%s-\d{14}.pdf\"`, locator)).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
+
 	})
 
 	suite.Run("Successful DownloadMoveOrder - error generating PDF - 500", func() {
