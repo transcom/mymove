@@ -2,6 +2,7 @@
 -- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
 -- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
 -- B-23581 Paul Stonebraker updated assigned office user counselor columns
+-- B-23623  Beth Grohmann  fetch_move_history - update final query to pull from all user tables
 
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
@@ -1957,12 +1958,16 @@ BEGIN
     RETURN QUERY WITH user_info AS (
       SELECT
         ur.user_id,
-        MAX(ou.first_name) AS first_name,
-        MAX(ou.last_name) AS last_name,
-        MAX(ou.email) AS email,
-        MAX(ou.telephone) AS telephone
+        MAX(COALESCE(ou.first_name, prime_user_first_name)) AS first_name,
+		MAX(ou.last_name) AS last_name,
+		MAX(ou.email) AS email,
+		MAX(ou.telephone) AS telephone
       FROM users_roles ur
+	  LEFT JOIN roles r ON ur.role_id = r.id
       LEFT JOIN office_users ou ON ou.user_id = ur.user_id
+	  LEFT JOIN (
+			SELECT 'Prime' AS prime_user_first_name
+			) prime_users ON r.role_type = 'prime'
       GROUP BY ur.user_id
     )
     SELECT
@@ -1986,13 +1991,14 @@ BEGIN
       x.context_id,
       x.move_id,
       x.shipment_id,
-      ui.first_name AS session_user_first_name,
-      ui.last_name AS session_user_last_name,
-      ui.email AS session_user_email,
-      ui.telephone AS session_user_telephone,
+      COALESCE(ui.first_name, sm.first_name) AS session_user_first_name,
+      COALESCE(ui.last_name, sm.last_name) AS session_user_last_name,
+      COALESCE(ui.email, sm.personal_email) AS session_user_email,
+      COALESCE(ui.telephone, sm.telephone) AS session_user_telephone,
       x.seq_num
     FROM audit_hist_temp x
     LEFT JOIN user_info ui ON ui.user_id = x.session_userid
+	LEFT JOIN service_members sm ON sm.user_id = x.session_userid
     ORDER BY x.action_tstamp_tx DESC
     LIMIT per_page OFFSET offset_value;
 END;
