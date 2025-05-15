@@ -44,9 +44,13 @@ const moveData = [
     originDutyLocation: {
       name: 'Area 51',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
     requestedMoveDate: '2023-02-10',
+    requestedMoveDates: '10 Feb 2023, 10 Mar 2023',
     appearedInTooAt: '2023-02-10T00:00:00.000Z',
     lockExpiresAt: '2099-02-10T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
@@ -84,9 +88,13 @@ const moveData = [
     originDutyLocation: {
       name: 'Los Alamos',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
     requestedMoveDate: '2023-02-12',
+    requestedMoveDates: '12 Feb 2023',
     appearedInTooAt: '2023-02-12T00:00:00.000Z',
     assignedTo: {
       officeUserId: 'exampleId2',
@@ -121,9 +129,13 @@ const moveData = [
     originDutyLocation: {
       name: 'Area 52',
     },
+    destinationDutyLocation: {
+      name: 'Area 52',
+    },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
     requestedMoveDate: '2023-03-12',
+    requestedMoveDates: '12 Mar 2023',
     appearedInTooAt: '2023-03-12T00:00:00.000Z',
     lockExpiresAt: '2099-03-12T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
@@ -363,16 +375,15 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].shipmentsCount.toString(),
     );
-    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originDutyLocation.name,
-    );
-    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originGBLOC,
+    expect(currentMove.find({ 'data-testid': `destinationDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].destinationDutyLocation.name,
     );
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
     currentIndex += 1;
@@ -398,16 +409,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].shipmentsCount.toString(),
     );
-    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originDutyLocation.name,
-    );
-    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originGBLOC,
-    );
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('12 Feb 2023');
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('12 Feb 2023');
 
     currentIndex += 1;
@@ -427,11 +431,8 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].shipmentsCount.toString(),
     );
-    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originDutyLocation.name,
-    );
-    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].originGBLOC,
+    expect(currentMove.find({ 'data-testid': `destinationDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].destinationDutyLocation.name,
     );
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
@@ -532,7 +533,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
 
     wrapper.update();
-    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('New move');
+    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Approvals requested');
   });
 
   it('renders Search, Destination Queue and Move Queue tabs', () => {
