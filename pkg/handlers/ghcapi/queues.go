@@ -140,7 +140,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			moves, count, err := h.OrderFetcher.ListOriginRequestsOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
-				roles.RoleTypeTOO,
 				&ListOrderParams,
 			)
 			if err != nil {
