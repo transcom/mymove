@@ -27,3 +27,14 @@ func (pg PayGrade) Validate(_ *pop.Connection) (*validate.Errors, error) {
 
 // PayGrades is a slice of PayGrade
 type PayGrades []PayGrade
+
+func GetPayGradesForAffiliation(db *pop.Connection, affiliation string) (PayGrades, error) {
+	var payGrades PayGrades
+
+	err := db.Q().All(&payGrades)
+	if err != nil {
+		return nil, err
+	}
+
+	return payGrades, nil
+}

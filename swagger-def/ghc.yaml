@@ -5075,6 +5075,28 @@ paths:
       description: >-
         Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
+  '/paygrade/{affiliation}':
+    get:
+      summary: Get pay grades for specified affiliation
+      description: Get pay grades for specified affiliation
+      operationId: getPayGrades
+      tags:
+        - orders
+      parameters:
+        - $ref: 'definitions/AffiliationParam.yaml'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: 'definitions/OrderPayGrade.yaml'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 definitions:
   ApplicationParameters:
     type: object

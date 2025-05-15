@@ -1988,6 +1988,41 @@ func init() {
         }
       }
     },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrade"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
@@ -8851,6 +8886,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -11086,6 +11138,55 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/paygrade/{affiliation}": {
+      "get": {
+        "description": "Get pay grades for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get pay grades for specified affiliation",
+        "operationId": "getPayGrades",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderPayGrade"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
           }
         }
       }
@@ -18328,6 +18429,23 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
