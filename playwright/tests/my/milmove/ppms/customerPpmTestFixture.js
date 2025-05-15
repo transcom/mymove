@@ -412,7 +412,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByTestId('modalCloseButton').click();
 
     // wait for the file not to be visible in the uploads
-    await expect(this.page.getByRole('heading', { name: '1 Files Uploaded' })).not.toBeVisible();
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
 
     // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
     await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
