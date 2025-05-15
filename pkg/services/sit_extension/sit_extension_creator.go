@@ -66,47 +66,41 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	// If the status is set to pending, then the TOO needs to review the sit extensions
 	// Which means the shipment and move status needs to be set to approvals requested
 	if sitExtension.Status == models.SITExtensionStatusPending {
-		shipment.Status = models.MTOShipmentStatusApprovalsRequested
-
 		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			verrs, err := appCtx.DB().ValidateAndUpdate(shipment)
+			if _, err := f.moveRouter.UpdateShipmentStatusToApprovalsRequested(txnAppCtx, *shipment); err != nil {
+				return err
+			}
 
-			if verrs != nil && verrs.HasAny() {
-				return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Invalid input found while updating the shipment")
-			} else if err != nil {
-				return apperror.NewQueryError("MTOShipments", err, "")
+			// Get the move
+			var move models.Move
+			err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
+				default:
+					return apperror.NewQueryError("Move", err, "")
+				}
+			}
+
+			existingMoveStatus := move.Status
+			err = f.moveRouter.SendToOfficeUser(appCtx, &move)
+			if err != nil {
+				return err
+			}
+
+			// only update if the move status has actually changed
+			if existingMoveStatus != move.Status {
+				err = appCtx.DB().Update(&move)
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		})
 
 		if transactionError != nil {
 			return nil, transactionError
-		}
-
-		// Get the move
-		var move models.Move
-		err := appCtx.DB().Find(&move, shipment.MoveTaskOrderID)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
-			default:
-				return nil, apperror.NewQueryError("Move", err, "")
-			}
-		}
-
-		existingMoveStatus := move.Status
-		err = f.moveRouter.SendToOfficeUser(appCtx, &move)
-		if err != nil {
-			return nil, err
-		}
-
-		// only update if the move status has actually changed
-		if existingMoveStatus != move.Status {
-			err = appCtx.DB().Update(&move)
-			if err != nil {
-				return nil, err
-			}
 		}
 
 	}

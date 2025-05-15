@@ -3168,12 +3168,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 				Model:    mto,
 				LinkOnly: true,
 			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApprovalsRequested,
-				},
-			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		eTag = etag.GenerateEtag(testShipment.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(

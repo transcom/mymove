@@ -300,11 +300,6 @@ func GetTraitApprovalsRequestedMove() []Customization {
 				Status:               models.MoveStatusAPPROVALSREQUESTED,
 			},
 		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApprovalsRequested,
-			},
-		},
 	}
 }
 

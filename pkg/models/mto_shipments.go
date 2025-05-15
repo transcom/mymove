@@ -563,15 +563,19 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 
 func IsShipmentApprovable(dbShipment MTOShipment) bool {
 	// check if any service items on current shipment still need to be reviewed
-	for _, serviceItem := range dbShipment.MTOServiceItems {
-		if serviceItem.Status == MTOServiceItemStatusSubmitted {
-			return false
+	if dbShipment.MTOServiceItems != nil {
+		for _, serviceItem := range dbShipment.MTOServiceItems {
+			if serviceItem.Status == MTOServiceItemStatusSubmitted {
+				return false
+			}
 		}
 	}
 	// check if all SIT Extensions are reviewed
-	for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
-		if sitDurationUpdate.Status == SITExtensionStatusPending {
-			return false
+	if dbShipment.SITDurationUpdates != nil {
+		for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == SITExtensionStatusPending {
+				return false
+			}
 		}
 	}
 	// check if all Delivery Address updates are reviewed
