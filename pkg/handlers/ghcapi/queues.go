@@ -906,6 +906,15 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
 				}
 
+				moveIdsToLock := make([]uuid.UUID, len(moves))
+				for i, move := range moves {
+					moveIdsToLock[i] = move.ID
+				}
+				err = h.LockMoves(appCtx, moveIdsToLock, officeUser.ID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Failed to lock Destination Requests Queue moves for office user ID: %s", officeUser.ID), zap.Error(err))
+				}
+
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			}
 
