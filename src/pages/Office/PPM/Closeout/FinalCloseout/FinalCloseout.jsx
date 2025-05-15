@@ -23,7 +23,7 @@ const FinalCloseout = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
   const { moveCode, shipmentId } = useParams();
-  const { selectedMove, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
+  const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
@@ -81,7 +81,7 @@ const FinalCloseout = () => {
                   onBack={handleBack}
                   onSubmit={handleSubmit}
                   affiliation={order.agency}
-                  selectedMove={selectedMove}
+                  move={move}
                   appName={APP_NAME.OFFICE}
                 />
               </div>

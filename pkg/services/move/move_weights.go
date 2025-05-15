@@ -393,7 +393,8 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 			}
 
 			/* Don't send emails to BLUEBARK moves */
-			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() {
+			/* Don't send reweigh emails to PPM shipments */
+			if shipment.MoveTaskOrder.Orders.CanSendEmailWithOrdersType() && shipment.CanSendReweighEmailForShipmentType() {
 				err := w.Sender.SendNotification(appCtx,
 					notifications.NewReweighRequested(shipment.MoveTaskOrderID, shipment),
 				)
