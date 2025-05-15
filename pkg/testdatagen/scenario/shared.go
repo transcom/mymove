@@ -630,7 +630,7 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 	return move
 }
 
-func CreateGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo MoveCreatorInfo, useMinimalPPMShipment bool, userUploader *uploader.UserUploader, mtoShipmentTemplate *models.MTOShipment, moveTemplate *models.Move, ppmShipmentTemplate models.PPMShipment) (models.Move, models.PPMShipment) {
+func CreateGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo MoveCreatorInfo, useMinimalPPMShipment bool, userUploader *uploader.UserUploader, mtoShipmentTemplate *models.MTOShipment, moveTemplate *models.Move, ppmShipmentTemplate *models.PPMShipment) (models.Move, models.PPMShipment) {
 
 	if ppmShipmentTemplate.ID.IsNil() {
 		log.Panic("PPMShipment ID cannot be nil.")
@@ -663,8 +663,24 @@ func CreateGenericMoveWithPPMShipment(appCtx appcontext.AppContext, moveInfo Mov
 		})
 		ppmShipmentTemplate.W2Address = nil
 	}
+	if ppmShipmentTemplate.PickupAddress != nil {
+		customs = append(customs, factory.Customization{
+			Model:    *ppmShipmentTemplate.PickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		})
+		ppmShipmentTemplate.PickupAddress = nil
+	}
+	if ppmShipmentTemplate.DestinationAddress != nil {
+		customs = append(customs, factory.Customization{
+			Model:    *ppmShipmentTemplate.DestinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		})
+		ppmShipmentTemplate.DestinationAddress = nil
+	}
 	customs = append(customs, factory.Customization{
-		Model: ppmShipmentTemplate,
+		Model: *ppmShipmentTemplate,
 	})
 
 	if mtoShipmentTemplate != nil {
@@ -701,7 +717,7 @@ func createUnSubmittedMoveWithMinimumPPMShipment(appCtx appcontext.AppContext, u
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, &assertions.PPMShipment)
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -729,7 +745,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appconte
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, &assertions.PPMShipment)
 }
 
 func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -758,7 +774,7 @@ func createUnSubmittedMoveWithPPMShipmentThroughAdvanceRequested(appCtx appconte
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, &assertions.PPMShipment)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment1(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -786,7 +802,7 @@ func createUnSubmittedMoveWithFullPPMShipment1(appCtx appcontext.AppContext, use
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, &assertions.PPMShipment)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -816,7 +832,7 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -846,7 +862,7 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -875,7 +891,7 @@ func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, use
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 }
 
 func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -904,7 +920,7 @@ func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, use
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -936,7 +952,7 @@ func createApprovedMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploa
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -970,7 +986,7 @@ func createApprovedMoveWithPPM2(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPM3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1002,7 +1018,7 @@ func createApprovedMoveWithPPM3(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPM4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1034,7 +1050,7 @@ func createApprovedMoveWithPPM4(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPM5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1066,7 +1082,7 @@ func createApprovedMoveWithPPM5(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPM6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1098,7 +1114,7 @@ func createApprovedMoveWithPPM6(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPM7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1130,7 +1146,7 @@ func createApprovedMoveWithPPM7(appCtx appcontext.AppContext, userUploader *uplo
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1169,7 +1185,7 @@ func createApprovedMoveWithPPMWeightTicket(appCtx appcontext.AppContext, userUpl
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -1211,7 +1227,7 @@ func createApprovedMoveWithPPMExcessWeight(appCtx appcontext.AppContext, userUpl
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -1397,7 +1413,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -1459,7 +1475,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -1539,7 +1555,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
@@ -1632,7 +1648,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicketWithConstructedWeight(appCtx.DB(), []factory.Customization{
 		{
@@ -1728,7 +1744,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1767,7 +1783,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete2(appCtx appcontext.AppContex
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete3(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1806,7 +1822,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete3(appCtx appcontext.AppContex
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete4(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1845,7 +1861,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete4(appCtx appcontext.AppContex
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete5(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1884,7 +1900,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete5(appCtx appcontext.AppContex
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete6(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1923,7 +1939,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete6(appCtx appcontext.AppContex
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete7(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -1962,7 +1978,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete7(appCtx appcontext.AppContex
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMWithAboutFormComplete8(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -2001,7 +2017,7 @@ func createApprovedMoveWithPPMWithAboutFormComplete8(appCtx appcontext.AppContex
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 }
 
 func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *MoveCreatorInfo, userUploader *uploader.UserUploader) {
@@ -2044,7 +2060,7 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2128,7 +2144,7 @@ func createApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext, 
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2199,7 +2215,7 @@ func createApprovedMoveWithPPMProgearWeightTicket2(appCtx appcontext.AppContext,
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2278,7 +2294,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext
 
 	// This one is a little hairy because the move contains a
 	// CloseoutOffice model
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2366,7 +2382,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout2(appCtx appcontext.AppContex
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2454,7 +2470,7 @@ func createMoveWithPPMShipmentReadyForFinalCloseout3(appCtx appcontext.AppContex
 		},
 	}
 
-	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -2531,7 +2547,7 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 		},
 	}
 
-	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, &assertions.PPMShipment)
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -3484,7 +3500,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete1(appCtx appcontext
 		},
 	}
 
-	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -3518,7 +3534,7 @@ func createUnsubmittedMoveWithMultipleFullPPMShipmentComplete2(appCtx appcontext
 		},
 	}
 
-	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -3646,7 +3662,7 @@ func createMoveWithPPM(appCtx appcontext.AppContext, userUploader *uploader.User
 		},
 	}
 
-	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, assertions.PPMShipment)
+	move, _ := CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, &assertions.PPMShipment)
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -5650,7 +5666,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 					},
 					{
 						IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-						Value:       "2022-03-16",
+						Value:       "2024-03-16",
 					},
 				},
 				Status: models.PaymentServiceItemStatusRequested,
