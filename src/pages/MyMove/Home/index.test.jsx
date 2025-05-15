@@ -164,8 +164,6 @@ const approvedPPMShipment = {
     ...submittedPPMShipment.ppmShipment,
     status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
     actualMoveDate: null,
-    actualPickupPostalCode: null,
-    actualDestinationPostalCode: null,
     hasReceivedAdvance: null,
     advanceAmountReceived: null,
     weightTickets: [],
@@ -198,8 +196,6 @@ const ppmShipmentWithActualShipmentInfo = {
   ppmShipment: {
     ...approvedPPMShipment.ppmShipment,
     actualMoveDate: approvedPPMShipment.ppmShipment.expectedDepartureDate,
-    actualPickupPostalCode: approvedPPMShipment.ppmShipment.pickupAddress.postalCode,
-    actualDestinationPostalCode: approvedPPMShipment.ppmShipment.destinationAddress.postalCode,
     hasReceivedAdvance: approvedPPMShipment.ppmShipment.hasRequestedAdvance,
     advanceAmountReceived: approvedPPMShipment.ppmShipment.advanceAmountRequested,
   },

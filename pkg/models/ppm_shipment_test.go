@@ -61,62 +61,58 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				Status:                models.PPMShipmentStatusDraft,
 
 				// Now setting optional fields with invalid values.
-				DeletedAt:                   models.TimePointer(time.Time{}),
-				ActualMoveDate:              models.TimePointer(time.Time{}),
-				SubmittedAt:                 models.TimePointer(time.Time{}),
-				ReviewedAt:                  models.TimePointer(time.Time{}),
-				ApprovedAt:                  models.TimePointer(time.Time{}),
-				PickupAddressID:             models.UUIDPointer(uuid.Nil),
-				DestinationAddressID:        models.UUIDPointer(uuid.Nil),
-				W2AddressID:                 models.UUIDPointer(uuid.Nil),
-				ActualPickupPostalCode:      models.StringPointer(""),
-				ActualDestinationPostalCode: models.StringPointer(""),
-				EstimatedWeight:             models.PoundPointer(unit.Pound(-1)),
-				AllowableWeight:             models.PoundPointer(unit.Pound(-1)),
-				ProGearWeight:               models.PoundPointer(unit.Pound(-1)),
-				SpouseProGearWeight:         models.PoundPointer(unit.Pound(-1)),
-				EstimatedIncentive:          models.CentPointer(unit.Cents(-1)),
-				MaxIncentive:                models.CentPointer(unit.Cents(-1)),
-				FinalIncentive:              models.CentPointer(unit.Cents(0)),
-				AdvanceAmountRequested:      models.CentPointer(unit.Cents(-1)),
-				AdvanceStatus:               &blankAdvanceStatus,
-				AdvanceAmountReceived:       models.CentPointer(unit.Cents(0)),
-				SITLocation:                 &blankSITLocation,
-				SITEstimatedWeight:          models.PoundPointer(unit.Pound(-1)),
-				SITEstimatedEntryDate:       models.TimePointer(time.Time{}),
-				SITEstimatedDepartureDate:   models.TimePointer(time.Time{}),
-				SITEstimatedCost:            models.CentPointer(unit.Cents(0)),
-				AOAPacketID:                 models.UUIDPointer(uuid.Nil),
-				PaymentPacketID:             models.UUIDPointer(uuid.Nil),
+				DeletedAt:                 models.TimePointer(time.Time{}),
+				ActualMoveDate:            models.TimePointer(time.Time{}),
+				SubmittedAt:               models.TimePointer(time.Time{}),
+				ReviewedAt:                models.TimePointer(time.Time{}),
+				ApprovedAt:                models.TimePointer(time.Time{}),
+				PickupAddressID:           models.UUIDPointer(uuid.Nil),
+				DestinationAddressID:      models.UUIDPointer(uuid.Nil),
+				W2AddressID:               models.UUIDPointer(uuid.Nil),
+				EstimatedWeight:           models.PoundPointer(unit.Pound(-1)),
+				AllowableWeight:           models.PoundPointer(unit.Pound(-1)),
+				ProGearWeight:             models.PoundPointer(unit.Pound(-1)),
+				SpouseProGearWeight:       models.PoundPointer(unit.Pound(-1)),
+				EstimatedIncentive:        models.CentPointer(unit.Cents(-1)),
+				MaxIncentive:              models.CentPointer(unit.Cents(-1)),
+				FinalIncentive:            models.CentPointer(unit.Cents(0)),
+				AdvanceAmountRequested:    models.CentPointer(unit.Cents(-1)),
+				AdvanceStatus:             &blankAdvanceStatus,
+				AdvanceAmountReceived:     models.CentPointer(unit.Cents(0)),
+				SITLocation:               &blankSITLocation,
+				SITEstimatedWeight:        models.PoundPointer(unit.Pound(-1)),
+				SITEstimatedEntryDate:     models.TimePointer(time.Time{}),
+				SITEstimatedDepartureDate: models.TimePointer(time.Time{}),
+				SITEstimatedCost:          models.CentPointer(unit.Cents(0)),
+				AOAPacketID:               models.UUIDPointer(uuid.Nil),
+				PaymentPacketID:           models.UUIDPointer(uuid.Nil),
 			},
 			expectedErrs: map[string][]string{
-				"deleted_at":                     {"DeletedAt can not be blank."},
-				"actual_move_date":               {"ActualMoveDate can not be blank."},
-				"submitted_at":                   {"SubmittedAt can not be blank."},
-				"reviewed_at":                    {"ReviewedAt can not be blank."},
-				"approved_at":                    {"ApprovedAt can not be blank."},
-				"pickup_address_id":              {"PickupAddressID can not be blank."},
-				"destination_address_id":         {"DestinationAddressID can not be blank."},
-				"w2_address_id":                  {"W2AddressID can not be blank."},
-				"actual_pickup_postal_code":      {"ActualPickupPostalCode can not be blank."},
-				"actual_destination_postal_code": {"ActualDestinationPostalCode can not be blank."},
-				"estimated_weight":               {"-1 is less than zero."},
-				"allowable_weight":               {"-1 is less than zero."},
-				"pro_gear_weight":                {"-1 is less than zero."},
-				"spouse_pro_gear_weight":         {"-1 is less than zero."},
-				"estimated_incentive":            {"EstimatedIncentive cannot be negative, got: -1."},
-				"max_incentive":                  {"MaxIncentive cannot be negative, got: -1."},
-				"final_incentive":                {"FinalIncentive must be greater than zero, got: 0."},
-				"advance_amount_requested":       {"AdvanceAmountRequested cannot be negative, got: -1."},
-				"advance_status":                 {fmt.Sprintf("AdvanceStatus is not in the list [%s].", validPPMShipmentAdvanceStatuses)},
-				"advance_amount_received":        {"AdvanceAmountReceived must be greater than zero, got: 0."},
-				"sitlocation":                    {fmt.Sprintf("SITLocation is not in the list [%s].", validSITLocations)},
-				"sitestimated_weight":            {"-1 is less than zero."},
-				"sitestimated_entry_date":        {"SITEstimatedEntryDate can not be blank."},
-				"sitestimated_departure_date":    {"SITEstimatedDepartureDate can not be blank."},
-				"sitestimated_cost":              {"SITEstimatedCost must be greater than zero, got: 0."},
-				"aoapacket_id":                   {"AOAPacketID can not be blank."},
-				"payment_packet_id":              {"PaymentPacketID can not be blank."},
+				"deleted_at":                  {"DeletedAt can not be blank."},
+				"actual_move_date":            {"ActualMoveDate can not be blank."},
+				"submitted_at":                {"SubmittedAt can not be blank."},
+				"reviewed_at":                 {"ReviewedAt can not be blank."},
+				"approved_at":                 {"ApprovedAt can not be blank."},
+				"pickup_address_id":           {"PickupAddressID can not be blank."},
+				"destination_address_id":      {"DestinationAddressID can not be blank."},
+				"w2_address_id":               {"W2AddressID can not be blank."},
+				"estimated_weight":            {"-1 is less than zero."},
+				"allowable_weight":            {"-1 is less than zero."},
+				"pro_gear_weight":             {"-1 is less than zero."},
+				"spouse_pro_gear_weight":      {"-1 is less than zero."},
+				"estimated_incentive":         {"EstimatedIncentive cannot be negative, got: -1."},
+				"max_incentive":               {"MaxIncentive cannot be negative, got: -1."},
+				"final_incentive":             {"FinalIncentive must be greater than zero, got: 0."},
+				"advance_amount_requested":    {"AdvanceAmountRequested cannot be negative, got: -1."},
+				"advance_status":              {fmt.Sprintf("AdvanceStatus is not in the list [%s].", validPPMShipmentAdvanceStatuses)},
+				"advance_amount_received":     {"AdvanceAmountReceived must be greater than zero, got: 0."},
+				"sitlocation":                 {fmt.Sprintf("SITLocation is not in the list [%s].", validSITLocations)},
+				"sitestimated_weight":         {"-1 is less than zero."},
+				"sitestimated_entry_date":     {"SITEstimatedEntryDate can not be blank."},
+				"sitestimated_departure_date": {"SITEstimatedDepartureDate can not be blank."},
+				"sitestimated_cost":           {"SITEstimatedCost must be greater than zero, got: 0."},
+				"aoapacket_id":                {"AOAPacketID can not be blank."},
+				"payment_packet_id":           {"PaymentPacketID can not be blank."},
 			},
 		},
 	}
@@ -125,7 +121,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 		name, testCase := name, testCase
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(testCase.ppmShipment, testCase.expectedErrs)
+			suite.verifyValidationErrors(testCase.ppmShipment, testCase.expectedErrs, nil)
 		})
 	}
 }
@@ -133,7 +129,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 func (suite *ModelSuite) TestCalculatePPMIncentive() {
 	suite.Run("success - receive PPM incentive when all values exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "74135")
+		pickupUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "74133", "Tulsa")
 		suite.FatalNoError(err)
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -148,7 +144,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -179,7 +175,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 
 	suite.Run("failure - contract doesn't exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "74135")
+		pickupUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "74133", "Tulsa")
 		suite.FatalNoError(err)
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -194,7 +190,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 			},
 		}, nil)
 
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -223,7 +219,7 @@ func (suite *ModelSuite) TestCalculatePPMIncentive() {
 func (suite *ModelSuite) TestCalculatePPMSITCost() {
 	suite.Run("success - receive PPM SIT costs when all values exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -252,7 +248,7 @@ func (suite *ModelSuite) TestCalculatePPMSITCost() {
 
 	suite.Run("failure - contract doesn't exist", func() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		destUSPRC, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), "99505", "JBER")
 		suite.FatalNoError(err)
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{

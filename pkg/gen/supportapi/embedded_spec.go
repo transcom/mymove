@@ -1601,7 +1601,7 @@ func init() {
           ],
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
@@ -4582,7 +4582,7 @@ func init() {
           ],
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (IDSHUT \u0026 IOSHUT) service items.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,

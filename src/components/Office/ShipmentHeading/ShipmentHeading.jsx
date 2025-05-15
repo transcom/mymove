@@ -29,6 +29,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
   const showRequestCancellation =
     shipmentStatus !== shipmentStatuses.CANCELED && shipmentStatus !== shipmentStatuses.CANCELLATION_REQUESTED;
   const isCancellationRequested = shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED;
+  const isDisabled = isMoveLocked || shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE;
 
   const queryClient = useQueryClient();
   const { mutate: mutateShipmentTermination } = useMutation(terminateShipment, {
@@ -85,8 +86,10 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
         shipmentLocator={shipmentInfo.shipmentLocator}
       />
       <div className={styles.shipmentHeadingType}>
-        <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
-        <h2>{shipmentInfo.shipmentType}</h2>
+        <h2>
+          <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
+          {shipmentInfo.shipmentType}
+        </h2>
         <div>
           {shipmentStatus === shipmentStatuses.TERMINATED_FOR_CAUSE && (
             <Tag className="usa-tag--cancellation">terminated for cause</Tag>
@@ -110,7 +113,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
                 type="button"
                 onClick={() => handleShowCancellationModal(shipmentInfo)}
                 unstyled
-                disabled={isMoveLocked}
+                disabled={isDisabled}
               >
                 Request Cancellation
               </Button>

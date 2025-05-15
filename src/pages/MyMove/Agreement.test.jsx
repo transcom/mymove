@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 import { generatePath } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { Agreement } from './Agreement';
 
 import { submitMoveForApproval } from 'services/internalApi';
 import { completeCertificationText } from 'scenes/Legalese/legaleseText';
-import { SIGNED_CERT_OPTIONS } from 'shared/constants';
+import { SIGNED_CERT_OPTIONS, MOVE_LOCKED_WARNING } from 'shared/constants';
 import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { renderWithRouterProp } from 'testUtils';
@@ -42,13 +42,53 @@ describe('Agreement page', () => {
   it('submits the move and sets the flash message before redirecting home', async () => {
     submitMoveForApproval.mockResolvedValueOnce(submittedMoveSuccessResponse);
 
-    renderWithRouterProp(<Agreement {...testProps} />, {
-      path: customerRoutes.MOVE_REVIEW_PATH,
-      params: { moveId: 'testMove123' },
+    renderWithRouterProp(
+      <Agreement {...testProps} serviceMember={{ first_name: 'Sofia', last_name: 'Clark-Nuñez' }} />,
+      {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: 'testMove123' },
+      },
+    );
+
+    const scrollBox = screen.getByTestId('certificationTextBox');
+    const checkbox = await screen.findByRole('checkbox', {
+      name: /I have read and understand the agreement as shown above/i,
+    });
+    const signatureInput = screen.getByLabelText('SIGNATURE');
+    const completeButton = screen.getByRole('button', { name: 'Complete' });
+
+    // all controls should start of disabled
+    expect(checkbox).toHaveAttribute('readonly');
+    expect(signatureInput).toHaveAttribute('readonly');
+    expect(completeButton).toBeDisabled();
+    Object.defineProperty(scrollBox, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(scrollBox, 'clientHeight', { configurable: true, value: 100 });
+    Object.defineProperty(scrollBox, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 200,
+    });
+    await act(async () => {
+      fireEvent.scroll(scrollBox);
     });
 
-    await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
-    await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
+    // scroll to bottom should enable the checkbox, but not signature (yet)
+    expect(checkbox).not.toHaveAttribute('readonly');
+    expect(signatureInput).toHaveAttribute('readonly');
+    await userEvent.click(checkbox);
+    expect(checkbox.checked).toEqual(true);
+
+    expect(signatureInput).toBeEnabled();
+    await userEvent.type(signatureInput, 'Sofia Clark-Nuñez');
+
+    // eslint-disable-next-line no-restricted-globals
+    print(signatureInput.value);
+
+    await waitFor(() => {
+      expect(completeButton).toBeEnabled();
+    });
+
+    await userEvent.click(completeButton);
 
     await waitFor(() => {
       expect(submitMoveForApproval).toHaveBeenCalledWith(testProps.moveId, {
@@ -68,13 +108,91 @@ describe('Agreement page', () => {
     );
   });
 
+  it('displays warning and disables submit button if the move has been locked by a services counselor and is in DRAFT status', async () => {
+    renderWithRouterProp(
+      <Agreement
+        {...testProps}
+        serviceMember={{ first_name: 'Sofia', last_name: 'Clark-Nuñez' }}
+        move={{ lockExpiresAt: '2099-04-07T17:21:30.450Z', status: MOVE_STATUSES.DRAFT }}
+      />,
+      {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: 'testMove123' },
+      },
+    );
+
+    const scrollBox = screen.getByTestId('certificationTextBox');
+    const checkbox = await screen.findByRole('checkbox', {
+      name: /I have read and understand the agreement as shown above/i,
+    });
+    const signatureInput = screen.getByLabelText('SIGNATURE');
+    const completeButton = screen.getByRole('button', { name: 'Complete' });
+
+    // all controls should start of disabled
+    expect(checkbox).toHaveAttribute('readonly');
+    expect(signatureInput).toHaveAttribute('readonly');
+    expect(completeButton).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+    });
+    Object.defineProperty(scrollBox, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(scrollBox, 'clientHeight', { configurable: true, value: 100 });
+    Object.defineProperty(scrollBox, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 200,
+    });
+    await act(async () => {
+      fireEvent.scroll(scrollBox);
+    });
+
+    // scroll to bottom should enable the checkbox, but not signature (yet)
+    expect(checkbox).not.toHaveAttribute('readonly');
+    expect(signatureInput).toHaveAttribute('readonly');
+    await userEvent.click(checkbox);
+    expect(checkbox.checked).toEqual(true);
+
+    expect(signatureInput).toBeEnabled();
+    await userEvent.type(signatureInput, 'Sofia Clark-Nuñez');
+
+    // eslint-disable-next-line no-restricted-globals
+    print(signatureInput.value);
+
+    await waitFor(() => {
+      expect(completeButton).toBeDisabled();
+    });
+  });
+
   it('renders an error if submitting the move responds with a server error', async () => {
     submitMoveForApproval.mockRejectedValueOnce({ errors: { signature: 'Signature can not be blank.' } });
 
-    renderWithRouterProp(<Agreement {...testProps} />, {
-      path: customerRoutes.MOVE_REVIEW_PATH,
-      params: { moveId: 'testMove123' },
+    renderWithRouterProp(
+      <Agreement {...testProps} serviceMember={{ first_name: 'Sofia', last_name: 'Clark-Nuñez' }} />,
+      {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: 'testMove123' },
+      },
+    );
+
+    const scrollBox = screen.getByTestId('certificationTextBox');
+
+    Object.defineProperty(scrollBox, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(scrollBox, 'clientHeight', { configurable: true, value: 100 });
+    Object.defineProperty(scrollBox, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 200,
     });
+    await act(async () => {
+      fireEvent.scroll(scrollBox);
+    });
+    const checkbox = await screen.findByRole('checkbox', { name: /i have read and understand/i });
+    expect(checkbox).toBeEnabled();
+    await userEvent.click(checkbox);
+
+    const signatureInput = await screen.findByLabelText('SIGNATURE');
+    expect(signatureInput).toBeEnabled();
+
     await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 

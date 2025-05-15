@@ -22,7 +22,7 @@ import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import profileImage from 'scenes/Review/images/profile.png';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
@@ -48,6 +48,7 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  isMoveLocked,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -605,7 +606,7 @@ const EditOrdersForm = ({
               <WizardNavigation
                 editMode
                 onCancelClick={onCancel}
-                disableNext={!isValid || isSubmitting}
+                disableNext={!isValid || isSubmitting || isMoveLocked}
                 onNextClick={handleSubmit}
               />
             </div>

@@ -20,7 +20,7 @@ import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipment
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
 import BoatShipmentCard from 'components/Customer/Review/ShipmentCard/BoatShipmentCard/BoatShipmentCard';
 import MobileHomeShipmentCard from 'components/Customer/Review/ShipmentCard/MobileHomeShipmentCard/MobileHomeShipmentCard';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
@@ -171,7 +171,8 @@ export class Summary extends Component {
       );
     }
 
-    const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
+    const { isMoveLocked } = this.props;
+    const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT && !isMoveLocked;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
     let boatShipmentNumber = 0;
@@ -442,13 +443,13 @@ export class Summary extends Component {
 
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
 
-    // customer can add another shipment IFF the move is still draft
-    const canAddAnotherShipment = isReviewPage && currentMove.status === MOVE_STATUSES.DRAFT;
+    // customer can add another shipment IF the move is still draft
+    const { isMoveLocked } = this.props;
+    const canAddAnotherShipment = isReviewPage && currentMove.status === MOVE_STATUSES.DRAFT && !isMoveLocked;
 
     const showMoveSetup = showHHGShipmentSummary;
 
     const thirdSectionHasContent = showMoveSetup || (isReviewPage && mtoShipments.length > 0);
-
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -502,6 +503,7 @@ export class Summary extends Component {
             accompaniedTour={currentOrders.entitlement?.accompanied_tour}
             dependentsUnderTwelve={currentOrders.entitlement?.dependents_under_twelve}
             dependentsTwelveAndOver={currentOrders.entitlement?.dependents_twelve_and_over}
+            isMoveLocked={isMoveLocked}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (

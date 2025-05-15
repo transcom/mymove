@@ -451,8 +451,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					StreetAddress1: "987 Other Avenue",
 					StreetAddress2: models.StringPointer("P.O. Box 12345"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),
-					City:           "Fort Eisenhower",
-					State:          "GA",
+					City:           "DES MOINES",
+					State:          "IA",
 					PostalCode:     "50309",
 					County:         models.StringPointer("COLUMBIA"),
 				},
@@ -475,7 +475,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Eisenhower",
+				City:           "WALESKA",
 				State:          "GA",
 				PostalCode:     "30183",
 				County:         models.StringPointer("COLUMBIA"),
@@ -524,8 +524,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					StreetAddress1: "987 Other Avenue",
 					StreetAddress2: models.StringPointer("P.O. Box 12345"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),
-					City:           "Fort Eisenhower",
-					State:          "GA",
+					City:           "DES MOINES",
+					State:          "IA",
 					PostalCode:     "50309",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
@@ -542,7 +542,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Eisenhower",
+				City:           "WALESKA",
 				State:          "GA",
 				PostalCode:     "30183",
 			},
@@ -1154,17 +1154,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					ActualMoveDate:              &today,
-					ActualPickupPostalCode:      models.StringPointer("79912"),
-					ActualDestinationPostalCode: models.StringPointer("90909"),
-					EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
+					ActualMoveDate:  &today,
+					EstimatedWeight: models.PoundPointer(unit.Pound(5000)),
 				},
 			},
 		}, nil)
 
 		newPPM := originalPPM
-
-		newPPM.ActualDestinationPostalCode = models.StringPointer("90210")
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
@@ -1473,8 +1469,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		}, nil)
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
-		city := "Atco"
-		state := "NJ"
+		city := "GROVETOWN"
+		state := "GA"
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,
@@ -1524,8 +1520,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		invalidDate := time.Date(2017, time.March, 15, 0, 0, 0, 0, time.UTC)
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
-		city := "Atco"
-		state := "NJ"
+		city := "GROVETOWN"
+		state := "GA"
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,
@@ -1586,8 +1582,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		}, nil)
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
-		city := "Atco"
-		state := "NJ"
+		city := "GROVETOWN"
+		state := "GA"
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,
@@ -1620,5 +1616,37 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.Error(err)
 		suite.Nil(updatedPPM)
+	})
+	suite.Run("Can successfully update a PPMShipment - cap estimated incentive to max incentive value", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(8000000))
+		newFakeMaxIncentive := models.CentPointer(unit.Cents(5000000))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, nil, newFakeMaxIncentive, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+					SITExpected:           models.BoolPointer(false),
+					EstimatedWeight:       models.PoundPointer(4000),
+					HasProGear:            models.BoolPointer(false),
+					EstimatedIncentive:    fakeEstimatedIncentive,
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate.Add(testdatagen.OneWeek),
+			SITExpected:           models.BoolPointer(true),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Verify estimated incentive is capped at the max
+		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
 	})
 }

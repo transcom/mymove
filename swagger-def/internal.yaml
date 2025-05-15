@@ -216,6 +216,10 @@ definitions:
         readOnly: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
+      lockExpiresAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -611,6 +615,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/VLocation.yaml'
+  Countries:
+    type: array
+    items:
+      $ref: 'definitions/Country.yaml'
   OfficeUser:
     type: object
     properties:
@@ -2086,15 +2094,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       destinationAddress:
         $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
@@ -2108,15 +2107,6 @@ definitions:
       hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
-        x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
         x-nullable: true
       w2Address:
         x-nullable: true
@@ -2470,6 +2460,10 @@ definitions:
         type: string
         readOnly: true
       primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      lockExpiresAt:
         format: date-time
         type: string
         readOnly: true
@@ -4579,6 +4573,36 @@ paths:
           description: the requested list of city, state, county, and postal code matches
           schema:
             $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /addresses/countries:
+    get:
+      summary: Returns the countries matching the search query
+      description: >
+        Search API using search string that returns list of countries containing its code and name.
+        Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will
+        do an exact match on country code and also do a starts with match on country name. If not 2 characters search
+        will do a starts with match on country name.
+      operationId: searchCountries
+      tags:
+        - addresses
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: false
+          description: Search string for countries
+      responses:
+        '200':
+          description: countries matching the search query
+          schema:
+            $ref: '#/definitions/Countries'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':

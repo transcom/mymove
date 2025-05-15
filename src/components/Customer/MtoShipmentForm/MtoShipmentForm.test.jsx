@@ -17,7 +17,7 @@ import {
   patchMTOShipment,
   dateSelectionIsWeekendHoliday,
 } from 'services/internalApi';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, MOVE_LOCKED_WARNING } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
@@ -582,6 +582,35 @@ describe('MtoShipmentForm component', () => {
       expect(mockNavigate).toHaveBeenCalledWith(reviewPath);
     });
 
+    it('disables the continue button when the move is locked by an office user', async () => {
+      const mockMtoShipmentHHG = {
+        id: uuidv4(),
+        eTag: window.btoa(updatedAt),
+        createdAt: '2021-06-11T18:12:11.918Z',
+        updatedAt,
+        moveTaskOrderId: moveId,
+        requestedPickupDate: '2021-06-07',
+        requestedDeliveryDate: '2021-06-14',
+        pickupAddress: {
+          streetAddress1: '812 S 129th St',
+          streetAddress2: '#123',
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+        },
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDeliveryAddress: false,
+        hasTertiaryPickupAddress: false,
+        hasTertiaryDeliveryAddress: false,
+      };
+
+      renderMtoShipmentForm({ mtoShipment: mockMtoShipmentHHG, isMoveLocked: true });
+
+      const nextButton = await screen.findByRole('button', { name: 'Next' });
+      expect(nextButton).toBeDisabled();
+    });
+
     it('shows an error when there is an error with the submission', async () => {
       const shipmentInfo = {
         requestedPickupDate: tomorrow,
@@ -793,6 +822,36 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(saveButton).toBeDisabled();
       });
+    });
+
+    it('disables the save button if the move has been locked by an office user', async () => {
+      const shipment = {
+        ...mockMtoShipment,
+        secondaryPickupAddress: {
+          streetAddress1: '142 E Barrel Hoop Circle',
+          streetAddress2: '#4A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+        secondaryDeliveryAddress: {
+          streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+          streetAddress2: '',
+          city: mockMtoShipment.destinationAddress.city,
+          state: mockMtoShipment.destinationAddress.state,
+          postalCode: mockMtoShipment.destinationAddress.postalCode,
+        },
+      };
+
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: shipment, isMoveLocked: true });
+
+      // Verify that the form is good to submit by checking that the save button is not disabled.
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      expect(saveButton).toBeDisabled();
+
+      // test to verify that the MOVE_LOCKED_WARNING text is showing:
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeInTheDocument();
+      expect(screen.getByText(MOVE_LOCKED_WARNING)).toBeVisible();
     });
 
     it('allow the user to save the form if the secondary address1 field is cleared but the toggle is switched to No', async () => {
@@ -1068,7 +1127,6 @@ describe('MtoShipmentForm component', () => {
       // No to delivery should also hide second delivery address fields, only pickup address left
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1.length).toBe(1);
-
       expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(1);
 
       const saveButton = await screen.findByRole('button', { name: 'Save' });
@@ -1399,7 +1457,6 @@ describe('MtoShipmentForm component', () => {
       renderUBShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
-
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1[0]).toHaveAttribute('name', 'pickup.address.streetAddress1');
 

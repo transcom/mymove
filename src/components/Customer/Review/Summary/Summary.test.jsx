@@ -1,7 +1,8 @@
 import React from 'react';
+import { cloneDeep } from 'lodash';
 import { screen } from '@testing-library/react';
 
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
 import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { renderWithRouterProp } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
@@ -597,6 +598,8 @@ const testProps = {
   setMsg: jest.fn(),
   updateAllMoves: jest.fn(),
 };
+const moveLockTestProps = cloneDeep(testProps);
+moveLockTestProps.isMoveLocked = true;
 
 describe('Summary page', () => {
   describe('if the user can add another shipment', () => {
@@ -610,5 +613,71 @@ describe('Summary page', () => {
       expect(await screen.findByText(/\*To change these fields, contact your local PPPO office/)).toBeInTheDocument();
     });
   });
+
+  describe('if the move has been locked by an office user', () => {
+    // Add PPM, NTS, and NTS-R shipment types to move in order to test that each card has its buttons disabled
+    testMove.mtoShipments.push({
+      id: 'testPPMShipment123',
+      agents: [],
+      customerRemarks: 'please be carefule',
+      moveTaskOrderID: '123',
+      pickupAddress: {
+        city: 'Beverly Hills',
+      },
+      requestedDeliveryDate: '2020-08-31',
+      requestedPickupDate: '2020-08-31',
+      shipmentType: SHIPMENT_TYPES.PPM,
+      status: MOVE_STATUSES.SUBMITTED,
+      updatedAt: '2020-09-02T21:08:38.392Z',
+    });
+    testMove.mtoShipments.push({
+      id: 'testNTSShipment123',
+      agents: [],
+      customerRemarks: 'please be carefule',
+      moveTaskOrderID: '123',
+      pickupAddress: {
+        city: 'Beverly Hills',
+      },
+      requestedDeliveryDate: '2020-08-31',
+      requestedPickupDate: '2020-08-31',
+      shipmentType: SHIPMENT_TYPES.NTS,
+      status: MOVE_STATUSES.SUBMITTED,
+      updatedAt: '2020-09-02T21:08:38.392Z',
+    });
+    testMove.mtoShipments.push({
+      id: 'testNTSRShipment123',
+      agents: [],
+      customerRemarks: 'please be carefule',
+      moveTaskOrderID: '123',
+      pickupAddress: {
+        city: 'Beverly Hills',
+      },
+      requestedDeliveryDate: '2020-08-31',
+      requestedPickupDate: '2020-08-31',
+      shipmentType: SHIPMENT_TYPES.NTSR,
+      status: MOVE_STATUSES.SUBMITTED,
+      updatedAt: '2020-09-02T21:08:38.392Z',
+    });
+
+    selectCurrentMoveFromAllMoves.mockImplementation(() => testMove);
+    it('displays the Add Another Shipment section', () => {
+      renderWithRouterProp(<Summary {...moveLockTestProps} />, {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: '123' },
+      });
+
+      expect(screen.queryByRole('link', { name: 'Add another shipment' })).toBeNull();
+      expect(screen.getByTestId('edit-orders-table')).toBeDisabled();
+      expect(screen.queryByTestId('edit-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('edit-ntsr-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('delete-ntsr-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('edit-nts-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('delete-nts-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('editShipmentButton')).toBeNull();
+      expect(screen.queryByTestId('delete-shipment-btn')).toBeNull();
+      expect(screen.queryByTestId('deleteShipmentButton')).toBeNull();
+    });
+  });
+
   afterEach(jest.clearAllMocks);
 });

@@ -104,7 +104,7 @@ const OfficeUserEdit = ({ adminUser }) => {
 
     if (values?.transportationOfficeAssignments?.filter((toa) => toa.transportationOfficeId == null)?.length > 0) {
       errors.transportationOfficeAssignments =
-        'At least one of your transportation office assigmnets is blank. Please select a transportation office or remove that assignment.';
+        'At least one of your transportation office assignments is blank. Please select a transportation office or remove that assignment.';
     }
 
     return errors;

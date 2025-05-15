@@ -8,14 +8,14 @@ import oktaLogo from '../../../shared/images/okta_logo.png';
 
 import editOktaInfoFormStyle from './EditOktaInfoForm.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { OktaInfoFields } from 'components/form/OktaInfoFields';
 import { oktaInfoSchema } from 'utils/validation';
 
-const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
+const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel, isMoveLocked }) => {
   const sectionStyles = classnames(formStyles.formSection, editOktaInfoFormStyle.formSection);
   const hostname = window && window.location && window.location.hostname;
   const url =
@@ -52,6 +52,7 @@ const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 disableNext={!isValid || isSubmitting}
                 onNextClick={handleSubmit}
                 onCancelClick={onCancel}
+                readOnly={isMoveLocked}
               />
             </div>
           </Form>
