@@ -272,6 +272,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.ResubmitPPMShipmentDocumentation has not yet been implemented")
 		})
 	}
+	if api.AddressesSearchCountriesHandler == nil {
+		api.AddressesSearchCountriesHandler = addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
+		})
+	}
 	if api.DutyLocationsSearchDutyLocationsHandler == nil {
 		api.DutyLocationsSearchDutyLocationsHandler = duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")

@@ -2961,6 +2961,7 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 	return nil
 }
 
+
 // get pay grade / rank for orders drop down
 func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*ghcmessages.Rank, error) {
 	var dropdownOptions []*ghcmessages.Rank
@@ -2982,4 +2983,23 @@ func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, gr
 	}
 
 	return dropdownOptions, nil
+
+func CountryCodeName(country *models.Country) *ghcmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &ghcmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func Countries(countries models.Countries) ghcmessages.Countries {
+	payload := make(ghcmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
+	}
+	return payload
 }
