@@ -20,7 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	mockSender.On("SendNotification",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*notifications.ReweighRequested"),
-	).Return(nil)
+	).Return(nil).Once()
 	requester := NewShipmentReweighRequester(&mockSender)
 
 	suite.Run("If the shipment reweigh is requested successfully, it creates a reweigh in the DB", func() {
