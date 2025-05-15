@@ -288,8 +288,8 @@ BEGIN
 								JOIN re_services rs ON msi.re_service_id = rs.id
 								WHERE se.mto_shipment_id IN (SELECT ms.id FROM mto_shipments ms WHERE ms.move_id = moves.id)
 								AND se.status = ''PENDING''
-								AND rs.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSHUT'', ''DDSFSC'',
-												''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSHUT'', ''IDSFSC'')
+								AND rs.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'',
+												''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'')
 							)
 							AND NOT EXISTS (
 								SELECT 1
