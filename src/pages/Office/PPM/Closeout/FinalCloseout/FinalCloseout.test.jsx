@@ -18,8 +18,12 @@ const useEditShipmentQueriesReturnValue = {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
     status: 'NEEDS SERVICE COUNSELING',
+    closeoutOffice: {
+      name: 'Altus AFB',
+    },
   },
   order: {
+    agency: 'ARMY',
     id: '1',
     originDutyLocation: {
       address: {
@@ -322,7 +326,7 @@ describe('Final Closeout page', () => {
     });
   });
 
-  it('renders the page headings', async () => {
+  it('renders the page headings and closeout office name', async () => {
     const mockRoutingConfig = {
       path: servicesCounselingRoutes.BASE_SHIPMENT_PPM_COMPLETE_PATH,
       params: { moveCode: testMoveCode, shipmentId: shipmentID },
@@ -340,6 +344,7 @@ describe('Final Closeout page', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Complete PPM' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: /Your final estimated incentive: \$/ })).toBeInTheDocument();
+    expect(screen.getByText(useEditShipmentQueriesReturnValue.move.closeoutOffice.name, { exact: false }));
   });
 
   it('routes to the home page when the return to homepage link is clicked', async () => {
