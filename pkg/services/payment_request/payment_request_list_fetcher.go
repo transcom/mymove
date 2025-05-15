@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
@@ -50,11 +51,11 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		}
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
-	hasSafetyPrivilege := privileges.HasPrivilege(models.PrivilegeTypeSafety)
+	hasSafetyPrivilege := privileges.HasPrivilege(roles.PrivilegeTypeSafety)
 
 	var rows []paymentRequestRow
 	err = appCtx.DB().

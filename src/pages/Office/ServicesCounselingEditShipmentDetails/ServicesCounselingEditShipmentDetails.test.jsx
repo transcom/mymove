@@ -2,6 +2,7 @@
 import React from 'react';
 import { screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import moment from 'moment';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
 
@@ -9,6 +10,7 @@ import { updateMTOShipment, updateMoveCloseoutOffice, searchTransportationOffice
 import { validatePostalCode } from 'utils/validation';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatDateWithUTC } from 'shared/dates';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { renderWithProviders } from 'testUtils';
 
@@ -74,6 +76,8 @@ jest.mock('components/LocationSearchBox/api', () => ({
     }),
   ),
 }));
+
+const tomorrow = formatDateWithUTC(moment().add(1, 'days').toDate(), 'YYYY-MM-DD');
 
 const useEditShipmentQueriesReturnValue = {
   move: {
@@ -175,7 +179,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress3: 'c/o Some Person',
         county: 'LOS ANGELES',
       },
-      requestedPickupDate: '2018-03-15',
+      requestedPickupDate: tomorrow,
       scheduledPickupDate: '2018-03-16',
       requestedDeliveryDate: '2018-04-15',
       scheduledDeliveryDate: '2014-04-16',
@@ -391,6 +395,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(screen.getAllByTestId('City')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.city);
       expect(screen.getAllByTestId('State')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.state);
       expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.postalCode);
+      expect(
+        screen.getAllByText(
+          `${ppmShipment.ppmShipment.pickupAddress.city}, ${ppmShipment.ppmShipment.pickupAddress.state} ${ppmShipment.ppmShipment.pickupAddress.postalCode} (${ppmShipment.ppmShipment.pickupAddress.county})`,
+        )[0],
+      );
 
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue(
         ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
@@ -403,6 +412,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
+      expect(
+        screen.getAllByText(
+          `${ppmShipment.ppmShipment.secondaryPickupAddress.city}, ${ppmShipment.ppmShipment.secondaryPickupAddress.state} ${ppmShipment.ppmShipment.secondaryPickupAddress.postalCode} (${ppmShipment.ppmShipment.secondaryPickupAddress.county})`,
+        ),
+      );
 
       expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
         ppmShipment.ppmShipment.destinationAddress.streetAddress1,
@@ -413,6 +427,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(screen.getAllByTestId('City')[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.city);
       expect(screen.getAllByTestId('State')[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.state);
       expect(screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.postalCode);
+      expect(
+        screen.getAllByText(
+          `${ppmShipment.ppmShipment.destinationAddress.city}, ${ppmShipment.ppmShipment.destinationAddress.state} ${ppmShipment.ppmShipment.destinationAddress.postalCode} (${ppmShipment.ppmShipment.destinationAddress.county})`,
+        ),
+      );
 
       expect(screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
@@ -428,6 +447,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       );
       expect(screen.getAllByTestId(/ZIP/)[3]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryDestinationAddress.postalCode,
+      );
+      expect(
+        screen.getAllByText(
+          `${ppmShipment.ppmShipment.secondaryDestinationAddress.city}, ${ppmShipment.ppmShipment.secondaryDestinationAddress.state} ${ppmShipment.ppmShipment.secondaryDestinationAddress.postalCode} (${ppmShipment.ppmShipment.secondaryDestinationAddress.county})`,
+        )[1],
       );
 
       expect(screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
