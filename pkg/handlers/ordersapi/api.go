@@ -55,7 +55,7 @@ func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessa
 func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRevision) (*ordersmessages.Revision, error) {
 	seqNum := int64(revision.SeqNum)
 	affiliation := ordersmessages.NewAffiliation(ordersmessages.Affiliation(revision.Affiliation))
-	//rank := ordersmessages.NewRank(ordersmessages.Rank(revision.Paygrade))
+	rank := ordersmessages.NewRank(ordersmessages.Rank(revision.Paygrade))
 	status := ordersmessages.NewStatus(ordersmessages.Status(revision.Status))
 	ordersType := ordersmessages.NewOrdersType(ordersmessages.OrdersType(revision.OrdersType))
 
@@ -67,8 +67,8 @@ func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRev
 			FamilyName:  revision.FamilyName,
 			Suffix:      revision.NameSuffix,
 			Affiliation: affiliation,
-			//Rank:        rank,
-			Title: revision.Title,
+			Rank:        rank,
+			Title:       revision.Title,
 		},
 		Status:        status,
 		DateIssued:    handlers.FmtDateTimePtr(&revision.DateIssued),
