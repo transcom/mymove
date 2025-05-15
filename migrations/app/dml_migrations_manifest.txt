@@ -20,3 +20,4 @@
 20250402213810_B-22761_add_cron_schedule.up.sql
 20250418132629_B-22761_add_flagSentToGexStaleInterval_to_application_parameters.up.sql
 20250425132117_B-22538_add_sort_data_to_roles_and_privileges.up.sql
+20250501151831_B-23342_insert_application_parameters.up.sql
