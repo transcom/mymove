@@ -26,7 +26,7 @@ type GetRolesPrivilegesOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []*adminmessages.RolePrivilege `json:"body,omitempty"`
+	Payload []*adminmessages.Role `json:"body,omitempty"`
 }
 
 // NewGetRolesPrivilegesOK creates GetRolesPrivilegesOK with default headers values
@@ -36,13 +36,13 @@ func NewGetRolesPrivilegesOK() *GetRolesPrivilegesOK {
 }
 
 // WithPayload adds the payload to the get roles privileges o k response
-func (o *GetRolesPrivilegesOK) WithPayload(payload []*adminmessages.RolePrivilege) *GetRolesPrivilegesOK {
+func (o *GetRolesPrivilegesOK) WithPayload(payload []*adminmessages.Role) *GetRolesPrivilegesOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get roles privileges o k response
-func (o *GetRolesPrivilegesOK) SetPayload(payload []*adminmessages.RolePrivilege) {
+func (o *GetRolesPrivilegesOK) SetPayload(payload []*adminmessages.Role) {
 	o.Payload = payload
 }
 
@@ -53,7 +53,7 @@ func (o *GetRolesPrivilegesOK) WriteResponse(rw http.ResponseWriter, producer ru
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = make([]*adminmessages.RolePrivilege, 0, 50)
+		payload = make([]*adminmessages.Role, 0, 50)
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

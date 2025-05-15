@@ -145,6 +145,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
         expect(screen.getAllByText(shipment.pickupAddress.county)[0]).toBeInTheDocument();
         expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
         expect(screen.getAllByText(shipment.pickupAddress.postalCode)[0]).toBeInTheDocument();
+        expect(
+          screen.getAllByText(
+            `${shipment.pickupAddress.city}, ${shipment.pickupAddress.state} ${shipment.pickupAddress.postalCode} (${shipment.pickupAddress.county})`,
+          ),
+        );
       });
     });
   });
