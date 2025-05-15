@@ -40,7 +40,6 @@ type approveShipmentSubtestData struct {
 	reServiceCodes         []models.ReServiceCode
 	moveWeights            services.MoveWeights
 	mtoUpdater             services.MoveTaskOrderUpdater
-	contractID             uuid.UUID
 }
 
 // Creates data for the TestApproveShipment function
@@ -238,7 +237,6 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	domesticOriginNonpeakPrice.IsPeakPeriod = false
 	domesticOriginNonpeakPrice.PriceCents = 127
 
-	subtestData.contractID = contractYear.ContractID
 	return subtestData
 }
 
@@ -2047,6 +2045,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 			planner := subtestData.planner
 			approver := subtestData.shipmentApprover
 			_, _, _, shipment := setupOconusToConusNtsShipment(tc.estimatedWeight)
+			contract, err := models.FetchContractForMove(suite.AppContextForTest(), shipment.MoveTaskOrderID)
+			suite.FatalNoError(err)
 
 			planner.On("ZipTransitDistance",
 				mock.AnythingOfType("*appcontext.appContext"),
@@ -2061,14 +2061,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 
 			// Get created pre approved service items
 			var serviceItems []models.MTOServiceItem
-			err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+			err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
 			suite.NoError(err)
 
 			// Get the contract escalation factor
 			var escalationFactor float64
 			err = suite.DB().RawQuery(`
 			SELECT calculate_escalation_factor($1, $2)
-		`, subtestData.contractID, shipment.RequestedPickupDate).First(&escalationFactor)
+		`, contract.ID, shipment.RequestedPickupDate).First(&escalationFactor)
 			suite.FatalNoError(err)
 
 			// Verify our non-truncated escalation factor db value is as expected
@@ -2079,7 +2079,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 
 			// Fetch the INPK market factor from the DB
 			inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
-			ntsMarketFactor, err := models.FetchMarketFactor(suite.AppContextForTest(), subtestData.contractID, inpkReService.ID, "O")
+			ntsMarketFactor, err := models.FetchMarketFactor(suite.AppContextForTest(), contract.ID, inpkReService.ID, "O")
 			suite.FatalNoError(err)
 
 			// Assert basic service items
@@ -2096,7 +2096,15 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentBasicServiceItemEstimat
 					if shipment.PrimeEstimatedWeight == nil {
 						return nil
 					}
-					return models.CentPointer(computeINPKExpectedPriceCents(6105, escalationFactor, ntsMarketFactor, shipment.PrimeEstimatedWeight.Int()))
+
+					ihpkService, err := models.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
+					suite.FatalNoError(err)
+
+					ihpkRIOP, err := models.FetchReIntlOtherPrice(suite.DB(), *shipment.PickupAddressID, ihpkService.ID, contract.ID, shipment.RequestedPickupDate)
+					suite.FatalNoError(err)
+					suite.NotEmpty(ihpkRIOP)
+
+					return models.CentPointer(computeINPKExpectedPriceCents(ihpkRIOP.PerUnitCents.Int(), escalationFactor, ntsMarketFactor, shipment.PrimeEstimatedWeight.Int()))
 				}(),
 			}
 			suite.Equal(len(expectedServiceItems), len(serviceItems))

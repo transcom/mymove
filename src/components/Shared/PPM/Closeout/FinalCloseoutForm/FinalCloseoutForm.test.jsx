@@ -27,7 +27,7 @@ const defaultPropsOffice = {
   onBack: jest.fn(),
   initialValues: { date: '2022-11-01', signature: '' },
   affiliation: 'ARMY',
-  selectedMove: {
+  move: {
     closeout_office: {
       name: 'Altus AFB',
     },
@@ -40,7 +40,7 @@ const defaultPropsCustomer = {
   onBack: jest.fn(),
   initialValues: { date: '2022-11-01', signature: '' },
   affiliation: 'ARMY',
-  selectedMove: {
+  move: {
     closeout_office: {
       name: 'Altus AFB',
     },
@@ -196,6 +196,8 @@ describe('FinalCloseoutForm component', () => {
       };
 
       render(<FinalCloseoutForm mtoShipment={mtoShipment} {...modifiedProps} />);
+
+      expect(await screen.getByText(defaultPropsCustomer.move.closeout_office.name, { exact: false }));
 
       const signatureField = screen.getByRole('textbox', { name: 'Signature' });
       await waitFor(() => expect(signatureField).toHaveValue('Grace Griffin'));
