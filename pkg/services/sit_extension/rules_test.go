@@ -1,8 +1,6 @@
 package sitextension
 
 import (
-	"time"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -13,34 +11,6 @@ import (
 )
 
 func (suite *SitExtensionServiceSuite) TestValidationRules() {
-	suite.Run("checkDepartureDates", func() {
-		suite.Run("success", func() {
-			today := time.Now()
-			tomorrow := today.Add(time.Hour * 24)
-			sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
-			shipment := models.MTOShipment{DestinationSITAuthEndDate: &today, ActualDeliveryDate: &tomorrow}
-			err := checkDepartureDates().Validate(suite.AppContextForTest(), sit, &shipment)
-			suite.NilOrNoVerrs(err)
-		})
-	})
-
-	suite.Run("checkDepartureDates", func() {
-		suite.Run("failure", func() {
-			today := time.Now()
-			sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
-			shipment := models.MTOShipment{DestinationSITAuthEndDate: &today, ActualDeliveryDate: &today}
-			err := checkDepartureDates().Validate(suite.AppContextForTest(), sit, &shipment)
-
-			switch verr := err.(type) {
-			case *validate.Errors:
-				suite.True(verr.HasAny())
-				suite.Contains(verr.Keys(), shipment.ID.String())
-			default:
-				suite.Failf("expected *validate.Errors", "%t - %v", err, err)
-			}
-		})
-	})
-
 	suite.Run("checkShipmentID", func() {
 		suite.Run("success", func() {
 			sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}
