@@ -783,9 +783,20 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.FatalNoError(err)
 		suite.Equal(1, moveCount)
 		suite.Equal(1, len(moves))
-		suite.Equal(2, len(moves[0].MTOServiceItems))
-		suite.Equal(models.ReServiceCode("DOFSIT"), moves[0].MTOServiceItems[0].ReService.Code)
-		suite.Equal(models.ReServiceCode("DCRT"), moves[0].MTOServiceItems[1].ReService.Code)
+		move = moves[0]
+		suite.Len(move.MTOServiceItems, 2)
+
+		var foundDOFSIT, foundDCRT bool
+		for _, serviceItem := range move.MTOServiceItems {
+			switch serviceItem.ReService.Code {
+			case models.ReServiceCode("DOFSIT"):
+				foundDOFSIT = true
+			case models.ReServiceCode("DCRT"):
+				foundDCRT = true
+			}
+		}
+		suite.True(foundDOFSIT, "expected DOFSIT service item was not found")
+		suite.True(foundDCRT, "expected DCRT service item was not found")
 	})
 
 	suite.Run("task order queue returns a move with origin requested SIT service items", func() {
