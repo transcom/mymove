@@ -1,3 +1,7 @@
+import {
+  APPROVAL_REQUEST_TYPES_DESTINATION_REQUESTS_DISPLAY,
+  APPROVAL_REQUEST_TYPES_TASK_ORDER_DISPLAY,
+} from 'constants/approvalRequestTypes';
 import { QUEUE_TYPES } from 'constants/queues';
 import { deleteAssignedOfficeUserForMove, updateAssignedOfficeUserForMove } from 'services/ghcApi';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
@@ -28,3 +32,25 @@ export function getQueue(queueName) {
   // Return the corresponding queue type
   return queueMappings[normalizedQueueName];
 }
+
+export const formatApprovalRequestTypes = (queueType, requestTypes) => {
+  const requestLabels = {};
+
+  if (getQueue(queueType) === QUEUE_TYPES.TASK_ORDER) {
+    requestTypes.forEach((request) => {
+      if (APPROVAL_REQUEST_TYPES_TASK_ORDER_DISPLAY[request]) {
+        requestLabels[APPROVAL_REQUEST_TYPES_TASK_ORDER_DISPLAY[request]] = true;
+      }
+    });
+  }
+
+  if (getQueue(queueType) === QUEUE_TYPES.DESTINATION_REQUESTS) {
+    requestTypes.forEach((request) => {
+      if (APPROVAL_REQUEST_TYPES_DESTINATION_REQUESTS_DISPLAY[request]) {
+        requestLabels[APPROVAL_REQUEST_TYPES_DESTINATION_REQUESTS_DISPLAY[request]] = true;
+      }
+    });
+  }
+
+  return Object.keys(requestLabels).sort().join(', ');
+};
