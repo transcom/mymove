@@ -8428,6 +8428,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -8437,6 +8441,8 @@ definitions:
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
