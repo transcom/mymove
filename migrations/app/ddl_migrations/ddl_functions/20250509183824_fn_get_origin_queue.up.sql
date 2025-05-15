@@ -188,10 +188,6 @@ BEGIN
         )';
     END IF;
 
-    IF user_gbloc IS NOT NULL AND user_gbloc != 'USMC' THEN
-        sql_query := sql_query || ' AND service_members.affiliation != ''MARINES'' ';
-    END IF;
-
     IF customer_name IS NOT NULL THEN
         sql_query := sql_query || ' AND (
             service_members.first_name || '' '' || service_members.last_name ILIKE ''%'' || $2 || ''%''
