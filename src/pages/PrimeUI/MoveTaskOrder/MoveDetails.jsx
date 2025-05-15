@@ -213,8 +213,12 @@ const MoveDetails = ({ setFlashMessage }) => {
                     <dd>{moveTaskOrder.id}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
-                    <dt>Rank / PayGrade:</dt>
-                    <dd>{`${moveTaskOrder.order.rank} / ${payGradeFormat(moveTaskOrder.order.grade)}`}</dd>
+                    <dt>Rank:</dt>
+                    <dd>{`${moveTaskOrder.order.rank}`}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>PayGrade:</dt>
+                    <dd>{`${payGradeFormat(moveTaskOrder.order.grade)}`}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
                     <dt>Gun Safe:</dt>
