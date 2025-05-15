@@ -20,7 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	mockSender.On("SendNotification",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("*notifications.ReweighRequested"),
-	).Return(nil).Once()
+	).Return(nil)
 	requester := NewShipmentReweighRequester(&mockSender)
 
 	suite.Run("If the shipment reweigh is requested successfully, it creates a reweigh in the DB", func() {
@@ -41,6 +41,8 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 
 		suite.NoError(err)
 
+		mockSender.AssertCalled(suite.T(), "SendNotification", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("*notifications.ReweighRequested"))
+
 		var reweighShipment models.MTOShipment
 		err = suite.DB().Where("id = ?", reweigh.ShipmentID).First(&reweighShipment)
 		suite.NoError(err, "Get shipment associated with reweigh")
@@ -53,6 +55,37 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		suite.Equal(shipment.ID, fetchedShipment.ID)
 		suite.EqualValues(models.ReweighRequesterTOO, reweigh.RequestedBy)
 		suite.WithinDuration(time.Now(), reweigh.RequestedAt, 2*time.Second)
+	})
+
+	suite.Run("Does not create a reweigh or send an email if the shipment is a PPM", func() {
+		// Have to replace the mock so that the "AssertNotCalled" doesn't pick up the calls from other tests
+		mockSender := mocks.NotificationSender{}
+		mockSender.On("SendNotification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*notifications.ReweighRequested"),
+		).Return(nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusApproved,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		reweigh, err := requester.RequestShipmentReweigh(session, shipment.ID, models.ReweighRequesterTOO)
+
+		suite.Error(err)
+		suite.IsType(&apperror.BadDataError{}, err)
+
+		mockSender.AssertNotCalled(suite.T(), "SendNotification", mock.Anything, mock.Anything)
+
+		suite.Nil(reweigh)
 	})
 
 	suite.Run("When the shipment is not in a permitted status, returns a ConflictError", func() {
