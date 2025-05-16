@@ -29,7 +29,7 @@ func (suite *HandlerSuite) setupOfficeUserCreatorTestScenario() (*mocks.OfficeUs
 	mockRoleAssociator := &mocks.RoleAssociater{}
 	mockTransportaionOfficeAssignmentUpdater := &mocks.TransportaionOfficeAssignmentUpdater{}
 	handler := &RequestOfficeUserHandler{
-		HandlerConfig:                        suite.HandlerConfig(),
+		HandlerConfig:                        suite.NewHandlerConfig(),
 		OfficeUserCreator:                    mockCreator,
 		NewQueryFilter:                       query.NewQueryFilter,
 		UserRoleAssociator:                   mockUserRoleAssociator,

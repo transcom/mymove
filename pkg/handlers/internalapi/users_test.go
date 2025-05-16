@@ -21,7 +21,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	}
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	handler := ShowLoggedInUserHandler{suite.HandlerConfig(), builder}
+	handler := ShowLoggedInUserHandler{suite.NewHandlerConfig(), builder}
 
 	response := handler.Handle(params)
 
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 			HTTPRequest: req,
 		}
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handler := ShowLoggedInUserHandler{suite.HandlerConfig(), builder}
+		handler := ShowLoggedInUserHandler{suite.NewHandlerConfig(), builder}
 
 		response := handler.Handle(params)
 
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		}
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		builder := officeuser.NewOfficeUserFetcherPop()
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handler := ShowLoggedInUserHandler{handlerConfig, builder}
 
@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 
 	builder := officeuser.NewOfficeUserFetcherPop()
 
@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestServiceMemberWithCloseoutOfficeHandler() {
 	}
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	builder := officeuser.NewOfficeUserFetcherPop()
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := ShowLoggedInUserHandler{handlerConfig, builder}
@@ -167,7 +167,7 @@ func (suite *HandlerSuite) TestServiceMemberWithNoCloseoutOfficeHandler() {
 	}
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	builder := officeuser.NewOfficeUserFetcherPop()
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := ShowLoggedInUserHandler{handlerConfig, builder}

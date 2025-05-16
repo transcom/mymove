@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			userservice.NewUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 			mock.Anything,
 		).Return(models.User{}, expectedError).Once()
 		handler := GetUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			userFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -132,7 +132,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    userListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	setupHandler := func() UpdateUserHandler {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		return UpdateUserHandler{
 			handlerConfig,
