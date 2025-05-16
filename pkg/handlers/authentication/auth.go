@@ -679,8 +679,10 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	// Attempting to use a session manager with a faulty context will panic
 	defer func() {
 		if r := recover(); r != nil {
-			appCtx.Logger().Error("Panic: patching server side session, it is likely there is more than one session manager causing a context conflict", zap.Any("panic", r))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			appCtx.Logger().Error("Panic: likely multiple session managers causing context conflict",
+				zap.Any("panic", r),
+				zap.String("userID", string(appCtx.Session().UserID.String())))
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 	}()
@@ -690,13 +692,16 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	}
 
 	if appCtx.Session() == nil {
-		appCtx.Logger().Error("request to update server session current role but context had no session to update")
+		appCtx.Logger().Error("request to update server session current role but context had no session to update",
+			zap.String("userID", string(appCtx.Session().UserID.String())))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.RoleType == "" {
-		appCtx.Logger().Error("invalid roleType payload", zap.Error(err))
+		appCtx.Logger().Error("invalid roleType payload",
+			zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
@@ -705,7 +710,9 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	userRoles, err := h.RoleAssociater.FetchRolesForUser(appCtx, appCtx.Session().UserID)
 	if err != nil {
-		appCtx.Logger().Error("failed to fetcher roles for user when updating server session current role", zap.Error(err))
+		appCtx.Logger().Error("failed to fetch roles for user when updating server session current role",
+			zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
@@ -722,7 +729,8 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	if !hasRole {
 		appCtx.Logger().Warn("user attempted to switch to unauthorized role",
-			zap.String("requestedRole", string(requestedRole)))
+			zap.String("requestedRole", string(requestedRole)),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
 	}
@@ -732,8 +740,9 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 	if sessionManager == nil {
-		appCtx.Logger().Error("Updating user current role in session, cannot get session manager from request")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		appCtx.Logger().Error("Updating user current role in session, cannot get session manager from request",
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -742,8 +751,9 @@ func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	ctx := r.Context()
 	err = sessionManager.RenewToken(ctx)
 	if err != nil {
-		appCtx.Logger().Error("Error renewing session token", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		appCtx.Logger().Error("Error renewing session token", zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
