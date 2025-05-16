@@ -2,7 +2,6 @@ import { screen, render } from '@testing-library/react';
 
 import e from 'constants/MoveHistory/EventTemplates/SaveBulkAssignmentData/SaveBulkAssignmentData';
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import { MOVE_STATUSES } from 'shared/constants';
 
 describe('When given a move that has been assigned', () => {
   const historyRecord = {
@@ -10,10 +9,10 @@ describe('When given a move that has been assigned', () => {
     eventName: 'saveBulkAssignmentData',
     tableName: 'moves',
     changedValues: {
-      sc_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      sc_counseling_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
     },
     oldValues: {
-      sc_assigned_id: null,
+      sc_counseling_assigned_id: null,
     },
     context: [{ assigned_office_user_last_name: 'Daniels', assigned_office_user_first_name: 'Jayden' }],
   };
@@ -34,8 +33,7 @@ describe('When given a move that has been assigned', () => {
     it('services counselor', () => {
       const template = getTemplate(historyRecord);
       historyRecord.oldValues = {
-        sc_assigned_id: null,
-        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+        sc_counseling_assigned_id: null,
       };
 
       render(template.getDetails(historyRecord));
@@ -44,9 +42,9 @@ describe('When given a move that has been assigned', () => {
     });
     it('closeout counselor', () => {
       const template = getTemplate(historyRecord);
+      historyRecord.changedValues = { sc_closeout_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137' };
       historyRecord.oldValues = {
-        sc_assigned_id: null,
-        status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+        sc_closeout_assigned_id: null,
       };
 
       render(template.getDetails(historyRecord));
