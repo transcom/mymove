@@ -8002,6 +8002,7 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+        x-nullable: true
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
