@@ -340,7 +340,7 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCtx appcontext.AppContext, m
 // Service Items unless the Move is approved.
 func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) error {
 	router.logMove(appCtx, move)
-	if router.alreadyApproved(move) {
+	if router.alreadyApproved(move) && router.noAssignedTOOs(move) {
 		return nil
 	}
 
@@ -349,6 +349,9 @@ func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move
 		now := time.Now()
 		move.ApprovedAt = &now
 		appCtx.Logger().Info("SUCCESS: Move approved")
+		// if a move is approvable, we can clear any assigned office users, if any
+		move.TOOAssignedID = nil
+		move.TOODestinationAssignedID = nil
 		return nil
 	}
 
@@ -367,6 +370,10 @@ func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move
 
 func (router moveRouter) alreadyApproved(move *models.Move) bool {
 	return move.Status == models.MoveStatusAPPROVED
+}
+
+func (router moveRouter) noAssignedTOOs(move *models.Move) bool {
+	return move.TOOAssignedID == nil && move.TOODestinationAssignedID == nil
 }
 
 func currentStatusApprovable(move models.Move) bool {
@@ -415,12 +422,12 @@ func moveHasReviewedServiceItems(move models.Move) bool {
 }
 
 func moveHasAcknowledgedExcessWeightRisk(move models.Move) bool {
-	// If the move hasn't been flagged for being at risk of excess weight, then
+	// If the move hasn't been flagged for being at risk of excess weights, then
 	// we don't need to check if the risk has been acknowledged.
-	if move.ExcessWeightQualifiedAt == nil {
+	if move.ExcessWeightQualifiedAt == nil && move.ExcessUnaccompaniedBaggageWeightQualifiedAt == nil {
 		return true
 	}
-	return move.ExcessWeightAcknowledgedAt != nil
+	return move.ExcessWeightAcknowledgedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt != nil
 }
 
 func allSITExtensionsAreReviewed(move models.Move) bool {
@@ -588,15 +595,34 @@ func (router moveRouter) CompleteServiceCounseling(_ appcontext.AppContext, move
 // ApproveOrRequestApproval routes the move appropriately based on whether or
 // not the TOO has any tasks requiring their attention.
 func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
-	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "Orders.ServiceMember", "Orders.NewDutyLocation.Address", "MTOShipments.SITDurationUpdates", "MTOShipments.DeliveryAddressUpdate").Find(&move, move.ID)
+	err := appCtx.DB().Q().
+		EagerPreload(
+			"MTOServiceItems.ReService",
+			"MTOShipments.SITDurationUpdates",
+			"MTOShipments.DeliveryAddressUpdate",
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.UploadedAmendedOrders",
+		).
+		Find(&move, move.ID)
 	if err != nil {
-		appCtx.Logger().Error("Failed to preload MTOServiceItems and Orders for Move", zap.Error(err))
+		appCtx.Logger().Error("failed to preload data prior when routing move in ApproveOrRequestApproval", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(move.ID, "looking for Move")
 		default:
 			return nil, apperror.NewQueryError("Move", err, "")
 		}
+	}
+
+	// if a TOO is assigned to the move, check if we should clear it
+	// this returns the same move with the TOO fields updated (or not)
+	if move.TOOAssignedID != nil || move.TOODestinationAssignedID != nil {
+		updatedMove, err := models.ClearTOOAssignments(appCtx.DB(), &move)
+		if err != nil {
+			return nil, err
+		}
+		move = *updatedMove
 	}
 
 	if approvable(move) {
