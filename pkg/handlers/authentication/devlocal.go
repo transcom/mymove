@@ -1256,7 +1256,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 	}
 
 	session.ActiveRole = defaultRole
-	session.Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
+	session.Permissions = getPermissionsForUser(appCtx)
 
 	// Assign user identity to session
 	session.IDToken = "devlocal"

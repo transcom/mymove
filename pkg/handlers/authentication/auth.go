@@ -1199,7 +1199,7 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 		appCtx.Session().ActiveRole = *defaultRole
 	}
 
-	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx)
 
 	appCtx.Session().UserID = userIdentity.ID
 	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
@@ -1469,7 +1469,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 	} else {
 		appCtx.Session().ActiveRole = *defaultRole
 	}
-	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx)
 
 	if sessionManager == nil {
 		appCtx.Logger().Error("Authenticating user, cannot get session manager from request")

@@ -1,8 +1,6 @@
 package authentication
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -149,7 +147,7 @@ func checkUserPermission(session auth.Session, permission string) bool {
 }
 
 // for a given user return the permissions associated with their roles given the current session role
-func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []string {
+func getPermissionsForUser(appCtx appcontext.AppContext) []string {
 	var userPermissions []string
 
 	session := appCtx.Session()
