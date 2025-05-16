@@ -55,8 +55,8 @@ const (
 	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
 	ServiceItemParamNameMarketOrigin ServiceItemParamName = "MarketOrigin"
-	// ServiceItemParamNameMTOAvailableToPrimeAt is the param key name MTOAvailableToPrimeAt
-	ServiceItemParamNameMTOAvailableToPrimeAt ServiceItemParamName = "MTOAvailableToPrimeAt"
+	// ServiceItemParamNameMTOEarliestRequestedPickup is the param key name MTOEarliestRequestedPickup
+	ServiceItemParamNameMTOEarliestRequestedPickup ServiceItemParamName = "MTOEarliestRequestedPickup"
 	// ServiceItemParamNameNTSPackingFactor is the param key name NTSPackingFactor
 	ServiceItemParamNameNTSPackingFactor ServiceItemParamName = "NTSPackingFactor"
 	// ServiceItemParamNameNumberDaysSIT is the param key name NumberDaysSIT
@@ -234,7 +234,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameIsPeak,
 	ServiceItemParamNameMarketDest,
 	ServiceItemParamNameMarketOrigin,
-	ServiceItemParamNameMTOAvailableToPrimeAt,
+	ServiceItemParamNameMTOEarliestRequestedPickup,
 	ServiceItemParamNameNTSPackingFactor,
 	ServiceItemParamNameNumberDaysSIT,
 	ServiceItemParamNamePriceAreaDest,
@@ -311,7 +311,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameIsPeak),
 	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameMarketOrigin),
-	string(ServiceItemParamNameMTOAvailableToPrimeAt),
+	string(ServiceItemParamNameMTOEarliestRequestedPickup),
 	string(ServiceItemParamNameNTSPackingFactor),
 	string(ServiceItemParamNameNumberDaysSIT),
 	string(ServiceItemParamNamePriceAreaDest),
