@@ -414,14 +414,14 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				if err != nil {
 					return nil, err
 				}
-				return capFinalIncentive(finalIncentive, oldPPMShipment)
+				return capFinalIncentive(finalIncentive, newPPMShipment)
 			}
 		} else {
 			finalIncentive = nil
 
 			return finalIncentive, nil
 		}
-		return capFinalIncentive(finalIncentive, oldPPMShipment)
+		return capFinalIncentive(finalIncentive, newPPMShipment)
 	} else {
 		pickupAddress := newPPMShipment.PickupAddress
 		destinationAddress := newPPMShipment.DestinationAddress
@@ -432,21 +432,21 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 			if err != nil {
 				return nil, fmt.Errorf("failed to calculate estimated PPM incentive: %w", err)
 			}
-			return capFinalIncentive(finalIncentive, oldPPMShipment)
+			return capFinalIncentive(finalIncentive, newPPMShipment)
 		} else {
 			return nil, nil
 		}
 	}
 }
 
-func capFinalIncentive(finalIncentive *unit.Cents, oldPPMShipment models.PPMShipment) (*unit.Cents, error) {
-	if finalIncentive != nil && oldPPMShipment.MaxIncentive != nil {
-		if *finalIncentive > *oldPPMShipment.MaxIncentive {
-			finalIncentive = oldPPMShipment.MaxIncentive
+func capFinalIncentive(finalIncentive *unit.Cents, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
+	if finalIncentive != nil && newPPMShipment.MaxIncentive != nil {
+		if *finalIncentive > *newPPMShipment.MaxIncentive {
+			finalIncentive = newPPMShipment.MaxIncentive
 		}
 		return finalIncentive, nil
 	} else {
-		return nil, apperror.NewNotFoundError(oldPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
+		return nil, apperror.NewNotFoundError(newPPMShipment.ID, " MaxIncentive missing and/or finalIncentive nil when comparing")
 	}
 
 }
