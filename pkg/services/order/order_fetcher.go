@@ -49,7 +49,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -153,7 +153,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
 	} else {
@@ -191,7 +191,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
 		if role == roles.RoleTypeServicesCounselor {
@@ -322,14 +322,14 @@ type MoveWithCount struct {
 	Orders                        *models.Order                `json:"-"`
 	MTOShipmentsRaw               json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
 	MTOShipments                  *models.MTOShipments         `json:"-"`
-	MTOServiceItemsRaw            json.RawMessage              `json:"mto_service_items" db:"mto_service_items"`
-	MTOServiceItems               *models.MTOServiceItems      `json:"-"`
 	CounselingOfficeRaw           json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
 	CounselingOffice              *models.TransportationOffice `json:"-"`
 	TOOAssignedUserRaw            json.RawMessage              `json:"too_assigned" db:"too_assigned"`
 	TOOAssignedUser               *models.OfficeUser           `json:"-"`
 	TOODestinationAssignedUserRaw json.RawMessage              `json:"too_destination_assigned" db:"too_destination_assigned"`
 	TOODestinationAssignedUser    *models.OfficeUser           `json:"-"`
+	MTOServiceItemsRaw            json.RawMessage              `json:"mto_service_items" db:"mto_service_items"`
+	MTOServiceItems               *models.MTOServiceItems      `json:"-"`
 	TotalCount                    int64                        `json:"total_count" db:"total_count"`
 }
 
@@ -357,8 +357,8 @@ func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, off
 		}
 	}
 
-	privileges, privErr := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-	if privErr == nil && privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+	privileges, privErr := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 		hasSafetyPrivilege = true
 	} else if privErr != nil {
 		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
@@ -460,8 +460,8 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 			return []models.Move{}, 0, gblocErr
 		}
 	}
-	privileges, privErr := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-	if privErr == nil && privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+	privileges, privErr := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if privErr == nil && privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
 		hasSafetyPrivilege = true
 	} else if privErr != nil {
 		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(privErr))
@@ -532,6 +532,16 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		}
 		movesWithCount[i].TOODestinationAssignedUserRaw = nil
 		movesWithCount[i].TOODestinationAssignedUser = &tooAssigned
+
+		// populating Moves.MTOServiceItems struct
+		var serviceItems models.MTOServiceItems
+		if movesWithCount[i].MTOServiceItemsRaw != nil {
+			if err := json.Unmarshal(movesWithCount[i].MTOServiceItemsRaw, &serviceItems); err != nil {
+				return nil, 0, fmt.Errorf("error unmarshaling mto_service_items JSON: %w", err)
+			}
+		}
+		movesWithCount[i].MTOServiceItemsRaw = nil
+		movesWithCount[i].MTOServiceItems = &serviceItems
 	}
 
 	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func
@@ -563,7 +573,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		return []models.Move{}, err
 	}
 
-	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
@@ -635,8 +645,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", roles.PrivilegeSearchTypeSafety)
 		}
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -665,8 +675,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 
-		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		if !privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", roles.PrivilegeSearchTypeSafety)
 		}
 
 		if params.NeedsPPMCloseout != nil {
