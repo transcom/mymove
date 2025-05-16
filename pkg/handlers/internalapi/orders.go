@@ -525,6 +525,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				if *payload.HasDependents {
 					weight = weightAllotment.TotalWeightSelfPlusDependents
 				}
+				weight += order.Entitlement.GunSafeWeight
 
 				// Assign default SIT allowance based on customer type.
 				// We only have service members right now, but once we introduce more, this logic will have to change.
@@ -568,6 +569,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					DependentsTwelveAndOver: dependentsTwelveAndOver,
 					AccompaniedTour:         payload.AccompaniedTour,
 					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+					GunSafe:                 order.Entitlement.GunSafe,
+					GunSafeWeight:           order.Entitlement.GunSafeWeight,
 				}
 
 				/*

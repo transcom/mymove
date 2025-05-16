@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -124,5 +125,126 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotmentByOrdersType() {
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "no entitlement found for orders type SEPARATION")
+	})
+}
+
+func (suite *EntitlementsServiceSuite) TestGetTotalWeightAllotment() {
+	suite.Run("returns total weight for office user with dependents authorized", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+		})
+
+		entitlement := models.Entitlement{
+			DependentsAuthorized: models.BoolPointer(true),
+			GunSafeWeight:        100,
+		}
+
+		order := models.Order{
+			HasDependents: true,
+			Grade:         internalmessages.OrderPayGradeE1.Pointer(),
+			OrdersType:    internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		}
+
+		fetcher := NewWeightAllotmentFetcher()
+		totalWeight, err := fetcher.GetTotalWeightAllotment(appCtx, order, entitlement)
+
+		suite.NoError(err)
+		// E-1 PCS = 8000 with dependents
+		expected := 8000 + 100
+		suite.Equal(expected, totalWeight)
+	})
+
+	suite.Run("returns total weight for mil app user with dependents and dependentsAuthorized", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+		})
+
+		entitlement := models.Entitlement{
+			DependentsAuthorized: models.BoolPointer(true),
+			GunSafeWeight:        50,
+		}
+
+		order := models.Order{
+			HasDependents: true,
+			Grade:         internalmessages.OrderPayGradeE1.Pointer(),
+			OrdersType:    internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		}
+
+		fetcher := NewWeightAllotmentFetcher()
+		totalWeight, err := fetcher.GetTotalWeightAllotment(appCtx, order, entitlement)
+
+		suite.NoError(err)
+		expected := 8000 + 50
+		suite.Equal(expected, totalWeight)
+	})
+
+	suite.Run("uses self-only weight if dependents not authorized", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+		})
+
+		entitlement := models.Entitlement{
+			DependentsAuthorized: models.BoolPointer(false),
+			GunSafeWeight:        20,
+		}
+
+		order := models.Order{
+			HasDependents: true,
+			Grade:         internalmessages.OrderPayGradeE1.Pointer(),
+			OrdersType:    internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		}
+
+		fetcher := NewWeightAllotmentFetcher()
+		totalWeight, err := fetcher.GetTotalWeightAllotment(appCtx, order, entitlement)
+
+		suite.NoError(err)
+		expected := 5000 + 20 // E-1 PCS self-only weight + gun safe
+		suite.Equal(expected, totalWeight)
+	})
+
+	suite.Run("uses self weight with dependent if dependents authorized", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+		})
+
+		entitlement := models.Entitlement{
+			DependentsAuthorized: models.BoolPointer(true),
+			GunSafeWeight:        20,
+		}
+
+		order := models.Order{
+			HasDependents: false,
+			Grade:         internalmessages.OrderPayGradeE1.Pointer(),
+			OrdersType:    internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		}
+
+		fetcher := NewWeightAllotmentFetcher()
+		totalWeight, err := fetcher.GetTotalWeightAllotment(appCtx, order, entitlement)
+
+		suite.NoError(err)
+		expected := 5000 + 20 // E-1 PCS self-only weight + gun safe
+		suite.Equal(expected, totalWeight)
+	})
+
+	suite.Run("returns error if weight allotment fetch fails", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+		})
+
+		entitlement := models.Entitlement{
+			DependentsAuthorized: models.BoolPointer(true),
+			GunSafeWeight:        0,
+		}
+
+		order := models.Order{
+			HasDependents: true,
+			Grade:         nil,
+			OrdersType:    internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		}
+
+		fetcher := NewWeightAllotmentFetcher()
+		_, err := fetcher.GetTotalWeightAllotment(appCtx, order, entitlement)
+
+		suite.Error(err)
 	})
 }
