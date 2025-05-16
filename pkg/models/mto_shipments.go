@@ -564,7 +564,7 @@ func GetAuthorizedSITEndDate(shipment MTOShipment) *time.Time {
 		(shipment.DestinationSITAuthEndDate == nil || shipment.DestinationSITAuthEndDate.IsZero() && !shipment.OriginSITAuthEndDate.IsZero()) {
 		endDate = *shipment.OriginSITAuthEndDate
 	} else if (shipment.DestinationSITAuthEndDate != nil) &&
-		(shipment.OriginSITAuthEndDate == nil || !shipment.OriginSITAuthEndDate.IsZero() && !shipment.DestinationSITAuthEndDate.IsZero()) {
+		(shipment.OriginSITAuthEndDate == nil || shipment.OriginSITAuthEndDate.IsZero() && !shipment.DestinationSITAuthEndDate.IsZero()) {
 		endDate = *shipment.DestinationSITAuthEndDate
 	} else if shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate != nil {
 		if shipment.OriginSITAuthEndDate.Before(*shipment.DestinationSITAuthEndDate) {
