@@ -466,15 +466,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	approvedMove := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApprovalsRequested,
-			},
-		},
-		{
 			Model:    approvedMove,
 			LinkOnly: true,
 		},
-	}, nil)
+	}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 	factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 		{
 			Model:    approvedMove,

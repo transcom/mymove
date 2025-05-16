@@ -488,8 +488,8 @@ func (router moveRouter) UpdateShipmentStatusToApprovalsRequested(appCtx appcont
 	if shipment.Status == models.MTOShipmentStatusApprovalsRequested {
 		return nil, nil
 	}
-	if shipment.Status == models.MTOShipmentStatusCanceled {
-		errorMessage := fmt.Sprintf("The status for the shipment with ID %s can not be sent to 'Approvals Requested' if the status is canceled.", shipment.ID)
+	if shipment.Status == models.MTOShipmentStatusCanceled || shipment.Status == models.MTOShipmentStatusTerminatedForCause {
+		errorMessage := fmt.Sprintf("The status for the shipment with ID %s can not be sent to 'Approvals Requested' if the status is %s.", shipment.ID, shipment.Status)
 		appCtx.Logger().Warn(errorMessage)
 
 		return nil, errors.Wrap(models.ErrInvalidTransition, errorMessage)
