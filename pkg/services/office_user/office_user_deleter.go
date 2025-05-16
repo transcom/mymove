@@ -22,7 +22,6 @@ type officeUserDeleter struct {
 var foreignKeyPattern = regexp.MustCompile("violates foreign key constraint")
 
 func (o *officeUserDeleter) DeleteOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) error {
-	// need to fetch the office user and any downstream associations (roles, privileges)
 	var officeUser models.OfficeUser
 	err := appCtx.DB().EagerPreload(
 		"User",
