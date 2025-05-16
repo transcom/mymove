@@ -71,7 +71,7 @@ func (r Roles) Default() (*Role, error) {
 		// Go lets us compare strings with > and <
 		if role.RoleName < earliestRole.RoleName {
 			earliestRole = role
-			earliestIdx = i
+			earliestIdx = i + 1 // Starting at second entry in the array
 		}
 	}
 	return &r[earliestIdx], nil

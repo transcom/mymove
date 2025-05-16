@@ -1,6 +1,8 @@
 package authentication
 
 import (
+	"slices"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -137,13 +139,7 @@ var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, Cu
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(session auth.Session, permission string) bool {
-	for _, perm := range session.Permissions {
-		if permission == perm {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(session.Permissions, permission)
 }
 
 // for a given user return the permissions associated with their roles given the current session role
