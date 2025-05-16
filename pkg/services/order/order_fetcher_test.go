@@ -317,6 +317,59 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 	})
 
+	suite.Run("returns moves filtered by ppm expected_departure_date", func() {
+		officeUser, _, session := setupTestData()
+
+		move2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		ppmDate := time.Date(2024, 4, 2, 0, 0, 0, 0, time.UTC)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: ppmDate,
+				},
+			},
+		}, nil)
+
+		dateStr := ppmDate.Format("2006-01-02")
+		moves, _, err := orderFetcher.ListOriginRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			&services.ListOrderParams{RequestedMoveDate: &dateStr},
+		)
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Equal(move2.ID, moves[0].ID)
+	})
+
+	suite.Run("returns moves filtered by NTS requested_delivery_date", func() {
+		officeUser, _, session := setupTestData()
+
+		ntsrDate := time.Date(2024, 4, 3, 0, 0, 0, 0, time.UTC)
+		move3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
+					RequestedDeliveryDate: &ntsrDate,
+				},
+			},
+		}, nil)
+
+		dateStr := ntsrDate.Format("2006-01-02")
+		moves, _, err := orderFetcher.ListOriginRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			&services.ListOrderParams{RequestedMoveDate: &dateStr},
+		)
+		suite.NoError(err)
+		suite.Len(moves, 1)
+		suite.Equal(move3.ID, moves[0].ID)
+	})
+
 	suite.Run("returns moves filtered by ppm type", func() {
 		// Under test: ListOriginRequestsOrders
 		// Set up:           Make 2 moves, with different ppm types, and search for both types
