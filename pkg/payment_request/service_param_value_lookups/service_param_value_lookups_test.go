@@ -660,6 +660,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			{
 				Model: models.Address{
 					PostalCode: pickupPostalCode,
+					City:       "COLUMBIA",
 				},
 			},
 		}, nil)
@@ -668,6 +669,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			{
 				Model: models.Address{
 					PostalCode: storageFacilityPostalCode,
+					City:       "AUGUSTA",
 				},
 			},
 		}, nil)
@@ -712,6 +714,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			{
 				Model: models.Address{
 					PostalCode: destinationPostalCode,
+					City:       "GEORGETOWN",
 				},
 			},
 		}, nil)
@@ -990,6 +993,7 @@ func (suite *ServiceParamValueLookupsSuite) TestGetDestinationAfterCheckingSIT()
 			{
 				Model: models.Address{
 					PostalCode: "88101",
+					City:       "CANNON AFB",
 				},
 			},
 		}, nil)
@@ -1103,6 +1107,7 @@ func (suite *ServiceParamValueLookupsSuite) TestGetDestinationAfterCheckingSIT()
 			{
 				Model: models.Address{
 					PostalCode: "88101",
+					City:       "CANNON AFB",
 				},
 			},
 		}, nil)

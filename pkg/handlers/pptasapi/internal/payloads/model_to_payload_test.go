@@ -39,7 +39,7 @@ func (suite *PayloadsSuite) TestReport() {
 		EmailPrimary:  models.StringPointer("john.doe@example.com"),
 		Address: &models.Address{
 			StreetAddress1: "123 Main St",
-			City:           "Some City",
+			City:           "NEW YORK",
 			State:          "NY",
 			PostalCode:     "10001",
 			County:         models.StringPointer("Some County"),

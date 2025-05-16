@@ -18,7 +18,8 @@ func (suite *ReportViolationSuite) TestFetchReportViolationsByReportID() {
 	})
 	suite.Run("fetch by reportId when there are report-violations for the report should be successful", func() {
 		fetcher := NewReportViolationFetcher()
-		reportViolation := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		reportViolation, err := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{})
+		suite.NoError(err)
 
 		fetchedReportViolations, err := fetcher.FetchReportViolationsByReportID(suite.AppContextForTest(), reportViolation.ReportID)
 

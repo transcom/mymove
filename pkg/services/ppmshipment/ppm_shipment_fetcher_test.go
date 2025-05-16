@@ -872,9 +872,10 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		// No uploads are added by default for the ProofOfTrailerOwnershipDocument to the WeightTicket model
-		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
+		_, err := testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
 			ppmShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument,
 			testdatagen.Assertions{ServiceMember: ppmShipment.WeightTickets[0].EmptyDocument.ServiceMember})
+		suite.NoError(err)
 
 		actualShipment, err := FindPPMShipment(suite.AppContextForTest(), ppmShipment.ID)
 		suite.NoError(err)
@@ -959,9 +960,10 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	suite.Run("FindPPMShipment - deleted uploads are removed", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
-		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
+		_, err := testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
 			ppmShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument,
 			testdatagen.Assertions{ServiceMember: ppmShipment.WeightTickets[0].EmptyDocument.ServiceMember})
+		suite.NoError(err)
 
 		factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
 			{

@@ -56,12 +56,13 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 	}, nil)
 
 	reweighWeight := unit.Pound(2399)
-	reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+	reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 		Reweigh: models.Reweigh{
 			Weight: &reweighWeight,
 		},
 		MTOShipment: reweighedShipment,
 	})
+	suite.NoError(err)
 
 	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
