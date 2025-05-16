@@ -3,6 +3,7 @@
 -- B 22696 Jon Spight added too destination assignments to history / Audit log
 -- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
 -- B-23623  Beth Grohmann  fetch_move_history - update final query to pull from all user tables
+-- B-23581 Paul Stonebraker updated assigned office user counselor columns
 
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
@@ -81,9 +82,9 @@ BEGIN
                 ''counseling_office_name'',
                 (SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.counseling_transportation_office_id)),
                 ''assigned_office_user_first_name'',
-                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
+                (SELECT office_users.first_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id))),
                 ''assigned_office_user_last_name'',
-                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
+                (SELECT office_users.last_name FROM office_users WHERE office_users.id IN (uuid(c.sc_counseling_assigned_id), uuid(c.sc_closeout_assigned_id), uuid(c.too_assigned_id), uuid(c.tio_assigned_id), uuid(c.too_destination_assigned_id)))
             ))
         )::TEXT AS context,
         NULL AS context_id,
@@ -94,7 +95,8 @@ BEGIN
     JOIN jsonb_to_record(audit_history.changed_data) AS c(
         closeout_office_id TEXT,
         counseling_transportation_office_id TEXT,
-        sc_assigned_id TEXT,
+        sc_counseling_assigned_id TEXT,
+        sc_closeout_assigned_id TEXT,
         too_assigned_id TEXT,
         tio_assigned_id TEXT,
         too_destination_assigned_id TEXT
