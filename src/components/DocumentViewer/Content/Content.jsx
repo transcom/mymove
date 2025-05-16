@@ -27,7 +27,12 @@ const DocViewerContent = ({
       renderControls={({ handleZoomIn, handleZoomOut, handleRotateLeft, handleRotateRight, zoomPercentage }) => {
         return (
           <div className={styles.controls}>
-            <Button type="button" unstyled className={styles.zoomDisplayButton}>
+            <Button
+              type="button"
+              unstyled
+              className={styles.zoomDisplayButton}
+              aria-label={`Zoom level: ${zoomPercentage}%`}
+            >
               Zoom: {zoomPercentage}%
             </Button>
             <Button type="button" unstyled onClick={handleZoomOut}>
