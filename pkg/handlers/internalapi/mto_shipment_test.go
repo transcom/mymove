@@ -809,7 +809,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
-	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
+	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater, mockFeatureFlagOn bool) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
 		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())
 
 		req := httptest.NewRequest("PATCH", endpoint, nil)
@@ -829,8 +829,24 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			shipmentUpdaterSO = mockShipmentUpdater
 		}
 
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: mockFeatureFlagOn,
+		}
+
+		handlerConfig := suite.HandlerConfig()
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
 		handler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			handlerConfig,
 			shipmentUpdaterSO,
 		}
 
@@ -870,7 +886,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		customerRemarks := ""
 
-		handler, params := authRequestAndSetUpHandlerAndParams(originalShipment, mockShipmentUpdater)
+		handler, params := authRequestAndSetUpHandlerAndParams(originalShipment, mockShipmentUpdater, false)
 
 		params.Body = &internalmessages.UpdateShipment{
 			Agents:          agents,
@@ -1382,7 +1398,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 				originalPPMShipment := tc.setUpOriginalPPM()
 
-				handler, params := authRequestAndSetUpHandlerAndParams(originalPPMShipment.Shipment, nil)
+				handler, params := authRequestAndSetUpHandlerAndParams(originalPPMShipment.Shipment, nil, false)
 
 				params.Body = &internalmessages.UpdateShipment{
 					ShipmentType: internalmessages.MTOShipmentTypePPM,
@@ -1405,6 +1421,113 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				tc.runChecks(updatedShipment, originalPPMShipment.Shipment, tc.desiredShipment)
 			})
 		}
+	})
+
+	suite.Run("Successful PATCH - gun safe related fields exist in payload exists if FF is ON", func() {
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		hasGunSafe := models.BoolPointer(true)
+		gunSafeWeight := models.Int64Pointer(123)
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		payload := internalmessages.UpdatePPMShipment{
+			HasGunSafe:    hasGunSafe,
+			GunSafeWeight: gunSafeWeight,
+		}
+
+		// FF on
+		handler, params := authRequestAndSetUpHandlerAndParams(ppmShipment.Shipment, nil, true)
+
+		params.Body = &internalmessages.UpdateShipment{
+			ShipmentType: internalmessages.MTOShipmentTypePPM,
+			PpmShipment:  &payload,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		suite.Equal(*hasGunSafe, *updatedResponse.PpmShipment.HasGunSafe)
+		suite.Equal(*gunSafeWeight, *updatedResponse.PpmShipment.GunSafeWeight)
+	})
+
+	suite.Run("Successful PATCH - gun safe related fields are nil in payload if FF is OFF", func() {
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		hasGunSafe := models.BoolPointer(true)
+		gunSafeWeight := models.Int64Pointer(123)
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		payload := internalmessages.UpdatePPMShipment{
+			HasGunSafe:    hasGunSafe,
+			GunSafeWeight: gunSafeWeight,
+			HasProGear:    models.BoolPointer(false),
+		}
+
+		// FF off
+		handler, params := authRequestAndSetUpHandlerAndParams(ppmShipment.Shipment, nil, false)
+
+		params.Body = &internalmessages.UpdateShipment{
+			ShipmentType: internalmessages.MTOShipmentTypePPM,
+			PpmShipment:  &payload,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		suite.Nil(updatedResponse.PpmShipment.HasGunSafe)
+		suite.Nil(updatedResponse.PpmShipment.GunSafeWeight)
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {

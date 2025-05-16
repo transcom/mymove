@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 )
 
 type ppmShipmentUpdater struct {
@@ -317,6 +318,51 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			ppmShipment.Shipment = mtoShipment
+		}
+
+		// authorize gunsafe in orders.Entitlement if customer has selected that they have gun safe when creating a ppm shipment
+		if ppmShipment.HasGunSafe != nil {
+			oldHasGunSafeValue := false
+
+			if oldPPMShipment.HasGunSafe != nil {
+				oldHasGunSafeValue = *oldPPMShipment.HasGunSafe
+			}
+
+			if oldHasGunSafeValue != *ppmShipment.HasGunSafe {
+				move, err := models.FetchMoveByMoveIDWithOrders(appCtx.DB(), mtoShipment.MoveTaskOrderID)
+				if err != nil {
+					return err
+				}
+
+				entitlement := move.Orders.Entitlement
+				entitlement.GunSafe = *updatedPPMShipment.HasGunSafe
+
+				maxGunSafeWeight := 0
+				if updatedPPMShipment.HasGunSafe != nil && *updatedPPMShipment.HasGunSafe {
+					maxGunSafeWeight, err = models.GetMaxGunSafeAllowance(appCtx)
+					if err != nil {
+						return err
+					}
+				}
+				entitlement.GunSafeWeight = maxGunSafeWeight
+
+				waf := entitlements.NewWeightAllotmentFetcher()
+
+				totalWeight, err := waf.GetTotalWeightAllotment(appCtx, move.Orders, *entitlement)
+				if err != nil {
+					return err
+				}
+
+				entitlement.DBAuthorizedWeight = &totalWeight
+
+				verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the Entitlement.")
+				}
+				if err != nil {
+					return apperror.NewQueryError("Entitlement", err, "")
+				}
+			}
 		}
 
 		return nil
