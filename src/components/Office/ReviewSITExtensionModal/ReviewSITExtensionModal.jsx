@@ -300,7 +300,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                           type="button"
                           onClick={() => onClose()}
                           data-testid="modalCancelButton"
-                          outline
+                          secondary
                           className={styles.CancelButton}
                         >
                           Cancel

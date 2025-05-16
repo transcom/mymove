@@ -26,7 +26,6 @@ export const DeleteDocumentFileConfirmationModal = ({ closeModal, submitModal, f
         No, keep it
       </Button>
       <Button
-        autoFocus
         data-testid="confirm-delete"
         data-focus="true"
         className="usa-button--destructive"

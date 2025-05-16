@@ -131,7 +131,7 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
                         type="button"
                         onClick={() => onClose()}
                         data-testid="modalCancelButton"
-                        outline
+                        secondary
                         className={styles.CancelButton}
                       >
                         Cancel

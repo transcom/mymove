@@ -57,7 +57,7 @@ const ShipmentApprovalPreview = ({
             </div>
             <h2>Preview and post move task order</h2>
             <p>Is all the information shown correct and ready to send to Global Relocation Services?</p>
-            <div className="display-flex">
+            <div className={classNames(styles.displayFlexRight)}>
               <Button type="reset" secondary onClick={() => setIsModalVisible(false)}>
                 Back
               </Button>
