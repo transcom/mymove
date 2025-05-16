@@ -2533,6 +2533,33 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: Server error
+    delete:
+      produces:
+        - application/json
+      summary: Deletes a User
+      description: Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.
+      operationId: deleteUser
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '204':
+          description: deleted
+        "401":
+          description: request requires user authentication
+        "403":
+          description: User cannot be deleted, forbidden
+        "404":
+          description: User not found
+        "409":
+          description: User cannot be deleted due to associated data
+        "500":
+          description: server error
   /webhook-subscriptions:
     get:
       produces:

@@ -48,6 +48,35 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	return user
 }
 
+func BuildNonOktaUser(db *pop.Connection, customs []Customization, traits []Trait) models.User {
+	customs = setupCustomizations(customs, traits)
+
+	// Find user assertion and convert to models user
+	var cUser models.User
+	if result := findValidCustomization(customs, User); result != nil {
+		cUser = result.Model.(models.User)
+		if result.LinkOnly {
+			return cUser
+		}
+	}
+
+	user := models.User{
+		OktaID:    "",
+		OktaEmail: "first.last@okta.mil",
+		Active:    true,
+	}
+
+	// Overwrite values with those from assertions
+	testdatagen.MergeModels(&user, cUser)
+
+	// If db is false, it's a stub. No need to create in database
+	if db != nil {
+		mustCreate(db, &user)
+	}
+
+	return user
+}
+
 // BuildActiveUser creates a User
 // It does not create Roles or UsersRoles. To create a User associated with certain roles, use BuildUserAndUsersRoles
 // Params:

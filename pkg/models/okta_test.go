@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/jarcoal/httpmock"
 
@@ -10,10 +11,16 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
+func setupOktaProvider(suite *ModelSuite) *okta.Provider {
 	const milProviderName = "milProvider"
 	provider, err := factory.BuildOktaProvider(milProviderName)
 	suite.NoError(err)
+	return provider
+}
+
+func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
+	provider := setupOktaProvider(suite)
+	httpmock.Activate()
 	mockAndActivateOktaGETEndpointExistingUserNoError(provider)
 	oktaEmail := "test@example.com"
 	oktaEdipi := "1234567890"
@@ -26,12 +33,10 @@ func (suite *ModelSuite) TestSearchForExistingOktaUsers() {
 }
 
 func (suite *ModelSuite) TestSearchForExistingOktaUsersValidation() {
-	const milProviderName = "milProvider"
-	provider, err := factory.BuildOktaProvider(milProviderName)
-	suite.NoError(err)
+	provider := setupOktaProvider(suite)
 
 	// invalid email format
-	_, err = models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "invalid-email", nil, nil)
+	_, err := models.SearchForExistingOktaUsers(suite.AppContextForTest(), provider, "fakeKey", "invalid-email", nil, nil)
 	suite.Error(err)
 	suite.Contains(err.Error(), "invalid email format")
 
@@ -48,9 +53,7 @@ func (suite *ModelSuite) TestSearchForExistingOktaUsersValidation() {
 }
 
 func (suite *ModelSuite) TestCreateOktaUser() {
-	const milProviderName = "milProvider"
-	provider, err := factory.BuildOktaProvider(milProviderName)
-	suite.NoError(err)
+	provider := setupOktaProvider(suite)
 	payload := models.OktaUserPayload{
 		Profile: models.OktaProfile{
 			FirstName:   "New",
@@ -63,6 +66,7 @@ func (suite *ModelSuite) TestCreateOktaUser() {
 		GroupIds: []string{"group-123"},
 	}
 
+	httpmock.Activate()
 	mockAndActivateOktaPOSTEndpointsNoError(provider)
 
 	createdUser, err := models.CreateOktaUser(suite.AppContextForTest(), provider, "fakeKey", payload)
@@ -140,13 +144,24 @@ func (suite *ModelSuite) TestAddOktaUserToGroup_Failure() {
 	suite.Contains(err.Error(), "Invalid group")
 }
 
+func (suite *ModelSuite) TestDeleteOktaUser() {
+	provider := setupOktaProvider(suite)
+
+	httpmock.Activate()
+	mockAndActivateOktaGetUserEndpointNoError(provider)
+	mockAndActivateOktaDeleteEndpointNoError(provider)
+
+	err := models.DeleteOktaUser(suite.AppContextForTest(), provider, "fakeOktaID", "fakeKey")
+	suite.NoError(err)
+}
+
 func mockAndActivateOktaGETEndpointExistingUserNoError(provider *okta.Provider) {
 	getUsersEndpoint := provider.GetUsersURL()
 	oktaID := "fakeOktaID"
 	response := fmt.Sprintf(`[
 		{
 			"id": "%s",
-			"status": "PROVISIONED",
+			"status": "%s",
 			"created": "2025-02-07T20:39:47.000Z",
 			"activated": "2025-02-07T20:39:47.000Z",
 			"profile": {
@@ -159,11 +174,10 @@ func mockAndActivateOktaGETEndpointExistingUserNoError(provider *okta.Provider) 
 				"cac_edipi": "1234567890"
 			}
 		}
-	]`, oktaID)
+	]`, oktaID, models.OktaStatusProvisioned)
 
-	httpmock.RegisterResponder("GET", getUsersEndpoint,
+	httpmock.RegisterResponder(http.MethodGet, getUsersEndpoint,
 		httpmock.NewStringResponder(200, response))
-	httpmock.Activate()
 }
 
 func mockAndActivateOktaPOSTEndpointsNoError(provider *okta.Provider) {
@@ -171,7 +185,7 @@ func mockAndActivateOktaPOSTEndpointsNoError(provider *okta.Provider) {
 	createUserEndpoint := provider.GetCreateUserURL(activate)
 	oktaID := "newFakeOktaID"
 
-	httpmock.RegisterResponder("POST", createUserEndpoint,
+	httpmock.RegisterResponder(http.MethodPost, createUserEndpoint,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
 		"id": "%s",
 		"profile": {
@@ -181,6 +195,29 @@ func mockAndActivateOktaPOSTEndpointsNoError(provider *okta.Provider) {
 			"login": "email@email.com"
 		}
 	}`, oktaID)))
+}
 
-	httpmock.Activate()
+func mockAndActivateOktaGetUserEndpointNoError(provider *okta.Provider) {
+	oktaID := "fakeOktaID"
+	getUserEndpoint := provider.GetUserURL(oktaID)
+
+	httpmock.RegisterResponder(http.MethodGet, getUserEndpoint,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+		"id": "%s",
+		"status": "%s",
+		"profile": {
+			"firstName": "First",
+			"lastName": "Last",
+			"email": "email@email.com",
+			"login": "email@email.com"
+		}
+	}`, oktaID, models.OktaStatusActive)))
+}
+
+func mockAndActivateOktaDeleteEndpointNoError(provider *okta.Provider) {
+	oktaID := "fakeOktaID"
+	deleteUserEndpoint := provider.GetUserURL(oktaID)
+
+	httpmock.RegisterResponder(http.MethodDelete, deleteUserEndpoint,
+		httpmock.NewStringResponder(204, ""))
 }

@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 
 import { CustomerContactInfoFields } from 'components/form/CustomerContactInfoFields';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';

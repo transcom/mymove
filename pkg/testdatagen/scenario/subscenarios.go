@@ -213,21 +213,21 @@ func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader
 		other := models.DestinationTypeOtherThanAuthorized
 
 		//PCOS - one with nil dest type, 2 others with PLEAD status
-		CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST")
-		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1")
-		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2")
+		CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "NODEST", false)
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD1", false)
+		CreateNeedsServicesCounseling(appCtx, pcos, nts, &plead, "PLEAD2", false)
 
 		//Retirees
-		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3")
-		CreateNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4")
-		CreateNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5")
-		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6")
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hor, "RETIR3", false)
+		CreateNeedsServicesCounseling(appCtx, retirement, nts, &hos, "RETIR4", false)
+		CreateNeedsServicesCounseling(appCtx, retirement, ntsR, &other, "RETIR5", false)
+		CreateNeedsServicesCounseling(appCtx, retirement, hhg, &plead, "RETIR6", false)
 
 		//Separatees
-		CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3")
-		CreateNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4")
-		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5")
-		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6")
+		CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "SEPAR3", false)
+		CreateNeedsServicesCounseling(appCtx, separation, nts, &hos, "SEPAR4", false)
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &other, "SEPAR5", false)
+		CreateNeedsServicesCounseling(appCtx, separation, ntsR, &plead, "SEPAR6", false)
 
 		//USMC
 		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)

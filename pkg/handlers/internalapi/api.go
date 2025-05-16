@@ -95,6 +95,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
 	vLocation := address.NewVLocation()
+	countrySearcher := address.NewCountrySearcher()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
@@ -205,7 +206,15 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		ghcrateengine.NewDomesticShorthaulPricer(),
 		ghcrateengine.NewDomesticOriginPricer(),
 		ghcrateengine.NewDomesticDestinationPricer(),
-		ghcrateengine.NewFuelSurchargePricer())
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
@@ -308,6 +317,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
 	internalAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
+
+	internalAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
+		handlerConfig,
+		countrySearcher,
+	}
 
 	return internalAPI
 }

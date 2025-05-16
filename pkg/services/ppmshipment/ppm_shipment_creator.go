@@ -147,6 +147,33 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			return err
 		}
 
+		var mtoShipment models.MTOShipment
+		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
+			return err
+		}
+
+		// if we have all the PPM address data we need to set the market code for the parent shipment
+		if ppmShipment.PickupAddress != nil && ppmShipment.DestinationAddress != nil &&
+			ppmShipment.PickupAddress.IsOconus != nil && ppmShipment.DestinationAddress.IsOconus != nil {
+			marketCode, err := models.DetermineMarketCode(ppmShipment.PickupAddress, ppmShipment.DestinationAddress)
+			if err != nil {
+				return err
+			}
+			mtoShipment.MarketCode = marketCode
+			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
+				return err
+			}
+			ppmShipment.Shipment = mtoShipment
+		}
+
+		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
+		} else if err != nil {
+			return apperror.NewQueryError("PPM Shipment", err, "")
+		}
+
+		// now that the PPM has been created and market code is set, we can calculate incentives
 		estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, models.PPMShipment{}, ppmShipment)
 		if err != nil {
 			return err
@@ -160,11 +187,6 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		}
 		ppmShipment.MaxIncentive = maxIncentive
 
-		var mtoShipment models.MTOShipment
-		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
-			return err
-		}
-
 		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 			mtoShipment.Status = models.MTOShipmentStatusApproved
 			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
@@ -172,31 +194,9 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			ppmShipment.ApprovedAt = &now
 		}
 
-		// Validate ppm shipment model object and save it to DB
-		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
-		// Check validation errors
-		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
-		} else if err != nil {
-			// If the error is something else (this is unexpected), we create a QueryError
-			return apperror.NewQueryError("PPM Shipment", err, "")
-		}
-
-		// updating the shipment after PPM creation due to addresses not being created until PPM shipment is created
-		// when populating the market_code column, it is considered domestic if both pickup & dest on the PPM are CONUS addresses
-		if ppmShipment.PickupAddress != nil && ppmShipment.DestinationAddress != nil &&
-			ppmShipment.PickupAddress.IsOconus != nil && ppmShipment.DestinationAddress.IsOconus != nil {
-			pickupAddress := ppmShipment.PickupAddress
-			destAddress := ppmShipment.DestinationAddress
-			marketCode, err := models.DetermineMarketCode(pickupAddress, destAddress)
-			if err != nil {
-				return err
-			}
-			mtoShipment.MarketCode = marketCode
-			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
-				return err
-			}
-			ppmShipment.Shipment = mtoShipment
+		// save the updated incentives back to the PPM
+		if err := txnAppCtx.DB().Update(ppmShipment); err != nil {
+			return apperror.NewQueryError("Update PPM incentives", err, "")
 		}
 
 		return err

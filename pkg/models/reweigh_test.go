@@ -17,7 +17,7 @@ func (suite *ModelSuite) TestReweighValidation() {
 			ShipmentID:  uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReweigh, expErrors)
+		suite.verifyValidationErrors(&validReweigh, expErrors, nil)
 	})
 
 	suite.Run("test empty reweigh", func() {
@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestReweighValidation() {
 			"requested_by": {"RequestedBy is not in the list [CUSTOMER, PRIME, SYSTEM, TOO]."},
 			"shipment_id":  {"ShipmentID can not be blank."},
 		}
-		suite.verifyValidationErrors(&models.Reweigh{}, expErrors)
+		suite.verifyValidationErrors(&models.Reweigh{}, expErrors, nil)
 	})
 
 	suite.Run("test validation failures", func() {
@@ -43,6 +43,6 @@ func (suite *ModelSuite) TestReweighValidation() {
 			"weight":              {"-1 is less than or equal to zero"},
 			"verification_reason": {"VerificationReason can not be blank."},
 		}
-		suite.verifyValidationErrors(&invalidReweigh, expErrors)
+		suite.verifyValidationErrors(&invalidReweigh, expErrors, nil)
 	})
 }

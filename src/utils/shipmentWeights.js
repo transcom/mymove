@@ -47,6 +47,9 @@ export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {
 };
 
 export const calculateTotalNetWeightForProGearWeightTickets = (proGearWeightTickets = []) => {
+  if (!proGearWeightTickets) {
+    return 0;
+  }
   return proGearWeightTickets.reduce((prev, curr) => {
     return prev + calculateNetWeightForProGearWeightTicket(curr);
   }, 0);

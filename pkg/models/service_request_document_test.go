@@ -12,7 +12,7 @@ func (suite *ModelSuite) TestServiceRequestDocumentValidation() {
 			MTOServiceItemID: uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validServiceRequestDocument, expErrors)
+		suite.verifyValidationErrors(&validServiceRequestDocument, expErrors, nil)
 	})
 
 	suite.Run("test empty ServiceRequestDocument", func() {
@@ -22,6 +22,6 @@ func (suite *ModelSuite) TestServiceRequestDocumentValidation() {
 			"mtoservice_item_id": {"MTOServiceItemID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidServiceRequestDocument, expErrors)
+		suite.verifyValidationErrors(&invalidServiceRequestDocument, expErrors, nil)
 	})
 }

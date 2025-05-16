@@ -13,10 +13,10 @@ const feedbackDisplayHelperTrip = (documentSet) => {
   return documentSet?.some(
     (doc) =>
       (doc.status !== null && doc.status !== PPM_DOCUMENT_STATUS.APPROVED) ||
-      doc.submittedEmptyWeight !== doc.emptyWeight ||
-      doc.submittedFullWeight !== doc.fullWeight ||
-      doc.submittedOwnsTrailer !== doc.ownsTrailer ||
-      doc.submittedTrailerMeetsCriteria !== doc.trailerMeetsCriteria,
+      (doc.submittedEmptyWeight != null && doc.submittedEmptyWeight !== doc.emptyWeight) ||
+      (doc.submittedFullWeight != null && doc.submittedFullWeight !== doc.fullWeight) ||
+      (doc.submittedOwnsTrailer != null && doc.submittedOwnsTrailer !== doc.ownsTrailer) ||
+      (doc.submittedTrailerMeetsCriteria != null && doc.submittedTrailerMeetsCriteria !== doc.trailerMeetsCriteria),
   );
 };
 
@@ -24,9 +24,9 @@ const feedbackDisplayHelperProGear = (documentSet) => {
   return documentSet?.some(
     (doc) =>
       (doc.status !== null && doc.status !== PPM_DOCUMENT_STATUS.APPROVED) ||
-      doc.submittedBelongsToSelf !== doc.belongsToSelf ||
-      doc.submittedHasWeightTickets !== doc.hasWeightTickets ||
-      doc.submittedWeight !== doc.weight,
+      (doc.submittedBelongsToSelf != null && doc.submittedBelongsToSelf !== doc.belongsToSelf) ||
+      (doc.submittedHasWeightTickets != null && doc.submittedHasWeightTickets !== doc.hasWeightTickets) ||
+      (doc.submittedWeight != null && doc.submittedWeight !== doc.weight),
   );
 };
 
@@ -34,11 +34,11 @@ const feedbackDisplayHelperExpense = (documentSet) => {
   return documentSet?.some(
     (doc) =>
       (doc.status !== null && doc.status !== PPM_DOCUMENT_STATUS.APPROVED) ||
-      doc.submittedAmount !== doc.amount ||
-      doc.submittedDescription !== doc.description ||
-      doc.submittedMovingExpenseType !== doc.movingExpenseType ||
-      doc.submittedSitEndDate !== doc.sitEndDate ||
-      doc.submittedSitStartDate !== doc.sitStartDate,
+      (doc.submittedAmount != null && doc.submittedAmount !== doc.amount) ||
+      (doc.submittedDescription != null && doc.submittedDescription !== doc.description) ||
+      (doc.submittedMovingExpenseType != null && doc.submittedMovingExpenseType !== doc.movingExpenseType) ||
+      (doc.submittedSitEndDate != null && doc.submittedSitEndDate !== doc.sitEndDate) ||
+      (doc.submittedSitStartDate != null && doc.submittedSitStartDate !== doc.sitStartDate),
   );
 };
 

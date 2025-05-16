@@ -557,7 +557,7 @@ func (router moveRouter) CompleteServiceCounseling(_ appcontext.AppContext, move
 	}
 
 	// Verify the shipment's existing status.
-	if move.Status != models.MoveStatusNeedsServiceCounseling {
+	if move.Status != models.MoveStatusNeedsServiceCounseling && move.Status != models.MoveStatusDRAFT {
 		return apperror.NewConflictError(move.ID, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Service Counseling Completed' from the 'Needs Service Counseling' status, but its current status is %s.", move.ID, move.Status))
 	}
 

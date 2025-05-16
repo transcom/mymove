@@ -443,8 +443,8 @@ export default function HeaderSection({
   updatedItemName,
   setUpdatedItemName,
   readOnly,
-  grade,
   expanded,
+  grade,
 }) {
   const requestDetailsButtonTestId = `${sectionInfo.type}-showRequestDetailsButton`;
   const { shipmentId, moveCode } = useParams();
@@ -530,13 +530,11 @@ export default function HeaderSection({
       case 'pickupAddress':
         body = {
           pickupAddress: values.pickupAddress,
-          actualPickupPostalCode: values.pickupAddress?.postalCode,
         };
         break;
       case 'destinationAddress':
         body = {
           destinationAddress: values.destinationAddress,
-          actualDestinationPostalCode: values.destinationAddress?.postalCode,
         };
         break;
       case 'expenseType':

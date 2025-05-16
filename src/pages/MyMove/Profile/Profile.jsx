@@ -18,7 +18,7 @@ import {
   selectBackupContacts,
   selectOktaUser,
 } from 'store/entities/selectors';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInfoDisplay';
 import { customerRoutes, generalRoutes } from 'constants/routes';

@@ -14,7 +14,9 @@ func setupTestData(suite *PaperworkSuite) (models.EvaluationReport, models.Repor
 		Model:    report.Move,
 		LinkOnly: true,
 	}}, nil)
-	violations := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{Report: report})
+	violations, err := testdatagen.MakeReportViolation(suite.DB(), testdatagen.Assertions{Report: report})
+	suite.NoError(err)
+
 	return report, models.ReportViolations{violations}, models.MTOShipments{shipment}, report.Move.Orders.ServiceMember
 }
 
@@ -32,7 +34,7 @@ func (suite *PaperworkSuite) TestEvaluationReportFormSmokeTests() {
 		output, err := testFs.Create("test-output.pdf")
 		suite.FatalNil(err)
 
-		err = formFiller.Output(output)
+		err = formFiller.Output(output, report)
 		suite.FatalNil(err)
 	})
 	suite.Run("Counseling report", func() {
@@ -48,7 +50,7 @@ func (suite *PaperworkSuite) TestEvaluationReportFormSmokeTests() {
 		output, err := testFs.Create("test-output.pdf")
 		suite.FatalNil(err)
 
-		err = formFiller.Output(output)
+		err = formFiller.Output(output, report)
 		suite.FatalNil(err)
 	})
 }

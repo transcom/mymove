@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/Office/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { servicesCounselingRoutes } from 'constants/routes';
 import ReviewItems from 'components/Shared/PPM/Closeout/ReviewItems/ReviewItems';
 import {
@@ -48,22 +48,22 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal>
+        <Modal onClose={() => onClose(false)}>
           <ModalClose handleClick={() => onClose(false)} />
           <ModalTitle>
             <h3>Delete this?</h3>
           </ModalTitle>
           {deleteDetailMessage}
           <ModalActions>
+            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
+              No, Keep It
+            </Button>
             <Button
               className="usa-button--destructive"
               type="submit"
               onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemNumber)}
             >
               Yes, Delete
-            </Button>
-            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
-              No, Keep It
             </Button>
           </ModalActions>
         </Modal>

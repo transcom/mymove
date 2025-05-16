@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { backupContactInfoSchema } from 'utils/validation';

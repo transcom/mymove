@@ -32,6 +32,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	GetLocationByZipCityState(params *GetLocationByZipCityStateParams, opts ...ClientOption) (*GetLocationByZipCityStateOK, error)
 
+	SearchCountries(params *SearchCountriesParams, opts ...ClientOption) (*SearchCountriesOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -72,6 +74,46 @@ func (a *Client) GetLocationByZipCityState(params *GetLocationByZipCityStatePara
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for getLocationByZipCityState: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+SearchCountries returns the countries matching the search query
+
+Search API using search string that returns list of countries containing its code and name. Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will do an exact match on country code and also do a starts with match on country name. If not 2 characters search will do a starts with match on country name.
+*/
+func (a *Client) SearchCountries(params *SearchCountriesParams, opts ...ClientOption) (*SearchCountriesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSearchCountriesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "searchCountries",
+		Method:             "GET",
+		PathPattern:        "/addresses/countries",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &SearchCountriesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SearchCountriesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for searchCountries: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

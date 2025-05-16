@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -2489,6 +2490,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				},
 			},
 		}, nil)
+
 		// Create data for a second Origin ZANY
 		dutyLocationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
@@ -2890,140 +2892,6 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
-	serviceMemberFirstName := "Margaret"
-	serviceMemberLastName := "Starlight"
-	edipi := "9999999998"
-	var officeUser models.OfficeUser
-	var session auth.Session
-	waf := entitlements.NewWeightAllotmentFetcher()
-	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 05, 20, 0, 0, 0, 0, time.UTC)
-	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 07, 03, 0, 0, 0, 0, time.UTC)
-
-	setupData := func() {
-		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status:  models.MoveStatusAPPROVED,
-					Locator: "AA1235",
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &requestedMoveDate1,
-				},
-			},
-		}, nil)
-		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Locator: "TTZ125",
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					FirstName: &serviceMemberFirstName,
-					Edipi:     &edipi,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &requestedMoveDate2,
-				},
-			},
-		}, nil)
-		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{ // Leo Zephyer
-					LastName: &serviceMemberLastName,
-				},
-			},
-		}, nil)
-		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		session = auth.Session{
-			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
-			OfficeUserID:    officeUser.ID,
-			IDToken:         "fake_token",
-			AccessToken:     "fakeAccessToken",
-		}
-	}
-
-	orderFetcher := NewOrderFetcher(waf)
-
-	suite.Run("list moves by customer name - full name (last, first)", func() {
-		setupData()
-		// Search "Spacemen, Margaret"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("Spacemen, Margaret"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
-		suite.NoError(err)
-		suite.Equal(1, len(moves))
-		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-	})
-
-	suite.Run("list moves by customer name - full name (first last)", func() {
-		setupData()
-		// Search "Margaret Spacemen"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("Margaret Spacemen"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
-		suite.NoError(err)
-		suite.Equal(1, len(moves))
-		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-	})
-
-	suite.Run("list moves by customer name - partial last (multiple)", func() {
-		setupData()
-		// Search "space"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("space"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-		suite.Equal("Spacemen, Margaret", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
-	})
-
-	suite.Run("list moves by customer name - partial last (single)", func() {
-		setupData()
-		// Search "Light"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("Light"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
-		suite.NoError(err)
-		suite.Equal(1, len(moves))
-		suite.Equal("Starlight, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-	})
-
-	suite.Run("list moves by customer name - partial first", func() {
-		setupData()
-		// Search "leo"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("leo"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-		suite.Equal("Starlight, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
-	})
-
-	suite.Run("list moves by customer name - partial matching within first or last", func() {
-		setupData()
-		// Search "ar"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("ar"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
-		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-		suite.Equal("Starlight, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
-	})
-
-	suite.Run("list moves by customer name - empty", func() {
-		setupData()
-		// Search "johnny"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("johnny"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
-		suite.NoError(err)
-		suite.Equal(0, len(moves))
-	})
-}
-
 func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	suite.Run("returns a list of all order locations in the current users queue", func() {
@@ -3163,6 +3031,135 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 	})
 }
 
+func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
+	waf := entitlements.NewWeightAllotmentFetcher()
+
+	serviceMemberFirstName := "Margaret"
+	serviceMemberLastName := "Starlight"
+	edipi := "9999999998"
+	var officeUser models.OfficeUser
+	var session auth.Session
+
+	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 05, 20, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 07, 03, 0, 0, 0, 0, time.UTC)
+
+	suite.PreloadData(func() {
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "AA1235",
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate1,
+				},
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "TTZ125",
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: &serviceMemberFirstName,
+					Edipi:     &edipi,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate2,
+				},
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{ // Leo Zephyer
+					LastName: &serviceMemberLastName,
+				},
+			},
+		}, nil)
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+	})
+
+	orderFetcher := NewOrderFetcher(waf)
+
+	suite.Run("list moves by customer name - full name (last, first)", func() {
+		// Search "Spacemen, Margaret"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("Spacemen, Margaret"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - full name (first last)", func() {
+		// Search "Margaret Spacemen"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("Margaret Spacemen"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - partial last (multiple)", func() {
+		// Search "space"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("space"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Margaret", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - partial last (single)", func() {
+		// Search "Light"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("Light"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal("Starlight, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - partial first", func() {
+		// Search "leo"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("leo"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Starlight, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - partial matching within first or last", func() {
+		// Search "ar"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("ar"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Starlight, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - empty", func() {
+		// Search "johnny"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("johnny"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
+		suite.NoError(err)
+		suite.Equal(0, len(moves))
+	})
+}
+
 func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	army := models.AffiliationARMY
 	airForce := models.AffiliationAIRFORCE
@@ -3243,8 +3240,8 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 	}
 
 	buildMoveAGFM := func() (models.Move, models.MTOShipment) {
-		postalCode := "AGFM"
-		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "AGFM", "AGFM")
+		postalCode := "43077"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "AGFM")
 
 		// setting up two moves, each with requested destination SIT service items
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -3282,16 +3279,13 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 	buildMoveZone2AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
-		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
-		suite.FatalNoError(err)
+		// this is a use a us_post_region_cities_id within AK Zone II
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					City:               "Anchorage",
-					State:              "AK",
-					PostalCode:         "99501",
-					UsPostRegionCityID: &zone2UUID,
+					City:       "Anchorage",
+					State:      "AK",
+					PostalCode: "99501",
 				},
 			},
 		}, nil)
@@ -3332,16 +3326,14 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 	buildMoveZone4AK := func(branch models.ServiceMemberAffiliation) (models.Move, models.MTOShipment) {
 		// Create a USAF move in Alaska Zone II
-		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
-		zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
-		suite.FatalNoError(err)
+		// this will use a us_post_region_cities_id within AK Zone II
+
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					City:               "Anchorage",
-					State:              "AK",
-					PostalCode:         "99501",
-					UsPostRegionCityID: &zone4UUID,
+					City:       "Anchorage",
+					State:      "AK",
+					PostalCode: "99501",
 				},
 			},
 		}, nil)
@@ -3915,4 +3907,231 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		suite.Equal(1, moveCount)
 		suite.Len(moves, 1)
 	})
+
+	suite.Run("filters by new duty location name", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		// First move with new duty location "Camp Alpha"
+		campAlpha := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Camp Alpha",
+				},
+			},
+		}, nil)
+		moveA := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model:    campAlpha,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation},
+		}, nil)
+		shipA := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveA,
+				LinkOnly: true,
+			},
+		}, nil)
+		// attaching dest service item so it shows up
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    moveA,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipA,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// First move with new duty location "Camp Alpha"
+		campBravo := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Camp Bravo",
+				},
+			},
+		}, nil)
+		moveB := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model:    campBravo,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation},
+		}, nil)
+		shipB := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveB,
+				LinkOnly: true,
+			},
+		}, nil)
+		// attaching dest service item so it shows up
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    moveA,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipB,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		params := services.ListOrderParams{DestinationDutyLocation: swag.String("Camp Alpha")}
+		moves, count, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			roles.RoleTypeTOO,
+			&params,
+		)
+		suite.FatalNoError(err)
+		suite.Equal(1, count)
+		suite.Len(moves, 1)
+		suite.Equal("Camp Alpha", moves[0].Orders.NewDutyLocation.Name)
+	})
+
+	suite.Run("customerName sort on first name", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		// we got two Smiths, Adam and Bob
+		makeMove := func(first string, last string) models.Move {
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.ServiceMember{
+						FirstName: &first,
+						LastName:  &last,
+					},
+				},
+			}, nil)
+			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil)
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDFSIT,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    shipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusSubmitted,
+					},
+				},
+			}, nil)
+			return move
+		}
+
+		makeMove("Adam", "Smith")
+		makeMove("Bob", "Smith")
+
+		params := services.ListOrderParams{Sort: swag.String("customerName"), Order: swag.String("asc")}
+		moves, count, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			roles.RoleTypeTOO,
+			&params,
+		)
+		suite.FatalNoError(err)
+		suite.Equal(2, count)
+		suite.Len(moves, 2)
+
+		// both last names Smith, but Adam should come before Bob
+		suite.Equal("Adam", *moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Bob", *moves[1].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("sorts by requested move date ascending", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+		now := time.Now().UTC()
+		older := now.Add(-48 * time.Hour)
+		newer := now.Add(48 * time.Hour)
+
+		makeMove := func(locator string, reqDate time.Time) models.Move {
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.Move{
+						Status:  models.MoveStatusAPPROVALSREQUESTED,
+						Locator: locator,
+					},
+				},
+			}, nil)
+
+			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						RequestedPickupDate: &reqDate,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil)
+
+			// attach a destination‑SIT service item so it appears in the queue
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{Model: models.ReService{Code: models.ReServiceCodeDDFSIT}},
+				{Model: move, LinkOnly: true},
+				{Model: shipment, LinkOnly: true},
+				{Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted}},
+			}, nil)
+
+			return move
+		}
+
+		makeMove("OLD1", older)
+		makeMove("NEW1", newer)
+
+		params := services.ListOrderParams{
+			Sort:  swag.String("requestedMoveDate"),
+			Order: swag.String("asc"),
+		}
+		moves, count, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			roles.RoleTypeTOO,
+			&params,
+		)
+		suite.FatalNoError(err)
+		suite.Equal(2, count)
+		suite.Len(moves, 2)
+
+		// oldest‐date move should come first
+		suite.Equal("OLD1", moves[0].Locator)
+		suite.Equal("NEW1", moves[1].Locator)
+	})
+
 }

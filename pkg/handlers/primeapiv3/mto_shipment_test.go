@@ -57,7 +57,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
+	now := time.Now()
+	futureDate := models.TimePointer(now.Add(24 * time.Hour))
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -90,7 +91,25 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		return mockUpdater
 	}
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoServiceItemCreator,
@@ -604,6 +623,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil)
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -1082,6 +1107,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			MtoShipmentID: badID,
 			FirstName:     handlers.FmtString("Mary"),
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1343,6 +1369,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				UpdatedAt:        time.Now(),
 			},
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1599,6 +1626,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			HasProGear:                 &hasProGear,
 			SitExpected:                &sitExpected,
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1636,9 +1664,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			planner,
 			vLocationServices,
 		}
-
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1764,8 +1795,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1857,8 +1892,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2008,8 +2047,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2133,8 +2176,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2258,8 +2305,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2392,8 +2443,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",

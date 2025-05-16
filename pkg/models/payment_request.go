@@ -76,8 +76,8 @@ type PaymentRequest struct {
 	SentToGexAt                     *time.Time           `json:"sent_to_gex_at" db:"sent_to_gex_at"`
 	ReceivedByGexAt                 *time.Time           `json:"received_by_gex_at" db:"received_by_gex_at"`
 	PaidAt                          *time.Time           `json:"paid_at" db:"paid_at"`
-	CreatedAt                       time.Time            `db:"created_at"`
-	UpdatedAt                       time.Time            `db:"updated_at"`
+	CreatedAt                       time.Time            `json:"created_at" db:"created_at"`
+	UpdatedAt                       time.Time            `json:"updated_at" db:"updated_at"`
 	RecalculationOfPaymentRequestID *uuid.UUID           `json:"recalculation_of_payment_request_id" db:"recalculation_of_payment_request_id"`
 
 	// Associations

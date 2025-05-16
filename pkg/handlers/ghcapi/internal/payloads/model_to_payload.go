@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -1001,8 +1002,6 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
@@ -1013,6 +1012,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
@@ -1026,6 +1026,16 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
+	}
+
+	if ppmShipment.WeightTickets != nil {
+		weightTickets := WeightTickets(storer, ppmShipment.WeightTickets)
+		payloadPPMShipment.WeightTickets = weightTickets
+	}
+
+	if ppmShipment.FinalIncentive != nil {
+		finalIncentive := handlers.FmtCost(ppmShipment.FinalIncentive)
+		payloadPPMShipment.FinalIncentive = finalIncentive
 	}
 
 	if ppmShipment.SITLocation != nil {
@@ -2425,6 +2435,28 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
+		// sorting the dates from earliest -> latest that will be displayed in the destination TOO queue
+		var dates []time.Time
+		for _, sh := range move.MTOShipments {
+			if queueIncludeShipmentStatus(sh.Status) && sh.DeletedAt == nil {
+				if d := findEarliestDateForRequestedMoveDate(sh); d != nil {
+					dates = append(dates, *d)
+				}
+			}
+		}
+		// sorting chronologically before formatting to a string
+		sort.Slice(dates, func(i, j int) bool { return dates[i].Before(dates[j]) })
+
+		var formatted []string
+		for _, dt := range dates {
+			formatted = append(formatted, dt.Format("Jan 2 2006"))
+		}
+		var requestedDatesStr *string
+		if len(formatted) > 0 {
+			s := strings.Join(formatted, ", ")
+			requestedDatesStr = &s
+		}
+
 		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
@@ -2505,6 +2537,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
 			// Ensure assignedUser and assignedID are not nil before proceeding
 			if assignedUser != nil && assignedID != nil {
+
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
 					if officeUser.ID == *assignedID {
@@ -2531,6 +2564,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			SubmittedAt:             handlers.FmtDateTimePtr(move.SubmittedAt),
 			AppearedInTooAt:         handlers.FmtDateTimePtr(findLastSentToTOO(move)),
 			RequestedMoveDate:       handlers.FmtDatePtr(earliestRequestedPickup),
+			RequestedMoveDates:      requestedDatesStr,
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
@@ -2860,6 +2894,30 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	return &searchCustomers
 }
 
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
+}
+
 // VLocation payload
 func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
 	if vLocation == nil {
@@ -2884,30 +2942,6 @@ func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
 	for i, vLocation := range vLocations {
 		copyOfVLocation := vLocation
 		payload[i] = VLocation(&copyOfVLocation)
-	}
-	return payload
-}
-
-// ReServiceItem payload
-func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
-	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
-		return nil
-	}
-	return &ghcmessages.ReServiceItem{
-		IsAutoApproved: reServiceItem.IsAutoApproved,
-		MarketCode:     string(reServiceItem.MarketCode),
-		ServiceCode:    string(reServiceItem.ReService.Code),
-		ShipmentType:   string(reServiceItem.ShipmentType),
-		ServiceName:    reServiceItem.ReService.Name,
-	}
-}
-
-// ReServiceItems payload
-func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
-	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
-	for i, reServiceItem := range reServiceItems {
-		copyOfReServiceItem := reServiceItem
-		payload[i] = ReServiceItem(&copyOfReServiceItem)
 	}
 	return payload
 }
@@ -2940,4 +2974,24 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 		}
 	}
 	return nil
+}
+
+func CountryCodeName(country *models.Country) *ghcmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &ghcmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func Countries(countries models.Countries) ghcmessages.Countries {
+	payload := make(ghcmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
+	}
+	return payload
 }

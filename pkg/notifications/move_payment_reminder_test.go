@@ -27,6 +27,28 @@ func (suite *NotificationSuite) CreatePPMShipmentDateTooOld() models.PPMShipment
 	return ppm
 }
 
+// Func to create safety move orders PPM
+func (suite *NotificationSuite) CreateSafetyMoveOrdersPPM(offset int) models.PPMShipment {
+	expectedDate := offsetDate(offset)
+	ordersType := internalmessages.OrdersTypeSAFETY
+
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+	return ppm
+}
+
 func (suite *NotificationSuite) GetPPMShipment(offset int) models.PPMShipment {
 	expectedDate := offsetDate(offset)
 
@@ -437,4 +459,14 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmailsForRetireeSepara
 		}
 	}
 	suite.Len(formattedEmails, 5)
+}
+
+func (suite *NotificationSuite) TestPaymentReminderGetEmailFuncDoesNotSelectSafetyMoveOrders() {
+	suite.CreateSafetyMoveOrdersPPM(-30)
+	PaymentReminder, err := NewPaymentReminder()
+	suite.NoError(err)
+	emailInfo, err := PaymentReminder.GetEmailInfo(suite.AppContextForTest())
+	suite.NoError(err)
+	suite.Len(emailInfo, 0, "A Safety Email was returned in the query")
+
 }

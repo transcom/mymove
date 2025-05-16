@@ -1307,9 +1307,7 @@ describe('selectWeightTicketAndIndexById', () => {
             id: '2ed2998e-ae36-46cd-af83-c3ecee55fe3e',
             moveTaskOrderID: '26b960d8-a96d-4450-a441-673ccd7cc3c7',
             ppmShipment: {
-              actualDestinationPostalCode: '30813',
               actualMoveDate: '2022-07-31',
-              actualPickupPostalCode: '90210',
               advanceAmountReceived: null,
               advanceAmountRequested: 598700,
               approvedAt: '2022-04-15T12:30:00.000Z',
@@ -1819,9 +1817,7 @@ describe('selectProGearWeightTicketAndIndexById', () => {
           id: '2ed2998e-ae36-46cd-af83-c3ecee55fe3e',
           moveTaskOrderID: '26b960d8-a96d-4450-a441-673ccd7cc3c7',
           ppmShipment: {
-            actualDestinationPostalCode: '30813',
             actualMoveDate: '2022-07-31',
-            actualPickupPostalCode: '90210',
             advanceAmountReceived: null,
             advanceAmountRequested: 598700,
             approvedAt: '2022-04-15T12:30:00.000Z',
@@ -1887,9 +1883,7 @@ describe('selectProGearWeightTicketAndIndexById', () => {
           id: '2ed2998e-ae36-46cd-af83-c3ecee55fe3e',
           moveTaskOrderID: '26b960d8-a96d-4450-a441-673ccd7cc3c7',
           ppmShipment: {
-            actualDestinationPostalCode: '30813',
             actualMoveDate: '2022-07-31',
-            actualPickupPostalCode: '90210',
             advanceAmountReceived: null,
             advanceAmountRequested: 598700,
             approvedAt: '2022-04-15T12:30:00.000Z',

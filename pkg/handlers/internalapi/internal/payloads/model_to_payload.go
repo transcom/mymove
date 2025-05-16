@@ -128,13 +128,11 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -737,6 +735,26 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 	for i, vLocation := range vLocations {
 		copyOfVLocation := vLocation
 		payload[i] = VLocation(&copyOfVLocation)
+	}
+	return payload
+}
+
+func CountryCodeName(country *models.Country) *internalmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &internalmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+}
+
+func Countries(countries models.Countries) internalmessages.Countries {
+	payload := make(internalmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
 	}
 	return payload
 }

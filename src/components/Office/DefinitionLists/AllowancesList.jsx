@@ -35,7 +35,7 @@ const AllowancesList = ({ info, showVisualCues, isOconusMove }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Standard weight allowance</dt>
-          <dd data-testid="weightAllowance">{formatWeight(info.totalWeight)}</dd>
+          <dd data-testid="weightAllowance">{formatWeight(info.authorizedWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Storage in transit (SIT)</dt>

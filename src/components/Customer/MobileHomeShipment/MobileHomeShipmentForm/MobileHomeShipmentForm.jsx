@@ -7,7 +7,7 @@ import classnames from 'classnames';
 
 import styles from './MobileHomeShipmentForm.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
@@ -56,7 +56,7 @@ const validationShape = {
   customerRemarks: Yup.string(),
 };
 
-const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
+const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit, isMoveLocked }) => {
   const { year, make, model, lengthInInches, widthInInches, heightInInches } = mtoShipment?.mobileHomeShipment || {};
 
   const length = convertInchesToFeetAndInches(lengthInInches);
@@ -295,7 +295,12 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <Button className={styles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
-                <Button className={styles.saveButton} type="button" onClick={handleSubmit} disabled={!isValid}>
+                <Button
+                  className={styles.saveButton}
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={!isValid || isMoveLocked}
+                >
                   Continue
                 </Button>
               </div>

@@ -611,9 +611,6 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		{
 			Model: models.Address{
 				StreetAddress1: "7 Q St",
-				City:           "Birmingham",
-				State:          "AL",
-				PostalCode:     "90210",
 			},
 		},
 	}, nil)
@@ -697,7 +694,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 		{
 			Model: models.MTOShipment{
-				Status:               models.MTOShipmentStatusSubmitted,
+				Status:               models.MTOShipmentStatusApproved,
 				PrimeEstimatedWeight: &testEstWeight,
 				PrimeActualWeight:    &testActualWeight,
 			},

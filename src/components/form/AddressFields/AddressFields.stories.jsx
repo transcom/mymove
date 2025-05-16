@@ -8,7 +8,7 @@ import { AddressFields } from './AddressFields';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { configureStore } from 'shared/store';
 
 export default {

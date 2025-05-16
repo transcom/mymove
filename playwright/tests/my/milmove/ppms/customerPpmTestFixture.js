@@ -5,6 +5,8 @@
  */
 
 // @ts-check
+import { act } from '@testing-library/react';
+
 import {
   expect,
   test as customerTest,
@@ -356,7 +358,11 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromWeightTicketPage() {
-    await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    await act(async () => {
+      await this.page.getByRole('button', { name: 'Save & Continue' }).click();
+    });
+    await this.page.waitForTimeout(1000);
+
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
@@ -750,7 +756,11 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToProGearPage() {
-    await this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click();
+    await act(async () => {
+      await this.page.getByRole('link', { name: 'Add Pro-gear Weight' }).click();
+    });
+    await this.page.waitForTimeout(1000);
+
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
@@ -913,9 +923,6 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToExpensesPage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).waitFor({ state: 'visible' });
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-
-    // Retry to confirm the heading is visible - this is an effort to reduce flaky test failures
-    await this.page.waitForTimeout(1000);
     await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible({ timeout: 5000 });
   }
 

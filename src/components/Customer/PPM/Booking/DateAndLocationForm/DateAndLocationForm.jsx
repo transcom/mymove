@@ -6,7 +6,7 @@ import { Button, Form, Checkbox, Radio, FormGroup } from '@trussworks/react-uswd
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
@@ -56,7 +56,15 @@ let validationShape = {
   }),
 };
 
-const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
+const DateAndLocationForm = ({
+  mtoShipment,
+  destinationDutyLocation,
+  serviceMember,
+  move,
+  onBack,
+  onSubmit,
+  isMoveLocked,
+}) => {
   const initialValues = {
     useCurrentResidence: false,
     pickupAddress: {},
@@ -572,8 +580,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   buttonClassName={ppmStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
-                  disabled={isSubmitting || !isValid}
+                  disabled={isSubmitting || !isValid || isMoveLocked}
                   isLoading={isSubmitting}
+                  data-testid="saveAndContinueButton"
                   labelText="Save & Continue"
                   loadingText="Saving"
                 />

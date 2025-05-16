@@ -19,7 +19,7 @@ import (
 // HHGOutOfNTS
 //
 // Deprecated: use factory.BuildMTOShipment
-func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
+func makeMTOShipment(db *pop.Connection, assertions Assertions) (models.MTOShipment, error) {
 	shipmentType := models.MTOShipmentTypeHHG
 	shipmentStatus := models.MTOShipmentStatusDraft
 	mtoShipment := assertions.MTOShipment
@@ -27,7 +27,11 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = makeMove(db, assertions)
+		var err error
+		moveTaskOrder, err = makeMove(db, assertions)
+		if err != nil {
+			return models.MTOShipment{}, err
+		}
 	}
 
 	if mtoShipment.ShipmentType != "" {
@@ -46,9 +50,13 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		// Make pickup address if it was not provided
 		pickupAddress = assertions.PickupAddress
 		if isZeroUUID(pickupAddress.ID) {
-			pickupAddress = MakeAddress(db, Assertions{
+			var err error
+			pickupAddress, err = MakeAddress(db, Assertions{
 				Address: assertions.PickupAddress,
 			})
+			if err != nil {
+				return models.MTOShipment{}, err
+			}
 		}
 
 		secondaryPickupAddress = assertions.SecondaryPickupAddress
@@ -65,9 +73,13 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		// Make destination address if it was not provided
 		destinationAddress = assertions.DestinationAddress
 		if isZeroUUID(destinationAddress.ID) {
-			destinationAddress = MakeAddress2(db, Assertions{
+			var err error
+			destinationAddress, err = MakeAddress2(db, Assertions{
 				Address: assertions.DestinationAddress,
 			})
+			if err != nil {
+				return models.MTOShipment{}, nil
+			}
 		}
 
 		secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
@@ -99,9 +111,13 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		mtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 		if mtoShipment.StorageFacility != nil {
 			if isZeroUUID(mtoShipment.StorageFacility.ID) {
-				storageFacility = MakeStorageFacility(db, Assertions{
+				var err error
+				storageFacility, err = MakeStorageFacility(db, Assertions{
 					StorageFacility: *mtoShipment.StorageFacility,
 				})
+				if err != nil {
+					return models.MTOShipment{}, err
+				}
 				storageFacilityID = &storageFacility.ID
 			} else {
 				storageFacilityID = &mtoShipment.StorageFacility.ID
@@ -117,7 +133,11 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 				log.Panic(err)
 			}
 		} else {
-			storageFacility = MakeDefaultStorageFacility(db)
+			var err error
+			storageFacility, err = MakeDefaultStorageFacility(db)
+			if err != nil {
+				return models.MTOShipment{}, err
+			}
 			storageFacilityID = &storageFacility.ID
 		}
 	}
@@ -197,5 +217,5 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
 	mustCreate(db, &MTOShipment, assertions.Stub)
-	return MTOShipment
+	return MTOShipment, nil
 }

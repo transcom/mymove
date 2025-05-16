@@ -1097,7 +1097,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, qu
 }
 
 export async function checkForLockedMovesAndUnlock(officeUserID) {
-  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }
@@ -1111,4 +1111,22 @@ export async function deleteAssignedOfficeUserForMove({ moveID, queueType }) {
 
 export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
+}
+
+export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.submitPPMShipmentDocumentation',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+// Attempt at catch-all error handling
+// TODO improve this function when we have better standardized errors
+export function getResponseError(response, defaultErrorMessage) {
+  return response?.body?.detail || response?.statusText || defaultErrorMessage;
 }

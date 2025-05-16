@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import formStyles from 'styles/form.module.scss';
 import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import TextField from 'components/form/fields/TextField/TextField';
 import { officeRoles, roleTypes } from 'constants/userRoles';
