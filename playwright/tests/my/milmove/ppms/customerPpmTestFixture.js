@@ -161,10 +161,16 @@ export class CustomerPpmPage extends CustomerPage {
   async fillOutAboutPage(options = { selectAdvance: false }) {
     // editing this field with the keyboard instead of the date picker runs async validators for pre-filled postal codes
     // this helps debounce the API calls that would be triggered in quick succession
-    await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
+
+    // Set the expected departure date to today's date formatted as "DD MMM YYYY"
+    const today = new Date();
+    const formattedDate = `${today.getDate().toString().padStart(2, '0')} ${today.toLocaleString('en-US', {
+      month: 'short',
+    })} ${today.getFullYear()}`;
+    await this.page.locator('input[name="actualMoveDate"]').fill(formattedDate);
 
     const pickupLocation = 'YUMA, AZ 85364 (YUMA)';
-    const destinationLocation = 'YUMA, AZ 85366 (YUMA)';
+    const destinationLocation = 'YUMA, AZ 85365 (YUMA)';
     const w2Location = 'YUMA, AZ 85367 (YUMA)';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
@@ -173,7 +179,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-input"]').fill('85366');
+    await this.page.locator('input[id="destinationAddress-input"]').fill('85365');
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
