@@ -24,9 +24,12 @@ const DocViewerContent = ({
       saveRotation={saveRotation}
       rotationValue={rotationValue}
       setRotationValue={setRotationValue}
-      renderControls={({ handleZoomIn, handleZoomOut, handleRotateLeft, handleRotateRight }) => {
+      renderControls={({ handleZoomIn, handleZoomOut, handleRotateLeft, handleRotateRight, zoomPercentage }) => {
         return (
           <div className={styles.controls}>
+            <Button type="button" unstyled className={styles.zoomDisplayButton}>
+              Zoom: {zoomPercentage}%
+            </Button>
             <Button type="button" unstyled onClick={handleZoomOut}>
               <FontAwesomeIcon icon="search-minus" title="Zoom out" aria-label="Zoom out" />
               Zoom out
