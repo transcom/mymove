@@ -25,13 +25,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			models.MTOShipmentStatusCancellationRequested: false,
 			models.MTOShipmentStatusCanceled:              false,
 			models.MTOShipmentStatusDiversionRequested:    false,
+			models.MTOShipmentStatusTerminatedForCause:    false,
 		}
 		for status, allowed := range testCases {
 			suite.Run("status "+string(status), func() {
 				err := checkStatus().Validate(
 					suite.AppContextForTest(),
 					&models.MTOShipment{Status: status},
-					nil,
+					&models.MTOShipment{Status: status},
 				)
 				if allowed {
 					suite.Empty(err.Error())
