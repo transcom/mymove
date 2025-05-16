@@ -518,6 +518,18 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		return nil, err
 	}
 
+	// Regardless of SIT type if departure date is on or before
+	// authorized end date delete any pending sit extensions
+	endDate := models.GetAuthorizedSITEndDate(shipment)
+	if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
+		if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
+			err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	if updatedServiceItem != nil {
 		code := updatedServiceItem.ReService.Code
 
@@ -559,7 +571,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 
 	if updatedServiceItem != nil {
 		// If the service item was updated, then it will exist and be passed to this function
-		// We want to chick if the DepartureDate exists, and if it does and it is before
+		// We want to check if the DepartureDate exists, and if it does and it is before
 		// the authorized end date, we need to update the shipment authorized end date
 		// to be equal to the departure date
 		err = setShipmentAuthorizedEndDateToDepartureDate(appCtx, *updatedServiceItem, shipment)
@@ -724,18 +736,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 			return nil, apperror.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
 		default:
 			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
-		}
-	}
-
-	endDate := models.GetAuthorizedSITEndDate(oldServiceItem.MTOShipment)
-	// TODO: check if need to be changed to SIT departure date after confirmation
-	// What is the difference between the end date and the departure date?
-	if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
-		if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
-			err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, oldServiceItem.MTOShipmentID).Exec()
-			if err != nil {
-				return nil, err
-			}
 		}
 	}
 

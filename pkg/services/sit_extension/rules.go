@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 )
 
 // checkShipmentID checks that a shipmentID is not nil and returns a verification error if it is
@@ -100,6 +101,32 @@ func checkMinimumSITDuration() sitExtensionValidator {
 		newSITDuration := int(*sitDurationUpdate.ApprovedDays) + int(*shipment.SITDaysAllowance)
 		if newSITDuration < 1 {
 			return apperror.NewInvalidInputError(sitDurationUpdate.ID, nil, nil, "can't reduce a SIT duration to less than one day")
+		}
+		return nil
+	},
+	)
+}
+
+func checkDepartureDate() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, _ models.SITDurationUpdate, shipment *models.MTOShipment) error {
+		// Get current SIT
+		sitStatusService := sitstatus.NewShipmentSITStatus()
+		shipmentSITStatus, _, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
+		if err != nil {
+			return err
+		} else if shipmentSITStatus == nil {
+			return fmt.Errorf("%s No SIT status found for current SIT MTO Service Item", shipment.ID)
+		}
+		currentSIT := shipmentSITStatus.CurrentSIT
+
+		// Cannot create SIT Extension if departure date is before or equal to authorized end date.
+		endDate := models.GetAuthorizedSITEndDate(*shipment)
+		format := "2006-01-02"
+		if currentSIT.SITDepartureDate != nil && !endDate.IsZero() {
+			if currentSIT.SITDepartureDate.Before(*endDate) || currentSIT.SITDepartureDate.Equal(*endDate) {
+				sitErr := fmt.Sprintf("\nSIT delivery date (%s) cannot be prior or equal to the SIT end date (%s)", currentSIT.SITDepartureDate.Format(format), endDate.Format(format))
+				return apperror.NewConflictError(shipment.ID, sitErr)
+			}
 		}
 		return nil
 	},

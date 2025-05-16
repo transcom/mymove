@@ -381,6 +381,21 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
+
+		// Add sitExtension to shipment
+		var listSitExtensions []models.SITDurationUpdate
+		sitExt := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.SITDurationUpdate{
+					Status: models.SITExtensionStatusPending,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		listSitExtensions = append(listSitExtensions, sitExt)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -389,6 +404,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 					PrimeEstimatedWeight: &estimatedWeight,
 					RequiredDeliveryDate: &aMonthAgo,
 					UpdatedAt:            aMonthAgo,
+					SITDurationUpdates:   listSitExtensions,
 				},
 			},
 			{
@@ -465,6 +481,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
 
+		// Confirm that the shipment has a SIT extension
+		suite.Equal(1, len(shipment.SITDurationUpdates))
+
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
@@ -483,6 +502,15 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 
+		// suite.Equal(sitExt.MTOShipmentID.String(), updatedServiceItem.MTOShipmentID.String())
+		// Confirm that the shipment's SIT extension has been deleted
+		var test2 []models.SITDurationUpdate
+		var test models.SITDurationUpdate
+		suite.DB().Q().Find(&test, updatedServiceItem.MTOShipmentID)
+
+		test2 = append(test2, test)
+		suite.Equal(0, len(test2))
+
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
 		var postUpdatedServiceItemShipment models.MTOShipment
@@ -493,7 +521,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
-
 	})
 
 	// Test that if a SITDepartureDate is provided successfully and it is a date before the shipments
