@@ -15,7 +15,7 @@ func (suite *AddressSuite) TestAddressLookup() {
 	suite.Run("Successfully search for location by zip", func() {
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, postalCode, excludedStates[:])
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, postalCode, excludedStates[:], true)
 
 		suite.Nil(err)
 		suite.NotNil(address)
@@ -28,7 +28,7 @@ func (suite *AddressSuite) TestAddressLookup() {
 	suite.Run("Successfully search for location by city name", func() {
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, city, excludedStates[:])
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, city, excludedStates[:], true)
 
 		suite.Nil(err)
 		suite.NotNil(address)
@@ -39,7 +39,7 @@ func (suite *AddressSuite) TestAddressLookup() {
 		search := city + ", " + state
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search, excludedStates[:])
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search, excludedStates[:], true)
 
 		suite.Nil(err)
 		suite.NotNil(address)
@@ -51,7 +51,7 @@ func (suite *AddressSuite) TestAddressLookup() {
 		search := city + ", " + state + " " + postalCode
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search, excludedStates[:])
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search, excludedStates[:], true)
 
 		suite.Nil(err)
 		suite.NotNil(address)
@@ -64,12 +64,12 @@ func (suite *AddressSuite) TestAddressLookup() {
 		akSearch := "ANCHORAGE, AK 99503"
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{}, nil)
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, akSearch, excludedStates[:])
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, akSearch, excludedStates[:], true)
 		suite.Nil(err)
 		suite.Nil((*address))
 
 		hiSearch := "HONOLULU, HI 96835"
-		address, err = addressLookup.GetLocationsByZipCityState(appCtx, hiSearch, excludedStates[:])
+		address, err = addressLookup.GetLocationsByZipCityState(appCtx, hiSearch, excludedStates[:], true)
 		suite.Nil(err)
 		suite.Nil((*address))
 	})

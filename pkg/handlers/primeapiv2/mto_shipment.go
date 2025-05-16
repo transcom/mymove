@@ -389,7 +389,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 }
 
 func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContext, statesToExclude []string, addressSearch string) error {
-	locationList, err := vLocation.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true)
+	locationList, err := vLocation.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, false, true)
 
 	if err != nil {
 		serverError := apperror.NewInternalServerError("Error searching for address")

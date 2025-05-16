@@ -95,7 +95,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 
 			addressSearch := newAddress.City + ", " + newAddress.State + " " + newAddress.PostalCode
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true)
+			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, false, true)
 			if err != nil {
 				serverError := apperror.NewInternalServerError("Error searching for address")
 				errStr := serverError.Error() // we do this because InternalServerError wants a *string
