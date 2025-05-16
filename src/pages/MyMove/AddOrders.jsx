@@ -5,7 +5,7 @@ import { generatePath, useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
-import { getServiceMember, createOrders, getResponseError } from 'services/internalApi';
+import { createOrders, getResponseError, getServiceMember } from 'services/internalApi';
 import {
   updateOrders as updateOrdersAction,
   updateServiceMember as updateServiceMemberAction,
