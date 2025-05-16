@@ -452,6 +452,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 		existingMoveStatus := move.Status
 		if updateNeedsTOOReview {
+			shipment.Status = models.MTOShipmentStatusApprovalsRequested
+
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
@@ -502,7 +504,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.SITDurationUpdates", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -643,6 +645,14 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
 		addressUpdate.OfficeRemarks = &tooRemarks
+	}
+
+	if models.IsShipmentApprovable(shipment) {
+		shipment.Status = models.MTOShipmentStatusApproved
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
+	} else {
+		shipment.Status = models.MTOShipmentStatusApprovalsRequested
 	}
 
 	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
