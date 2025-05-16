@@ -1271,7 +1271,7 @@ describe('MoveDetails page', () => {
 
       renderComponent();
 
-      expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Move Details', level: 1 })).toBeInTheDocument();
     });
 
     it.each([['Shipments'], ['Orders'], ['Allowances'], ['Customer info']])(
@@ -1337,7 +1337,10 @@ describe('MoveDetails page', () => {
 
       const originAddressTerms = screen.getAllByText('Pickup Address');
 
-      expect(originAddressTerms.length).toBe(3);
+      // on the move details page, this is number of lines with "Pickup Address" text.
+      // a shipment card will have 2... Pickup Address and Secondary Pickup Address.
+      // Hence, 2 is the expected count.
+      expect(originAddressTerms.length).toBe(2);
 
       for (let i = 0; i < 2; i += 1) {
         const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
