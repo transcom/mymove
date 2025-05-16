@@ -124,7 +124,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const location = useLocation();
   const displayChangeRole =
     props.userIsLoggedIn &&
-    props.userInactiveRoles?.length > 1 &&
+    props.userInactiveRoles?.length &&
     !matchPath(
       {
         path: '/select-application',
