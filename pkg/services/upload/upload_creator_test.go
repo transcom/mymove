@@ -15,6 +15,7 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 	uploadCreator := NewUploadCreator(fakeFileStorer)
 
 	testFileName := "upload-test.pdf"
+	testFileNameNoExtension := "upload-test"
 	testFile, fileErr := os.Open("../../testdatagen/testdata/test.pdf")
 	suite.Require().NoError(fileErr)
 
@@ -24,8 +25,8 @@ func (suite *UploadServiceSuite) TestCreateUpload() {
 		suite.Require().NotNil(upload)
 
 		suite.Equal(models.UploadTypePRIME, upload.UploadType)
-		suite.Contains(upload.Filename, testFileName)
-		suite.Contains(upload.StorageKey, testFileName)
+		suite.Contains(upload.Filename, testFileNameNoExtension)
+		suite.Contains(upload.StorageKey, testFileNameNoExtension)
 		suite.Equal(upload.Filename, upload.StorageKey)
 	})
 
