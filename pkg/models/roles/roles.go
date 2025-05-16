@@ -65,14 +65,16 @@ func (r Roles) Default() (*Role, error) {
 		return nil, errors.New("no roles available")
 	}
 	earliestRole := r[0]
+	earliestIdx := 0
 	// Loop over each role recording the earliest alphabet character we can find
-	for _, role := range r[1:] {
+	for i, role := range r[1:] {
 		// Go lets us compare strings with > and <
 		if role.RoleName < earliestRole.RoleName {
 			earliestRole = role
+			earliestIdx = i
 		}
 	}
-	return &earliestRole, nil
+	return &r[earliestIdx], nil
 }
 
 // HasRole validates if Role has a role of a particular type
