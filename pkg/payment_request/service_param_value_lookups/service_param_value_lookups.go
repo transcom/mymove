@@ -59,7 +59,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameWeightReweigh,
 	models.ServiceItemParamNameZipPickupAddress,
 	models.ServiceItemParamNameZipDestAddress,
-	models.ServiceItemParamNameMTOAvailableToPrimeAt,
+	models.ServiceItemParamNameMTOEarliestRequestedPickup,
 	models.ServiceItemParamNameServiceAreaOrigin,
 	models.ServiceItemParamNameServiceAreaDest,
 	models.ServiceItemParamNameContractCode,
@@ -348,7 +348,7 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 		Address: serviceDestinationAddress,
 	}
 
-	lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt] = MTOAvailableToPrimeAtLookup{}
+	lookups[models.ServiceItemParamNameMTOEarliestRequestedPickup] = MTOEarliestRequestedPickupLookup{}
 
 	lookups[models.ServiceItemParamNameServiceAreaOrigin] = ServiceAreaLookup{
 		Address: *shipment.PickupAddress,

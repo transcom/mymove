@@ -59,7 +59,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -4066,7 +4066,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -4137,7 +4137,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -4322,7 +4322,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	planner := &mocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -4975,7 +4975,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -5027,18 +5027,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-		contractYear, _, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ServiceArea: "321",
-			},
-			ReRateArea: models.ReRateArea{
-				Name: "Alaska",
-			},
-		})
-		subtestData.contractID = contractYear.ContractID
-
 		// Setup shipment with no estimated weight
 		_, _, _, shipment := setupOconusToConusNtsShipment(nil)
+		contract, err := models.FetchContractForMove(suite.AppContextForTest(), shipment.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -5053,7 +5045,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 
 		// Get created pre approved service items
 		var serviceItems []models.MTOServiceItem
-		err := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
 		suite.NoError(err)
 
 		// Assert basic service items nil
@@ -5104,7 +5096,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 		var escalationFactor float64
 		err = suite.DB().RawQuery(`
 			SELECT calculate_escalation_factor($1, $2)
-		`, subtestData.contractID, shipment.RequestedPickupDate).First(&escalationFactor)
+		`, contract.ID, shipment.RequestedPickupDate).First(&escalationFactor)
 		suite.FatalNoError(err)
 
 		// Verify our non-truncated escalation factor db value is as expected
@@ -5115,7 +5107,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 
 		// Fetch the INPK market factor from the DB
 		inpkReService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeINPK)
-		ntsMarketFactor, err := models.FetchMarketFactor(suite.AppContextForTest(), subtestData.contractID, inpkReService.ID, "O")
+		ntsMarketFactor, err := models.FetchMarketFactor(suite.AppContextForTest(), contract.ID, inpkReService.ID, "O")
 		suite.FatalNoError(err)
 
 		// Assert basic service items
@@ -5128,7 +5120,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentBasicServiceItemEstimate
 			// Remember that we pass in IHPK base price, not INPK base price. INPK doesn't have a base price
 			// because it uses IHPK for iHHG -> iNTS packing
 			models.ReServiceCodeINPK: func() *unit.Cents {
-				return models.CentPointer(computeINPKExpectedPriceCents(6105, escalationFactor, ntsMarketFactor, primeEstimatedWeight.Int()))
+				ihpkService, err := models.FetchReServiceByCode(suite.DB(), models.ReServiceCodeIHPK)
+				suite.FatalNoError(err)
+
+				ihpkRIOP, err := models.FetchReIntlOtherPrice(suite.DB(), *shipment.PickupAddressID, ihpkService.ID, contract.ID, shipment.RequestedPickupDate)
+				suite.FatalNoError(err)
+				suite.NotEmpty(ihpkRIOP)
+
+				return models.CentPointer(computeINPKExpectedPriceCents(ihpkRIOP.PerUnitCents.Int(), escalationFactor, ntsMarketFactor, primeEstimatedWeight.Int()))
 			}(),
 		}
 		// Get updated service items
@@ -5163,7 +5162,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
@@ -5610,7 +5609,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 	moveRouter := moveservices.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester(mockSender), waf)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
