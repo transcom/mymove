@@ -17,7 +17,14 @@ import { getDestinationRequestsQueue, getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS, QUEUE_TYPES } from 'constants/queues';
+import {
+  MOVE_STATUS_OPTIONS,
+  GBLOC,
+  MOVE_STATUS_LABELS,
+  BRANCH_OPTIONS,
+  QUEUE_TYPES,
+  MOVE_STATUS_OPTIONS_DEST_QUEUE,
+} from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -43,6 +50,7 @@ export const columns = (
   setRefetchQueue,
   showBranchFilter = true,
 ) => {
+  const isDestinationQueue = queueType === tooRoutes.DESTINATION_REQUESTS_QUEUE;
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -102,8 +110,13 @@ export const columns = (
       {
         id: 'status',
         isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+        Filter: (props) => (
+          <MultiSelectCheckBoxFilter
+            options={!isDestinationQueue ? MOVE_STATUS_OPTIONS : MOVE_STATUS_OPTIONS_DEST_QUEUE}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...props}
+          />
+        ),
       },
     ),
     createHeader(
@@ -125,9 +138,9 @@ export const columns = (
       isFilterable: true,
     }),
     createHeader(
-      'Requested move date',
+      'Requested move date(s)',
       (row) => {
-        return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+        return row.requestedMoveDates;
       },
       {
         id: 'requestedMoveDate',
@@ -163,14 +176,22 @@ export const columns = (
       },
     ),
     createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
-    createHeader('Origin duty location', 'originDutyLocation.name', {
-      id: 'originDutyLocation',
-      isFilterable: true,
-      exportValue: (row) => {
-        return row.originDutyLocation?.name;
-      },
-    }),
-    createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    !isDestinationQueue
+      ? createHeader('Origin duty location', 'originDutyLocation.name', {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
+        })
+      : createHeader('Destination duty location', 'destinationDutyLocation.name', {
+          id: 'destinationDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.newDutyLocation?.name;
+          },
+        }),
+    ...(!isDestinationQueue ? [createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true })] : []),
     createHeader('Counseling office', 'counselingOffice', {
       id: 'counselingOffice',
       isFilterable: true,
