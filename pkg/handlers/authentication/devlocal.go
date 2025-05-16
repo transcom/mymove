@@ -1216,7 +1216,7 @@ func getDevPreferredRole(userRoles roles.Roles) (*roles.Role, error) {
 			return &r, nil
 		}
 	}
-	return nil, errors.New("could not find a prefererd role given the devlocal user")
+	return nil, errors.New("could not find a preferred role for the devlocal user")
 }
 
 // createSession creates a new session for the user
