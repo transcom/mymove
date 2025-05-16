@@ -655,7 +655,6 @@ OfficeApp.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  // TODO: Investigate user state not matching server session
   const user = selectLoggedInUser(state);
   return {
     swaggerError: state.swaggerInternal?.hasErrored,
