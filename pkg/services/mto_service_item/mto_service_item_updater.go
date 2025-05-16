@@ -727,6 +727,18 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 		}
 	}
 
+	endDate := models.GetAuthorizedSITEndDate(oldServiceItem.MTOShipment)
+	// TODO: check if need to be changed to SIT departure date after confirmation
+	// What is the difference between the end date and the departure date?
+	if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
+		if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
+			err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, oldServiceItem.MTOShipmentID).Exec()
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	// Populate port location info for POEFSC, PODFSC service item updates
 	if (mtoServiceItem.PODLocation != nil || mtoServiceItem.POELocation != nil) && (mtoServiceItem.ReService.Code == models.ReServiceCodePODFSC || mtoServiceItem.ReService.Code == models.ReServiceCodePOEFSC) {
 		err = populatePortLocation(mtoServiceItem, p, appCtx)
