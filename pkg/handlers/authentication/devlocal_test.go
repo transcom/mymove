@@ -143,6 +143,13 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 
 		suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
+		// If devlocal logging in as a multiRole, we should
+		// have a default dev role of SC
+		if newOfficeUser.email == "multi_role@example.com" {
+			// This is because of the getDevPreferredRole helper func
+			suite.Equal(roles.RoleTypeServicesCounselor, session.ActiveRole.RoleType)
+		}
+
 		cookies := rr.Result().Cookies()
 		_, err := getCookie("office_session_token", cookies)
 		suite.FatalNoError(err, "could not find session token in response")

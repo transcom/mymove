@@ -127,7 +127,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const location = useLocation();
   const displayChangeRole =
     props.userIsLoggedIn &&
-    props.userInactiveRoles?.length > 1 &&
+    props.userInactiveRoles?.length &&
     !matchPath(
       {
         path: '/select-application',
@@ -661,7 +661,6 @@ OfficeApp.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  // TODO: Investigate user state not matching server session
   const user = selectLoggedInUser(state);
   return {
     swaggerError: state.swaggerInternal?.hasErrored,

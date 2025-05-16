@@ -26,8 +26,11 @@ type ShowLoggedInUserHandler struct {
 
 // decoratePayloadWithCurrentAndInactiveRoles will add session role to the logged in user payload and return it
 func decoratePayloadWithCurrentAndInactiveRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload, allUserRoles roles.Roles) {
+	if s == nil || p == nil {
+		return
+	}
 	p.ActiveRole = &internalmessages.Role{
-		ID:        handlers.FmtUUID(s.UserID),
+		ID:        handlers.FmtUUID(s.ActiveRole.ID),
 		RoleType:  handlers.FmtString(string(s.ActiveRole.RoleType)),
 		CreatedAt: handlers.FmtDateTime(s.ActiveRole.CreatedAt),
 		UpdatedAt: handlers.FmtDateTime(s.ActiveRole.UpdatedAt),
@@ -36,7 +39,7 @@ func decoratePayloadWithCurrentAndInactiveRoles(s *auth.Session, p *internalmess
 		// Make sure we don't accidentally mark the current role as inactive
 		if role.RoleType != s.ActiveRole.RoleType {
 			p.InactiveRoles = append(p.InactiveRoles, &internalmessages.Role{
-				ID:        handlers.FmtUUID(s.UserID),
+				ID:        handlers.FmtUUID(role.ID),
 				RoleType:  handlers.FmtString(string(role.RoleType)),
 				CreatedAt: handlers.FmtDateTime(role.CreatedAt),
 				UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),

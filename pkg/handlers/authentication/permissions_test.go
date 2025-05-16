@@ -138,9 +138,7 @@ func (suite *AuthSuite) TestSwitchRolesSuccess() {
 	})
 
 	suite.Run("Error if requested a role not assigned to the user - 403", func() {
-		// In the scenario the session manager and handler context differ
-		// in session keys, something bad has gone wrong, almost as if
-		// two session managers were created by the backend
+		// HQ user going to request TOO
 		officeUser, defaultRole := setupOfficeUserAndIdentity([]roles.RoleType{roles.RoleTypeHQ})
 
 		// Handler session starts with HQ
@@ -169,7 +167,7 @@ func (suite *AuthSuite) TestSwitchRolesSuccess() {
 		// Submit
 		handler.ServeHTTP(rr, req)
 
-		// Expect 500
+		// Expect 403
 		suite.Equal(http.StatusForbidden, rr.Code, "handler returned the wrong status code")
 
 		// Expect our session active role to not be TOO
