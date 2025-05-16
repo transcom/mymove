@@ -56,6 +56,8 @@ const AddOrdersForm = ({
   const [grade, setGrade] = useState('');
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+  const [rankOptions, setRankOptions] = useState([]);
+
   const { customerId: serviceMemberId } = useParams();
 
   const validationSchema = Yup.object().shape({
@@ -135,8 +137,9 @@ const AddOrdersForm = ({
       }
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, serviceMemberId]);
-  const [rankOptions, setRankOptions] = useState([]);
+
   useEffect(() => {
+    setRankOptions([]);
     const fetchRankGradeOptions = async () => {
       setShowLoadingSpinner(true, 'Loading Rank/Grade options');
       try {

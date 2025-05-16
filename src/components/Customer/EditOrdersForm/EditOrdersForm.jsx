@@ -71,6 +71,7 @@ const EditOrdersForm = ({
   const [grade, setGrade] = useState(initialValues.grade);
   const [isCivilianTDYMove, setIsCivilianTDYMove] = useState(false);
   const [showCivilianTDYUBTooltip, setShowCivilianTDYUBTooltip] = useState(false);
+  const [rankOptions, setRankOptions] = useState([]);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -139,8 +140,8 @@ const EditOrdersForm = ({
     checkUBFeatureFlag();
   }, []);
 
-  const [rankOptions, setRankOptions] = useState([]);
   useEffect(() => {
+    setRankOptions([]);
     const fetchRankGradeOptions = async () => {
       setShowLoadingSpinner(true, 'Loading Rank/Grade options');
       try {
