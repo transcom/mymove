@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -3991,4 +3992,231 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		suite.Equal(1, moveCount)
 		suite.Len(moves, 1)
 	})
+
+	suite.Run("filters by new duty location name", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		// First move with new duty location "Camp Alpha"
+		campAlpha := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Camp Alpha",
+				},
+			},
+		}, nil)
+		moveA := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model:    campAlpha,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation},
+		}, nil)
+		shipA := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveA,
+				LinkOnly: true,
+			},
+		}, nil)
+		// attaching dest service item so it shows up
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    moveA,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipA,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// First move with new duty location "Camp Alpha"
+		campBravo := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Camp Bravo",
+				},
+			},
+		}, nil)
+		moveB := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model:    campBravo,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation},
+		}, nil)
+		shipB := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    moveB,
+				LinkOnly: true,
+			},
+		}, nil)
+		// attaching dest service item so it shows up
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    moveA,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipB,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		params := services.ListOrderParams{DestinationDutyLocation: swag.String("Camp Alpha")}
+		moves, count, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			roles.RoleTypeTOO,
+			&params,
+		)
+		suite.FatalNoError(err)
+		suite.Equal(1, count)
+		suite.Len(moves, 1)
+		suite.Equal("Camp Alpha", moves[0].Orders.NewDutyLocation.Name)
+	})
+
+	suite.Run("customerName sort on first name", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		// we got two Smiths, Adam and Bob
+		makeMove := func(first string, last string) models.Move {
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.ServiceMember{
+						FirstName: &first,
+						LastName:  &last,
+					},
+				},
+			}, nil)
+			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil)
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDFSIT,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    shipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusSubmitted,
+					},
+				},
+			}, nil)
+			return move
+		}
+
+		makeMove("Adam", "Smith")
+		makeMove("Bob", "Smith")
+
+		params := services.ListOrderParams{Sort: swag.String("customerName"), Order: swag.String("asc")}
+		moves, count, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			roles.RoleTypeTOO,
+			&params,
+		)
+		suite.FatalNoError(err)
+		suite.Equal(2, count)
+		suite.Len(moves, 2)
+
+		// both last names Smith, but Adam should come before Bob
+		suite.Equal("Adam", *moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Bob", *moves[1].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("sorts by requested move date ascending", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), postalCode, "KKFA")
+
+		now := time.Now().UTC()
+		older := now.Add(-48 * time.Hour)
+		newer := now.Add(48 * time.Hour)
+
+		makeMove := func(locator string, reqDate time.Time) models.Move {
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.Move{
+						Status:  models.MoveStatusAPPROVALSREQUESTED,
+						Locator: locator,
+					},
+				},
+			}, nil)
+
+			shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: models.MTOShipment{
+						RequestedPickupDate: &reqDate,
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+			}, nil)
+
+			// attach a destination‑SIT service item so it appears in the queue
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{Model: models.ReService{Code: models.ReServiceCodeDDFSIT}},
+				{Model: move, LinkOnly: true},
+				{Model: shipment, LinkOnly: true},
+				{Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusSubmitted}},
+			}, nil)
+
+			return move
+		}
+
+		makeMove("OLD1", older)
+		makeMove("NEW1", newer)
+
+		params := services.ListOrderParams{
+			Sort:  swag.String("requestedMoveDate"),
+			Order: swag.String("asc"),
+		}
+		moves, count, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session),
+			officeUser.ID,
+			roles.RoleTypeTOO,
+			&params,
+		)
+		suite.FatalNoError(err)
+		suite.Equal(2, count)
+		suite.Len(moves, 2)
+
+		// oldest‐date move should come first
+		suite.Equal("OLD1", moves[0].Locator)
+		suite.Equal("NEW1", moves[1].Locator)
+	})
+
 }
