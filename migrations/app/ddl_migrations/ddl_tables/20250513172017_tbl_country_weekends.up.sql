@@ -16,8 +16,6 @@ CREATE TABLE IF NOT EXISTS public.country_weekends (
     CONSTRAINT unique_country_weekends_country_id UNIQUE (country_id)
 );
 
-CREATE INDEX IF NOT EXISTS country_weekends_country_id_idx ON country_weekends(country_id);
-
 COMMENT ON TABLE country_weekends IS 'Stores designated weekend days associated to a country';
 COMMENT ON COLUMN country_weekends.country_id IS 'ID of the country';
 COMMENT ON COLUMN country_weekends.is_monday_weekend IS 'Indicates if Monday is a weekend';

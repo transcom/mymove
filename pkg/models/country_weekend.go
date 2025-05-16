@@ -9,7 +9,7 @@ import (
 type CountryWeekend struct {
 	ID                 uuid.UUID `json:"id" db:"id" rw:"r"`
 	CountryId          uuid.UUID `json:"country_id" db:"country_id" rw:"r"`
-	Country            Country   `belongs_to:"re_countries" fk_id:"country_id" rw:"r"`
+	Country            *Country  `belongs_to:"re_countries" fk_id:"country_id" rw:"r"`
 	IsMondayWeekend    bool      `json:"is_monday_weekend" db:"is_monday_weekend" rw:"r"`
 	IsTuesdayWeekend   bool      `json:"is_tuesday_weekend" db:"is_tuesday_weekend" rw:"r"`
 	IsWednesdayWeekend bool      `json:"is_wednesday_weekend" db:"is_wednesday_weekend" rw:"r"`
