@@ -239,17 +239,18 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	})
 
 	suite.Run("success - returns perUnitCent value for IDASIT for a PPM", func() {
+		date := time.Date(factory.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
+				StartDate: testdatagen.ContractStartDate,
+				EndDate:   testdatagen.ContractEndDate,
 			},
 		})
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ActualPickupDate: models.TimePointer(time.Now()),
+					ActualPickupDate: &date,
 				},
 			},
 			{
