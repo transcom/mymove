@@ -405,3 +405,177 @@ func (suite *ModelSuite) TestMoveHasPPM() {
 	hasPPM = move2.HasPPM()
 	suite.False(hasPPM, "A move with one HHG shipment will return false for hasPPM.")
 }
+
+func (suite *ModelSuite) TestClearTOOAssignments() {
+	// make a service item
+	makeSI := func(code string, status m.MTOServiceItemStatus) m.MTOServiceItem {
+		return m.MTOServiceItem{
+			Status: status,
+			ReService: m.ReService{
+				Code: m.ReServiceCode(code),
+			},
+		}
+	}
+
+	// make a SIT extension
+	makeSITExt := func(status m.SITDurationUpdateStatus) m.SITDurationUpdate {
+		return m.SITDurationUpdate{Status: status}
+	}
+
+	// make a shipment based on passed in params
+	makeShipment := func(
+		sitUpdates []m.SITDurationUpdate,
+		addrStatus *m.ShipmentAddressUpdate,
+		status m.MTOShipmentStatus,
+		deletedAt *time.Time,
+	) m.MTOShipment {
+		return m.MTOShipment{
+			Status:                status,
+			DeletedAt:             deletedAt,
+			SITDurationUpdates:    sitUpdates,
+			DeliveryAddressUpdate: addrStatus,
+		}
+	}
+
+	now := time.Now()
+	one := uuid.Must(uuid.NewV4())
+	two := uuid.Must(uuid.NewV4())
+
+	tests := []struct {
+		name                    string
+		initialAssignedOrigin   *uuid.UUID
+		initialAssignedDest     *uuid.UUID
+		orders                  m.Order
+		excessWeight            *time.Time
+		ubExcessWeight          *time.Time
+		serviceItems            []m.MTOServiceItem
+		shipments               []m.MTOShipment
+		wantOriginStillAssigned bool
+		wantDestStillAssigned   bool
+	}{
+		{
+			name:                    "nothing pending clears both",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			orders:                  m.Order{},
+			serviceItems:            nil,
+			shipments:               nil,
+			wantOriginStillAssigned: false,
+			wantDestStillAssigned:   false,
+		},
+		{
+			name:                    "only submitted origin service item keeps origin TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			serviceItems:            []m.MTOServiceItem{makeSI(string(m.ReServiceCodeDUPK), m.MTOServiceItemStatusSubmitted)},
+			wantOriginStillAssigned: true,
+			wantDestStillAssigned:   false,
+		},
+		{
+			name:                    "only submitted destination service item keeps dest TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			serviceItems:            []m.MTOServiceItem{makeSI(string(m.ReServiceCodeDDASIT), m.MTOServiceItemStatusSubmitted)},
+			wantOriginStillAssigned: false,
+			wantDestStillAssigned:   true,
+		},
+		{
+			name:                    "unacknowledged amended orders keeps origin TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			orders:                  m.Order{UploadedAmendedOrdersID: &one},
+			serviceItems:            nil,
+			wantOriginStillAssigned: true,
+			wantDestStillAssigned:   false,
+		},
+		{
+			name:                    "pending excess weight keeps origin TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			excessWeight:            &now,
+			serviceItems:            nil,
+			wantOriginStillAssigned: true,
+			wantDestStillAssigned:   false,
+		},
+		{
+			name:                    "pending UB excess weight keeps origin TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			ubExcessWeight:          &now,
+			serviceItems:            nil,
+			wantOriginStillAssigned: true,
+			wantDestStillAssigned:   false,
+		},
+		{
+			name:                    "pending origin SIT extension keeps origin TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			serviceItems:            []m.MTOServiceItem{makeSI(string(m.ReServiceCodeDOASIT), m.MTOServiceItemStatusApproved)},
+			shipments:               []m.MTOShipment{makeShipment([]m.SITDurationUpdate{makeSITExt(m.SITExtensionStatusPending)}, nil, m.MTOShipmentStatusApproved, nil)},
+			wantOriginStillAssigned: true,
+			wantDestStillAssigned:   false,
+		},
+		{
+			name:                    "pending dest SIT extension keeps dest TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			serviceItems:            []m.MTOServiceItem{makeSI(string(m.ReServiceCodeDDFSIT), m.MTOServiceItemStatusApproved)},
+			shipments:               []m.MTOShipment{makeShipment([]m.SITDurationUpdate{makeSITExt(m.SITExtensionStatusPending)}, nil, m.MTOShipmentStatusApproved, nil)},
+			wantOriginStillAssigned: false,
+			wantDestStillAssigned:   true,
+		},
+		{
+			name:                    "pending destination address update keeps dest TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			shipments:               []m.MTOShipment{makeShipment(nil, &m.ShipmentAddressUpdate{Status: m.ShipmentAddressUpdateStatusRequested}, m.MTOShipmentStatusApproved, nil)},
+			wantOriginStillAssigned: false,
+			wantDestStillAssigned:   true,
+		},
+		{
+			name:                    "submitted shipment keeps origin TOO assigned",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			shipments:               []m.MTOShipment{makeShipment(nil, nil, m.MTOShipmentStatusSubmitted, nil)},
+			wantOriginStillAssigned: true,
+			wantDestStillAssigned:   false,
+		},
+		{
+			name:                    "deleted shipment does not retain any assigned TOO",
+			initialAssignedOrigin:   &one,
+			initialAssignedDest:     &two,
+			shipments:               []m.MTOShipment{makeShipment(nil, nil, m.MTOShipmentStatusSubmitted, &now)},
+			wantOriginStillAssigned: false,
+			wantDestStillAssigned:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			mv := m.Move{
+				Orders:                  tt.orders,
+				ExcessWeightQualifiedAt: tt.excessWeight,
+				ExcessUnaccompaniedBaggageWeightQualifiedAt: tt.ubExcessWeight,
+				MTOServiceItems:            tt.serviceItems,
+				MTOShipments:               tt.shipments,
+				TOOAssignedID:              tt.initialAssignedOrigin,
+				TOOAssignedUser:            &m.OfficeUser{ID: *tt.initialAssignedOrigin},
+				TOODestinationAssignedID:   tt.initialAssignedDest,
+				TOODestinationAssignedUser: &m.OfficeUser{ID: *tt.initialAssignedDest},
+			}
+
+			result, err := m.ClearTOOAssignments(nil, &mv)
+			suite.NoError(err)
+			if tt.wantOriginStillAssigned {
+				suite.NotNil(result.TOOAssignedID)
+			} else {
+				suite.Nil(result.TOOAssignedID)
+			}
+			if tt.wantDestStillAssigned {
+				suite.NotNil(result.TOODestinationAssignedID)
+			} else {
+				suite.Nil(result.TOODestinationAssignedID)
+			}
+		})
+	}
+}
