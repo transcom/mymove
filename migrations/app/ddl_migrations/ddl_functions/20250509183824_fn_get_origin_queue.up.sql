@@ -221,15 +221,17 @@ BEGIN
 
     IF requested_move_date IS NOT NULL THEN
         sql_query := sql_query || '
-        AND (
-            shipments.earliest_requested_pickup_date::DATE = $7::DATE
-            OR ppm_dates.earliest_expected_departure_date::DATE = $7::DATE
-            OR EXISTS (
-                SELECT 1 FROM mto_shipments ms2
-                WHERE ms2.move_id = moves.id
-                AND ms2.shipment_type = ''HHG_OUTOF_NTS''
-                AND ms2.requested_delivery_date::DATE = $7::DATE
-            )
+        AND EXISTS (
+            SELECT 1
+            FROM mto_shipments ms2
+            LEFT JOIN ppm_shipments ppm2 ON ppm2.shipment_id = ms2.id
+            WHERE ms2.move_id = moves.id
+              AND (
+                   ms2.requested_pickup_date::DATE = $7::DATE
+                    OR ppm2.expected_departure_date::DATE = $7::DATE
+                    OR (ms2.shipment_type = ''HHG_OUTOF_NTS''
+                        AND ms2.requested_delivery_date::DATE = $7::DATE)
+              )
         )';
     END IF;
 
