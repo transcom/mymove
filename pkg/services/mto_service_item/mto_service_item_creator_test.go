@@ -97,6 +97,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		},
 		{
 			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApprovalsRequested,
 				PrimeEstimatedWeight: models.PoundPointer(1500),
 			},
 		},
@@ -137,6 +138,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidIDFSITServiceItemWithValidMov
 		{
 			Model: models.MTOShipment{
 				MarketCode: models.MarketCodeInternational,
+				Status:     models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}, nil)
@@ -327,10 +329,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numDDFSITFound := 0
 		numDDASITFound := 0
@@ -381,10 +387,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		var foundMove models.Move
 		err = suite.DB().Find(&foundMove, sitMove.ID)
 		suite.NoError(err)
+		var shipment models.MTOShipment
+		err = suite.DB().Find(&shipment, sitShipment.ID)
+		suite.NoError(err)
 
 		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 4)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, sitShipment.Status)
 
 		numIDFSITFound := 0
 		numIDASITFound := 0
