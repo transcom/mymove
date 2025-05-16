@@ -93,7 +93,7 @@ type FetchPaymentRequestListParams struct {
 	OriginDutyLocation      *string
 	OrderType               *string
 	ViewAsGBLOC             *string
-	TIOAssignedUser         *string
+	AssignedTo              *string
 	CounselingOffice        *string
 }
 
