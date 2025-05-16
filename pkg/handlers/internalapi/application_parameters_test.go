@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestApplicationParametersValidateHandler() {
 			HTTPRequest: req,
 			Body:        &body,
 		}
-		handler := ApplicationParametersValidateHandler{suite.HandlerConfig()}
+		handler := ApplicationParametersValidateHandler{suite.NewHandlerConfig()}
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&application_parameters.ValidateOK{}, response)
@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestApplicationParametersValidateHandler() {
 			Body:        &body,
 		}
 
-		handler := ApplicationParametersValidateHandler{suite.HandlerConfig()}
+		handler := ApplicationParametersValidateHandler{suite.NewHandlerConfig()}
 		response := handler.Handle(params)
 
 		suite.Assertions.IsType(&application_parameters.ValidateUnauthorized{}, response)

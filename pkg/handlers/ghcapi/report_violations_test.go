@@ -21,7 +21,7 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 	// 200 response
 	suite.Run("Successful fetch (integration) test", func() {
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		fetcher := reportviolationservice.NewReportViolationFetcher()
 		handler := GetReportViolationsHandler{
 			HandlerConfig:          handlerConfig,
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 	suite.Run("404 response when service returns not found", func() {
 		badID, _ := uuid.NewV4()
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockFetcher := mocks.ReportViolationFetcher{}
 		handler := GetReportViolationsHandler{
 			HandlerConfig:          handlerConfig,
@@ -87,7 +87,7 @@ func (suite *HandlerSuite) TestGetReportViolationByIDHandler() {
 func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 	suite.Run("Successful POST", func() {
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		creator := &mocks.ReportViolationsCreator{}
 		handler := AssociateReportViolationsHandler{
 			HandlerConfig:           handlerConfig,
@@ -124,7 +124,7 @@ func (suite *HandlerSuite) TestAssociateReportViolationsHandler() {
 
 	suite.Run("Unsuccessful POST", func() {
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		creator := &mocks.ReportViolationsCreator{}
 		handler := AssociateReportViolationsHandler{
 			HandlerConfig:           handlerConfig,
