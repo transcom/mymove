@@ -73,6 +73,46 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 			return apperror.NewQueryError("ProgearWeightTicket update", err, "")
 		}
 
+		// Grab all ProgearWeightTickets from DB except the deleted ones
+		var tickets []models.ProgearWeightTicket
+		if err := txnCtx.DB().
+			Q().
+			Scope(utilities.ExcludeDeletedScope(models.ProgearWeightTicket{})).
+			Where("ppm_shipment_id = ?", mergedProgearWeightTicket.PPMShipmentID).
+			All(&tickets); err != nil {
+			return apperror.NewQueryError("fetching ProgearWeightTickets", err, "")
+		}
+
+		// Total up the tickets
+		totalSelf := 0
+		totalSpouse := 0
+		for _, t := range tickets {
+			if t.BelongsToSelf != nil && *t.BelongsToSelf {
+				if t.Weight != nil {
+					totalSelf += int(*t.Weight)
+				}
+			} else {
+				if t.Weight != nil {
+					totalSpouse += int(*t.Weight)
+				}
+			}
+		}
+
+		// Update actual progear weight and actual spouse progear weight in mto_shipments
+		if err := txnCtx.DB().RawQuery(
+			`UPDATE mto_shipments
+				SET actual_pro_gear_weight        = NULLIF(?, 0),
+					actual_spouse_pro_gear_weight = NULLIF(?, 0)
+			WHERE id = (
+				SELECT shipment_id
+					From ppm_shipments
+				WHERE id = ?
+				)`,
+			totalSelf, totalSpouse, mergedProgearWeightTicket.PPMShipmentID,
+		).Exec(); err != nil {
+			return apperror.NewQueryError("MTOShipment update actual pro-gear weights", err, "")
+		}
+
 		return nil
 	})
 
