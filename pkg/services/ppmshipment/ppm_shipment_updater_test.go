@@ -1154,17 +1154,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					ActualMoveDate:              &today,
-					ActualPickupPostalCode:      models.StringPointer("79912"),
-					ActualDestinationPostalCode: models.StringPointer("90909"),
-					EstimatedWeight:             models.PoundPointer(unit.Pound(5000)),
+					ActualMoveDate:  &today,
+					EstimatedWeight: models.PoundPointer(unit.Pound(5000)),
 				},
 			},
 		}, nil)
 
 		newPPM := originalPPM
-
-		newPPM.ActualDestinationPostalCode = models.StringPointer("90210")
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
