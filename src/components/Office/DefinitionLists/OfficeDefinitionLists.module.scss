@@ -15,10 +15,11 @@
     width: 75%;
   }
 
-  .missingInfoError {
-    color: $error;
+  .missingInfoError.missingInfoError {
+    color: $secondary;
     @include u-border-left(0.5); //4px
-    @include u-border-left('error');
+    @include u-border-left('secondary');
     @include u-font-weight(bold);
+    @include u-font-size('body', 'md');
   }
 }
