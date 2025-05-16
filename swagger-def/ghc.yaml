@@ -5932,9 +5932,11 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
-      TOOAssignedUser:
+      SCCloseoutAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TOOTaskOrderAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TIOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
