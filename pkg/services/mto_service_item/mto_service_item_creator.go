@@ -298,7 +298,14 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 	var distance int
 	var err error
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDOASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeIOPSIT {
 		// Creation: Origin SIT: distance between shipment pickup address & service item pickup address
 		// On creation, shipment pickup and service item pickup are the same
 		var originalSITAddressZip string
@@ -310,12 +317,20 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDFSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDASIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDDSIT {
 		// Creation: Destination SIT: distance between shipment destination address & service item destination address
 		if mtoShipment.DestinationAddress != nil && serviceItem.SITDestinationFinalAddress != nil {
 			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 		}
 	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -595,6 +610,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeIDASIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeIDSFSC {
+					extraServiceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationOriginalAddress
+					extraServiceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationOriginalAddressID
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
 				}
@@ -603,7 +620,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 		milesCalculated, errCalcSITDelivery := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
 
-		// only calculate SITDeliveryMiles for DOPSIT and DOSFSC origin service items
+		// only calculate SITDeliveryMiles for DOPSIT/DOSFSC, IOPSIT/IOSFSC origin service items
 		if (serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeIOFSIT) &&
 			milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
@@ -618,7 +635,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
-		// only calculate SITDeliveryMiles for DDDSIT and DDSFSC destination service items
+		// only calculate SITDeliveryMiles for DDDSIT/DDSFSC, IDDSIT/IDSFSC destination service items
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT) && milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
