@@ -20,7 +20,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { usePPMShipmentAndDocsOnlyQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { appendTimestampToFilename } from 'shared/utils';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const ProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);

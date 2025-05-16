@@ -20,10 +20,8 @@ func IsNullOrWhiteSpace(s *string) bool {
 func AppendTimestampToFilename(fileName string) string {
 	now := time.Now()
 	timestamp := now.Format(VersionTimeFormat) // ISO Format
-
 	ext := filepath.Ext(fileName)
 	name := strings.TrimSuffix(fileName, ext)
-
 	newFileName := fmt.Sprintf("%s-%s%s", name, timestamp, ext)
 	return newFileName
 }

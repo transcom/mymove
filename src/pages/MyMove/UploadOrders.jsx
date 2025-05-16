@@ -18,6 +18,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { withContext } from 'shared/AppContext';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId }) => {
   const filePondEl = useRef();
@@ -29,23 +30,7 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
 
   const handleUploadFile = (file) => {
     const documentId = currentOrders?.uploaded_orders?.id;
-
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    return createUploadForDocument(newFile, documentId);
+    return createUploadForDocument(appendTimestampToFilename(file), documentId);
   };
 
   const handleUploadComplete = async () => {
