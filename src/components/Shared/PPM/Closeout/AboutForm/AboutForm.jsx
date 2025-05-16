@@ -282,6 +282,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     className={styles.AddressFieldSet}
                     labelHint="Required"
                     formikProps={formikProps}
+                    includePOBoxes
                   />
                 </SectionWrapper>
                 <div
