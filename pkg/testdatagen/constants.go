@@ -49,7 +49,10 @@ var PeakRateCycleStart = time.Date(TestYear, time.May, 15, 0, 0, 0, 0, time.UTC)
 var PeakRateCycleEnd = time.Date(TestYear, time.September, 30, 0, 0, 0, 0, time.UTC)
 
 // DateInsidePeakRateCycle is available as a convenient test date inside the Peak Rate Cycle
-var DateInsidePeakRateCycle = time.Date(TestYear, time.May, 16, 0, 0, 0, 0, time.UTC)
+var DateInsidePeakRateCycle = time.Date(TestYear, time.May, 14, 0, 0, 0, 0, time.UTC)
+
+// DateInsidePeakRateCycle is available as a convenient test date inside the Peak Rate Cycle
+// var DateInsidePeakRateCycle = time.Date(TestYear, time.May, 16, 0, 0, 0, 0, time.UTC)
 
 // DateOutsidePeakRateCycle is available as a convenient test date outside the Peak Rate Cycle
 var DateOutsidePeakRateCycle = time.Date(TestYear, time.October, 10, 0, 0, 0, 0, time.UTC)
