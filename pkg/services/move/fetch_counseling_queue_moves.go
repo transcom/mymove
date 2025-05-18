@@ -1,0 +1,161 @@
+package move
+
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"github.com/jinzhu/copier"
+	"github.com/lib/pq"
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	"go.uber.org/zap"
+)
+
+type counselingQueueFetcher struct {
+}
+
+func NewCounselingQueueFetcher() services.CounselingQueueFetcher {
+	return &counselingQueueFetcher{}
+}
+
+func (o *counselingQueueFetcher) FetchCounselingQueue(appCtx appcontext.AppContext, counselingQueueParams services.CounselingQueueParams) ([]models.Move, int64, error) {
+	var movesWithCount []MoveWithCount
+	var moves models.Moves
+
+	movesWithCount, err := getCounselingQueueDbFunc(counselingQueueParams, appCtx)
+	if err != nil {
+		appCtx.Logger().
+			Error("error fetching list of moves for office user", zap.Error(err))
+		return moves, 0, err
+	}
+
+	var count int64
+	if len(movesWithCount) > 0 {
+		count = movesWithCount[0].TotalCount
+	} else {
+		count = 0
+	}
+
+	moves, err = movesWithCountToMoves(movesWithCount)
+	if err != nil {
+		return moves, 0, err
+	}
+
+	return moves, count, nil
+}
+
+func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueueParams, appCtx appcontext.AppContext) ([]MoveWithCount, error) {
+	var movesWithCount []MoveWithCount
+	var requestedDateTime *time.Time
+
+	var officeUserGbloc string
+	if counselingQueueParams.ViewAsGBLOC != nil {
+		officeUserGbloc = *counselingQueueParams.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
+		if gblocErr != nil {
+			return movesWithCount, gblocErr
+		}
+	}
+
+	requestedDateTime = nil
+	if counselingQueueParams.RequestedMoveDate != nil {
+		date, err := time.Parse("2006-01-02", *counselingQueueParams.RequestedMoveDate)
+		if err != nil {
+			appCtx.Logger().
+				Error("error fetching list of moves for office user", zap.Error(err))
+			return movesWithCount, err
+		}
+		requestedDateTime = &date
+	}
+
+	err := appCtx.DB().
+		RawQuery(
+			`SELECT * FROM get_counseling_queue($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+			officeUserGbloc,
+			counselingQueueParams.CustomerName,
+			counselingQueueParams.Edipi,
+			counselingQueueParams.Emplid,
+			pq.Array(counselingQueueParams.Status),
+			counselingQueueParams.Locator,
+			requestedDateTime,
+			counselingQueueParams.SubmittedAt,
+			counselingQueueParams.Branch,
+			counselingQueueParams.OriginDutyLocationName,
+			counselingQueueParams.CounselingOffice,
+			counselingQueueParams.SCAssignedUser,
+			counselingQueueParams.HasSafetyPrivilege,
+			counselingQueueParams.Page,
+			counselingQueueParams.PerPage,
+			counselingQueueParams.Sort,
+			counselingQueueParams.Order,
+		).
+		All(&movesWithCount)
+
+	if err != nil {
+		appCtx.Logger().
+			Error("error fetching list of moves for office user", zap.Error(err))
+		return movesWithCount, err
+	}
+
+	return movesWithCount, nil
+}
+
+type MoveWithCount struct {
+	models.Move
+	OrdersRaw           json.RawMessage              `json:"orders" db:"orders"`
+	Orders              *models.Order                `json:"-"`
+	MTOShipmentsRaw     json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments        *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice    *models.TransportationOffice `json:"-"`
+	TotalCount          int64                        `json:"total_count" db:"total_count"`
+}
+
+func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error) {
+	var moves models.Moves
+
+	// we have to manually loop through each move and populate the nested objects that the queue uses/needs
+	for i := range movesWithCount {
+		// populating Move.Orders struct
+		var order models.Order
+		if err := json.Unmarshal(movesWithCount[i].OrdersRaw, &order); err != nil {
+			return moves, fmt.Errorf("error unmarshaling orders JSON: %w", err)
+		}
+		movesWithCount[i].OrdersRaw = nil
+		movesWithCount[i].Orders = &order
+
+		// populating Move.MTOShipments array
+		var shipments models.MTOShipments
+		if err := json.Unmarshal(movesWithCount[i].MTOShipmentsRaw, &shipments); err != nil {
+			return moves, fmt.Errorf("error unmarshaling shipments JSON: %w", err)
+		}
+		movesWithCount[i].MTOShipmentsRaw = nil
+		movesWithCount[i].MTOShipments = &shipments
+
+		// populating Moves.CounselingOffice struct
+		var counselingTransportationOffice models.TransportationOffice
+		if err := json.Unmarshal(movesWithCount[i].CounselingOfficeRaw, &counselingTransportationOffice); err != nil {
+			return moves, fmt.Errorf("error unmarshaling counseling_transportation_office JSON: %w", err)
+		}
+		movesWithCount[i].CounselingOfficeRaw = nil
+		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
+	}
+
+	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func
+	// so we have to copy our custom struct into the Move struct
+	for _, moveWithCount := range movesWithCount {
+		var move models.Move
+		if err := copier.Copy(&move, &moveWithCount); err != nil {
+			return moves, fmt.Errorf("error copying movesWithCount into Moves struct: %w", err)
+		}
+		moves = append(moves, move)
+	}
+
+	return moves, nil
+}

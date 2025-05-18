@@ -3836,11 +3836,7 @@ paths:
           description: filters the GBLOC of the service member's origin duty location
         - in: query
           name: originDutyLocation
-          type: array
-          uniqueItems: true
-          collectionFormat: multi
-          items:
-            type: string
+          type: string
           description: filters the name of the origin duty location on the orders
         - in: query
           name: destinationDutyLocation

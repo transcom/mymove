@@ -516,7 +516,7 @@ describe('ServicesCounselingQueue', () => {
 
           // Check for the "Counseling" columns.
           expect(screen.getByText(/Status/)).toBeInTheDocument();
-          expect(screen.getAllByText(/Requested move date/)[0]).toBeInTheDocument();
+          expect(screen.getAllByText(/Requested move dates/)[0]).toBeInTheDocument();
           expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
           expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
           expect(screen.getByText(/Assigned/)).toBeInTheDocument();

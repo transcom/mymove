@@ -549,7 +549,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 // GetServicesCounselingQueueHandler returns the moves for the Service Counselor queue user via GET /queues/counselor
 type GetServicesCounselingQueueHandler struct {
 	handlers.HandlerConfig
-	services.OrderFetcher
+	services.CounselingQueueFetcher
 	services.MoveUnlocker
 	services.OfficeUserFetcherPop
 }
@@ -569,29 +569,22 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
 			}
 
-			ListOrderParams := services.ListOrderParams{
-				Branch:                  params.Branch,
-				Locator:                 params.Locator,
-				Edipi:                   params.Edipi,
-				Emplid:                  params.Emplid,
-				CustomerName:            params.CustomerName,
-				OriginDutyLocation:      params.OriginDutyLocation,
-				DestinationDutyLocation: params.DestinationDutyLocation,
-				OriginGBLOC:             params.OriginGBLOC,
-				SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-				RequestedMoveDate:       params.RequestedMoveDate,
-				Page:                    params.Page,
-				PerPage:                 params.PerPage,
-				Sort:                    params.Sort,
-				Order:                   params.Order,
-				NeedsPPMCloseout:        params.NeedsPPMCloseout,
-				PPMType:                 params.PpmType,
-				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated),
-				CloseoutLocation:        params.CloseoutLocation,
-				OrderType:               params.OrderType,
-				PPMStatus:               params.PpmStatus,
-				CounselingOffice:        params.CounselingOffice,
-				SCAssignedUser:          params.AssignedTo,
+			CounselingQueueParams := services.CounselingQueueParams{
+				Branch:                 params.Branch,
+				Locator:                params.Locator,
+				Edipi:                  params.Edipi,
+				Emplid:                 params.Emplid,
+				CustomerName:           params.CustomerName,
+				OriginDutyLocationName: params.OriginDutyLocation,
+				SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				RequestedMoveDate:      params.RequestedMoveDate,
+				Page:                   params.Page,
+				PerPage:                params.PerPage,
+				Sort:                   params.Sort,
+				Order:                  params.Order,
+				CounselingOffice:       params.CounselingOffice,
+				SCAssignedUser:         params.AssignedTo,
+				Status:                 params.Status,
 			}
 
 			var activeRole string
@@ -602,21 +595,21 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			var requestedPpmStatus models.PPMShipmentStatus
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
 				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
-				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
+				CounselingQueueParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else if len(params.Status) == 0 {
-				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
+				CounselingQueueParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
 			} else {
-				ListOrderParams.Status = params.Status
+				CounselingQueueParams.Status = params.Status
 			}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
-				ListOrderParams.Page = models.Int64Pointer(1)
+				CounselingQueueParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
-				ListOrderParams.PerPage = models.Int64Pointer(20)
+				CounselingQueueParams.PerPage = models.Int64Pointer(20)
 			}
 
 			var officeUser models.OfficeUser
@@ -633,7 +626,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			}
 
 			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
-				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+				CounselingQueueParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
@@ -674,13 +667,12 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
-			moves, count, err := h.OrderFetcher.ListOrders(
-				appCtx,
-				appCtx.Session().OfficeUserID,
-				roles.RoleTypeServicesCounselor,
-				&ListOrderParams,
-			)
+			hasSafetyPrivilege := privileges.HasPrivilege(roles.PrivilegeTypeSafety)
+			CounselingQueueParams.HasSafetyPrivilege = &hasSafetyPrivilege
 
+			var moves models.Moves
+			var count int64
+			moves, count, err = h.FetchCounselingQueue(appCtx, CounselingQueueParams)
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))
@@ -711,8 +703,8 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
 
 			result := &ghcmessages.QueueMovesResult{
-				Page:       *ListOrderParams.Page,
-				PerPage:    *ListOrderParams.PerPage,
+				Page:       *CounselingQueueParams.Page,
+				PerPage:    *CounselingQueueParams.PerPage,
 				TotalCount: int64(count),
 				QueueMoves: *queueMoves,
 			}

@@ -5033,12 +5033,7 @@ func init() {
             "in": "query"
           },
           {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi",
+            "type": "string",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -23161,12 +23156,7 @@ func init() {
             "in": "query"
           },
           {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi",
+            "type": "string",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"

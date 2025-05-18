@@ -30,7 +30,7 @@ type GetServicesCounselingQueueURL struct {
 	NeedsPPMCloseout        *bool
 	Order                   *string
 	OrderType               *string
-	OriginDutyLocation      []string
+	OriginDutyLocation      *string
 	OriginGBLOC             *string
 	Page                    *int64
 	PerPage                 *int64
@@ -188,18 +188,12 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 		qs.Set("orderType", orderTypeQ)
 	}
 
-	var originDutyLocationIR []string
-	for _, originDutyLocationI := range o.OriginDutyLocation {
-		originDutyLocationIS := originDutyLocationI
-		if originDutyLocationIS != "" {
-			originDutyLocationIR = append(originDutyLocationIR, originDutyLocationIS)
-		}
+	var originDutyLocationQ string
+	if o.OriginDutyLocation != nil {
+		originDutyLocationQ = *o.OriginDutyLocation
 	}
-
-	originDutyLocation := swag.JoinByFormat(originDutyLocationIR, "multi")
-
-	for _, qsv := range originDutyLocation {
-		qs.Add("originDutyLocation", qsv)
+	if originDutyLocationQ != "" {
+		qs.Set("originDutyLocation", originDutyLocationQ)
 	}
 
 	var originGBLOCQ string

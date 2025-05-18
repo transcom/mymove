@@ -129,7 +129,7 @@ export const counselingColumns = (
       },
     ),
     createHeader(
-      'Requested move date',
+      'Requested move date(s)',
       (row) => {
         return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
       },
@@ -246,6 +246,7 @@ export const counselingColumns = (
 
   return cols;
 };
+
 export const closeoutColumns = (
   moveLockFlag,
   ppmCloseoutGBLOC,
@@ -407,6 +408,173 @@ export const closeoutColumns = (
       // This filter only makes sense if we're not in a closeout GBLOC. Users in a closeout GBLOC will
       // see the same value in this column for every move.
       isFilterable: !ppmCloseoutGBLOC,
+    }),
+  ];
+  if (isQueueManagementEnabled)
+    cols.push(
+      createHeader(
+        'Assigned',
+        (row) => {
+          return !row?.assignable ? (
+            <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
+          ) : (
+            <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
+              <Dropdown
+                onChange={(e) => {
+                  handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
+                  setRefetchQueue(true);
+                }}
+                title="Assigned dropdown"
+              >
+                <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                  <option
+                    value={officeUserId}
+                    key={officeUserId}
+                    selected={row.assignedTo?.officeUserId === officeUserId}
+                  >
+                    {`${lastName}, ${firstName}`}
+                  </option>
+                ))}
+              </Dropdown>
+            </div>
+          );
+        },
+        {
+          id: 'assignedTo',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
+        },
+      ),
+    );
+
+  return cols;
+};
+
+export const serviceCounselingColumns = (
+  moveLockFlag,
+  ppmCloseoutGBLOC,
+  ppmCloseoutOriginLocationList,
+  supervisor,
+  queueType,
+  isQueueManagementEnabled,
+  setRefetchQueue,
+) => {
+  const cols = [
+    createHeader(
+      ' ',
+      (row) => {
+        const now = new Date();
+        // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+          return (
+            <div id={row.id}>
+              <FontAwesomeIcon icon="lock" />
+            </div>
+          );
+        }
+        return null;
+      },
+      { id: 'lock' },
+    ),
+    createHeader('ID', 'id', { id: 'id' }),
+    createHeader(
+      'Customer name',
+      (row) => {
+        return (
+          <div>
+            {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+              <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+            ) : null}
+            {`${row.customer.last_name}, ${row.customer.first_name}`}
+          </div>
+        );
+      },
+      {
+        id: 'customerName',
+        isFilterable: true,
+        exportValue: (row) => {
+          return `${row.customer.last_name}, ${row.customer.first_name}`;
+        },
+      },
+    ),
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
+      isFilterable: true,
+      exportValue: (row) => {
+        return row.customer.edipi;
+      },
+    }),
+    createHeader('EMPLID', 'customer.emplid', {
+      id: 'emplid',
+      isFilterable: true,
+    }),
+    createHeader('Move code', 'locator', {
+      id: 'locator',
+      isFilterable: true,
+    }),
+    createHeader(
+      'Branch',
+      (row) => {
+        return serviceMemberAgencyLabel(row.customer.agency);
+      },
+      {
+        id: 'branch',
+        isFilterable: true,
+        Filter: (props) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          <SelectFilter options={BRANCH_OPTIONS} {...props} />
+        ),
+      },
+    ),
+    createHeader(
+      'Status',
+      (row) => {
+        return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
+      },
+      {
+        id: 'ppmStatus',
+        isFilterable: true,
+        Filter: (props) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
+        ),
+      },
+    ),
+    supervisor
+      ? createHeader(
+          'Origin duty location',
+          (row) => {
+            return `${row.originDutyLocation.name}`;
+          },
+          {
+            id: 'originDutyLocation',
+            isFilterable: true,
+            exportValue: (row) => {
+              return row.originDutyLocation?.name;
+            },
+            Filter: (props) => (
+              <MultiSelectTypeAheadCheckBoxFilter
+                options={ppmCloseoutOriginLocationList}
+                placeholder="Start typing a duty location..."
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            ),
+          },
+        )
+      : createHeader('Origin duty location', 'originDutyLocation.name', {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
+        }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
     }),
   ];
   if (isQueueManagementEnabled)
@@ -717,7 +885,7 @@ const ServicesCounselingQueue = ({
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(
+          columns={serviceCounselingColumns(
             moveLockFlag,
             originLocationList,
             supervisor,

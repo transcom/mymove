@@ -22,7 +22,7 @@ import (
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	mobileHomeShipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
-	"github.com/transcom/mymove/pkg/services/move"
+	move "github.com/transcom/mymove/pkg/services/move"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
@@ -631,7 +631,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
 		handlerConfig,
-		order.NewOrderFetcher(waf),
+		move.NewCounselingQueueFetcher(),
 		movelocker.NewMoveUnlocker(),
 		officeuser.NewOfficeUserFetcherPop(),
 	}
