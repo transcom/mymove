@@ -1,4 +1,4 @@
-package ghcapi
+package primeapi
 
 import (
 	"net/http/httptest"
@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/factory"
-	addressop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
+	addressop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/addresses"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
 )
