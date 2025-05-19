@@ -53,3 +53,21 @@ test('A service counselor can approve/reject pro-gear weight tickets', async ({ 
   // await expect(page.getByRole('radio', { name: 'Reject' })).toBeChecked();
   // await expect(page.getByLabel('Reason')).toHaveValue('Reason for rejection');
 });
+
+test('A service counselor can see the total for a progear weight ticket regular and spouse', async ({
+  page,
+  scPage,
+}) => {
+  // To solve timeout issues
+  test.slow();
+  // Create a move with TestHarness, and then navigate to the move details page for it
+  const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOffice2();
+  await scPage.navigateToCloseoutMove(move.locator);
+
+  // Navigate to the "Review documents" page
+  await page.getByRole('button', { name: 'Review shipment weights' }).click();
+  await scPage.waitForPage.reviewShipmentWeights();
+
+  await expect(page.locator('[data-testid="proGear-0"]')).not.toContainText;
+  await expect(page.locator('[data-testid="spouseProGear-0"]')).not.toContainText;
+});
