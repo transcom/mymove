@@ -26,6 +26,7 @@ import {
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm';
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
 import appendTimestampToFilename from 'utils/fileUpload';
@@ -34,6 +35,8 @@ const ProGear = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const displayHelpDeskLink = false;
+
   const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
   const serviceMemberId = serviceMember.id;
 
@@ -41,6 +44,14 @@ const ProGear = () => {
 
   const appName = APP_NAME.MYMOVE;
   const { moveId, mtoShipmentId, proGearId } = useParams();
+
+  const errorModalMessage =
+    'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.';
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const toggleErrorModal = () => {
+    setIsErrorModalVisible((prev) => !prev);
+  };
 
   const handleBack = () => {
     const path = generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, {
@@ -103,9 +114,13 @@ const ProGear = () => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
         setFieldTouched(fieldName, true);
+        setIsErrorModalVisible(false);
         return upload;
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.response.obj.title === 'Incorrect Xlsx Template') {
+          setIsErrorModalVisible(true);
+        }
         setErrorMessage('Failed to save the file upload');
       });
   };
@@ -241,6 +256,12 @@ const ProGear = () => {
               onUploadComplete={handleUploadComplete}
               onUploadDelete={handleUploadDelete}
               appName={appName}
+            />
+            <ErrorModal
+              isOpen={isErrorModalVisible}
+              closeModal={toggleErrorModal}
+              errorMessage={errorModalMessage}
+              displayHelpDeskLink={displayHelpDeskLink}
             />
           </Grid>
         </Grid>

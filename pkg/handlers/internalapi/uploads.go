@@ -294,6 +294,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 
 			// extract extension from filename
 			filename := file.Header.Filename
+
 			timestampPattern := regexp.MustCompile(`-(\d{14})$`)
 
 			timestamp := ""
@@ -345,6 +346,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				}
 
 				pdfFileName := utils.AppendTimestampToFilename(filename)
+
 				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
 				// Ensure weight receipt PDF is not corrupted
@@ -383,6 +385,12 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 				}
 
+				newUserUpload, verrs, err := h.UserUploader.UpdateUserXlsxUploadFilename(appCtx, newUserUpload, filename)
+
+				if verrs.HasAny() || err != nil {
+					appCtx.Logger().Error("failed to rename uploaded filename", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+				}
+
 				err = h.WeightTicketGenerator.CleanupFile(aFile)
 
 				if err != nil {
@@ -391,10 +399,10 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 				}
 
 				url, err = h.UserUploader.PresignedURL(appCtx, newUserUpload)
-
 				if err != nil {
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
+
 			} else {
 				newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
 					appCtx,
@@ -424,7 +432,6 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 				}
 			}
-
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 			return ppmop.NewCreatePPMUploadCreated().WithPayload(uploadPayload), nil
 		})

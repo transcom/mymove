@@ -508,6 +508,12 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					}
 				}
 
+				newUserUpload, verrs1, err := h.UserUploader.UpdateUserXlsxUploadFilename(appCtx, newUserUpload, filename)
+
+				if verrs1.HasAny() || err != nil {
+					appCtx.Logger().Error("failed to rename uploaded filename", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+				}
+
 				err = h.WeightTicketGenerator.CleanupFile(aFile)
 
 				if err != nil {

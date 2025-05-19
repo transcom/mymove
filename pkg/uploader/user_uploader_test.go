@@ -11,6 +11,7 @@ package uploader_test
 import (
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
@@ -133,4 +134,32 @@ func (suite *UploaderSuite) TestCreateUserUploadNoDocument() {
 	// Delete file previously uploaded
 	err = userUploader.DeleteUserUpload(suite.AppContextForTest(), userUpload)
 	suite.NoError(err)
+}
+
+func (suite *UploaderSuite) TestUpdateUserUploadFilename_Prefix() {
+	document := factory.BuildDocument(suite.DB(), nil, nil)
+
+	log.Println("Testing changing upload filename")
+	userUploader, err := uploader.NewUserUploader(suite.storer, 25*uploader.MB)
+	suite.NoError(err)
+	file := suite.fixture("weightEstimatorExpectSuccessfulUpload.xlsx")
+
+	filename := "weightEstimatorExpectSuccessfulUpload.xlsx"
+	log.Println("filename")
+	log.Println(filename)
+	userUpload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPPMDocuments)
+	suite.Nil(err, "failed to create upload")
+	suite.False(verrs.HasAny(), "failed to validate upload")
+
+	updated, verrs, err := userUploader.UpdateUserXlsxUploadFilename(suite.AppContextForTest(), userUpload, filename)
+	suite.NoError(err, "failed to update filename")
+	suite.False(verrs.HasAny(), "validation errors on update")
+
+	suite.Equal(
+		filename,
+		updated.Upload.Filename,
+		"expected updated Upload.Filename to equal %q, got %q",
+		filename,
+		updated.Upload.Filename,
+	)
 }

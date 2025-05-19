@@ -639,7 +639,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerFailure() {
 		suite.Equal("File has length of 0", badResponseErr.Err.Error())
 	})
 
-	suite.Run("Non-weight Estimator FIle Submitted for upload", func() {
+	suite.Run("Non-weight Estimator File Submitted for upload", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		_, params := createPPMPrereqs(suite, WeightEstimatorXlsxFail, true)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
