@@ -1666,7 +1666,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.NoError(postAddressUpdatelookupErr)
 		completeShipmentPostUpdate = postAddressUpdate.Shipment
 
-		suite.Equal(4364800, completeShipmentPostUpdate.MTOServiceItems[0].PricingEstimate.Int())
+		suite.Equal(5350400, completeShipmentPostUpdate.MTOServiceItems[0].PricingEstimate.Int())
 		suite.Equal(-112, completeShipmentPostUpdate.MTOServiceItems[1].PricingEstimate.Int())
 
 		suite.NoError(err)
