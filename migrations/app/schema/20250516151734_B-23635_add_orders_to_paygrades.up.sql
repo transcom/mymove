@@ -57,12 +57,8 @@ UPDATE pay_grades
     SET grade = '0-10', grade_description = 'Officer Grade O-10', "order" = 24 WHERE id = '7fa938ab-1c34-4666-a878-9b989c916d1a';
 
 --Other pay Grades
+INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('63998729-ef74-486e-beea-5b519fa3812f', 'MIDSHIPMAN', 'Midshipman', NOW(), NOW(),25);
+INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('df749d7e-5007-43cd-8715-2875d281f817', 'AVIATION_CADET', 'Aviation Cadet', NOW(), NOW(),26);
+INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0', 'ACADEMY_CADET', 'Academy Cadet', NOW(), NOW(),27);
 UPDATE pay_grades
-    SET grade = 'MIDSHIPMAN', grade_description = 'Midshipman', "order" = 25 WHERE id = '63998729-ef74-486e-beea-5b519fa3812f';
- UPDATE pay_grades
-    SET grade = 'AVIATION_CADET', grade_description = 'Aviation Cadet', "order" = 26 WHERE id = 'df749d7e-5007-43cd-8715-2875d281f817';
-UPDATE pay_grades
-    SET grade = 'ACADEMY_CADET', grade_description = 'Academy Cadet', "order" = 27 WHERE id = '8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0';
-INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('fa5fd945-9654-4195-a082-405dbe4a3d3c', 'ACADEMY GRADUATE', 'Academy Graduate', NOW(), NOW(),29);
-UPDATE pay_grades
-    SET grade = 'CIVILIAN', grade_description = 'Civilian', "order" = 30 WHERE id = '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9';
+    SET grade = 'CIVILIAN', grade_description = 'Civilian', "order" = 29 WHERE id = '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9';
