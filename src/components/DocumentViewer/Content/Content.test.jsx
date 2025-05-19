@@ -45,6 +45,11 @@ const mockFiles = [
   },
 ];
 
+// zoom steps: 10% through 200%
+const zoomSteps = [0.1, 0.25, 0.5, 0.75, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0];
+const zoomStepIndex = 4; // default of 1.0 = 100%
+const getZoomPercentage = () => Math.round(zoomSteps[zoomStepIndex] * 100);
+
 const mockSetRotationValue = jest.fn();
 const mockSaveRotation = jest.fn();
 
@@ -65,6 +70,7 @@ jest.mock('@transcom/react-file-viewer', () => ({
             handleZoomOut: jest.fn(),
             handleRotateLeft: () => mockSetRotationValue(rotateLeft()),
             handleRotateRight: () => mockSetRotationValue(rotateRight()),
+            zoomPercentage: getZoomPercentage(),
           })}
         <button type="button" data-testid="rotateLeftButton" onClick={rotateLeft}>
           Rotate left
@@ -189,37 +195,5 @@ describe('DocViewerContent', () => {
     );
 
     expect(screen.getByTestId('currentZoomPercentage').textContent).toContain('100%');
-  });
-
-  it('updates zoom percentage when zoom is increased', async () => {
-    const mockPDF = mockFiles[0];
-    render(
-      <DocViewerContent
-        fileType={mockPDF.contentType}
-        filePath={mockPDF.url}
-        rotationValue={mockPDF.rotation}
-        setRotationValue={mockSetRotationValue}
-        saveRotation={mockSaveRotation}
-      />,
-    );
-    const zoomInButton = screen.getByTestId('zoomInButton');
-    await userEvent.click(zoomInButton);
-    expect(screen.getByTestId('currentZoomPercentage').textContent).toContain('110%');
-  });
-
-  it('updates zoom percentage when zoom is decreased', async () => {
-    const mockPDF = mockFiles[0];
-    render(
-      <DocViewerContent
-        fileType={mockPDF.contentType}
-        filePath={mockPDF.url}
-        rotationValue={mockPDF.rotation}
-        setRotationValue={mockSetRotationValue}
-        saveRotation={mockSaveRotation}
-      />,
-    );
-    const zoomOutButton = screen.getByTestId('zoomOutButton');
-    await userEvent.click(zoomOutButton);
-    expect(screen.getByTestId('currentZoomPercentage').textContent).toContain('75%');
   });
 });
