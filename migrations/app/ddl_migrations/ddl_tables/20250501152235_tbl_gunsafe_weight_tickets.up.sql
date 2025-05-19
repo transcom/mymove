@@ -17,6 +17,13 @@ CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	deleted_at timestamptz
 );
 
+-- B-23368 need these to stay consistent with other PPM documents
+ALTER TABLE gunsafe_weight_tickets
+ADD COLUMN IF NOT EXISTS submitted_has_weight_tickets bool NOT NULL DEFAULT false;
+
+ALTER TABLE gunsafe_weight_tickets
+ADD COLUMN IF NOT EXISTS submitted_weight int CHECK (weight >= 0);
+
 CREATE INDEX IF NOT EXISTS gunsafe_weight_tickets_ppm_shipment_id_idx ON gunsafe_weight_tickets USING hash (ppm_shipment_id);
 CREATE INDEX IF NOT EXISTS gunsafe_weight_tickets_deleted_at_idx ON gunsafe_weight_tickets USING btree (deleted_at);
 
