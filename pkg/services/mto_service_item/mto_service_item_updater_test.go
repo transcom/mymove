@@ -382,20 +382,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
 
-		// Add sitExtension to shipment
-		var listSitExtensions []models.SITDurationUpdate
-		sitExt := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
-			{
-				Model: models.SITDurationUpdate{
-					Status: models.SITExtensionStatusPending,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		listSitExtensions = append(listSitExtensions, sitExt)
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -404,7 +390,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 					PrimeEstimatedWeight: &estimatedWeight,
 					RequiredDeliveryDate: &aMonthAgo,
 					UpdatedAt:            aMonthAgo,
-					SITDurationUpdates:   listSitExtensions,
 				},
 			},
 			{
@@ -412,6 +397,15 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 				LinkOnly: true,
 			},
 		}, nil)
+
+		// Add sitExtension for existing shipment
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
 		// We need to create a destination first day sit in order to properly calculate authorized end date
 		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -496,20 +490,21 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 
+		// Confirm sitExtension exists for the shipment
+		var sitExtensions []models.SITDurationUpdate
+		suite.DB().Q().All(&sitExtensions)
+		suite.Equal(1, len(sitExtensions))
+		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+
 		// Update MTO service item
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 
-		// suite.Equal(sitExt.MTOShipmentID.String(), updatedServiceItem.MTOShipmentID.String())
-		// Confirm that the shipment's SIT extension has been deleted
-		var test2 []models.SITDurationUpdate
-		var test models.SITDurationUpdate
-		suite.DB().Q().Find(&test, updatedServiceItem.MTOShipmentID)
-
-		test2 = append(test2, test)
-		suite.Equal(0, len(test2))
+		// Confirm sitExtension was deleted for the shipment
+		suite.DB().Q().All(&sitExtensions)
+		suite.Equal(0, len(sitExtensions))
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
