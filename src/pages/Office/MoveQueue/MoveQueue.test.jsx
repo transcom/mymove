@@ -49,7 +49,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-10',
     requestedMoveDates: '10 Feb 2023, 10 Mar 2023',
     appearedInTooAt: '2023-02-10T00:00:00.000Z',
     lockExpiresAt: '2099-02-10T00:00:00.000Z',
@@ -93,7 +92,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-12',
     requestedMoveDates: '12 Feb 2023',
     appearedInTooAt: '2023-02-12T00:00:00.000Z',
     assignedTo: {
@@ -134,7 +132,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-03-12',
     requestedMoveDates: '12 Mar 2023',
     appearedInTooAt: '2023-03-12T00:00:00.000Z',
     lockExpiresAt: '2099-03-12T00:00:00.000Z',
@@ -285,7 +282,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
     currentIndex += 1;
