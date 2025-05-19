@@ -2553,6 +2553,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 
+		var destinationDutyLocation *ghcmessages.DutyLocation
+		if queueType != string(models.QueueTypeTaskOrder) {
+			destinationDutyLocation = DutyLocation(&move.Orders.NewDutyLocation)
+		} else {
+			destinationDutyLocation = nil
+		}
+
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
 			Status:                  ghcmessages.MoveStatus(move.Status),
@@ -2565,7 +2572,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			DepartmentIndicator:     &deptIndicator,
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
-			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
+			DestinationDutyLocation: destinationDutyLocation,
 			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
