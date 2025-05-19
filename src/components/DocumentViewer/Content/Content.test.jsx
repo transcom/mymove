@@ -178,4 +178,48 @@ describe('DocViewerContent', () => {
     const saveBtn = screen.getByRole('button', { name: /save/i });
     expect(saveBtn).toBeDisabled();
   });
+
+  it('renders initial zoom percentage of 100%', () => {
+    render(
+      <DocViewerContent
+        fileType={mockFiles[2].contentType}
+        filePath={mockFiles[2].url}
+        rotationValue={mockFiles[2].rotation}
+      />,
+    );
+
+    expect(screen.getByTestId('currentZoomPercentage').textContent).toContain('100%');
+  });
+
+  it('updates zoom percentage when zoom is increased', async () => {
+    const mockPDF = mockFiles[0];
+    render(
+      <DocViewerContent
+        fileType={mockPDF.contentType}
+        filePath={mockPDF.url}
+        rotationValue={mockPDF.rotation}
+        setRotationValue={mockSetRotationValue}
+        saveRotation={mockSaveRotation}
+      />,
+    );
+    const zoomInButton = screen.getByTestId('zoomInButton');
+    await userEvent.click(zoomInButton);
+    expect(screen.getByTestId('currentZoomPercentage').textContent).toContain('110%');
+  });
+
+  it('updates zoom percentage when zoom is decreased', async () => {
+    const mockPDF = mockFiles[0];
+    render(
+      <DocViewerContent
+        fileType={mockPDF.contentType}
+        filePath={mockPDF.url}
+        rotationValue={mockPDF.rotation}
+        setRotationValue={mockSetRotationValue}
+        saveRotation={mockSaveRotation}
+      />,
+    );
+    const zoomOutButton = screen.getByTestId('zoomOutButton');
+    await userEvent.click(zoomOutButton);
+    expect(screen.getByTestId('currentZoomPercentage').textContent).toContain('75%');
+  });
 });
