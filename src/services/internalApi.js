@@ -543,6 +543,46 @@ export async function deleteMovingExpense(ppmShipmentId, movingExpenseId) {
   );
 }
 
+export async function createGunSafeWeightTicket(ppmShipmentId) {
+  return makeInternalRequest(
+    'ppm.createGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchGunSafeWeightTicket(ppmShipmentId, gunSafeWeightTicketId, payload, eTag) {
+  return makeInternalRequest(
+    'ppm.updateGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+      gunSafeWeightTicketId,
+      'If-Match': eTag,
+      updateGunSafeWeightTicket: payload,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteGunSafeWeightTicket(ppmShipmentId, gunSafeWeightTicketId) {
+  return makeInternalRequest(
+    'ppm.deleteGunSafeWeightTicket',
+    {
+      ppmShipmentId,
+      gunSafeWeightTicketId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function submitPPMShipmentSignedCertification(ppmShipmentId, payload) {
   return makeInternalRequest(
     'ppm.submitPPMShipmentDocumentation',

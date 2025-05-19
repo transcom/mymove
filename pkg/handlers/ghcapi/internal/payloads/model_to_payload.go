@@ -1175,6 +1175,41 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 	return payload
 }
 
+// GunSafeWeightTicket payload
+func GunSafeWeightTicket(storer storage.FileStorer, gunsafe *models.GunSafeWeightTicket) *ghcmessages.GunSafeWeightTicket {
+	ppmShipmentID := strfmt.UUID(gunsafe.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, gunsafe.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &ghcmessages.GunSafeWeightTicket{
+		ID:               strfmt.UUID(gunsafe.ID.String()),
+		PpmShipmentID:    ppmShipmentID,
+		CreatedAt:        *handlers.FmtDateTime(gunsafe.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(gunsafe.UpdatedAt),
+		DocumentID:       *handlers.FmtUUID(gunsafe.DocumentID),
+		Document:         document,
+		Weight:           handlers.FmtPoundPtr(gunsafe.Weight),
+		HasWeightTickets: gunsafe.HasWeightTickets,
+		Description:      gunsafe.Description,
+		ETag:             etag.GenerateEtag(gunsafe.UpdatedAt),
+	}
+
+	if gunsafe.Status != nil {
+		status := ghcmessages.OmittablePPMDocumentStatus(*gunsafe.Status)
+		payload.Status = &status
+	}
+
+	if gunsafe.Reason != nil {
+		reason := ghcmessages.PPMDocumentStatusReason(*gunsafe.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
 // MovingExpense payload
 func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpense) *ghcmessages.MovingExpense {
 

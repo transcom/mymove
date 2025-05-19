@@ -115,6 +115,7 @@ const Review = () => {
     mtoShipmentId,
   });
   const proGearCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH, { moveId, mtoShipmentId });
+  const gunSafeCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH, { moveId, mtoShipmentId });
   const expensesCreatePath = generatePath(customerRoutes.SHIPMENT_PPM_EXPENSES_PATH, { moveId, mtoShipmentId });
   const completePath = generatePath(customerRoutes.SHIPMENT_PPM_COMPLETE_PATH, { moveId, mtoShipmentId });
 
@@ -258,6 +259,22 @@ const Review = () => {
                   emptyMessage="No pro-gear weight documented."
                 />
               )}
+              <ReviewItems
+                className={classnames(styles.reviewItems, 'reviewExpenses')}
+                heading={
+                  <>
+                    <h3>Gun Safe</h3>
+                    <span>(${expensesTotal ? formatWeight(mtoShipment?.ppmShipment?.gunSafeWeight) : 0})</span>
+                  </>
+                }
+                contents={expenseContents}
+                renderAddButton={() => (
+                  <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
+                    Add Gun Safe Weight
+                  </Link>
+                )}
+                emptyMessage="No receipts uploaded."
+              />
               <ReviewItems
                 className={classnames(styles.reviewItems, 'reviewExpenses')}
                 heading={
