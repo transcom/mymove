@@ -8,15 +8,15 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type transportaionOfficeAssignmentUpdater struct {
+type transportationOfficeAssignmentUpdater struct {
 }
 
-// NewTransportaionOfficeAssignmentUpdater creates a new struct with the service dependencies
-func NewTransportaionOfficeAssignmentUpdater() services.TransportaionOfficeAssignmentUpdater {
-	return transportaionOfficeAssignmentUpdater{}
+// NewTransportationOfficeAssignmentUpdater creates a new struct with the service dependencies
+func NewTransportationOfficeAssignmentUpdater() services.TransportationOfficeAssignmentUpdater {
+	return transportationOfficeAssignmentUpdater{}
 }
 
-func (updater transportaionOfficeAssignmentUpdater) UpdateTransportaionOfficeAssignments(
+func (updater transportationOfficeAssignmentUpdater) UpdateTransportationOfficeAssignments(
 	appCtx appcontext.AppContext,
 	officeUserId uuid.UUID,
 	newAssignments models.TransportationOfficeAssignments,
