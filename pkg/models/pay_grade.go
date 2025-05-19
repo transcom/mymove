@@ -36,5 +36,43 @@ func GetPayGradesForAffiliation(db *pop.Connection, affiliation string) (PayGrad
 		return nil, err
 	}
 
+	// Define excluded grades per affiliation
+	excludedGrades := map[string][]string{
+		string(AffiliationAIRFORCE): {string(ServiceMemberGradeMIDSHIPMAN)},
+		string(AffiliationARMY):     {string(ServiceMemberGradeMIDSHIPMAN)}, //, string(ServiceMemberGradeAVIATIONCADET)},
+		// string(AffiliationNAVY):       {string(ServiceMemberGradeAVIATIONCADET)},
+		// string(AffiliationCOASTGUARD): {string(ServiceMemberGradeAVIATIONCADET)},
+		string(AffiliationMARINES):    {string(ServiceMemberGradeMIDSHIPMAN)}, //, string(ServiceMemberGradeAVIATIONCADET)},
+		string(AffiliationSPACEFORCE): {string(ServiceMemberGradeMIDSHIPMAN)}, //, string(ServiceMemberGradeAVIATIONCADET)},
+	}
+
+	if grades, ok := excludedGrades[affiliation]; ok {
+		payGrades.RemoveByGrades(grades)
+	}
+	//  else {
+	// 	// Default exclusions for unknown affiliations
+	// 	payGrades.RemoveByGrades([]string{
+	// 		string(ServiceMemberGradeACADEMYCADET),
+	// 		string(ServiceMemberGradeMIDSHIPMAN),
+	// 		string(ServiceMemberGradeAVIATIONCADET),
+	// 	})
+	// }
+
 	return payGrades, nil
+}
+
+// RemoveByGrades removes all PayGrades with a Grade in the given list.
+func (pgs *PayGrades) RemoveByGrades(gradesToRemove []string) {
+	gradeMap := make(map[string]struct{}, len(gradesToRemove))
+	for _, g := range gradesToRemove {
+		gradeMap[g] = struct{}{}
+	}
+
+	newList := make(PayGrades, 0, len(*pgs))
+	for _, pg := range *pgs {
+		if _, found := gradeMap[pg.Grade]; !found {
+			newList = append(newList, pg)
+		}
+	}
+	*pgs = newList
 }

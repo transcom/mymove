@@ -847,9 +847,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		serviceItemFetcher,
 	}
 
-	// ghcAPI.OrdersGetPayGrades = GetPayGradesHandler{
-	// 	handlerConfig,
-	// }
+	ghcAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
 
 	return ghcAPI
 }

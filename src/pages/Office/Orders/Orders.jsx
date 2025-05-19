@@ -1,23 +1,24 @@
-import React, { useEffect, useReducer, useCallback } from 'react';
+import React, { useEffect, useReducer, useCallback, useState } from 'react';
 import { Link, useNavigate, useParams, useLocation, generatePath } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
 import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { getTacValid, getLoa, updateOrder } from 'services/ghcApi';
+import { getTacValid, getLoa, updateOrder, getPayGradeOptions } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { tooRoutes, tioRoutes } from 'constants/routes';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
-import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
+import { formatSwaggerDate, dropdownInputOptions, formatPayGradeOptions } from 'utils/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
@@ -26,14 +27,15 @@ import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
 import { scrollToViewFormikError } from 'utils/validation';
+import retryPageLoading from 'utils/retryPageLoading';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
+const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, setShowLoadingSpinner }) => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
@@ -75,6 +77,26 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
       milmoveLogger.error(errorMsg);
     },
   });
+
+  const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchRankGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(orders.agency);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchRankGradeOptions();
+  }, [orders.agency, setShowLoadingSpinner]);
 
   const buildFullLineOfAccountingString = (loa) => {
     const dfasMap = LineOfAccountingDfasElementOrder.map((key) => {
@@ -457,4 +479,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
   );
 };
 
-export default Orders;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => {}, mapDispatchToProps)(Orders);

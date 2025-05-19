@@ -2,9 +2,11 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -27,6 +29,8 @@ func (h GetPayGradesHandler) Handle(params ordersop.GetPayGradesParams) middlewa
 				return ordersop.NewGetPayGradesNotFound(), nil
 			}
 
-			return ordersop.NewGetPayGradesOK().WithPayload(nil), nil
+			payload := payloads.PayGrades(payGrades)
+
+			return ordersop.NewGetPayGradesOK().WithPayload(payload), nil
 		})
 }

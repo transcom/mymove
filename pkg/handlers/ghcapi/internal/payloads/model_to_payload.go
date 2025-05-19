@@ -2941,3 +2941,15 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 	}
 	return nil
 }
+
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*ghcmessages.OrderPayGrade {
+	var payloadPayGrades []*ghcmessages.OrderPayGrade
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := ghcmessages.OrderPayGrade(payGrade.Grade)
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
+}
