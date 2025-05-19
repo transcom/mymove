@@ -14,3 +14,4 @@
 20250409212810_fn_get_gbloc_indicator.up.sql
 20250409212825_fn_get_counseling_offices_for_conus.up.sql
 20250409212838_fn_get_counseling_offices_for_oconus.up.sql
+20250515124258_fn_get_ppm_closeout_queue.up.sql

@@ -1,0 +1,172 @@
+package order
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+)
+
+// Helper struct to hold the outputted table from the PPM Closeout DB func
+type PPMCloseoutQueueItem struct {
+	ID                               *uuid.UUID      `json:"id" db:"id"`
+	Show                             *bool           `json:"show" db:"show"`
+	Locator                          *string         `json:"locator" db:"locator"`
+	FullOrPartialPPM                 *string         `json:"full_or_partial_ppm" db:"full_or_partial_ppm"`
+	OrdersID                         *uuid.UUID      `json:"orders_id" db:"orders_id"`
+	LockedBy                         *uuid.UUID      `json:"locked_by" db:"locked_by"`
+	SCAssignedID                     *uuid.UUID      `json:"sc_assigned_id" db:"sc_assigned_id"`
+	CounselingTransportationOfficeID *uuid.UUID      `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
+	Orders                           json.RawMessage `json:"orders" db:"orders"`
+	PpmShipments                     json.RawMessage `json:"ppm_shipments" db:"ppm_shipments"`
+	CounselingTransportationOffice   json.RawMessage `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	PpmCloseoutLocation              json.RawMessage `json:"ppm_closeout_location" db:"ppm_closeout_location"`
+	ScAssigned                       json.RawMessage `json:"sc_assigned" db:"sc_assigned"`
+}
+
+func (f orderFetcher) ListPPMCloseoutOrders(
+	appCtx appcontext.AppContext,
+	officeUserID uuid.UUID,
+	params *services.ListOrderParams,
+) ([]models.Move, int, error) {
+	var ppmCloseoutQueueItems []PPMCloseoutQueueItem
+
+	var officeUserGbloc string
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		var err error
+		officeUserGbloc, err = officeuser.NewOfficeUserGblocFetcher().
+			FetchGblocForOfficeUser(appCtx, officeUserID)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
+
+	hasSafetyPrivilege := false
+	if privs, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID); err == nil {
+		hasSafetyPrivilege = privs.HasPrivilege(roles.PrivilegeTypeSafety)
+	} else {
+		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(err))
+	}
+
+	page := 1
+	if params.Page != nil {
+		page = int(*params.Page)
+	}
+	perPage := 20
+	if params.PerPage != nil {
+		perPage = int(*params.PerPage)
+	}
+
+	const q = `
+        SELECT *
+          FROM get_ppm_closeout_queue(
+            $1,  $2,  $3,  $4,  $5,  $6,  $7,  $8,  $9,  $10,
+           $11, $12, $13, $14, $15, $16, $17, $18, $19
+        )`
+
+	err := appCtx.DB().
+		RawQuery(q,
+			officeUserGbloc,
+			params.CustomerName,
+			params.Edipi,
+			params.Emplid,
+			pq.Array(params.Status),
+			params.Locator,
+			params.SubmittedAt,
+			params.Branch,
+			params.PPMType,
+			pq.Array(params.OriginDutyLocation),
+			params.CounselingOffice,
+			params.DestinationDutyLocation,
+			params.CloseoutLocation,
+			params.SCAssignedUser,
+			hasSafetyPrivilege,
+			page,
+			perPage,
+			params.Sort,
+			params.Order,
+		).
+		All(&ppmCloseoutQueueItems)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	moves, err := mapPPMCloseoutQueueItemsToMoves(ppmCloseoutQueueItems)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return moves, len(moves), nil
+}
+
+// TODO: PPM Shipment conversion
+func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]models.Move, error) {
+	var moves []models.Move
+
+	for _, queueItem := range queueItems {
+		var move models.Move
+
+		if queueItem.ID != nil {
+			move.ID = *queueItem.ID
+		}
+		if queueItem.Show != nil {
+			move.Show = queueItem.Show
+		}
+		if queueItem.Locator != nil {
+			move.Locator = *queueItem.Locator
+		}
+
+		move.PPMType = queueItem.FullOrPartialPPM
+
+		if queueItem.OrdersID != nil {
+			move.OrdersID = *queueItem.OrdersID
+		}
+		if queueItem.LockedBy != nil {
+			move.LockedByOfficeUserID = queueItem.LockedBy
+		}
+		if queueItem.SCAssignedID != nil {
+			move.SCAssignedID = queueItem.SCAssignedID
+		}
+		if queueItem.CounselingTransportationOfficeID != nil {
+			move.CounselingOfficeID = queueItem.CounselingTransportationOfficeID
+		}
+
+		var order models.Order
+		if err := json.Unmarshal(queueItem.Orders, &order); err != nil {
+			return nil, fmt.Errorf("unmarshal Orders JSON: %w", err)
+		}
+		move.Orders = order
+
+		var counselOffice models.TransportationOffice
+		if err := json.Unmarshal(queueItem.CounselingTransportationOffice, &counselOffice); err != nil {
+			return nil, fmt.Errorf("unmarshal CounselingTransportationOffice JSON: %w", err)
+		}
+		move.CounselingOffice = &counselOffice
+
+		var closeOffice models.TransportationOffice
+		if err := json.Unmarshal(queueItem.PpmCloseoutLocation, &closeOffice); err != nil {
+			return nil, fmt.Errorf("unmarshal PpmCloseoutLocation JSON: %w", err)
+		}
+		move.CloseoutOffice = &closeOffice
+
+		var scUser models.OfficeUser
+		if err := json.Unmarshal(queueItem.ScAssigned, &scUser); err != nil {
+			return nil, fmt.Errorf("unmarshal ScAssigned JSON: %w", err)
+		}
+		move.SCAssignedUser = &scUser
+
+		moves = append(moves, move)
+	}
+
+	return moves, nil
+}
