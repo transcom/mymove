@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		suite.Equal(zip, responsePayload.Payload[0].PostalCode)
 	})
 
-	suite.Run("successful zip city lookup", func() {
+	suite.Run("returns no results for a PO box zip when PO boxes are excluded", func() {
 		zip := "00929" // PO Box ZIP in PR
 		var fetchedVLocation models.VLocation
 		err := suite.DB().Where("uspr_zip_id = $1", zip).First(&fetchedVLocation)
