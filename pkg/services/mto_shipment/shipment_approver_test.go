@@ -254,6 +254,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
+
 	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and should NOT update pricing without port data", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
@@ -691,6 +692,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		estimatedWeight := unit.Pound(1212)
 
+		pickupDate := time.Now().Add(24 * time.Hour)
+
 		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -700,7 +703,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusSubmitted,
 					PrimeEstimatedWeight: &estimatedWeight,
-					RequestedPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+					RequestedPickupDate:  &pickupDate,
 				},
 			},
 		}, nil)
