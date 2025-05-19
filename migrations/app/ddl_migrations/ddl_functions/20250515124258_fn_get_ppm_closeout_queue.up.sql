@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION get_ppm_closeout_queue(
     move_code                  TEXT    DEFAULT NULL,
     date_submitted             DATE    DEFAULT NULL,
     branch                     TEXT    DEFAULT NULL,
-    full_or_partial_ppm_filter        TEXT    DEFAULT NULL,
+    moves_ppm_type_full_or_partial_ppm_filter        TEXT    DEFAULT NULL, -- Moves declaration of FULL or PARTIAL. Not to be confused with ppm_shipments.ppm_type
     origin_duty_location       TEXT    DEFAULT NULL,
     counseling_office          TEXT    DEFAULT NULL,
     destination_duty_location  TEXT    DEFAULT NULL,
@@ -181,7 +181,7 @@ BEGIN
     $FMT$, sort_column, sort_order)
     USING
       user_gbloc, customer_name_in, edipi, emplid, m_status, move_code,
-      date_submitted, branch, full_or_partial_ppm_filter,
+      date_submitted, branch, moves_ppm_type_full_or_partial_ppm_filter,
       origin_duty_location, counseling_office, destination_duty_location,
       ppm_closeout_location_filter, has_safety_privilege, sc_assigned_user,
       per_page, offset_value;
