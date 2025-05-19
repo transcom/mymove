@@ -1099,7 +1099,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(string(paymentRequest.Status), "Payment requested")
 	suite.Equal("KKFA", string(paymentRequest.OriginGBLOC))
 
-	//createdAt := actualPaymentRequest.CreatedAt
 	age := float64(2)
 	deptIndicator := *paymentRequest.DepartmentIndicator
 
