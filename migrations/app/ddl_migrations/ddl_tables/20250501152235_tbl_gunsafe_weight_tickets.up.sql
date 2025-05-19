@@ -1,3 +1,4 @@
+--B-23342 Tae Jung create gunsafe_weight_tickets table for gun safe feature E-06078
 CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 	id uuid PRIMARY KEY,
 	ppm_shipment_id uuid NOT NULL
