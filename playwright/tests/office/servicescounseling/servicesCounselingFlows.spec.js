@@ -262,7 +262,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample')).not.toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
     });
   });
