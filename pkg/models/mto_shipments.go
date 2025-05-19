@@ -558,6 +558,10 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 	return &isOCONUS
 }
 
+func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
+	return m.ShipmentType != MTOShipmentTypePPM
+}
+
 func GetAuthorizedSITEndDate(shipment MTOShipment) *time.Time {
 	var endDate time.Time
 	if (shipment.OriginSITAuthEndDate != nil) &&
@@ -573,6 +577,5 @@ func GetAuthorizedSITEndDate(shipment MTOShipment) *time.Time {
 			endDate = *shipment.DestinationSITAuthEndDate
 		}
 	}
-
 	return &endDate
 }
