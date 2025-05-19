@@ -38,6 +38,19 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 			},
 			expectedErrs: nil,
 		},
+		"Successful with optional values": {
+			ppmShipment: models.PPMShipment{
+				// Setting up min required fields here so that we don't get these in our errors.
+				PPMType:               models.PPMTypeIncentiveBased,
+				ShipmentID:            uuid.Must(uuid.NewV4()),
+				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
+				Status:                models.PPMShipmentStatusDraft,
+
+				// optional fields with valid values
+				GunSafeWeight: models.PoundPointer(unit.Pound(500)),
+			},
+			expectedErrs: nil,
+		},
 		"Missing Required Fields": {
 			ppmShipment: models.PPMShipment{
 				PPMType:              models.PPMTypeIncentiveBased,
@@ -115,6 +128,21 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				"sitestimated_cost":           {"SITEstimatedCost must be greater than zero, got: 0."},
 				"aoapacket_id":                {"AOAPacketID can not be blank."},
 				"payment_packet_id":           {"PaymentPacketID can not be blank."},
+			},
+		},
+		"Gun safe weight raise error with a value over the max": {
+			ppmShipment: models.PPMShipment{
+				// Setting up min required fields here so that we don't get these in our errors.
+				PPMType:               models.PPMTypeIncentiveBased,
+				ShipmentID:            uuid.Must(uuid.NewV4()),
+				ExpectedDepartureDate: testdatagen.PeakRateCycleStart,
+				Status:                models.PPMShipmentStatusDraft,
+
+				// optional field with invalid value
+				GunSafeWeight: models.PoundPointer(unit.Pound(501)),
+			},
+			expectedErrs: map[string][]string{
+				"gun_safe_weight": {"must be less than or equal to 500."},
 			},
 		},
 	}

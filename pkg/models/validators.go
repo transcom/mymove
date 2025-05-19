@@ -163,7 +163,7 @@ type OptionalPoundIsMax struct {
 
 func (v *OptionalPoundIsMax) IsValid(errors *validate.Errors) {
 	if v.Field != nil && *v.Field > v.Max {
-		errors.Add(v.Name, fmt.Sprintf("must be less than or equal to %d", v.Max))
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("must be less than or equal to %d.", v.Max))
 	}
 }
 
