@@ -47,7 +47,7 @@ test.describe('(MultiMove) About Your PPM', () => {
 
         await expect(customerPpmPage.page.getByRole('heading', { name: 'Review' })).toBeVisible();
         await expect(customerPpmPage.page.getByRole('heading', { name: 'About Your PPM' })).toBeVisible();
-        await customerPpmPage.page.locator('[data-testid="aboutYourPPM"] a').getByText('Edit').click();
+        await customerPpmPage.page.getByTestId('aboutYourPPMEditLink').click();
 
         await expect(customerPpmPage.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/about/);
         await expect(customerPpmPage.page.getByRole('heading', { name: 'About your PPM' })).toBeVisible();
