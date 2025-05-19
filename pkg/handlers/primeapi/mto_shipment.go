@@ -67,7 +67,7 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 
 			addressSearch := addressUpdate.NewAddress.City + ", " + addressUpdate.NewAddress.State + " " + addressUpdate.NewAddress.PostalCode
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, false, true)
+			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true, true)
 			if err != nil {
 				serverError := apperror.NewInternalServerError("Error searching for address")
 				errStr := serverError.Error() // we do this because InternalServerError wants a *string
