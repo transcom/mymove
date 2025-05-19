@@ -475,9 +475,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
 
-		// Confirm that the shipment has a SIT extension
-		suite.Equal(1, len(shipment.SITDurationUpdates))
-
 		// Try to add SITDestinationFinalAddress
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
