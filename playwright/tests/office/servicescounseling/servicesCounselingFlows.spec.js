@@ -6,6 +6,7 @@
 
 // @ts-check
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
+import { appendTimestampToFilenamePrefix } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -192,7 +193,9 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+
+      const filenameWithTimestamp = appendTimestampToFilenamePrefix('AF Orders Sample');
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -203,7 +206,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -216,7 +219,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -227,7 +230,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButtonAmended.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -245,7 +248,9 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(
+        page.getByTestId('uploads-table').getByText(appendTimestampToFilenamePrefix('AF Orders Sample')),
+      ).toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(1);
@@ -257,7 +262,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample')).not.toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
     });
   });
