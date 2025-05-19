@@ -24,8 +24,8 @@ import {
 import { updateMTOShipment } from 'store/entities/actions';
 import { formatDateForSwagger } from 'shared/dates';
 import { convertDollarsToCents } from 'shared/utils';
-import { APP_NAME } from 'constants/apps';
 import appendTimestampToFilename from 'utils/fileUpload';
+import { APP_NAME } from 'constants/apps';
 
 const Expenses = () => {
   const [errorMessage, setErrorMessage] = useState(null);

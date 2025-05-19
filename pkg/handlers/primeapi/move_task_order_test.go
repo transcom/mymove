@@ -964,7 +964,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:              models.MTOShipmentStatusApproved,
+					RequestedPickupDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1070,7 +1071,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Value:   "TEST",
 			},
 			{
-				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Key:     models.ServiceItemParamNameMTOEarliestRequestedPickup,
 				KeyType: models.ServiceItemParamTypeTimestamp,
 				Value:   "2023-05-03T14:38:30Z",
 			},
