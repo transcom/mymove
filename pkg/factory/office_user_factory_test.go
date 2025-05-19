@@ -316,9 +316,9 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 			{
 				Model: models.User{
 					OktaEmail: email,
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -332,7 +332,7 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 
 		// Check that the user has the office user role
 		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeServicesCounselor)
-		_, hasPrivilege := officeUser.User.Privileges.GetPrivilege(models.PrivilegeTypeSupervisor)
+		_, hasPrivilege := officeUser.User.Privileges.GetPrivilege(roles.PrivilegeTypeSupervisor)
 		suite.True(hasRole)
 		suite.True(hasPrivilege)
 		// Check customizations
