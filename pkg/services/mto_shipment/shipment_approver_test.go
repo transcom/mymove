@@ -738,7 +738,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		estimatedWeight := unit.Pound(1212)
 
-		peakPeriod := time.Date(tomorrow.Year(), testdatagen.DateInsidePeakRateCycle.Month(), testdatagen.DateInsidePeakRateCycle.Day(), 0, 0, 0, 0, time.UTC)
+		pickupDate := time.Now().Add(24 * time.Hour)
 
 		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -749,7 +749,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusSubmitted,
 					PrimeEstimatedWeight: &estimatedWeight,
-					RequestedPickupDate:  &peakPeriod,
+					RequestedPickupDate:  &pickupDate,
 				},
 			},
 		}, nil)
