@@ -14559,6 +14559,7 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
         },
         "destinationGBLOC": {
@@ -33892,6 +33893,7 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
         },
         "destinationGBLOC": {
