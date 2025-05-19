@@ -3,6 +3,7 @@ package order
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
@@ -85,7 +86,7 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 			params.SubmittedAt,
 			params.Branch,
 			params.PPMType,
-			pq.Array(params.OriginDutyLocation),
+			strings.Join(params.OriginDutyLocation, " "),
 			params.CounselingOffice,
 			params.DestinationDutyLocation,
 			params.CloseoutLocation,

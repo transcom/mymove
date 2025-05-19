@@ -6,8 +6,10 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -21,10 +23,10 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	orderFetcher := NewOrderFetcher(waf)
 
-	setupAuthSession := func(officeUserID uuid.UUID) auth.Session {
+	setupAuthSession := func(userID uuid.UUID) auth.Session {
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			UserID:          officeUserID,
+			UserID:          userID,
 			IDToken:         "token",
 			Hostname:        handlers.OfficeTestHost,
 			Email:           "deactivated@example.com",
@@ -85,11 +87,16 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		)
 	}
 
-	suite.Run("default sort is by closeout initiated oldest -> newest", func() {
-		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor := setupServicesCounselor(suite.DB())
+	createUserAndCtx := func(db *pop.Connection) (models.OfficeUser, appcontext.AppContext) {
+		servicesCounselor := setupServicesCounselor(db)
 		session := setupAuthSession(servicesCounselor.ID)
 		appCtx := suite.AppContextWithSessionForTest(&session)
+		return servicesCounselor, appCtx
+	}
+
+	suite.Run("default sort is by closeout initiated oldest -> newest", func() {
+		setupOrdersToFilterBy(suite.DB())
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
 
 		defaultMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
@@ -105,9 +112,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 
 	suite.Run("can sort descending showing newest first and oldest last", func() {
 		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor := setupServicesCounselor(suite.DB())
-		session := setupAuthSession(servicesCounselor.ID)
-		appCtx := suite.AppContextWithSessionForTest(&session)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
 
 		sortedDescendingMoves, _, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
@@ -122,9 +127,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 
 	suite.Run("returns moves based on ppm status", func() {
 		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor := setupServicesCounselor(suite.DB())
-		session := setupAuthSession(servicesCounselor.ID)
-		appCtx := suite.AppContextWithSessionForTest(&session)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
 
 		partialMoves, count, err := orderFetcher.ListPPMCloseoutOrders(appCtx, servicesCounselor.ID, &services.ListOrderParams{
 			PPMType: models.StringPointer(models.MovePPMTypePARTIAL),
@@ -143,9 +146,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 
 	suite.Run("can filter by closeout location inclusively", func() {
 		setupOrdersToFilterBy(suite.DB())
-		servicesCounselor := setupServicesCounselor(suite.DB())
-		session := setupAuthSession(servicesCounselor.ID)
-		appCtx := suite.AppContextWithSessionForTest(&session)
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
 
 		movesWithMacDillFilter, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
@@ -159,5 +160,544 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.FatalNoError(err)
 		suite.Equal("LATEST", movesWithMacDillFilter[0].Locator)
 		suite.Equal("MacDill AFB", movesWithMacDillFilter[0].CloseoutOffice.Name)
+	})
+
+	suite.Run("can filter by customer name", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				CustomerName: models.StringPointer(*ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.FirstName),
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by edipi", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				Edipi: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.Edipi,
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by emplid", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				Edipi: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.Emplid,
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by locator", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				Locator: &ppmShipment.Shipment.MoveTaskOrder.Locator,
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by submitted_at", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				SubmittedAt: ppmShipment.SubmittedAt,
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by branch", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				Branch: (*string)(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.Affiliation),
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by move's ppm type", func() {
+		// Don't confuse this one with ppm_shipments.ppm_type!
+		// They are different! Filtering by ppm shipment ppm type is not supported
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				PPMType: models.StringPointer(string(models.MovePPMTypeFULL)),
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by origin duty location name", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{
+						OriginDutyLocationID: &dutyLocation.ID,
+					},
+				},
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				OriginDutyLocation: []string{dutyLocation.Name},
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by counseling office", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:            models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:        &now,
+						Locator:            "LATEST",
+						CounselingOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				CounselingOffice: &transportationOffice.Name,
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by destination", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{
+						NewDutyLocationID: dutyLocation.ID,
+					},
+				},
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				DestinationDutyLocation: &dutyLocation.Name,
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can filter by closeout office", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				CloseoutLocation: &transportationOffice.Name,
+			},
+		)
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("see safety moves if permitted", func() {
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		privilegedUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email:  "officeuser1@example.com",
+					Active: true,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CounselingOffice,
+			},
+			{
+				Model: models.User{
+					Privileges: []roles.Privilege{
+						{
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
+						},
+						{
+							PrivilegeType: roles.PrivilegeTypeSafety,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeTOO,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		session := setupAuthSession(*privilegedUser.UserID)
+		appCtx := suite.AppContextWithSessionForTest(&session)
+
+		now := time.Now()
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{
+						OrdersType: internalmessages.OrdersTypeSAFETY,
+					},
+				},
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			privilegedUser.ID,
+			&services.ListOrderParams{
+				Locator: &ppmShipment.Shipment.MoveTaskOrder.Locator,
+			},
+		)
+
+		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(count, 1)
+		suite.FatalNoError(err)
+	})
+
+	suite.Run("can not see safety moves by default", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{
+						OrdersType: internalmessages.OrdersTypeSAFETY,
+					},
+				},
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				Locator: &ppmShipment.Shipment.MoveTaskOrder.Locator,
+			},
+		)
+
+		suite.Len(filteredMove, 0)
+		suite.Equal(count, 0)
+		suite.FatalNoError(err)
 	})
 }
