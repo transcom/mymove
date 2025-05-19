@@ -1461,7 +1461,7 @@ describe('MoveDetails page', () => {
         </MockProviders>,
       );
 
-      expect(wrapper.find({ 'data-testid': 'too-move-details' }).exists()).toBe(true);
+      expect(wrapper.find({ fieldName: 'advanceStatus' })).toEqual({});
     });
   });
 
@@ -1483,7 +1483,7 @@ describe('MoveDetails page', () => {
         </MockProviders>,
       );
 
-      expect(wrapper.find({ 'data-testid': 'too-move-details' }).exists()).toBe(false);
+      expect(wrapper.find({ fieldName: 'advanceStatus' })).toEqual({});
     });
   });
 
