@@ -384,6 +384,7 @@ func approvable(move models.Move) bool {
 	return moveHasReviewedServiceItems(move) &&
 		moveHasAcknowledgedOrdersAmendment(move.Orders) &&
 		moveHasAcknowledgedExcessWeightRisk(move) &&
+		moveHasAcknowledgedUBExcessWeightRisk(move) &&
 		allSITExtensionsAreReviewed(move) &&
 		allShipmentAddressUpdatesAreReviewed(move) &&
 		allShipmentsAreApproved(move)
@@ -424,10 +425,17 @@ func moveHasReviewedServiceItems(move models.Move) bool {
 func moveHasAcknowledgedExcessWeightRisk(move models.Move) bool {
 	// If the move hasn't been flagged for being at risk of excess weights, then
 	// we don't need to check if the risk has been acknowledged.
-	if move.ExcessWeightQualifiedAt == nil && move.ExcessUnaccompaniedBaggageWeightQualifiedAt == nil {
+	if move.ExcessWeightQualifiedAt == nil {
 		return true
 	}
-	return move.ExcessWeightAcknowledgedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt != nil
+	return move.ExcessWeightAcknowledgedAt != nil
+}
+
+func moveHasAcknowledgedUBExcessWeightRisk(move models.Move) bool {
+	if move.ExcessUnaccompaniedBaggageWeightQualifiedAt == nil {
+		return true
+	}
+	return move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt != nil
 }
 
 func allSITExtensionsAreReviewed(move models.Move) bool {
