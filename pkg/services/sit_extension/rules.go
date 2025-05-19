@@ -114,18 +114,19 @@ func checkDepartureDate() sitExtensionValidator {
 		shipmentSITStatus, _, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
 		if err != nil {
 			return err
-		} else if shipmentSITStatus == nil {
-			return fmt.Errorf("%s No SIT status found for current SIT MTO Service Item", shipment.ID)
 		}
-		currentSIT := shipmentSITStatus.CurrentSIT
 
-		// Cannot create SIT Extension if departure date is before or equal to authorized end date.
-		endDate := models.GetAuthorizedSITEndDate(*shipment)
-		format := "2006-01-02"
-		if currentSIT.SITDepartureDate != nil && !endDate.IsZero() {
-			if currentSIT.SITDepartureDate.Before(*endDate) || currentSIT.SITDepartureDate.Equal(*endDate) {
-				sitErr := fmt.Sprintf("\nSIT delivery date (%s) cannot be prior or equal to the SIT end date (%s)", currentSIT.SITDepartureDate.Format(format), endDate.Format(format))
-				return apperror.NewConflictError(shipment.ID, sitErr)
+		if shipmentSITStatus != nil {
+			currentSIT := shipmentSITStatus.CurrentSIT
+
+			// Cannot create SIT Extension if departure date is before or equal to authorized end date.
+			endDate := models.GetAuthorizedSITEndDate(*shipment)
+			format := "2006-01-02"
+			if currentSIT.SITDepartureDate != nil && !endDate.IsZero() {
+				if currentSIT.SITDepartureDate.Before(*endDate) || currentSIT.SITDepartureDate.Equal(*endDate) {
+					sitErr := fmt.Sprintf("\nSIT delivery date (%s) cannot be prior or equal to the SIT end date (%s)", currentSIT.SITDepartureDate.Format(format), endDate.Format(format))
+					return apperror.NewConflictError(shipment.ID, sitErr)
+				}
 			}
 		}
 		return nil
