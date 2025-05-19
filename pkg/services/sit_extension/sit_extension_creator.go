@@ -23,7 +23,7 @@ func NewSitExtensionCreator(moveRouter services.MoveRouter) services.SITExtensio
 			checkShipmentID(),
 			checkRequiredFields(),
 			checkSITExtensionPending(),
-			checkDepartureDates(),
+			checkDepartureDate(),
 		},
 		moveRouter,
 	}
@@ -35,7 +35,7 @@ func (f *sitExtensionCreator) CreateSITExtension(appCtx appcontext.AppContext, s
 	shipment := &models.MTOShipment{}
 	// Find the shipment, return error if not found (or if using an external vendor since this is called
 	// by the prime API).
-	err := appCtx.DB().Where("uses_external_vendor = FALSE").Find(shipment, sitExtension.MTOShipmentID)
+	err := appCtx.DB().Q().EagerPreload("MTOServiceItems", "OriginSITAuthEndDate", "DestinationSITAuthEndDate").Where("uses_external_vendor = FALSE").Find(shipment, sitExtension.MTOShipmentID)
 
 	if err != nil {
 		switch err {

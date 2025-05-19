@@ -385,6 +385,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -400,6 +401,15 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 				LinkOnly: true,
 			},
 		}, nil)
+
+		// Add sitExtension for existing shipment
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
 		// We need to create a destination first day sit in order to properly calculate authorized end date
 		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -481,11 +491,21 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 
+		// Confirm sitExtension exists for the shipment
+		var sitExtensions []models.SITDurationUpdate
+		suite.DB().Q().All(&sitExtensions)
+		suite.Equal(1, len(sitExtensions))
+		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
+
 		// Update MTO service item
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+
+		// Confirm sitExtension was deleted for the shipment
+		suite.DB().Q().All(&sitExtensions)
+		suite.Equal(0, len(sitExtensions))
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
@@ -497,7 +517,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
-
 	})
 
 	// Test that if a SITDepartureDate is provided successfully and it is a date before the shipments

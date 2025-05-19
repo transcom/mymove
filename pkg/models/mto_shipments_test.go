@@ -680,32 +680,65 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 	})
 }
 
-func (suite *ModelSuite) TestGetAuthorizedSITEndDateOrigin() {
-	today := time.Now()
-	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.MTOShipment{
-				OriginSITAuthEndDate: &today,
+func (suite *ModelSuite) TestGetAuthorizedSITEndDate() {
+	suite.Run("valid OriginSITAuthEndDate and nil DestinationSITAuthEndDate", func() {
+		today := time.Now()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					OriginSITAuthEndDate:      &today,
+					DestinationSITAuthEndDate: nil,
+				},
 			},
-		},
-	}, nil)
+		}, nil)
 
-	test := models.GetAuthorizedSITEndDate(shipment)
+		endDate := models.GetAuthorizedSITEndDate(shipment)
+		suite.Equal(&today, endDate)
+	})
 
-	suite.Equal(&today, test)
-}
-
-func (suite *ModelSuite) TestGetAuthorizedSITEndDateDestination() {
-	today := time.Now()
-	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.MTOShipment{
-				DestinationSITAuthEndDate: &today,
+	suite.Run("zero OriginSITAuthEndDate and valid DestinationSITAuthEndDate", func() {
+		today := time.Now()
+		var ZeroTime time.Time
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					OriginSITAuthEndDate:      &ZeroTime,
+					DestinationSITAuthEndDate: &today,
+				},
 			},
-		},
-	}, nil)
+		}, nil)
 
-	test := models.GetAuthorizedSITEndDate(shipment)
+		endDate := models.GetAuthorizedSITEndDate(shipment)
+		suite.Equal(&today, endDate)
+	})
 
-	suite.Equal(&today, test)
+	suite.Run("both nil OriginSITAuthEndDate and DestinationSITAuthEndDate", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					DestinationSITAuthEndDate: nil,
+					OriginSITAuthEndDate:      nil,
+				},
+			},
+		}, nil)
+
+		endDate := models.GetAuthorizedSITEndDate(shipment)
+		suite.True(endDate.IsZero())
+	})
+
+	suite.Run("both valid OriginSITAuthEndDate and DestinationSITAuthEndDate", func() {
+		today := time.Now()
+		tomorrow := today.Add(time.Hour * 24)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					DestinationSITAuthEndDate: &today,
+					OriginSITAuthEndDate:      &tomorrow,
+				},
+			},
+		}, nil)
+
+		endDate := models.GetAuthorizedSITEndDate(shipment)
+		suite.Equal(&today, endDate)
+	})
 }
