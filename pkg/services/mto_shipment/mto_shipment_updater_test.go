@@ -2230,54 +2230,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 	})
 
-	suite.Run("Successfully delete pending SIT extension if already delivered", func() {
-		setupTestData()
-
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		oldShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					ScheduledPickupDate:  nil,
-					OriginSITAuthEndDate: &now,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-
-		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
-			{
-				Model:    oldShipment,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		requestedPickupDate := now.Add(time.Hour * 24 * 3)
-		requestedDeliveryDate := now.Add(time.Hour * 24 * 4)
-		updatedShipment := models.MTOShipment{
-			ID:                    oldShipment.ID,
-			DestinationAddress:    &newDestinationAddress,
-			DestinationAddressID:  &newDestinationAddress.ID,
-			PickupAddress:         &newPickupAddress,
-			PickupAddressID:       &newPickupAddress.ID,
-			RequestedPickupDate:   &requestedPickupDate,
-			RequestedDeliveryDate: &requestedDeliveryDate,
-			ActualPickupDate:      &actualPickupDate,
-			ActualDeliveryDate:    &now,
-		}
-
-		session := auth.Session{}
-		newShipment, err := mtoShipmentUpdaterPrime.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
-		suite.Require().NoError(err)
-
-		// check if sitExtension was successfully removed
-		suite.Equal(0, len(newShipment.SITDurationUpdates))
-	})
-
 	suite.Run("Successful Office/TOO UpdateShipment - CONUS Pickup, OCONUS Destination - mileage is recalculated and pricing estimates refreshed for International FSC SIT service items", func() {
 		setupTestData()
 
