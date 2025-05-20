@@ -24,7 +24,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: countrySearcher}
 
 		response := handler.Handle(params)
@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: countrySearcher}
 
 		response := handler.Handle(params)
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: &mockCountrySearcher,
 		}
 
