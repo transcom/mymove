@@ -2,9 +2,9 @@
 -- B-22924  Daniel Jordan  adding sit_extension table to history and updating main func
 -- B 22696 Jon Spight added too destination assignments to history / Audit log
 -- B-23602  Beth Grohmann  fixed join in fn_populate_move_history_mto_shipments
+-- B-23581 Paul Stonebraker updated assigned office user counselor columns
 -- B 22696 Jon Spight added too destination assignments to history / Audit log
 -- B-23623  Beth Grohmann  fetch_move_history - update final query to pull from all user tables
--- B-23581 Paul Stonebraker updated assigned office user counselor columns
 
 set client_min_messages = debug;
 set session statement_timeout = '10000s';
@@ -99,8 +99,8 @@ BEGIN
         sc_counseling_assigned_id TEXT,
         sc_closeout_assigned_id TEXT,
         too_assigned_id TEXT,
-        tio_assigned_id TEXT,
-        too_destination_assigned_id TEXT
+        too_destination_assigned_id TEXT,
+        tio_assigned_id TEXT
     ) ON TRUE
     WHERE audit_history.table_name = ''moves''
         AND NOT (audit_history.event_name IS NULL AND audit_history.changed_data::TEXT LIKE ''%shipment_seq_num%'' AND LENGTH(audit_history.changed_data::TEXT) < 25)

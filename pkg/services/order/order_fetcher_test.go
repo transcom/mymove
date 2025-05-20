@@ -1401,7 +1401,7 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, models.QueueTypeCounseling)
 
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
-		AssignedTo: &scUser.LastName,
+		AssignedTo: &scUser.LastName, NeedsPPMCloseout: models.BoolPointer(false),
 	})
 
 	suite.FatalNoError(err)

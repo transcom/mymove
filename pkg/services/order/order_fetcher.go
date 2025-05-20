@@ -376,7 +376,7 @@ func (f orderFetcher) ListOriginRequestsOrders(appCtx appcontext.AppContext, off
 		params.Branch,
 		strings.Join(params.OriginDutyLocation, " "),
 		params.CounselingOffice,
-		params.TOOAssignedUser,
+		params.AssignedTo,
 		hasSafetyPrivilege,
 		params.Page,
 		params.PerPage,
