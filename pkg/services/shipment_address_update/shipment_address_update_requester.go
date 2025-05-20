@@ -281,9 +281,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	var originalPickupAddress models.Address
-	isValid := models.CanChangeDeliveryAddress(shipment.ShipmentType)
+	canUpdateDestAddress := models.PrimeCanUpdateDestinationAddress(shipment.ShipmentType)
 
-	if isValid {
+	if canUpdateDestAddress {
 		originalPickupAddress = *shipment.PickupAddress
 		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
 			originalPickupAddress = shipment.StorageFacility.Address
@@ -293,7 +293,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
-	if !isValid {
+	if !canUpdateDestAddress {
 		return nil, apperror.NewUnprocessableEntityError("\ndestination address cannot be created or updated for PPM and NTS shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
@@ -397,7 +397,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	// international shipments don't need to be concerned with shorthaul/linehaul
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if isValid {
+		if canUpdateDestAddress {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
@@ -408,7 +408,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if isValid {
+		if canUpdateDestAddress {
 			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err

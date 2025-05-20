@@ -562,9 +562,9 @@ func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
 	return m.ShipmentType != MTOShipmentTypePPM
 }
 
-func CanChangeDeliveryAddress(shipmentType MTOShipmentType) bool {
+func PrimeCanUpdateDestinationAddress(shipmentType MTOShipmentType) bool {
 	isValid := false
-	if shipmentType != MTOShipmentTypePPM && shipmentType != MTOShipmentTypeHHGIntoNTS {
+	if shipmentType != "" && shipmentType != MTOShipmentTypePPM && shipmentType != MTOShipmentTypeHHGIntoNTS {
 		isValid = true
 	}
 

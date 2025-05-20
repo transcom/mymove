@@ -720,3 +720,27 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 		suite.Nil(isOCONUS)
 	})
 }
+
+func (suite *ModelSuite) TestPrimeCanUpdateDestinationAddress() {
+	suite.Run("return true for valid shipmentTypes", func() {
+		validTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHGOutOfNTS,
+			models.MTOShipmentTypeHHG, models.MTOShipmentTypeBoatTowAway, models.MTOShipmentTypeMobileHome,
+			models.MTOShipmentTypeUnaccompaniedBaggage}
+
+		for i := 0; i < len(validTypes); i++ {
+			canUpdate := models.PrimeCanUpdateDestinationAddress(validTypes[i])
+			suite.Equal(true, canUpdate)
+		}
+	})
+
+	suite.Run("return false for invalid shipmentTypes", func() {
+		var emptyType models.MTOShipmentType
+		invalidTypes := []models.MTOShipmentType{models.MTOShipmentTypePPM,
+			models.MTOShipmentTypeHHGIntoNTS, emptyType}
+
+		for i := 0; i < len(invalidTypes); i++ {
+			cannotUpdate := models.PrimeCanUpdateDestinationAddress(invalidTypes[i])
+			suite.Equal(false, cannotUpdate)
+		}
+	})
+}
