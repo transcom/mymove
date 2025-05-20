@@ -18,7 +18,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
-  useServicesCounselingQueuePPMQueries: jest.fn(),
+  usePPMQueueQueries: jest.fn(),
   useBulkAssignmentQueries: () => {
     return {
       availableOfficeUsers: [

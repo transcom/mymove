@@ -976,7 +976,7 @@ describe('useEvaluationReportQueries', () => {
   });
 });
 
-describe('useServicesCounselingQueuePPMQueries', () => {
+describe('usePPMQueueQueries', () => {
   it('loads data', async () => {
     const result = renderHook(() => usePPMQueueQueries('1234'), { wrapper });
 
