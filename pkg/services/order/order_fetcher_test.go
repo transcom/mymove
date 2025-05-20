@@ -2033,6 +2033,70 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 	})
 
+	suite.Run("Sort by request move date including pickup, delivery, and PPM expected departure", func() {
+		_, _, session := setupTestData()
+
+		expectedDepartureDate := time.Date(testdatagen.GHCTestYear, 01, 01, 0, 0, 0, 0, time.UTC)
+		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, 01, 02, 0, 0, 0, 0, time.UTC)
+
+		// PPM (expected departure date only)
+		movePPM := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "PPM001",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		shipmentPPM := factory.BuildMTOShipmentWithMove(&movePPM, suite.DB(), nil, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ShipmentID:            shipmentPPM.ID,
+					ExpectedDepartureDate: expectedDepartureDate,
+				},
+			},
+		}, nil)
+
+		// NTSr (delivery date only)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "NTS001",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
+					RequestedPickupDate:   nil,
+					RequestedDeliveryDate: &requestedDeliveryDate,
+				},
+			},
+		}, nil)
+
+		// sort by requestedMoveDate asc and validate order
+		params := services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.True(len(moves) >= 4)
+
+		suite.Equal("PPM001", moves[0].Locator) // jan 1
+		suite.Equal("NTS001", moves[1].Locator) // jan 2
+		suite.Equal("TTZ123", moves[2].Locator) // jan 3 (pickup)
+		suite.Equal("AA1234", moves[3].Locator) // feb 20
+
+		params.Order = models.StringPointer("desc")
+		moves, _, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+
+		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("TTZ123", moves[1].Locator)
+		suite.Equal("NTS001", moves[2].Locator)
+		suite.Equal("PPM001", moves[3].Locator)
+	})
+
 	suite.Run("Sort by submitted date (appearedInTooAt) in TOO queue ", func() {
 		// Scenario: In order to sort the moves the submitted_at, service_counseling_completed_at, and approvals_requested_at are checked to which are the minimum
 		// Expected: The moves appear in the order they are created below
