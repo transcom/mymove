@@ -5,7 +5,9 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 
-import CustomerContactInfoForm from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
+import CustomerContactInfoForm, {
+  backupContactName,
+} from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
 
 import styles from './CustomerInfo.module.scss';
 
@@ -88,6 +90,8 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
 
+  const [backupContactFirstName, backupContactLastName] = customer.backup_contact.name.split(/ (.+)/).filter(Boolean);
+
   const initialValues = {
     firstName: customer.first_name,
     lastName: customer.last_name,
@@ -104,6 +108,12 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     emailIsPreferred: customer.emailIsPreferred,
     phoneIsPreferred: customer.phoneIsPreferred,
     cacUser: formatTrueFalseInputValue(customer?.cacValidated),
+    [backupContactName]: {
+      firstName: backupContactFirstName,
+      lastName: backupContactLastName,
+      telephone: customer.backup_contact.phone,
+      email: customer.backup_contact.email,
+    },
   };
 
   return (

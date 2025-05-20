@@ -10,6 +10,13 @@ import { formatCustomerContactFullAddress } from 'utils/formatters';
 import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerInfoList = ({ customerInfo }) => {
+  let backupContactName = '-';
+  if (customerInfo.backupContact?.name) {
+    const fullName = customerInfo.backupContact?.name;
+    const [firstName = '', lastName = ''] = fullName.split(/ (.+)/).filter(Boolean);
+    backupContactName = `${lastName}, ${firstName}`;
+  }
+
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
@@ -57,9 +64,7 @@ const CustomerInfoList = ({ customerInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact name</dt>
-          <dd data-testid="backupContactName">
-            {customerInfo.backupContact?.name ? customerInfo.backupContact.name : '—'}
-          </dd>
+          <dd data-testid="backupContactName">{backupContactName}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact email</dt>
