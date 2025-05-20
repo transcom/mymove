@@ -3,7 +3,7 @@ import { GridContainer, Grid, Alert, Button } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import FileUpload from 'components/FileUpload/FileUpload';
