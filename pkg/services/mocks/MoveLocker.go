@@ -46,6 +46,24 @@ func (_m *MoveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, 
 	return r0, r1
 }
 
+// LockMoves provides a mock function with given fields: appCtx, moveIds, officeUserID
+func (_m *MoveLocker) LockMoves(appCtx appcontext.AppContext, moveIds []uuid.UUID, officeUserID uuid.UUID) error {
+	ret := _m.Called(appCtx, moveIds, officeUserID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LockMoves")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []uuid.UUID, uuid.UUID) error); ok {
+		r0 = rf(appCtx, moveIds, officeUserID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewMoveLocker creates a new instance of MoveLocker. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMoveLocker(t interface {
