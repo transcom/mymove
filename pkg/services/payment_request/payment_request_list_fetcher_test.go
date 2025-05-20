@@ -1336,7 +1336,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListByAllFilters
 		tioNameLocator = fmt.Sprintf("%s %s", officeUser.FirstName, officeUser.LastName)
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

@@ -774,7 +774,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
@@ -823,7 +823,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(),
