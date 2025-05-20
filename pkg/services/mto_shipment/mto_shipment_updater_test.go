@@ -1204,7 +1204,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
+		defaultRole, err := too.User.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 		newShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
 		suite.Require().NoError(err)
@@ -1419,7 +1421,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
+		defaultRole, err := too.User.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
 		suite.Require().NoError(err)
@@ -1484,7 +1488,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
+		defaultRole, err := too.User.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 		updatedShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &newShipment, eTag, "test")
 		suite.Require().NoError(err)
 		suite.NotEqual(uuid.Nil, updatedShipment.ID)
@@ -1516,7 +1522,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
+		defaultRole, err := too.User.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
 		suite.Require().NoError(err)
@@ -1548,7 +1556,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
+		defaultRole, err := too.User.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 		updatedMTOShipment, err := mtoShipmentUpdaterOffice.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
 		suite.Require().Error(err)
@@ -2375,12 +2385,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// As TOO
 		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		suite.NotEmpty(too.User.Roles)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
 		expectedMileage := 314
 		plannerSITFSC := &mocks.Planner{}
 		// expecting 50314/50314 for IOSFSC mileage lookup for source, destination
@@ -2565,12 +2576,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// As TOO
 		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		suite.NotEmpty(too.User.Roles)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
 		expectedMileage := 314
 		plannerSITFSC := &mocks.Planner{}
 		// expecting 99505/99505, 50314/50314 for IOSFSC mileage lookup for source, destination
@@ -2759,12 +2771,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// As TOO
 		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		suite.NotEmpty(too.User.Roles)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
 		plannerSITFSC := &mocks.Planner{}
 		plannerSITFSC.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -2884,10 +2897,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		// As TOO
 		too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		suite.NotEmpty(too.User.Roles)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
+			ActiveRole:      too.User.Roles[0],
 		}
 
 		var serviceItems []models.MTOServiceItem
@@ -2901,7 +2916,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			suite.Nil(serviceItems[i].PricingEstimate)
 		}
 
-		session.Roles = append(session.Roles, too.User.Roles...)
 		mtoShipmentUpdater := NewOfficeMTOShipmentUpdater(builder, fetcher, &mocks.Planner{}, moveRouter, moveWeights, mockSender, &mockShipmentRecalculator, addressUpdater, addressCreator)
 
 		updateShipment2, err := mtoShipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
@@ -4517,8 +4531,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
-		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(ntsMove.MTOShipments[0].UpdatedAt), "test")
+		defaultRole, err := too.User.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
+		_, err = mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(ntsMove.MTOShipments[0].UpdatedAt), "test")
 		suite.NoError(err)
 		suite.Equal(nil, nil)
 		suite.Equal(nil, nil)
@@ -4562,7 +4578,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 			UserID:          *too.UserID,
 			OfficeUserID:    too.ID,
 		}
-		session.Roles = append(session.Roles, too.User.Roles...)
+		defaultRole, err := too.User.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 		updatedMtoShipment, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), requestedUpdate, etag.GenerateEtag(shipment.UpdatedAt), "test")
 		suite.NoError(err)
 		suite.Equal(*requestedUpdate.TACType, *updatedMtoShipment.TACType)
@@ -5750,12 +5768,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequestedPickupDate() {
 
 			eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 			too := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+			suite.NotEmpty(too.User.Roles)
 			session := auth.Session{
 				ApplicationName: auth.OfficeApp,
 				UserID:          *too.UserID,
 				OfficeUserID:    too.ID,
+				ActiveRole:      too.User.Roles[0],
 			}
-			session.Roles = append(session.Roles, too.User.Roles...)
 			shipment, err := shipmentUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
 
 			testCaseInputString := ""

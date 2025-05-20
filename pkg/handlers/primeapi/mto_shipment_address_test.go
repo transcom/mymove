@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Create handler
 		handler := UpdateMTOShipmentAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			mtoshipment.NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater),
 			vLocationServices,
 		}
@@ -408,7 +408,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		}
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -465,7 +465,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		}
 
 		// setting the HI flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",

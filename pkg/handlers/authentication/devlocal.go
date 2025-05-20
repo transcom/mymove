@@ -1207,6 +1207,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	return &user, userType
 }
 
+// Helper func to set a more preferred role of SC or TOO if it is present.
+// These are the two most used roles on initial login when testing a full
+// move
+func getDevPreferredRole(userRoles roles.Roles) (*roles.Role, error) {
+	for _, r := range userRoles {
+		if r.RoleType == roles.RoleTypeServicesCounselor || r.RoleType == roles.RoleTypeTOO {
+			return &r, nil
+		}
+	}
+	return nil, errors.New("could not find a preferred role for the devlocal user")
+}
+
 // createSession creates a new session for the user
 func createSession(h devlocalAuthHandler, user *models.User, userType string, _ http.ResponseWriter, r *http.Request) (*auth.Session, error) {
 	appCtx := h.AppContextFromRequest(r)
@@ -1223,8 +1235,28 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 		return nil, errors.Wrapf(err, "Unable to fetch user identity from OktaID %s", lgUUID)
 	}
 
-	session.Roles = append(session.Roles, userIdentity.Roles...)
-	session.Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
+	var defaultRole roles.Role
+	devPreferredRolePtr, err := getDevPreferredRole(userIdentity.Roles)
+	if err != nil {
+		// Err just means we couldn't find a dev preferred role and should instead just pull the
+		// alphabetical default
+		defaultRolePtr, err := userIdentity.Roles.Default()
+		if err != nil {
+			appCtx.Logger().Warn("User session creation requesting authentication but could not find default role, proceeding without a role",
+				zap.String("application_name", string(session.ApplicationName)),
+				zap.String("hostname", session.Hostname),
+				zap.String("user_id", session.UserID.String()),
+				zap.String("email", session.Email))
+		} else {
+			defaultRole = *defaultRolePtr
+		}
+	}
+	if devPreferredRolePtr != nil {
+		defaultRole = *devPreferredRolePtr
+	}
+
+	session.ActiveRole = defaultRole
+	session.Permissions = getPermissionsForUser(appCtx)
 
 	// Assign user identity to session
 	session.IDToken = "devlocal"
