@@ -92,6 +92,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderListMovesHandler: move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
 		}),
+		AddressesSearchCountriesHandler: addresses.SearchCountriesHandlerFunc(func(params addresses.SearchCountriesParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.SearchCountries has not yet been implemented")
+		}),
 		MtoShipmentUpdateMTOAgentHandler: mto_shipment.UpdateMTOAgentHandlerFunc(func(params mto_shipment.UpdateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOAgent has not yet been implemented")
 		}),
@@ -192,6 +195,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
 	MoveTaskOrderListMovesHandler move_task_order.ListMovesHandler
+	// AddressesSearchCountriesHandler sets the operation handler for the search countries operation
+	AddressesSearchCountriesHandler addresses.SearchCountriesHandler
 	// MtoShipmentUpdateMTOAgentHandler sets the operation handler for the update m t o agent operation
 	MtoShipmentUpdateMTOAgentHandler mto_shipment.UpdateMTOAgentHandler
 	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
@@ -332,6 +337,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveTaskOrderListMovesHandler == nil {
 		unregistered = append(unregistered, "move_task_order.ListMovesHandler")
+	}
+	if o.AddressesSearchCountriesHandler == nil {
+		unregistered = append(unregistered, "addresses.SearchCountriesHandler")
 	}
 	if o.MtoShipmentUpdateMTOAgentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOAgentHandler")
@@ -505,6 +513,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves"] = move_task_order.NewListMoves(o.context, o.MoveTaskOrderListMovesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/countries"] = addresses.NewSearchCountries(o.context, o.AddressesSearchCountriesHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
