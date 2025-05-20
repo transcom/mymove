@@ -280,11 +280,16 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
+	var originalPickupAddress models.Address
 	isValid := models.CanChangeDeliveryAddress(shipment.ShipmentType)
-	originalPickupAddress := *shipment.PickupAddress
-	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-		originalPickupAddress = shipment.StorageFacility.Address
+
+	if isValid {
+		originalPickupAddress = *shipment.PickupAddress
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
+			originalPickupAddress = shipment.StorageFacility.Address
+		}
 	}
+
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}

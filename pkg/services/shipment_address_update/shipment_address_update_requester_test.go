@@ -364,7 +364,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.NotNil(update)
 	})
 
-	suite.Run("Should not be able to update NTS shipment", func() {
+	suite.Run("Should not be able to update invalid shipments", func() {
 		move := setupTestData()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -372,6 +372,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			State:          "CA",
 			PostalCode:     "90210",
 		}
+
+		// NTS
 		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -381,9 +383,25 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
 		suite.Nil(update)
+
+		// PPM
+		shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		suite.Error(err)
+		suite.Nil(update)
 	})
 
-	suite.Run("Should be able to update NTSr shipment", func() {
+	suite.Run("Should be able to update valid shipments", func() {
 		move := setupTestData()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -392,6 +410,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "90210",
 		}
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
+
+		// NTS-R
 		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    move,
@@ -405,6 +425,72 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
+
+		// Mobile Home
+		shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeMobileHome,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		suite.NoError(err)
+		suite.NotNil(update)
+
+		// BoatHaulAway
+		shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		suite.NoError(err)
+		suite.NotNil(update)
+
+		// UB
+		shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					MarketCode:   models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		suite.NoError(err)
+		suite.NotNil(update)
+
+		// HHG
+		shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		suite.NoError(err)
+		suite.NotNil(update)
+
 	})
 
 	suite.Run("Request destination address changes on the same shipment multiple times", func() {
