@@ -35,7 +35,7 @@ import {
   useCustomerSearchQueries,
   useMoveSearchQueries,
   useServicesCounselingQueuePPMQueries,
-  useServicesCounselingQueueQueries,
+  useCounselingQueueQueries,
   useUserQueries,
 } from 'hooks/queries';
 import {
@@ -873,7 +873,7 @@ const ServicesCounselingQueue = ({
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={serviceCounselingColumns(
+          columns={counselingColumns(
             moveLockFlag,
             originLocationList,
             supervisor,
@@ -883,7 +883,7 @@ const ServicesCounselingQueue = ({
           )}
           title="Moves"
           handleClick={handleClick}
-          useQueries={useServicesCounselingQueueQueries}
+          useQueries={useCounselingQueueQueries}
           showCSVExport
           csvExportFileNamePrefix="Services-Counseling-Queue"
           csvExportQueueFetcher={getCounselingQueue}
