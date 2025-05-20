@@ -27,6 +27,7 @@ func (suite *NotificationSuite) CreatePPMShipmentDateTooOld() models.PPMShipment
 	return ppm
 }
 
+// Func to create safety move orders PPM
 func (suite *NotificationSuite) CreateSafetyMoveOrdersPPM(offset int) models.PPMShipment {
 	expectedDate := offsetDate(offset)
 	ordersType := internalmessages.OrdersTypeSAFETY
