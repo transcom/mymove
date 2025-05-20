@@ -91,6 +91,9 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusi
 	// apply filter to exclude PO Boxes if provided
 	if !includePOBoxes {
 		sqlQuery += ` AND NOT vl.is_po_box`
+	} else if exactMatch {
+		// ensure non PO Box matches, if any, are first
+		sqlQuery += ` ORDER BY vl.is_po_box ASC`
 	}
 
 	sqlQuery += ` limit 30`

@@ -218,7 +218,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
 
 					if err != nil {
-						appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+						appCtx.Logger().Error("primeapiv3.UpdateMTOShipmentHandler error", zap.Error(err))
 						switch e := err.(type) {
 						case apperror.UnprocessableEntityError:
 							payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
@@ -276,7 +276,11 @@ func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContex
 		return serverError
 	} else if len(*locationList) == 0 {
 		unprocessableErr := apperror.NewUnprocessableEntityError(
-			fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: could not find the provided location: %s", addressSearch))
+			fmt.Sprintf("primeapiv3.checkValidAddress: could not find the provided location: %s", addressSearch))
+		return unprocessableErr
+	} else if len(*locationList) > 0 && (*locationList)[0].IsPoBox {
+		unprocessableErr := apperror.NewUnprocessableEntityError(
+			fmt.Sprintf("primeapiv3.checkValidAddress: must be a physical address, cannot accept PO Box address: %s", addressSearch))
 		return unprocessableErr
 	}
 
@@ -412,7 +416,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				err := checkValidAddress(h.VLocation, appCtx, statesToExclude, addressSearch)
 
 				if err != nil {
-					appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+					appCtx.Logger().Error("primeapiv3.UpdateMTOShipmentHandler error", zap.Error(err))
 					switch e := err.(type) {
 					case apperror.UnprocessableEntityError:
 						payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
@@ -427,7 +431,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v3")
 			if err != nil {
-				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+				appCtx.Logger().Error("primeapiv3.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(

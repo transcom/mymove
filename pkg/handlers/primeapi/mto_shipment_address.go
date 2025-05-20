@@ -95,7 +95,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 
 			addressSearch := newAddress.City + ", " + newAddress.State + " " + newAddress.PostalCode
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, false, true)
+			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true, true)
 			if err != nil {
 				serverError := apperror.NewInternalServerError("Error searching for address")
 				errStr := serverError.Error() // we do this because InternalServerError wants a *string
@@ -105,6 +105,12 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 			} else if len(*locationList) == 0 {
 				unprocessableErr := apperror.NewUnprocessableEntityError(
 					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: could not find the provided location: %s", addressSearch))
+				appCtx.Logger().Warn(unprocessableErr.Error())
+				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
+			} else if len(*locationList) > 0 && (*locationList)[0].IsPoBox {
+				unprocessableErr := apperror.NewUnprocessableEntityError(
+					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: must be a physical address, cannot accept PO Box address: %s", addressSearch))
 				appCtx.Logger().Warn(unprocessableErr.Error())
 				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
@@ -145,7 +151,6 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 					return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().
 						WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
-
 			}
 
 			// If no error, create a successful payload to return

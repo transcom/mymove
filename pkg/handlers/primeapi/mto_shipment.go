@@ -80,6 +80,12 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 				appCtx.Logger().Warn(unprocessableErr.Error())
 				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
+			} else if len(*locationList) > 0 && (*locationList)[0].UsPostRegion.IsPoBox {
+				unprocessableErr := apperror.NewUnprocessableEntityError(
+					fmt.Sprintf("primeapi.UpdateShipmentDestinationAddress: must be a physical address, cannot accept PO Box addresses: %s", addressSearch))
+				appCtx.Logger().Warn(unprocessableErr.Error())
+				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+				return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
 			}
 
 			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks, eTag)
