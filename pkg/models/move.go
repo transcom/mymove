@@ -772,11 +772,11 @@ func ClearTOOAssignments(db *pop.Connection, move *Move) (*Move, error) {
 
 	for _, si := range move.MTOServiceItems {
 		code := si.ReService.Code
-		// checking if the shipmeht has origin SIT to be used later
+		// checking if the shipment has origin SIT to be used later
 		if ContainsReServiceCode(ValidOriginSITReServiceCodes, code) {
 			hasOriginSIT = true
 		}
-		// checking if the shipmeht has destination SIT to be used later
+		// checking if the shipment has destination SIT to be used later
 		if ContainsReServiceCode(ValidDestinationSITReServiceCodes, code) {
 			hasDestinationSIT = true
 		}
