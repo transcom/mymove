@@ -28,7 +28,7 @@ and b.shipment_type != 'PPM');
 
 --sit extension
 update mto_shipments
-   set status = 'APPROVALS REQUESTED',
+   set status = 'APPROVALS_REQUESTED',
        updated_at = now()
 where id in (
 select b.id
