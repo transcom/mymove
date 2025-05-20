@@ -734,8 +734,11 @@ func (h GetCounselingQueueHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().IsOfficeUser() ||
-				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+
+			isOfficeUser := appCtx.Session().IsOfficeUser()
+			activeRoleType := appCtx.Session().ActiveRole.RoleType
+
+			if !isOfficeUser || !(activeRoleType == roles.RoleTypeServicesCounselor || activeRoleType == roles.RoleTypeHQ) {
 				forbiddenErr := apperror.NewForbiddenError(
 					"user is not authenticated with Services Counselor or HQ office role",
 				)
@@ -799,7 +802,7 @@ func (h GetCounselingQueueHandler) Handle(
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
-			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
 				CounselingQueueParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
@@ -808,7 +811,6 @@ func (h GetCounselingQueueHandler) Handle(
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
 			officeUser.User.Privileges = privileges
-			officeUser.User.Roles = appCtx.Session().Roles
 
 			var officeUsers models.OfficeUsers
 			var officeUsersSafety models.OfficeUsers
