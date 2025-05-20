@@ -1748,7 +1748,7 @@ func (suite *HandlerSuite) makeCounselingSubtestData() (subtestData *counselingS
 
 	request := httptest.NewRequest("GET", "/queues/counselingQueue", nil)
 	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	subtestData.handler = GetCounselingQueueHandler{
 		handlerConfig,
@@ -1829,7 +1829,7 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
 		suite.Equal(subtestData.officeUser.ID.String(), payload.QueueMoves[0].AvailableOfficeUsers[0].OfficeUserID.String())
 
-		suite.Len(payload.QueueMoves, 3)
+		suite.Len(payload.QueueMoves, 2)
 		suite.Equal(order.ServiceMember.ID.String(), result1.Customer.ID.String())
 		suite.Equal(*order.ServiceMember.Edipi, result1.Customer.Edipi)
 		suite.Equal(subtestData.needsCounselingMove.Locator, result1.Locator)
@@ -1890,7 +1890,7 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 		payloadErr := payload.Validate(strfmt.Default)
 		suite.NoError(payloadErr)
 
-		suite.Len(payload.QueueMoves, 5)
+		suite.Len(payload.QueueMoves, 4)
 
 		for _, move := range payload.QueueMoves {
 			// Test that only moves with postal code in the officer user gbloc are returned
