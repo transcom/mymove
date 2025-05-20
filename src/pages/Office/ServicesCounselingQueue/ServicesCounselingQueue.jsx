@@ -41,7 +41,7 @@ import {
 import {
   getServicesCounselingOriginLocations,
   getServicesCounselingPPMQueue,
-  getServicesCounselingQueue,
+  getCounselingQueue,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -455,7 +455,6 @@ export const closeoutColumns = (
 
 export const serviceCounselingColumns = (
   moveLockFlag,
-  ppmCloseoutGBLOC,
   ppmCloseoutOriginLocationList,
   supervisor,
   queueType,
@@ -529,20 +528,9 @@ export const serviceCounselingColumns = (
         ),
       },
     ),
-    createHeader(
-      'Status',
-      (row) => {
-        return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
-      },
-      {
-        id: 'ppmStatus',
-        isFilterable: true,
-        Filter: (props) => (
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
-        ),
-      },
-    ),
+    createHeader('Status', (row) => {
+      return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
+    }),
     supervisor
       ? createHeader(
           'Origin duty location',
@@ -898,7 +886,7 @@ const ServicesCounselingQueue = ({
           useQueries={useServicesCounselingQueueQueries}
           showCSVExport
           csvExportFileNamePrefix="Services-Counseling-Queue"
-          csvExportQueueFetcher={getServicesCounselingQueue}
+          csvExportQueueFetcher={getCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}

@@ -549,7 +549,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 // GetServicesCounselingQueueHandler returns the moves for the Service Counselor queue user via GET /queues/counselor
 type GetServicesCounselingQueueHandler struct {
 	handlers.HandlerConfig
-	services.CounselingQueueFetcher
+	services.OrderFetcher
 	services.MoveUnlocker
 	services.OfficeUserFetcherPop
 }
@@ -557,6 +557,180 @@ type GetServicesCounselingQueueHandler struct {
 // Handle returns the paginated list of moves for the services counselor
 func (h GetServicesCounselingQueueHandler) Handle(
 	params queues.GetServicesCounselingQueueParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with Services Counselor or HQ office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
+			}
+
+			ListOrderParams := services.ListOrderParams{
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				Edipi:                   params.Edipi,
+				Emplid:                  params.Emplid,
+				CustomerName:            params.CustomerName,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginGBLOC:             params.OriginGBLOC,
+				SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				NeedsPPMCloseout:        params.NeedsPPMCloseout,
+				PPMType:                 params.PpmType,
+				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated),
+				CloseoutLocation:        params.CloseoutLocation,
+				OrderType:               params.OrderType,
+				PPMStatus:               params.PpmStatus,
+				CounselingOffice:        params.CounselingOffice,
+				SCAssignedUser:          params.AssignedTo,
+			}
+
+			var activeRole string
+			if params.ActiveRole != nil {
+				activeRole = *params.ActiveRole
+			}
+
+			var requestedPpmStatus models.PPMShipmentStatus
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
+			} else if len(params.Status) == 0 {
+				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
+			} else {
+				ListOrderParams.Status = params.Status
+			}
+
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+			// for perPage.
+			if params.Page == nil {
+				ListOrderParams.Page = models.Int64Pointer(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
+			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
+
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+
+			if privileges.HasPrivilege(roles.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(roles.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeServicesCounselor,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			moves, count, err := h.OrderFetcher.ListOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				roles.RoleTypeServicesCounselor,
+				&ListOrderParams,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetMovesQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
+				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
+				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
+				}
+			}
+
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+
+			result := &ghcmessages.QueueMovesResult{
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
+			}
+
+			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil
+		})
+}
+
+type GetCounselingQueueHandler struct {
+	handlers.HandlerConfig
+	services.CounselingQueueFetcher
+	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+}
+
+// Handle returns the paginated list of moves for the services counselor
+func (h GetCounselingQueueHandler) Handle(
+	params queues.GetCounselingQueueParams,
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -700,16 +874,16 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+			queueMoves := payloads.CounselingQueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
 
-			result := &ghcmessages.QueueMovesResult{
+			result := &ghcmessages.CounselingQueueMovesResult{
 				Page:       *CounselingQueueParams.Page,
 				PerPage:    *CounselingQueueParams.PerPage,
 				TotalCount: int64(count),
 				QueueMoves: *queueMoves,
 			}
 
-			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil
+			return queues.NewGetCounselingQueueOK().WithPayload(result), nil
 		})
 }
 

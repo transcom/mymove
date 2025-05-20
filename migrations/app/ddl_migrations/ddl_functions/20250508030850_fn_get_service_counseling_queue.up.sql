@@ -54,7 +54,7 @@ BEGIN
     select distinct ON (mto_shipments.id) mto_shipments.*
 	FROM mto_shipments
 	)
-    Select 
+    Select
       m.id AS id,
       m.show AS show,
       m.locator::TEXT AS locator,
@@ -120,6 +120,8 @@ BEGIN
     LEFT JOIN addresses addr
           ON origin_duty_locations.address_id = addr.id
     LEFT JOIN office_users AS sc_user ON m.sc_assigned_id = sc_user.id
+	LEFT JOIN cte_mto_shipments on cte_mto_shipments.move_id = m.id
+    LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = cte_mto_shipments.id
     JOIN move_to_gbloc ON move_to_gbloc.move_id = m.id
     JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = m.id
     Where m.show = TRUE
@@ -154,9 +156,9 @@ BEGIN
 
   IF requested_move_date IS NOT NULL THEN
     sql_query := sql_query || ' AND (
-        mto_shipments.requested_pickup_date::DATE = $7::DATE
+        cte_mto_shipments.requested_pickup_date::DATE = $7::DATE
         OR ppm_shipments.expected_departure_date::DATE = $7::DATE
-        OR (mto_shipments.shipment_type = ''HHG_OUTOF_NTS'' AND mto_shipments.requested_delivery_date::DATE = $7::DATE)
+        OR (cte_mto_shipments.shipment_type = ''HHG_OUTOF_NTS'' AND cte_mto_shipments.requested_delivery_date::DATE = $7::DATE)
     )';
   END IF;
 

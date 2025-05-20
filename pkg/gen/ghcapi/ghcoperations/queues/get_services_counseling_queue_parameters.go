@@ -92,9 +92,11 @@ type GetServicesCounselingQueueParams struct {
 	*/
 	OrderType *string
 	/*filters the name of the origin duty location on the orders
+	  Unique: true
 	  In: query
+	  Collection Format: multi
 	*/
-	OriginDutyLocation *string
+	OriginDutyLocation []string
 	/*filters the GBLOC of the service member's origin duty location
 	  In: query
 	*/
@@ -570,21 +572,38 @@ func (o *GetServicesCounselingQueueParams) bindOrderType(rawData []string, hasKe
 	return nil
 }
 
-// bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
+// bindOriginDutyLocation binds and validates array parameter OriginDutyLocation from query.
+//
+// Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
 func (o *GetServicesCounselingQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
+	// CollectionFormat: multi
+	originDutyLocationIC := rawData
+	if len(originDutyLocationIC) == 0 {
 		return nil
 	}
-	o.OriginDutyLocation = &raw
 
+	var originDutyLocationIR []string
+	for _, originDutyLocationIV := range originDutyLocationIC {
+		originDutyLocationI := originDutyLocationIV
+
+		originDutyLocationIR = append(originDutyLocationIR, originDutyLocationI)
+	}
+
+	o.OriginDutyLocation = originDutyLocationIR
+	if err := o.validateOriginDutyLocation(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateOriginDutyLocation carries on validations for parameter OriginDutyLocation
+func (o *GetServicesCounselingQueueParams) validateOriginDutyLocation(formats strfmt.Registry) error {
+
+	// uniqueItems: true
+	if err := validate.UniqueItems("originDutyLocation", "query", o.OriginDutyLocation); err != nil {
+		return err
+	}
 	return nil
 }
 

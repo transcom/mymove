@@ -2555,6 +2555,138 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 	return &queueMoves
 }
 
+func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.CounselingQueueMoves {
+	queueMoves := make(ghcmessages.CounselingQueueMoves, len(moves))
+	for i, move := range moves {
+		customer := move.Orders.ServiceMember
+
+		var transportationOffice string
+		var transportationOfficeId uuid.UUID
+		if move.CounselingOffice != nil {
+			transportationOffice = move.CounselingOffice.Name
+			transportationOfficeId = move.CounselingOffice.ID
+		}
+		var validMTOShipments []models.MTOShipment
+		var earliestRequestedPickup *time.Time
+		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
+		for _, shipment := range move.MTOShipments {
+			if queueIncludeShipmentStatus(shipment.Status) && shipment.DeletedAt == nil {
+				earliestDateInCurrentShipment := findEarliestDateForRequestedMoveDate(shipment)
+				if earliestRequestedPickup == nil || (earliestDateInCurrentShipment != nil && earliestDateInCurrentShipment.Before(*earliestRequestedPickup)) {
+					earliestRequestedPickup = earliestDateInCurrentShipment
+				}
+
+				validMTOShipments = append(validMTOShipments, shipment)
+			}
+		}
+
+		var deptIndicator ghcmessages.DeptIndicator
+		if move.Orders.DepartmentIndicator != nil {
+			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
+		}
+
+		var originGbloc string
+		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+		} else if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
+			// There is a Pop bug that prevents us from using a has_one association for
+			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
+			// though there can never be more than one GBLOC for a move.
+			originGbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
+		} else {
+			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
+			// we need to fall back to the origin duty location GBLOC.  If that's not available for
+			// some reason, then we should get the empty string (no GBLOC).
+			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+		}
+
+		var closeoutLocation string
+		if move.CloseoutOffice != nil {
+			closeoutLocation = move.CloseoutOffice.Name
+		}
+
+		approvalRequestTypes := attachApprovalRequestTypes(move)
+
+		// queue assignment logic below
+
+		// determine if there is an assigned user
+		var assignedToUser *ghcmessages.AssignedOfficeUser
+		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
+		}
+		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
+		}
+		// these branches have their own closeout specific offices
+		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
+		// requestedPpmStatus also represents if we are viewing the closeout queue
+		isCloseoutQueue := requestedPpmStatus != nil && *requestedPpmStatus == models.PPMShipmentStatusNeedsCloseout
+		// determine if the move is assignable
+		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, officeUser, ppmCloseoutGblocs, activeRole)
+
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
+		// only need to attach available office users if move is assignable
+		var apiAvailableOfficeUsers ghcmessages.AvailableOfficeUsers
+		if assignable {
+			// non SC roles don't need the extra logic, just make availableOfficeUsers = officeUsers
+			availableOfficeUsers := officeUsers
+
+			if isSupervisor && move.Orders.OrdersType == "SAFETY" {
+				availableOfficeUsers = officeUsersSafety
+			}
+
+			// Determine the assigned user and ID based on active role and queue type
+			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
+			// Ensure assignedUser and assignedID are not nil before proceeding
+			if assignedUser != nil && assignedID != nil {
+				userFound := false
+				for _, officeUser := range availableOfficeUsers {
+					if officeUser.ID == *assignedID {
+						userFound = true
+						break
+					}
+				}
+				if !userFound {
+					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
+				}
+			}
+			if activeRole == string(roles.RoleTypeServicesCounselor) {
+				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
+			}
+
+			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
+		}
+
+		queueMoves[i] = &ghcmessages.CounselingQueueMove{
+			Customer:             Customer(&customer),
+			Status:               ghcmessages.MoveStatus(move.Status),
+			ID:                   *handlers.FmtUUID(move.ID),
+			Locator:              move.Locator,
+			SubmittedAt:          handlers.FmtDateTimePtr(move.SubmittedAt),
+			AppearedInTooAt:      handlers.FmtDateTimePtr(findLastSentToTOO(move)),
+			RequestedMoveDate:    handlers.FmtDatePtr(earliestRequestedPickup),
+			DepartmentIndicator:  &deptIndicator,
+			ShipmentsCount:       int64(len(validMTOShipments)),
+			OriginDutyLocation:   DutyLocation(move.Orders.OriginDutyLocation),
+			OriginGBLOC:          ghcmessages.GBLOC(originGbloc),
+			OrderType:            (*string)(move.Orders.OrdersType.Pointer()),
+			LockedByOfficeUserID: handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockedByOfficeUser:   OfficeUser(move.LockedByOfficeUser),
+			LockExpiresAt:        handlers.FmtDateTimePtr(move.LockExpiresAt),
+			CounselingOffice:     &transportationOffice,
+			CounselingOfficeID:   handlers.FmtUUID(transportationOfficeId),
+			AssignedTo:           assignedToUser,
+			Assignable:           assignable,
+			AvailableOfficeUsers: apiAvailableOfficeUsers,
+			ApprovalRequestTypes: approvalRequestTypes,
+		}
+	}
+	return &queueMoves
+}
+
 func findLastSentToTOO(move models.Move) (latestOccurance *time.Time) {
 	possibleValues := [3]*time.Time{move.SubmittedAt, move.ServiceCounselingCompletedAt, move.ApprovalsRequestedAt}
 	for _, time := range possibleValues {

@@ -7,11 +7,12 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/lib/pq"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
-	"go.uber.org/zap"
 )
 
 type counselingQueueFetcher struct {
