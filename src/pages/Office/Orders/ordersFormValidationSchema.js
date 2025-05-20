@@ -16,8 +16,8 @@ const ordersFormValidationSchema = Yup.object({
   ordersType: Yup.string().required('Required'),
   ordersTypeDetail: Yup.string().required('Required'),
   tac: Yup.string()
-    .min(4, 'Enter a 4-character TAC')
     .matches(noStarOrQuote, 'TAC cannot contain * or " characters')
+    .min(4, 'Enter a 4-character TAC')
     .required('Required'),
   sac: Yup.string().matches(noStarOrQuote, 'SAC cannot contain * or " characters'),
   ntsTac: Yup.string().matches(noStarOrQuote, 'NTS TAC cannot contain * or " characters'),
