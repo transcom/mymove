@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	setupHandler := func(updater services.OfficeUserUpdater) UpdateOfficeUserHandler {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		return UpdateOfficeUserHandler{
 			handlerConfig,
 			updater,

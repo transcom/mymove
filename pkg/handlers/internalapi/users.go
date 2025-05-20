@@ -37,7 +37,7 @@ func decoratePayloadWithCurrentAndInactiveRoles(s *auth.Session, p *internalmess
 	}
 	for _, role := range allUserRoles {
 		// Make sure we don't accidentally mark the current role as inactive
-		if role != s.ActiveRole {
+		if role.RoleType != s.ActiveRole.RoleType {
 			p.InactiveRoles = append(p.InactiveRoles, &internalmessages.Role{
 				ID:        handlers.FmtUUID(role.ID),
 				RoleType:  handlers.FmtString(string(role.RoleType)),
@@ -88,7 +88,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				}
 
 				// Set a current office user role if it isn't set yet
-				if (appCtx.Session().ActiveRole == roles.Role{}) {
+				if (appCtx.Session().ActiveRole.RoleType == roles.Role{}.RoleType) {
 					defaultRole, err := officeUser.User.Roles.Default()
 					if err != nil {
 						appCtx.Logger().Warn("could not find any roles for the logged in user, proceeding without a role",
@@ -155,7 +155,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			}
 
 			// Set a current service member user role if it isn't set yet
-			if (appCtx.Session().ActiveRole == roles.Role{}) {
+			if (appCtx.Session().ActiveRole.RoleType == roles.Role{}.RoleType) {
 				defaultRole, err := serviceMember.User.Roles.Default()
 				if err != nil {
 					appCtx.Logger().Warn("could not find any roles for the logged in user, proceeding without a role",
