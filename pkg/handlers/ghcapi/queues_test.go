@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/entitlements"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	move "github.com/transcom/mymove/pkg/services/move"
 	movefetcher "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	officeusercreator "github.com/transcom/mymove/pkg/services/office_user"
@@ -1330,6 +1331,18 @@ type servicesCounselingSubtestData struct {
 	request                         *http.Request
 }
 
+type counselingSubtestData struct {
+	needsCounselingMove             models.Move
+	counselingCompletedMove         models.Move
+	marineCorpsMove                 models.Move
+	ppmNeedsCloseoutMove            models.Move
+	officeUser                      models.OfficeUser
+	needsCounselingEarliestShipment models.MTOShipment
+	counselingCompletedShipment     models.MTOShipment
+	handler                         GetCounselingQueueHandler
+	request                         *http.Request
+}
+
 func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *servicesCounselingSubtestData) {
 	subtestData = &servicesCounselingSubtestData{}
 	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
@@ -1540,8 +1553,215 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	return subtestData
 }
 
+func (suite *HandlerSuite) makeCounselingSubtestData() (subtestData *counselingSubtestData) {
+	subtestData = &counselingSubtestData{}
+	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
+	// Default Origin Duty Location GBLOC is KKFA
+	subtestData.needsCounselingMove = factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SubmittedAt: &submittedAt,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.needsCounselingMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	subtestData.ppmNeedsCloseoutMove = factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SubmittedAt:      &submittedAt,
+				Status:           models.MoveStatusServiceCounselingCompleted,
+				CloseoutOfficeID: &transportationOffice.ID,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsCloseout,
+			},
+		},
+	}, nil)
+
+	earlierRequestedPickup := requestedPickupDate.Add(-7 * 24 * time.Hour)
+	subtestData.needsCounselingEarliestShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.needsCounselingMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &earlierRequestedPickup,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	earlierSubmittedAt := submittedAt.Add(-1 * 24 * time.Hour)
+	subtestData.counselingCompletedMove = factory.BuildServiceCounselingCompletedMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SubmittedAt: &earlierSubmittedAt,
+			},
+		},
+	}, nil)
+
+	subtestData.counselingCompletedShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.counselingCompletedMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// Create a move with an origin duty location outside of office user GBLOC
+	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Fort Eisenhower",
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "77777",
+			},
+		},
+	}, nil)
+
+	// Create a custom postal code to GBLOC
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocationAddress.PostalCode, "UUUU")
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Sam Houston",
+			},
+		},
+		{
+			Model:    dutyLocationAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create a move with an origin duty location outside of office user GBLOC
+	excludedGBLOCMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    excludedGBLOCMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+		},
+	}, nil)
+
+	excludedStatusMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    excludedStatusMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+			Type: &factory.Addresses.PickupAddress,
+		},
+	}, nil)
+
+	marineCorpsAffiliation := models.AffiliationMARINES
+
+	subtestData.marineCorpsMove = factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marineCorpsAffiliation,
+			},
+		},
+		{
+			Model: models.Move{
+				SubmittedAt: &submittedAt,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    subtestData.marineCorpsMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+				Status:              models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	request := httptest.NewRequest("GET", "/queues/counselingQueue", nil)
+	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
+	handlerConfig := suite.HandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
+	subtestData.handler = GetCounselingQueueHandler{
+		handlerConfig,
+		move.NewCounselingQueueFetcher(),
+		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+
+	return subtestData
+}
+
 func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
-	suite.Run("returns moves in the needs counseling status by default", func() {
+	suite.Run("GetServicesCounselingQueueHandler - returns moves in the needs counseling status by default", func() {
 		subtestData := suite.makeServicesCounselingSubtestData()
 
 		params := queues.GetServicesCounselingQueueParams{
@@ -1580,8 +1800,50 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.EqualValues(subtestData.needsCounselingMove.Status, result2.Status)
 		suite.Equal("MARINES", result2.Customer.Agency)
 	})
+}
 
-	suite.Run("returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
+func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
+	suite.Run("GetCounselingQueueHandler - returns moves in the needs counseling status by default", func() {
+		subtestData := suite.makeCounselingSubtestData()
+
+		params := queues.GetCounselingQueueParams{
+			HTTPRequest: subtestData.request,
+			Sort:        models.StringPointer("branch"),
+			Order:       models.StringPointer("asc"),
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetCounselingQueueOK{}, response)
+		payload := response.(*queues.GetCounselingQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		order := subtestData.needsCounselingMove.Orders
+		result1 := payload.QueueMoves[0]
+		result2 := payload.QueueMoves[1]
+		result3 := payload.QueueMoves[2]
+
+		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
+		suite.Equal(subtestData.officeUser.ID.String(), payload.QueueMoves[0].AvailableOfficeUsers[0].OfficeUserID.String())
+
+		suite.Len(payload.QueueMoves, 3)
+		suite.Equal(order.ServiceMember.ID.String(), result1.Customer.ID.String())
+		suite.Equal(*order.ServiceMember.Edipi, result1.Customer.Edipi)
+		suite.Equal(subtestData.needsCounselingMove.Locator, result1.Locator)
+		suite.EqualValues(subtestData.needsCounselingMove.Status, result1.Status)
+		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result1.RequestedMoveDate).Format(time.RFC3339Nano))
+		suite.Equal(subtestData.needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result1.SubmittedAt).Format(time.RFC3339Nano))
+		suite.Equal(order.ServiceMember.Affiliation.String(), result1.Customer.Agency)
+
+		suite.EqualValues(subtestData.needsCounselingMove.Status, result2.Status)
+		suite.Equal("MARINES", result3.Customer.Agency)
+	})
+
+	suite.Run("GetServicesCounselingQueueHandler - returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
 		subtestData := suite.makeServicesCounselingSubtestData()
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: subtestData.request,
@@ -1597,6 +1859,37 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload.QueueMoves, 5)
+
+		for _, move := range payload.QueueMoves {
+			// Test that only moves with postal code in the officer user gbloc are returned
+			suite.Equal("50309", *move.OriginDutyLocation.Address.PostalCode)
+
+			// Fail if a move has a status other than the two target ones
+			if models.MoveStatus(move.Status) != models.MoveStatusNeedsServiceCounseling && models.MoveStatus(move.Status) != models.MoveStatusServiceCounselingCompleted {
+				suite.Fail("Test does not return moves with the correct statuses.")
+			}
+		}
+	})
+
+	suite.Run("GetCounselingQueueHandler - returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
+		subtestData := suite.makeCounselingSubtestData()
+		params := queues.GetCounselingQueueParams{
+			HTTPRequest: subtestData.request,
+			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
+		}
+
+		// Validate incoming payload: no body to validate
+
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetCounselingQueueOK{}, response)
+		payload := response.(*queues.GetCounselingQueueOK).Payload
+
+		// Validate outgoing payload
+		payloadErr := payload.Validate(strfmt.Default)
+		suite.NoError(payloadErr)
 
 		suite.Len(payload.QueueMoves, 5)
 
@@ -2350,7 +2643,6 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 	suite.Run("properly fetches a SC supervisor's available office users for assignment", func() {
 		subtestData := setupOfficeUserData(roles.RoleTypeServicesCounselor, roles.RoleTypeTOO)
 		waf := entitlements.NewWeightAllotmentFetcher()
-
 		needsCounselingMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
 			{
 				Model:    subtestData.office,
