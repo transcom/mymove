@@ -25,4 +25,10 @@ export function formatDate(date) {
   return `${day} ${month} ${year}`;
 }
 
+export function getFutureDate() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return formatDate(tomorrow);
+}
+
 export default findOptionWithinOpenedDropdown;

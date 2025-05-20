@@ -1,4 +1,6 @@
 // @ts-check
+import { getFutureDate } from '../../utils/playwrightUtility';
+
 import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
@@ -6,7 +8,7 @@ test.describe('Services counselor user', () => {
     const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
     await scPage.navigateToMove(move.locator);
 
-    const deliveryDate = new Date().toLocaleDateString('en-US');
+    const deliveryDate = getFutureDate();
     await page.getByTestId('dropdown').selectOption({ label: 'Boat' });
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add shipment details');
