@@ -282,6 +282,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	isValid := models.CanChangeDeliveryAddress(shipment.ShipmentType)
 	originalPickupAddress := *shipment.PickupAddress
+	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
+		originalPickupAddress = shipment.StorageFacility.Address
+	}
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
@@ -387,9 +390,6 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-		originalPickupAddress = shipment.StorageFacility.Address
-	}
 	// international shipments don't need to be concerned with shorthaul/linehaul
 	if !updateNeedsTOOReview && !isInternationalShipment {
 		if isValid {
