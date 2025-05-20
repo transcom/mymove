@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	)
 	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 	mockCreator := mocks.ShipmentCreator{}
 
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	setupTestData := func(ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		if ubFeatureFlag {
 			expectedFeatureFlag := services.FeatureFlag{
 				Key:   "unaccompanied_baggage",
@@ -337,7 +337,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
