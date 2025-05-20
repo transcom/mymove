@@ -78,7 +78,7 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusi
 		vl.city_name like upper(?) AND vl.state like upper(?)`
 
 	if exactMatch {
-		sqlQuery = `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
+		sqlQuery = `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id, vl.is_po_box
 		FROM v_locations vl WHERE vl.uspr_zip_id = ? AND
 		vl.city_name = upper(?) AND vl.state = upper(?)`
 	}
