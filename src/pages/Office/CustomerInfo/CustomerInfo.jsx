@@ -59,14 +59,15 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       customerAddress,
       suffix,
       middleName,
-      name,
-      email,
-      telephone,
       backupAddress,
       phoneIsPreferred,
       emailIsPreferred,
       secondaryPhone,
     } = values;
+
+    const backupFirstName = values[backupContactName.toString()]?.firstName || '';
+    const backupLastName = values[backupContactName.toString()]?.lastName || '';
+    const backupFullName = `${backupFirstName} ${backupLastName}`;
 
     const body = {
       first_name: firstName,
@@ -77,9 +78,9 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       suffix,
       middle_name: middleName,
       backup_contact: {
-        name,
-        email,
-        phone: telephone,
+        name: backupFullName,
+        email: values[backupContactName.toString()]?.email || '',
+        phone: values[backupContactName.toString()]?.telephone || '',
       },
       backupAddress,
       phoneIsPreferred,
