@@ -398,9 +398,9 @@ func checkValidAddress(vLocation services.VLocation, appCtx appcontext.AppContex
 		unprocessableErr := apperror.NewUnprocessableEntityError(
 			fmt.Sprintf("primeapiv2.checkValidAddress: could not find the provided location: %s", addressSearch))
 		return unprocessableErr
-	} else if len(*locationList) > 0 && (*locationList)[0].UsPostRegion.IsPoBox {
+	} else if len(*locationList) > 0 && (*locationList)[0].IsPoBox {
 		unprocessableErr := apperror.NewUnprocessableEntityError(
-			fmt.Sprintf("primeapiv2.checkValidAddress: must be a physical address, cannot accept PO Box addresses: %s", addressSearch))
+			fmt.Sprintf("primeapiv2.checkValidAddress: must be a physical address, cannot accept PO Box address: %s", addressSearch))
 		return unprocessableErr
 	}
 
