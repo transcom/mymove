@@ -20,3 +20,5 @@
 20250402213810_B-22761_add_cron_schedule.up.sql
 20250418132629_B-22761_add_flagSentToGexStaleInterval_to_application_parameters.up.sql
 20250422164417_B-23147_add_ranks.up.sql
+20250520150656_B-23635_update_ranks.up.sql
+20250520150705_B-23635_update_pay_grades.up.sql
