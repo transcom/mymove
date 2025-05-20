@@ -16,7 +16,7 @@ import {
   useMoveDetailsQueries,
   useEditShipmentQueries,
   useEvaluationReportQueries,
-  useServicesCounselingQueuePPMQueries,
+  usePPMQueueQueries,
   useReviewShipmentWeightsQuery,
   useBulkAssignmentQueries,
   usePPMShipmentAndDocsOnlyQueries,
@@ -978,7 +978,7 @@ describe('useEvaluationReportQueries', () => {
 
 describe('useServicesCounselingQueuePPMQueries', () => {
   it('loads data', async () => {
-    const result = renderHook(() => useServicesCounselingQueuePPMQueries('1234'), { wrapper });
+    const result = renderHook(() => usePPMQueueQueries('1234'), { wrapper });
 
     waitFor(() => {
       expect(result.current).toEqual({
