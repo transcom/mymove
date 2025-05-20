@@ -36,7 +36,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
 
-	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	suite.Run("qualifies move for excess weight when an approved shipment estimated weight is updated within threshold", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
@@ -507,7 +507,7 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 func (suite *MoveServiceSuite) TestAutoReweigh() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	mockSender := setUpMockNotificationSender()
-	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	suite.Run("requests reweigh on shipment if the actual weight is 90% of the weight allowance", func() {
 		// The default weight allotment for this move is 8000 and the threshold is 90% of that
@@ -548,8 +548,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("does not request reweigh on shipments when below 90% of weight allowance threshold", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
-		mockSender := setUpMockNotificationSender()
-		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf, mockSender)
+		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
 
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
@@ -643,7 +642,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 	suite.Run("does not request reweigh when shipments aren't in approved statuses", func() {
 		mockedReweighRequestor := mocks.ShipmentReweighRequester{}
-		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf, mockSender)
+		mockedWeightService := NewMoveWeights(&mockedReweighRequestor, waf)
 
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
