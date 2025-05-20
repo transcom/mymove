@@ -245,7 +245,7 @@ const Review = () => {
                   }
                   contents={weightTicketContents}
                   renderAddButton={() => (
-                    <LinkButton className={outlineButtonStyle} to={weightTicketCreatePath}>
+                    <LinkButton className={primaryButtonStyle} to={weightTicketCreatePath}>
                       Add More Weight
                     </LinkButton>
                   )}
@@ -263,7 +263,7 @@ const Review = () => {
                   }
                   contents={proGearContents}
                   renderAddButton={() => (
-                    <LinkButton className={outlineButtonStyle} to={proGearCreatePath}>
+                    <LinkButton className={primaryButtonStyle} to={proGearCreatePath}>
                       Add Pro-gear Weight
                     </LinkButton>
                   )}
@@ -280,7 +280,7 @@ const Review = () => {
                 }
                 contents={expenseContents}
                 renderAddButton={() => (
-                  <LinkButton className={outlineButtonStyle} to={expensesCreatePath}>
+                  <LinkButton className={primaryButtonStyle} to={expensesCreatePath}>
                     Add Expenses
                   </LinkButton>
                 )}
@@ -296,7 +296,7 @@ const Review = () => {
                 Return To Homepage
               </LinkButton>
               <LinkButton
-                className={primaryButtonStyle}
+                className={classnames(primaryButtonStyle)}
                 aria-disabled={!canAdvance || ppmSmalLPackageCanAdvance}
                 disabled={!canAdvance || ppmSmalLPackageCanAdvance}
                 to={completePath}

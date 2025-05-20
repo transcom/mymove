@@ -73,7 +73,7 @@ $button-suffixes: --primary, --outline, --destructive, --destructive-outline;
 }
 
 @mixin mix-mm-button-colors{
-    --main-color: #{colors.$color-blue};
+    --main-color: #0050d8;
     --alt-color: #{colors.$bg-white};
     --interactive-color: #{colors.$primary-dark};
     --active-color: #{colors.$primary-darker};

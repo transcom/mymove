@@ -9,7 +9,7 @@ import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import styles from './Profile.module.scss';
 
-import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
+import { ButtonUsa as Button, primaryButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
@@ -84,14 +84,14 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
         <div className="grid-col-12">
           {needsToVerifyProfile ? (
             <LinkButton
-              className={classnames(styles.returnToPreviousViewButton, outlineButtonStyle)}
+              className={classnames(styles.returnToPreviousViewButton, primaryButtonStyle)}
               to={generalRoutes.HOME_PATH}
             >
               Return to Dashboard
             </LinkButton>
           ) : (
             <LinkButton
-              className={classnames(styles.returnToPreviousViewButton, outlineButtonStyle)}
+              className={classnames(styles.returnToPreviousViewButton, primaryButtonStyle)}
               to={returnToMovePath}
             >
               Return to Move

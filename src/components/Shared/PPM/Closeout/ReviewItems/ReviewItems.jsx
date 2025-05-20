@@ -21,13 +21,12 @@ const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessa
       <div className={styles.headingContainer}>
         <div className={styles.headingContent}>{heading}</div>
       </div>
-
+      {renderAddButton && renderAddButton()}
       {(!contents || contents.length === 0) && (
         <div className={classnames({ [styles.emptyWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}>
           <span className={styles.emptyMessage}>{emptyMessage}</span>
         </div>
       )}
-      {renderAddButton && renderAddButton()}
       {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }, idx) => {
         return (
           <div className={reviewContentContainerStyle}>

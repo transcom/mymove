@@ -27,7 +27,7 @@ import { primaryButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 
 const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
     <span>Dragfiles here or </span>
-    <button class='${filepondButtonStyle}'>choose from folder</button>
+    <button class='${filepondButtonStyle}'>Choose from folder</button>
   </div>`;
 
 const mobileFileUploadActionElement = `<div>

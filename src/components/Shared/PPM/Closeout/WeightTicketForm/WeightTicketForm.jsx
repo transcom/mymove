@@ -31,7 +31,7 @@ import { APP_NAME } from 'constants/apps';
 
 const UploadDropZoneLabel = `<div class='${filepondWrapperStyle}'>
     <span>Dragfiles here or </span>
-    <button class='${filepondButtonStyle}'>choose efrom folder</button>
+    <button class='${filepondButtonStyle}'>Choose from folder</button>
   </div>`;
 
 const UploadDropZoneLabelMobile = `<div>

@@ -2,6 +2,10 @@
 @use 'shared/standardUI/Buttons/mm_buttons' as *;
 @use 'shared/standardUI/Layouts/breaks' as *;
 
+.emptyWrapper > *{
+    grid-column: 1 / span 2;
+}
+
 .review-wrapper{
     display: contents;
 

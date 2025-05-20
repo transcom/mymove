@@ -93,7 +93,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
 
   const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
       <span>Drag ${additionalText}files here or </span>
-      <button class='${filepondButtonStyle}'>choose from folder</button>
+      <button class='${filepondButtonStyle}'>Choose from folder</button>
     </div>`;
 
   const mobileFileUploadActionElement = `<div>
