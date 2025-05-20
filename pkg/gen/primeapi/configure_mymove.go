@@ -116,6 +116,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		})
 	}
+	if api.AddressesGetOconusLocationHandler == nil {
+		api.AddressesGetOconusLocationHandler = addresses.GetOconusLocationHandlerFunc(func(params addresses.GetOconusLocationParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetOconusLocation has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderListMovesHandler == nil {
 		api.MoveTaskOrderListMovesHandler = move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")

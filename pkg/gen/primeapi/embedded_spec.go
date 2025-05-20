@@ -36,6 +36,44 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
+    "/addresses/oconus-lookup/{search}": {
+      "get": {
+        "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division.",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string",
+        "operationId": "getOconusLocation",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested list of Oconus city and principal division match",
+            "schema": {
+              "$ref": "#/definitions/VIntlLocations"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -5088,6 +5126,33 @@ func init() {
         }
       }
     },
+    "VIntlLocation": {
+      "description": "An Oconus city and principal division lookup",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "London"
+        },
+        "intlCityCountriesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "principalDivision": {
+          "type": "string",
+          "title": "Principal Division",
+          "example": "Cardiff"
+        }
+      }
+    },
+    "VIntlLocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VIntlLocation"
+      }
+    },
     "VLocation": {
       "description": "A postal code, city, and state lookup",
       "type": "object",
@@ -5367,6 +5432,56 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
+    "/addresses/oconus-lookup/{search}": {
+      "get": {
+        "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division.",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string",
+        "operationId": "getOconusLocation",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested list of Oconus city and principal division match",
+            "schema": {
+              "$ref": "#/definitions/VIntlLocations"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/addresses/zip-city-lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
@@ -10812,6 +10927,33 @@ func init() {
           "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
+      }
+    },
+    "VIntlLocation": {
+      "description": "An Oconus city and principal division lookup",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "London"
+        },
+        "intlCityCountriesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "principalDivision": {
+          "type": "string",
+          "title": "Principal Division",
+          "example": "Cardiff"
+        }
+      }
+    },
+    "VIntlLocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VIntlLocation"
       }
     },
     "VLocation": {
