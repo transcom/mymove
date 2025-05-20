@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { Textarea, Label } from '@trussworks/react-uswds';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
