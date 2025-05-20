@@ -20,7 +20,7 @@ const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) =
         </p>
         <ModalActions>
           <Button
-            className="usa-button--tertiary"
+            className="usa-button--secondary"
             type="button"
             onClick={() => onClose()}
             data-testid="modalBackButton"
