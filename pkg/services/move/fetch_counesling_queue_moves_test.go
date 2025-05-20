@@ -16,7 +16,7 @@ import (
 func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 	counselingQueueFetcher := NewCounselingQueueFetcher()
 
-	suite.Run("returns all moves sorted based on its default submitted_at", func() {
+	suite.Run("test filtering by all params", func() {
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
