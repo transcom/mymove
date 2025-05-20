@@ -740,3 +740,29 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 	}
 	return payload
 }
+
+// VIntlLocation payload
+func VIntlLocation(vIntlLocation *models.VIntlLocation) *internalmessages.VIntlLocation {
+	if vIntlLocation == nil {
+		return nil
+	}
+	if *vIntlLocation == (models.VIntlLocation{}) {
+		return nil
+	}
+
+	return &internalmessages.VIntlLocation{
+		City:                *vIntlLocation.CityName,
+		PrincipalDivision:   *vIntlLocation.CountryPrnDivName,
+		IntlCityCountriesID: *handlers.FmtUUID(*vIntlLocation.IntlCityCountriesID),
+	}
+}
+
+// VIntlLocations payload
+func VIntlLocations(vLIntlocations models.VIntlLocations) internalmessages.VIntlLocations {
+	payload := make(internalmessages.VIntlLocations, len(vLIntlocations))
+	for i, vIntlLocation := range vLIntlocations {
+		copyOfVIntlLocation := vIntlLocation
+		payload[i] = VIntlLocation(&copyOfVIntlLocation)
+	}
+	return payload
+}
