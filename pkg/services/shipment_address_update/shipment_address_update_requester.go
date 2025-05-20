@@ -280,11 +280,13 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
+	isValid := models.CanChangeDeliveryAddress(shipment.ShipmentType)
+	originalPickupAddress := *shipment.PickupAddress
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
-	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
-		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTS-Release shipments")
+	if !isValid {
+		return nil, apperror.NewUnprocessableEntityError("\ndestination address cannot be created or updated for PPM and NTS shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
@@ -385,36 +387,29 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
+	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
+		originalPickupAddress = shipment.StorageFacility.Address
+	}
 	// international shipments don't need to be concerned with shorthaul/linehaul
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if isValid {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address cannot be updated for PPM and NTS shipments")
 		}
 	}
 
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if isValid {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address update requests cannot be updated for PPM and NTS shipments")
 		}
 	}
 

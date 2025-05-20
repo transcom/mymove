@@ -102,6 +102,9 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
 				// Unknown -> Internal Server Error
+				case apperror.UnprocessableEntityError:
+					test := err.Error()
+					return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError().WithPayload(payloads.InternalServerError(&test, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				default:
 					return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
