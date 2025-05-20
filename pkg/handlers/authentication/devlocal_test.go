@@ -30,7 +30,7 @@ func getCookie(name string, cookies []*http.Cookie) (*http.Cookie, error) {
 func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 	t := suite.T()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -66,7 +66,7 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 
 func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -143,6 +143,13 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 
 		suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
+		// If devlocal logging in as a multiRole, we should
+		// have a default dev role of SC
+		if newOfficeUser.email == "multi_role@example.com" {
+			// This is because of the getDevPreferredRole helper func
+			suite.Equal(roles.RoleTypeServicesCounselor, session.ActiveRole.RoleType)
+		}
+
 		cookies := rr.Result().Cookies()
 		_, err := getCookie("office_session_token", cookies)
 		suite.FatalNoError(err, "could not find session token in response")
@@ -175,7 +182,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	t := suite.T()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -227,7 +234,7 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	t := suite.T()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -271,7 +278,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -305,7 +312,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 	t := suite.T()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -339,7 +346,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 	t := suite.T()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -378,7 +385,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 	form := url.Values{}
 	form.Add("userType", "admin")
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.OfficeServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
@@ -405,7 +412,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 }
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
@@ -436,7 +443,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	t := suite.T()
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
