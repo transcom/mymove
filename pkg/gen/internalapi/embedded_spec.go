@@ -2007,7 +2007,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/OrderPayGrade"
+                "$ref": "#/definitions/OrderPayGrades"
               }
             }
           },
@@ -6210,6 +6210,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",
@@ -11175,7 +11186,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/OrderPayGrade"
+                "$ref": "#/definitions/OrderPayGrades"
               }
             }
           },
@@ -15738,6 +15749,17 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "OrderPayGrades": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "grade": {
+          "type": "string"
+        }
+      }
     },
     "Orders": {
       "type": "object",

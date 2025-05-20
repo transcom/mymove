@@ -4511,6 +4511,13 @@ definitions:
       - city
       - state
       - postalCode
+  OrderPayGrades:
+    type: object
+    properties:
+      grade:
+        type: string
+      description:
+        type: string
 paths:
   /open/register:
     post:
@@ -6954,7 +6961,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/OrderPayGrade'
+              $ref: '#/definitions/OrderPayGrades'
         '400':
           description: invalid request
         '401':

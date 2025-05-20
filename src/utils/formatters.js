@@ -308,7 +308,9 @@ export const dropdownInputOptions = (options) => {
 };
 
 export const formatPayGradeOptions = (payGrades) => {
-  return payGrades.map((payGrade) => ({ key: payGrade, value: payGrade }));
+  return payGrades.map((grade) => {
+    return { key: grade.grade, value: grade.description };
+  });
 };
 
 // Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days

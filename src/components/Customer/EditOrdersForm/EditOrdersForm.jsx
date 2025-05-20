@@ -162,8 +162,8 @@ const EditOrdersForm = ({
 
   const [payGradeOptions, setPayGradeOptions] = useState([]);
   useEffect(() => {
-    const fetchRankGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
       try {
         const fetchedRanks = await getPayGradeOptions(affiliation);
         if (fetchedRanks) {
@@ -177,7 +177,7 @@ const EditOrdersForm = ({
       setShowLoadingSpinner(false, null);
     };
 
-    fetchRankGradeOptions();
+    fetchGradeOptions();
   }, [affiliation, setShowLoadingSpinner]);
 
   useEffect(() => {

@@ -80,8 +80,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
 
   const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
   useEffect(() => {
-    const fetchRankGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
       try {
         const fetchedRanks = await getPayGradeOptions(orders.agency);
         if (fetchedRanks) {
@@ -95,7 +95,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
       setShowLoadingSpinner(false, null);
     };
 
-    fetchRankGradeOptions();
+    fetchGradeOptions();
   }, [orders.agency, setShowLoadingSpinner]);
 
   const buildFullLineOfAccountingString = (loa) => {

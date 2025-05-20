@@ -26,7 +26,7 @@ type GetPayGradesOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []*ghcmessages.OrderPayGrade `json:"body,omitempty"`
+	Payload []*ghcmessages.OrderPayGrades `json:"body,omitempty"`
 }
 
 // NewGetPayGradesOK creates GetPayGradesOK with default headers values
@@ -36,13 +36,13 @@ func NewGetPayGradesOK() *GetPayGradesOK {
 }
 
 // WithPayload adds the payload to the get pay grades o k response
-func (o *GetPayGradesOK) WithPayload(payload []*ghcmessages.OrderPayGrade) *GetPayGradesOK {
+func (o *GetPayGradesOK) WithPayload(payload []*ghcmessages.OrderPayGrades) *GetPayGradesOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get pay grades o k response
-func (o *GetPayGradesOK) SetPayload(payload []*ghcmessages.OrderPayGrade) {
+func (o *GetPayGradesOK) SetPayload(payload []*ghcmessages.OrderPayGrades) {
 	o.Payload = payload
 }
 
@@ -53,7 +53,7 @@ func (o *GetPayGradesOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = make([]*ghcmessages.OrderPayGrade, 0, 50)
+		payload = make([]*ghcmessages.OrderPayGrades, 0, 50)
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

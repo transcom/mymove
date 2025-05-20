@@ -742,11 +742,14 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 }
 
 // PayGrades payload
-func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrade {
-	var payloadPayGrades []*internalmessages.OrderPayGrade
+func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
+	var payloadPayGrades []*internalmessages.OrderPayGrades
 
 	for _, payGrade := range payGrades {
-		tempPayGrade := internalmessages.OrderPayGrade(payGrade.Grade)
+		tempPayGrade := internalmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
 		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
 	}
 

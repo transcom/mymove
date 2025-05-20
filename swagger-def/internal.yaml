@@ -4799,7 +4799,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: 'definitions/OrderPayGrade.yaml'
+              $ref: 'definitions/OrderPayGrades.yaml'
         '400':
           description: invalid request
         '401':

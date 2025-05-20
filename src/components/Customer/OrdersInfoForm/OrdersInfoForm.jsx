@@ -62,7 +62,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
-    grade: Yup.string().required('Required'),
+    // grade: Yup.string().required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
@@ -122,8 +122,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
 
   const [payGradeOptions, setPayGradeOptions] = useState([]);
   useEffect(() => {
-    const fetchRankGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Rank/Grade options');
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
       try {
         const fetchedRanks = await getPayGradeOptions(affiliation);
         if (fetchedRanks) {
@@ -137,7 +137,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       setShowLoadingSpinner(false, null);
     };
 
-    fetchRankGradeOptions();
+    fetchGradeOptions();
   }, [affiliation, setShowLoadingSpinner]);
 
   useEffect(() => {
