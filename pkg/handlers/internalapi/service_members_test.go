@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 	}
 	// And: show ServiceMember is queried
-	showHandler := ShowServiceMemberHandler{suite.HandlerConfig()}
+	showHandler := ShowServiceMemberHandler{suite.NewHandlerConfig()}
 	response := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 		ServiceMemberID: strfmt.UUID(notLoggedInUser.ID.String()),
 	}
 	// And: Show servicemember is queried
-	showHandler := ShowServiceMemberHandler{suite.HandlerConfig()}
+	showHandler := ShowServiceMemberHandler{suite.NewHandlerConfig()}
 	response := showHandler.Handle(showServiceMemberParams)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
-	handler := CreateServiceMemberHandler{suite.HandlerConfig()}
+	handler := CreateServiceMemberHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
@@ -155,7 +155,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		HTTPRequest:                req,
 	}
 
-	handler := CreateServiceMemberHandler{suite.HandlerConfig()}
+	handler := CreateServiceMemberHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
@@ -267,7 +267,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := PatchServiceMemberHandler{handlerConfig}
 	response := handler.Handle(params)
@@ -433,7 +433,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := PatchServiceMemberHandler{handlerConfig}
@@ -501,7 +501,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{suite.HandlerConfig()}
+	handler := PatchServiceMemberHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -531,7 +531,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{suite.HandlerConfig()}
+	handler := PatchServiceMemberHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
@@ -562,7 +562,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{suite.HandlerConfig()}
+	handler := PatchServiceMemberHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
@@ -586,7 +586,7 @@ func (suite *HandlerSuite) TestShowServiceMemberOrders() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handler := ShowServiceMemberOrdersHandler{handlerConfig}
 
