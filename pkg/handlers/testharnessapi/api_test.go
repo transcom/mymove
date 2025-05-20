@@ -34,7 +34,7 @@ func (suite *TestHarnessAPISuite) TestNewDefaultBuilderNoAcceptHeader() {
 	chiRouteCtx.URLParams.Add("action", "DefaultMove")
 	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiRouteCtx))
 	rr := httptest.NewRecorder()
-	handler := NewDefaultBuilder(suite.HandlerConfig())
+	handler := NewDefaultBuilder(suite.NewHandlerConfig())
 	handler.ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code)
@@ -49,7 +49,7 @@ func (suite *TestHarnessAPISuite) TestNewDefaultBuilderWithAcceptHeader() {
 	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiRouteCtx))
 	req.Header.Add("Accept", "text/html")
 	rr := httptest.NewRecorder()
-	handler := NewDefaultBuilder(suite.HandlerConfig())
+	handler := NewDefaultBuilder(suite.NewHandlerConfig())
 	handler.ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code)
@@ -60,7 +60,7 @@ func (suite *TestHarnessAPISuite) TestNewDefaultBuilderWithAcceptHeader() {
 func (suite *TestHarnessAPISuite) TestNewBuilderList() {
 	req := httptest.NewRequest("POST", "/list", nil)
 	rr := httptest.NewRecorder()
-	handler := NewBuilderList(suite.HandlerConfig())
+	handler := NewBuilderList(suite.NewHandlerConfig())
 	handler.ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code)

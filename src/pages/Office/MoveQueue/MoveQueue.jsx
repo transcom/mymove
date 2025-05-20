@@ -29,7 +29,7 @@ import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
+import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
@@ -39,7 +39,7 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { handleQueueAssignment, getQueue, formatApprovalRequestTypes } from 'utils/queues';
+import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
@@ -117,20 +117,6 @@ export const columns = (
             {...props}
           />
         ),
-      },
-    ),
-    createHeader(
-      'Approval Request Type',
-      (row) => {
-        if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
-          return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
-        }
-        return '';
-      },
-      {
-        id: 'approvalRequestTypes',
-        isFilterable: false,
-        disableSortBy: true,
       },
     ),
     createHeader('Move code', 'locator', {

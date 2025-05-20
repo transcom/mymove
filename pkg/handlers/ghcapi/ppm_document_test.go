@@ -699,7 +699,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -738,7 +738,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -769,7 +769,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,

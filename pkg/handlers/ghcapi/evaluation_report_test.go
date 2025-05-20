@@ -109,7 +109,7 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 	setupTestData := func() (models.OfficeUser, models.Move, handlers.HandlerConfig) {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		return officeUser, move, handlerConfig
 	}
 
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestGetCounselingEvaluationReportsHandler() {
 func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	// 200 response
 	suite.Run("Successful fetch (integration) test", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := evaluationreportservice.NewEvaluationReportFetcher()
@@ -228,7 +228,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 
 		uuidForReport, _ := uuid.NewV4()
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockFetcher := mocks.EvaluationReportFetcher{}
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s", uuidForReport.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -262,7 +262,7 @@ func (suite *HandlerSuite) TestGetEvaluationReportByIDHandler() {
 	suite.Run("403 response when service returns forbidden", func() {
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		uuidForReport, _ := uuid.NewV4()
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockFetcher := mocks.EvaluationReportFetcher{}
 		request := httptest.NewRequest("GET", fmt.Sprintf("/evaluation-reports/%s", uuidForReport.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 
 	suite.Run("Successful POST", func() {
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		creator := &mocks.EvaluationReportCreator{}
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -357,7 +357,7 @@ func (suite *HandlerSuite) TestCreateEvaluationReportHandler() {
 
 	suite.Run("Unsuccessful POST", func() {
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		creator := &mocks.EvaluationReportCreator{}
 		handler := CreateEvaluationReportHandler{handlerConfig, creator}
@@ -401,7 +401,7 @@ func (suite *HandlerSuite) TestDeleteEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		deleter := &mocks.EvaluationReportDeleter{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DeleteEvaluationReportHandler{handlerConfig, deleter}
 
 		request := httptest.NewRequest("DELETE", fmt.Sprintf("/evaluation-reports/%s", reportID), nil)
@@ -431,7 +431,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 
 		reportID := uuid.Must(uuid.NewV4())
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserWithID,
@@ -465,7 +465,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 
 		reportID := uuid.Must(uuid.NewV4())
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserWithID,
@@ -501,7 +501,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 
 		reportID := uuid.Must(uuid.NewV4())
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserWithID,
@@ -537,7 +537,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 
 		reportID := uuid.Must(uuid.NewV4())
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserWithID,
@@ -573,7 +573,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 
 		reportID := uuid.Must(uuid.NewV4())
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserWithID,
@@ -609,7 +609,7 @@ func (suite *HandlerSuite) TestSubmitEvaluationReportHandler() {
 		updater := &mocks.EvaluationReportUpdater{}
 
 		reportID := uuid.Must(uuid.NewV4())
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SubmitEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildOfficeUser(nil, nil, []factory.Trait{
 			factory.GetTraitOfficeUserWithID,
@@ -649,7 +649,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := report.ID
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildUser(nil, nil, nil) //Build stubbed user
 
@@ -694,7 +694,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -732,7 +732,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -770,7 +770,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -808,7 +808,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -846,7 +846,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -884,7 +884,7 @@ func (suite *HandlerSuite) TestSaveEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		updater := &mocks.EvaluationReportUpdater{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveEvaluationReportHandler{handlerConfig, updater}
 		requestUser := factory.BuildUser(nil, nil, nil)
 
@@ -929,7 +929,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		shipmentFetcher := &mocks.MTOShipmentFetcher{}
 		orderFetcher := &mocks.OrderFetcher{}
 		violationsFetcher := &mocks.ReportViolationFetcher{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DownloadEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
 			EvaluationReportFetcher: reportFetcher,
@@ -986,7 +986,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		reportFetcher := &mocks.EvaluationReportFetcher{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DownloadEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
 			EvaluationReportFetcher: reportFetcher,
@@ -1021,7 +1021,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		reportFetcher := &mocks.EvaluationReportFetcher{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DownloadEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
 			EvaluationReportFetcher: reportFetcher,
@@ -1056,7 +1056,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 		reportID := uuid.Must(uuid.NewV4())
 
 		reportFetcher := &mocks.EvaluationReportFetcher{}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DownloadEvaluationReportHandler{
 			HandlerConfig:           handlerConfig,
 			EvaluationReportFetcher: reportFetcher,
@@ -1090,7 +1090,7 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 
 func (suite *HandlerSuite) TestAddAppealToViolationHandler() {
 	suite.Run("Successful Add Appeal to Violation", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockService := &mocks.ReportViolationsAddAppeal{}
 		handler := AddAppealToViolationHandler{
 			HandlerConfig:             handlerConfig,
@@ -1116,7 +1116,7 @@ func (suite *HandlerSuite) TestAddAppealToViolationHandler() {
 	})
 
 	suite.Run("Unsuccessful Add Appeal to Violation - Missing Data", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockService := &mocks.ReportViolationsAddAppeal{}
 		handler := AddAppealToViolationHandler{
 			HandlerConfig:             handlerConfig,
@@ -1138,7 +1138,7 @@ func (suite *HandlerSuite) TestAddAppealToViolationHandler() {
 	})
 
 	suite.Run("Unsuccessful Add Appeal to Violation - Service Error", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockService := &mocks.ReportViolationsAddAppeal{}
 		handler := AddAppealToViolationHandler{
 			HandlerConfig:             handlerConfig,
@@ -1166,7 +1166,7 @@ func (suite *HandlerSuite) TestAddAppealToViolationHandler() {
 
 func (suite *HandlerSuite) TestAddAppealToSeriousIncidentHandler() {
 	suite.Run("Successful Add Appeal to Serious Incident", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockService := &mocks.SeriousIncidentAddAppeal{}
 		handler := AddAppealToSeriousIncidentHandler{
 			HandlerConfig:            handlerConfig,
@@ -1190,7 +1190,7 @@ func (suite *HandlerSuite) TestAddAppealToSeriousIncidentHandler() {
 	})
 
 	suite.Run("Unsuccessful Add Appeal to Serious Incident - Missing Data", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockService := &mocks.SeriousIncidentAddAppeal{}
 		handler := AddAppealToSeriousIncidentHandler{
 			HandlerConfig:            handlerConfig,
@@ -1210,7 +1210,7 @@ func (suite *HandlerSuite) TestAddAppealToSeriousIncidentHandler() {
 	})
 
 	suite.Run("Unsuccessful Add Appeal to Serious Incident - Service Error", func() {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockService := &mocks.SeriousIncidentAddAppeal{}
 		handler := AddAppealToSeriousIncidentHandler{
 			HandlerConfig:            handlerConfig,
