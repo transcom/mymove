@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestGetLoggedInUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetLoggedInUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminuser.NewAdminUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestGetLoggedInUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetLoggedInUserHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			adminuser.NewAdminUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}

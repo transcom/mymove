@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		).Return(nil, expectedError).Once()
 
 		handler := UpdateShipmentDestinationAddressHandler{
-			HandlerConfig:                  suite.HandlerConfig(),
+			HandlerConfig:                  suite.NewHandlerConfig(),
 			ShipmentAddressUpdateRequester: &mockCreator,
 			VLocation:                      vLocationFetcher,
 		}
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		vLocationServices := address.NewVLocation()
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			vLocationServices,
 		}
@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		vLocationServices := address.NewVLocation()
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -145,7 +145,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		vLocationServices := address.NewVLocation()
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
@@ -180,7 +180,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			vLocationServices,
 		}
@@ -213,7 +213,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			vLocationServices,
 		}
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			vLocationServices,
 		}
@@ -275,7 +275,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			vLocationServices,
 		}
@@ -343,7 +343,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s/status", uuid.Nil.String()), nil)
 
 	setupTestData := func() (UpdateMTOShipmentStatusHandler, models.MTOShipment) {
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetHHGPlanner(planner)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
@@ -612,7 +612,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 		)
 		deleter := mtoshipment.NewPrimeShipmentDeleter(moveTaskOrderUpdater)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -714,7 +714,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -744,7 +744,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -774,7 +774,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.EventError{})
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
