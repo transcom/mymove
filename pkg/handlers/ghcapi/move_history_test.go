@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		}
 
 		handler := GetMoveHistoryHandler{
-			HandlerConfig:      suite.HandlerConfig(),
+			HandlerConfig:      suite.NewHandlerConfig(),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		handler := GetMoveHistoryHandler{
-			HandlerConfig:      suite.HandlerConfig(),
+			HandlerConfig:      suite.NewHandlerConfig(),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		}
 
 		handler := GetMoveHistoryHandler{
-			HandlerConfig:      suite.HandlerConfig(),
+			HandlerConfig:      suite.NewHandlerConfig(),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -186,7 +186,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 		}
 
 		handler := GetMoveHistoryHandler{
-			HandlerConfig:      suite.HandlerConfig(),
+			HandlerConfig:      suite.NewHandlerConfig(),
 			MoveHistoryFetcher: &mockHistoryFetcher,
 		}
 
@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestMockGetMoveHistoryHandler() {
 			PerPage:     models.Int64Pointer(2), // This should limit results to only the first 2 records of the possible 4
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetMoveHistoryHandler{
 			handlerConfig,
 			movehistory.NewMoveHistoryFetcher(),

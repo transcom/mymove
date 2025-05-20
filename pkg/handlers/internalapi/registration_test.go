@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{
 			handlerConfig,
 		}
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{
 			handlerConfig,
 		}
@@ -164,7 +164,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -242,7 +242,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -283,7 +283,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -365,7 +365,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -409,7 +409,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -427,7 +427,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest: request.WithContext(ctx),
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)
@@ -462,7 +462,7 @@ func (suite *HandlerSuite) TestCustomerRegistrationHandler() {
 			HTTPRequest:  request.WithContext(ctx),
 			Registration: body,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CustomerRegistrationHandler{handlerConfig}
 
 		response := handler.Handle(params)

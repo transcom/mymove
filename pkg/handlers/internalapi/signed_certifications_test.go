@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler{suite.HandlerConfig()}
+	handler := CreateSignedCertificationHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler{suite.HandlerConfig()}
+	handler := CreateSignedCertificationHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = req
 
-	handler := CreateSignedCertificationHandler{suite.HandlerConfig()}
+	handler := CreateSignedCertificationHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -177,7 +177,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = req
 
-	handler := IndexSignedCertificationsHandler{suite.HandlerConfig()}
+	handler := IndexSignedCertificationsHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.CheckResponseNotFound(response)
@@ -226,7 +226,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 
 	params.HTTPRequest = req
 
-	handler := IndexSignedCertificationsHandler{suite.HandlerConfig()}
+	handler := IndexSignedCertificationsHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.CheckResponseForbidden(response)
@@ -270,7 +270,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
 
 	params.HTTPRequest = req
 
-	handler := IndexSignedCertificationsHandler{suite.HandlerConfig()}
+	handler := IndexSignedCertificationsHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*certop.IndexSignedCertificationOK)
