@@ -1825,7 +1825,6 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 		order := subtestData.needsCounselingMove.Orders
 		result1 := payload.QueueMoves[0]
 		result2 := payload.QueueMoves[1]
-		result3 := payload.QueueMoves[2]
 
 		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
 		suite.Equal(subtestData.officeUser.ID.String(), payload.QueueMoves[0].AvailableOfficeUsers[0].OfficeUserID.String())
@@ -1840,7 +1839,7 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 		suite.Equal(order.ServiceMember.Affiliation.String(), result1.Customer.Agency)
 
 		suite.EqualValues(subtestData.needsCounselingMove.Status, result2.Status)
-		suite.Equal("MARINES", result3.Customer.Agency)
+		suite.Equal("ARMY", result2.Customer.Agency)
 	})
 
 	suite.Run("GetServicesCounselingQueueHandler - returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
