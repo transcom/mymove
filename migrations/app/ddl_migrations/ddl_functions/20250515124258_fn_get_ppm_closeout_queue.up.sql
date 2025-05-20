@@ -39,7 +39,7 @@ RETURNS TABLE(
     sc_assigned JSONB,
     mto_shipments JSONB,
     status TEXT
-) LANGUAGE plpgsql AS $$
+) AS '
 DECLARE
     offset_value INT;
     sort_column  TEXT;
@@ -48,22 +48,22 @@ BEGIN
     offset_value := (GREATEST(page,1) - 1) * per_page;
 
     CASE sort
-        WHEN 'locator'                  THEN sort_column := 'locator';
-        WHEN 'status'                   THEN sort_column := 'status';
-        WHEN 'customerName'             THEN sort_column := 'customer_name_out';
-        WHEN 'edipi'                    THEN sort_column := 'edipi_out';
-        WHEN 'emplid'                   THEN sort_column := 'emplid_out';
-        WHEN 'submittedAt'              THEN sort_column := 'submitted_at';
-        WHEN 'originDutyLocation'       THEN sort_column := 'origin_name';
-        WHEN 'destinationDutyLocation'  THEN sort_column := 'destination_name';
-        WHEN 'counselingOffice'         THEN sort_column := 'counseling_name';
-        WHEN 'ppmType'                  THEN sort_column := 'full_or_partial_ppm';
-        WHEN 'ppmStatus'                THEN sort_column := 'ppm_status';
-        WHEN 'assignedTo'               THEN sort_column := 'counselor_name';
-        ELSE                            sort_column := 'submitted_at';
+        WHEN ''locator''                  THEN sort_column := ''locator'';
+        WHEN ''status''                   THEN sort_column := ''status'';
+        WHEN ''customerName''             THEN sort_column := ''customer_name_out'';
+        WHEN ''edipi''                    THEN sort_column := ''edipi_out'';
+        WHEN ''emplid''                   THEN sort_column := ''emplid_out'';
+        WHEN ''submittedAt''              THEN sort_column := ''submitted_at'';
+        WHEN ''originDutyLocation''       THEN sort_column := ''origin_name'';
+        WHEN ''destinationDutyLocation''  THEN sort_column := ''destination_name'';
+        WHEN ''counselingOffice''         THEN sort_column := ''counseling_name'';
+        WHEN ''ppmType''                  THEN sort_column := ''full_or_partial_ppm'';
+        WHEN ''ppmStatus''                THEN sort_column := ''ppm_status'';
+        WHEN ''assignedTo''               THEN sort_column := ''counselor_name'';
+        ELSE                            sort_column := ''submitted_at'';
     END CASE;
 
-    sort_order := CASE WHEN sort_direction ILIKE 'desc' THEN 'DESC' ELSE 'ASC' END;
+    sort_order := CASE WHEN sort_direction ILIKE ''desc'' THEN ''DESC'' ELSE ''ASC'' END;
 
     -- If sort and sort order is null, we default to submitted_at oldest -> latest
 
@@ -80,52 +80,52 @@ BEGIN
                 m.status::TEXT                        AS status,
                 m.submitted_at::timestamptz           AS submitted_at,
                 json_build_object(
-                    'id', o.id,
-                    'orders_type', o.orders_type,
-                    'origin_duty_location_gbloc', o.gbloc,
-                    'department_indicator', o.department_indicator,
-                    'service_member', json_build_object(
-                        'id', sm.id,
-                        'first_name', sm.first_name,
-                        'last_name', sm.last_name,
-                        'edipi', sm.edipi,
-                        'emplid', sm.emplid,
-                        'affiliation', sm.affiliation
+                    ''id'', o.id,
+                    ''orders_type'', o.orders_type,
+                    ''origin_duty_location_gbloc'', o.gbloc,
+                    ''department_indicator'', o.department_indicator,
+                    ''service_member'', json_build_object(
+                        ''id'', sm.id,
+                        ''first_name'', sm.first_name,
+                        ''last_name'', sm.last_name,
+                        ''edipi'', sm.edipi,
+                        ''emplid'', sm.emplid,
+                        ''affiliation'', sm.affiliation
                     ),
-                    'origin_duty_location', json_build_object(
-                        'id',   origin_dl.id,
-                        'name', origin_dl.name,
-                        'address', json_build_object(
-                            'street_address_1', origin_dl_addr.street_address_1,
-                            'street_address_2', origin_dl_addr.street_address_2,
-                            'city',             origin_dl_addr.city,
-                            'state',            origin_dl_addr.state,
-                            'postal_code',      origin_dl_addr.postal_code
+                    ''origin_duty_location'', json_build_object(
+                        ''id'',   origin_dl.id,
+                        ''name'', origin_dl.name,
+                        ''address'', json_build_object(
+                            ''street_address_1'', origin_dl_addr.street_address_1,
+                            ''street_address_2'', origin_dl_addr.street_address_2,
+                            ''city'',             origin_dl_addr.city,
+                            ''state'',            origin_dl_addr.state,
+                            ''postal_code'',      origin_dl_addr.postal_code
                         )
                     ),
-                    'new_duty_location', json_build_object(
-                        'id',   dest_dl.id,
-                        'name', dest_dl.name,
-                        'address', json_build_object(
-                            'street_address_1', dest_dl_addr.street_address_1,
-                            'street_address_2', dest_dl_addr.street_address_2,
-                            'city',             dest_dl_addr.city,
-                            'state',            dest_dl_addr.state,
-                            'postal_code',      dest_dl_addr.postal_code
+                    ''new_duty_location'', json_build_object(
+                        ''id'',   dest_dl.id,
+                        ''name'', dest_dl.name,
+                        ''address'', json_build_object(
+                            ''street_address_1'', dest_dl_addr.street_address_1,
+                            ''street_address_2'', dest_dl_addr.street_address_2,
+                            ''city'',             dest_dl_addr.city,
+                            ''state'',            dest_dl_addr.state,
+                            ''postal_code'',      dest_dl_addr.postal_code
                         )
                     )
                 )::JSONB AS orders,
-                json_build_object('name', counseling_to.name)::JSONB AS counseling_transportation_office,
-                json_build_object('name', closeout_to.name)::JSONB AS ppm_closeout_location,
-                json_build_object('first_name', sc.first_name, 'last_name', sc.last_name, 'id', sc.id)::JSONB AS sc_assigned,
-                json_build_object('id', ms.id, 'status', ms.status)::JSONB AS mto_shipments,
-                json_build_object('id', ps.id, 'status', ps.status, 'submitted_at', ps.submitted_at, 'shipment_id', ps.shipment_id)::JSONB AS ppm_shipments,
-                (sm.first_name || ' ' || sm.last_name)::TEXT  AS customer_name_out,
+                json_build_object(''name'', counseling_to.name)::JSONB AS counseling_transportation_office,
+                json_build_object(''name'', closeout_to.name)::JSONB AS ppm_closeout_location,
+                json_build_object(''first_name'', sc.first_name, ''last_name'', sc.last_name, ''id'', sc.id)::JSONB AS sc_assigned,
+                json_build_object(''id'', ms.id, ''status'', ms.status)::JSONB AS mto_shipments,
+                json_build_object(''id'', ps.id, ''status'', ps.status, ''submitted_at'', ps.submitted_at, ''shipment_id'', ps.shipment_id)::JSONB AS ppm_shipments,
+                (sm.first_name || '' '' || sm.last_name)::TEXT  AS customer_name_out,
                 origin_dl.name::TEXT                  AS origin_name,
                 dest_dl.name::TEXT                    AS destination_name,
                 counseling_to.name::TEXT              AS counseling_name,
                 closeout_to.name::TEXT                AS closeout_name,
-                (sc.first_name || ' ' || sc.last_name)::TEXT AS counselor_name,
+                (sc.first_name || '' '' || sc.last_name)::TEXT AS counselor_name,
                 ps.status::TEXT                       AS ppm_status,
                 ps.submitted_at::timestamptz          AS ppm_submitted_at,
                 sm.edipi                              AS edipi_out,
@@ -143,33 +143,33 @@ BEGIN
             LEFT JOIN addresses AS dest_dl_addr ON dest_dl.address_id = dest_dl_addr.id
             JOIN mto_shipments ms           ON ms.move_id = m.id
             JOIN ppm_shipments ps           ON ps.shipment_id = ms.id
-            -- Currently ps.status = 'NEEDS_CLOSEOUT' is the only status that you can see in the queue
-            WHERE ps.status = 'NEEDS_CLOSEOUT' AND m.show = TRUE
+            -- Currently ps.status = ''NEEDS_CLOSEOUT'' is the only status that you can see in the queue
+            WHERE ps.status = ''NEEDS_CLOSEOUT'' AND m.show = TRUE
         ),
         filtered AS (
             SELECT * FROM base WHERE
-              $1  IS NULL OR (orders->>'origin_duty_location_gbloc') = $1
-              AND ($2  IS NULL OR customer_name_out ILIKE '%%' || $2 || '%%')
+              $1  IS NULL OR (orders->>''origin_duty_location_gbloc'') = $1
+              AND ($2  IS NULL OR customer_name_out ILIKE ''%%'' || $2 || ''%%'')
               AND ($3  IS NULL OR edipi_out   = $3)
               AND ($4  IS NULL OR emplid_out  = $4)
               AND ($5  IS NULL OR status = ANY($5))
-              AND ($6  IS NULL OR locator ILIKE $6 || '%%')
+              AND ($6  IS NULL OR locator ILIKE $6 || ''%%'')
               AND ($7  IS NULL OR submitted_at::date = $7)
               AND ($8  IS NULL OR branch_out = $8)
               AND ($9  IS NULL OR full_or_partial_ppm   = $9)
-              AND ($10 IS NULL OR origin_name ILIKE '%%' || $10 || '%%')
-              AND ($11 IS NULL OR counseling_name ILIKE '%%' || $11 || '%%')
-              AND ($12 IS NULL OR destination_name ILIKE '%%' || $12 || '%%')
-              AND ($13 IS NULL OR closeout_name ILIKE '%%' || $13 || '%%')
-              AND ($14 OR (orders->>'orders_type') <> 'SAFETY')
-              AND ($15 IS NULL OR counselor_name ILIKE '%%' || $15 || '%%')
+              AND ($10 IS NULL OR origin_name ILIKE ''%%'' || $10 || ''%%'')
+              AND ($11 IS NULL OR counseling_name ILIKE ''%%'' || $11 || ''%%'')
+              AND ($12 IS NULL OR destination_name ILIKE ''%%'' || $12 || ''%%'')
+              AND ($13 IS NULL OR closeout_name ILIKE ''%%'' || $13 || ''%%'')
+              AND ($14 OR (orders->>''orders_type'') <> ''SAFETY'')
+              AND ($15 IS NULL OR counselor_name ILIKE ''%%'' || $15 || ''%%'')
         )
         SELECT
                 id::UUID,
                 show::BOOLEAN,
                 locator::TEXT,
                 full_or_partial_ppm::TEXT,
-                (orders->>'id')::UUID AS orders_id,
+                (orders->>''id'')::UUID AS orders_id,
                 locked_by::UUID,
                 sc_assigned_id::UUID,
                 counseling_transportation_office_id::UUID,
@@ -191,4 +191,5 @@ BEGIN
       ppm_closeout_location_filter, has_safety_privilege, sc_assigned_user,
       per_page, offset_value;
 END;
-$$;
+'
+LANGUAGE plpgsql;
