@@ -280,9 +280,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
+	// Check if shipmentType's delivery address can be updated and set pickup address.
 	var originalPickupAddress models.Address
-	canUpdateDestAddress := models.PrimeCanUpdateDestinationAddress(shipment.ShipmentType)
-
+	canUpdateDestAddress := models.PrimeCanUpdateDeliveryAddress(shipment.ShipmentType)
 	if canUpdateDestAddress {
 		originalPickupAddress = *shipment.PickupAddress
 		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {

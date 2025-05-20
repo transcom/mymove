@@ -728,7 +728,7 @@ func (suite *ModelSuite) TestPrimeCanUpdateDestinationAddress() {
 			models.MTOShipmentTypeUnaccompaniedBaggage}
 
 		for i := 0; i < len(validTypes); i++ {
-			canUpdate := models.PrimeCanUpdateDestinationAddress(validTypes[i])
+			canUpdate := models.PrimeCanUpdateDeliveryAddress(validTypes[i])
 			suite.Equal(true, canUpdate)
 		}
 	})
@@ -739,7 +739,7 @@ func (suite *ModelSuite) TestPrimeCanUpdateDestinationAddress() {
 			models.MTOShipmentTypeHHGIntoNTS, emptyType}
 
 		for i := 0; i < len(invalidTypes); i++ {
-			cannotUpdate := models.PrimeCanUpdateDestinationAddress(invalidTypes[i])
+			cannotUpdate := models.PrimeCanUpdateDeliveryAddress(invalidTypes[i])
 			suite.Equal(false, cannotUpdate)
 		}
 	})
