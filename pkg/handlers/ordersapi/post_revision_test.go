@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestPostRevisionNoApiPerm() {
 		OrdersNum:   "8675309",
 	}
 
-	handler := PostRevisionHandler{suite.HandlerConfig()}
+	handler := PostRevisionHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, response)
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 				OrdersNum:   "8675309",
 			}
 
-			handler := PostRevisionHandler{suite.HandlerConfig()}
+			handler := PostRevisionHandler{suite.NewHandlerConfig()}
 			response := handler.Handle(params)
 
 			suite.IsType(&handlers.ErrResponse{}, response)

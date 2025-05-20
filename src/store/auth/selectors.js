@@ -29,3 +29,7 @@ export const selectShowLoadingSpinner = (state) => {
 export const selectLoadingSpinnerMessage = (state) => {
   return state.generalState.loadingSpinnerMessage;
 };
+
+export const selectIsSettingActiveRole = (state) => {
+  return state.auth.isSettingActiveRole;
+};
