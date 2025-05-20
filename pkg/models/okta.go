@@ -418,6 +418,27 @@ func AddOktaUserToGroup(appCtx appcontext.AppContext, provider *okta.Provider, a
 	return nil
 }
 
+func DeleteOktaUserHandled(appCtx appcontext.AppContext, oktaID string) {
+	if oktaID != "" {
+		req := appCtx.HTTPRequest()
+		if req == nil {
+			appCtx.Logger().Error("failed to retrieve HTTP request from session")
+			return
+		}
+		provider, err := okta.GetOktaProviderForRequest(req)
+		if err != nil {
+			appCtx.Logger().Error("error retrieving Okta provider: %w")
+			return
+		}
+		apiKey := GetOktaAPIKey()
+		err = DeleteOktaUser(appCtx, provider, oktaID, apiKey)
+		if err != nil {
+			appCtx.Logger().Error("error deleting user from okta: %w", zap.Error(err))
+			return
+		}
+	}
+}
+
 // Deletes the Okta account tied to the provided oktaID
 func DeleteOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaID string, apiKey string) error {
 	if len(oktaID) == 0 {
