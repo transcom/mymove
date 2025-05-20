@@ -118,6 +118,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	var pickupAddress primev2messages.Address
 	var destinationAddress primev2messages.Address
+	var POBoxAddress primev2messages.Address
 
 	setupTestData := func(ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
@@ -198,8 +199,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
-		return handler, move
+		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddressPOBoxCONUS})
+		POBoxAddress = primev2messages.Address{
+			City:           &newAddress.City,
+			PostalCode:     &newAddress.PostalCode,
+			State:          &newAddress.State,
+			StreetAddress1: &newAddress.StreetAddress1,
+			StreetAddress2: newAddress.StreetAddress2,
+			StreetAddress3: newAddress.StreetAddress3,
+		}
 
+		return handler, move
 	}
 
 	suite.Run("Successful POST - Integration Test", func() {
@@ -631,6 +641,37 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// so InvalidFields won't be added to the payload.
 
 		suite.Contains(*unprocessableEntity.Payload.Detail, "PickupAddress is required")
+	})
+
+	suite.Run("POST failure - 422 - invalid input, PO box zip used in address", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Setup:      Create a shipment with a PO Box only destination address, handler should return unprocessable entity
+		// Expected:   422 Unprocessable Entity Response returned
+
+		handler, move := setupTestData(false)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev2messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{POBoxAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		unprocessableEntity := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+
+		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box addresses")
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
