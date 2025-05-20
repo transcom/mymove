@@ -18,19 +18,21 @@ import (
 
 // Helper struct to hold the outputted table from the PPM Closeout DB func
 type PPMCloseoutQueueItem struct {
-	ID                               *uuid.UUID      `json:"id" db:"id"`
-	Show                             *bool           `json:"show" db:"show"`
-	Locator                          *string         `json:"locator" db:"locator"`
-	FullOrPartialPPM                 *string         `json:"full_or_partial_ppm" db:"full_or_partial_ppm"`
-	OrdersID                         *uuid.UUID      `json:"orders_id" db:"orders_id"`
-	LockedBy                         *uuid.UUID      `json:"locked_by" db:"locked_by"`
-	SCAssignedID                     *uuid.UUID      `json:"sc_assigned_id" db:"sc_assigned_id"`
-	CounselingTransportationOfficeID *uuid.UUID      `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
-	Orders                           json.RawMessage `json:"orders" db:"orders"`
-	PpmShipments                     json.RawMessage `json:"ppm_shipments" db:"ppm_shipments"`
-	CounselingTransportationOffice   json.RawMessage `json:"counseling_transportation_office" db:"counseling_transportation_office"`
-	PpmCloseoutLocation              json.RawMessage `json:"ppm_closeout_location" db:"ppm_closeout_location"`
-	ScAssigned                       json.RawMessage `json:"sc_assigned" db:"sc_assigned"`
+	ID                               *uuid.UUID         `json:"id" db:"id"`
+	Show                             *bool              `json:"show" db:"show"`
+	Locator                          *string            `json:"locator" db:"locator"`
+	FullOrPartialPPM                 *string            `json:"full_or_partial_ppm" db:"full_or_partial_ppm"`
+	OrdersID                         *uuid.UUID         `json:"orders_id" db:"orders_id"`
+	LockedBy                         *uuid.UUID         `json:"locked_by" db:"locked_by"`
+	SCAssignedID                     *uuid.UUID         `json:"sc_assigned_id" db:"sc_assigned_id"`
+	CounselingTransportationOfficeID *uuid.UUID         `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
+	Orders                           json.RawMessage    `json:"orders" db:"orders"`
+	PpmShipments                     json.RawMessage    `json:"ppm_shipments" db:"ppm_shipments"`
+	CounselingTransportationOffice   json.RawMessage    `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	PpmCloseoutLocation              json.RawMessage    `json:"ppm_closeout_location" db:"ppm_closeout_location"`
+	ScAssigned                       json.RawMessage    `json:"sc_assigned" db:"sc_assigned"`
+	MoveStatus                       *models.MoveStatus `json:"status" db:"status"`
+	MtoShipments                     json.RawMessage    `json:"mto_shipments" db:"mto_shipments"`
 }
 
 func (f orderFetcher) ListPPMCloseoutOrders(
@@ -110,7 +112,6 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 	return moves, len(moves), nil
 }
 
-// TODO: PPM Shipment conversion
 func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]models.Move, error) {
 	var moves []models.Move
 
@@ -125,6 +126,9 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		}
 		if queueItem.Locator != nil {
 			move.Locator = *queueItem.Locator
+		}
+		if queueItem.MoveStatus != nil {
+			move.Status = *queueItem.MoveStatus
 		}
 
 		move.PPMType = queueItem.FullOrPartialPPM
@@ -165,6 +169,18 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 			return nil, fmt.Errorf("unmarshal ScAssigned JSON: %w", err)
 		}
 		move.SCAssignedUser = &scUser
+
+		var mtoShipment models.MTOShipment
+		if err := json.Unmarshal(queueItem.MtoShipments, &mtoShipment); err != nil {
+			return nil, fmt.Errorf("unmarshal MtoShipments JSON: %w", err)
+		}
+		// Tie the PPM before appending
+		var ppmShipment models.PPMShipment
+		if err := json.Unmarshal(queueItem.PpmShipments, &ppmShipment); err != nil {
+			return nil, fmt.Errorf("unmarshal PpmShipments JSON: %w", err)
+		}
+		mtoShipment.PPMShipment = &ppmShipment
+		move.MTOShipments = append(move.MTOShipments, mtoShipment)
 
 		moves = append(moves, move)
 	}

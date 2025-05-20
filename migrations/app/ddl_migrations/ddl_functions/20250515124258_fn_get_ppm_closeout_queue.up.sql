@@ -36,7 +36,9 @@ RETURNS TABLE(
     ppm_shipments JSONB,
     counseling_transportation_office JSONB,
     ppm_closeout_location JSONB,
-    sc_assigned JSONB
+    sc_assigned JSONB,
+    mto_shipments JSONB,
+    status TEXT
 ) LANGUAGE plpgsql AS $$
 DECLARE
     offset_value INT;
@@ -116,7 +118,8 @@ BEGIN
                 json_build_object('name', counseling_to.name)::JSONB AS counseling_transportation_office,
                 json_build_object('name', closeout_to.name)::JSONB AS ppm_closeout_location,
                 json_build_object('first_name', sc.first_name, 'last_name', sc.last_name, 'id', sc.id)::JSONB AS sc_assigned,
-                json_build_object('id', ps.id, 'status', ps.status, 'submitted_at', ps.submitted_at)::JSONB AS ppm_shipments,
+                json_build_object('id', ms.id, 'status', ms.status)::JSONB AS mto_shipments,
+                json_build_object('id', ps.id, 'status', ps.status, 'submitted_at', ps.submitted_at, 'shipment_id', ps.shipment_id)::JSONB AS ppm_shipments,
                 (sm.first_name || ' ' || sm.last_name)::TEXT  AS customer_name_out,
                 origin_dl.name::TEXT                  AS origin_name,
                 dest_dl.name::TEXT                    AS destination_name,
@@ -174,7 +177,9 @@ BEGIN
                 ppm_shipments::JSONB,
                 counseling_transportation_office::JSONB,
                 ppm_closeout_location::JSONB,
-                sc_assigned::JSONB
+                sc_assigned::JSONB,
+                mto_shipments::JSONB,
+                status::TEXT
         FROM   filtered
         ORDER  BY %I %s, id
         LIMIT  $16 OFFSET $17
