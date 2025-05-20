@@ -749,7 +749,7 @@ func (m Move) HasPPM() bool {
 // - submitted destination address requests
 // - submitted destination SIT & shuttle service items
 // - SIT extension requests with destination SIT service items on a shipment
-func ClearTOOAssignments(db *pop.Connection, move *Move) (*Move, error) {
+func ClearTOOAssignments(move *Move) (*Move, error) {
 	originPending := false
 	destinationPending := false
 	hasOriginSIT := false
@@ -772,31 +772,35 @@ func ClearTOOAssignments(db *pop.Connection, move *Move) (*Move, error) {
 
 	for _, si := range move.MTOServiceItems {
 		code := si.ReService.Code
-		// checking if the shipment has origin SIT to be used later
-		if ContainsReServiceCode(ValidOriginSITReServiceCodes, code) {
-			hasOriginSIT = true
-		}
-		// checking if the shipment has destination SIT to be used later
-		if ContainsReServiceCode(ValidDestinationSITReServiceCodes, code) {
-			hasDestinationSIT = true
-		}
-		if si.Status != MTOServiceItemStatusSubmitted {
-			continue
-		}
-		if si.ReService == (ReService{}) {
-			continue
-		}
-		// submitted origin service items -> origin queue
-		if _, isOrigin := OriginServiceItemCodesMap[code]; isOrigin {
-			originPending = true
-		}
-		// submitted destination service items -> dest queue
-		if _, isDest := DestinationServiceItemCodesMap[code]; isDest {
-			destinationPending = true
-		}
-		// early break
-		if originPending && destinationPending {
-			break
+		if code != "" {
+			// checking if the shipment has origin SIT to be used later
+			if ContainsReServiceCode(ValidOriginSITReServiceCodes, code) {
+				hasOriginSIT = true
+			}
+			// checking if the shipment has destination SIT to be used later
+			if ContainsReServiceCode(ValidDestinationSITReServiceCodes, code) {
+				hasDestinationSIT = true
+			}
+			if si.Status != MTOServiceItemStatusSubmitted {
+				continue
+			}
+			if si.ReService == (ReService{}) {
+				continue
+			}
+			// submitted origin service items -> origin queue
+			if _, isOrigin := OriginServiceItemCodesMap[code]; isOrigin {
+				originPending = true
+			}
+			// submitted destination service items -> dest queue
+			if _, isDest := DestinationServiceItemCodesMap[code]; isDest {
+				destinationPending = true
+			}
+			// early break
+			if originPending && destinationPending {
+				break
+			}
+		} else {
+			return nil, fmt.Errorf("ReService.Code is required when clearing TOO assignment, received empty string for service item id; %s", si.ID)
 		}
 	}
 

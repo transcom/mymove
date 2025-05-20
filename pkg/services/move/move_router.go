@@ -627,7 +627,7 @@ func (router moveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, 
 	// this returns the same move with the TOO fields updated (or not)
 	// !IMPORTANT - if any TOO actions are added, please also update this function
 	if move.TOOAssignedID != nil || move.TOODestinationAssignedID != nil {
-		updatedMove, err := models.ClearTOOAssignments(appCtx.DB(), &move)
+		updatedMove, err := models.ClearTOOAssignments(&move)
 		if err != nil {
 			return nil, err
 		}
