@@ -163,6 +163,7 @@ func FindOconusLocations(appCtx appcontext.AppContext, search string, exactMatch
 		sqlQuery = `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE vil.city_name upper(?) AND upper(vil.country_prn_dv_nm) upper(?)`
 	}
 
+	sqlQuery += ` limit 30`
 	var query *pop.Query
 
 	// we only want to add an extra % to the strings if we are using the LIKE in the query
