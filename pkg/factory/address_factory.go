@@ -291,3 +291,26 @@ func GetTraitAddressAKZone5() []Customization {
 		},
 	}
 }
+
+// GetTraitAddressPOBoxCONUS is an address in the CONUS that exists only for PO Boxes
+func GetTraitAddressPOBoxCONUS() []Customization {
+	return []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Street Address 1",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "STATE COLLEGE",
+				State:          "PA",
+				PostalCode:     "16805",
+				County:         models.StringPointer("CENTRE"),
+			},
+		},
+		{
+			Model: models.UsPostRegionCity{
+				UsprZipID:          "16805",
+				USPostRegionCityNm: "STATE COLLEGE",
+			},
+		},
+	}
+}
