@@ -1659,6 +1659,164 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 	})
 }
 
+type ppmCloseoutSubtestData struct {
+	ppmNeedsCloseoutMove models.Move
+	officeUser           models.OfficeUser
+	handler              GetPPMCloseoutQueueHandler
+	request              *http.Request
+}
+
+func (suite *HandlerSuite) makePPMCloseoutSubtestData() (subtestData *ppmCloseoutSubtestData) {
+	subtestData = &ppmCloseoutSubtestData{}
+	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+	waf := entitlements.NewWeightAllotmentFetcher()
+	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
+	requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+	subtestData.ppmNeedsCloseoutMove = factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SubmittedAt:      &submittedAt,
+				Status:           models.MoveStatusServiceCounselingCompleted,
+				CloseoutOfficeID: &transportationOffice.ID,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsCloseout,
+			},
+		},
+	}, nil)
+
+	// Create a move with an origin duty location outside of office user GBLOC
+	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Fort Eisenhower",
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "77777",
+			},
+		},
+	}, nil)
+
+	// Create a custom postal code to GBLOC
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocationAddress.PostalCode, "UUUU")
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Sam Houston",
+			},
+		},
+		{
+			Model:    dutyLocationAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create a move with an origin duty location outside of office user GBLOC
+	excludedGBLOCMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    excludedGBLOCMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+		},
+	}, nil)
+
+	excludedStatusMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    excludedStatusMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+			Type: &factory.Addresses.PickupAddress,
+		},
+	}, nil)
+
+	request := httptest.NewRequest("GET", "/queues/counseling", nil)
+	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
+	handlerConfig := suite.NewHandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
+	subtestData.handler = GetPPMCloseoutQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(waf),
+		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestGetPPMCloseoutQueueHandler() {
+	suite.Run("returns moves in the needs closeout status when NeedsPPMCloseout is true", func() {
+		subtestData := suite.makePPMCloseoutSubtestData()
+
+		needsPpmCloseout := true
+		params := queues.GetPPMCloseoutQueueParams{
+			HTTPRequest:      subtestData.request,
+			NeedsPPMCloseout: &needsPpmCloseout,
+		}
+
+		// Validate incoming payload: no body to validate
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetPPMCloseoutQueueOK{}, response)
+		payload := response.(*queues.GetPPMCloseoutQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload.QueueMoves, 1)
+
+		for _, move := range payload.QueueMoves {
+			// Fail if a ppm has a status other than needs closeout
+			if models.MoveStatus(move.PpmStatus) != models.MoveStatus(models.PPMShipmentStatusNeedsCloseout) {
+				suite.Fail("Test does not return moves with the correct status.")
+			}
+		}
+	})
+}
+
 func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 	suite.Run("SC - returns an unauthorized error when an attempt is made by a non supervisor", func() {
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
