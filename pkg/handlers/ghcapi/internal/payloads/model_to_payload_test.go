@@ -2438,3 +2438,16 @@ func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {
 		}
 	})
 }
+
+// func (suite *PayloadsSuite) TestPayGrades() {
+// 	payGrades := models.PayGrades{
+// 		{Grade: "E-1"},
+// 		{Grade: "O-3"},
+// 		{Grade: "W-2"},
+// 	}
+
+// 	result := PayGrades(payGrades)
+
+// 	suite.Equal(len(payGrades), len(result))
+// 	suite.Equal(payGrades[0].Grade, result[0].Pointer())
+// }

@@ -31,48 +31,15 @@ type PayGrades []PayGrade
 func GetPayGradesForAffiliation(db *pop.Connection, affiliation string) (PayGrades, error) {
 	var payGrades PayGrades
 
-	err := db.Q().All(&payGrades)
+	err := db.Q().
+		Join("ranks", "ranks.pay_grade_id = pay_grades.id").
+		Where("ranks.affiliation = $1", affiliation).
+		GroupBy("pay_grades.id, pay_grades.grade, pay_grades.created_at, pay_grades.updated_at").
+		Order("pay_grades.order").
+		All(&payGrades)
 	if err != nil {
 		return nil, err
 	}
 
-	// Define excluded grades per affiliation
-	excludedGrades := map[string][]string{
-		string(AffiliationAIRFORCE): {string(ServiceMemberGradeMIDSHIPMAN)},
-		string(AffiliationARMY):     {string(ServiceMemberGradeMIDSHIPMAN)}, //, string(ServiceMemberGradeAVIATIONCADET)},
-		// string(AffiliationNAVY):       {string(ServiceMemberGradeAVIATIONCADET)},
-		// string(AffiliationCOASTGUARD): {string(ServiceMemberGradeAVIATIONCADET)},
-		string(AffiliationMARINES):    {string(ServiceMemberGradeMIDSHIPMAN)}, //, string(ServiceMemberGradeAVIATIONCADET)},
-		string(AffiliationSPACEFORCE): {string(ServiceMemberGradeMIDSHIPMAN)}, //, string(ServiceMemberGradeAVIATIONCADET)},
-	}
-
-	if grades, ok := excludedGrades[affiliation]; ok {
-		payGrades.RemoveByGrades(grades)
-	}
-	//  else {
-	// 	// Default exclusions for unknown affiliations
-	// 	payGrades.RemoveByGrades([]string{
-	// 		string(ServiceMemberGradeACADEMYCADET),
-	// 		string(ServiceMemberGradeMIDSHIPMAN),
-	// 		string(ServiceMemberGradeAVIATIONCADET),
-	// 	})
-	// }
-
 	return payGrades, nil
-}
-
-// RemoveByGrades removes all PayGrades with a Grade in the given list.
-func (pgs *PayGrades) RemoveByGrades(gradesToRemove []string) {
-	gradeMap := make(map[string]struct{}, len(gradesToRemove))
-	for _, g := range gradesToRemove {
-		gradeMap[g] = struct{}{}
-	}
-
-	newList := make(PayGrades, 0, len(*pgs))
-	for _, pg := range *pgs {
-		if _, found := gradeMap[pg.Grade]; !found {
-			newList = append(newList, pg)
-		}
-	}
-	*pgs = newList
 }

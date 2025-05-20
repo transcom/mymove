@@ -23,3 +23,7 @@ func (suite *ModelSuite) TestEmptyPayGradeInstantiation() {
 	}
 	suite.verifyValidationErrors(&newPayGrade, expErrors)
 }
+
+func (suite *ModelSuite) TestGetPayGradesForAffiliation() {
+
+}

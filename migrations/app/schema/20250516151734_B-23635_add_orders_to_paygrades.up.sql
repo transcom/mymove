@@ -20,7 +20,7 @@ UPDATE pay_grades
 UPDATE pay_grades
     SET grade = 'E-9', grade_description = 'Enlisted Grade E-9', "order" = 8 WHERE id = 'a5fc8fd2-6f91-492b-abe2-2157d03ec990';
 UPDATE pay_grades
-    SET grade = 'E-9-SPECIAL-ENIOR-ENLISTED', grade_description = 'Enlisted Grade E-9 Special Senior Enlisted', "order" = 9 WHERE id = '911208cc-3d13-49d6-9478-b0a3943435c0';
+    SET grade = 'E-9-SPECIAL-SENIOR-ENLISTED', grade_description = 'Enlisted Grade E-9 Special Senior Enlisted', "order" = 9 WHERE id = '911208cc-3d13-49d6-9478-b0a3943435c0';
 
 --Warrant pay Grades
 UPDATE pay_grades
@@ -57,8 +57,8 @@ UPDATE pay_grades
     SET grade = '0-10', grade_description = 'Officer Grade O-10', "order" = 24 WHERE id = '7fa938ab-1c34-4666-a878-9b989c916d1a';
 
 --Other pay Grades
-INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('63998729-ef74-486e-beea-5b519fa3812f', 'MIDSHIPMAN', 'Midshipman', NOW(), NOW(),25);
-INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('df749d7e-5007-43cd-8715-2875d281f817', 'AVIATION_CADET', 'Aviation Cadet', NOW(), NOW(),26);
-INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0', 'ACADEMY_CADET', 'Academy Cadet', NOW(), NOW(),27);
+-- INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('63998729-ef74-486e-beea-5b519fa3812f', 'MIDSHIPMAN', 'Midshipman', NOW(), NOW(),25);
+-- INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('df749d7e-5007-43cd-8715-2875d281f817', 'AVIATION_CADET', 'Aviation Cadet', NOW(), NOW(),26);
+-- INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0', 'ACADEMY_CADET', 'Academy Cadet', NOW(), NOW(),27);
 UPDATE pay_grades
     SET grade = 'CIVILIAN', grade_description = 'Civilian', "order" = 29 WHERE id = '9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9';
