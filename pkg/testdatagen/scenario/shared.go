@@ -10542,7 +10542,7 @@ func CreateMoveWithMTOShipment(appCtx appcontext.AppContext, ordersType internal
 /*
 Create Needs Service Counseling - pass in orders with all required information, shipment type, destination type, locator
 */
-func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
+func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string, isInternationalShipment bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
 	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
@@ -10552,28 +10552,67 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
 	newDutyLocation.Address.PostalCode = "52549"
 	newDutyLocation.Address.City = "CINCINNATI"
-	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+
+	oconusDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
-			Model: models.DutyLocation{
-				ProvidesServicesCounseling: true,
-			},
-			Type: &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model:    newDutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.NewDutyLocation,
-		},
-		{
-			Model: models.Order{
-				OrdersType:          ordersType,
-				OrdersTypeDetail:    &hhgPermitted,
-				OrdersNumber:        &ordersNumber,
-				DepartmentIndicator: &departmentIndicator,
-				TAC:                 &tac,
+			Model: models.Address{
+				City:       "Fairbanks",
+				State:      "AK",
+				PostalCode: "99702",
+				IsOconus:   models.BoolPointer(true),
 			},
 		},
 	}, nil)
+
+	var orders models.Order
+	if !isInternationalShipment {
+		orders = factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model:    newDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
+			},
+			{
+				Model: models.Order{
+					OrdersType:          ordersType,
+					OrdersTypeDetail:    &hhgPermitted,
+					OrdersNumber:        &ordersNumber,
+					DepartmentIndicator: &departmentIndicator,
+					TAC:                 &tac,
+				},
+			},
+		}, nil)
+	} else {
+		orders = factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model:    oconusDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.NewDutyLocation,
+			},
+			{
+				Model: models.Order{
+					OrdersType:          ordersType,
+					OrdersTypeDetail:    &hhgPermitted,
+					OrdersNumber:        &ordersNumber,
+					DepartmentIndicator: &departmentIndicator,
+					TAC:                 &tac,
+				},
+			},
+		}, nil)
+	}
+
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model:    orders,
@@ -10587,9 +10626,17 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			},
 		},
 	}, nil)
+
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
+
+	marketCode := models.MarketCodeDomestic
+	if isInternationalShipment {
+		marketCode = models.MarketCodeInternational
+		destinationAddress = factory.BuildAddress(db, nil, []factory.Trait{factory.GetTraitAddressAKZone2})
+	}
+
 	retirementMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
 		{
 			Model:    move,
@@ -10602,6 +10649,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 				RequestedPickupDate:   &requestedPickupDate,
 				RequestedDeliveryDate: &requestedDeliveryDate,
 				DestinationType:       destinationType,
+				MarketCode:            marketCode,
 			},
 		},
 		{
@@ -10636,20 +10684,23 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	regularMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				ShipmentType:          shipmentType,
-				Status:                models.MTOShipmentStatusSubmitted,
-				RequestedPickupDate:   &requestedPickupDate,
-				RequestedDeliveryDate: &requestedDeliveryDate,
+	var regularMTOShipment models.MTOShipment
+	if !isInternationalShipment {
+		regularMTOShipment = factory.BuildMTOShipment(db, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
 			},
-		},
-	}, nil)
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          shipmentType,
+					Status:                models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate:   &requestedPickupDate,
+					RequestedDeliveryDate: &requestedDeliveryDate,
+				},
+			},
+		}, nil)
+	}
 
 	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
 	factory.BuildCustomerSupportRemark(db, []factory.Customization{
