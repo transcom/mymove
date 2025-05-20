@@ -122,6 +122,46 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  /office-users/{officeUserId}:
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Updates an Office User
+      description: >-
+        This endpoint updates a single Office User by ID. This is to be used by
+        office users to update their profile.
+      operationId: updateOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: officeUser
+          description: Office User information
+          required: true
+          schema:
+            $ref: '#/definitions/OfficeUserUpdate'
+      responses:
+        '200':
+          description: Successfully updated Office User
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -1974,6 +2014,34 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/moving-expenses:
+    post:
+      summary: Creates moving expense document
+      description: Creates a moving expense document for the PPM shipment
+      operationId: createMovingExpense
+      tags:
+        - ppm
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+      responses:
+        '201':
+          description: returns new moving expense object
+          schema:
+            $ref: '#/definitions/MovingExpense'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
@@ -2015,6 +2083,37 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+    delete:
+      summary: Soft deletes a moving expense by ID
+      description: >
+        Removes a single moving expense receipt from the closeout line items for
+        a PPM shipment. Soft deleted
+
+        records are not visible in milmove, but are kept in the database.
+      operationId: deleteMovingExpense
+      tags:
+        - ppm
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ppmShipmentId'
+      responses:
+        '204':
+          description: Successfully soft deleted the moving expense
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -2452,6 +2551,40 @@ paths:
           description: ppm not found
         '500':
           description: internal server error
+  /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    post:
+      summary: Saves signature and routes PPM shipment to service counselor
+      description: |
+        Routes the PPM shipment to the service
+        counselor PPM Closeout queue for review.
+      operationId: submitPPMShipmentDocumentation
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns the updated PPM shipment
+          schema:
+            $ref: '#/definitions/PPMShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -5471,6 +5604,16 @@ definitions:
       - telephone
       - transportationOfficeId
       - roles
+  OfficeUserUpdate:
+    type: object
+    properties:
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+    required:
+      - telephone
   OfficeUserRole:
     type: object
     properties:
@@ -7611,6 +7754,18 @@ definitions:
         description: The amount of SIT that will be reimbursed
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      paidWithGTCC:
+        description: >-
+          Indicates if the service member used their government issued card to
+          pay for the expense
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      missingReceipt:
+        description: Indicates if the customer is missing the receipt for their expense.
+        type: boolean
         x-nullable: true
         x-omitempty: false
       weightShipped:

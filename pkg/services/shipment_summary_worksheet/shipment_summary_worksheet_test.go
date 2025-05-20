@@ -923,7 +923,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
 	page3Map, err := formatAdditionalHHG(page3Map, i, hhg)
 	suite.NoError(err)
 	suite.Equal(*hhg.ShipmentLocator+" HHG", page3Map["AddShipmentNumberAndTypes1"])
-	suite.Equal("16-Mar-2020 Actual", page3Map["AddShipmentPickUpDates1"])
+	suite.Equal("16-Mar-2024 Actual", page3Map["AddShipmentPickUpDates1"])
 	suite.Equal("980 Actual", page3Map["AddShipmentWeights1"])
 	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
 }

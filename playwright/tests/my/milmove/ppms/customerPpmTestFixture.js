@@ -161,16 +161,18 @@ export class CustomerPpmPage extends CustomerPage {
     // this helps debounce the API calls that would be triggered in quick succession
     await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
-    const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
+    const pickupLocation = 'YUMA, AZ 85364 (YUMA)';
+    const destinationLocation = 'YUMA, AZ 85366 (YUMA)';
+    const w2Location = 'YUMA, AZ 85367 (YUMA)';
 
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="pickupAddress-location-input"]').fill('85369');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.locator('input[id="pickupAddress-input"]').fill('85364');
+    await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="destinationAddress-location-input"]').fill('85369');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.locator('input[id="destinationAddress-input"]').fill('85366');
+    await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     if (options?.selectAdvance) {
@@ -181,8 +183,8 @@ export class CustomerPpmPage extends CustomerPage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[id="w2Address-location-input"]').fill('85369');
-    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.locator('input[id="w2Address-input"]').fill('85367');
+    await expect(this.page.getByText(w2Location, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
@@ -413,12 +415,12 @@ export class CustomerPpmPage extends CustomerPage {
     const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
     const destinationLocation = 'FORT WORTH, TX 76127 (TARRANT)';
     await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="pickupAddress.address-location-input"]').fill('90210');
+    await this.page.locator('input[id="pickupAddress.address-input"]').fill('90210');
     await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[id="destinationAddress.address-location-input"]').fill('76127');
+    await this.page.locator('input[id="destinationAddress.address-input"]').fill('76127');
     await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
