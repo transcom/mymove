@@ -573,7 +573,6 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 				OriginDutyLocation:      params.OriginDutyLocation,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginGBLOC:             params.OriginGBLOC,
-				SubmittedAt:             handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 				RequestedMoveDate:       params.RequestedMoveDate,
 				Page:                    params.Page,
 				PerPage:                 params.PerPage,
@@ -581,7 +580,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 				Order:                   params.Order,
 				NeedsPPMCloseout:        params.NeedsPPMCloseout,
 				PPMType:                 params.PpmType,
-				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated),
+				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated), // ListOrderParam SubmittedAt is for filtering moves, closeout is for filtering ppms
 				CloseoutLocation:        params.CloseoutLocation,
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,

@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION get_ppm_closeout_queue(
     emplid                     TEXT    DEFAULT NULL,
     m_status                   TEXT[]  DEFAULT NULL,
     move_code                  TEXT    DEFAULT NULL,
-    date_submitted             DATE    DEFAULT NULL,
+    ppm_submitted_at_in             DATE    DEFAULT NULL,
     branch                     TEXT    DEFAULT NULL,
     moves_ppm_type_full_or_partial_ppm_filter        TEXT    DEFAULT NULL, -- Moves declaration of FULL or PARTIAL. Not to be confused with ppm_shipments.ppm_type
     origin_duty_location       TEXT    DEFAULT NULL,
@@ -38,7 +38,8 @@ RETURNS TABLE(
     ppm_closeout_location JSONB,
     sc_assigned JSONB,
     mto_shipments JSONB,
-    status TEXT
+    status TEXT,
+    total_count BIGINT
 ) AS '
 DECLARE
     offset_value INT;
@@ -53,14 +54,14 @@ BEGIN
         WHEN ''customerName''             THEN sort_column := ''customer_name_out'';
         WHEN ''edipi''                    THEN sort_column := ''edipi_out'';
         WHEN ''emplid''                   THEN sort_column := ''emplid_out'';
-        WHEN ''submittedAt''              THEN sort_column := ''submitted_at'';
         WHEN ''originDutyLocation''       THEN sort_column := ''origin_name'';
         WHEN ''destinationDutyLocation''  THEN sort_column := ''destination_name'';
         WHEN ''counselingOffice''         THEN sort_column := ''counseling_name'';
         WHEN ''ppmType''                  THEN sort_column := ''full_or_partial_ppm'';
         WHEN ''ppmStatus''                THEN sort_column := ''ppm_status'';
         WHEN ''assignedTo''               THEN sort_column := ''counselor_name'';
-        ELSE                            sort_column := ''submitted_at'';
+        WHEN ''closeoutInitiated''        THEN sort_column := ''ppm_submitted_at'';
+        ELSE                              sort_column := ''ppm_submitted_at'';
     END CASE;
 
     sort_order := CASE WHEN sort_direction ILIKE ''desc'' THEN ''DESC'' ELSE ''ASC'' END;
@@ -78,7 +79,7 @@ BEGIN
                 m.sc_assigned_id                      AS sc_assigned_id,
                 m.counseling_transportation_office_id AS counseling_transportation_office_id,
                 m.status::TEXT                        AS status,
-                m.submitted_at::timestamptz           AS submitted_at,
+                m.submitted_at::timestamptz           AS move_submitted_at,
                 json_build_object(
                     ''id'', o.id,
                     ''orders_type'', o.orders_type,
@@ -154,7 +155,7 @@ BEGIN
               AND ($4  IS NULL OR emplid_out  = $4)
               AND ($5  IS NULL OR status = ANY($5))
               AND ($6  IS NULL OR locator ILIKE $6 || ''%%'')
-              AND ($7  IS NULL OR submitted_at::date = $7)
+              AND ($7  IS NULL OR (ppm_shipments->>''submitted_at'')::date = $7)
               AND ($8  IS NULL OR branch_out = $8)
               AND ($9  IS NULL OR full_or_partial_ppm   = $9)
               AND ($10 IS NULL OR origin_name ILIKE ''%%'' || $10 || ''%%'')
@@ -179,14 +180,15 @@ BEGIN
                 ppm_closeout_location::JSONB,
                 sc_assigned::JSONB,
                 mto_shipments::JSONB,
-                status::TEXT
+                status::TEXT,
+                COUNT(*) OVER() AS total_count
         FROM   filtered
         ORDER  BY %I %s, id
         LIMIT  $16 OFFSET $17
     $FMT$, sort_column, sort_order)
     USING
       user_gbloc, customer_name_in, edipi, emplid, m_status, move_code,
-      date_submitted, branch, moves_ppm_type_full_or_partial_ppm_filter,
+      ppm_submitted_at_in, branch, moves_ppm_type_full_or_partial_ppm_filter,
       origin_duty_location, counseling_office, destination_duty_location,
       ppm_closeout_location_filter, has_safety_privilege, sc_assigned_user,
       per_page, offset_value;

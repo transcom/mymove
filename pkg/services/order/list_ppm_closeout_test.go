@@ -58,9 +58,13 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			nil,
 			[]factory.Customization{
 				{
+					Model: models.PPMShipment{
+						SubmittedAt: &latestCloseoutInitiatedDate,
+					},
+				},
+				{
 					Model: models.Move{
 						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
-						SubmittedAt:      &latestCloseoutInitiatedDate,
 						Locator:          "LATEST",
 						CloseoutOfficeID: &macDillTransportationOffice.ID,
 					},
@@ -76,10 +80,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			nil,
 			[]factory.Customization{
 				{
-					Model: models.Move{
-						PPMType:     models.StringPointer(models.MovePPMTypePARTIAL),
+					Model: models.PPMShipment{
 						SubmittedAt: &oldestCloseoutInitiatedDate,
-						Locator:     "OLDEST",
+					},
+				},
+				{
+					Model: models.Move{
+						PPMType: models.StringPointer(models.MovePPMTypePARTIAL),
+						Locator: "OLDEST",
 					},
 					Type: &factory.Move,
 				},

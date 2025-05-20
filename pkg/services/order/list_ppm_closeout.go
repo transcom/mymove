@@ -33,6 +33,7 @@ type PPMCloseoutQueueItem struct {
 	ScAssigned                       json.RawMessage    `json:"sc_assigned" db:"sc_assigned"`
 	MoveStatus                       *models.MoveStatus `json:"status" db:"status"`
 	MtoShipments                     json.RawMessage    `json:"mto_shipments" db:"mto_shipments"`
+	TotalCount                       int                `json:"total_count" db:"total_count"`
 }
 
 func (f orderFetcher) ListPPMCloseoutOrders(
@@ -109,7 +110,12 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 		return nil, 0, err
 	}
 
-	return moves, len(moves), nil
+	var totalCount int
+	if len(ppmCloseoutQueueItems) > 0 {
+		totalCount = ppmCloseoutQueueItems[0].TotalCount
+	}
+
+	return moves, totalCount, nil
 }
 
 func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]models.Move, error) {
