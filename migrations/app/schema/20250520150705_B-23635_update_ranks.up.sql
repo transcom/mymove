@@ -82,7 +82,7 @@ WITH updates (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order) A
         ('0fe1d0c4-a734-472d-8b16-7dfbe881aa5a', '455a112d-d1e0-4559-81e8-6df664638f70', 'MARINES', 'Col', 'Colonel', 24),
         ('ac532793-77d8-40c0-b25e-a98249520bc7', 'cf664124-9baf-4187-8f28-0908c0f0a5e0', 'MARINES', 'BGen', 'Brigadier General', 25),
         ('602a512b-fee8-41c6-a65f-042318a3924b', '6e50b04a-52dc-45c9-91d9-4a7b4fa1ab20', 'MARINES', 'MajGen', 'Major General', 26),
-        ('e15498d9-0015-457b-8a10-fd42e6ed02b1', '1d6e34c3-8c6c-4d4f-8b91-f46bed3f5e80', 'MARINES', 'LtGen', 'Lieutenant Ge neral', 27),
+        ('e15498d9-0015-457b-8a10-fd42e6ed02b1', '1d6e34c3-8c6c-4d4f-8b91-f46bed3f5e80', 'MARINES', 'LtGen', 'Lieutenant General', 27),
         ('2839c1f7-cf58-4603-9806-bf8c924949b8', '6cb785d0-cabf-479a-a36d-a6aec294a4d0', 'NAVY', 'SR', 'Seaman Recruit', 1),
         ('4d025a52-ca65-4dfe-9ba7-58f253a85660', '5f871c82-f259-43cc-9245-a6e18975dde0', 'NAVY', 'SA', 'Seaman Apprentice', 2),
         ('6b8f9f9d-d018-48b6-8339-9ab28060e838', '862eb395-86d1-44af-ad47-dec44fbeda30', 'NAVY', 'SN', 'Seaman', 3 ) ,
@@ -92,7 +92,7 @@ WITH updates (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_order) A
         ('34ebdf38-d762-47ad-b521-e3a56e9716f2', '523d57a1-529c-4dfd-8c33-9cb169fd29a0', 'NAVY', 'CPO', 'Chief Petty Officer', 7),
         ('e5d90322-b55d-4156-a9a7-a8331b2ff92f', '1d909db0-602f-4724-bd43-8f90a6660460', 'NAVY', 'SCPO', 'Senior Chief Petty Officer', 8),
         ('a56fec50-4639-426f-8abd-85eedf485723', 'a5fc8fd2-6f91-492b-abe2-2157d03ec990', 'NAVY', 'MCPO','Master Chief Petty Officer', 9),
-        ('df0ed115-7315-4cd0-97ec-c6a9acd910f2', '911208cc-3d13-49d6-9478-b0a3943435c0', 'NAVY', 'SEAC', 'Senior Enlisted Advisor to the Chairman', 11),                      -- Description needed
+        ('df0ed115-7315-4cd0-97ec-c6a9acd910f2', '911208cc-3d13-49d6-9478-b0a3943435c0', 'NAVY', 'SEAC', 'Senior Enlisted Advisor to the Chairman', 11),
         ('298a491b-24ba-48a7-9e1b-5593dbd7387c', '6badf8a0-b0ef-4e42-b827-7f63a3987a4b', 'NAVY', 'WO1', 'Warrant Officer 1', 12),
         ('772db820-df8e-471b-a77e-65704e701862', 'a687a2e1-488c-4943-b9d9-3d645a2712f4', 'NAVY', 'CW2', 'Chief Warrant Officer 2', 13),
         ('0739d2e0-267c-4b11-abd9-0baec2b44cc7', '5a65fb1f-4245-4178-b6a7-cc504c9cbb37', 'NAVY', 'CW3', 'Chief Warrant Officer 3', 14),
@@ -183,28 +183,28 @@ INSERT INTO ranks (id, pay_grade_id, affiliation, rank_abbv, rank_name, rank_ord
     ('3f00b956-423a-4f6d-891a-5f365d63548a','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'ARMY','GAF','General of the Army',30,now(),now()),
     ('1d2b7037-b93a-440b-b5eb-23318c840a53','df749d7e-5007-43cd-8715-2875d281f817'::uuid,'ARMY','Aviation Cadet','Aviation Cadet',31,now(),now()),
     ('41240486-833a-4e83-acff-84397e904c0b','8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0'::uuid,'ARMY','Army Academy Cadet','Academy Cadet',32,now(),now()),
-    ('1f8c912e-e244-4c19-a7e8-44b577cb49f9','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'ARMY','Army Academy Graduate','Academy Graduate',33,now(),now()),
+    ('1f8c912e-e244-4c19-a7e8-44b577cb49f9','ec620134-d40f-4ebb-bfeb-0e4e0ef06d14'::uuid,'ARMY','Army Academy Graduate','Academy Graduate',33,now(),now()),
 -- USAF
     ('77eadce2-0207-48e2-83b2-b11c711160f6','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'AIR_FORCE','GAF','General of the Air force',28,now(),now()),
     ('907df4ef-7843-4bf1-8236-fe1f7b0b83f7','df749d7e-5007-43cd-8715-2875d281f817'::uuid,'AIR_FORCE','Aviation Cadet','Aviation Cadet',29,now(),now()),
     ('3dd031b7-458a-4640-ab68-c5c97df07e0f','8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0'::uuid,'AIR_FORCE','Air Force Academy Cadet','Academy Cadet',30,now(),now()),
-    ('5fc5a9bd-5f36-4d0c-a558-a4e09341d8a9','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'AIR_FORCE','Air Force Academy Graduate','Academy Graduate',31,now(),now()),
+    ('5fc5a9bd-5f36-4d0c-a558-a4e09341d8a9','ec620134-d40f-4ebb-bfeb-0e4e0ef06d14'::uuid,'AIR_FORCE','Air Force Academy Graduate','Academy Graduate',31,now(),now()),
 -- Marines
     ('5fe6d705-866e-4982-85b8-319a86eb8441','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'MARINES','FADM','Fleet admiral',28,now(),now()),
     ('5d774f07-502c-4fae-b991-527efa439930','63998729-ef74-486e-beea-5b519fa3812f'::uuid,'MARINES','Midshipman','Midshipman',29,now(),now()),
     ('548b8c07-7b54-409f-8f34-eca36e483748','df749d7e-5007-43cd-8715-2875d281f817'::uuid,'MARINES','Marines Aviation Cadet','Aviation Cadet',30,now(),now()),
-    ('0acebdf4-e7df-438f-9b87-4bf00aa62185','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'MARINES','Marines Academy Graduate','Academy Graduate',31,now(),now()),
+    ('0acebdf4-e7df-438f-9b87-4bf00aa62185','ec620134-d40f-4ebb-bfeb-0e4e0ef06d14'::uuid,'MARINES','Marines Academy Graduate','Academy Graduate',31,now(),now()),
 -- Navy
     ('eb688c94-1289-4ef4-a757-e6a63507af90','7fa938ab-1c34-4666-a878-9b989c916d1a'::uuid,'NAVY','FADM','Fleet admiral',27,now(),now()),
     ('d9d6414a-bd1d-458e-8346-40fe06027771','63998729-ef74-486e-beea-5b519fa3812f'::uuid,'NAVY','Midshipman','Midshipman',28,now(),now()),
     ('2f94aac8-dd91-4354-b0be-6d6d5de35bdf','df749d7e-5007-43cd-8715-2875d281f817'::uuid,'NAVY','Aviation Cadet','Aviation Cadet',29,now(),now()),
-    ('fefae126-e6f5-4af8-836e-c08c8f60ff39','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'NAVY','NAVY Academy Graduate','Academy Graduate',30,now(),now()),
+    ('fefae126-e6f5-4af8-836e-c08c8f60ff39','ec620134-d40f-4ebb-bfeb-0e4e0ef06d14'::uuid,'NAVY','NAVY Academy Graduate','Academy Graduate',30,now(),now()),
 -- Coast Guard
     ('9eec1f1e-7eba-4237-9d4b-443f764638f3','63998729-ef74-486e-beea-5b519fa3812f'::uuid,'COAST_GUARD','Midshipman','Midshipman',25,now(),now()),
     ('a91e7755-40f5-435f-8289-47104158346c','df749d7e-5007-43cd-8715-2875d281f817'::uuid,'COAST_GUARD','Aviation Cadet','Aviation Cadet',26,now(),now()),
     ('9f93f784-9631-4532-877f-632217ede873','8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0'::uuid,'COAST_GUARD','Coast Guard Academy Cadet','Academy Cadet',27,now(),now()),
-    ('815fa1ab-08c7-45e5-a05e-a6d9e8e2ecb1','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'COAST_GUARD','Coast Guard Academy Graduate','Academy Graduate',28,now(),now()),
+    ('815fa1ab-08c7-45e5-a05e-a6d9e8e2ecb1','ec620134-d40f-4ebb-bfeb-0e4e0ef06d14'::uuid,'COAST_GUARD','Coast Guard Academy Graduate','Academy Graduate',28,now(),now()),
 -- Space Force
     ('9bbd3a22-0da5-4689-96aa-ada0ad4bfcb8','df749d7e-5007-43cd-8715-2875d281f817'::uuid,'SPACE_FORCE','Aviation Cadet','Aviation Cadet',23,now(),now()),
     ('76d79f74-8d2d-4c88-be0e-8711a5d148a9','8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0'::uuid,'SPACE_FORCE','Space Force Academy Cadet','Academy Cadet',24,now(),now()),
-    ('34cd78c4-a0a0-40e7-824d-8a6e52d0e867','b25998f4-4715-4f41-8986-4c5c8e59fc80'::uuid,'SPACE_FORCE','Space Force Academy Graduate','Academy Graduate',25,now(),now());
+    ('34cd78c4-a0a0-40e7-824d-8a6e52d0e867','ec620134-d40f-4ebb-bfeb-0e4e0ef06d14'::uuid,'SPACE_FORCE','Space Force Academy Graduate','Academy Graduate',25,now(),now());

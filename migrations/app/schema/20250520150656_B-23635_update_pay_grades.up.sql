@@ -35,7 +35,7 @@ WITH updates (id, grade, grade_description, "order") AS (
         ('63998729-ef74-486e-beea-5b519fa3812f', 'MIDSHIPMAN', 'Midshipman', 25),
         ('df749d7e-5007-43cd-8715-2875d281f817', 'AVIATION_CADET', 'Aviation Cadet', 26),
         ('8d8c82ea-ea8f-4d7f-9d84-8d186ab7a7c0', 'ACADEMY_CADET', 'Academy Cadet', 27),
-        ('9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN', 'Civilian', 28)
+        ('9e2cb9a5-ace3-4235-9ee7-ebe4cc2a9bc9', 'CIVILIAN_EMPLOYEE', 'Civilian', 29)
 )
 UPDATE pay_grades
 SET
@@ -44,3 +44,5 @@ SET
     "order" = updates."order"
 FROM updates
 WHERE pay_grades.id = updates.id::uuid;
+
+INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('ec620134-d40f-4ebb-bfeb-0e4e0ef06d14', 'ACADEMY_GRADUATE', 'Academy Graduate', NOW(), NOW(),28);
