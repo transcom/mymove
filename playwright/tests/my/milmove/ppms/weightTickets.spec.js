@@ -36,7 +36,7 @@ test.describe('About Your PPM', () => {
   });
 });
 
-test.describe('About You PPM with incorrect Xlsx Upload', () => {
+test.describe('About Your PPM with incorrect Xlsx Upload', () => {
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();

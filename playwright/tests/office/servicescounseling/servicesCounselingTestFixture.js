@@ -402,6 +402,34 @@ export class ServiceCounselorPage extends OfficePage {
     // wait for the file to be visible in the uploads
     await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
   }
+
+  async fillOutProGearWithIncorrectXlsx() {
+    // need to fix this like the other one
+    // find the label, then find the filepond wrapper. Not sure why
+    // getByLabel doesn't work
+    const proGearWeightLabel = this.page.locator('label').getByText('Upload your');
+    await expect(proGearWeightLabel).toBeVisible();
+    const proGearFilepond = proGearWeightLabel.locator('../..').locator('.filepond--wrapper');
+    await expect(proGearFilepond).toBeVisible();
+
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectFailedUpload.xlsx');
+
+    // await modal is visible and close modal
+    await expect(
+      this.page.getByText(
+        'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+      ),
+    ).toBeVisible();
+    await this.page.getByTestId('modalCloseButton').click();
+
+    // wait for the an incorrect file to not be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
+
+    // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
+    await this.uploadFileViaFilepond(proGearFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
+    // wait for the file to be visible in the uploads
+    await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
+  }
 }
 
 /**
