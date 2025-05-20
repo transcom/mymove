@@ -18,6 +18,7 @@ import (
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -358,7 +359,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	scRoleType := string(roles.RoleTypeServicesCounselor)
 
 	supervisorPrivilegeName := "Supervisor"
-	supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+	supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 
 	suite.Run("200 - Successfully create Office User", func() {
 		// Test:				CreateOfficeUserHandler, Fetcher
@@ -770,7 +771,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		middleInitials := "RB"
 		telephone := "865-555-5309"
 		supervisorPrivilegeName := "Supervisor"
-		supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
+		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
 		tooRoleName := "Task Ordering Officer"
 		tooRoleType := string(roles.RoleTypeTOO)
 
@@ -798,6 +799,8 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			},
 		}
 
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, &officeUser)
+
 		params := officeuserop.UpdateOfficeUserParams{
 			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
@@ -813,10 +816,10 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		expectedOfficeUser.Telephone = *expectedInput.Telephone
 		expectedOfficeUser.TransportationOfficeID = transportationOffice.ID
 		expectedOfficeUser.User.Roles = roles.Roles{roles.Role{RoleType: roles.RoleTypeTOO}}
-		expectedOfficeUser.User.Privileges = models.Privileges{models.Privilege{PrivilegeType: models.PrivilegeSearchTypeSupervisor}}
+		expectedOfficeUser.User.Privileges = roles.Privileges{roles.Privilege{PrivilegeType: roles.PrivilegeSearchTypeSupervisor}}
 
 		mockUpdater := mocks.OfficeUserUpdater{}
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput, transportationOffice.ID).Return(&expectedOfficeUser, nil, nil)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdatesModel, transportationOffice.ID).Return(&expectedOfficeUser, nil, nil)
 		queryBuilder := query.NewQueryBuilder()
 		officeUserUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 
@@ -864,12 +867,15 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
-		expectedInput := *officeUserUpdates
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
+
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.On("UpdateOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			officeUser.ID,
-			&expectedInput,
+			officeUserUpdatesModel,
 			uuid.FromStringOrNil(officeUserUpdates.TransportationOfficeAssignments[0].TransportationOfficeID.String()),
 		).Return(nil, nil, sql.ErrNoRows)
 
@@ -884,6 +890,62 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
+	})
+
+	suite.Run("Returns not found when office user does not exist in DB", func() {
+		officeUser := setupTestData()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		primaryOffice := true
+		firstName := "Riley"
+		middleInitials := "RB"
+		telephone := "865-555-5309"
+		supervisorPrivilegeName := "Supervisor"
+		supervisorPrivilegeType := string(roles.PrivilegeTypeSupervisor)
+		tooRoleName := "Task Ordering Officer"
+		tooRoleType := string(roles.RoleTypeTOO)
+
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
+			FirstName:      &firstName,
+			MiddleInitials: &middleInitials,
+			Telephone:      &telephone,
+			Privileges: []*adminmessages.OfficeUserPrivilege{
+				{
+					Name:          &supervisorPrivilegeName,
+					PrivilegeType: &supervisorPrivilegeType,
+				},
+			},
+			Roles: []*adminmessages.OfficeUserRole{
+				{
+					Name:     &tooRoleName,
+					RoleType: &tooRoleType,
+				},
+			},
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
+		}
+
+		fakeID := uuid.Must(uuid.NewV4())
+
+		officeUserDB, err := models.FetchOfficeUserByID(suite.DB(), fakeID)
+		suite.Error(err)
+		suite.Equal(uuid.Nil, officeUserDB.ID)
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
+			OfficeUserID: strfmt.UUID(fakeID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		mockUpdater := mocks.OfficeUserUpdater{}
+		mockRevoker := mocks.UserSessionRevocation{}
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserNotFound{}, response)
 	})
 
 	suite.Run("Office user session is revoked when roles are changed", func() {
@@ -901,9 +963,13 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
+		officeUserDB, _ := models.FetchOfficeUserByID(suite.DB(), officeUser.ID)
+
+		officeUserUpdatesModel := payloads.OfficeUserModelFromUpdate(officeUserUpdates, officeUserDB)
+
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.
-			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates, uuid.Nil).
+			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdatesModel, uuid.Nil).
 			Return(&officeUser, nil, nil)
 
 		expectedSessionUpdate := &adminmessages.UserUpdate{
@@ -1039,7 +1105,7 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			rolesservice.NewRolesFetcher(),
 		}
 
-		rolesPrivs, err := handler.RoleAssociater.FetchRolesPrivileges(suite.AppContextForTest())
+		rolePrivs, err := handler.RoleAssociater.FetchRolesPrivileges(suite.AppContextForTest())
 
 		suite.NoError(err)
 
@@ -1047,19 +1113,36 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 
 		suite.IsType(&officeuserop.GetRolesPrivilegesOK{}, response)
 		okResponse := response.(*officeuserop.GetRolesPrivilegesOK)
-		suite.Len(okResponse.Payload, len(rolesPrivs))
+		suite.Len(okResponse.Payload, len(rolePrivs))
+
+		type privValidation struct {
+			PrivilegeType string
+			PrivilegeName string
+		}
 
 		type rolePrivValidation struct {
-			RoleType      string
-			PrivilegeType string
+			RoleType   string
+			RoleName   string
+			Privileges []privValidation
 		}
 
 		rolePrivEntries := make(map[uuid.UUID]*rolePrivValidation)
 
-		for _, rolePriv := range rolesPrivs {
-			rolePrivEntries[rolePriv.ID] = &rolePrivValidation{
-				RoleType:      string(rolePriv.Role.RoleType),
-				PrivilegeType: string(rolePriv.Privilege.PrivilegeType),
+		for _, rp := range rolePrivs {
+			rid := rp.ID
+
+			if _, ok := rolePrivEntries[rid]; !ok {
+				rolePrivEntries[rid] = &rolePrivValidation{
+					RoleType:   string(rp.RoleType),
+					RoleName:   string(rp.RoleName),
+					Privileges: []privValidation{},
+				}
+			}
+			for _, resPriv := range rp.RolePrivileges {
+				rolePrivEntries[rid].Privileges = append(rolePrivEntries[rid].Privileges, privValidation{
+					PrivilegeType: string(resPriv.Privilege.PrivilegeType),
+					PrivilegeName: string(resPriv.Privilege.PrivilegeName),
+				})
 			}
 		}
 
@@ -1068,11 +1151,15 @@ func (suite *HandlerSuite) TestGetRolesPrivilegesHandler() {
 			suite.NoError(err)
 			rolePriv, ok := rolePrivEntries[entryKey]
 			suite.NotNil(ok)
-			suite.Equal(rolePriv.RoleType, resRolePriv.RoleType)
-			suite.Equal(rolePriv.PrivilegeType, resRolePriv.PrivilegeType)
-
+			suite.Equal(rolePriv.RoleType, *resRolePriv.RoleType)
+			suite.Equal(rolePriv.RoleName, *resRolePriv.RoleName)
+			for i, priv := range rolePriv.Privileges {
+				suite.Equal(priv.PrivilegeType, resRolePriv.Privileges[i].PrivilegeType)
+				suite.Equal(priv.PrivilegeName, resRolePriv.Privileges[i].PrivilegeName)
+			}
 			delete(rolePrivEntries, entryKey) // remove to ensure unique values
 		}
+		suite.Len(rolePrivEntries, 0, "all entries should have been deleted")
 	})
 
 	suite.Run("401 ERROR - Unauthorized ", func() {

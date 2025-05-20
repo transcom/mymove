@@ -4194,7 +4194,23 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hhg := models.MTOShipmentTypeHHG
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator, false)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+// MakeIntlHHGMoveNeedsSC creates an fully ready move needing SC approval - has existing iHHG shipment
+func MakeIntlHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhg := models.MTOShipmentTypeHHG
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, locator, true)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4360,7 +4376,7 @@ func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4378,7 +4394,7 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 	hhg := models.MTOShipmentTypeHHG
 	hos := models.DestinationTypeHomeOfSelection
 	locator := models.GenerateLocator()
-	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator)
+	move := scenario.CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, locator, false)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4461,7 +4477,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -4597,7 +4613,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
@@ -4847,7 +4863,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4886,7 +4902,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, true, userUploader, nil, nil, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4937,7 +4953,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -4972,7 +4988,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -5028,7 +5044,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5105,7 +5121,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5194,7 +5210,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx appcontext.
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5270,7 +5286,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5336,7 +5352,7 @@ func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppConte
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
@@ -5419,6 +5435,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			PickupAddress:               &address,
+			DestinationAddress:          &address,
 			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 			SITEstimatedEntryDate:       &storageStart,
 			SITEstimatedDepartureDate:   &storageEnd,
@@ -5426,7 +5444,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
+	shipment.Shipment.DestinationAddress = shipment.Shipment.PickupAddress
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)
@@ -5568,7 +5587,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
 	sitCost := unit.Cents(200000)
@@ -5704,7 +5723,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5775,7 +5794,7 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 		},
 	}
 
-	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, assertions.PPMShipment)
+	move, _ := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, nil, nil, &assertions.PPMShipment)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -5832,7 +5851,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 		},
 	}
 
-	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, &assertions.PPMShipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{

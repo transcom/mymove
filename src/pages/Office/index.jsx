@@ -45,6 +45,7 @@ import {
   tooRoutes,
   qaeCSRRoutes,
   contractingOfficerRoutes,
+  officeRoutes,
 } from 'constants/routes';
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
@@ -111,6 +112,8 @@ const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo')
 const ServicesCounselingAddOrders = lazy(() =>
   import('pages/Office/ServicesCounselingAddOrders/ServicesCounselingAddOrders'),
 );
+const OfficeUserProfile = lazy(() => import('pages/Office/Profile/Profile'));
+const OfficeUserEditContactInfo = lazy(() => import('pages/Office/Profile/ContactInfo'));
 
 const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props }) => {
   // Local state for feature flags and Okta booleans
@@ -606,6 +609,8 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                       <Route end path="/*" element={<InvalidPermissions />} />
                     )}
 
+                    <Route end path={officeRoutes.PROFILE_PATH} element={<OfficeUserProfile />} />
+                    <Route end path={officeRoutes.CONTACT_INFO_EDIT_PATH} element={<OfficeUserEditContactInfo />} />
                     {/* 404 */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

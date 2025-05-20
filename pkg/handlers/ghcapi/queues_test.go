@@ -1095,7 +1095,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(string(paymentRequest.Status), "Payment requested")
 	suite.Equal("KKFA", string(paymentRequest.OriginGBLOC))
 
-	//createdAt := actualPaymentRequest.CreatedAt
 	age := float64(2)
 	deptIndicator := *paymentRequest.DepartmentIndicator
 
@@ -1713,9 +1712,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -1797,9 +1796,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -1916,9 +1915,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -1992,9 +1991,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2112,9 +2111,9 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2215,9 +2214,9 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2506,9 +2505,9 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2591,9 +2590,9 @@ func (suite *HandlerSuite) TestLockAndUnlockBulkAssignmentMoves() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
@@ -2850,12 +2849,12 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 						{
-							PrivilegeType: models.PrivilegeTypeSafety,
+							PrivilegeType: roles.PrivilegeTypeSafety,
 						},
 					},
 					Roles: []roles.Role{
@@ -2977,9 +2976,9 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 			},
 			{
 				Model: models.User{
-					Privileges: []models.Privilege{
+					Privileges: []roles.Privilege{
 						{
-							PrivilegeType: models.PrivilegeTypeSupervisor,
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
 						},
 					},
 					Roles: []roles.Role{
