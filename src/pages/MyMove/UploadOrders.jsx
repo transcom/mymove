@@ -5,6 +5,8 @@ import { generatePath, useNavigate, useParams } from 'react-router';
 
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 
+import styles from './UploadOrders.module.scss';
+
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -16,6 +18,9 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { withContext } from 'shared/AppContext';
+
+export const filepondButtonStyle = styles['filepond-style'];
+export const filepondWrapperStyle = styles['upload-wrapper'];
 
 const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId }) => {
   const filePondEl = useRef();
@@ -98,9 +103,9 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
     navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
 
-  const desktopFileUploadActionElement = `<div class='upload-wrapper'>
+  const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
       <span>Drag & drop or</span>
-      <button class='filepond-style'>Upload orders</button>
+      <button class='${filepondButtonStyle}'>Upload orders</button>
     </div>`;
 
   return (

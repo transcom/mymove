@@ -1,8 +1,8 @@
 @use 'shared/standardUI/Generic/build' as *;
 @use 'shared/standardUI/Layouts/breaks' as *;
-@use 'shared/standardUI/Layouts/layouts' as *;
 @use 'src/shared/standardUI/Generic/_placement' as *;
 @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+@use 'src/shared/standardUI/Layouts/layouts' as *;
 
 %description-placeholder{
     @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){

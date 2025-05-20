@@ -1,10 +1,8 @@
 @use 'src/shared/standardUI/' as *;
 @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 
-
-.ppm-upload-btn{
+:where(.snap-grid-btn){
   @extend %layout-button;
-  @extend .usa-button--outline;
 }
 
 .ppm-shipment {

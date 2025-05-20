@@ -1,65 +1,77 @@
 import React from 'react';
 import { string, element, func, arrayOf, bool, shape, oneOfType, number, node } from 'prop-types';
-import { Button, Tag } from '@trussworks/react-uswds';
+import { Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import styles from './ReviewItems.module.scss';
 
+import { ButtonUsa as Button, destructiveOutlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
+
+const reviewWrapperStyle = styles['review-wrapper'];
+const reviewPanelStyle = styles['review-panel'];
+const reviewRowStyle = styles['review-row'];
+const reviewDescriptionStyle = styles['review-description'];
+const reviewTermStyle = styles['review-term'];
+const reviewActionButtonContainer = styles['action-button-container'];
+const reviewContentContainerStyle = styles['content-container'];
 const ReviewItems = ({ className, heading, renderAddButton, contents, emptyMessage }) => {
   return (
-    <div className={classnames(styles.ReviewItems, className)}>
+    <div className={classnames(reviewWrapperStyle, className)}>
       <div className={styles.headingContainer}>
         <div className={styles.headingContent}>{heading}</div>
-        {renderAddButton && <div className={styles.addButtonContainer}>{renderAddButton()}</div>}
       </div>
-      <div className={styles.contentsContainer}>
-        {(!contents || contents.length === 0) && (
-          <div className={classnames({ [styles.emptyWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}>
-            <span className={styles.emptyMessage}>{emptyMessage}</span>
-          </div>
-        )}
-        {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }, idx) => {
-          return (
-            <div className={classnames({ [styles.headingWrapper]: !!renderAddButton })} key={id}>
-              {isComplete === false && (
-                <div className={styles.missingAlert}>
-                  <Tag className={classnames(styles.alertTag, 'usa-tag--alert')}>
-                    <FontAwesomeIcon icon="exclamation" />
-                  </Tag>
-                  <span className="missingMessage">{draftMessage}</span>
-                </div>
-              )}
-              <div
-                className={classnames({ [styles.subheadingWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}
-              >
-                {subheading && <div className={styles.subheading}>{subheading}</div>}
-                <dl>
-                  {rows.map(({ id: rowId, hideLabel, label, value }) => (
-                    <div key={`${rowId}-${id}`} className={styles[rowId]}>
-                      <dt className={classnames({ [styles.hiddenTerm]: hideLabel })} aria-hidden={hideLabel}>
-                        {label}
-                      </dt>
-                      <dd>{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <div className={styles.actionContainer}>
-                  {onDelete && (
-                    <>
-                      <Button data-testid={`weightMovedDelete-${idx + 1}`} type="button" unstyled onClick={onDelete}>
-                        Delete
-                      </Button>
-                      <span className={styles.actionSeparator}>|</span>
-                    </>
-                  )}
-                  {renderEditLink()}
-                </div>
+
+      {(!contents || contents.length === 0) && (
+        <div className={classnames({ [styles.emptyWrapper]: !!renderAddButton }, 'display-flex', 'width-full')}>
+          <span className={styles.emptyMessage}>{emptyMessage}</span>
+        </div>
+      )}
+      {renderAddButton && renderAddButton()}
+      {contents?.map(({ id, isComplete, draftMessage, subheading, rows, onDelete, renderEditLink }, idx) => {
+        return (
+          <div className={reviewContentContainerStyle}>
+            {isComplete === false && (
+              <div className={styles.missingAlert}>
+                <Tag className={classnames(styles.alertTag, 'usa-tag--alert')}>
+                  <FontAwesomeIcon icon="exclamation" />
+                </Tag>
+                <span className="missingMessage">{draftMessage}</span>
               </div>
+            )}
+            {subheading && <div className={styles.subheading}>{subheading}</div>}
+            <dl className={reviewPanelStyle}>
+              {rows.map(({ id: rowId, hideLabel, label, value }) => (
+                <div
+                  key={`${rowId}-${id}`}
+                  className={classnames({ [reviewRowStyle]: true, [styles[rowId]]: styles[rowId] })}
+                >
+                  <dt
+                    className={classnames({ [reviewTermStyle]: true, [styles.hiddenTerm]: hideLabel })}
+                    aria-hidden={hideLabel}
+                  >
+                    {label}
+                  </dt>
+                  <dd className={classnames({ [reviewDescriptionStyle]: true })}>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className={reviewActionButtonContainer}>
+              {renderEditLink()}
+              {onDelete && (
+                <Button
+                  className={destructiveOutlineButtonStyle}
+                  data-testid={`weightMovedDelete-${idx + 1}`}
+                  type="button"
+                  onClick={onDelete}
+                >
+                  Delete
+                </Button>
+              )}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

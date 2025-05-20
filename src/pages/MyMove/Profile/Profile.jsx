@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
 import { Alert } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 import { useLocation, useNavigate, generatePath } from 'react-router-dom';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import styles from './Profile.module.scss';
 
-import { LinkButton } from 'shared/standardUI/Buttons';
-import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
+import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
@@ -27,6 +27,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OktaUserInfoShape } from 'types/user';
+import { LinkButton } from 'shared/standardUI/Buttons';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft, oktaUser }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
@@ -78,14 +79,21 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   return (
     <div className="grid-container usa-prose">
       <ConnectedFlashMessage />
+      <br />
       <div className="grid-row">
         <div className="grid-col-12">
           {needsToVerifyProfile ? (
-            <LinkButton style={styles.returnToPreviousViewButton} href={generalRoutes.HOME_PATH}>
+            <LinkButton
+              className={classnames(styles.returnToPreviousViewButton, outlineButtonStyle)}
+              to={generalRoutes.HOME_PATH}
+            >
               Return to Dashboard
             </LinkButton>
           ) : (
-            <LinkButton style={styles.returnToPreviousViewButton} href={returnToMovePath}>
+            <LinkButton
+              className={classnames(styles.returnToPreviousViewButton, outlineButtonStyle)}
+              to={returnToMovePath}
+            >
               Return to Move
             </LinkButton>
           )}

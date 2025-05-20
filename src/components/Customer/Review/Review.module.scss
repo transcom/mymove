@@ -6,7 +6,7 @@
 }
 
 .edit-btn {
-  @extend %action-buttons, .usa-button--outline;
+  @extend %action-buttons;
 }
 
 @media (min-width: $tablet) {

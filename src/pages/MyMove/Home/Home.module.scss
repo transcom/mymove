@@ -26,8 +26,8 @@
 
   // undoes padding of parent container
   margin-top: -21px;
-  margin-left: -1.25rem;
-  margin-right: -1.25rem;
+  // margin-left: -1.25rem;
+  // margin-right: -1.25rem;
   @include u-margin-bottom(2);
 
   @include u-padding-top(3);

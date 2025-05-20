@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { Link, useParams, generatePath } from 'react-router-dom';
+import { useParams, generatePath } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './Review.module.scss';
 
+import { LinkButton } from 'shared/standardUI/Buttons';
 import Alert from 'shared/Alert';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
@@ -40,7 +41,12 @@ import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { PPM_TYPES } from 'shared/constants';
-import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
+import {
+  ButtonUsa as Button,
+  destructiveOutlineButtonStyle,
+  outlineButtonStyle,
+  primaryButtonStyle,
+} from 'shared/standardUI/Buttons/ButtonUsa';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -56,13 +62,18 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
           {deleteDetailMessage}
           <ModalActions>
             <Button
-              className="usa-button--destructive"
+              className={destructiveOutlineButtonStyle}
               type="submit"
               onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemNumber)}
             >
               Yes, Delete
             </Button>
-            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
+            <Button
+              className={outlineButtonStyle}
+              type="button"
+              onClick={() => onClose(false)}
+              data-testid="modalBackButton"
+            >
               No, Keep It
             </Button>
           </ModalActions>
@@ -221,7 +232,7 @@ const Review = () => {
             <SectionWrapper className={styles.aboutSection} data-testid="aboutYourPPM">
               <ReviewItems heading={<h2>About Your PPM</h2>} contents={aboutYourPPM} />
             </SectionWrapper>
-            <SectionWrapper>
+            <SectionWrapper className={styles.documentSection}>
               <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Small Package Expenses' : 'Documents'}</h2>
               {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
                 <ReviewItems
@@ -234,9 +245,9 @@ const Review = () => {
                   }
                   contents={weightTicketContents}
                   renderAddButton={() => (
-                    <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
+                    <LinkButton className={outlineButtonStyle} to={weightTicketCreatePath}>
                       Add More Weight
-                    </Link>
+                    </LinkButton>
                   )}
                   emptyMessage="No weight moved documented. At least one trip is required to continue."
                 />
@@ -252,9 +263,9 @@ const Review = () => {
                   }
                   contents={proGearContents}
                   renderAddButton={() => (
-                    <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                    <LinkButton className={outlineButtonStyle} to={proGearCreatePath}>
                       Add Pro-gear Weight
-                    </Link>
+                    </LinkButton>
                   )}
                   emptyMessage="No pro-gear weight documented."
                 />
@@ -269,30 +280,29 @@ const Review = () => {
                 }
                 contents={expenseContents}
                 renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={expensesCreatePath}>
+                  <LinkButton className={outlineButtonStyle} to={expensesCreatePath}>
                     Add Expenses
-                  </Link>
+                  </LinkButton>
                 )}
                 emptyMessage="No receipts uploaded."
               />
             </SectionWrapper>
             <div className={classnames(ppmStyles.buttonContainer, styles.navigationButtons)}>
-              <Link
-                className={classnames(ppmStyles.backButton, 'usa-button', 'usa-button--secondary')}
+              <LinkButton
+                className={outlineButtonStyle}
                 to={generalRoutes.HOME_PATH}
                 data-testid="reviewReturnToHomepageLink"
               >
                 Return To Homepage
-              </Link>
-              <Link
-                className={classnames(ppmStyles.saveButton, 'usa-button', {
-                  'usa-button--disabled': !canAdvance || ppmSmalLPackageCanAdvance,
-                })}
+              </LinkButton>
+              <LinkButton
+                className={primaryButtonStyle}
                 aria-disabled={!canAdvance || ppmSmalLPackageCanAdvance}
+                disabled={!canAdvance || ppmSmalLPackageCanAdvance}
                 to={completePath}
               >
                 Save & Continue
-              </Link>
+              </LinkButton>
             </div>
           </Grid>
         </Grid>

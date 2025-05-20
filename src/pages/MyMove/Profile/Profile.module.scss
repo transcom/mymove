@@ -3,13 +3,22 @@
 
 
 %action-buttons{
-  @extend .usa-button--outline;
+  @extend .usa-button;
 }
 
-.returnToPreviousViewButton,
 .validateProfileBtn,
+a > .returnToPreviousViewButton,
+.returnToPreviousViewButton,
 .createMoveBtn {
   @extend %action-buttons;
+}
+
+.returnToPreviousViewButton{
+  @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+    justify-self: end;
+  }  @include mix-at-media($media-breaks-mobile, $media-breaks-tablet) using ($selector, $media-break){
+    justify-self: stretch;
+  }
 }
 
 @mixin mix-mm-button-stack-layout {
@@ -19,13 +28,17 @@
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
     %action-buttons{
-      justify-self: stretch;
       grid-column: 2;
+      justify-self: end;
     }
   }
 
-  @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+  @include mix-at-media($media-breaks-mobile, $media-breaks-tablet) using ($selector, $media-break){
     grid-auto-flow: row;
+      %action-buttons{
+        justify-self: stretch;
+        grid-column: 2;
+      }
   }
 }
 

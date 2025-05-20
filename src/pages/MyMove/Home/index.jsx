@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Alert, Button } from '@trussworks/react-uswds';
+import { Alert } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 
 import styles from './Home.module.scss';
@@ -16,12 +16,13 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import Step from 'components/Customer/Home/Step';
+import Step, { actionButtonStyle, dangerousButtonStyle } from 'components/Customer/Home/StepAlt';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PPMSummaryList from 'components/PPMSummaryList/PPMSummaryList';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
@@ -66,7 +67,11 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
-const printButtonStyle = styles['print-btn'];
+// const cancelMoveButtonStyle = styles['cancel-btn'];
+const sectionWrapperStyle = styles['step-section-wrapper'];
+// const shipmentListStyle = styles['shipment-list'];
+const printButtonStyle = actionButtonStyle;
+const moveRequestContainerStyle = 'move-request-container';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -518,7 +523,7 @@ export class Home extends Component {
               <>
                 {this.renderAlert()}
                 {this.renderHelper()}
-                <SectionWrapper>
+                <SectionWrapper className={sectionWrapperStyle}>
                   <Step
                     complete={serviceMember.is_profile_complete}
                     completedHeaderText="Profile complete"
@@ -606,23 +611,28 @@ export class Home extends Component {
                   <Step
                     actionBtnDisabled={this.hasIncompleteShipment || !this.hasAnyShipments}
                     actionBtnId="review-and-submit-btn"
-                    actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review2 your request'}
+                    actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
                     complete={this.hasSubmittedMove}
                     completedHeaderText="Move request confirmed"
-                    containerClassName="margin-bottom-8"
+                    containerClassName={moveRequestContainerStyle}
                     headerText="Confirm move request"
                     onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
                     secondaryBtn={this.hasSubmittedMove}
-                    secondaryBtnClassName={styles.secondaryBtn}
+                    secondaryBtnClassName={dangerousButtonStyle}
                     step="4"
                   >
                     {this.hasSubmittedMove ? (
-                      <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
-                        Move submitted {formatCustomerDate(move.submitted_at)}.<br />
+                      <>
+                        <Description
+                          className={styles.moveSubmittedDescription}
+                          dataTestId="move-submitted-description"
+                        >
+                          Move submitted {formatCustomerDate(move.submitted_at)}.<br />
+                        </Description>
                         <Button onClick={this.handlePrintLegalese} className={printButtonStyle}>
                           Print the legal agreement
                         </Button>
-                      </Description>
+                      </>
                     ) : (
                       <Description>
                         Review your move details and sign the legal paperwork, then send the info on to your move

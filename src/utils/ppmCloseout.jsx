@@ -1,5 +1,5 @@
 import React from 'react';
-import { generatePath, Link } from 'react-router-dom';
+import { generatePath } from 'react-router-dom';
 import moment from 'moment';
 
 import { formatAddress } from './shipmentDisplay';
@@ -8,6 +8,8 @@ import { formatCents, formatCentsTruncateWhole, formatCustomerDate, formatWeight
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 import { isExpenseComplete, isWeightTicketComplete, isProGearComplete } from 'utils/shipments';
 import PPMDocumentsStatus from 'constants/ppms';
+import { outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
+import { LinkButton } from 'shared/standardUI/Buttons';
 
 export const getW2Address = (address) => {
   const addressLine1 = address?.streetAddress2
@@ -50,7 +52,14 @@ export const formatAboutYourPPMItem = (ppmShipment, editPath, editParams) => {
           value: getW2Address(ppmShipment.w2Address),
         },
       ],
-      renderEditLink: () => (editPath ? <Link to={generatePath(editPath, editParams)}>Edit</Link> : ''),
+      renderEditLink: () =>
+        editPath ? (
+          <LinkButton className={outlineButtonStyle} to={generatePath(editPath, editParams)}>
+            Edit
+          </LinkButton>
+        ) : (
+          ''
+        ),
     },
   ];
 };
@@ -83,12 +92,13 @@ export const formatWeightTicketItems = (weightTickets, editPath, editParams, han
       ],
       onDelete: () => handleDelete('weightTicket', weightTicket.id, weightTicket.eTag, `Trip ${i + 1}`),
       renderEditLink: () => (
-        <Link
+        <LinkButton
+          className={outlineButtonStyle}
           data-testid={`weightMoved-${i + 1}`}
           to={generatePath(editPath, { ...editParams, weightTicketId: weightTicket.id })}
         >
           Edit
-        </Link>
+        </LinkButton>
       ),
     };
     if (weightTicket.vehicleDescription === null) {
@@ -127,7 +137,14 @@ export const formatProGearItems = (proGears, editPath, editParams, handleDelete)
         },
         weightValues,
       ],
-      renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, proGearId: proGear.id })}>Edit</Link>,
+      renderEditLink: () => (
+        <LinkButton
+          className={outlineButtonStyle}
+          to={generatePath(editPath, { ...editParams, proGearId: proGear.id })}
+        >
+          Edit
+        </LinkButton>
+      ),
       onDelete: () => handleDelete('proGear', proGear.id, proGear.eTag, `Set ${i + 1}`),
     };
 
@@ -162,7 +179,14 @@ export const formatExpenseItems = (expenses, editPath, editParams, handleDelete)
         </h4>
       ),
       rows: [{ id: 'amount', label: 'Amount:', value: `$${formatCents(expense.amount)}` }],
-      renderEditLink: () => <Link to={generatePath(editPath, { ...editParams, expenseId: expense.id })}>Edit</Link>,
+      renderEditLink: () => (
+        <LinkButton
+          className={outlineButtonStyle}
+          to={generatePath(editPath, { ...editParams, expenseId: expense.id })}
+        >
+          Edit
+        </LinkButton>
+      ),
       onDelete: () => handleDelete('expense', expense.id, expense.eTag, `Receipt ${i + 1}`),
     };
 

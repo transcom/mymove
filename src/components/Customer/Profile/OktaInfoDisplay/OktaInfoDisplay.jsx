@@ -16,7 +16,7 @@ const OktaInfoDisplay = ({ editURL, oktaUsername, oktaEmail, oktaFirstName, okta
     <div className={oktaInfoDisplayStyles.serviceInfoContainer}>
       <div className={oktaInfoDisplayStyles.header}>
         <img className={oktaInfoDisplayStyles.oktaLogo} src={oktaLogo} alt="Okta logo" />
-        <LinkButton className={oktaInfoDisplayStyles.oktaEditLink} href={editURL} state={state}>
+        <LinkButton className={oktaInfoDisplayStyles.oktaEditLink} to={editURL} state={state}>
           Edit
         </LinkButton>
       </div>

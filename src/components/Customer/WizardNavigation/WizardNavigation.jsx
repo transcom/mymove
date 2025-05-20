@@ -74,7 +74,7 @@ const WizardNavigation = ({
         <Button
           type="button"
           onClick={onAddShipment}
-          className={wizardActionButtonStyle}
+          className={wizardMainButtonStyle}
           data-testid="wizardAddShipmentButton"
         >
           <FontAwesomeIcon icon="plus" className={styles.addShipmentIcon} />

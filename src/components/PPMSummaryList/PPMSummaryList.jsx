@@ -1,9 +1,10 @@
 import React from 'react';
 import { arrayOf, bool, func, number } from 'prop-types';
+import classNames from 'classnames';
 
 import styles from './PPMSummaryList.module.scss';
 
-import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
+import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
@@ -12,7 +13,7 @@ import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketD
 import { downloadPPMPaymentPacket } from 'services/internalApi';
 import { isFeedbackAvailable } from 'constants/ppmFeedback';
 
-const uploadPpmButtonStyle = styles['ppm-upload-btn'];
+const snapGridButtonStyle = styles['snap-grid-btn'];
 
 const toFromAddressDisplay = (pickupAddress, destinationAddress) => {
   return (
@@ -106,7 +107,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
   switch (status) {
     case ppmShipmentStatuses.SUBMITTED:
       actionButtons = (
-        <Button className={uploadPpmButtonStyle} disabled>
+        <Button disabled className={classNames(snapGridButtonStyle, outlineButtonStyle)}>
           Upload PPM Documents
         </Button>
       );
@@ -117,33 +118,39 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
         [
           <div>
             <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
-            <Button className={uploadPpmButtonStyle} onClick={onButtonClick}>
+            <Button className={classNames(snapGridButtonStyle, outlineButtonStyle)} onClick={onButtonClick}>
               Upload PPM Documents
             </Button>
           </div>,
         ]
       ) : (
-        <Button className={uploadPpmButtonStyle} onClick={onButtonClick}>
+        <Button className={classNames(snapGridButtonStyle, outlineButtonStyle)} onClick={onButtonClick}>
           Upload PPM Documents
         </Button>
       );
       content = approvedContent(approvedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.NEEDS_CLOSEOUT:
-      actionButtons = <Button disabled>Download Payment Packet</Button>;
+      actionButtons = (
+        <Button disabled className={classNames(snapGridButtonStyle, outlineButtonStyle)}>
+          Download Payment Packet
+        </Button>
+      );
       content = paymentSubmitted(approvedAt, submittedAt, pickupAddress, destinationAddress);
       break;
     case ppmShipmentStatuses.CLOSEOUT_COMPLETE:
       actionButtons = isFeedbackAvailable(shipment?.ppmShipment) ? (
         [
           <div>
-            <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
+            <Button className={classNames(snapGridButtonStyle, outlineButtonStyle)} onClick={() => onFeedbackClick()}>
+              View Closeout Feedback
+            </Button>
             <AsyncPacketDownloadLink
               id={shipment?.ppmShipment?.id}
               label="Download Payment Packet"
               asyncRetrieval={downloadPPMPaymentPacket}
               onFailure={handleDownloadFailure}
-              className="styles.btn"
+              className={classNames(snapGridButtonStyle, outlineButtonStyle)}
               loadingMessage="Downloading Payment Packet (PDF)..."
             />
           </div>,
@@ -154,7 +161,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
           label="Download Payment Packet"
           asyncRetrieval={downloadPPMPaymentPacket}
           onFailure={handleDownloadFailure}
-          className="styles.btn"
+          className={classNames(snapGridButtonStyle, outlineButtonStyle)}
           loadingMessage="Downloading Payment Packet (PDF)..."
         />
       );

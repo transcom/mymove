@@ -37,10 +37,11 @@ import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/gene
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
 import Hint from 'components/Hint';
+import { filepondButtonStyle, filepondWrapperStyle } from 'pages/MyMove/UploadOrders';
 
-const desktopFileUploadActionElement = `<div class='upload-wrapper'>
+const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
       <span>Drag & drop or</span>
-      <button class='filepond-style'>Upload orders</button>
+      <button class='${filepondButtonStyle}'>Upload orders</button>
     </div>`;
 
 const EditOrdersForm = ({

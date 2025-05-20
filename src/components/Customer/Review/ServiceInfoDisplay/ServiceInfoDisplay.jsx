@@ -1,11 +1,10 @@
 import React from 'react';
 import { string, bool } from 'prop-types';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import serviceInfoDisplayStyles from './ServiceInfoDisplay.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-import { LinkButton } from 'shared/standardUI/Buttons';
 
 const editButtonStyle = serviceInfoDisplayStyles['edit-btn'];
 
@@ -28,9 +27,9 @@ const ServiceInfoDisplay = ({
       <div className={serviceInfoDisplayStyles.header}>
         <h2>Service info</h2>
         {isEditable && (
-          <LinkButton className={editButtonStyle} href={editURL} state={state}>
+          <Link className={editButtonStyle} to={editURL} state={state}>
             Edit
-          </LinkButton>
+          </Link>
         )}
       </div>
       {!isEditable && showMessage && (

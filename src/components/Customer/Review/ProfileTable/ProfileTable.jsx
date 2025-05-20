@@ -4,7 +4,7 @@ import { string, func } from 'prop-types';
 
 import reviewStyles from '../Review.module.scss';
 
-import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
+import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import { customerRoutes } from 'constants/routes';
 
 const ProfileTable = ({
@@ -31,7 +31,7 @@ const ProfileTable = ({
         <h2>Profile</h2>
         <Button
           unstyled
-          className={reviewStyles['edit-btn']}
+          className={classnames(reviewStyles['edit-btn'], outlineButtonStyle)}
           data-testid="edit-profile-table"
           onClick={() => onEditClick(editProfilePath)}
         >

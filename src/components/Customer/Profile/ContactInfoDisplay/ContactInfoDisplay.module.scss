@@ -1,16 +1,17 @@
 @use 'src/shared/standardUI/' as *;
 @use 'src/shared/standardUI/Buttons/mm_buttons' as *;
 
-.edit-btn{
-  @extend %layout-button;
+a > .edit-btn, .edit-btn{
+  width: fit-content;
+  @extend %layout-button, .usa-button;
 }
 
 .contactInfoContainer {
   .contactInfoHeader {
     @include mix-mm-header-layout;
     @include mix-mm-header-action-button-layout{
-      .edit-btn {
-          @extend .usa-button--outline, %layout-button;
+      a > .edit-btn, .edit-btn{
+          @extend %layout-button;
       }
     }
     h2 {

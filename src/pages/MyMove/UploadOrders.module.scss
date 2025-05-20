@@ -17,8 +17,8 @@
 
   .filepond-style{
     justify-self: end;
-    @extend %inert-button;
     cursor: pointer;
+    @extend .usa-button--outline, %inert-button;
   }
 }
 

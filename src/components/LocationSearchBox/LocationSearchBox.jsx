@@ -48,7 +48,6 @@ const formatLocation = (option, input) => {
   if (searchIndex === -1) {
     return <span>{outputLabel}</span>;
   }
-
   return (
     <span>
       {outputLabel.substr(0, searchIndex)}
@@ -213,7 +212,6 @@ export const LocationSearchBoxComponent = ({
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasLocation = !!value && !!value.address;
-
   return (
     <FormGroup>
       <div className="labelWrapper">

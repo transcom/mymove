@@ -11,6 +11,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { filepondButtonStyle, filepondWrapperStyle } from 'pages/MyMove/UploadOrders';
 import FileUpload from 'components/FileUpload/FileUpload';
 import {
   createUploadForAmendedOrdersDocument,
@@ -90,16 +91,14 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
 
   const additionalText = uploads && uploads.length > 0 ? 'additional ' : '';
 
-  const desktopFileUploadActionElement = (
-    <div className>
-      Drag {additionalText}files here or <span className="filepond--label-action">choose from folder</span>
-    </div>
-  );
-  const mobileFileUploadActionElement = (
-    <div>
-      <span className="filepond--label-action">Upload ${additionalText}files</span>
-    </div>
-  );
+  const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
+      <span>Drag ${additionalText}files here or </span>
+      <button class='${filepondButtonStyle}'>choose from folder</button>
+    </div>`;
+
+  const mobileFileUploadActionElement = `<div>
+      <button class='${filepondButtonStyle}'>Upload ${additionalText}files</span>
+    </div>`;
 
   return (
     <GridContainer>

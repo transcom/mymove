@@ -1,7 +1,6 @@
 @use 'shared/standardUI/Generic/build' as *;
 @use 'shared/standardUI/Layouts/breaks' as *;
-@use 'src/shared/standardUI/Generic/_placement' as *;
-@use 'src/shared/standardUI/Buttons/mm_buttons';
+@use 'src/shared/standardUI/Generic/placement' as *;
 
 $gap-value: 1rem;
 
@@ -47,7 +46,7 @@ $gap-value: 1rem;
 
 @mixin mix-mm-header-action-button-layout {
     @content;
-    > %layout-button  {
+    %layout-button  {
         @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
             grid-column: 3;
             width: fit-content;
@@ -65,11 +64,15 @@ $gap-value: 1rem;
 @mixin mix-mm-button-row {
     display: grid;
     grid-auto-flow: column;
-    gap: 0.5rem;
+    gap: 1rem;
     align-items: center;
     height: fit-content;
     @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
         justify-content: end;
+    }
+
+    @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+        grid-auto-flow: row;
     }
     @content;
     > %layout-button {
@@ -100,7 +103,7 @@ $gap-value: 1rem;
 }
 
 %inert-button{
-    @extend .usa-button--outline;
+    pointer-events: none;
 }
 
 @mixin mix-mm-simple-grid-column-shrink-to-row{

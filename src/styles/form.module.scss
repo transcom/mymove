@@ -200,6 +200,7 @@ p + .radioGroup {
   margin-top: 0;
 }
 
+.buttonContainer,
 .formActions {
   @include u-margin-top(3);
   @include u-margin-bottom(6);

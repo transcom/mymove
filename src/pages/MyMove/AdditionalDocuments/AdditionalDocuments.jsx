@@ -2,6 +2,11 @@ import { React, createRef, useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Button } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+
+import { filepondButtonStyle, filepondWrapperStyle } from '../UploadOrders';
+
+import styles from './AdditionalDocuments.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
@@ -18,6 +23,16 @@ import { updateMove as updateMoveAction } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { primaryButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
+
+const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
+    <span>Dragfiles here or </span>
+    <button class='${filepondButtonStyle}'>choose from folder</button>
+  </div>`;
+
+const mobileFileUploadActionElement = `<div>
+    <button class='${filepondButtonStyle}'>Upload files</span>
+  </div>`;
 
 const AdditionalDocuments = ({ moves, updateMove }) => {
   const { moveId } = useParams();
@@ -128,11 +143,13 @@ const AdditionalDocuments = ({ moves, updateMove }) => {
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={onChange}
-                labelIdle={`Drag files here or <span class="filepond--label-action">choose from folder</span>`}
-                labelIdleMobile={`<span class="filepond--label-action">Upload files</span>`}
+                labelIdle={desktopFileUploadActionElement}
+                labelIdleMobile={mobileFileUploadActionElement}
               />
             </div>
-            <Button onClick={handleBack}>Back</Button>
+            <Button className={classNames(primaryButtonStyle, styles['navigation-back-btn'])} onClick={handleBack}>
+              Back
+            </Button>
           </SectionWrapper>
         </Grid>
       </Grid>

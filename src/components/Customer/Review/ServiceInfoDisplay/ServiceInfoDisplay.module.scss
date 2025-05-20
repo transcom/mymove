@@ -10,7 +10,7 @@
     @include mix-mm-header-layout;
     @include mix-mm-header-action-button-layout{
       .edit-btn {
-          @extend .usa-button--outline, %layout-button;
+          @extend .usa-button, %layout-button;
           }
       }
   }

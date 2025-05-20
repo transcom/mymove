@@ -1,17 +1,25 @@
-import styles from './buttons.module.scss';
+import React from 'react';
+import { ButtonUsa as Button } from './ButtonUsa';
+import { Link } from 'react-router-dom';
 
-const mainButtonClass = [styles.mmPrimaryButton];
+const mainButtonClass = [];
 
 export const Basic = ({ children, mainClassStyles: mainStyles = [mainButtonClass], className, ...props }) => {
   const mainClasses = Array.isArray(mainStyles) ? mainStyles : [mainStyles];
   const classNameValue = [mainClasses, className || []].flat().join(' ');
   return (
-    <button {...props} className={classNameValue}>
+    <Button {...props} className={classNameValue}>
       {children}
-    </button>
+    </Button>
   );
 };
 
-export const LinkButton = ({ href, ...props }) => {
-  return <Basic onClick={() => (window.location.href = href)} {...props} />;
+export const LinkButton = ({ children, href, to, state, ...props }) => {
+  const elem = React.cloneElement(<Link {...{ to, state, ...props }} />, {
+    ...props,
+    style: { display: 'contents' },
+    children: <button {...props}>{children}</button>,
+  });
+
+  return elem;
 };
