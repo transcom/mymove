@@ -36,7 +36,7 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
-    "/addresses/oconus-lookup/{search}": {
+    "/addresses/oconus-lookup/{country}/{search}": {
       "get": {
         "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division.",
         "tags": [
@@ -45,6 +45,12 @@ func init() {
         "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string",
         "operationId": "getOconusLocation",
         "parameters": [
+          {
+            "type": "string",
+            "name": "country",
+            "in": "path",
+            "required": true
+          },
           {
             "type": "string",
             "name": "search",
@@ -5432,7 +5438,7 @@ func init() {
   },
   "basePath": "/prime/v1",
   "paths": {
-    "/addresses/oconus-lookup/{search}": {
+    "/addresses/oconus-lookup/{country}/{search}": {
       "get": {
         "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division.",
         "tags": [
@@ -5441,6 +5447,12 @@ func init() {
         "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string",
         "operationId": "getOconusLocation",
         "parameters": [
+          {
+            "type": "string",
+            "name": "country",
+            "in": "path",
+            "required": true
+          },
           {
             "type": "string",
             "name": "search",

@@ -1635,7 +1635,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /addresses/oconus-lookup/{search}:
+  /addresses/oconus-lookup/{country}/{search}:
     get:
       summary: >-
         Returns Oconus cities and principal divisions associated with the
@@ -1648,6 +1648,10 @@ paths:
       tags:
         - addresses
       parameters:
+        - in: path
+          name: country
+          type: string
+          required: true
         - in: path
           name: search
           type: string

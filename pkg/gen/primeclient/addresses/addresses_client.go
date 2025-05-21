@@ -90,7 +90,7 @@ func (a *Client) GetOconusLocation(params *GetOconusLocationParams, opts ...Clie
 	op := &runtime.ClientOperation{
 		ID:                 "getOconusLocation",
 		Method:             "GET",
-		PathPattern:        "/addresses/oconus-lookup/{search}",
+		PathPattern:        "/addresses/oconus-lookup/{country}/{search}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

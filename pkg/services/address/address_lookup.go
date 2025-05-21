@@ -119,14 +119,14 @@ func NewVIntlLocation() services.VIntlLocation {
 	return &vIntlLocation{}
 }
 
-func (o vIntlLocation) GetOconusLocations(appCtx appcontext.AppContext, search string, exactMatch ...bool) (*models.VIntlLocations, error) {
+func (o vIntlLocation) GetOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch ...bool) (*models.VIntlLocations, error) {
 	exact := false
 
 	if len(exactMatch) > 0 {
 		exact = true
 	}
 
-	locationList, err := FindOconusLocations(appCtx, search, exact)
+	locationList, err := FindOconusLocations(appCtx, country, search, exact)
 
 	if err != nil {
 		switch err {
@@ -140,10 +140,10 @@ func (o vIntlLocation) GetOconusLocations(appCtx appcontext.AppContext, search s
 	return &locationList, nil
 }
 
-// Returns a VIntlLocation array containing all results for the search
+// Returns a VIntlLocation array containing all results for the search for the given country
 // This method expects a comma to be entered after the city name has been entered and is used
 // to determine when the principal division needs to be parsed from the search string
-func FindOconusLocations(appCtx appcontext.AppContext, search string, exactMatch bool) (models.VIntlLocations, error) {
+func FindOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch bool) (models.VIntlLocations, error) {
 	var locationList []models.VIntlLocation
 	searchSlice := strings.Split(search, ",")
 	city := ""
@@ -157,10 +157,10 @@ func FindOconusLocations(appCtx appcontext.AppContext, search string, exactMatch
 		city = search
 	}
 
-	sqlQuery := `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE vil.city_name like upper(?) AND upper(vil.country_prn_dv_nm) like upper(?)`
+	sqlQuery := `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE vil.city_name like upper(?) AND upper(vil.country_prn_dv_nm) like upper(?) AND upper(vil.country) = upper(?)`
 
 	if exactMatch {
-		sqlQuery = `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE vil.city_name upper(?) AND upper(vil.country_prn_dv_nm) upper(?)`
+		sqlQuery = `SELECT vil.city_name, vil.country_prn_dv_nm, vil.icc_id, vil.re_country_prn_division_id FROM v_intl_locations vil WHERE vil.city_name = upper(?) AND upper(vil.country_prn_dv_nm) = upper(?) AND upper(vil.country) = upper(?)`
 	}
 
 	sqlQuery += ` limit 30`
@@ -168,9 +168,9 @@ func FindOconusLocations(appCtx appcontext.AppContext, search string, exactMatch
 
 	// we only want to add an extra % to the strings if we are using the LIKE in the query
 	if exactMatch {
-		query = appCtx.DB().RawQuery(sqlQuery, city, principalDivision)
+		query = appCtx.DB().RawQuery(sqlQuery, city, principalDivision, country)
 	} else {
-		query = appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", principalDivision))
+		query = appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", principalDivision), country)
 	}
 
 	if err := query.All(&locationList); err != nil {

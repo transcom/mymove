@@ -34,6 +34,11 @@ type GetOconusLocationParams struct {
 	  Required: true
 	  In: path
 	*/
+	Country string
+	/*
+	  Required: true
+	  In: path
+	*/
 	Search string
 }
 
@@ -46,6 +51,11 @@ func (o *GetOconusLocationParams) BindRequest(r *http.Request, route *middleware
 
 	o.HTTPRequest = r
 
+	rCountry, rhkCountry, _ := route.Params.GetOK("country")
+	if err := o.bindCountry(rCountry, rhkCountry, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	rSearch, rhkSearch, _ := route.Params.GetOK("search")
 	if err := o.bindSearch(rSearch, rhkSearch, route.Formats); err != nil {
 		res = append(res, err)
@@ -53,6 +63,20 @@ func (o *GetOconusLocationParams) BindRequest(r *http.Request, route *middleware
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindCountry binds and validates parameter Country from path.
+func (o *GetOconusLocationParams) bindCountry(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
+	o.Country = raw
+
 	return nil
 }
 

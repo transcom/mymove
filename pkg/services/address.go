@@ -20,5 +20,5 @@ type VLocation interface {
 
 //go:generate mockery --name VLocation
 type VIntlLocation interface {
-	GetOconusLocations(appCtx appcontext.AppContext, search string, exactMatch ...bool) (*models.VIntlLocations, error)
+	GetOconusLocations(appCtx appcontext.AppContext, country string, search string, exactMatch ...bool) (*models.VIntlLocations, error)
 }

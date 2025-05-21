@@ -512,7 +512,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/addresses/oconus-lookup/{search}"] = addresses.NewGetOconusLocation(o.context, o.AddressesGetOconusLocationHandler)
+	o.handlers["GET"]["/addresses/oconus-lookup/{country}/{search}"] = addresses.NewGetOconusLocation(o.context, o.AddressesGetOconusLocationHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -61,6 +61,9 @@ GetOconusLocationParams contains all the parameters to send to the API endpoint
 */
 type GetOconusLocationParams struct {
 
+	// Country.
+	Country string
+
 	// Search.
 	Search string
 
@@ -117,6 +120,17 @@ func (o *GetOconusLocationParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithCountry adds the country to the get oconus location params
+func (o *GetOconusLocationParams) WithCountry(country string) *GetOconusLocationParams {
+	o.SetCountry(country)
+	return o
+}
+
+// SetCountry adds the country to the get oconus location params
+func (o *GetOconusLocationParams) SetCountry(country string) {
+	o.Country = country
+}
+
 // WithSearch adds the search to the get oconus location params
 func (o *GetOconusLocationParams) WithSearch(search string) *GetOconusLocationParams {
 	o.SetSearch(search)
@@ -135,6 +149,11 @@ func (o *GetOconusLocationParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 	var res []error
+
+	// path param country
+	if err := r.SetPathParam("country", o.Country); err != nil {
+		return err
+	}
 
 	// path param search
 	if err := r.SetPathParam("search", o.Search); err != nil {

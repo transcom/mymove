@@ -6687,19 +6687,24 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /addresses/oconus-lookup/{search}:
+  /addresses/oconus-lookup/{country}/{search}:
     get:
       summary: >-
         Returns Oconus cities and principal divisions associated with the
-        specified full/partial city and principal division search string
+        specified full/partial city and principal division search string for the
+        specified country.
       description: >-
         Find by API using full/partial city name, principal division that
         returns an VIntlLocations object containing city name and principal
-        division.
+        division for a specific country.
       operationId: getOconusLocation
       tags:
         - addresses
       parameters:
+        - in: path
+          name: country
+          type: string
+          required: true
         - in: path
           name: search
           type: string

@@ -43,6 +43,7 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 
 func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 	suite.Run("successful city name lookup", func() {
+		country := "GB"
 		city := "LONDON"
 		var fetchedVIntlLocation models.VIntlLocation
 		err := suite.DB().Where("city_name = $1", city).First(&fetchedVIntlLocation)
@@ -52,7 +53,7 @@ func (suite *HandlerSuite) TestGetOconusLocationHandler() {
 
 		vIntlLocationService := address.NewVIntlLocation()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
-		req := httptest.NewRequest("GET", "/addresses/oconus_lookup/"+city, nil)
+		req := httptest.NewRequest("GET", "/addresses/oconus_lookup/"+country+"/"+city, nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		params := addressop.GetOconusLocationParams{
 			HTTPRequest: req,

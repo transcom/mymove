@@ -54,7 +54,7 @@ func (o *GetOconusLocationReader) ReadResponse(response runtime.ClientResponse, 
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[GET /addresses/oconus-lookup/{search}] getOconusLocation", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /addresses/oconus-lookup/{country}/{search}] getOconusLocation", response, response.Code())
 	}
 }
 
@@ -103,11 +103,11 @@ func (o *GetOconusLocationOK) Code() int {
 }
 
 func (o *GetOconusLocationOK) Error() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationOK  %+v", 200, o.Payload)
 }
 
 func (o *GetOconusLocationOK) String() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationOK  %+v", 200, o.Payload)
 }
 
 func (o *GetOconusLocationOK) GetPayload() primemessages.VIntlLocations {
@@ -169,11 +169,11 @@ func (o *GetOconusLocationBadRequest) Code() int {
 }
 
 func (o *GetOconusLocationBadRequest) Error() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *GetOconusLocationBadRequest) String() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *GetOconusLocationBadRequest) GetPayload() *primemessages.ClientError {
@@ -237,11 +237,11 @@ func (o *GetOconusLocationForbidden) Code() int {
 }
 
 func (o *GetOconusLocationForbidden) Error() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationForbidden  %+v", 403, o.Payload)
 }
 
 func (o *GetOconusLocationForbidden) String() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationForbidden  %+v", 403, o.Payload)
 }
 
 func (o *GetOconusLocationForbidden) GetPayload() *primemessages.ClientError {
@@ -305,11 +305,11 @@ func (o *GetOconusLocationNotFound) Code() int {
 }
 
 func (o *GetOconusLocationNotFound) Error() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationNotFound  %+v", 404, o.Payload)
 }
 
 func (o *GetOconusLocationNotFound) String() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationNotFound  %+v", 404, o.Payload)
 }
 
 func (o *GetOconusLocationNotFound) GetPayload() *primemessages.ClientError {
@@ -373,11 +373,11 @@ func (o *GetOconusLocationInternalServerError) Code() int {
 }
 
 func (o *GetOconusLocationInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *GetOconusLocationInternalServerError) String() string {
-	return fmt.Sprintf("[GET /addresses/oconus-lookup/{search}][%d] getOconusLocationInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[GET /addresses/oconus-lookup/{country}/{search}][%d] getOconusLocationInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *GetOconusLocationInternalServerError) GetPayload() *primemessages.Error {

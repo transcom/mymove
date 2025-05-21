@@ -36,15 +36,21 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
-    "/addresses/oconus-lookup/{search}": {
+    "/addresses/oconus-lookup/{country}/{search}": {
       "get": {
-        "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division.",
+        "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division for a specific country.",
         "tags": [
           "addresses"
         ],
-        "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string",
+        "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string for the specified country.",
         "operationId": "getOconusLocation",
         "parameters": [
+          {
+            "type": "string",
+            "name": "country",
+            "in": "path",
+            "required": true
+          },
           {
             "type": "string",
             "name": "search",
@@ -16853,15 +16859,21 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
-    "/addresses/oconus-lookup/{search}": {
+    "/addresses/oconus-lookup/{country}/{search}": {
       "get": {
-        "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division.",
+        "description": "Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division for a specific country.",
         "tags": [
           "addresses"
         ],
-        "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string",
+        "summary": "Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string for the specified country.",
         "operationId": "getOconusLocation",
         "parameters": [
+          {
+            "type": "string",
+            "name": "country",
+            "in": "path",
+            "required": true
+          },
           {
             "type": "string",
             "name": "search",

@@ -14,7 +14,8 @@ import (
 
 // GetOconusLocationURL generates an URL for the get oconus location operation
 type GetOconusLocationURL struct {
-	Search string
+	Country string
+	Search  string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -40,7 +41,14 @@ func (o *GetOconusLocationURL) SetBasePath(bp string) {
 func (o *GetOconusLocationURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/addresses/oconus-lookup/{search}"
+	var _path = "/addresses/oconus-lookup/{country}/{search}"
+
+	country := o.Country
+	if country != "" {
+		_path = strings.Replace(_path, "{country}", country, -1)
+	} else {
+		return nil, errors.New("country is required on GetOconusLocationURL")
+	}
 
 	search := o.Search
 	if search != "" {

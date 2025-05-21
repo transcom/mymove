@@ -30,11 +30,11 @@ func NewGetOconusLocation(ctx *middleware.Context, handler GetOconusLocationHand
 }
 
 /*
-	GetOconusLocation swagger:route GET /addresses/oconus-lookup/{search} addresses getOconusLocation
+	GetOconusLocation swagger:route GET /addresses/oconus-lookup/{country}/{search} addresses getOconusLocation
 
-Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string
+Returns Oconus cities and principal divisions associated with the specified full/partial city and principal division search string for the specified country.
 
-Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division.
+Find by API using full/partial city name, principal division that returns an VIntlLocations object containing city name and principal division for a specific country.
 */
 type GetOconusLocation struct {
 	Context *middleware.Context
