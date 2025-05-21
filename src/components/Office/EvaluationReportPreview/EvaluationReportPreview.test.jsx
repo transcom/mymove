@@ -47,9 +47,7 @@ const mtoShipments = [
     id: '22ee7ad8-7147-4ee0-bbe6-264aef36d7cc',
     moveTaskOrderID: '01912827-b4e5-46cb-a800-4273830956cd',
     ppmShipment: {
-      actualDestinationPostalCode: null,
       actualMoveDate: null,
-      actualPickupPostalCode: null,
       advanceAmountReceived: null,
       advanceAmountRequested: 598700,
       approvedAt: null,
