@@ -29,6 +29,7 @@ BEGIN
                                             're_zip3s',
                                             'zip3_distances',
                                             're_contracts',
+                                            're_contract_years',
                                             're_domestic_service_areas',
                                             're_intl_prices',
                                             're_intl_other_prices',
