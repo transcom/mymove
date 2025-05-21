@@ -30,6 +30,24 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+  getPayGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          grade: 'E-5',
+          description: 'Enlisted Grade E-5',
+        },
+        {
+          grade: 'E-6',
+          description: 'Enlisted Grade E-6',
+        },
+        {
+          description: 'Civilian',
+          grade: 'CIVILIAN_EMPLOYEE',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -313,7 +331,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -352,7 +370,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByTestId('errorMessage').length).toBe(4);
+      expect(getAllByTestId('errorMessage').length).toBe(3);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -387,12 +405,11 @@ describe('OrdersInfoForm component', () => {
         <OrdersInfoForm {...testPropsWithCounselingOffice} />
       </Provider>,
     );
-
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Scott/);
@@ -439,7 +456,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
 
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus AFB/);
@@ -463,7 +480,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/, { exact: false }), 'AFB', { delay: 100 });
@@ -508,7 +525,7 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
-          grade: 'E_5',
+          grade: 'E-5',
           origin_duty_location: {
             address: {
               city: '',
@@ -540,7 +557,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_7']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-6']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -578,7 +595,7 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
-          grade: 'E_7',
+          grade: 'E-6',
           origin_duty_location: {
             address: {
               city: '',
@@ -639,7 +656,7 @@ describe('OrdersInfoForm component', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E_1',
+      grade: 'E-5',
       origin_duty_location: {
         address: {
           city: '',
@@ -676,7 +693,7 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText('Yes')).not.toBeChecked();
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
-        expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
+        expect(getByLabelText(/Pay grade/)).toHaveTextContent('Enlisted Grade E-5');
         expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
     });
@@ -835,7 +852,7 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
     });
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'E_1');
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), 'Enlisted Grade E-6');
     await waitFor(() =>
       expect(
         screen.queryByText('If your orders specify a UB weight allowance, enter it here.'),
