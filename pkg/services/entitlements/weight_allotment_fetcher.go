@@ -120,35 +120,3 @@ func (waf *weightAllotmentFetcher) GetAllWeightAllotments(appCtx appcontext.AppC
 	}
 	return weightAllotments, nil
 }
-
-func (waf *weightAllotmentFetcher) GetTotalWeightAllotment(appCtx appcontext.AppContext, order models.Order, entitlement models.Entitlement) (int, error) {
-	grade := ""
-	if order.Grade != nil {
-		grade = string(*order.Grade)
-	}
-	ordersType := order.OrdersType
-	hasDependentsOrAuthorized := false
-
-	if appCtx.Session() != nil && entitlement.DependentsAuthorized != nil {
-		if appCtx.Session().IsOfficeUser() {
-			// only care about DependentsAuthorized if coming from the office app.
-			hasDependentsOrAuthorized = *entitlement.DependentsAuthorized
-		} else if appCtx.Session().IsMilApp() {
-			// dependentsAuthorized is set to match HasDependents when creating/updating orders using internalapi.
-			// customer can still update orders after service counselor has authorized the dependents.
-			hasDependentsOrAuthorized = order.HasDependents && *entitlement.DependentsAuthorized
-		}
-	}
-
-	weightAllotment, err := waf.GetWeightAllotment(appCtx, grade, ordersType)
-	if err != nil {
-		return 0, err
-	}
-	weight := weightAllotment.TotalWeightSelf
-	if hasDependentsOrAuthorized {
-		weight = weightAllotment.TotalWeightSelfPlusDependents
-	}
-	weight = weight + entitlement.GunSafeWeight
-
-	return weight, nil
-}
