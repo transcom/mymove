@@ -29,7 +29,7 @@ import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
+import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
@@ -39,7 +39,7 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { handleQueueAssignment, getQueue, formatApprovalRequestTypes } from 'utils/queues';
+import { handleQueueAssignment, getQueue } from 'utils/queues';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
@@ -119,50 +119,22 @@ export const columns = (
         ),
       },
     ),
-    createHeader(
-      'Approval Request Type',
-      (row) => {
-        if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
-          return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
-        }
-        return '';
-      },
-      {
-        id: 'approvalRequestTypes',
-        isFilterable: false,
-        disableSortBy: true,
-      },
-    ),
     createHeader('Move code', 'locator', {
       id: 'locator',
       isFilterable: true,
     }),
-    // destination queue will show multiple dates that the backend returns as comma separated strings
-    !isDestinationQueue
-      ? createHeader(
-          'Requested move date',
-          (row) => {
-            return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
-          },
-          {
-            id: 'requestedMoveDate',
-            isFilterable: true,
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            Filter: (props) => <DateSelectFilter dateTime {...props} />,
-          },
-        )
-      : createHeader(
-          'Requested move date(s)',
-          (row) => {
-            return row.requestedMoveDates;
-          },
-          {
-            id: 'requestedMoveDate',
-            isFilterable: true,
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            Filter: (props) => <DateSelectFilter dateTime {...props} />,
-          },
-        ),
+    createHeader(
+      'Requested move date(s)',
+      (row) => {
+        return row.requestedMoveDates;
+      },
+      {
+        id: 'requestedMoveDate',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
     createHeader(
       'Date submitted',
       (row) => {
