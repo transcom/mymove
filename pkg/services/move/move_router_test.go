@@ -60,6 +60,13 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 			suite.Contains(err.Error(), fmt.Sprintf("However, its current status is: %s", invalidStatus.status))
 		}
 	})
+
+	suite.Run("returns error when move is nil", func() {
+		err := moveRouter.Approve(suite.AppContextForTest(), nil)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "cannot approve nil move")
+	})
 }
 
 func (suite *MoveServiceSuite) TestMoveSubmission() {

@@ -737,20 +737,25 @@ func (m Move) HasPPM() bool {
 	return hasPpmMove
 }
 
-// clears TOO assignments for origin/destination TOO queues if there are no more action items for the assigned user to take
-// this DOES NOT UPDATE, but only returns the provided move back with updated assigned TOO values
-// TOO origin queue action items
-// - submitted shipments
-// - SIT extension requests with origin SIT service items on a shipment
-// - unacknowledged order amendments
-// - unacknowledged excess weight (move & UB)
-// - submitted non-destination service items
-//
-// TOO destination queue action items
-// - submitted destination address requests
-// - submitted destination SIT & shuttle service items
-// - SIT extension requests with destination SIT service items on a shipment
+/*
+Clears TOO assignments for origin/destination TOO queues if there are no more action items for the assigned user to take
+this DOES NOT UPDATE, but only returns the provided move back with updated assigned TOO values
+TOO origin queue action items
+- submitted shipments
+- SIT extension requests with origin SIT service items on a shipment
+- unacknowledged order amendments
+- unacknowledged excess weight (move & UB)
+- submitted non-destination service items
+
+TOO destination queue action items
+- submitted destination address requests
+- submitted destination SIT & shuttle service items
+- SIT extension requests with destination SIT service items on a shipment
+*/
 func ClearTOOAssignments(move *Move) (*Move, error) {
+	if move == nil {
+		return nil, fmt.Errorf("move is required when clearing TOO assignment, received empty move object")
+	}
 	originPending := false
 	destinationPending := false
 	hasOriginSIT := false
