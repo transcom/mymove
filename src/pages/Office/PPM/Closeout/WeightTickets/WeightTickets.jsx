@@ -77,8 +77,8 @@ const WeightTickets = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
-    const filenameWithTimestamp = appendTimestampToFilename(file);
-    createUploadForPPMDocument(ppmShipment?.id, documentId, filenameWithTimestamp, true)
+
+    createUploadForPPMDocument(ppmShipment?.id, documentId, appendTimestampToFilename(file), true)
       .then((upload) => {
         documents?.WeightTickets[currentWeightTicketIdx][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);

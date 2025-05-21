@@ -76,9 +76,8 @@ const Expenses = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentExpense[`${fieldName}Id`];
-    const filenameWithTimestamp = appendTimestampToFilename(file);
 
-    createUploadForPPMDocument(ppmShipment?.id, documentId, filenameWithTimestamp, false)
+    createUploadForPPMDocument(ppmShipment?.id, documentId, appendTimestampToFilename(file), false)
       .then((upload) => {
         documents?.MovingExpenses[currentIndex][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
