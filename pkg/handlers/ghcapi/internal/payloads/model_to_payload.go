@@ -2301,7 +2301,7 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *models.OfficeUser, 
 	}
 
 	// if its unassigned its assignable in all cases
-	if assignedToUser == nil {
+	if assignedToUser == nil || assignedToUser.ID == uuid.Nil {
 		isAssignable = true
 	}
 
