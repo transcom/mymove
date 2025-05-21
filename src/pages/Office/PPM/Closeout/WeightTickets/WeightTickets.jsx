@@ -112,8 +112,8 @@ const WeightTickets = () => {
           'The uploaded .xlsx file does not match the expected weight estimator file format.'
         ) {
           setIsErrorModalVisible(true);
-          setErrorMessage('Failed to save the file upload');
         } else {
+          setErrorMessage('Failed to save the file upload');
           setIsErrorModalVisible(true);
         }
       });
