@@ -1,13 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
 import Hint from 'components/Hint/index';
 import styles from 'components/form/AddressFields/AddressFields.module.scss';
-import { technicalHelpDeskURL } from 'shared/constants';
+import { technicalHelpDeskURL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
 import LocationInput from 'components/form/fields/LocationInput';
+import CountryInput from 'components/form/fields/CountryInput';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 /**
  * @param legend
@@ -34,6 +36,15 @@ export const AddressFields = ({
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
+
+  const [isCountrySearchEnabled, setIsCountrySearchEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchFlag = async () => {
+      setIsCountrySearchEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COUNTRY_FINDER));
+    };
+    fetchFlag();
+  }, []);
 
   const getAddress1LabelHintText = (labelHint, address1Label) => {
     if (address1Label === null) {
@@ -72,6 +83,11 @@ export const AddressFields = ({
     });
   };
 
+  const handleOnCountryChange = (value) => {
+    // eslint-disable-next-line no-console
+    console.debug(value.name);
+  };
+
   return (
     <Fieldset legend={legend} className={className}>
       {render(
@@ -100,6 +116,16 @@ export const AddressFields = ({
             data-testid={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
+
+          {isCountrySearchEnabled && (
+            <CountryInput
+              name={`${name}`}
+              placeholder="Start typing a country name, code"
+              label="Country Lookup"
+              handleCountryChange={handleOnCountryChange}
+            />
+          )}
+
           <LocationInput
             name={`${name}`}
             placeholder="Start typing a Zip or City, State Zip"
