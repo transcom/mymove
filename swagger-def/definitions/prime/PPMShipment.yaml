@@ -54,26 +54,6 @@ properties:
     type: string
     x-nullable: true
     x-omitempty: false
-  actualPickupPostalCode:
-    description: >
-      The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-    format: zip
-    type: string
-    title: ZIP
-    example: '90210'
-    pattern: ^(\d{5})$
-    x-nullable: true
-    x-omitempty: false
-  actualDestinationPostalCode:
-    description: >
-      The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-    format: zip
-    type: string
-    title: ZIP
-    example: '90210'
-    pattern: ^(\d{5})$
-    x-nullable: true
-    x-omitempty: false
   sitExpected:
     description: |
       Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.
