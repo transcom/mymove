@@ -1005,11 +1005,8 @@ describe('EditOrdersForm component', () => {
         </MockProviders>,
       );
 
-      // Wait for the form to render
       const destinationInput = await screen.findByLabelText(/Destination Location \(As Authorized on Orders\)/);
       expect(destinationInput).toBeInTheDocument();
-
-      // Check for the hint text
       expect(
         screen.getByText(
           /Enter the option closest to your delivery address\. Your move counselor will identify if there might be a cost to you\./,

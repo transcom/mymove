@@ -853,15 +853,12 @@ describe('OrdersInfoForm component', () => {
             initialValues={{
               ...testProps.initialValues,
               orders_type: ordersType,
-              origin_duty_location: {},
-              new_duty_location: {},
             }}
           />
         </MockProviders>,
       );
 
-      // Select the orders type in the dropdown
-      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ordersType);
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ordersType); // Select the orders type in the dropdown
       const destinationInput = await screen.findByLabelText(/Destination Location \(As Authorized on Orders\)/);
       expect(destinationInput).toBeInTheDocument();
       expect(
