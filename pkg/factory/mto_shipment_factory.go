@@ -542,3 +542,13 @@ func GetTraitSubmittedShipment() []Customization {
 		},
 	}
 }
+
+func GetTraitApprovalsRequestedShipment() []Customization {
+	return []Customization{
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApprovalsRequested,
+			},
+		},
+	}
+}

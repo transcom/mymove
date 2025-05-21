@@ -99,6 +99,8 @@ const (
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 	// MTOShipmentTerminatedForCause indicates that a shipment has been terminated for cause by a COR
 	MTOShipmentStatusTerminatedForCause MTOShipmentStatus = "TERMINATED_FOR_CAUSE"
+	// MoveStatusAPPROVALSREQUESTED is the approvals requested status type for MTO Shipments
+	MTOShipmentStatusApprovalsRequested MTOShipmentStatus = "APPROVALS_REQUESTED"
 )
 
 // LOAType represents the possible TAC and SAC types for a mto shipment
@@ -215,6 +217,7 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusCanceled),
 		string(MTOShipmentStatusDiversionRequested),
 		string(MTOShipmentStatusTerminatedForCause),
+		string(MTOShipmentStatusApprovalsRequested),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {
@@ -560,4 +563,29 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 
 func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
 	return m.ShipmentType != MTOShipmentTypePPM
+}
+
+func IsShipmentApprovable(dbShipment MTOShipment) bool {
+	// check if any service items on current shipment still need to be reviewed
+	if dbShipment.MTOServiceItems != nil {
+		for _, serviceItem := range dbShipment.MTOServiceItems {
+			if serviceItem.Status == MTOServiceItemStatusSubmitted {
+				return false
+			}
+		}
+	}
+	// check if all SIT Extensions are reviewed
+	if dbShipment.SITDurationUpdates != nil {
+		for _, sitDurationUpdate := range dbShipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == SITExtensionStatusPending {
+				return false
+			}
+		}
+	}
+	// check if all Delivery Address updates are reviewed
+	if dbShipment.DeliveryAddressUpdate != nil && dbShipment.DeliveryAddressUpdate.Status == ShipmentAddressUpdateStatusRequested {
+		return false
+	}
+
+	return true
 }
