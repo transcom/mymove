@@ -116,52 +116,104 @@ func (suite *ModelSuite) TestTacFormat() {
 }
 
 func (suite *ModelSuite) TestTacForbiddenCharacters() {
-	invalidTacs := []string{
-		"AB*C",
-		"A\"BC",
-		"*ABC",
-		"ABC\"",
-	}
-	for _, bad := range invalidTacs {
-		suite.Run(fmt.Sprintf("TAC with %q", bad), func() {
-			move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
-			order := move.Orders
-			order.TAC = &bad
-			order.Moves = append(order.Moves, move)
+	suite.Run("TAC", func() {
+		invalidTacs := []string{
+			"AB*C",
+			"A\"BC",
+			"*ABC",
+			"ABC\"",
+		}
+		for _, bad := range invalidTacs {
+			suite.Run(fmt.Sprintf("TAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.TAC = &bad
+				order.Moves = append(order.Moves, move)
 
-			expErrors := map[string][]string{
-				"transportation_accounting_code": {
-					`TAC cannot contain * or " characters.`,
-					"TAC must be exactly 4 alphanumeric characters.",
-				},
-			}
+				expErrors := map[string][]string{
+					"transportation_accounting_code": {
+						`TAC cannot contain * or " characters.`,
+						"TAC must be exactly 4 alphanumeric characters.",
+					},
+				}
 
-			suite.verifyValidationErrors(&order, expErrors)
-		})
-	}
+				suite.verifyValidationErrors(&order, expErrors)
+			})
+		}
+	})
+
+	suite.Run("NTS TAC", func() {
+		invalidTacs := []string{
+			"AB*C",
+			"A\"BC",
+			"*ABC",
+			"ABC\"",
+		}
+		for _, bad := range invalidTacs {
+			suite.Run(fmt.Sprintf("NTS TAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.NtsTAC = &bad
+				order.Moves = append(order.Moves, move)
+
+				expErrors := map[string][]string{
+					"nts_tac": {
+						`NTS TAC cannot contain * or " characters.`,
+					},
+				}
+
+				suite.verifyValidationErrors(&order, expErrors)
+			})
+		}
+	})
 }
 
 func (suite *ModelSuite) TestSacForbiddenCharacters() {
-	invalidSacs := []string{
-		"12*4",
-		"1\"34",
-		"*234",
-		"234\"",
-	}
-	for _, bad := range invalidSacs {
-		suite.Run(fmt.Sprintf("SAC with %q", bad), func() {
-			move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
-			order := move.Orders
-			order.SAC = &bad
-			order.Moves = append(order.Moves, move)
+	suite.Run("SAC", func() {
+		invalidSacs := []string{
+			"12*4",
+			"1\"34",
+			"*234",
+			"234\"",
+		}
+		for _, bad := range invalidSacs {
+			suite.Run(fmt.Sprintf("SAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.SAC = &bad
+				order.Moves = append(order.Moves, move)
 
-			expErrors := map[string][]string{
-				"sac": {"SAC cannot contain * or \" characters."},
-			}
+				expErrors := map[string][]string{
+					"sac": {"SAC cannot contain * or \" characters."},
+				}
 
-			suite.verifyValidationErrors(&order, expErrors)
-		})
-	}
+				suite.verifyValidationErrors(&order, expErrors)
+			})
+		}
+	})
+
+	suite.Run("NTS SAC", func() {
+		invalidSacs := []string{
+			"12*4",
+			"1\"34",
+			"*234",
+			"234\"",
+		}
+		for _, bad := range invalidSacs {
+			suite.Run(fmt.Sprintf("NTS SAC with %q", bad), func() {
+				move := factory.BuildStubbedMoveWithStatus(m.MoveStatusSUBMITTED)
+				order := move.Orders
+				order.NtsSAC = &bad
+				order.Moves = append(order.Moves, move)
+
+				expErrors := map[string][]string{
+					"nts_sac": {"NTS SAC cannot contain * or \" characters."},
+				}
+
+				suite.verifyValidationErrors(&order, expErrors)
+			})
+		}
+	})
 }
 
 func (suite *ModelSuite) TestFetchOrderForUser() {

@@ -132,7 +132,7 @@ func (o *Order) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
 		&OptionalUUIDIsPresent{Field: o.OriginDutyLocationID, Name: "OriginDutyLocationID"},
 		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
-		// block * and " in TAC & SAC
+		// block * and " in TAC & SAC fields
 		&OptionalRegexMatch{
 			Name:    "TransportationAccountingCode",
 			Field:   o.TAC,
@@ -144,6 +144,18 @@ func (o *Order) Validate(_ *pop.Connection) (*validate.Errors, error) {
 			Field:   o.SAC,
 			Expr:    `\A[^*"]*\z`,
 			Message: `SAC cannot contain * or " characters.`,
+		},
+		&OptionalRegexMatch{
+			Name:    "NtsTAC",
+			Field:   o.NtsTAC,
+			Expr:    `\A[^*"]*\z`,
+			Message: `NTS TAC cannot contain * or " characters.`,
+		},
+		&OptionalRegexMatch{
+			Name:    "NtsSAC",
+			Field:   o.NtsSAC,
+			Expr:    `\A[^*"]*\z`,
+			Message: `NTS SAC cannot contain * or " characters.`,
 		},
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
