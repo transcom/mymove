@@ -14111,6 +14111,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
+          "x-nullable": true
+        },
         "closeoutLocation": {
           "type": "string",
           "x-nullable": true
@@ -32999,6 +33004,11 @@ func init() {
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "closeoutInitiatedDates": {
+          "description": "comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "closeoutLocation": {

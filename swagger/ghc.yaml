@@ -8524,6 +8524,12 @@ definitions:
         type: string
         description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
         x-nullable: true
+      closeoutInitiatedDates:
+        type: string
+        description: >-
+          comma‑separated list of PPM shipment closeout initiated dates
+          (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:

@@ -335,7 +335,7 @@ export const closeoutColumns = (
     createHeader(
       'Closeout initiated',
       (row) => {
-        return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
+        return row.closeoutInitiatedDates;
       },
       {
         id: 'closeoutInitiated',

@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -1673,7 +1674,7 @@ func (suite *HandlerSuite) makePPMCloseoutSubtestData() (subtestData *ppmCloseou
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
 	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-
+	now := time.Now()
 	subtestData.ppmNeedsCloseoutMove = factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
@@ -1691,7 +1692,8 @@ func (suite *HandlerSuite) makePPMCloseoutSubtestData() (subtestData *ppmCloseou
 		},
 		{
 			Model: models.PPMShipment{
-				Status: models.PPMShipmentStatusNeedsCloseout,
+				Status:      models.PPMShipmentStatusNeedsCloseout,
+				SubmittedAt: &now,
 			},
 		},
 	}, nil)
@@ -1814,6 +1816,81 @@ func (suite *HandlerSuite) TestGetPPMCloseoutQueueHandler() {
 				suite.Fail("Test does not return moves with the correct status.")
 			}
 		}
+	})
+
+	suite.Run("queue moves payload will concat the closeout initiated values", func() {
+		subtestData := suite.makePPMCloseoutSubtestData()
+
+		now := time.Now()
+		yesterday := time.Now().AddDate(0, 0, -1)
+		twoDaysAgo := time.Now().AddDate(0, 0, -2)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		// By not setting a submittedAt value for the PPM shipment, we are declaring
+		// it has not entered the closeout phase
+		factoryMadeMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+					SubmittedAt:      &now,
+					Locator:          "FINDME",
+					CloseoutOfficeID: &transportationOffice.ID,
+					Status:           models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+		ppmShipmentYesterday := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.PPMShipment{
+						SubmittedAt: &yesterday,
+						Status:      models.PPMShipmentStatusNeedsCloseout,
+					},
+				},
+				{
+					Model:    factoryMadeMove,
+					LinkOnly: true,
+				},
+			},
+		)
+		ppmShipmentTwoDaysAgo := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.PPMShipment{
+						SubmittedAt: &twoDaysAgo,
+						Status:      models.PPMShipmentStatusNeedsCloseout,
+					},
+				},
+				{
+					Model:    factoryMadeMove,
+					LinkOnly: true,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipmentYesterday.Shipment.MoveTaskOrder.Orders.ServiceMember)
+		suite.NotEmpty(ppmShipmentTwoDaysAgo.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		params := queues.GetPPMCloseoutQueueParams{
+			HTTPRequest:      subtestData.request,
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Locator:          models.StringPointer("FINDME"),
+		}
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetPPMCloseoutQueueOK{}, response)
+		payload := response.(*queues.GetPPMCloseoutQueueOK).Payload
+		suite.Len(payload.QueueMoves, 1)
+		expectedCloseoutInitiatedDates := fmt.Sprintf("%s, %s",
+			twoDaysAgo.Format("Jan 2 2006"),
+			yesterday.Format("Jan 2 2006"),
+		)
+		suite.Equal(expectedCloseoutInitiatedDates, *payload.QueueMoves[0].CloseoutInitiatedDates)
 	})
 }
 
