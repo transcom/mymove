@@ -111,6 +111,7 @@ playwright-results.xml
 !pkg/testdatagen/testdata/Weight Estimator Expect Failed Upload.xlsx
 !playwright/fixtures/weightEstimatorExpectFailedUpload.xlsx
 !playwright/fixtures/weightEstimatorExpectSuccessfulUpload.xlsx
+!pkg/testdatagen/testdata/weightEstimatorExpectSuccessfulUpload.xlsx
 
 # SQLEditor
 *.sqs
