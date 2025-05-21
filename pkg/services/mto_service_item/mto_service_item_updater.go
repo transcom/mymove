@@ -523,7 +523,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	endDate := models.GetAuthorizedSITEndDate(shipment)
 	if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
 		if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
-			err = appCtx.DB().RawQuery("DELETE FROM sit_extensions WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
+			err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = 'REMOVED' WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
 			if err != nil {
 				return nil, err
 			}
