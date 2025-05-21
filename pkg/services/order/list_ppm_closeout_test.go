@@ -347,7 +347,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
-				SubmittedAt: ppmShipment.SubmittedAt,
+				CloseoutInitiated: ppmShipment.SubmittedAt,
 			},
 		)
 		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
@@ -746,5 +746,17 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.NoError(err)
 		suite.Equal(0, count)
 		suite.Equal(0, len(filteredMoves))
+	})
+
+	suite.Run("throws an err if the wrong submitted at param is provided", func() {
+		now := time.Now()
+		_, _, err := orderFetcher.ListPPMCloseoutOrders(
+			suite.AppContextForTest(),
+			uuid.Must(uuid.NewV4()),
+			&services.ListOrderParams{
+				SubmittedAt: &now,
+			},
+		)
+		suite.ErrorContains(err, "submitted at parameter should not be used for PPM queue. Please use closeout initiated instead")
 	})
 }

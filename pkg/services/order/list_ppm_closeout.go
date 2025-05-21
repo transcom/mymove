@@ -2,6 +2,7 @@ package order
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -41,6 +42,15 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 	officeUserID uuid.UUID,
 	params *services.ListOrderParams,
 ) ([]models.Move, int, error) {
+	if params.SubmittedAt != nil {
+		// If this is present, most likely somebody is passing this parameter
+		// thinking it is the closeout date. SubmittedAt param is the
+		// move's submitted at filter. params.CloseoutInitiated is the ppm shipment
+		// submitted at filter
+		err := errors.New("submitted at parameter should not be used for PPM closeout queue. Please use closeout initiated instead")
+		appCtx.Logger().Error("Incorrect parameter used for PPM closeout queue", zap.Error(err))
+		return nil, 0, err
+	}
 	var ppmCloseoutQueueItems []PPMCloseoutQueueItem
 
 	var officeUserGbloc string
@@ -60,6 +70,7 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 		hasSafetyPrivilege = privs.HasPrivilege(roles.PrivilegeTypeSafety)
 	} else {
 		appCtx.Logger().Error("Error retrieving user privileges", zap.Error(err))
+		return nil, 0, err
 	}
 
 	page := 1
@@ -86,7 +97,7 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 			params.Emplid,
 			pq.Array(params.Status),
 			params.Locator,
-			params.SubmittedAt,
+			params.CloseoutInitiated,
 			params.Branch,
 			params.PPMType,
 			strings.Join(params.OriginDutyLocation, " "),
