@@ -193,6 +193,19 @@ BEGIN
                 (ms.shipment_type != ''HHG_OUTOF_NTS'' AND move_to_gbloc.gbloc = $1)
                 OR (ms.shipment_type = ''HHG_OUTOF_NTS'' AND orders.gbloc = $1)
             )
+            AND (ms.status IN (''SUBMITTED'',''APPROVALS_REQUESTED'')
+        	    OR (ms.status = ''APPROVED''
+        			AND
+                		(
+                        	moves.excess_weight_qualified_at IS NOT NULL
+                        	AND moves.excess_weight_acknowledged_at IS NULL
+		                )
+        		        OR (
+                	        moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
+                    	    AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
+                		)
+        		)
+    		)
         )';
     END IF;
 
@@ -269,7 +282,7 @@ BEGIN
     -- we want to omit shipments with ONLY destination queue-specific filters
     -- (pending dest address requests, pending dest SIT extension requests when there are dest SIT service items, submitted dest SIT & dest shuttle service items)
     sql_query := sql_query || '
-               AND NOT (
+			AND NOT (
 					(
 						EXISTS (
 							SELECT 1
@@ -325,16 +338,6 @@ BEGIN
 											''FSC'', ''DMHF'', ''DBTF'', ''DBHF'', ''IBTF'', ''IBHF'', ''DCRTSA'',
 											''DLH'', ''DOP'', ''DPK'', ''DSH'', ''DNPK'', ''INPK'', ''UBP'',
 											''ISLH'', ''POEFSC'', ''PODFSC'', ''IHPK'')
-						)
-						OR (
-							(
-								moves.excess_weight_qualified_at IS NOT NULL
-								AND moves.excess_weight_acknowledged_at IS NULL
-							)
-							OR (
-								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
-								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
-							)
 						)
 					)
 				)
