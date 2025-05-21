@@ -6,7 +6,7 @@
 
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
-import { getFutureDate } from '../../utils/playwrightUtility';
+import { getFutureDate, formatDate } from '../../utils/playwrightUtility';
 
 import { TooFlowPage } from './tooTestFixture';
 
@@ -79,18 +79,6 @@ const formatPhone = (phone) => {
 
 const agentToString = (agent) => {
   return `${agent.firstName} ${agent.lastName}${formatPhone(agent.phone)}${agent.email}`;
-};
-
-const formatDate = (date) => {
-  const formattedDay = date.toLocaleDateString(undefined, { day: '2-digit' });
-  const formattedMonth = date.toLocaleDateString(undefined, {
-    month: 'short',
-  });
-  const formattedYear = date.toLocaleDateString(undefined, {
-    year: 'numeric',
-  });
-
-  return `${formattedDay} ${formattedMonth} ${formattedYear}`;
 };
 
 test.describe('TOO user', () => {
@@ -246,7 +234,7 @@ test.describe('TOO user', () => {
 
     // Check that the data in the shipment card now matches what we just submitted
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
-    await expect(shipmentContainer.getByTestId('requestedPickupDate')).toHaveText(formatDate(pickupDateString));
+    await expect(shipmentContainer.getByTestId('requestedPickupDate')).toHaveText(pickupDateString);
     await expect(shipmentContainer.getByTestId('pickupAddress')).toHaveText(addressToString(pickupAddress));
     await expect(shipmentContainer.getByTestId('secondaryPickupAddress')).toHaveText(
       addressToString(secondaryPickupAddress),
