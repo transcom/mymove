@@ -89,7 +89,7 @@ function FinancialReviewModal({ onClose, onSubmit, initialRemarks, initialSelect
                       className={styles.RemarksField}
                     />
                     <ModalActions>
-                      <Button type="button" onClick={onClose} outline className="usa-button--tertiary">
+                      <Button type="button" onClick={onClose} secondary>
                         Cancel
                       </Button>
                       <Button type="submit" disabled={!isValid}>

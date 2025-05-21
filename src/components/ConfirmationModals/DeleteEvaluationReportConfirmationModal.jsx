@@ -15,7 +15,7 @@ export const DeleteEvaluationReportConfirmationModal = ({ closeModal, submitModa
       <Button className="usa-button--secondary" type="button" onClick={closeModal} data-testid="modalBackButton">
         No, keep it
       </Button>
-      <Button autoFocus data-focus="true" className="usa-button--destructive" type="submit" onClick={submitModal}>
+      <Button data-focus="true" className="usa-button--destructive" type="submit" onClick={submitModal}>
         Yes, {isDeleteFromTable ? 'delete' : 'cancel'}
       </Button>
     </ModalActions>
