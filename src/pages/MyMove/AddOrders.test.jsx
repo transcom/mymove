@@ -35,6 +35,24 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+  getPayGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          grade: 'E-5',
+          description: 'Enlisted Grade E-5',
+        },
+        {
+          grade: 'E-6',
+          description: 'Enlisted Grade E-6',
+        },
+        {
+          description: 'Civilian',
+          grade: 'CIVILIAN_EMPLOYEE',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -414,7 +432,7 @@ describe('Add Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E_1',
+      grade: 'E-1',
     };
 
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
@@ -435,7 +453,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -513,7 +531,7 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
       },
-      grade: 'E_5',
+      grade: 'E-5',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -534,7 +552,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -613,7 +631,7 @@ describe('Add Orders page', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
         address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
       },
-      grade: 'E_5',
+      grade: 'E-5',
       origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
       service_member_id: 'id123',
       spouse_has_pro_gear: false,
@@ -634,7 +652,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
