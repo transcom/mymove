@@ -339,6 +339,10 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCtx appcontext.AppContext, m
 // Approve makes the Move available to the Prime. The Prime cannot create
 // Service Items unless the Move is approved.
 func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) error {
+	if move == nil {
+		return errors.New("cannot approve nil move")
+	}
+
 	router.logMove(appCtx, move)
 	if router.alreadyApproved(move) && router.noAssignedTOOs(move) {
 		return nil
@@ -423,7 +427,7 @@ func moveHasReviewedServiceItems(move models.Move) bool {
 }
 
 func moveHasAcknowledgedExcessWeightRisk(move models.Move) bool {
-	// If the move hasn't been flagged for being at risk of excess weights, then
+	// If the move hasn't been flagged for being at risk of excess weight, then
 	// we don't need to check if the risk has been acknowledged.
 	if move.ExcessWeightQualifiedAt == nil {
 		return true

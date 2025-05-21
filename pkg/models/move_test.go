@@ -605,4 +605,12 @@ func (suite *ModelSuite) TestClearTOOAssignments() {
 		suite.Error(err)
 		suite.Contains(err.Error(), badSI.ID.String())
 	})
+
+	suite.Run("error when move is nil", func() {
+
+		result, err := m.ClearTOOAssignments(nil)
+
+		suite.Nil(result, "move is required when clearing TOO assignment, received empty move object")
+		suite.Error(err)
+	})
 }
