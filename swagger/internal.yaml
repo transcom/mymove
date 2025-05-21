@@ -132,7 +132,10 @@ definitions:
         $ref: '#/definitions/ServiceMemberPayload'
       office_user:
         $ref: '#/definitions/OfficeUser'
-      roles:
+      activeRole:
+        $ref: '#/definitions/Role'
+        x-nullable: true
+      inactiveRoles:
         type: array
         items:
           $ref: '#/definitions/Role'
@@ -3110,7 +3113,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   SITLocationType:
