@@ -1,0 +1,8 @@
+@import 'shared/styles/colors.scss';
+
+.error {
+  width: auto;
+  background-color: $error;
+  margin-left: 15px;
+  margin-right: 15px;
+}
