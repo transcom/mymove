@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/entitlements"
 )
 
 type ppmShipmentUpdater struct {
@@ -330,15 +329,6 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 					}
 				}
 				entitlement.GunSafeWeight = maxGunSafeWeight
-
-				waf := entitlements.NewWeightAllotmentFetcher()
-
-				totalWeight, err := waf.GetTotalWeightAllotment(appCtx, move.Orders, *entitlement)
-				if err != nil {
-					return err
-				}
-
-				entitlement.DBAuthorizedWeight = &totalWeight
 
 				verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
 				if verrs != nil && verrs.HasAny() {
