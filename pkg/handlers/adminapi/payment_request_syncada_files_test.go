@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestIndexPaymentRequestSyncadaFilesHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexPaymentRequestSyncadaFilesHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
