@@ -20,7 +20,7 @@ import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipment
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
 import BoatShipmentCard from 'components/Customer/Review/ShipmentCard/BoatShipmentCard/BoatShipmentCard';
 import MobileHomeShipmentCard from 'components/Customer/Review/ShipmentCard/MobileHomeShipmentCard/MobileHomeShipmentCard';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
