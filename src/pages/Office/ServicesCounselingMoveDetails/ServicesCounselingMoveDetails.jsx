@@ -221,8 +221,7 @@ const ServicesCounselingMoveDetails = ({
 
     const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) =>
-        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
+      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
     );
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
       (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,

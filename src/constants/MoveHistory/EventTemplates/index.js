@@ -132,4 +132,3 @@ export { default as approveShipmentsServiceItem } from './ApproveShipments/appro
 export { default as createTermination } from './CreateTermination/createTermination';
 export { default as acknowledgMove } from './AcknowledgeMovesAndShipments/acknowledgeMove';
 export { default as acknowledgeShipment } from './AcknowledgeMovesAndShipments/acknowledgeShipment';
-export { default as createMTOServiceItemUpdateShipmentStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateShipmentStatus';

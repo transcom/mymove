@@ -2339,13 +2339,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		appCtx := suite.AppContextForTest()
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
+		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
 
 		preApprovalTime := time.Now()
-		approvedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentForAutoApprove.ID, status, nil, nil, shipmentForAutoApproveEtag)
+		_, err := updater.UpdateMTOShipmentStatus(appCtx, shipmentForAutoApprove.ID, status, nil, nil, shipmentForAutoApproveEtag)
 		suite.NoError(err)
+
+		err = appCtx.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
+		suite.NoError(err)
+
 		// Let's make sure the status is approved
-		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
@@ -3032,10 +3037,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		suite.Nil(shipment5.ApprovedDate)
 
-		approvedShipment, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment5.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
+		_, err := updater.UpdateMTOShipmentStatus(suite.AppContextForTest(), shipment5.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
+
 		suite.NoError(err)
-		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
-		suite.NotNil(approvedShipment.ApprovedDate)
+		suite.NoError(suite.DB().Find(&shipment5, shipment5.ID))
+		suite.Equal(models.MTOShipmentStatusApproved, shipment5.Status)
+		suite.NotNil(shipment5.ApprovedDate)
 	})
 
 	suite.Run("Changing to a non-APPROVED status does not record approved_date", func() {
@@ -3158,27 +3165,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Nil(updatedShipment)
 		suite.IsType(ConflictStatusError{}, err)
 		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
-	})
-
-	suite.Run("An APPROVALS_REQUESTED shipment CANNOT change to CANCELED - ERROR", func() {
-		setupTestData()
-
-		testShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    mto,
-				LinkOnly: true,
-			},
-		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
-		eTag = etag.GenerateEtag(testShipment.UpdatedAt)
-
-		updatedShipment, err := updater.UpdateMTOShipmentStatus(
-			suite.AppContextForTest(), testShipment.ID, models.MTOShipmentStatusCanceled, nil, nil, eTag)
-		suite.NoError(suite.DB().Find(&testShipment, testShipment.ID))
-
-		suite.Error(err)
-		suite.Nil(updatedShipment)
-		suite.IsType(ConflictStatusError{}, err)
-		suite.Equal(models.MTOShipmentStatusApprovalsRequested, testShipment.Status)
 	})
 
 	suite.Run("An APPROVED shipment CAN change to Diversion Requested", func() {

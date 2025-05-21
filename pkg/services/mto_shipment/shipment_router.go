@@ -73,18 +73,18 @@ func (router shipmentRouter) Approve(_ appcontext.AppContext, shipment *models.M
 		id:                        shipment.ID,
 		transitionFromStatus:      shipment.Status,
 		transitionToStatus:        models.MTOShipmentStatusApproved,
-		transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted, models.MTOShipmentStatusDiversionRequested, models.MTOShipmentStatusApprovalsRequested},
+		transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted, models.MTOShipmentStatusDiversionRequested},
 	}
 }
 
 // RequestCancellation is called when the TOO has requested that the Prime cancel the shipment.
 func (router shipmentRouter) RequestCancellation(_ appcontext.AppContext, shipment *models.MTOShipment) error {
-	if shipment.Status != models.MTOShipmentStatusApproved && shipment.Status != models.MTOShipmentStatusApprovalsRequested {
+	if shipment.Status != models.MTOShipmentStatusApproved {
 		return ConflictStatusError{
 			id:                        shipment.ID,
 			transitionFromStatus:      shipment.Status,
 			transitionToStatus:        models.MTOShipmentStatusCancellationRequested,
-			transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusApproved, models.MTOShipmentStatusApprovalsRequested},
+			transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusApproved},
 		}
 	}
 	shipment.Status = models.MTOShipmentStatusCancellationRequested
@@ -127,12 +127,12 @@ func (router shipmentRouter) Reject(_ appcontext.AppContext, shipment *models.MT
 
 // RequestDiversion is called when the TOO has requested that the Prime divert the shipment.
 func (router shipmentRouter) RequestDiversion(_ appcontext.AppContext, shipment *models.MTOShipment, diversionReason *string) error {
-	if shipment.Status != models.MTOShipmentStatusApproved && shipment.Status != models.MTOShipmentStatusApprovalsRequested {
+	if shipment.Status != models.MTOShipmentStatusApproved {
 		return ConflictStatusError{
 			id:                        shipment.ID,
 			transitionFromStatus:      shipment.Status,
 			transitionToStatus:        models.MTOShipmentStatusDiversionRequested,
-			transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusApproved, models.MTOShipmentStatusApprovalsRequested},
+			transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusApproved},
 		}
 	}
 	shipment.Status = models.MTOShipmentStatusDiversionRequested
@@ -196,5 +196,4 @@ func statusSliceContains(statusSlice []models.MTOShipmentStatus, status models.M
 var validStatusesBeforeApproval = []models.MTOShipmentStatus{
 	models.MTOShipmentStatusSubmitted,
 	models.MTOShipmentStatusDiversionRequested,
-	models.MTOShipmentStatusApprovalsRequested,
 }
