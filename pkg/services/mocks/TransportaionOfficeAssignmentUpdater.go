@@ -16,12 +16,12 @@ type TransportaionOfficeAssignmentUpdater struct {
 	mock.Mock
 }
 
-// UpdateTransportaionOfficeAssignments provides a mock function with given fields: appCtx, officeUserId, transportationOfficeAssignments
-func (_m *TransportaionOfficeAssignmentUpdater) UpdateTransportaionOfficeAssignments(appCtx appcontext.AppContext, officeUserId uuid.UUID, transportationOfficeAssignments models.TransportationOfficeAssignments) (models.TransportationOfficeAssignments, error) {
+// UpdateTransportationOfficeAssignments provides a mock function with given fields: appCtx, officeUserId, transportationOfficeAssignments
+func (_m *TransportaionOfficeAssignmentUpdater) UpdateTransportationOfficeAssignments(appCtx appcontext.AppContext, officeUserId uuid.UUID, transportationOfficeAssignments models.TransportationOfficeAssignments) (models.TransportationOfficeAssignments, error) {
 	ret := _m.Called(appCtx, officeUserId, transportationOfficeAssignments)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateTransportaionOfficeAssignments")
+		panic("no return value specified for UpdateTransportationOfficeAssignments")
 	}
 
 	var r0 models.TransportationOfficeAssignments
