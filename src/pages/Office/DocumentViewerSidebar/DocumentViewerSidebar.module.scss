@@ -5,7 +5,6 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 500px;
 
   h1,
@@ -71,7 +70,6 @@
     @include u-padding-x(2);
     @include u-padding-top(3);
     @include u-padding-bottom(5);
-    height: 100%;
   }
 
   .footer {
