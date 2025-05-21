@@ -732,8 +732,8 @@ func (suite *ModelSuite) TestGetAuthorizedSITEndDate() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					DestinationSITAuthEndDate: &today,
-					OriginSITAuthEndDate:      &tomorrow,
+					OriginSITAuthEndDate:      &today,
+					DestinationSITAuthEndDate: &tomorrow,
 				},
 			},
 		}, nil)
