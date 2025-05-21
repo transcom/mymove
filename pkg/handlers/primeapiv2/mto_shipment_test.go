@@ -179,14 +179,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
-		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddressPOBoxCONUS})
+		newPOBoxAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddressPOBoxCONUS})
 		POBoxAddress = primev2messages.Address{
-			City:           &newAddress.City,
-			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
-			StreetAddress1: &newAddress.StreetAddress1,
-			StreetAddress2: newAddress.StreetAddress2,
-			StreetAddress3: newAddress.StreetAddress3,
+			City:           &newPOBoxAddress.City,
+			PostalCode:     &newPOBoxAddress.PostalCode,
+			State:          &newPOBoxAddress.State,
+			StreetAddress1: &newPOBoxAddress.StreetAddress1,
+			StreetAddress2: newPOBoxAddress.StreetAddress2,
+			StreetAddress3: newPOBoxAddress.StreetAddress3,
 		}
 
 		return handler, move
@@ -650,7 +650,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		unprocessableEntity := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
-		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box addresses")
+		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box address")
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
