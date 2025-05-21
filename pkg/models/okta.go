@@ -418,6 +418,7 @@ func AddOktaUserToGroup(appCtx appcontext.AppContext, provider *okta.Provider, a
 	return nil
 }
 
+// Deletes the Okta account tied to the provided oktaID and logs any errors
 func DeleteOktaUserHandled(appCtx appcontext.AppContext, oktaID string) {
 	if oktaID != "" {
 		req := appCtx.HTTPRequest()
@@ -427,7 +428,7 @@ func DeleteOktaUserHandled(appCtx appcontext.AppContext, oktaID string) {
 		}
 		provider, err := okta.GetOktaProviderForRequest(req)
 		if err != nil {
-			appCtx.Logger().Error("error retrieving Okta provider: %w")
+			appCtx.Logger().Error("error retrieving Okta provider: %w", zap.Error(err))
 			return
 		}
 		apiKey := GetOktaAPIKey()
@@ -456,10 +457,9 @@ func DeleteOktaUser(appCtx appcontext.AppContext, provider *okta.Provider, oktaI
 		return fmt.Errorf("okta user cannot be nil when preparing to delete the account")
 	}
 
-	/* Okta is weird and will only let you delete a user that is in DEPROVISIONED status.
-	   Calling delete on a user that is in any status other than DEPROVISIONED will result in the account being deactivated (DEPROVISIONED).
-	   Therefore in order to actually delete an ACTIVE user (or any status other than DEPROVISIONED), we will need to call delete twice.
-	*/
+	// Okta will only let you delete a user that is in DEPROVISIONED status.
+	// Calling delete on a user that is in any status other than DEPROVISIONED will result in the account being deactivated (DEPROVISIONED).
+	// Therefore, in order to actually delete an ACTIVE user (or any status other than DEPROVISIONED), we will need to call delete twice.
 	deleteAttempts := 1
 	if OktaStatus(existingOktaUser.Status) != OktaStatusDeprovisioned {
 		deleteAttempts = 2
