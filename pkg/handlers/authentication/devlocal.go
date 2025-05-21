@@ -460,6 +460,12 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		telephone = "333-333-3333"
 	}
 	userType := r.PostFormValue("userType")
+
+	gbloc := r.PostFormValue("gbloc")
+	if gbloc == "" {
+		gbloc = "KKFA" // most seed data uses this
+	}
+
 	email := r.PostFormValue("email")
 	if email == "" {
 		// Time alone doesn't guarantee uniqueness if a system is being automated
@@ -474,11 +480,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			re := regexp.MustCompile(`[^\w]+`)
 			prefix = re.ReplaceAllString(strings.ToLower(userType[0:i]), "-") + "-" + prefix
 		}
-		email = fmt.Sprintf("%s-%s@example.com", prefix, nonce)
-	}
-	gbloc := r.PostFormValue("gbloc")
-	if gbloc == "" {
-		gbloc = "KKFA" // most seed data uses this
+		email = fmt.Sprintf("%s-%s-%s@example.com", prefix, nonce, gbloc)
 	}
 
 	// Create the User (which is the basis of all Service Members)
@@ -519,6 +521,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	}
 	address.IsOconus = &isOconus
 
+	approvedStatus := models.OfficeUserStatusAPPROVED
 	switch userType {
 	case MilMoveUserType:
 		newServiceMember := models.ServiceMember{
@@ -583,6 +586,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -647,6 +651,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -711,6 +716,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -775,6 +781,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -840,6 +847,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -904,6 +912,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -968,6 +977,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -1032,6 +1042,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -1096,6 +1107,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -1173,6 +1185,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 			Active:                 true,
+			Status:                 &approvedStatus,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID

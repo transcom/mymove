@@ -144,7 +144,37 @@ const ShipmentForm = (props) => {
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
   const [isRequestedPickupDateInvalid, setIsRequestedPickupDateInvalid] = useState(false);
   const [isRequestedPickupDateChanged, setIsRequestedPickupDateChanged] = useState(false);
+  const [isRequestedPickupAddress, setIsRequestedPickupAddress] = useState(false);
   const DEFAULT_COUNTRY_CODE = 'US';
+  const REQUESTED_PICKUP_DATE = 'Requested pickup date';
+
+  const handleDatesError = (errResponse) => {
+    const { response } = errResponse;
+    setDatesErrorMessage(response?.body?.detail);
+  };
+
+  const checkDateHolidayWeekend = (countryCode, date, label, setAlertMessage, setAlertVisible) => {
+    dateSelectionWeekendHolidayCheck(
+      dateSelectionIsWeekendHoliday,
+      countryCode,
+      date,
+      label,
+      setAlertMessage,
+      setAlertVisible,
+      handleDatesError,
+    );
+  };
+
+  const handlePickupLocationEntered = (location, date) => {
+    setIsRequestedPickupAddress(location.city);
+    checkDateHolidayWeekend(
+      location.country ?? DEFAULT_COUNTRY_CODE,
+      new Date(date),
+      REQUESTED_PICKUP_DATE,
+      setRequestedPickupDateAlertMessage,
+      setIsRequestedPickupDateAlertVisible,
+    );
+  };
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipmentStatus } = useMutation(deleteShipment, {
@@ -247,7 +277,7 @@ const ShipmentForm = (props) => {
       dateSelectionIsWeekendHoliday,
       DEFAULT_COUNTRY_CODE,
       new Date(mtoShipment.requestedPickupDate),
-      'Requested pickup date',
+      REQUESTED_PICKUP_DATE,
       setRequestedPickupDateAlertMessage,
       setIsRequestedPickupDateAlertVisible,
       onErrorHandler,
@@ -747,19 +777,13 @@ const ShipmentForm = (props) => {
 
           setIsRequestedPickupDateChanged(true);
 
-          const onErrorHandler = (errResponse) => {
-            const { response } = errResponse;
-            setDatesErrorMessage(response?.body?.detail);
-          };
           if (!validatePickupDate(e)) {
-            dateSelectionWeekendHolidayCheck(
-              dateSelectionIsWeekendHoliday,
+            checkDateHolidayWeekend(
               DEFAULT_COUNTRY_CODE,
               new Date(e),
-              'Requested pickup date',
+              REQUESTED_PICKUP_DATE,
               setRequestedPickupDateAlertMessage,
               setIsRequestedPickupDateAlertVisible,
-              onErrorHandler,
             );
           }
         };
@@ -772,10 +796,6 @@ const ShipmentForm = (props) => {
               requestedDate: formatDate(e, datePickerFormat),
             },
           });
-          const onErrorHandler = (errResponse) => {
-            const { response } = errResponse;
-            setDatesErrorMessage(response?.body?.detail);
-          };
           dateSelectionWeekendHolidayCheck(
             dateSelectionIsWeekendHoliday,
             DEFAULT_COUNTRY_CODE,
@@ -783,7 +803,7 @@ const ShipmentForm = (props) => {
             'Requested delivery date',
             setRequestedDeliveryDateAlertMessage,
             setIsRequestedDeliveryDateAlertVisible,
-            onErrorHandler,
+            handleDatesError,
           );
         };
 
@@ -948,8 +968,116 @@ const ShipmentForm = (props) => {
 
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3 className={styles.SectionHeaderExtraSpacing}>Pickup details</h3>
-                    <Fieldset data-testid="requestedPickupDateFieldSet">
+                    {!isNTSR && (
+                      <AddressFields
+                        name="pickup.address"
+                        legend="Pickup Address"
+                        formikProps={formikProps}
+                        onLocationEntered={(location) =>
+                          handlePickupLocationEntered(location, values.pickup.requestedDate)
+                        }
+                        render={(fields) => (
+                          <>
+                            <p>What address are the movers picking up from?</p>
+                            <Checkbox
+                              data-testid="useCurrentResidence"
+                              label="Use pickup address"
+                              name="useCurrentResidence"
+                              onChange={handleUseCurrentResidenceChange}
+                              id="useCurrentResidenceCheckbox"
+                            />
+                            {fields}
+                            <h4>Second Pickup Address</h4>
+                            <FormGroup>
+                              <p>Do you want movers to pick up any belongings from a second address?</p>
+                              <div className={formStyles.radioGroup}>
+                                <Field
+                                  as={Radio}
+                                  id="has-secondary-pickup"
+                                  data-testid="has-secondary-pickup"
+                                  label="Yes"
+                                  name="hasSecondaryPickup"
+                                  value="true"
+                                  title="Yes, I have a second pickup address"
+                                  checked={hasSecondaryPickup === 'true'}
+                                  disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                  onChange={(e) => updateAddressTouched(e, 'secondaryPickup.address', blankAddress)}
+                                />
+                                <Field
+                                  as={Radio}
+                                  id="no-secondary-pickup"
+                                  data-testid="no-secondary-pickup"
+                                  label="No"
+                                  name="hasSecondaryPickup"
+                                  value="false"
+                                  title="No, I do not have a second pickup address"
+                                  checked={hasSecondaryPickup !== 'true'}
+                                  disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
+                                  onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                />
+                              </div>
+                            </FormGroup>
+                            {hasSecondaryPickup === 'true' && (
+                              <>
+                                <AddressFields name="secondaryPickup.address" formikProps={formikProps} />
+                                {isTertiaryAddressEnabled && (
+                                  <>
+                                    <h4>Third Pickup Address</h4>
+                                    <FormGroup>
+                                      <p>Do you want movers to pick up any belongings from a third address?</p>
+                                      <div className={formStyles.radioGroup}>
+                                        <Field
+                                          as={Radio}
+                                          id="has-tertiary-pickup"
+                                          data-testid="has-tertiary-pickup"
+                                          label="Yes"
+                                          name="hasTertiaryPickup"
+                                          value="true"
+                                          title="Yes, I have a third pickup address"
+                                          checked={hasTertiaryPickup === 'true'}
+                                          disabled={
+                                            !isPreceedingAddressComplete(
+                                              hasSecondaryPickup,
+                                              values.secondaryPickup.address,
+                                            )
+                                          }
+                                          onChange={(e) =>
+                                            updateAddressTouched(e, 'tertiaryPickup.address', blankAddress)
+                                          }
+                                        />
+                                        <Field
+                                          as={Radio}
+                                          id="no-tertiary-pickup"
+                                          data-testid="no-tertiary-pickup"
+                                          label="No"
+                                          name="hasTertiaryPickup"
+                                          value="false"
+                                          title="No, I do not have a third pickup address"
+                                          checked={hasTertiaryPickup !== 'true'}
+                                          disabled={
+                                            !isPreceedingAddressComplete(
+                                              hasSecondaryPickup,
+                                              values.secondaryPickup.address,
+                                            )
+                                          }
+                                          onChange={(e) =>
+                                            handleAddressToggleChange(e, values, setValues, blankAddress)
+                                          }
+                                        />
+                                      </div>
+                                    </FormGroup>
+                                    {hasTertiaryPickup === 'true' && (
+                                      <AddressFields name="tertiaryPickup.address" formikProps={formikProps} />
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </>
+                        )}
+                      />
+                    )}
+                    <Fieldset data-testid="requestedPickupDateFieldSet" legend="Pickup details">
                       {isRequestedPickupDateAlertVisible && !isRequestedPickupDateInvalid && (
                         <Alert
                           type="warning"
@@ -961,6 +1089,7 @@ const ShipmentForm = (props) => {
                         </Alert>
                       )}
                       <DatePickerInput
+                        disabled={!isRequestedPickupAddress}
                         name="pickup.requestedDate"
                         label="Requested pickup date"
                         id="requestedPickupDate"
@@ -968,121 +1097,15 @@ const ShipmentForm = (props) => {
                         onChange={handlePickupDateChange}
                       />
                     </Fieldset>
-                    {!isNTSR && (
-                      <>
-                        <AddressFields
-                          name="pickup.address"
-                          legend="Pickup Address"
-                          formikProps={formikProps}
-                          render={(fields) => (
-                            <>
-                              <p>What address are the movers picking up from?</p>
-                              <Checkbox
-                                data-testid="useCurrentResidence"
-                                label="Use pickup address"
-                                name="useCurrentResidence"
-                                onChange={handleUseCurrentResidenceChange}
-                                id="useCurrentResidenceCheckbox"
-                              />
-                              {fields}
-                              <h4>Second Pickup Address</h4>
-                              <FormGroup>
-                                <p>Do you want movers to pick up any belongings from a second address?</p>
-                                <div className={formStyles.radioGroup}>
-                                  <Field
-                                    as={Radio}
-                                    id="has-secondary-pickup"
-                                    data-testid="has-secondary-pickup"
-                                    label="Yes"
-                                    name="hasSecondaryPickup"
-                                    value="true"
-                                    title="Yes, I have a second pickup address"
-                                    checked={hasSecondaryPickup === 'true'}
-                                    disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                    onChange={(e) => updateAddressTouched(e, 'secondaryPickup.address', blankAddress)}
-                                  />
-                                  <Field
-                                    as={Radio}
-                                    id="no-secondary-pickup"
-                                    data-testid="no-secondary-pickup"
-                                    label="No"
-                                    name="hasSecondaryPickup"
-                                    value="false"
-                                    title="No, I do not have a second pickup address"
-                                    checked={hasSecondaryPickup !== 'true'}
-                                    disabled={!isPreceedingAddressComplete('true', values.pickup.address)}
-                                    onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
-                                  />
-                                </div>
-                              </FormGroup>
-                              {hasSecondaryPickup === 'true' && (
-                                <>
-                                  <AddressFields name="secondaryPickup.address" formikProps={formikProps} />
-                                  {isTertiaryAddressEnabled && (
-                                    <>
-                                      <h4>Third Pickup Address</h4>
-                                      <FormGroup>
-                                        <p>Do you want movers to pick up any belongings from a third address?</p>
-                                        <div className={formStyles.radioGroup}>
-                                          <Field
-                                            as={Radio}
-                                            id="has-tertiary-pickup"
-                                            data-testid="has-tertiary-pickup"
-                                            label="Yes"
-                                            name="hasTertiaryPickup"
-                                            value="true"
-                                            title="Yes, I have a third pickup address"
-                                            checked={hasTertiaryPickup === 'true'}
-                                            disabled={
-                                              !isPreceedingAddressComplete(
-                                                hasSecondaryPickup,
-                                                values.secondaryPickup.address,
-                                              )
-                                            }
-                                            onChange={(e) =>
-                                              updateAddressTouched(e, 'tertiaryPickup.address', blankAddress)
-                                            }
-                                          />
-                                          <Field
-                                            as={Radio}
-                                            id="no-tertiary-pickup"
-                                            data-testid="no-tertiary-pickup"
-                                            label="No"
-                                            name="hasTertiaryPickup"
-                                            value="false"
-                                            title="No, I do not have a third pickup address"
-                                            checked={hasTertiaryPickup !== 'true'}
-                                            disabled={
-                                              !isPreceedingAddressComplete(
-                                                hasSecondaryPickup,
-                                                values.secondaryPickup.address,
-                                              )
-                                            }
-                                            onChange={(e) =>
-                                              handleAddressToggleChange(e, values, setValues, blankAddress)
-                                            }
-                                          />
-                                        </div>
-                                      </FormGroup>
-                                      {hasTertiaryPickup === 'true' && (
-                                        <AddressFields name="tertiaryPickup.address" formikProps={formikProps} />
-                                      )}
-                                    </>
-                                  )}
-                                </>
-                              )}
-                            </>
-                          )}
-                        />
 
-                        <ContactInfoFields
-                          name="pickup.agent"
-                          legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
-                          render={(fields) => {
-                            return fields;
-                          }}
-                        />
-                      </>
+                    {!isNTSR && (
+                      <ContactInfoFields
+                        name="pickup.agent"
+                        legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                        render={(fields) => {
+                          return fields;
+                        }}
+                      />
                     )}
                   </SectionWrapper>
                 )}
@@ -1103,21 +1126,6 @@ const ShipmentForm = (props) => {
 
                 {showDeliveryFields && (
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3 className={styles.SectionHeaderExtraSpacing}>Delivery details</h3>
-                    <Fieldset>
-                      {isRequestedDeliveryDateAlertVisible && (
-                        <Alert type="warning" aria-live="polite" headingLevel="h4">
-                          {requestedDeliveryDateAlertMessage}
-                        </Alert>
-                      )}
-                      <DatePickerInput
-                        name="delivery.requestedDate"
-                        label="Requested delivery date"
-                        id="requestedDeliveryDate"
-                        validate={validateDate}
-                        onChange={handleDeliveryDateChange}
-                      />
-                    </Fieldset>
                     {isNTSR && (
                       <>
                         {deliveryAddressUpdateRequested && (
@@ -1243,6 +1251,21 @@ const ShipmentForm = (props) => {
                           )}
                         </Fieldset>
 
+                        <Fieldset legend="Delivery details">
+                          {isRequestedDeliveryDateAlertVisible && (
+                            <Alert type="warning" aria-live="polite" headingLevel="h4">
+                              {requestedDeliveryDateAlertMessage}
+                            </Alert>
+                          )}
+                          <DatePickerInput
+                            name="delivery.requestedDate"
+                            label="Requested delivery date"
+                            id="requestedDeliveryDate"
+                            validate={validateDate}
+                            onChange={handleDeliveryDateChange}
+                          />
+                        </Fieldset>
+
                         <ContactInfoFields
                           name="delivery.agent"
                           legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
@@ -1252,6 +1275,24 @@ const ShipmentForm = (props) => {
                         />
                       </>
                     )}
+
+                    {isNTS && (
+                      <Fieldset legend="Delivery details">
+                        {isRequestedDeliveryDateAlertVisible && (
+                          <Alert type="warning" aria-live="polite" headingLevel="h4">
+                            {requestedDeliveryDateAlertMessage}
+                          </Alert>
+                        )}
+                        <DatePickerInput
+                          name="delivery.requestedDate"
+                          label="Requested delivery date"
+                          id="requestedDeliveryDate"
+                          validate={validateDate}
+                          onChange={handleDeliveryDateChange}
+                        />
+                      </Fieldset>
+                    )}
+
                     {!isNTS && !isNTSR && (
                       <>
                         <p className={classNames('usa-legend', styles.mockLegend)} id="delivery-location">
@@ -1435,6 +1476,21 @@ const ShipmentForm = (props) => {
                               )}
                             </div>
                           )}
+                        </Fieldset>
+
+                        <Fieldset legend="Delivery details">
+                          {isRequestedDeliveryDateAlertVisible && (
+                            <Alert type="warning" aria-live="polite" headingLevel="h4">
+                              {requestedDeliveryDateAlertMessage}
+                            </Alert>
+                          )}
+                          <DatePickerInput
+                            name="delivery.requestedDate"
+                            label="Requested delivery date"
+                            id="requestedDeliveryDate"
+                            validate={validateDate}
+                            onChange={handleDeliveryDateChange}
+                          />
                         </Fieldset>
 
                         <ContactInfoFields

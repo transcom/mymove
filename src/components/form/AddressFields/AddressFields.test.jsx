@@ -1,14 +1,31 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 import { Provider } from 'react-redux';
 
 import { AddressFields } from './AddressFields';
 
+import * as ghcApi from 'services/ghcApi';
 import { configureStore } from 'shared/store';
 
+jest.mock('services/ghcApi');
+
+const mockLoggedInUser = {
+  id: '123',
+  office_user: {
+    id: '456',
+  },
+};
+
 describe('AddressFields component', () => {
-  const mockStore = configureStore({});
+  const mockStore = configureStore({
+    entities: {
+      user: {
+        [mockLoggedInUser.id]: mockLoggedInUser,
+      },
+    },
+  });
 
   it('renders a legend and all address inputs', () => {
     const { getByText, getByLabelText, getByTestId } = render(
@@ -91,6 +108,55 @@ describe('AddressFields component', () => {
         screen.getAllByText(
           `${initialValues.address.city}, ${initialValues.address.state} ${initialValues.address.postalCode} (${initialValues.address.county})`,
         ),
+      );
+    });
+  });
+
+  it('calls onLocationEntered when a location value is entered', async () => {
+    const mockLocationData = [
+      {
+        city: 'New York',
+        state: 'NY',
+        county: 'New York County',
+        postalCode: '10001',
+        usPostRegionCitiesID: '123456',
+      },
+    ];
+
+    ghcApi.searchLocationByZipCityState.mockResolvedValue(mockLocationData);
+
+    const onLocationEntered = jest.fn();
+
+    render(
+      <Provider store={mockStore.store}>
+        <Formik initialValues={{}}>
+          {(formikProps) => (
+            <AddressFields name="address" formikProps={formikProps} onLocationEntered={onLocationEntered} />
+          )}
+        </Formik>
+      </Provider>,
+    );
+
+    const locationInput = screen.getByRole('combobox', { name: /location lookup/i });
+
+    await userEvent.type(locationInput, 'New York');
+
+    await waitFor(() => {
+      expect(ghcApi.searchLocationByZipCityState).toHaveBeenCalledWith('New York');
+    });
+
+    // Simulate selecting the option
+    await userEvent.type(locationInput, '{arrowdown}{enter}');
+
+    await waitFor(() => {
+      expect(onLocationEntered).toHaveBeenCalledWith(
+        expect.objectContaining({
+          city: 'New York',
+          state: 'NY',
+          county: 'New York County',
+          postalCode: '10001',
+          usPostRegionCitiesID: '123456',
+        }),
       );
     });
   });
