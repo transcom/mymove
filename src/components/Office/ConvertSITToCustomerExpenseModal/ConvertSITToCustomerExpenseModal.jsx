@@ -120,7 +120,7 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
                       type="button"
                       onClick={() => onClose()}
                       data-testid="modalCancelButton"
-                      outline
+                      secondary
                       className={styles.CancelButton}
                     >
                       Cancel
