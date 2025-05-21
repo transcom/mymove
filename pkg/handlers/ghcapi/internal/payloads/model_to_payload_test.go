@@ -2493,5 +2493,5 @@ func (suite *PayloadsSuite) TestPayGrades() {
 	result := PayGrades(payGrades)
 
 	suite.Equal(len(payGrades), len(result))
-	suite.Equal(payGrades[0].Grade, result)
+	suite.Equal(payGrades[0].Grade, result[0].Grade)
 }
