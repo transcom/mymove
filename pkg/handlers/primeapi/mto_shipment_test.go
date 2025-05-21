@@ -230,7 +230,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 			vLocationServices,
 		}
