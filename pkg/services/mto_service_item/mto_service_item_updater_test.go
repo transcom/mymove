@@ -443,7 +443,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 			{

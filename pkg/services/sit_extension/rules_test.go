@@ -17,25 +17,28 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 		suite.Run("success", func() {
 			shipmentId := uuid.Must(uuid.NewV4())
 			today := time.Now()
-			tomorrow := today.Add(time.Hour * 24)
+			aFewDaysLater := today.Add(time.Hour * 72)
 
+			re := models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			}
 			var sitList []models.MTOServiceItem
 			sit := models.MTOServiceItem{
 				MTOShipmentID:    &shipmentId,
 				Status:           models.MTOServiceItemStatusApproved,
 				SITEntryDate:     &today,
-				SITDepartureDate: &tomorrow,
+				SITDepartureDate: &aFewDaysLater,
+				ReService:        re,
 			}
 			sitList = append(sitList, sit)
 
 			move := factory.BuildMove(suite.DB(), nil, nil)
 			shipment := models.MTOShipment{
-				ID:                        shipmentId,
-				DestinationSITAuthEndDate: &today,
-				ActualDeliveryDate:        &tomorrow,
-				MTOServiceItems:           sitList,
-				MoveTaskOrder:             move,
-				MoveTaskOrderID:           move.ID,
+				ID:                   shipmentId,
+				OriginSITAuthEndDate: &today,
+				MTOServiceItems:      sitList,
+				MoveTaskOrder:        move,
+				MoveTaskOrderID:      move.ID,
 			}
 
 			var emptySitExt models.SITDurationUpdate
@@ -50,12 +53,16 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 			today := time.Now()
 			tomorrow := today.Add(time.Hour * 24)
 
+			reService := models.ReService{
+				Code: models.ReServiceCodeDOASIT,
+			}
 			var sitList []models.MTOServiceItem
 			sit := models.MTOServiceItem{
 				MTOShipmentID:    &shipmentId,
 				Status:           models.MTOServiceItemStatusApproved,
 				SITEntryDate:     &today,
 				SITDepartureDate: &today,
+				ReService:        reService,
 			}
 			sitList = append(sitList, sit)
 
