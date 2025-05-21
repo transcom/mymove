@@ -495,6 +495,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		var sitExtensions []models.SITDurationUpdate
 		suite.DB().Q().All(&sitExtensions)
 		suite.Equal(1, len(sitExtensions))
+		suite.Equal(models.SITExtensionStatusPending, sitExtensions[0].Status)
 		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
 
 		// Update MTO service item
@@ -503,9 +504,11 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 
-		// Confirm sitExtension was deleted for the shipment
+		// Confirm sitExtension was status was updated for the shipment
 		suite.DB().Q().All(&sitExtensions)
-		suite.Equal(0, len(sitExtensions))
+		suite.Equal(1, len(sitExtensions))
+		suite.Equal(models.SITExtensionStatusRemoved, sitExtensions[0].Status)
+		suite.Equal(shipment.ID, sitExtensions[0].MTOShipmentID)
 
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
