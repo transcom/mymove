@@ -7,7 +7,7 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import formStyles from 'styles/form.module.scss';
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import DataTable from 'components/DataTable';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint/index';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 
