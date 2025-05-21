@@ -115,6 +115,8 @@ type MoveWithCount struct {
 	MTOShipments        *models.MTOShipments         `json:"-"`
 	CounselingOfficeRaw json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
 	CounselingOffice    *models.TransportationOffice `json:"-"`
+	SCAssignedUserRaw   json.RawMessage              `json:"sc_assigned" db:"sc_assigned"`
+	SCAssignedUser      *models.OfficeUser           `json:"-"`
 	TotalCount          int64                        `json:"total_count" db:"total_count"`
 }
 
@@ -146,6 +148,13 @@ func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error
 		}
 		movesWithCount[i].CounselingOfficeRaw = nil
 		movesWithCount[i].CounselingOffice = &counselingTransportationOffice
+
+		var scAssigned models.OfficeUser
+		if err := json.Unmarshal(movesWithCount[i].SCAssignedUserRaw, &scAssigned); err != nil {
+			return moves, fmt.Errorf("error unmarshaling sc_assigned JSON: %w", err)
+		}
+		movesWithCount[i].SCAssignedUserRaw = nil
+		movesWithCount[i].SCAssignedUser = &scAssigned
 	}
 
 	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func

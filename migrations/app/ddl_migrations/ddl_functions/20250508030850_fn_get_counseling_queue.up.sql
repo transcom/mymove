@@ -1,7 +1,6 @@
--- B-23520  Tevin Adams  initial function creation
+-- B-23520  Tevin Adams  initial function creation of get_counseling_queue
 
-DROP FUNCTION IF EXISTS get_counseling_queue();
-
+DROP FUNCTION IF EXISTS get_counseling_queue;
 CREATE OR REPLACE FUNCTION get_counseling_queue(
 	user_gbloc TEXT DEFAULT NULL,
 	customer_name TEXT DEFAULT NULL,
@@ -31,6 +30,7 @@ RETURNS TABLE (
     locked_by UUID,
     sc_assigned_id UUID,
     counseling_transportation_office_id UUID,
+    sc_assigned JSONB,
 	orders JSONB,
 	mto_shipments JSONB,
   	counseling_transportation_office JSONB,
@@ -64,6 +64,7 @@ BEGIN
       m.locked_by AS locked_by,
       m.sc_assigned_id AS sc_assigned_id,
       m.counseling_transportation_office_id AS counseling_transportation_office_id,
+      json_build_object(''first_name'', sc_user.first_name, ''last_name'', sc_user.last_name, ''id'', sc_user.id)::JSONB AS sc_assigned,
       json_build_object(
         ''id'',                         o.id,
         ''orders_type'',                o.orders_type,
