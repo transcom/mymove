@@ -1210,6 +1210,17 @@ func GunSafeWeightTicket(storer storage.FileStorer, gunsafe *models.GunSafeWeigh
 	return payload
 }
 
+// GunSafeWeightTickets sets up a GunSafeWeightTicket slice for the api using model data.
+func GunSafeWeightTickets(storer storage.FileStorer, gunSafeWeightTickets models.GunSafeWeightTickets) []*ghcmessages.GunSafeWeightTicket {
+	payload := make([]*ghcmessages.GunSafeWeightTicket, len(gunSafeWeightTickets))
+	for i, gunSafeWeightTicket := range gunSafeWeightTickets {
+		copyOfGunSafeWeightTicket := gunSafeWeightTicket
+		gunSafeWeightTicketPayload := GunSafeWeightTicket(storer, &copyOfGunSafeWeightTicket)
+		payload[i] = gunSafeWeightTicketPayload
+	}
+	return payload
+}
+
 // MovingExpense payload
 func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpense) *ghcmessages.MovingExpense {
 
@@ -1376,6 +1387,7 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
 		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
 		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
+		GunSafeWeightTickets: GunSafeWeightTickets(storer, ppmDocuments.GunSafeWeightTickets),
 	}
 
 	return payload

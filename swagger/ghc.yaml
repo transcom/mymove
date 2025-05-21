@@ -11993,37 +11993,6 @@ definitions:
     items:
       $ref: '#/definitions/ProGearWeightTicket'
     x-omitempty: false
-  MovingExpenses:
-    description: All moving expenses associated with a PPM shipment.
-    type: array
-    items:
-      $ref: '#/definitions/MovingExpense'
-    x-omitempty: false
-  PPMDocuments:
-    description: >-
-      All documents associated with a PPM shipment, including weight tickets,
-      progear weight tickets, and moving expenses.
-    x-nullable: true
-    x-omitempty: false
-    type: object
-    properties:
-      WeightTickets:
-        $ref: '#/definitions/WeightTickets'
-      ProGearWeightTickets:
-        $ref: '#/definitions/ProGearWeightTickets'
-      MovingExpenses:
-        $ref: '#/definitions/MovingExpenses'
-  PPMDocumentStatus:
-    description: Status of the PPM document.
-    type: string
-    enum:
-      - APPROVED
-      - EXCLUDED
-      - REJECTED
-    x-display-value:
-      APPROVED: Approved
-      EXCLUDED: Excluded
-      REJECTED: Rejected
   GunSafeWeightTicket:
     description: Gun safe associated information and weight docs for a PPM shipment
     type: object
@@ -12119,6 +12088,45 @@ definitions:
       - updatedAt
       - documentId
       - document
+  GunSafeWeightTickets:
+    description: All gunsafe weight tickets associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/GunSafeWeightTicket'
+    x-omitempty: false
+  MovingExpenses:
+    description: All moving expenses associated with a PPM shipment.
+    type: array
+    items:
+      $ref: '#/definitions/MovingExpense'
+    x-omitempty: false
+  PPMDocuments:
+    description: >-
+      All documents associated with a PPM shipment, including weight tickets,
+      progear weight tickets, and moving expenses.
+    x-nullable: true
+    x-omitempty: false
+    type: object
+    properties:
+      WeightTickets:
+        $ref: '#/definitions/WeightTickets'
+      ProGearWeightTickets:
+        $ref: '#/definitions/ProGearWeightTickets'
+      GunSafeWeightTickets:
+        $ref: '#/definitions/GunSafeWeightTickets'
+      MovingExpenses:
+        $ref: '#/definitions/MovingExpenses'
+  PPMDocumentStatus:
+    description: Status of the PPM document.
+    type: string
+    enum:
+      - APPROVED
+      - EXCLUDED
+      - REJECTED
+    x-display-value:
+      APPROVED: Approved
+      EXCLUDED: Excluded
+      REJECTED: Rejected
   PPMShipmentSIT:
     description: SIT related items for a PPM shipment
     x-nullable: true

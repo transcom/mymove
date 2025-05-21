@@ -662,6 +662,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.PpmCreateGunSafeWeightTicketHandler = CreateGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewOfficeGunSafeWeightTicketCreator()}
+	ghcAPI.PpmDeleteGunSafeWeightTicketHandler = DeleteGunSafeWeightTicketHandler{handlerConfig, gunsafe.NewOfficeGunSafeWeightTicketDeleter()}
 
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 	if err != nil {

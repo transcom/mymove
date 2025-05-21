@@ -103,6 +103,11 @@ export function isProGearComplete(proGear) {
   return !!(proGear.weight && proGear.description && hasADocumentUpload && hasAnOwner);
 }
 
+export function isGunSafeComplete(gunSafe) {
+  const hasADocumentUpload = gunSafe.document.uploads.length > 0;
+  return !!(gunSafe.weight && gunSafe.description && hasADocumentUpload);
+}
+
 export function hasCompletedAllProGear(proGear) {
   if (!proGear?.length) {
     return true;

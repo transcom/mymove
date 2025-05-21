@@ -12,7 +12,6 @@ import {
   patchGunSafeWeightTicket,
   createUploadForPPMDocument,
   deleteUploadForDocument,
-  updateMTOShipment,
 } from 'services/ghcApi';
 import { DOCUMENTS } from 'constants/queryKeys';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -29,12 +28,11 @@ const GunSafe = ({ appName }) => {
   // moveId, mtoShipmentId and gunSafeId used for customer side, shipmentId and gunSafeId for office
   const { shipmentId, gunSafeId } = useParams();
 
-  const { mtoShipment, refetchMTOShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
+  const { mtoShipment, documents, isError } = usePPMShipmentAndDocsOnlyQueries(shipmentId);
   const { moveCode } = useParams();
   const { orders } = useReviewShipmentWeightsQuery(moveCode);
   const ppmShipment = mtoShipment?.ppmShipment;
   const gunSafeWeightTickets = documents?.GunSafeWeightTickets ?? [];
-  const moveTaskOrderID = Object.values(orders)?.[0].moveTaskOrderID;
 
   const currentGunSafeWeightTicket = gunSafeWeightTickets?.find((item) => item.id === gunSafeId) ?? null;
   const currentIndex = Array.isArray(gunSafeWeightTickets)
@@ -50,7 +48,7 @@ const GunSafe = ({ appName }) => {
         generatePath(servicesCounselingRoutes.BASE_SHIPMENT_PPM_GUN_SAFE_EDIT_PATH, {
           moveCode,
           shipmentId,
-          proGearId: createdGunSafeWeightTicket?.id,
+          gunSafeId: createdGunSafeWeightTicket?.id,
         }),
         { replace: true },
       );
@@ -60,13 +58,14 @@ const GunSafe = ({ appName }) => {
     },
   });
 
-  const { mutate: mutatePatchGunSafeWeightTicket } = useMutation(patchGunSafeWeightTicket);
-  const { mutate: mutateUpdateMtoShipment } = useMutation(updateMTOShipment, {
-    onSuccess: () => {
+  const { mutate: mutatePatchGunSafeWeightTicket } = useMutation(patchGunSafeWeightTicket, {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
       navigate(reviewPath);
     },
     onError: () => {
-      setErrorMessage(`Failed to update shipment record`);
+      setIsSubmitted(false);
+      setErrorMessage('Failed to save updated trip record');
     },
   });
 
@@ -75,42 +74,6 @@ const GunSafe = ({ appName }) => {
       mutateGunSafeCreateWeightTicket(ppmShipment?.id);
     }
   }, [mutateGunSafeCreateWeightTicket, ppmShipment?.id, gunSafeId]);
-
-  const updateShipment = async (values) => {
-    const shipmentResp = await refetchMTOShipment();
-    if (shipmentResp.isSuccess) {
-      const belongsToSelf = values.belongsToSelf === 'true';
-      let gunSafe;
-      let spouseGunSafe;
-      if (belongsToSelf) {
-        gunSafe = values.weight;
-      }
-      if (!belongsToSelf) {
-        spouseGunSafe = values.weight;
-      }
-
-      const shipmentPayload = {
-        belongsToSelf,
-        ppmShipment: {
-          id: mtoShipment.ppmShipment.id,
-        },
-        shipmentType: mtoShipment.shipmentType,
-        actualSpouseGunSafeWeight: parseInt(spouseGunSafe, 10),
-        actualGunSafeWeight: parseInt(gunSafe, 10),
-        shipmentLocator: values.shipmentLocator,
-        eTag: shipmentResp?.data?.eTag,
-      };
-
-      mutateUpdateMtoShipment({
-        moveTaskOrderID,
-        shipmentID: mtoShipment.id,
-        ifMatchETag: shipmentPayload.eTag,
-        body: shipmentPayload,
-      });
-    } else {
-      setErrorMessage('Failed to fetch shipment record');
-    }
-  };
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentGunSafeWeightTicket[`${fieldName}Id`];
@@ -164,12 +127,10 @@ const GunSafe = ({ appName }) => {
   };
 
   const updateGunSafeWeightTicket = async (values) => {
-    const belongsToSelf = values.belongsToSelf === 'true';
     const hasWeightTickets = !values.missingWeightTicket;
 
     const payload = {
       hasWeightTickets,
-      belongsToSelf,
       ppmShipmentId: mtoShipment.ppmShipment.id,
       shipmentType: mtoShipment.shipmentType,
       shipmentLocator: values.shipmentLocator,
@@ -187,7 +148,7 @@ const GunSafe = ({ appName }) => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries([DOCUMENTS, shipmentId]);
-          updateShipment(values);
+          navigate(reviewPath);
         },
         onError: () => {
           setIsSubmitted(false);
@@ -231,7 +192,7 @@ const GunSafe = ({ appName }) => {
             <Grid col desktop={{ col: 8, offset: 2 }}>
               <div className={ppmPageStyles.closeoutPageWrapper}>
                 <ShipmentTag shipmentType={shipmentTypes.PPM} />
-                <h1>Pro-gear</h1>
+                <h1>Gun Safe</h1>
                 {renderError()}
                 <GunSafeForm
                   entitlements={entitlements}

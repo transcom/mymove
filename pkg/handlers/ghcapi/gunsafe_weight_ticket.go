@@ -139,7 +139,7 @@ type DeleteGunSafeWeightTicketHandler struct {
 	gunsafeDeleter services.GunSafeWeightTicketDeleter
 }
 
-// Handle deletes a pro-gear weight ticket
+// Handle deletes a gun safe weight ticket
 func (h DeleteGunSafeWeightTicketHandler) Handle(params gunsafeops.DeleteGunSafeWeightTicketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

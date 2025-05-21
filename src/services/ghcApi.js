@@ -181,7 +181,7 @@ export async function patchGunSafeWeightTicket(ppmShipmentId, gunSafeWeightTicke
   );
 }
 
-export async function deleteGunSafeWeightTicket(ppmShipmentId, gunSafeWeightTicketId) {
+export async function deleteGunSafeWeightTicket({ ppmShipmentId, gunSafeWeightTicketId }) {
   return makeGHCRequest(
     'ppm.deleteGunSafeWeightTicket',
     {

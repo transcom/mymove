@@ -178,6 +178,7 @@ type PPMDocuments struct {
 	WeightTickets
 	MovingExpenses
 	ProgearWeightTickets
+	GunSafeWeightTickets
 }
 
 // PPMType represents the type of a PPM shipment

@@ -10058,6 +10058,14 @@ func init() {
         }
       }
     },
+    "GunSafeWeightTickets": {
+      "description": "All gunsafe weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GunSafeWeightTicket"
+      },
+      "x-omitempty": false
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -13075,6 +13083,9 @@ func init() {
       "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
+        "GunSafeWeightTickets": {
+          "$ref": "#/definitions/GunSafeWeightTickets"
+        },
         "MovingExpenses": {
           "$ref": "#/definitions/MovingExpenses"
         },
@@ -29094,6 +29105,14 @@ func init() {
         }
       }
     },
+    "GunSafeWeightTickets": {
+      "description": "All gunsafe weight tickets associated with a PPM shipment.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GunSafeWeightTicket"
+      },
+      "x-omitempty": false
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -32112,6 +32131,9 @@ func init() {
       "description": "All documents associated with a PPM shipment, including weight tickets, progear weight tickets, and moving expenses.",
       "type": "object",
       "properties": {
+        "GunSafeWeightTickets": {
+          "$ref": "#/definitions/GunSafeWeightTickets"
+        },
         "MovingExpenses": {
           "$ref": "#/definitions/MovingExpenses"
         },

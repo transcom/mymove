@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS gunsafe_weight_tickets (
 
 -- B-23368 need these to stay consistent with other PPM documents
 ALTER TABLE gunsafe_weight_tickets
-ADD COLUMN IF NOT EXISTS submitted_has_weight_tickets bool NOT NULL DEFAULT false;
+ADD COLUMN IF NOT EXISTS submitted_has_weight_tickets bool DEFAULT false;
 
 ALTER TABLE gunsafe_weight_tickets
 ADD COLUMN IF NOT EXISTS submitted_weight int CHECK (weight >= 0);

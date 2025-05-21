@@ -16,7 +16,7 @@ import (
 type gunsafeWeightTicketDeleter struct {
 }
 
-func NewGunSafeWeightTicketDeleter() services.GunSafeWeightTicketDeleter {
+func NewOfficeGunSafeWeightTicketDeleter() services.GunSafeWeightTicketDeleter {
 	return &gunsafeWeightTicketDeleter{}
 }
 
@@ -51,7 +51,7 @@ func (d *gunsafeWeightTicketDeleter) DeleteGunSafeWeightTicket(appCtx appcontext
 		}
 	}
 	if !found {
-		mismatchedPPMShipmentAndGunSafeWeightTicketIDErr := apperror.NewNotFoundError(gunsafeWeightTicketID, "Pro-gear weight ticket does not exist on ppm shipment")
+		mismatchedPPMShipmentAndGunSafeWeightTicketIDErr := apperror.NewNotFoundError(gunsafeWeightTicketID, "Gun safe weight ticket does not exist on ppm shipment")
 		appCtx.Logger().Error("internalapi.DeleteGunSafeWeightTicketHandler", zap.Error(mismatchedPPMShipmentAndGunSafeWeightTicketIDErr))
 		return mismatchedPPMShipmentAndGunSafeWeightTicketIDErr
 	}

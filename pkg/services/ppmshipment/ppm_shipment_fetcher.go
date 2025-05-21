@@ -399,6 +399,7 @@ func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMSh
 func FindPPMShipmentWithDocument(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, documentID uuid.UUID) error {
 	var weightTicket models.WeightTicket
 	var proGear models.ProgearWeightTicket
+	var gunSafe models.GunSafeWeightTicket
 	var movingExpense models.MovingExpense
 
 	err := appCtx.DB().Q().
@@ -420,6 +421,21 @@ func FindPPMShipmentWithDocument(appCtx appcontext.AppContext, ppmShipmentID uui
 		Scope(utilities.ExcludeDeletedScope()).
 		Where("ppm_shipment_id = ? AND document_id = ?", ppmShipmentID, documentID).
 		First(&proGear)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+		default:
+			return apperror.NewQueryError("PPMShipment", err, "")
+		}
+	} else {
+		return nil
+	}
+
+	err = appCtx.DB().Q().
+		Scope(utilities.ExcludeDeletedScope()).
+		Where("ppm_shipment_id = ? AND document_id = ?", ppmShipmentID, documentID).
+		First(&gunSafe)
 
 	if err != nil {
 		switch err {

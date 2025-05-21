@@ -62,6 +62,23 @@ func (f *ppmDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoSh
 		documents.ProgearWeightTickets[i].Document.UserUploads = documents.ProgearWeightTickets[i].Document.UserUploads.FilterDeleted()
 	}
 
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope(models.GunSafeWeightTicket{})).
+		EagerPreload(
+			"Document.UserUploads.Upload",
+		).
+		InnerJoin("ppm_shipments ppm", "ppm.id = gunsafe_weight_tickets.ppm_shipment_id").
+		Where("ppm.shipment_id = ? AND ppm.deleted_at IS NULL", mtoShipmentID).
+		Order("created_at asc").
+		All(&documents.GunSafeWeightTickets)
+
+	if err != nil {
+		return nil, apperror.NewQueryError("GunSafeWeightTicket", err, "unable to search for GunSafeWeightTickets")
+	}
+
+	for i := range documents.GunSafeWeightTickets {
+		documents.GunSafeWeightTickets[i].Document.UserUploads = documents.GunSafeWeightTickets[i].Document.UserUploads.FilterDeleted()
+	}
+
 	err = appCtx.DB().
 		Scope(utilities.ExcludeDeletedScope(models.MovingExpense{})).
 		EagerPreload(
