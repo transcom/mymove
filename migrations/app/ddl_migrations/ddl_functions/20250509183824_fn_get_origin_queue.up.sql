@@ -59,7 +59,7 @@ BEGIN
             WHEN 'customerName' THEN sort_column := 'base.sm_last_name, base.sm_first_name';
             WHEN 'edipi' THEN sort_column := 'base.sm_edipi';
             WHEN 'emplid' THEN sort_column := 'base.sm_emplid';
-            WHEN 'requestedMoveDate' THEN sort_column := 'base.earliest_requested_pickup_date';
+            WHEN 'requestedMoveDate' THEN sort_column := 'LEAST(base.earliest_requested_pickup_date, base.earliest_expected_departure_date, base.earliest_requested_delivery_date)';
             WHEN 'appearedInTooAt' THEN sort_column := 'GREATEST(base.submitted_at, base.service_counseling_completed_at, base.approvals_requested_at)';
             WHEN 'branch' THEN sort_column := 'base.sm_affiliation';
             WHEN 'originDutyLocation' THEN sort_column := 'base.origin_duty_location_name';
@@ -142,6 +142,7 @@ BEGIN
                         ''status'', ms.status,
                         ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                        ''requested_delivery_date'', TO_CHAR(ms.requested_delivery_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''prime_estimated_weight'', ms.prime_estimated_weight,
                         ''ppm_shipment'', CASE
