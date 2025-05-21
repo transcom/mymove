@@ -724,13 +724,7 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 func (suite *ModelSuite) TestIsShipmentApprovable() {
 	suite.Run("test a shipment that can be approved", func() {
 
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApprovalsRequested,
-				},
-			},
-		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), nil, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		// add approved service items
 		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
 
@@ -751,10 +745,9 @@ func (suite *ModelSuite) TestIsShipmentApprovable() {
 			{
 				Model: models.MTOShipment{
 					PrimeEstimatedWeight: &estimatedPrimeWeight,
-					Status:               models.MTOShipmentStatusApprovalsRequested,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -782,10 +775,9 @@ func (suite *ModelSuite) TestIsShipmentApprovable() {
 			{
 				Model: models.MTOShipment{
 					PrimeEstimatedWeight: &estimatedPrimeWeight,
-					Status:               models.MTOShipmentStatusApprovalsRequested,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 
 		id := uuid.Must(uuid.NewV4())
 		sitDurationUpdate := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
@@ -816,10 +808,9 @@ func (suite *ModelSuite) TestIsShipmentApprovable() {
 			{
 				Model: models.MTOShipment{
 					PrimeEstimatedWeight: &estimatedPrimeWeight,
-					Status:               models.MTOShipmentStatusApprovalsRequested,
 				},
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 
 		shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
 			{
