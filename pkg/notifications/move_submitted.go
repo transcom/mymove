@@ -114,6 +114,8 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		weight = orders.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents
 	}
 
+	weight = weight + orders.Entitlement.GunSafeWeight
+
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}

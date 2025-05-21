@@ -285,6 +285,7 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 			// Only utilize dependent weight authorized if dependents are both present and authorized
 			weight = weightAllotment.TotalWeightSelfPlusDependents
 		}
+		weight += order.Entitlement.GunSafeWeight
 		order.Entitlement.DBAuthorizedWeight = &weight
 	}
 
@@ -426,6 +427,7 @@ func orderFromCounselingPayload(appCtx appcontext.AppContext, existingOrder mode
 			// Only utilize dependent weight authorized if dependents are both present and authorized
 			weight = weightAllotment.TotalWeightSelfPlusDependents
 		}
+		weight += order.Entitlement.GunSafeWeight
 		order.Entitlement.DBAuthorizedWeight = &weight
 	}
 
@@ -474,6 +476,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 		// Only utilize dependent weight authorized if dependents are both present and authorized
 		weight = weightAllotment.TotalWeightSelfPlusDependents
 	}
+	weight += order.Entitlement.GunSafeWeight
 	order.Entitlement.DBAuthorizedWeight = &weight
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
@@ -594,6 +597,7 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 		// Only utilize dependent weight authorized if dependents are both present and authorized
 		weight = weightAllotment.TotalWeightSelfPlusDependents
 	}
+	weight += order.Entitlement.GunSafeWeight
 	order.Entitlement.DBAuthorizedWeight = &weight
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {

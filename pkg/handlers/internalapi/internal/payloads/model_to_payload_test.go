@@ -40,6 +40,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	}
 
 	isActualExpenseReimbursement := true
+	hasGunSafe := models.BoolPointer(true)
+	gunSafeWeight := models.PoundPointer(333)
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
@@ -47,6 +49,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+		HasGunSafe:                   hasGunSafe,
+		GunSafeWeight:                gunSafeWeight,
 	}
 
 	suite.Run("Success -", func() {
@@ -73,6 +77,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 
 		suite.Equal(internalmessages.PPMType(models.PPMTypeActualExpense), returnedPPMShipment.PpmType)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(handlers.FmtBool(*hasGunSafe), returnedPPMShipment.HasGunSafe)
+		suite.Equal(handlers.FmtPoundPtr(gunSafeWeight), returnedPPMShipment.GunSafeWeight)
 	})
 }
 
