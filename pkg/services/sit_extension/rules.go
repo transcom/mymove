@@ -116,16 +116,23 @@ func checkDepartureDate() sitExtensionValidator {
 			return err
 		}
 
+		// Only if service item types are DOASIT or DDASIT
+		// The prime cannot create a SIT Extension if the SIT departure date
+		// is before or equal to the authorized end date.
 		if shipmentSITStatus != nil {
 			currentSIT := shipmentSITStatus.CurrentSIT
-
-			// Cannot create SIT Extension if departure date is before or equal to authorized end date.
-			endDate := models.GetAuthorizedSITEndDate(*shipment)
-			format := "2006-01-02"
-			if currentSIT.SITDepartureDate != nil && !endDate.IsZero() {
-				if currentSIT.SITDepartureDate.Before(*endDate) || currentSIT.SITDepartureDate.Equal(*endDate) {
-					sitErr := fmt.Sprintf("\nSIT delivery date (%s) cannot be prior or equal to the SIT end date (%s)", currentSIT.SITDepartureDate.Format(format), endDate.Format(format))
-					return apperror.NewConflictError(shipment.ID, sitErr)
+			for _, serviceItem := range shipment.MTOServiceItems {
+				if serviceItem.SITDepartureDate != nil &&
+					(serviceItem.SITDepartureDate == shipmentSITStatus.CurrentSIT.SITDepartureDate) &&
+					(serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT) {
+					endDate := models.GetAuthorizedSITEndDate(*shipment)
+					format := "2006-01-02"
+					if currentSIT.SITDepartureDate != nil && !endDate.IsZero() {
+						if currentSIT.SITDepartureDate.Before(*endDate) || currentSIT.SITDepartureDate.Equal(*endDate) {
+							sitErr := fmt.Sprintf("\nSIT delivery date (%s) cannot be prior or equal to the SIT end date (%s)", currentSIT.SITDepartureDate.Format(format), endDate.Format(format))
+							return apperror.NewConflictError(shipment.ID, sitErr)
+						}
+					}
 				}
 			}
 		}

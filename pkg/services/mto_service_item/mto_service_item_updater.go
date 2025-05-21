@@ -518,14 +518,17 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		return nil, err
 	}
 
-	// Regardless of SIT type if departure date is on or before
-	// authorized end date delete any pending sit extensions
-	endDate := models.GetAuthorizedSITEndDate(shipment)
-	if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
-		if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
-			err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = 'REMOVED' WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
-			if err != nil {
-				return nil, err
+	// Only if service item types are DOASIT or DDASIT
+	// if the SIT departure date is on or before the authorized end date delete any pending sit extensions
+	if updatedServiceItem.ReService.Code == models.ReServiceCodeDOASIT ||
+		updatedServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
+		endDate := models.GetAuthorizedSITEndDate(shipment)
+		if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
+			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
+				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = 'REMOVED' WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
@@ -623,13 +626,15 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	}
 
 	var requiredDeliveryDate time.Time
-	customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
+	if sitCustomerContacted != nil {
+		customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
 
-	// we calculate required delivery date here using customer contact date and transit time
-	if sitDepartureDate.Before(customerContactDatePlusFive) {
-		requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
-	} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
-		requiredDeliveryDate = customerContactDatePlusFive.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+		// we calculate required delivery date here using customer contact date and transit time
+		if sitDepartureDate.Before(customerContactDatePlusFive) {
+			requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+		} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
+			requiredDeliveryDate = customerContactDatePlusFive.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+		}
 	}
 
 	// Weekends and holidays are not allowable dates, find the next available workday
