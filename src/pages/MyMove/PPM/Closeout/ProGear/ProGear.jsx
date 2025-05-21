@@ -121,7 +121,6 @@ const ProGear = () => {
         if (err.response.obj.title === 'Incorrect Xlsx Template') {
           setIsErrorModalVisible(true);
         }
-        setErrorMessage('Failed to save the file upload');
       });
   };
 
