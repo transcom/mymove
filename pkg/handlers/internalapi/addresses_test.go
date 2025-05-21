@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		}
 
 		handler := GetLocationByZipCityStateHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			VLocation:     vLocationServices}
 
 		response := handler.Handle(params)
