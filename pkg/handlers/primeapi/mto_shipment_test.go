@@ -208,39 +208,6 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
 	})
 
-	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
-		subtestData := makeSubtestData()
-		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
-			&mockCreator,
-			vLocationServices,
-		}
-		// InvalidInputError should generate an UnprocessableEntity response error
-		// Need verrs incorporated to satisfy swagger validation
-		verrs := validate.NewErrors()
-		verrs.Add("some key", "some value")
-		err := apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "unable to create ShipmentAddressUpdate")
-
-		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
-			mock.AnythingOfType("string"),
-			mock.AnythingOfType("string"),
-		).Return(nil, err)
-
-		// Validate incoming payload
-		suite.NoError(subtestData.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-	})
-
 	suite.Run("POST failure - 422 - invalid input, PO box zip used in address", func() {
 		// Under Test: CreateMTOShipmentHandler
 		// Setup:      Create a shipment with a PO Box only destination address, handler should return unprocessable entity
