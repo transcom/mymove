@@ -352,7 +352,7 @@ func init() {
       "x-nullable": true
     },
     "Grade": {
-      "description": "DoD paygrade of the service member. Some of these ranks will have identical entitlements.",
+      "description": "DoD paygrade of the service member.",
       "type": "string",
       "enum": [
         "aviation-cadet",
@@ -545,7 +545,7 @@ func init() {
       }
     },
     "Rank": {
-      "description": "DoD paygrade of the service member. Some of these ranks will have\nidentical entitlements.\n",
+      "description": "DoD rank of the service member. Some of these ranks will have\nidentical entitlements.\n",
       "type": "string",
       "enum": [
         "aviation-cadet",
@@ -1099,7 +1099,7 @@ func init() {
       "x-nullable": true
     },
     "Grade": {
-      "description": "DoD paygrade of the service member. Some of these ranks will have identical entitlements.",
+      "description": "DoD paygrade of the service member.",
       "type": "string",
       "enum": [
         "aviation-cadet",
@@ -1292,7 +1292,7 @@ func init() {
       }
     },
     "Rank": {
-      "description": "DoD paygrade of the service member. Some of these ranks will have\nidentical entitlements.\n",
+      "description": "DoD rank of the service member. Some of these ranks will have\nidentical entitlements.\n",
       "type": "string",
       "enum": [
         "aviation-cadet",

@@ -630,9 +630,7 @@ definitions:
       unit-move: Unit Move
   Grade:
     type: string
-    description: >-
-      DoD paygrade of the service member. Some of these ranks will have
-      identical entitlements.
+    description: DoD paygrade of the service member.
     enum:
       - aviation-cadet
       - cadet
@@ -696,7 +694,7 @@ definitions:
   Rank:
     type: string
     description: |
-      DoD paygrade of the service member. Some of these ranks will have
+      DoD rank of the service member. Some of these ranks will have
       identical entitlements.
     enum:
       - aviation-cadet

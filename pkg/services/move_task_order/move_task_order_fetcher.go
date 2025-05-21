@@ -366,7 +366,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	}
 	mto.MTOServiceItems = loadedServiceItems
 
-	if mto.Orders.RankID == nil {
+	if mto.Orders.RankID == nil && *mto.Orders.Grade != "" {
 		userPayGrade, err := FindPayGradeRankByGradeAndAffiliation(appCtx, string(*mto.Orders.Grade), string(*mto.Orders.ServiceMember.Affiliation))
 		if err != nil {
 			return &models.Move{}, apperror.NewQueryError("Rank", err, "")
@@ -701,5 +701,14 @@ func FindPayGradeRankByGradeAndAffiliation(appCtx appcontext.AppContext, grade, 
 		Where("pay_grades.grade = ? AND ranks.affiliation = ?", grade, affiliation)
 
 	err := query.First(&result)
-	return result, err
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return models.Rank{}, nil
+		default:
+			return models.Rank{}, err
+		}
+	}
+	return result, nil
 }

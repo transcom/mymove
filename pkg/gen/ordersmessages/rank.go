@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Rank DoD paygrade of the service member. Some of these ranks will have
+// Rank DoD rank of the service member. Some of these ranks will have
 // identical entitlements.
 //
 // swagger:model Rank
