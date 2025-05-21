@@ -119,16 +119,16 @@ BEGIN
                 json_build_object(''name'', counseling_to.name)::JSONB AS counseling_transportation_office,
                 json_build_object(''name'', closeout_to.name)::JSONB AS ppm_closeout_location,
                 json_build_object(''first_name'', sc.first_name, ''last_name'', sc.last_name, ''id'', sc.id)::JSONB AS sc_assigned,
-                json_build_object(''id'', ms.id, ''status'', ms.status)::JSONB AS mto_shipments,
-                json_build_object(''id'', ps.id, ''status'', ps.status, ''submitted_at'', ps.submitted_at, ''shipment_id'', ps.shipment_id)::JSONB AS ppm_shipments,
+                COALESCE(ms_agg.mto_shipments, ''[]''::jsonb)          AS mto_shipments,
+                COALESCE(ppm_agg.ppm_shipments, ''[]''::jsonb)         AS ppm_shipments,
                 (sm.first_name || '' '' || sm.last_name)::TEXT  AS customer_name_out,
                 origin_dl.name::TEXT                  AS origin_name,
                 dest_dl.name::TEXT                    AS destination_name,
                 counseling_to.name::TEXT              AS counseling_name,
                 closeout_to.name::TEXT                AS closeout_name,
                 (sc.first_name || '' '' || sc.last_name)::TEXT AS counselor_name,
-                ps.status::TEXT                       AS ppm_status,
-                ps.submitted_at::timestamptz          AS ppm_submitted_at,
+                ppm_agg.latest_ppm_status::TEXT       AS ppm_status,
+                ppm_agg.earliest_ppm_submitted_at::timestamptz AS ppm_submitted_at,
                 sm.edipi                              AS edipi_out,
                 sm.emplid                             AS emplid_out,
                 sm.affiliation                        AS branch_out
@@ -142,10 +142,36 @@ BEGIN
             LEFT JOIN office_users sc       ON sc.id = m.sc_assigned_id
             LEFT JOIN addresses AS origin_dl_addr ON origin_dl.address_id = origin_dl_addr.id
             LEFT JOIN addresses AS dest_dl_addr ON dest_dl.address_id = dest_dl_addr.id
-            JOIN mto_shipments ms           ON ms.move_id = m.id
-            JOIN ppm_shipments ps           ON ps.shipment_id = ms.id
-            -- Currently ps.status = ''NEEDS_CLOSEOUT'' is the only status that you can see in the queue
-            WHERE ps.status = ''NEEDS_CLOSEOUT'' AND m.show = TRUE
+            LEFT JOIN LATERAL (
+                SELECT json_agg(
+                        json_build_object(
+                            ''id'',     ms.id,
+                            ''status'', ms.status
+                        )
+                        )::JSONB AS mto_shipments
+                FROM   mto_shipments ms
+                WHERE  ms.move_id = m.id
+                ) ms_agg ON TRUE
+            LEFT JOIN LATERAL (
+                SELECT
+                    json_agg(
+                        json_build_object(
+                        ''id'',           ps.id,
+                        ''shipment_id'',  ps.shipment_id,
+                        ''status'',       ps.status,
+                        ''submitted_at'', ps.submitted_at
+                        )
+                    )::JSONB AS ppm_shipments,
+                    MIN(ps.submitted_at) AS earliest_ppm_submitted_at,
+                    MAX(ps.status) AS latest_ppm_status
+                FROM mto_shipments ms2
+                JOIN ppm_shipments ps ON ps.shipment_id = ms2.id
+                WHERE ms2.move_id = m.id
+                    -- Currently ps.status = ''NEEDS_CLOSEOUT'' is the only status that you can see in the queue
+                    AND  ps.status   = ''NEEDS_CLOSEOUT''
+                ) ppm_agg ON TRUE
+                -- Filter out move entries that do not have a PPM with a closeout initiated at value (ppm submitted at = closeout initiated)
+            WHERE m.show = TRUE AND ppm_agg.earliest_ppm_submitted_at IS NOT NULL
         ),
         filtered AS (
             SELECT * FROM base WHERE
@@ -155,7 +181,15 @@ BEGIN
               AND ($4  IS NULL OR emplid_out  = $4)
               AND ($5  IS NULL OR status = ANY($5))
               AND ($6  IS NULL OR locator ILIKE $6 || ''%%'')
-              AND ($7  IS NULL OR (ppm_shipments->>''submitted_at'')::date = $7)
+              -- Loop over the ppm shipments agg and find the filter for submitted_at
+              AND (
+                $7 IS NULL OR
+                EXISTS (
+                SELECT 1
+                FROM   jsonb_array_elements(ppm_shipments) elem
+                WHERE  (elem->>''submitted_at'')::date = $7
+                )
+              )
               AND ($8  IS NULL OR branch_out = $8)
               AND ($9  IS NULL OR full_or_partial_ppm   = $9)
               AND ($10 IS NULL OR origin_name ILIKE ''%%'' || $10 || ''%%'')

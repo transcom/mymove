@@ -195,14 +195,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				CustomerName: models.StringPointer(*ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.FirstName),
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -232,14 +232,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				Edipi: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.Edipi,
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -269,14 +269,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				Edipi: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.Emplid,
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -306,14 +306,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				Locator: &ppmShipment.Shipment.MoveTaskOrder.Locator,
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -343,14 +343,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				SubmittedAt: ppmShipment.SubmittedAt,
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -380,14 +380,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				Branch: (*string)(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.Affiliation),
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -419,14 +419,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				PPMType: models.StringPointer(string(models.MovePPMTypeFULL)),
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -462,14 +462,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				OriginDutyLocation: []string{dutyLocation.Name},
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -499,14 +499,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				CounselingOffice: &transportationOffice.Name,
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -541,14 +541,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				DestinationDutyLocation: &dutyLocation.Name,
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -578,14 +578,14 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
 				CloseoutLocation: &transportationOffice.Name,
 			},
 		)
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -653,7 +653,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			privilegedUser.ID,
 			&services.ListOrderParams{
@@ -661,7 +661,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			},
 		)
 
-		suite.Equal(filteredMove[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.Equal(count, 1)
 		suite.FatalNoError(err)
 	})
@@ -696,7 +696,7 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		// The factory should always return this information
 		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
 
-		filteredMove, count, err := orderFetcher.ListPPMCloseoutOrders(
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
 			appCtx,
 			servicesCounselor.ID,
 			&services.ListOrderParams{
@@ -704,8 +704,47 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 			},
 		)
 
-		suite.Len(filteredMove, 0)
+		suite.Len(filteredMoves, 0)
 		suite.Equal(count, 0)
 		suite.FatalNoError(err)
+	})
+
+	suite.Run("can not see a move entry that has a ppm but the ppm has not entered closeout", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		// By not setting a submittedAt value for the PPM shipment, we are declaring
+		// it has not entered the closeout phase
+		ppmShipment := factory.BuildPPMShipment(
+			suite.DB(),
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "LATEST",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+			nil,
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				Locator: &ppmShipment.Shipment.MoveTaskOrder.Locator,
+			},
+		)
+		suite.NoError(err)
+		suite.Equal(0, count)
+		suite.Equal(0, len(filteredMoves))
 	})
 }

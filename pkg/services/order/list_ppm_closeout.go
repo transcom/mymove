@@ -176,17 +176,25 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		}
 		move.SCAssignedUser = &scUser
 
-		var mtoShipment models.MTOShipment
-		if err := json.Unmarshal(queueItem.MtoShipments, &mtoShipment); err != nil {
+		// Account for the json agg of multiple mts
+		var mtoShipments models.MTOShipments
+		if err := json.Unmarshal(queueItem.MtoShipments, &mtoShipments); err != nil {
 			return nil, fmt.Errorf("unmarshal MtoShipments JSON: %w", err)
 		}
 		// Tie the PPM before appending
-		var ppmShipment models.PPMShipment
-		if err := json.Unmarshal(queueItem.PpmShipments, &ppmShipment); err != nil {
+		var ppmShipments models.PPMShipments
+		if err := json.Unmarshal(queueItem.PpmShipments, &ppmShipments); err != nil {
 			return nil, fmt.Errorf("unmarshal PpmShipments JSON: %w", err)
 		}
-		mtoShipment.PPMShipment = &ppmShipment
-		move.MTOShipments = append(move.MTOShipments, mtoShipment)
+		for i, shipment := range mtoShipments {
+			for _, ppmShipment := range ppmShipments {
+				if ppmShipment.ShipmentID == shipment.ID {
+					mtoShipments[i].PPMShipment = &ppmShipment
+				}
+			}
+		}
+
+		move.MTOShipments = append(move.MTOShipments, mtoShipments...)
 
 		moves = append(moves, move)
 	}
