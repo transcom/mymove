@@ -25,5 +25,8 @@ func (suite *ModelSuite) TestEmptyPayGradeInstantiation() {
 }
 
 func (suite *ModelSuite) TestGetPayGradesForAffiliation() {
+	payGrades, err := m.GetPayGradesForAffiliation(suite.DB(), m.AffiliationAIRFORCE.String())
+	suite.NoError(err)
 
+	suite.Equal(24, len(payGrades))
 }
