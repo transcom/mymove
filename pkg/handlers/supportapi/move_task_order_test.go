@@ -275,7 +275,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 		deptIndicator := supportmessages.DeptIndicatorAIRANDSPACEFORCE
 
-		grade := (supportmessages.Rank)("E_6")
+		grade := (supportmessages.Rank)("E-6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
 			PpmType:      "FULL",
 			ContractorID: handlers.FmtUUID(contractor.ID),
