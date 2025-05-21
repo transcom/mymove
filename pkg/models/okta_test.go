@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/jarcoal/httpmock"
+	"github.com/markbates/goth"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
@@ -170,6 +171,7 @@ func (suite *ModelSuite) TestDeleteOktaUser() {
 
 func (suite *ModelSuite) TestDeleteOktaUserHandled() {
 	provider := setupOktaAdminProvider(suite)
+	goth.UseProviders(provider)
 	expectedOktaUsersURL := provider.GetUsersURL()
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()

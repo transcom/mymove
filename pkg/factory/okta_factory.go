@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"github.com/markbates/goth"
 	gothOkta "github.com/markbates/goth/providers/okta"
 	"go.uber.org/zap"
 
@@ -31,18 +30,14 @@ func CreateAndWrapProvider(config ProviderConfig) (*okta.Provider, error) {
 	// Set the name in goth
 	provider.SetName(config.Name)
 
-	// For return, the gothOkta provider wrapped with our own provider struct
-	wrappedProvider := okta.WrapOktaProvider(provider, config.OrgURL, config.ClientID, config.Secret, config.CallbackURL, config.Logger)
-	// Assign to the active goth providers
-	goth.UseProviders(wrappedProvider)
-
-	return wrappedProvider, nil
+	// Return the gothOkta provider wrapped with out our own provider struct
+	return okta.WrapOktaProvider(provider, config.OrgURL, config.ClientID, config.Secret, config.CallbackURL, config.Logger), nil
 }
 
 func BuildOktaProvider(name string) (*okta.Provider, error) {
 	logger, _ := zap.NewDevelopment()
 
-	providerConfig := ProviderConfig{
+	provider := ProviderConfig{
 		Name:        name,
 		OrgURL:      DummyOktaOrgURL,
 		CallbackURL: DummyOktaCallbackURL,
@@ -52,5 +47,5 @@ func BuildOktaProvider(name string) (*okta.Provider, error) {
 		Logger:      logger,
 	}
 
-	return CreateAndWrapProvider(providerConfig)
+	return CreateAndWrapProvider(provider)
 }
