@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './PPMSummaryList.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatAddressShort } from 'utils/formatters';
