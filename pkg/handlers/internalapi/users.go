@@ -88,7 +88,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				}
 
 				// Set a current office user role if it isn't set yet
-				if appCtx.Session().ActiveRole.ID == uuid.Nil {
+				if (appCtx.Session().ActiveRole.RoleType == roles.Role{}.RoleType) {
 					defaultRole, err := officeUser.User.Roles.Default()
 					if err != nil {
 						appCtx.Logger().Warn("could not find any roles for the logged in user, proceeding without a role",
@@ -155,7 +155,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			}
 
 			// Set a current service member user role if it isn't set yet
-			if appCtx.Session().ActiveRole.ID == uuid.Nil {
+			if (appCtx.Session().ActiveRole.RoleType == roles.Role{}.RoleType) {
 				defaultRole, err := serviceMember.User.Roles.Default()
 				if err != nil {
 					appCtx.Logger().Warn("could not find any roles for the logged in user, proceeding without a role",
