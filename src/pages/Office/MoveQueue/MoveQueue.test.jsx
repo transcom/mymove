@@ -10,7 +10,6 @@ import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS, BRANCH_OPTIONS } from 'constants/queues';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { APPROVAL_REQUEST_TYPES } from 'constants/approvalRequestTypes';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -40,7 +39,7 @@ const moveData = [
     locator: 'AB5P',
     departmentIndicator: 'ARMY',
     shipmentsCount: 2,
-    status: 'APPROVALS REQUESTED',
+    status: 'SUBMITTED',
     originDutyLocation: {
       name: 'Area 51',
     },
@@ -49,7 +48,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-10',
     requestedMoveDates: '10 Feb 2023, 10 Mar 2023',
     appearedInTooAt: '2023-02-10T00:00:00.000Z',
     lockExpiresAt: '2099-02-10T00:00:00.000Z',
@@ -93,7 +91,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-12',
     requestedMoveDates: '12 Feb 2023',
     appearedInTooAt: '2023-02-12T00:00:00.000Z',
     assignedTo: {
@@ -134,7 +131,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-03-12',
     requestedMoveDates: '12 Mar 2023',
     appearedInTooAt: '2023-03-12T00:00:00.000Z',
     lockExpiresAt: '2099-03-12T00:00:00.000Z',
@@ -226,15 +222,6 @@ const GetMountedComponent = (queueTypeToMount) => {
   return wrapper;
 };
 
-moveData[0].approvalRequestTypes = [
-  APPROVAL_REQUEST_TYPES.EXCESS_WEIGHT,
-  APPROVAL_REQUEST_TYPES.IBHF,
-  APPROVAL_REQUEST_TYPES.IOASIT,
-  APPROVAL_REQUEST_TYPES.DDSHUT,
-];
-moveData[1].approvalRequestTypes = [APPROVAL_REQUEST_TYPES.IOASIT, APPROVAL_REQUEST_TYPES.AMENDED_ORDERS];
-moveData[2].approvalRequestTypes = [APPROVAL_REQUEST_TYPES.IOASIT, APPROVAL_REQUEST_TYPES.NEW_SHIPMENT];
-
 const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
 describe('MoveQueue & DestinationRequestsQueue', () => {
   afterEach(() => {
@@ -265,10 +252,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.edipi,
     );
-    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('Approvals requested');
-    expect(currentMove.find({ 'data-testid': `approvalRequestTypes-${currentIndex}` }).text()).toBe(
-      'Boat, Excess weight, SIT',
-    );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
@@ -285,7 +269,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
     currentIndex += 1;
@@ -303,7 +289,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
       moveData[currentIndex].customer.emplid,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('Move approved');
-    expect(currentMove.find({ 'data-testid': `approvalRequestTypes-${currentIndex}` }).text()).toBe('');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
@@ -332,7 +317,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
       moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
-    expect(currentMove.find({ 'data-testid': `approvalRequestTypes-${currentIndex}` }).text()).toBe('');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.agency.toString(),
@@ -366,8 +350,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.edipi,
     );
-    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('Approvals requested');
-    expect(currentMove.find({ 'data-testid': `approvalRequestTypes-${currentIndex}` }).text()).toBe('Shuttle');
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
@@ -401,7 +384,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
       moveData[currentIndex].customer.emplid,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('Move approved');
-    expect(currentMove.find({ 'data-testid': `approvalRequestTypes-${currentIndex}` }).text()).toBe('');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
@@ -423,7 +405,6 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
       moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
-    expect(currentMove.find({ 'data-testid': `approvalRequestTypes-${currentIndex}` }).text()).toBe('');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
     expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.agency.toString(),

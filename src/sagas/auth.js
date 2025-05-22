@@ -3,13 +3,17 @@ import { normalize } from 'normalizr';
 
 import {
   LOAD_USER,
+  loadUser,
+  SET_ACTIVE_ROLE,
   getLoggedInUserStart,
   getLoggedInUserSuccess,
   getLoggedInUserFailure,
   setUnderMaintenance,
+  setActiveRoleSuccess,
+  setActiveRoleFailure,
 } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { GetAdminUser, GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
+import { GetAdminUser, GetIsLoggedIn, GetLoggedInUser, GetOktaUser, UpdateActiveRoleServerSession } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
 import { addEntities, setAdminUser, setOktaUser } from 'shared/Entities/actions';
 import { isAdminSite, serviceName } from 'shared/constants';
@@ -71,6 +75,32 @@ export function* fetchUser() {
   }
 }
 
-export default function* watchFetchUser() {
+export function* watchFetchUser() {
   yield takeLatest(LOAD_USER, fetchUser);
+}
+
+/**
+ * This saga is triggered by the 'SET_ACTIVE_ROLE' action to alert the server
+ * to update the session
+ */
+export function* handleSetActiveRole({ payload: roleType }) {
+  try {
+    yield call(UpdateActiveRoleServerSession, roleType);
+    yield put(setActiveRoleSuccess(roleType));
+    yield put(loadUser()); // Trigger redux to update entity state
+  } catch (e) {
+    yield put(setActiveRoleFailure(e));
+    yield put(
+      setFlashMessage(
+        'USER_ACTIVE_ROLE_SET_ERROR',
+        'error',
+        'There was an error updating your active role.',
+        'An error occurred',
+      ),
+    );
+  }
+}
+
+export function* watchHandleSetActiveRole() {
+  yield takeLatest(SET_ACTIVE_ROLE, handleSetActiveRole);
 }

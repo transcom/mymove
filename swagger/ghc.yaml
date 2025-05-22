@@ -6272,7 +6272,9 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: '#/definitions/Document'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
@@ -8399,6 +8401,7 @@ definitions:
         $ref: '#/definitions/DutyLocation'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+        x-nullable: true
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
@@ -10393,7 +10396,6 @@ definitions:
     enum:
       - APPROVED
       - REJECTED
-      - EDITED
       - RECEIVED
       - NOT_RECEIVED
   OmittablePPMDocumentStatus:

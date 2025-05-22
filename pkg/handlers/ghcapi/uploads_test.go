@@ -107,7 +107,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := CreateUploadHandler{handlerConfig}
@@ -122,7 +122,7 @@ func makePPMRequest(suite *HandlerSuite, params ppmop.CreatePPMUploadParams, off
 
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	suite.FatalNoError(err)
@@ -288,7 +288,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	handlerConfig.SetNotificationReceiver(localReceiver)
 	uploadInformationFetcher := upload.NewUploadInformationFetcher()
@@ -319,7 +319,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 		localReceiver := notifications.StubNotificationReceiver{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handlerConfig.SetNotificationReceiver(localReceiver)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()
@@ -366,7 +366,7 @@ func (suite *HandlerSuite) TestGetUploadStatusHandlerFailure() {
 		req = suite.AuthenticateRequest(req, otherServiceMember)
 		params.HTTPRequest = req
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		handlerConfig.SetNotificationReceiver(localReceiver)
 		uploadInformationFetcher := upload.NewUploadInformationFetcher()

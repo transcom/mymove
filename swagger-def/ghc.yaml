@@ -5996,7 +5996,9 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
@@ -8002,6 +8004,7 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+        x-nullable: true
       originGBLOC:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:

@@ -11810,7 +11810,10 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
@@ -13039,7 +13042,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -14547,6 +14549,7 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
         },
         "destinationGBLOC": {
@@ -31055,7 +31058,10 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
@@ -32284,7 +32290,6 @@ func init() {
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED",
         "RECEIVED",
         "NOT_RECEIVED"
       ],
@@ -33868,6 +33873,7 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
         },
         "destinationGBLOC": {
