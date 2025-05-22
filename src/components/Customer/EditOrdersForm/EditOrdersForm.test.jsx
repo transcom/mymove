@@ -1068,7 +1068,7 @@ describe('EditOrdersForm component', () => {
       expect(destinationInput).toBeInTheDocument();
       expect(
         screen.getByText(
-          /Enter the option closest to your delivery address\. Your move counselor will identify if there might be a cost to you\./,
+          /Enter the option closest to your destination address\. Your move counselor will identify if there might be a cost to you\./,
         ),
       ).toBeInTheDocument();
     },
