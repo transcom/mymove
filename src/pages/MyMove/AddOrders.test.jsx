@@ -40,11 +40,11 @@ jest.mock('services/internalApi', () => ({
       body: [
         {
           grade: 'E-5',
-          description: 'Enlisted Grade E-5',
+          description: ' E-5',
         },
         {
           grade: 'E-6',
-          description: 'Enlisted Grade E-6',
+          description: ' E-6',
         },
         {
           description: 'Civilian',
@@ -453,7 +453,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
 
       // Test Current Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -552,7 +552,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -652,7 +652,7 @@ describe('Add Orders page', () => {
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
-      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
 
       // Select a CONUS current duty location
       await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });

@@ -107,11 +107,11 @@ jest.mock('services/ghcApi', () => ({
       body: [
         {
           grade: 'E-1',
-          description: 'Enlisted Grade E-1',
+          description: ' E-1',
         },
         {
           grade: 'E-6',
-          description: 'Enlisted Grade E-6',
+          description: ' E-6',
         },
         {
           description: 'Civilian',
@@ -226,7 +226,7 @@ describe('Orders page', () => {
       expect(await screen.findByLabelText('Current duty location *')).toBeInTheDocument();
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('2222');
-      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue('Enlisted Grade E-1');
+      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue(' E-1');
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
     });
   });

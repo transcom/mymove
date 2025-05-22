@@ -124,11 +124,11 @@ jest.mock('services/ghcApi', () => ({
       body: [
         {
           grade: 'E-5',
-          description: 'Enlisted Grade E-5',
+          description: ' E-5',
         },
         {
           grade: 'E-6',
-          description: 'Enlisted Grade E-6',
+          description: ' E-6',
         },
         {
           description: 'Civilian',

@@ -43,11 +43,11 @@ jest.mock('services/ghcApi', () => ({
       body: [
         {
           grade: 'E-5',
-          description: 'Enlisted Grade E-5',
+          description: ' E-5',
         },
         {
           grade: 'E-6',
-          description: 'Enlisted Grade E-6',
+          description: ' E-6',
         },
         {
           description: 'Civilian',
@@ -421,7 +421,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '29 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
 
     // Test Current Duty Location Search Box interaction
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
@@ -455,7 +455,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await user.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await user.click(screen.getByLabelText('No'));
-    await user.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+    await user.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
 
     await user.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 500 });
     const selectedOptionCurrent = await screen.findByText('Altus');

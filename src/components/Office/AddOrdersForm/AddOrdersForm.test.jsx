@@ -118,11 +118,11 @@ jest.mock('services/ghcApi', () => ({
       body: [
         {
           grade: 'E-5',
-          description: 'Enlisted Grade E-5',
+          description: ' E-5',
         },
         {
           grade: 'E-6',
-          description: 'Enlisted Grade E-6',
+          description: ' E-6',
         },
       ],
     }),
@@ -271,7 +271,7 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -474,7 +474,7 @@ describe('AddOrdersForm - With Counseling Office', () => {
     await userEvent.paste(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.paste(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
@@ -520,7 +520,7 @@ describe('AddOrdersForm - With Counseling Office', () => {
     const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
     expect(counselingOfficeLabel).toBeTruthy(); // If the field is visible then it it required
 
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['Enlisted Grade E-5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), [' E-5']);
     await userEvent.click(screen.getByLabelText('No'));
 
     const nextBtn = await screen.getByRole('button', { name: 'Next' }, { delay: 100 });

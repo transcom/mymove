@@ -37,11 +37,11 @@ jest.mock('services/internalApi', () => ({
       body: [
         {
           grade: 'E-5',
-          description: 'Enlisted Grade E-5',
+          description: ' E-5',
         },
         {
           grade: 'E-8',
-          description: 'Enlisted Grade E-8',
+          description: ' E-8',
         },
         {
           description: 'Civilian',
@@ -454,7 +454,7 @@ describe('Orders page', () => {
         body: [
           {
             grade: 'E-8',
-            description: 'Enlisted Grade E-8',
+            description: ' E-8',
           },
         ],
       }),
