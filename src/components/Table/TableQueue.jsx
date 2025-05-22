@@ -62,6 +62,7 @@ const TableQueue = ({
   queueType,
   refetchQueue,
   setRefetchQueue,
+  activeOfficeID,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -130,6 +131,7 @@ const TableQueue = ({
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
     activeRole,
+    activeOfficeID,
   });
   const tableData = useMemo(() => data, [data]);
 
@@ -370,6 +372,7 @@ const TableQueue = ({
             onSubmit={onSubmitBulk}
             onClose={handleCloseBulkAssignModal}
             queueType={queueType}
+            activeOfficeID={activeOfficeID}
           />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
