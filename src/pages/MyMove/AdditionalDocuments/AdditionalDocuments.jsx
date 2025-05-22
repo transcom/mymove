@@ -8,7 +8,7 @@ import { filepondButtonStyle, filepondWrapperStyle } from '../UploadOrders';
 
 import styles from './AdditionalDocuments.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import FileUpload from 'components/FileUpload/FileUpload';

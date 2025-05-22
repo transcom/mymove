@@ -2,10 +2,11 @@ import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
+import ExpenseForm from 'components/Shared/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { DocumentAndImageUploadInstructions } from 'content/uploads';
 import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { PPM_TYPES } from 'shared/constants';
+import { APP_NAME } from 'constants/apps';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -122,8 +123,48 @@ const smallPackageExpenseProps = {
 
 describe('ExpenseForm component', () => {
   describe('displays form', () => {
-    it('renders blank form on load with defaults', async () => {
-      render(<ExpenseForm {...defaultProps} />);
+    it('renders blank form on load with defaults - Customer page', async () => {
+      render(<ExpenseForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 2, name: 'Receipt 1' })).toBeInTheDocument();
+      });
+
+      expect(
+        screen.getByText(
+          'Document your qualified expenses by uploading receipts. They should include a description of the item, the price you paid, the date of purchase, and the business name. All documents must be legible and unaltered.',
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByRole('heading', { level: 3, name: 'Description' })).toBeInTheDocument();
+      expect(screen.getByLabelText('What did you buy or rent?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Add a brief description of the expense.')).toBeInTheDocument();
+      expect(screen.getByText('Did you pay with your GTCC (Government Travel Charge Card)?')).toBeInTheDocument();
+      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Amount' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Amount')).toBeInstanceOf(HTMLInputElement);
+      expect(
+        screen.getByText(
+          "Enter the total unit price for all items on the receipt that you're claiming as part of your PPM moving expenses.",
+        ),
+      ).toBeInTheDocument();
+      const missingReceipt = screen.getByLabelText("I don't have this receipt");
+      expect(missingReceipt).toBeInstanceOf(HTMLInputElement);
+      expect(missingReceipt).not.toBeChecked();
+      expect(screen.getByText('Upload receipt')).toBeInstanceOf(HTMLLabelElement);
+      const uploadFileTypeHints = screen.getAllByText(DocumentAndImageUploadInstructions);
+      expect(uploadFileTypeHints[0]).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
+
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeInTheDocument();
+    });
+
+    it('renders blank form on load with defaults - Office page', async () => {
+      render(<ExpenseForm {...defaultProps} appName={APP_NAME.OFFICE} />);
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Receipt 1' })).toBeInTheDocument();
@@ -157,7 +198,7 @@ describe('ExpenseForm component', () => {
     });
 
     it('populates edit form with existing expense values', async () => {
-      render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} />);
+      render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} appName={APP_NAME.MYMOVE} />);
 
       await waitFor(() => {
         expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('bubble wrap');
@@ -189,7 +230,7 @@ describe('ExpenseForm component', () => {
     });
 
     it('populates edit form with SIT values', async () => {
-      render(<ExpenseForm {...defaultProps} {...sitExpenseProps} />);
+      render(<ExpenseForm {...defaultProps} {...sitExpenseProps} appName={APP_NAME.MYMOVE} />);
       await waitFor(() => {
         expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('10x10 storage pod');
       });
@@ -264,9 +305,30 @@ describe('ExpenseForm component', () => {
     });
   });
 
-  describe('attaches button handler callbacks', () => {
+  describe('attaches button handler callbacks - Customer page', () => {
     it('calls the onSubmit callback', async () => {
-      render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} />);
+      render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} appName={APP_NAME.MYMOVE} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(defaultProps.onSubmit).toHaveBeenCalled();
+      });
+    });
+    it('calls the onBack prop when the back button is clicked', async () => {
+      render(<ExpenseForm {...defaultProps} appName={APP_NAME.MYMOVE} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => {
+        expect(defaultProps.onBack).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('attaches button handler callbacks - Office page', () => {
+    it('calls the onSubmit callback', async () => {
+      render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} appName={APP_NAME.OFFICE} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -275,7 +337,7 @@ describe('ExpenseForm component', () => {
       });
     });
     it('calls the onBack prop when the Cancel button is clicked', async () => {
-      render(<ExpenseForm {...defaultProps} />);
+      render(<ExpenseForm {...defaultProps} appName={APP_NAME.OFFICE} />);
 
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 

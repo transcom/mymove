@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import styles from './PPMSummaryList.module.scss';
 
 import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatAddressShort } from 'utils/formatters';

@@ -9,7 +9,7 @@ import styles from './BoatShipmentForm.module.scss';
 
 import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import RequiredTag from 'components/form/RequiredTag';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
