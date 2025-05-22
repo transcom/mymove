@@ -2376,6 +2376,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			{models.ServiceMemberGradeW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberGradeAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 			{models.ServiceMemberGradeCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
 		}
 
