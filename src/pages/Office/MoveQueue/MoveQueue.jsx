@@ -375,7 +375,6 @@ const MoveQueue = ({
           showPagination
           manualSortBy
           defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
           columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
