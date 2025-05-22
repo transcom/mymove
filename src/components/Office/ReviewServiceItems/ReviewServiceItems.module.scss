@@ -63,16 +63,17 @@
 
     @include u-border-top('2px');
     @include u-border-top('gray-10');
-    @include u-position('relative');
-
+    @include u-position('sticky');
+    bottom: 0;
     display: flex;
     align-items: center;
 
     .totalApproved {
+      @include u-padding-left(2);
       display: flex;
       flex-direction: column;
       flex-grow: 1;
-      text-align: right;
+      text-align: left;
 
       .totalLabel {
         @include u-font-size('body', '3xs');
