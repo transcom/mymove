@@ -1279,7 +1279,7 @@ func (suite *HandlerSuite) TestDeleteOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := DeleteOfficeUserHandler{
-			HandlerConfig:     suite.HandlerConfig(),
+			HandlerConfig:     suite.NewHandlerConfig(),
 			OfficeUserDeleter: officeuser.NewOfficeUserDeleter(queryBuilder),
 		}
 
