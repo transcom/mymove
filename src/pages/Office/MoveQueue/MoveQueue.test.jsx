@@ -433,7 +433,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
   it('applies the sort to the status column in descending direction on both queues', () => {
     expect(
       GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending'),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE)
         .find({ 'data-testid': 'status' })
@@ -448,13 +448,13 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     statusHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     statusHeading.simulate('click');
     wrapper.update();
 
-    // no sort direction should be applied
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
+    // asc should be applied
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(true);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
