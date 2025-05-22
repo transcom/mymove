@@ -14,7 +14,11 @@ const CustomerInfoList = ({ customerInfo }) => {
   if (customerInfo.backupContact?.name) {
     const fullName = customerInfo.backupContact?.name;
     const [firstName = '', lastName = ''] = fullName.split(/ (.+)/).filter(Boolean);
-    backupContactName = `${lastName}, ${firstName}`;
+    if (lastName.length > 0) {
+      backupContactName = `${lastName}, ${firstName}`;
+    } else {
+      backupContactName = firstName;
+    }
   }
 
   return (
