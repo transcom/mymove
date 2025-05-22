@@ -48,7 +48,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-10',
     requestedMoveDates: '10 Feb 2023, 10 Mar 2023',
     appearedInTooAt: '2023-02-10T00:00:00.000Z',
     lockExpiresAt: '2099-02-10T00:00:00.000Z',
@@ -92,7 +91,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-02-12',
     requestedMoveDates: '12 Feb 2023',
     appearedInTooAt: '2023-02-12T00:00:00.000Z',
     assignedTo: {
@@ -133,7 +131,6 @@ const moveData = [
     },
     originGBLOC: 'EEEE',
     counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
-    requestedMoveDate: '2023-03-12',
     requestedMoveDates: '12 Mar 2023',
     appearedInTooAt: '2023-03-12T00:00:00.000Z',
     lockExpiresAt: '2099-03-12T00:00:00.000Z',
@@ -271,7 +268,9 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     expect(currentMove.find({ 'data-testid': `counselingOffice-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].counselingOffice,
     );
-    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe(
+      '10 Feb 2023, 10 Mar 2023',
+    );
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
     currentIndex += 1;
@@ -433,7 +432,7 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
   it('applies the sort to the status column in descending direction on both queues', () => {
     expect(
       GetMountedComponent(tooRoutes.MOVE_QUEUE).find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending'),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       GetMountedComponent(tooRoutes.DESTINATION_REQUESTS_QUEUE)
         .find({ 'data-testid': 'status' })
@@ -448,13 +447,13 @@ describe('MoveQueue & DestinationRequestsQueue', () => {
     statusHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     statusHeading.simulate('click');
     wrapper.update();
 
-    // no sort direction should be applied
-    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
+    // asc should be applied
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(true);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
     const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);

@@ -127,32 +127,18 @@ export const columns = (
       id: 'locator',
       isFilterable: true,
     }),
-    // destination queue will show multiple dates that the backend returns as comma separated strings
-    !isDestinationQueue
-      ? createHeader(
-          'Requested move date',
-          (row) => {
-            return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
-          },
-          {
-            id: 'requestedMoveDate',
-            isFilterable: true,
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            Filter: (props) => <DateSelectFilter dateTime {...props} />,
-          },
-        )
-      : createHeader(
-          'Requested move date(s)',
-          (row) => {
-            return row.requestedMoveDates;
-          },
-          {
-            id: 'requestedMoveDate',
-            isFilterable: true,
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            Filter: (props) => <DateSelectFilter dateTime {...props} />,
-          },
-        ),
+    createHeader(
+      'Requested move date(s)',
+      (row) => {
+        return row.requestedMoveDates;
+      },
+      {
+        id: 'requestedMoveDate',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
     createHeader(
       'Date submitted',
       (row) => {
@@ -393,7 +379,7 @@ const MoveQueue = ({
           showPagination
           manualSortBy
           defaultCanSort
-          defaultSortedColumns={[{ id: 'status', desc: false }]}
+          defaultSortedColumns={[{ id: 'status', desc: true }]}
           disableMultiSort
           disableSortBy={false}
           columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}

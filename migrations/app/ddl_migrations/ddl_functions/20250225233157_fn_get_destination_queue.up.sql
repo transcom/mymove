@@ -1,6 +1,7 @@
 -- B-22294 - Alex Lusk - Migrating get_destination_queue function to ddl_migrations
 -- B-21824 - Samay Sofo replaced too_assigned_id with too_destination_assigned_id for destination assigned queue
 -- B-21902 - Samay Sofo added has_safety_privilege parameter to filter out safety orders and also retrieved orders_type
+-- B-22760 - Paul Stonebraker retrieve mto_service_items for the moves and delivery address update requests for the shipments
 -- B-23545 - Daniel Jordan updating returns to use destination, filtering adjustments, removing gbloc return
 
 -- database function that returns a list of moves that have destination requests
@@ -39,6 +40,7 @@ RETURNS TABLE (
     mto_shipments JSONB,
     counseling_transportation_office JSONB,
     too_destination_assigned JSONB,
+    mto_service_items JSONB,
     total_count BIGINT
 ) AS $$
 DECLARE
@@ -93,12 +95,24 @@ BEGIN
                             ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                             ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                             ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                            ''prime_estimated_weight'', ms.prime_estimated_weight
+                            ''prime_estimated_weight'', ms.prime_estimated_weight,
+                            ''delivery_address_update'', json_build_object(
+                                ''status'', ms.address_update_status
+                            )
                         )
                     )
                     FROM (
-                        SELECT DISTINCT ON (mto_shipments.id) mto_shipments.*
+                        SELECT DISTINCT ON (mto_shipments.id)
+                            mto_shipments.id,
+                            mto_shipments.shipment_type,
+                            mto_shipments.status,
+                            mto_shipments.requested_pickup_date,
+                            mto_shipments.scheduled_pickup_date,
+                            mto_shipments.approved_date,
+                            mto_shipments.prime_estimated_weight,
+                            shipment_address_updates.status as address_update_status
                         FROM mto_shipments
+                        LEFT JOIN shipment_address_updates on shipment_address_updates.shipment_id = mto_shipments.id
                         WHERE mto_shipments.move_id = moves.id
                     ) AS ms
                 ),
@@ -112,6 +126,26 @@ BEGIN
                 ''last_name'', too_user.last_name,
                 ''id'', too_user.id
             )::JSONB AS too_destination_assigned,
+            COALESCE(
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            ''id'', msi.id,
+                            ''status'', msi.status,
+                            ''re_service'', json_build_object(
+                                ''code'', msi.code
+                            )
+                        )
+                    )
+                    FROM (
+                        SELECT mto_service_items.id, mto_service_items.status, re_services.code
+                        FROM mto_service_items
+                        LEFT JOIN re_services on mto_service_items.re_service_id = re_services.id
+                        WHERE mto_service_items.move_id = moves.id
+                    ) as msi
+                ),
+                ''[]''
+            )::JSONB as mto_service_items,
             COUNT(*) OVER() AS total_count
         FROM moves
         JOIN orders ON moves.orders_id = orders.id
