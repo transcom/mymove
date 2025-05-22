@@ -1,0 +1,114 @@
+@use 'shared/standardUI/Generic/build' as *;
+@use 'shared/standardUI/Layouts/breaks' as *;
+@use 'src/shared/standardUI/Generic/placement' as *;
+
+$gap-value: 1rem;
+
+%layout-button {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+@mixin mix-mm-flex-stacking-container-with-gap(){
+    gap: $gap-value;
+    display: flex;
+    flex-direction: column;
+    @content;
+}
+
+@mixin mix-mm-conditional-centering-container($breaks...){
+    --justify-state: unset;
+    display: block;
+    @each $b in $breaks {
+        @include mix-at-media($b) using ($selector, $media-break){
+            --justify-state: stretch;
+            display: block;
+        }
+    }
+    @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+        @content;
+    }
+}
+
+@mixin mix-mm-justify-stretch-within-container(){
+    justify-self: var(--justify-state, unset);
+    display: block;
+    @content;
+}
+
+@mixin mix-mm-header-layout {
+    @include mix-grid-column-placement-positioning(){
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+    }
+    align-items: center;
+}
+
+@mixin mix-mm-header-action-button-layout {
+    @content;
+    %layout-button  {
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            grid-column: 3;
+            width: fit-content;
+        }
+
+        @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+            width: 100%;
+            font-size: 0.95rem;
+            grid-column: 1 / span all;
+            grid-row: 2;
+        }
+    }
+}
+
+@mixin mix-mm-button-row {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 1rem;
+    align-items: center;
+    height: fit-content;
+    @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+        justify-content: end;
+    }
+
+    @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+        grid-auto-flow: row;
+    }
+    @content;
+    > %layout-button {
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            width: fit-content;
+        }
+
+        @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+            width: 100%;
+            font-size: 0.95rem;
+            grid-column: 1 / span all;
+        }
+    }
+}
+
+@mixin mix-mm-button-row-separator{
+    .separator{
+        @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+            display: none;
+        }
+        @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+            width: 0.12rem;
+            z-index: 1;
+            place-self: stretch;
+            background-color: #dfe1e2;
+        }
+      }
+}
+
+%inert-button{
+    pointer-events: none;
+}
+
+@mixin mix-mm-simple-grid-column-shrink-to-row{
+    display: grid;
+    grid-auto-flow: column;
+
+    @content;
+}

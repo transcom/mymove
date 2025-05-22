@@ -1,7 +1,37 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+%action-buttons {
+  @extend .usa-button;
+}
+
+.saveButton{
+  @extend .usa-button--primary;
+}
+
+.backButton {
+  @extend .usa-button--outline;
+}
+
+.backButton,
+.saveButton{
+  @extend %action-buttons;
+}
+
+.buttonContainer {
+  @include mix-mm-button-row{
+    %action-buttons{
+      @extend %layout-button;
+    }
+  }
+  @include u-display(flex);
+  flex-wrap: wrap;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
 
 .form {
   max-width: none;
@@ -170,6 +200,7 @@ p + .radioGroup {
   margin-top: 0;
 }
 
+.buttonContainer,
 .formActions {
   @include u-margin-top(3);
   @include u-margin-bottom(6);
@@ -187,9 +218,4 @@ p + .radioGroup {
 .requiredAsterisk {
   color: $color-red;
   font-weight: bold;
-}
-
-.buttonGroup {
-  display: flex;
-  gap: 10px;
 }

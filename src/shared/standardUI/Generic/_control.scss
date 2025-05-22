@@ -1,0 +1,24 @@
+@use '../variables/spatial';
+@use '../variables/themes';
+
+@mixin outline_focus(){
+    outline: spatial.$outline-thickness-regular solid themes.$outline-color-regular;
+    outline-offset: spatial.$outline-offset-regular !important;
+}
+
+@mixin mix-control-outline-properties(){
+    box-shadow: inset 0 0 0 2px var(--top-color) !important;
+}
+
+@mixin factor-focusable-control {
+    @include outline_focus();
+    &:disabled {
+        box-shadow: none;
+    }
+}
+
+@mixin mix-controls() {
+    &:focus{
+        @include factor-focusable-control;
+    }
+}

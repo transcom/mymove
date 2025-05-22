@@ -1,10 +1,10 @@
 import React from 'react';
 import classnames from 'classnames';
 import { string, func } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
+import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import { customerRoutes } from 'constants/routes';
 
 const ProfileTable = ({
@@ -31,7 +31,7 @@ const ProfileTable = ({
         <h2>Profile</h2>
         <Button
           unstyled
-          className={reviewStyles['edit-btn']}
+          className={classnames(reviewStyles['edit-btn'], outlineButtonStyle)}
           data-testid="edit-profile-table"
           onClick={() => onEditClick(editProfilePath)}
         >

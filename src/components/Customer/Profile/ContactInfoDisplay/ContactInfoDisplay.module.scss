@@ -1,9 +1,19 @@
-@import 'shared/styles/_variables';
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+a > .edit-btn, .edit-btn{
+  width: fit-content;
+  @extend %layout-button, .usa-button;
+}
 
 .contactInfoContainer {
   .contactInfoHeader {
+    @include mix-mm-header-layout;
+    @include mix-mm-header-action-button-layout{
+      a > .edit-btn, .edit-btn{
+          @extend %layout-button;
+      }
+    }
     h2 {
       flex-shrink: 0;
       @include u-margin(0);
@@ -11,9 +21,6 @@
         @include u-padding-bottom(1);
       }
     }
-
-    display: flex;
-    justify-content: space-between;
   }
 
   .contactInfoSection {
@@ -31,20 +38,5 @@
       }
       @include u-margin-bottom(0);
     }
-  }
-}
-
-a {
-  color: $link;
-  text-decoration: none;
-
-  &:visited {
-    color: $link;
-  }
-
-  &:hover,
-  &:focus {
-    color: $link;
-    @include u-text('no-underline');
   }
 }

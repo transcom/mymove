@@ -1,13 +1,14 @@
 import React from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
-import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { useSelector } from 'react-redux';
 import classnames from 'classnames';
 
 import styles from './EstimatedIncentive.module.scss';
 
-import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
+import formStyles from 'styles/form.module.scss';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { shipmentTypes } from 'constants/shipments';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -34,11 +35,11 @@ const EstimatedIncentive = () => {
             <ShipmentTag shipmentType={shipmentTypes.PPM} shipmentNumber={shipmentNumber} />
             <h1>Estimated incentive</h1>
             <EstimatedIncentiveDetails shipment={shipment} />
-            <div className={ppmStyles.buttonContainer}>
-              <Button className={ppmStyles.backButton} type="button" onClick={handleBack} secondary outline>
+            <div className={formStyles.buttonContainer}>
+              <Button className={formStyles.backButton} type="button" onClick={handleBack} secondary outline>
                 Back
               </Button>
-              <Button className={ppmStyles.saveButton} type="button" onClick={handleNext}>
+              <Button className={formStyles.saveButton} type="button" onClick={handleNext}>
                 Next
               </Button>
             </div>

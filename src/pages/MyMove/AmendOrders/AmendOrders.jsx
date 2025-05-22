@@ -11,6 +11,7 @@ import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { filepondButtonStyle, filepondWrapperStyle } from 'pages/MyMove/UploadOrders';
 import FileUpload from 'components/FileUpload/FileUpload';
 import {
   createUploadForAmendedOrdersDocument,
@@ -90,6 +91,15 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
 
   const additionalText = uploads && uploads.length > 0 ? 'additional ' : '';
 
+  const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
+      <span>Drag ${additionalText}files here or </span>
+      <button class='${filepondButtonStyle}'>Choose from folder</button>
+    </div>`;
+
+  const mobileFileUploadActionElement = `<div>
+      <button class='${filepondButtonStyle}'>Upload ${additionalText}files</span>
+    </div>`;
+
   return (
     <GridContainer>
       <NotificationScrollToTop dependency={serverError} />
@@ -129,8 +139,8 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={onChange}
-                labelIdle={`Drag ${additionalText}files here or <span class="filepond--label-action">choose from folder</span>`}
-                labelIdleMobile={`<span class="filepond--label-action">Upload ${additionalText}files</span>`}
+                labelIdle={desktopFileUploadActionElement}
+                labelIdleMobile={mobileFileUploadActionElement}
               />
             </div>
             <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />

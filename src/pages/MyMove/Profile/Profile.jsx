@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
-import { Alert, Button } from '@trussworks/react-uswds';
-import { Link, useLocation, useNavigate, generatePath } from 'react-router-dom';
+import { Alert } from '@trussworks/react-uswds';
+import classnames from 'classnames';
+import { useLocation, useNavigate, generatePath } from 'react-router-dom';
 
 import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 import styles from './Profile.module.scss';
 
+import { ButtonUsa as Button, primaryButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
@@ -25,6 +27,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OktaUserInfoShape } from 'types/user';
+import { LinkButton } from 'shared/standardUI/Buttons';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft, oktaUser }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
@@ -76,12 +79,23 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   return (
     <div className="grid-container usa-prose">
       <ConnectedFlashMessage />
+      <br />
       <div className="grid-row">
         <div className="grid-col-12">
           {needsToVerifyProfile ? (
-            <Link to={generalRoutes.HOME_PATH}>Return to Dashboard</Link>
+            <LinkButton
+              className={classnames(styles.returnToPreviousViewButton, primaryButtonStyle)}
+              to={generalRoutes.HOME_PATH}
+            >
+              Return to Dashboard
+            </LinkButton>
           ) : (
-            <Link to={returnToMovePath}>Return to Move</Link>
+            <LinkButton
+              className={classnames(styles.returnToPreviousViewButton, primaryButtonStyle)}
+              to={returnToMovePath}
+            >
+              Return to Move
+            </LinkButton>
           )}
           <div className={styles.profileHeader}>
             <h1>Profile</h1>
@@ -155,7 +169,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
                 data-testid="createMoveBtn"
                 disabled={!profileValidated}
               >
-                <span>Create a Move</span>
+                Create a Move
               </Button>
             </SectionWrapper>
           )}

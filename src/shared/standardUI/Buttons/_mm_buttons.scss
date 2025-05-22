@@ -1,0 +1,196 @@
+@use 'shared/standardUI/Generic/control' as *;
+@use 'shared/standardUI/variables/' as *;
+@use 'shared/standardUI/Generic/build';
+@use 'shared/styles/colors';
+
+$button-suffixes: --primary, --outline, --destructive, --destructive-outline;
+
+@mixin mix-mm-button-children() {
+    & > * {
+        display: inline-block;
+    }
+
+    & > *:nth-child(n + 2){
+        margin-left: 0.5rem;
+    }
+
+    & > *:has(svg) {
+        vertical-align: top;
+        display: inline-block;
+        height: 100%;
+        place-content: center;
+    }
+
+    & > span {
+        display: inline-block;
+        align-self: center;
+        place-items: center;
+        place-content: center;
+        vertical-align: text-top;
+        position: relative;
+        height: 100%;
+    }
+}
+
+@mixin mix-mm-base-buttonlike-properties() {
+    height: $button-height-regular;
+    border-radius: $border-radius-button;
+    font-family: $regular-font;
+    font-size: $font-size-regular;
+    font-weight: $font-weight-button;
+    white-space: nowrap;
+    display: block;
+    height: calc(42rem / 16);
+}
+
+@mixin mix-mm-standard-scheme(){
+    // stubbed logic
+    // worry about this later.
+    // [sentence-case]{
+    //     &::first-letter, & *::first-letter{
+    //         text-transform: capitalize;
+    //     }
+    // }
+    // [title-case]{
+    //     &::first-letter, & *::first-letter{
+    //         text-transform: capitalize;
+    //     }
+    // }
+}
+
+
+@mixin mix-mm-button-style-properties {
+    @include u-padding-x(3);
+    @include u-padding-y('105');
+    @include u-font-size('body', 'xs');
+    @include u-cursor('pointer');
+    @include u-line-height('body', 1);
+    @include u-border(0);
+    @include mix-mm-standard-scheme();
+    width: auto;
+    margin: 0 !important;
+    padding: 0.65rem 1.25rem;
+}
+
+@mixin mix-mm-button-colors{
+    --main-color: #0050d8;
+    --alt-color: #{colors.$bg-white};
+    --interactive-color: #{colors.$primary-dark};
+    --active-color: #{colors.$primary-darker};
+    --danger-color: #{colors.$error};
+
+    .focus &,
+    &:focus,
+    .hover &,
+    &:hover{
+        --main-color: var(--interactive-color);
+        background-color: var(--bg-color);
+        color: var(--top-color);
+    }
+    &:active,
+    .active & {
+        --main-color: var(--active-color);
+        background-color: var(--bg-color);
+        color: var(--top-color);
+    }
+
+    &:disabled,
+    :is([disabled]){
+        cursor: not-allowed !important;
+        --main-color: #a9aeb1;
+        --alt-color: #fff;
+    }
+
+    color: var(--top-color) !important;
+    background-color: var(--bg-color) !important;
+}
+
+@mixin mix-mm-buttons($_suffix: null) {
+    $suffix: $_suffix;
+    @if($suffix == null){
+        $suffix: normal;
+    }
+
+    $mm-button-selector: mm-button-#{$suffix};
+
+    %#{$mm-button-selector}{
+        @include mix-controls();
+        @include mix-mm-base-buttonlike-properties();
+        @include mix-mm-button-style-properties();
+        @include mix-mm-button-colors();
+        @include mix-mm-button-children();
+    }
+
+    %#{$mm-button-selector}{
+        &--primary{
+            @extend %#{$mm-button-selector};
+            --top-color: var(--alt-color);
+            --bg-color: var(--main-color);
+        }
+
+        &--outline{
+            @include mix-control-outline-properties();
+            --top-color: var(--main-color);
+            --bg-color: var(--alt-color);
+            @extend %#{$mm-button-selector};
+        }
+        &--destructive {
+            --interactive-color: #{colors.$error-dark};
+            --active-color: #{colors.$error-dark};
+            --main-color: var(--danger-color);
+            --top-color: var(--alt-color);
+            --bg-color: var(--main-color);
+            @extend %#{$mm-button-selector};
+        }
+        &--destructive-outline {
+            @include mix-control-outline-properties();
+            --interactive-color: #{colors.$error-dark};
+            --active-color: #{colors.$error-dark};
+            --main-color: var(--danger-color);
+            --bg-color: var(--alt-color);
+            --top-color: var(--main-color);
+            @extend %#{$mm-button-selector};
+        }
+        .icon svg path {
+            fill: var(--main-color);
+        }
+
+    }
+    @content($mm-button-selector);
+}
+
+@include mix-mm-buttons();
+
+@mixin mix-apply-suffixes($selector-base, $suffixes...){
+    @each $suffix in $suffixes {
+        $selector-value: $selector-base+$suffix;
+        &#{$suffix}{
+            @extend #{$selector-value};
+        }
+    }
+}
+
+@include build.mix-at-media() using ($selector, $media-break) {
+    @include mix-mm-buttons($selector) using ($mm-button-selector){
+        @at-root %mm-button-base {
+            @include mix-apply-suffixes('%#{$mm-button-selector}', $button-suffixes...);
+        }
+    }
+}
+
+@mixin mix-mm-button-associations() {
+    @include mix-apply-suffixes('%mm-button-base', $button-suffixes...);
+}
+
+@mixin mix-mm-button-overrides(){
+    display: block;
+}
+
+.usa-button {
+    @include mix-mm-button-associations();
+    @include mix-mm-button-overrides();
+}
+
+:global(.usa-button){
+    @extend .usa-button;
+}

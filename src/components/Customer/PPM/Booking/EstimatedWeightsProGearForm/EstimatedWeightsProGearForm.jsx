@@ -2,11 +2,12 @@ import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
+import { Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from 'components/Customer/PPM/Booking/EstimatedWeightsProGearForm/EstimatedWeightsProGearForm.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -180,12 +181,12 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                   </>
                 )}
               </SectionWrapper>
-              <div className={ppmStyles.buttonContainer}>
-                <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+              <div className={formStyles.buttonContainer}>
+                <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
                 <LoadingButton
-                  buttonClassName={ppmStyles.saveButton}
+                  buttonClassName={formStyles.saveButton}
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting || !isValid}

@@ -1,4 +1,4 @@
-@import 'shared/styles/_basics';
+@use 'src/shared/standardUI/' as *;
 
 .EstimatedIncentiveDetails {
   :global(.container) {

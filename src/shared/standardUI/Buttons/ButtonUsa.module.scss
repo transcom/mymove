@@ -1,0 +1,25 @@
+@use './mm_buttons' as *;
+
+a > .outline,
+.outline{
+    @extend .usa-button--outline;
+}
+a > .primary,
+.primary{
+    @extend .usa-button--primary;
+}
+a > .destructive,
+.destructive{
+    @extend .usa-button--destructive;
+}
+a > .destructive-outline,
+.destructive-outline{
+    @extend .usa-button--destructive-outline;
+}
+
+a:has(> .usa-button){
+    font-size: unset;
+    .usa-button{
+        font-size: unset;
+    }
+}

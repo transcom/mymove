@@ -1,13 +1,14 @@
 import React from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, Form, FormGroup, Radio } from '@trussworks/react-uswds';
+import { Form, FormGroup, Radio } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 
 import styles from './AboutForm.module.scss';
 
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
 import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
@@ -284,14 +285,14 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                 </SectionWrapper>
                 <div
                   className={`${
-                    isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
+                    isCustomerPage ? formStyles.buttonContainer : `${formStyles.formActions} ${formStyles.buttonGroup}`
                   }`}
                 >
-                  <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
                     {`${isCustomerPage ? 'Return To Homepage' : 'Cancel'}`}
                   </Button>
                   <Button
-                    className={ppmStyles.saveButton}
+                    className={formStyles.saveButton}
                     type="button"
                     onClick={handleSubmit}
                     disabled={!isValid || isSubmitted || isSubmitting}

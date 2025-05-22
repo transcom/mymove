@@ -1,18 +1,25 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_variables';
-@import 'shared/styles/colors';
+@use 'shared/standardUI/' as *;
+@use 'shared/standardUI/Buttons/mm_buttons' as *;
+@use 'shared/standardUI/Layouts/breaks' as *;
+@use 'src/shared/standardUI/Layouts/step_layout' as *;
 
 .PPMReview {
   @include at-media-max(mobile-lg) {
     .aboutSection {
       @include u-padding-bottom(4);
       @include u-margin-bottom(4);
-      @include u-border-bottom(1px, solid);
+      // @include u-border-bottom(1px, solid);
       border-color: $base-lighter;
     }
   }
   .reviewItems:first-of-type {
     @include u-margin-top(2);
+  }
+
+  .documentSection{
+    display: grid;
+    gap: 1.5rem;
+    justify-items: start;
   }
 
   @include at-media(mobile-lg) {
@@ -25,10 +32,14 @@
     .reviewItems {
       @include u-margin-top(4);
     }
+  }
 
-    .navigationButtons {
-      @include u-margin-top(4);
-    }
+
+  .navigationButtons {
+    @include u-margin-top(3);
+    @include mix-mm-button-row;
+    gap: 1rem;
+
   }
 
   :global(.usa-button.usa-button--secondary) {

@@ -1,7 +1,6 @@
-@import '../../../../shared/styles/basics';
-@import '../../../../shared/styles/mixins';
-@import '../../../../shared/styles/colors';
-@import '../../../../shared/styles/_variables';
+@use 'shared/standardUI/' as *;
+@use 'shared/standardUI/Buttons/mm_buttons' as *;
+@use 'shared/standardUI/Layouts/breaks' as *;
 
 .movesContainer {
   display: flex;
@@ -20,52 +19,44 @@
   justify-content: space-between;
 
   .heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
     @include u-text('base-darkest');
     @include u-margin(0);
     @include u-border('1px');
     @include u-border('base-lighter');
-    @include u-padding(2);
 
-    .moveContainerButtons {
-      margin-left: auto;
-      display: flex;
+    & {
+      @include mix-at-media($media-breaks-regular-exclusive) using ($selector, $media-break){
+        align-items: center;
+        @include mix-grid-column-placement-positioning();
+        .icon{
+          padding: 1rem;
+        }
+        padding: 1rem {
+          right: 0rem;
+        };
+      }
+
+      @include mix-at-media($media-breaks-tablet,$media-breaks-mobile) using ($selector, $media-break){
+        gap: 0.5rem;
+        place-items: center stretch;
+        > *:nth-child(1){
+          justify-self: center;
+        }
+        .icon{
+          padding: 0.5rem;
+        }
+        padding: 1rem {
+          bottom: 0rem;
+        }
+        @include mix-grid-row-placement-positioning();
+      }
     }
 
     h3 {
-      width: 100px;
+      width: fit-content;
       display: inline;
       font-weight: bold;
-      @include u-margin(0);
-      @include u-margin-x(1);
-    }
-
-    .icon {
-      margin-left: 1rem;
-    }
-
-    // handling mobile device layout
-    // the buttons are too large to display so we will make them a column
-    @media (max-width: $tablet) {
-      flex-direction: column;
-
-      h3 {
-        margin-bottom: 0.5rem;
-      }
-
-      .moveContainerButtons {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 5px;
-        width: 100%;
-      }
-
-      .icon {
-        margin-top: 0.5rem;
-      }
+      margin: unset;
     }
   }
 
@@ -129,4 +120,8 @@
     margin: auto;
     padding-left: 0;
   }
+}
+
+.goToMoveBtn {
+  @extend .usa-button--outline;
 }

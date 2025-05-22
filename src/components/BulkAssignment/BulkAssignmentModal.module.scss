@@ -1,4 +1,6 @@
-@import 'shared/styles/colors.scss';
+@use 'sass:selector';
+@use 'shared/standardUI/' as *;
+@use 'shared/standardUI/Buttons/mm_buttons' as *;
 
 .BulkModal {
   min-width: 650px !important;
@@ -7,6 +9,7 @@
   max-height: 90vh;
   overflow-x: hidden;
 
+  // TODO B-22876 is this primary outline or danger?
   button,
   :global(.usa-button) {
     margin: 0;
@@ -16,6 +19,7 @@
     font-size: 1rem;
   }
 
+  // TODO B-22876 is this primary outline or danger?
   /* these styles are used to fix an issue with duplicate usa-button--secondary definitions in USWDS */
   .cancelNoButton {
     border-radius: 0.2666666667rem;
@@ -107,6 +111,7 @@
   align-items: center;
   padding-top: 20px;
 
+  // TODO B-22876 is this primary outline or danger?
   .confirmButtons {
     display: flex;
     align-items: center;
@@ -115,6 +120,7 @@
     max-height: 42px;
   }
 
+  // TODO B-22876 is this primary outline or danger?
   .cancelYesButton {
     font-size: 12px;
     max-width: 100px;

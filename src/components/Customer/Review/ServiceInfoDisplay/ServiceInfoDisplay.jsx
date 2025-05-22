@@ -6,6 +6,8 @@ import serviceInfoDisplayStyles from './ServiceInfoDisplay.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
+const editButtonStyle = serviceInfoDisplayStyles['edit-btn'];
+
 const ServiceInfoDisplay = ({
   affiliation,
   originTransportationOfficeName,
@@ -25,7 +27,7 @@ const ServiceInfoDisplay = ({
       <div className={serviceInfoDisplayStyles.header}>
         <h2>Service info</h2>
         {isEditable && (
-          <Link to={editURL} state={state}>
+          <Link className={editButtonStyle} to={editURL} state={state}>
             Edit
           </Link>
         )}

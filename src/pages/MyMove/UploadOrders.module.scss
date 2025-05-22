@@ -1,0 +1,37 @@
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+
+.filepond-style{
+  @extend .usa-button--outline;
+}
+
+.upload-wrapper{
+  @include mix-mm-simple-grid-column-shrink-to-row{
+    align-items: center;
+    gap: 0.5rem;
+    & > *{
+        display: inline-block;
+    }
+  }
+
+  .filepond-style{
+    justify-self: end;
+    cursor: pointer;
+    @extend .usa-button--outline, %inert-button;
+  }
+}
+
+.hint {
+  color: #9b9b9b;
+  font-size: 0.8em;
+}
+
+.uploader-box {
+  margin-top: 2em;
+}
+
+.amended-orders {
+  margin-top: 2em;
+}
+

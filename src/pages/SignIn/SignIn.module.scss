@@ -15,7 +15,13 @@ button.signInButton {
 
 :global(.usa-button-group) {
   justify-content: center;
+  padding: 1rem 0rem;
+  gap: 1rem;
+  > {
+    margin: 0;
+  }
 }
+
 .center {
   justify-content: center;
   align-items: center;

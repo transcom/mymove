@@ -2,11 +2,13 @@ import * as Yup from 'yup';
 import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, ErrorMessage, Form, FormGroup, Label, Radio } from '@trussworks/react-uswds';
+import { ErrorMessage, Form, FormGroup, Label, Radio } from '@trussworks/react-uswds';
 import { func, number } from 'prop-types';
 
 import styles from './WeightTicketForm.module.scss';
 
+import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
+import { filepondWrapperStyle, filepondButtonStyle } from 'pages/MyMove/UploadOrders';
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
 import formStyles from 'styles/form.module.scss';
@@ -23,9 +25,18 @@ import { WeightTicketShape } from 'types/shipment';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { formatWeight } from 'utils/formatters';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
-import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
+import { DocumentAndImageUploadInstructions } from 'content/uploads';
 import { uploadShape } from 'types/uploads';
 import { APP_NAME } from 'constants/apps';
+
+const UploadDropZoneLabel = `<div class='${filepondWrapperStyle}'>
+    <span>Dragfiles here or </span>
+    <button class='${filepondButtonStyle}'>Choose from folder</button>
+  </div>`;
+
+const UploadDropZoneLabelMobile = `<div>
+    <button class='${filepondButtonStyle}'>Upload files</span>
+  </div>`;
 
 const validationSchema = Yup.object().shape({
   vehicleDescription: Yup.string().required('Required'),
@@ -305,10 +316,12 @@ const WeightTicketForm = ({
                 </SectionWrapper>
                 <div
                   className={`${
-                    isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
+                    isCustomerPage
+                      ? formStyles.buttonContainer
+                      : `${formStyles.formActions} ${formStyles.buttonContainer}`
                   }`}
                 >
-                  <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                  <Button className={outlineButtonStyle} type="button" onClick={onBack}>
                     Cancel
                   </Button>
                   <Button

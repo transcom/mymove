@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 import styles from './FinalCloseoutForm.module.scss';
 
-import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
+import formStyles from 'styles/form.module.scss';
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { ShipmentShape } from 'types/shipment';
 import { MoveShape } from 'types/customerShapes';
 import { formatCents, formatWeight } from 'utils/formatters';
@@ -154,12 +154,12 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
             </SectionWrapper>
           )}
 
-          <div className={ppmStyles.buttonContainer}>
-            <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+          <div className={formStyles.buttonContainer}>
+            <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
               {appName === APP_NAME.OFFICE ? 'Back' : 'Return To Homepage'}
             </Button>
             <Button
-              className={ppmStyles.saveButton}
+              className={formStyles.saveButton}
               type="submit"
               onClick={handleSubmit}
               disabled={!isValid || isSubmitting}

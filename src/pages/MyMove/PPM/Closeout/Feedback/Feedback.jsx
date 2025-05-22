@@ -1,12 +1,13 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Grid, GridContainer } from '@trussworks/react-uswds';
+import { Grid, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import styles from './Feedback.module.scss';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
+import { ButtonUsa as Button, primaryButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
@@ -184,7 +185,7 @@ const Feedback = () => {
               )}
             </SectionWrapper>
             <div className={classnames(ppmPageStyles.buttonContainer, styles.navigationButtons)}>
-              <Button onClick={() => navigate(-1)} type="button">
+              <Button className={primaryButtonStyle} onClick={() => navigate(-1)} type="button">
                 Back
               </Button>
             </div>

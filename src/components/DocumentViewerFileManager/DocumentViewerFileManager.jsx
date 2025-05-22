@@ -22,6 +22,12 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import DeleteDocumentFileConfirmationModal from 'components/ConfirmationModals/DeleteDocumentFileConfirmationModal';
 import { PPM_DOCUMENT_TYPES, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import { ShipmentShape } from 'types';
+import { filepondWrapperStyle } from 'pages/MyMove/UploadOrders';
+
+const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
+    <span>Dragfiles here or </span>
+    <span class='filepond--label-action'>click to upload</span>
+  </div>`;
 
 const DocumentViewerFileManager = ({
   className,
@@ -310,7 +316,7 @@ const DocumentViewerFileManager = ({
                 createUpload={handleUpload}
                 onChange={handleChange}
                 onAddFile={onAddFile}
-                labelIdle='Drag files here or <span class="filepond--label-action">click</span> to upload'
+                labelIdle={desktopFileUploadActionElement}
               />
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (

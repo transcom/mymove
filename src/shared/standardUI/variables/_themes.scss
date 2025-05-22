@@ -1,0 +1,6 @@
+$outline-color-regular: #2491ff;
+
+@mixin bg_primary_text_white {
+    @include u-bg('primary');
+    @include u-text('white');
+}

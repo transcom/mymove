@@ -5,7 +5,7 @@ import { generatePath, useNavigate, useParams } from 'react-router';
 
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 
-import './UploadOrders.css';
+import styles from './UploadOrders.module.scss';
 
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
@@ -18,6 +18,9 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { withContext } from 'shared/AppContext';
+
+export const filepondButtonStyle = styles['filepond-style'];
+export const filepondWrapperStyle = styles['upload-wrapper'];
 
 const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId }) => {
   const filePondEl = useRef();
@@ -100,6 +103,11 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
     navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
 
+  const desktopFileUploadActionElement = `<div class='${filepondWrapperStyle}'>
+      <span>Drag & drop or</span>
+      <button class='${filepondButtonStyle}'>Upload orders</button>
+    </div>`;
+
   return (
     <GridContainer>
       <Grid row>
@@ -121,7 +129,7 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
               ref={filePondEl}
               createUpload={handleUploadFile}
               onChange={onChange}
-              labelIdle='Drag & drop or <span class="filepond--label-action">click to upload orders</span>'
+              labelIdle={desktopFileUploadActionElement}
             />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>

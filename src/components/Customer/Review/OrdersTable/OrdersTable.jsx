@@ -1,9 +1,10 @@
 import React from 'react';
 import { string, arrayOf, bool, shape, func } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import reviewStyles from '../Review.module.scss';
 
+import { ButtonUsa as Button, outlineButtonStyle } from 'shared/standardUI/Buttons/ButtonUsa';
 import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
@@ -33,7 +34,7 @@ const OrdersTable = ({
         <h2>Orders</h2>
         <Button
           unstyled
-          className={reviewStyles['edit-btn']}
+          className={classnames(reviewStyles['edit-btn'], outlineButtonStyle)}
           data-testid="edit-orders-table"
           onClick={() => onEditClick(editPath)}
         >

@@ -1,5 +1,26 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/colors.scss';
+@use 'src/shared/standardUI/' as *;
+@use 'src/shared/standardUI/Buttons/mm_buttons' as *;
+
+
+.filepond-style{
+  @extend .usa-button;
+}
+
+.upload-wrapper{
+  @include mix-mm-simple-grid-column-shrink-to-row{
+    align-items: center;
+    gap: 0.5rem;
+    & > *{
+        display: inline-block;
+    }
+  }
+
+  .filepond-style{
+    justify-self: end;
+    @extend .usa-button--outline, %inert-button;
+    cursor: pointer;
+  }
+}
 
 .EditOrdersForm {
   .calloutLabel {

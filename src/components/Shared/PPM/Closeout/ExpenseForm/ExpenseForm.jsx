@@ -1,7 +1,7 @@
 import React, { createRef } from 'react';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
-import { Button, ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@trussworks/react-uswds';
+import { ErrorMessage, Form, FormGroup, Radio, Label, Alert } from '@trussworks/react-uswds';
 import { func, number } from 'prop-types';
 import * as Yup from 'yup';
 
@@ -9,6 +9,7 @@ import SmallPackageForm from '../SmallPackageForm/SmallPackageForm';
 
 import styles from './ExpenseForm.module.scss';
 
+import { ButtonUsa as Button } from 'shared/standardUI/Buttons/ButtonUsa';
 import { formatCents } from 'utils/formatters';
 import { numOfDaysBetweenDates } from 'utils/dates';
 import { expenseTypes, ppmExpenseTypes } from 'constants/ppmExpenseTypes';
@@ -26,7 +27,6 @@ import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/f
 import { DocumentAndImageUploadInstructions, UploadDropZoneLabel, UploadDropZoneLabelMobile } from 'content/uploads';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { PPM_TYPES } from 'shared/constants';
-import { APP_NAME } from 'constants/apps';
 
 const validationSchema = Yup.object().shape({
   expenseType: Yup.string().required('Required'),
@@ -96,7 +96,6 @@ const ExpenseForm = ({
   onCreateUpload,
   onUploadComplete,
   onUploadDelete,
-  appName,
 }) => {
   const {
     movingExpenseType,
@@ -143,8 +142,6 @@ const ExpenseForm = ({
     ppmType === PPM_TYPES.SMALL_PACKAGE
       ? [{ value: 'Small package reimbursement', key: 'SMALL_PACKAGE' }]
       : ppmExpenseTypes;
-
-  const isCustomerPage = appName === APP_NAME.MYMOVE;
 
   return (
     <>
@@ -342,16 +339,12 @@ const ExpenseForm = ({
                     </FormGroup>
                   )}
                 </SectionWrapper>
-                <div
-                  className={`${
-                    isCustomerPage ? ppmStyles.buttonContainer : `${formStyles.formActions} ${ppmStyles.buttonGroup}`
-                  }`}
-                >
-                  <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
+                <div className={formStyles.buttonContainer}>
+                  <Button className={formStyles.backButton} type="button" onClick={onBack} secondary outline>
                     Cancel
                   </Button>
                   <Button
-                    className={ppmStyles.saveButton}
+                    className={formStyles.saveButton}
                     type="button"
                     onClick={handleSubmit}
                     disabled={!isValid || isSubmitting}
