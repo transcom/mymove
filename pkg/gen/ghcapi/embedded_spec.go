@@ -11810,7 +11810,10 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
@@ -31055,7 +31058,10 @@ func init() {
     },
     "Move": {
       "properties": {
-        "SCAssignedUser": {
+        "SCCloseoutAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "SCCounselingAssignedUser": {
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "TIOAssignedUser": {
