@@ -46,6 +46,7 @@ const PaymentRequestCard = ({
   hasBillableWeightIssues,
   onEditAccountingCodes,
   isMoveLocked,
+  affiliation,
 }) => {
   const navigate = useNavigate();
   // show details by default if in pending/needs review
@@ -405,7 +406,7 @@ const PaymentRequestCard = ({
           </dl>
           {!isMoveLocked &&
             (paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING ? (
-              <Link to="../orders" state={{ from: 'paymentRequestDetails' }}>
+              <Link to="../orders" state={{ from: 'paymentRequestDetails', affiliation }}>
                 View orders
               </Link>
             ) : (
