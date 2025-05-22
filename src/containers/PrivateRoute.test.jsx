@@ -23,12 +23,12 @@ const tioUserInitialState = {
   auth: {
     isLoading: false,
     isLoggedIn: true,
+    activeRole: roleTypes.TIO,
   },
   entities: {
     user: {
       userId123: {
         id: 'userId123',
-        roles: [{ roleType: roleTypes.TIO }],
       },
     },
   },
@@ -44,17 +44,11 @@ describe('userIsAuthorized function', () => {
   });
 
   it('returns true if the user has at least one required role', () => {
-    expect(userIsAuthorized([roleTypes.TIO], [roleTypes.TIO, roleTypes.SERVICES_COUNSELOR])).toEqual(true);
-  });
-
-  it('returns true if the user has at multiple required roles', () => {
-    expect(
-      userIsAuthorized([roleTypes.TIO, roleTypes.TOO], [roleTypes.TOO, roleTypes.TIO, roleTypes.SERVICES_COUNSELOR]),
-    ).toEqual(true);
+    expect(userIsAuthorized(roleTypes.TIO, [roleTypes.TIO, roleTypes.SERVICES_COUNSELOR])).toEqual(true);
   });
 
   it('returns false if the user does not have a required role', () => {
-    expect(userIsAuthorized([roleTypes.TIO], [roleTypes.TOO])).toEqual(false);
+    expect(userIsAuthorized(roleTypes.TIO, [roleTypes.TOO])).toEqual(false);
   });
 });
 

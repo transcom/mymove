@@ -17,7 +17,7 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit, isShipment }) =
         <p>You can’t make changes after you submit the {isShipment ? 'shipment' : 'move'}.</p>
         <ModalActions>
           <Button
-            className="usa-button--tertiary"
+            className="usa-button--secondary"
             type="button"
             onClick={() => onClose()}
             data-testid="modalCancelButton"
