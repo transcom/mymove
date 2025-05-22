@@ -100,6 +100,11 @@ describe('CreateMoveCustomerInfo', () => {
 
     renderWithProviders(<CreateMoveCustomerInfo />, mockRoutingConfig);
     const { customerData } = useCustomerQueryReturnValue;
+
+    const [backupContactFirstName, backupContactLastName] = customerData.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
     await waitFor(() => {
       expect(screen.getByLabelText('First name').value).toEqual(customerData.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(customerData.middle_name);
@@ -120,7 +125,8 @@ describe('CreateMoveCustomerInfo', () => {
       expect(screen.getByText('CA')).toHaveTextContent(customerData.current_address.state);
       expect(screen.getByText('90210')).toHaveTextContent(customerData.current_address.postalCode);
       expect(screen.getByText('Beverly Hills, CA 90210 ()'));
-      expect(screen.getByDisplayValue('Jane Backup').value).toEqual(customerData.backup_contact.name);
+      expect(screen.getByDisplayValue('Jane').value).toEqual(backupContactFirstName);
+      expect(screen.getByDisplayValue('Backup').value).toEqual(backupContactLastName);
     });
   });
 
