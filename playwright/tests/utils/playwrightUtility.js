@@ -11,7 +11,7 @@ export const appendTimestampToFilenamePrefix = (prefix) => {
   const timestamp = new Date()
     .toISOString()
     .replace(/[-T:.Z]/g, '')
-    .slice(0, 10); // 10 instead of 14 ignores time to give us a general timeframe to account for processing delays
+    .slice(0, 10); // take first 10 digits (YYYYMMDDHH) instead of 14 (YYYYMMDDHHmmss) to give us a general timeframe to account for processing delays
   return `${prefix}-${timestamp}`;
 };
 
