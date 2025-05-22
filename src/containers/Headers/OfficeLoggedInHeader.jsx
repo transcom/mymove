@@ -67,7 +67,11 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
     <MilMoveHeader>
       <ul className="usa-nav__primary">
         {officeUser?.transportation_office &&
-          navListItems.map((content) => <li className={classnames('usa-nav__primary-item')}>{content}</li>)}
+          navListItems.map((content, i) => (
+            <li key={i} className={classnames('usa-nav__primary-item')}>
+              {content}
+            </li>
+          ))}
       </ul>
     </MilMoveHeader>
   );
