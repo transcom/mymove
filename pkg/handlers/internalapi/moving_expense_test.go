@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		}
 
 		subtestData.handler = CreateMovingExpenseHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			movingExpenseCreator,
 		}
 
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		).Return(nil, serverErr)
 
 		handler := CreateMovingExpenseHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 		}
 

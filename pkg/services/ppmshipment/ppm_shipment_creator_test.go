@@ -86,7 +86,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -153,7 +153,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		appCtx := suite.AppContextWithSessionForTest(session)
@@ -265,7 +265,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				Roles:           roles.Roles{},
+				ActiveRole:      roles.Role{},
 			}
 
 			appCtx := suite.AppContextWithSessionForTest(session)
@@ -294,7 +294,9 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
 		}
-		session.Roles = append(session.Roles, identity.Roles...)
+		defaultRole, err := identity.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 
@@ -417,14 +419,15 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	suite.Run("Can successfully create an international PPM with incentives when existing iHHG shipment is on move", func() {
 		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
+		suite.NotEmpty(identity.Roles)
 		suite.NoError(err)
 
 		session := &auth.Session{
 			ApplicationName: auth.OfficeApp,
 			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
+			ActiveRole:      identity.Roles[0],
 		}
-		session.Roles = append(session.Roles, identity.Roles...)
 
 		appCtx := suite.AppContextWithSessionForTest(session)
 
