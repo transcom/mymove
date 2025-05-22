@@ -87,6 +87,11 @@ jest.mock('hooks/queries', () => ({
   useAmendedDocumentQueries: jest.fn(),
 }));
 
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  getPayGradeOptions: jest.fn(),
+}));
+
 jest.mock('components/DocumentViewer/DocumentViewer', () => ({
   __esModule: true,
   default: ({ files, allowDownload }) => (
@@ -249,8 +254,17 @@ describe('MoveDocumentWrapper', () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
-      const wrapper = shallow(<MoveDocumentWrapper />);
-      expect(wrapper.find('Orders').exists()).toBe(true);
+      render(
+        <Provider store={mockStore.store}>
+          <MemoryRouter>
+            <QueryClientProvider client={new QueryClient()}>
+              <MoveDocumentWrapper allowDownload />
+            </QueryClientProvider>
+          </MemoryRouter>
+          ,
+        </Provider>,
+      );
+      expect(screen.getByText('View Orders')).toBeInTheDocument(true);
     });
 
     it('renders the sidebar MoveAllowances component', () => {

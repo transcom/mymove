@@ -51,6 +51,33 @@ jest.mock('hooks/queries', () => ({
   useAmendedDocumentQueries: jest.fn(),
 }));
 
+jest.mock('services/ghcApi', () => ({
+  getTacValid: ({ tac }) => {
+    return {
+      tac,
+      isValid: tac === '1111' || tac === '2222' || tac === '3333',
+    };
+  },
+  getPayGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          grade: 'E-1',
+          description: ' E-1',
+        },
+        {
+          grade: 'E-6',
+          description: ' E-6',
+        },
+        {
+          description: 'Civilian',
+          grade: 'CIVILIAN_EMPLOYEE',
+        },
+      ],
+    }),
+  ),
+}));
+
 const testMoveId = '10000';
 
 const amendedUploadDate = new Date();
@@ -204,8 +231,19 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
-      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
-      expect(wrapper.find('ServicesCounselingOrders').exists()).toBe(true);
+      const mockStore = configureStore({});
+
+      render(
+        <Provider store={mockStore.store}>
+          <MemoryRouter>
+            <QueryClientProvider client={new QueryClient()}>
+              <ServicesCounselingMoveDocumentWrapper allowDownload />
+            </QueryClientProvider>
+          </MemoryRouter>
+          ,
+        </Provider>,
+      );
+      expect(screen.getByText('Manage Orders')).toBeInTheDocument(true);
     });
 
     it('renders the sidebar ServicesCounselingMoveAllowances component', () => {

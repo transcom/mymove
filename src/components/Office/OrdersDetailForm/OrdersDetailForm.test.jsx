@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { Formik } from 'formik';
 
 import OrdersDetailForm from './OrdersDetailForm';
@@ -8,6 +8,7 @@ import OrdersDetailForm from './OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { renderWithRouter } from 'testUtils';
 
 const dutyLocation = {
   address: {
@@ -59,7 +60,7 @@ const defaultProps = {
 };
 
 function renderOrdersDetailForm(props) {
-  render(
+  renderWithRouter(
     <Formik initialValues={initialValues}>
       <form>
         <OrdersDetailForm {...defaultProps} {...props} />
