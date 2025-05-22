@@ -10,7 +10,6 @@
 package internalapi
 
 import (
-	// "log"
 	"fmt"
 	"net/http"
 	"net/url"

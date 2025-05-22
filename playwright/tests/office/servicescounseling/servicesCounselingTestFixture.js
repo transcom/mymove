@@ -357,9 +357,6 @@ export class ServiceCounselorPage extends OfficePage {
   }
 
   async fillOutWeightTicketWithIncorrectXlsx() {
-    // need to fix this like the other one
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
     const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
     await expect(emptyWeightLabel).toBeVisible();
     const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
@@ -378,8 +375,7 @@ export class ServiceCounselorPage extends OfficePage {
     // wait for the an incorrect file to not be visible in the uploads
     await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).not.toBeVisible();
 
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
+    // find the label, then find the filepond wrapper.
     const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
     await expect(fullWeightLabel).toBeVisible();
     const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
@@ -404,9 +400,7 @@ export class ServiceCounselorPage extends OfficePage {
   }
 
   async fillOutProGearWithIncorrectXlsx() {
-    // need to fix this like the other one
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
+    // find the label, then find the filepond wrapper.
     const proGearWeightLabel = this.page.locator('label').getByText('Upload your');
     await expect(proGearWeightLabel).toBeVisible();
     const proGearFilepond = proGearWeightLabel.locator('../..').locator('.filepond--wrapper');

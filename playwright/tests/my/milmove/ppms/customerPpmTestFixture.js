@@ -392,8 +392,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByLabel('Empty weight').fill('1000');
     await this.page.getByLabel('Empty weight').blur();
 
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
+    // find the label, then find the filepond wrapper.
     const emptyWeightLabel = this.page.locator('label').getByText('Upload empty weight ticket', { exact: true });
     await expect(emptyWeightLabel).toBeVisible();
     const emptyFilepond = emptyWeightLabel.locator('../..').locator('.filepond--wrapper');
@@ -415,8 +414,7 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.getByLabel('Full Weight').clear();
     await this.page.getByLabel('Full Weight').fill('3000');
 
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
+    // find the label, then find the filepond wrapper.
     const fullWeightLabel = this.page.locator('label').getByText('Upload full weight ticket', { exact: true });
     await expect(fullWeightLabel).toBeVisible();
     const fullFilepond = fullWeightLabel.locator('../..').locator('.filepond--wrapper');
@@ -437,13 +435,12 @@ export class CustomerPpmPage extends CustomerPage {
 
     // add successful file upload and look for "1 FILES UPLOADED": weightEstimatorExpectSuccessfulUpload
     await this.uploadFileViaFilepond(fullFilepond, 'weightEstimatorExpectSuccessfulUpload.xlsx');
-    // // wait for the file to be visible in the uploads
+    // wait for the file to be visible in the uploads
     await expect(this.page.getByRole('heading', { name: '1 FILES UPLOADED' })).toBeVisible();
   }
 
   async submitIncorrectXlsxFileForProGear() {
-    // find the label, then find the filepond wrapper. Not sure why
-    // getByLabel doesn't work
+    // find the label, then find the filepond wrapper.
     const proGearWeightLabel = this.page
       .locator('label')
       .getByText("Upload your pro-gear's weight tickets", { exact: true });

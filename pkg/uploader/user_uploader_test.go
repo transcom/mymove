@@ -11,7 +11,6 @@ package uploader_test
 import (
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/storage/test"
@@ -139,14 +138,11 @@ func (suite *UploaderSuite) TestCreateUserUploadNoDocument() {
 func (suite *UploaderSuite) TestUpdateUserUploadFilename_Prefix() {
 	document := factory.BuildDocument(suite.DB(), nil, nil)
 
-	log.Println("Testing changing upload filename")
 	userUploader, err := uploader.NewUserUploader(suite.storer, 25*uploader.MB)
 	suite.NoError(err)
 	file := suite.fixture("weightEstimatorExpectSuccessfulUpload.xlsx")
 
 	filename := "weightEstimatorExpectSuccessfulUpload.xlsx"
-	log.Println("filename")
-	log.Println(filename)
 	userUpload, verrs, err := userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPPMDocuments)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload")
