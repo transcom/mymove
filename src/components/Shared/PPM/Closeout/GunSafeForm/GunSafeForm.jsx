@@ -19,7 +19,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { uploadShape } from 'types/uploads';
 
 const GunsafeForm = ({
-  gunsafe,
+  gunSafe,
   setNumber,
   onCreateUpload,
   onUploadComplete,
@@ -28,7 +28,7 @@ const GunsafeForm = ({
   onSubmit,
   isSubmitted,
 }) => {
-  const { document, weight, description, hasWeightTickets } = gunsafe || {};
+  const { document, weight, description, hasWeightTickets } = gunSafe || {};
   const maxWeight = 500;
 
   const validationSchema = Yup.object().shape({
@@ -129,12 +129,12 @@ GunsafeForm.propTypes = {
   setNumber: number,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  gunsafe: GunSafeTicketShape,
+  gunSafe: GunSafeTicketShape,
 };
 
 GunsafeForm.defaultProps = {
   setNumber: 1,
-  gunsafe: {},
+  gunSafe: {},
 };
 
 export default GunsafeForm;

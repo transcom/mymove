@@ -20,9 +20,11 @@ import {
   formatExpenseItems,
   formatProGearItems,
   formatWeightTicketItems,
+  formatGunSafeItems,
 } from 'utils/ppmCloseout';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForGunSafeWeightTickets,
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -35,9 +37,15 @@ import {
   deleteMovingExpense,
   getMTOShipmentsForMove,
   getAllMoves,
+  deleteGunSafeWeightTicket,
 } from 'services/internalApi';
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
-import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
+import {
+  hasCompletedAllWeightTickets,
+  hasCompletedAllExpenses,
+  hasCompletedAllProGear,
+  hasCompletedAllGunSafe,
+} from 'utils/shipments';
 import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { PPM_TYPES } from 'shared/constants';
 
@@ -81,6 +89,9 @@ function deleteLineItem(ppmShipmentId, itemType, itemId) {
   if (itemType === 'expense') {
     return deleteMovingExpense(ppmShipmentId, itemId);
   }
+  if (itemType === 'gunSafe') {
+    return deleteGunSafeWeightTicket(ppmShipmentId, itemId);
+  }
   return Promise.reject();
 }
 
@@ -95,6 +106,7 @@ const Review = () => {
 
   const weightTickets = mtoShipment?.ppmShipment?.weightTickets;
   const proGear = mtoShipment?.ppmShipment?.proGearWeightTickets;
+  const gunSafe = mtoShipment?.ppmShipment?.gunSafeWeightTickets;
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
   const dispatch = useDispatch();
 
@@ -102,8 +114,9 @@ const Review = () => {
   const serviceMemberId = serviceMember.id;
 
   useEffect(() => {
-    const moves = getAllMoves(serviceMemberId);
-    dispatch(updateAllMoves(moves));
+    getAllMoves(serviceMemberId).then((moves) => {
+      dispatch(updateAllMoves(moves));
+    });
   }, [moveId, mtoShipmentId, mtoShipment, dispatch, serviceMemberId]);
 
   if (!mtoShipment) {
@@ -136,8 +149,9 @@ const Review = () => {
         getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
           dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
         );
-        const moves = getAllMoves(serviceMemberId);
-        dispatch(updateAllMoves(moves));
+        getAllMoves(serviceMemberId).then((moves) => {
+          dispatch(updateAllMoves(moves));
+        });
       })
       .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
       .catch(() => {
@@ -163,7 +177,8 @@ const Review = () => {
   const canAdvance =
     hasCompletedAllWeightTickets(weightTickets, ppmType) &&
     hasCompletedAllExpenses(expenses) &&
-    hasCompletedAllProGear(proGear);
+    hasCompletedAllProGear(proGear) &&
+    hasCompletedAllGunSafe(gunSafe);
 
   // PPM-SPRs must have at least one moving expense to advance
   const ppmSmalLPackageCanAdvance = ppmType === PPM_TYPES.SMALL_PACKAGE && expenses && expenses.length < 1;
@@ -176,6 +191,15 @@ const Review = () => {
   );
 
   const proGearTotal = calculateTotalNetWeightForProGearWeightTickets(proGear);
+
+  const gunSafeContents = formatGunSafeItems(
+    gunSafe,
+    customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH,
+    { moveId, mtoShipmentId },
+    handleDelete,
+  );
+
+  const gunSafeTotal = calculateTotalNetWeightForGunSafeWeightTickets(gunSafe);
 
   const expenseContents = formatExpenseItems(
     expenses,
@@ -259,22 +283,24 @@ const Review = () => {
                   emptyMessage="No pro-gear weight documented."
                 />
               )}
-              <ReviewItems
-                className={classnames(styles.reviewItems, 'reviewExpenses')}
-                heading={
-                  <>
-                    <h3>Gun Safe</h3>
-                    <span>(${expensesTotal ? formatWeight(mtoShipment?.ppmShipment?.gunSafeWeight) : 0})</span>
-                  </>
-                }
-                contents={expenseContents}
-                renderAddButton={() => (
-                  <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
-                    Add Gun Safe Weight
-                  </Link>
-                )}
-                emptyMessage="No receipts uploaded."
-              />
+              {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                <ReviewItems
+                  className={classnames(styles.reviewItems, 'gunSafeSection')}
+                  heading={
+                    <>
+                      <h3>Gun Safe</h3>
+                      <span>({formatWeight(gunSafeTotal)})</span>
+                    </>
+                  }
+                  contents={gunSafeContents}
+                  renderAddButton={() => (
+                    <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
+                      Add Gun Safe Weight
+                    </Link>
+                  )}
+                  emptyMessage="No gun safe weight documented."
+                />
+              )}
               <ReviewItems
                 className={classnames(styles.reviewItems, 'reviewExpenses')}
                 heading={

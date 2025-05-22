@@ -104,16 +104,23 @@ export function isProGearComplete(proGear) {
   return !!(proGear.weight && proGear.description && hasADocumentUpload && hasAnOwner);
 }
 
-export function isGunSafeComplete(gunSafe) {
-  const hasADocumentUpload = gunSafe.document.uploads.length > 0;
-  return !!(gunSafe.weight && gunSafe.description && hasADocumentUpload);
-}
-
 export function hasCompletedAllProGear(proGear) {
   if (!proGear?.length) {
     return true;
   }
   return !!proGear?.every(isProGearComplete);
+}
+
+export function isGunSafeComplete(gunSafe) {
+  const hasADocumentUpload = gunSafe.document.uploads.length > 0;
+  return !!(gunSafe.weight && gunSafe.description && hasADocumentUpload);
+}
+
+export function hasCompletedAllGunSafe(gunSafe) {
+  if (!gunSafe?.length) {
+    return true;
+  }
+  return !!gunSafe?.every(isGunSafeComplete);
 }
 
 export function isPPM(shipment) {

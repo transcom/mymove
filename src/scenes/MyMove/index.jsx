@@ -57,7 +57,6 @@ import SmartCardRedirect from 'shared/SmartCardRedirect/SmartCardRedirect';
 import OktaErrorBanner from 'components/OktaErrorBanner/OktaErrorBanner';
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 import LoadingSpinner from 'components/LoadingSpinner/LoadingSpinner';
-import GunSafe from 'pages/MyMove/PPM/Closeout/GunSafe/GunSafe';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const CreateAccount = lazy(() => import('pages/CreateAccount/CreateAccount'));
@@ -84,6 +83,7 @@ const About = lazy(() => import('pages/MyMove/PPM/Closeout/About/About'));
 const WeightTickets = lazy(() => import('pages/MyMove/PPM/Closeout/WeightTickets/WeightTickets'));
 const PPMReview = lazy(() => import('pages/MyMove/PPM/Closeout/Review/Review'));
 const ProGear = lazy(() => import('pages/MyMove/PPM/Closeout/ProGear/ProGear.jsx'));
+const GunSafe = lazy(() => import('pages/MyMove/PPM/Closeout/GunSafe/GunSafe.jsx'));
 const Expenses = lazy(() => import('pages/MyMove/PPM/Closeout/Expenses/Expenses'));
 const PPMFinalCloseout = lazy(() => import('pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout'));
 const AdditionalDocuments = lazy(() => import('pages/MyMove/AdditionalDocuments/AdditionalDocuments'));
@@ -336,6 +336,8 @@ const CustomerApp = ({ loadUser, initOnboarding, loadInternalSchema, ...props })
                   <Route end path="/processing-upload" element={<ProcessingUpload />} />
                   <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
                   <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
+                  <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} element={<GunSafe />} />
+                  <Route end path={customerRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} element={<GunSafe />} />
 
                   {/* Errors */}
                   <Route

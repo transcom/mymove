@@ -371,22 +371,24 @@ const Review = () => {
                       emptyMessage="No pro-gear weight documented."
                     />
                   )}
-                  <ReviewItems
-                    className={classnames(styles.reviewItems, 'reviewExpenses')}
-                    heading={
-                      <>
-                        <h3>Gun Safe</h3>
-                        <span>(${expensesTotal ? formatWeight(mtoShipment?.ppmShipment?.gunSafeWeight) : 0})</span>
-                      </>
-                    }
-                    contents={gunSafeContents}
-                    renderAddButton={() => (
-                      <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
-                        Add Gun Safe Weight
-                      </Link>
-                    )}
-                    emptyMessage="No receipts uploaded."
-                  />
+                  {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
+                    <ReviewItems
+                      className={classnames(styles.reviewItems, 'reviewExpenses')}
+                      heading={
+                        <>
+                          <h3>Gun Safe</h3>
+                          <span>(${expensesTotal ? formatWeight(mtoShipment?.ppmShipment?.gunSafeWeight) : 0})</span>
+                        </>
+                      }
+                      contents={gunSafeContents}
+                      renderAddButton={() => (
+                        <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
+                          Add Gun Safe Weight
+                        </Link>
+                      )}
+                      emptyMessage="No receipts uploaded."
+                    />
+                  )}
                   <ReviewItems
                     className={classnames(styles.reviewItems, 'reviewExpenses')}
                     heading={

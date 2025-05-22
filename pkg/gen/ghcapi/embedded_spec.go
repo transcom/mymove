@@ -13294,6 +13294,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
+        },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",
           "type": "boolean",
@@ -32376,6 +32383,13 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "gunSafeWeightTickets": {
+          "description": "All gun safe weight ticket documentation records for this PPM shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GunSafeWeightTicket"
+          }
         },
         "hasGunSafe": {
           "description": "Indicates whether PPM shipment has gun safe.\n",

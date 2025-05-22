@@ -280,6 +280,7 @@ func FindPPMShipmentByMTOID(appCtx appcontext.AppContext, mtoID uuid.UUID) (*mod
 			"WeightTickets",
 			"MovingExpenses",
 			"ProgearWeightTickets",
+			"GunSafeWeightTickets",
 			"W2Address.Country",
 			"PickupAddress.Country",
 			"SecondaryPickupAddress.Country",
@@ -368,6 +369,19 @@ func loadPPMAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMSh
 		}
 
 		progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
+	}
+
+	ppmShipment.GunSafeWeightTickets = ppmShipment.GunSafeWeightTickets.FilterDeleted()
+	for i := range ppmShipment.GunSafeWeightTickets {
+		gunSafeWeightTicket := &ppmShipment.GunSafeWeightTickets[i]
+		err := appCtx.DB().Load(gunSafeWeightTicket,
+			"Document.UserUploads.Upload")
+
+		if err != nil {
+			return apperror.NewQueryError("GunSafeWeightTickets", err, "failed to load GunSafeWeightTickets document uploads")
+		}
+
+		gunSafeWeightTicket.Document.UserUploads = gunSafeWeightTicket.Document.UserUploads.FilterDeleted()
 	}
 
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()

@@ -16,7 +16,7 @@ import (
 type gunsafeWeightTicketDeleter struct {
 }
 
-func NewOfficeGunSafeWeightTicketDeleter() services.GunSafeWeightTicketDeleter {
+func NewGunSafeWeightTicketDeleter() services.GunSafeWeightTicketDeleter {
 	return &gunsafeWeightTicketDeleter{}
 }
 
