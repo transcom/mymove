@@ -78,26 +78,6 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
     },
   });
 
-  const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
-  useEffect(() => {
-    const fetchGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Pay Grade options');
-      try {
-        const fetchedRanks = await getPayGradeOptions(orders.agency);
-        if (fetchedRanks) {
-          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
-        }
-      } catch (error) {
-        const { message } = error;
-        milmoveLogger.error({ message, info: null });
-        retryPageLoading(error);
-      }
-      setShowLoadingSpinner(false, null);
-    };
-
-    fetchGradeOptions();
-  }, [orders.agency, setShowLoadingSpinner]);
-
   const buildFullLineOfAccountingString = (loa) => {
     const dfasMap = LineOfAccountingDfasElementOrder.map((key) => {
       if (key === 'loaEndFyTx') {
@@ -205,6 +185,27 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile, se
   };
 
   const order = Object.values(orders)?.[0];
+
+  const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(order.agency);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchGradeOptions();
+  }, [order.agency, setShowLoadingSpinner]);
+
   const { entitlement, uploadedAmendedOrderID, amendedOrdersAcknowledgedAt } = order;
   // TODO - passing in these fields so they don't get unset. Need to rework the endpoint.
   const {

@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { func, string, bool } from 'prop-types';
 import { useLocation } from 'react-router';
 
 import styles from './OrdersDetailForm.module.scss';
 
-import { dropdownInputOptions, formatLabelReportByDate, formatPayGradeOptions } from 'utils/formatters';
+import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
 import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import { setShowLoadingSpinner } from 'store/general/actions';
-import { getPayGradeOptions } from 'services/ghcApi';
-import { milmoveLogger } from 'utils/milmoveLog';
-import retryPageLoading from 'utils/retryPageLoading';
 
 const OrdersDetailForm = ({
   deptIndicatorOptions,
@@ -40,32 +36,12 @@ const OrdersDetailForm = ({
   showOrdersAcknowledgement,
   ordersType,
   setFieldValue,
-  affiliation,
+  payGradeOptions,
   formIsDisabled,
   hhgLongLineOfAccounting,
   ntsLongLineOfAccounting,
 }) => {
   const location = useLocation();
-
-  const [payGradeOptions, setPayGradeOptions] = useState([]);
-  useEffect(() => {
-    const fetchGradeOptions = async () => {
-      setShowLoadingSpinner(true, 'Loading Pay Grade options');
-      try {
-        const fetchedRanks = await getPayGradeOptions(affiliation || location?.state?.affiliation);
-        if (fetchedRanks) {
-          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
-        }
-      } catch (error) {
-        const { message } = error;
-        milmoveLogger.error({ message, info: null });
-        retryPageLoading(error);
-      }
-      setShowLoadingSpinner(false, null);
-    };
-
-    fetchGradeOptions();
-  }, [affiliation, location]);
 
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -94,7 +70,7 @@ const OrdersDetailForm = ({
         name="payGrade"
         label="Pay grade"
         id="payGradeInput"
-        options={payGradeOptions}
+        options={payGradeOptions || location.state.payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk

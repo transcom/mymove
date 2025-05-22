@@ -5,6 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
 import ordersFormValidationSchema from '../Orders/ordersFormValidationSchema';
 
@@ -17,8 +18,8 @@ import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_TYPE } from 'c
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, getLoa, counselingUpdateOrder, getOrder } from 'services/ghcApi';
-import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
+import { getTacValid, getLoa, counselingUpdateOrder, getOrder, getPayGradeOptions } from 'services/ghcApi';
+import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue, formatPayGradeOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
@@ -27,11 +28,19 @@ import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialT
 import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS, MOVE_STATUSES } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 import { scrollToViewFormikError } from 'utils/validation';
+import { setShowLoadingSpinner as setShowLoadingSpinnerAction } from 'store/general/actions';
+import retryPageLoading from 'utils/retryPageLoading';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
-const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) => {
+const ServicesCounselingOrders = ({
+  files,
+  amendedDocumentId,
+  updateAmendedDocument,
+  onAddFile,
+  setShowLoadingSpinner,
+}) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode } = useParams();
@@ -176,6 +185,26 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   };
 
   const order = Object.values(orders)?.[0];
+
+  const [payGradeDropdownOptions, setPayGradeOptions] = useState([]);
+  useEffect(() => {
+    const fetchGradeOptions = async () => {
+      setShowLoadingSpinner(true, 'Loading Pay Grade options');
+      try {
+        const fetchedRanks = await getPayGradeOptions(order.agency);
+        if (fetchedRanks) {
+          setPayGradeOptions(formatPayGradeOptions(fetchedRanks.body));
+        }
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        retryPageLoading(error);
+      }
+      setShowLoadingSpinner(false, null);
+    };
+
+    fetchGradeOptions();
+  }, [order.agency, setShowLoadingSpinner]);
 
   const counselorCanEdit =
     move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
@@ -401,7 +430,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
                     validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
                     validateNTSTac={handleNTSTacValidation}
-                    affiliation={order.agency}
+                    payGradeOptions={payGradeDropdownOptions}
                     formIsDisabled={!counselorCanEdit}
                     hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
@@ -430,4 +459,8 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   );
 };
 
-export default ServicesCounselingOrders;
+const mapDispatchToProps = {
+  setShowLoadingSpinner: setShowLoadingSpinnerAction,
+};
+
+export default connect(() => {}, mapDispatchToProps)(ServicesCounselingOrders);
