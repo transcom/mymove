@@ -86,8 +86,8 @@ BEGIN
     IF sort_column IS NULL THEN
         sort_column := 'CASE base.status
             WHEN ''APPROVALS REQUESTED'' THEN 1
-            WHEN ''SERVICE COUNSELING COMPLETED'' THEN 2
-            WHEN ''SUBMITTED'' THEN 3
+            WHEN ''SUBMITTED'' THEN 2
+            WHEN ''SERVICE COUNSELING COMPLETED'' THEN 3
             ELSE 99 END';
     END IF;
 
