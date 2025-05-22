@@ -108,7 +108,6 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 
 	flag := pflag.CommandLine
 	initProcessEDIsFlags(flag)
-	cli.InitEmailFlags(flag)
 	err = flag.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatal("failed to parse flags", zap.Error(err))
