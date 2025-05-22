@@ -3,6 +3,7 @@ import { shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
 
 import samplePDF from '../../../components/DocumentViewer/sample.pdf';
 import sampleJPG from '../../../components/DocumentViewer/sample.jpg';
@@ -12,6 +13,7 @@ import sampleGIF from '../../../components/DocumentViewer/sample3.gif';
 import MoveDocumentWrapper from './MoveDocumentWrapper';
 
 import { useOrdersDocumentQueries, useAmendedDocumentQueries } from 'hooks/queries';
+import { configureStore } from 'shared/store';
 
 const mockFiles = [
   {
@@ -197,6 +199,8 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
+const mockStore = configureStore({});
+
 describe('MoveDocumentWrapper', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -229,11 +233,14 @@ describe('MoveDocumentWrapper', () => {
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
       render(
-        <MemoryRouter>
-          <QueryClientProvider client={new QueryClient()}>
-            <MoveDocumentWrapper allowDownload />
-          </QueryClientProvider>
-        </MemoryRouter>,
+        <Provider store={mockStore.store}>
+          <MemoryRouter>
+            <QueryClientProvider client={new QueryClient()}>
+              <MoveDocumentWrapper allowDownload />
+            </QueryClientProvider>
+          </MemoryRouter>
+          ,
+        </Provider>,
       );
       expect(screen.getByTestId('doc-wrapper')).toBeInTheDocument();
     });
@@ -260,11 +267,14 @@ describe('MoveDocumentWrapper', () => {
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
       render(
-        <MemoryRouter>
-          <QueryClientProvider client={new QueryClient()}>
-            <MoveDocumentWrapper files={mockFiles} />
-          </QueryClientProvider>
-        </MemoryRouter>,
+        <Provider store={mockStore.store}>
+          <MemoryRouter>
+            <QueryClientProvider client={new QueryClient()}>
+              <MoveDocumentWrapper files={mockFiles} />
+            </QueryClientProvider>
+          </MemoryRouter>
+          ,
+        </Provider>,
       );
 
       expect(screen.getByTestId('listOfFilesForViewer').textContent).toContain('Test File 3.png');

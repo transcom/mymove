@@ -3,12 +3,14 @@ import { shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
 
 import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
 
 import { useOrdersDocumentQueries, useAmendedDocumentQueries } from 'hooks/queries';
 import createUpload from 'utils/test/factories/upload';
 import { MOVE_STATUSES } from 'shared/constants';
+import { configureStore } from 'shared/store';
 
 const mockOriginDutyLocation = {
   address: {
@@ -181,12 +183,17 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
+      const mockStore = configureStore({});
+
       render(
-        <MemoryRouter>
-          <QueryClientProvider client={new QueryClient()}>
-            <ServicesCounselingMoveDocumentWrapper />
-          </QueryClientProvider>
-        </MemoryRouter>,
+        <Provider store={mockStore.store}>
+          <MemoryRouter>
+            <QueryClientProvider client={new QueryClient()}>
+              <ServicesCounselingMoveDocumentWrapper />
+            </QueryClientProvider>
+          </MemoryRouter>
+          ,
+        </Provider>,
       );
 
       const docViewerContainer = screen.getByTestId('sc-doc-viewer-container');
