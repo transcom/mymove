@@ -4932,6 +4932,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -4949,6 +4953,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -4963,13 +4974,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -14392,6 +14396,10 @@ func init() {
         "id"
       ],
       "properties": {
+        "activeRole": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Role"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -14409,6 +14417,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "inactiveRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          },
+          "x-nullable": true
+        },
         "office_user": {
           "$ref": "#/definitions/OfficeUser"
         },
@@ -14423,13 +14438,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Privilege"
           }
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Role"
-          },
-          "x-nullable": true
         },
         "service_member": {
           "$ref": "#/definitions/ServiceMemberPayload"

@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -23,15 +24,27 @@ type ShowLoggedInUserHandler struct {
 	officeUserFetcherPop services.OfficeUserFetcherPop
 }
 
-// decoratePayloadWithRoles will add session roles to the logged in user payload and return it
-func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
-	for _, role := range s.Roles {
-		p.Roles = append(p.Roles, &internalmessages.Role{
-			ID:        handlers.FmtUUID(s.UserID),
-			RoleType:  handlers.FmtString(string(role.RoleType)),
-			CreatedAt: handlers.FmtDateTime(role.CreatedAt),
-			UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
-		})
+// decoratePayloadWithCurrentAndInactiveRoles will add session role to the logged in user payload and return it
+func decoratePayloadWithCurrentAndInactiveRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload, allUserRoles roles.Roles) {
+	if s == nil || p == nil {
+		return
+	}
+	p.ActiveRole = &internalmessages.Role{
+		ID:        handlers.FmtUUID(s.ActiveRole.ID),
+		RoleType:  handlers.FmtString(string(s.ActiveRole.RoleType)),
+		CreatedAt: handlers.FmtDateTime(s.ActiveRole.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(s.ActiveRole.UpdatedAt),
+	}
+	for _, role := range allUserRoles {
+		// Make sure we don't accidentally mark the current role as inactive
+		if role.RoleType != s.ActiveRole.RoleType {
+			p.InactiveRoles = append(p.InactiveRoles, &internalmessages.Role{
+				ID:        handlers.FmtUUID(role.ID),
+				RoleType:  handlers.FmtString(string(role.RoleType)),
+				CreatedAt: handlers.FmtDateTime(role.CreatedAt),
+				UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
+			})
+		}
 	}
 }
 
@@ -42,7 +55,7 @@ func decoratePayloadWithPermissions(s *auth.Session, p *internalmessages.LoggedI
 }
 
 func decoratePayloadWithPrivileges(appCtx appcontext.AppContext, p *internalmessages.LoggedInUserPayload) {
-	privileges, _ := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	privileges, _ := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 
 	for _, privilege := range privileges {
 		p.Privileges = append(p.Privileges, &internalmessages.Privilege{
@@ -74,7 +87,20 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					OfficeUser: payloads.OfficeUser(&officeUser),
 				}
 
-				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+				// Set a current office user role if it isn't set yet
+				if (appCtx.Session().ActiveRole.RoleType == roles.Role{}.RoleType) {
+					defaultRole, err := officeUser.User.Roles.Default()
+					if err != nil {
+						appCtx.Logger().Warn("could not find any roles for the logged in user, proceeding without a role",
+							zap.String("officeUserId", officeUser.ID.String()),
+							zap.Error(err),
+						)
+					} else {
+						appCtx.Session().ActiveRole = *defaultRole
+					}
+				}
+
+				decoratePayloadWithCurrentAndInactiveRoles(appCtx.Session(), &userPayload, officeUser.User.Roles)
 				decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
 				decoratePayloadWithPrivileges(appCtx, &userPayload)
 
@@ -127,7 +153,21 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				FirstName:     appCtx.Session().FirstName,
 				Email:         appCtx.Session().Email,
 			}
-			decoratePayloadWithRoles(appCtx.Session(), &userPayload)
+
+			// Set a current service member user role if it isn't set yet
+			if (appCtx.Session().ActiveRole.RoleType == roles.Role{}.RoleType) {
+				defaultRole, err := serviceMember.User.Roles.Default()
+				if err != nil {
+					appCtx.Logger().Warn("could not find any roles for the logged in user, proceeding without a role",
+						zap.String("serviceMemberUserId", serviceMember.ID.String()),
+						zap.Error(err),
+					)
+				} else {
+					appCtx.Session().ActiveRole = *defaultRole
+				}
+			}
+
+			decoratePayloadWithCurrentAndInactiveRoles(appCtx.Session(), &userPayload, serviceMember.User.Roles)
 			decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
 			decoratePayloadWithPrivileges(appCtx, &userPayload)
 			return userop.NewShowLoggedInUserOK().WithPayload(&userPayload), nil

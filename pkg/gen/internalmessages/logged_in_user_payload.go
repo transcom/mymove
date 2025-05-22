@@ -20,6 +20,9 @@ import (
 // swagger:model LoggedInUserPayload
 type LoggedInUserPayload struct {
 
+	// active role
+	ActiveRole *Role `json:"activeRole,omitempty"`
+
 	// email
 	// Example: john_bob@example.com
 	// Read Only: true
@@ -37,6 +40,9 @@ type LoggedInUserPayload struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// inactive roles
+	InactiveRoles []*Role `json:"inactiveRoles"`
+
 	// office user
 	OfficeUser *OfficeUser `json:"office_user,omitempty"`
 
@@ -46,9 +52,6 @@ type LoggedInUserPayload struct {
 	// privileges
 	Privileges []*Privilege `json:"privileges"`
 
-	// roles
-	Roles []*Role `json:"roles"`
-
 	// service member
 	ServiceMember *ServiceMemberPayload `json:"service_member,omitempty"`
 }
@@ -57,11 +60,19 @@ type LoggedInUserPayload struct {
 func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActiveRole(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEmail(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateInactiveRoles(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -73,10 +84,6 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateRoles(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateServiceMember(formats); err != nil {
 		res = append(res, err)
 	}
@@ -84,6 +91,25 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *LoggedInUserPayload) validateActiveRole(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActiveRole) { // not required
+		return nil
+	}
+
+	if m.ActiveRole != nil {
+		if err := m.ActiveRole.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("activeRole")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("activeRole")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -107,6 +133,32 @@ func (m *LoggedInUserPayload) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) validateInactiveRoles(formats strfmt.Registry) error {
+	if swag.IsZero(m.InactiveRoles) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.InactiveRoles); i++ {
+		if swag.IsZero(m.InactiveRoles[i]) { // not required
+			continue
+		}
+
+		if m.InactiveRoles[i] != nil {
+			if err := m.InactiveRoles[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("inactiveRoles" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("inactiveRoles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -157,32 +209,6 @@ func (m *LoggedInUserPayload) validatePrivileges(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *LoggedInUserPayload) validateRoles(formats strfmt.Registry) error {
-	if swag.IsZero(m.Roles) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.Roles); i++ {
-		if swag.IsZero(m.Roles[i]) { // not required
-			continue
-		}
-
-		if m.Roles[i] != nil {
-			if err := m.Roles[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("roles" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
 func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) error {
 	if swag.IsZero(m.ServiceMember) { // not required
 		return nil
@@ -206,11 +232,19 @@ func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) err
 func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateActiveRole(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateEmail(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateFirstName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateInactiveRoles(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -222,10 +256,6 @@ func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateRoles(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateServiceMember(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -233,6 +263,27 @@ func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateActiveRole(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ActiveRole != nil {
+
+		if swag.IsZero(m.ActiveRole) { // not required
+			return nil
+		}
+
+		if err := m.ActiveRole.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("activeRole")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("activeRole")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -249,6 +300,31 @@ func (m *LoggedInUserPayload) contextValidateFirstName(ctx context.Context, form
 
 	if err := validate.ReadOnly(ctx, "first_name", "body", string(m.FirstName)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateInactiveRoles(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.InactiveRoles); i++ {
+
+		if m.InactiveRoles[i] != nil {
+
+			if swag.IsZero(m.InactiveRoles[i]) { // not required
+				return nil
+			}
+
+			if err := m.InactiveRoles[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("inactiveRoles" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("inactiveRoles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -290,31 +366,6 @@ func (m *LoggedInUserPayload) contextValidatePrivileges(ctx context.Context, for
 					return ve.ValidateName("privileges" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("privileges" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (m *LoggedInUserPayload) contextValidateRoles(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(m.Roles); i++ {
-
-		if m.Roles[i] != nil {
-
-			if swag.IsZero(m.Roles[i]) { // not required
-				return nil
-			}
-
-			if err := m.Roles[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("roles" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

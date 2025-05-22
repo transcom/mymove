@@ -116,6 +116,14 @@ export class TestHarness {
   }
 
   /**
+   * build office user with multirole
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithMultirole() {
+    return this.buildDefault('OfficeUserWithTOOAndTIO');
+  }
+
+  /**
    * @returns {Promise<User>}
    */
   async buildNeedsOrdersUser() {
@@ -439,6 +447,14 @@ export class TestHarness {
    */
   async buildHHGMoveNeedsSC() {
     return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build international hhg move needing SC approval
+   * @returns {Promise<Move>}
+   */
+  async buildIntlHHGMoveNeedsSC() {
+    return this.buildDefault('IntlHHGMoveNeedsSC');
   }
 
   /**
