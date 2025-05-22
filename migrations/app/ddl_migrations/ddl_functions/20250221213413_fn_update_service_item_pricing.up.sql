@@ -115,7 +115,7 @@ BEGIN
                 WHERE id = service_item.id;
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
+                    cubic_feet := ROUND(((length/1000) * (width/1000) * (height/1000)) / 1728, 2)
 
                     IF cubic_feet < external_crate_minimum AND external THEN
                         cubic_feet := external_crate_minimum;
@@ -147,7 +147,7 @@ BEGIN
                 WHERE id = service_item.id;
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
+                    cubic_feet := ROUND(((length/1000) * (width/1000) * (height/1000)) / 1728, 2)
 
                     IF cubic_feet < external_crate_minimum AND external THEN
                         cubic_feet := external_crate_minimum;
