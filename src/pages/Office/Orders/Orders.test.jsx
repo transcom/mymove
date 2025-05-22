@@ -208,7 +208,7 @@ describe('Orders page', () => {
         </MockProviders>,
       );
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
