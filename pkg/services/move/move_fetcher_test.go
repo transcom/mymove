@@ -276,7 +276,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		// move is NEEDS SERVICE COUNSELING STATUS
 		suite.Equal(moveWithWaitingOnCustomerPPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithWaitingOnCustomerPPM.SCAssignedID)
+		suite.Nil(moveWithWaitingOnCustomerPPM.SCCounselingAssignedID)
 		// GBLOC is the same
 		suite.Equal(*moveWithWaitingOnCustomerPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
@@ -322,7 +322,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		// move is NEEDS SERVICE COUNSELING STATUS
 		suite.Equal(moveWithNeedsCloseoutPPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithNeedsCloseoutPPM.SCAssignedID)
+		suite.Nil(moveWithNeedsCloseoutPPM.SCCounselingAssignedID)
 		// GBLOC is the same
 		suite.Equal(*moveWithNeedsCloseoutPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
@@ -373,7 +373,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 		// move is NEEDS SERVICE COUNSELING STATUS
 		suite.Equal(moveWithCloseoutCompletePPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithCloseoutCompletePPM.SCAssignedID)
+		suite.Nil(moveWithCloseoutCompletePPM.SCCounselingAssignedID)
 		// GBLOC is the same
 		suite.Equal(*moveWithCloseoutCompletePPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
@@ -411,7 +411,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignmentSC() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
 

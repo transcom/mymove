@@ -271,10 +271,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.SCAssignedUser,
+				Type:     &OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.SCAssignedID)
+		suite.Equal(officeUser.ID, *move.SCCounselingAssignedID)
 	})
 	suite.Run("Successful creation of move with shipment", func() {
 		// Under test:      BuildMoveWithShipment
@@ -297,10 +297,10 @@ func (suite *FactorySuite) TestBuildMove() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &OfficeUsers.SCAssignedUser,
+				Type:     &OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
-		suite.Equal(officeUser.ID, *move.SCAssignedID)
+		suite.Equal(officeUser.ID, *move.SCCounselingAssignedID)
 	})
 
 	suite.Run("Successful creation of a move with an assigned TOO", func() {

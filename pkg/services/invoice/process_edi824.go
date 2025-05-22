@@ -171,14 +171,14 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 			txnAppCtx.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")
 			e.logEDIWithPaymentRequest(txnAppCtx, edi824, paymentRequest)
 
-			paymentRequestNotifier := notifications.NewPaymentRequestFailed(paymentRequest)
-			err = e.notifications.SendNotification(appCtx, paymentRequestNotifier)
-			if err != nil {
-				appCtx.Logger().Error(
-					"failed to send notification for payment request that failed to send to GEX",
-					zap.String("PaymentRequestID", paymentRequest.ID.String()),
-					zap.Error(err))
-			}
+		}
+		paymentRequestNotifier := notifications.NewPaymentRequestFailed(paymentRequest)
+		err = e.notifications.SendNotification(appCtx, paymentRequestNotifier)
+		if err != nil {
+			appCtx.Logger().Error(
+				"failed to send notification for payment request that failed to send to GEX",
+				zap.String("PaymentRequestID", paymentRequest.ID.String()),
+				zap.Error(err))
 		}
 		return nil
 	})
