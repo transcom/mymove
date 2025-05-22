@@ -27,8 +27,11 @@ func checkUBShipmentOCONUSRequirement() validator {
 }
 
 func checkStatus() validator {
-	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
+		if older != nil && IsStatusBannedFromUpdating(older.Status) {
+			verrs.Add("status", "this shipment has been blocked from updating due to its status")
+		}
 		if newer.Status != "" && newer.Status != models.MTOShipmentStatusDraft && newer.Status != models.MTOShipmentStatusSubmitted {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
 		}
@@ -81,6 +84,15 @@ func checkReweighAllowed() validator {
 		}
 		return nil
 	})
+}
+
+func IsStatusBannedFromUpdating(status models.MTOShipmentStatus) bool {
+	for _, banned := range ShipmentStatusesBannedFromUpdating {
+		if status == banned {
+			return true
+		}
+	}
+	return false
 }
 
 // Checks if an office user is able to update a shipment based on shipment status
@@ -493,11 +505,16 @@ func childDiversionPrimeWeightRule() validator {
 	})
 }
 
-var ShipmentStatusesBannedFromAddressUpdating = [3]models.MTOShipmentStatus{
+var ShipmentStatusesBannedFromUpdating = []models.MTOShipmentStatus{
 	models.MTOShipmentStatusCanceled,
 	models.MTOShipmentStatusTerminatedForCause,
 	models.MTOShipmentStatusRejected,
 }
+
+var ShipmentStatusesBannedFromAddressUpdating = append(
+	[]models.MTOShipmentStatus{},
+	ShipmentStatusesBannedFromUpdating...,
+)
 
 func checkStatusNotBannedFromAddressUpdates(shipment models.MTOShipment) error {
 	var statusIsBannedFromAddressUpdates bool
