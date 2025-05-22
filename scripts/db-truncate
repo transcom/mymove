@@ -13,6 +13,7 @@ BEGIN
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()
             AND tablename NOT IN ('gbloc_aors',
                                   'ghc_diesel_fuel_prices',
+                                  'addresses',
                                   'hhg_allowances',
                                   'intl_city_countries',
                                   'jppso_regions',
@@ -23,7 +24,7 @@ BEGIN
                                   'postal_code_to_gblocs',
                                   're_cities',
                                   're_countries',
-                                  're_country_prn_divisions'
+                                  're_country_prn_divisions',
                                   're_domestic_accessorial_prices',
                                   're_domestic_other_prices',
                                   're_domestic_linehaul_prices',
