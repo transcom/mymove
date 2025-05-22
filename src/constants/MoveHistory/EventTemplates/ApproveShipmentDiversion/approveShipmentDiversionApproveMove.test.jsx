@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/AcknowledgeExcessUnaccompaniedBaggageWeightRisk/acknowledgeExcessUnaccompaniedBaggageWeightRisk';
+import e from 'constants/MoveHistory/EventTemplates/ApproveShipmentDiversion/approveShipmentDiversionApproveMove';
 
 describe('when given an Approved shipment diversion, Approved move history record', () => {
   const historyRecord = {
