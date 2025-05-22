@@ -34,6 +34,10 @@ type GetPaymentRequestsQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*user's actively logged in transportation office ID
+	  In: query
+	*/
+	ActiveOfficeID *strfmt.UUID
 	/*user's actively logged in role
 	  In: query
 	*/
@@ -121,6 +125,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
+
+	qActiveOfficeID, qhkActiveOfficeID, _ := qs.GetOK("activeOfficeID")
+	if err := o.bindActiveOfficeID(qActiveOfficeID, qhkActiveOfficeID, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	qActiveRole, qhkActiveRole, _ := qs.GetOK("activeRole")
 	if err := o.bindActiveRole(qActiveRole, qhkActiveRole, route.Formats); err != nil {
@@ -213,6 +222,43 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// bindActiveOfficeID binds and validates parameter ActiveOfficeID from query.
+func (o *GetPaymentRequestsQueueParams) bindActiveOfficeID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("activeOfficeID", "query", "strfmt.UUID", raw)
+	}
+	o.ActiveOfficeID = (value.(*strfmt.UUID))
+
+	if err := o.validateActiveOfficeID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateActiveOfficeID carries on validations for parameter ActiveOfficeID
+func (o *GetPaymentRequestsQueueParams) validateActiveOfficeID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("activeOfficeID", "query", "uuid", o.ActiveOfficeID.String(), formats); err != nil {
+		return err
 	}
 	return nil
 }

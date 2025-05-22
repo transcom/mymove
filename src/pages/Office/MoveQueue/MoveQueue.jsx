@@ -203,7 +203,7 @@ export const columns = (
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
                   <option
                     value={officeUserId}
                     key={officeUserId}
@@ -235,6 +235,7 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
+  activeOfficeID,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -392,6 +393,7 @@ const MoveQueue = ({
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.TASK_ORDER}
           activeRole={activeRole}
+          activeOfficeID={activeOfficeID}
         />
       </div>
     );
@@ -421,7 +423,7 @@ const MoveQueue = ({
           isSupervisor={supervisor}
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.DESTINATION_REQUESTS}
-          activeRole={activeRole}
+          activeOfficeID={activeOfficeID}
         />
       </div>
     );
@@ -431,6 +433,7 @@ const MoveQueue = ({
 
 const mapStateToProps = (state) => {
   return {
+    activeOfficeID: state?.auth?.activeOffice?.id,
     setRefetchQueue: state.generalState.setRefetchQueue,
   };
 };

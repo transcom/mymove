@@ -1,7 +1,14 @@
-import { LOG_OUT, SET_ACTIVE_ROLE, SET_ACTIVE_ROLE_SUCCESS, SET_ACTIVE_ROLE_FAILURE } from './actions';
+import {
+  LOG_OUT,
+  SET_ACTIVE_ROLE,
+  SET_ACTIVE_ROLE_SUCCESS,
+  SET_ACTIVE_ROLE_FAILURE,
+  SET_ACTIVE_OFFICE,
+} from './actions';
 
 export const initialState = {
   activeRole: null,
+  activeOffice: null,
   isLoggedIn: false,
   hasSucceeded: false,
   hasErrored: false,
@@ -32,12 +39,17 @@ const authReducer = (state = initialState, action = {}) => {
     }
     case 'GET_LOGGED_IN_USER_SUCCESS': {
       const {
-        payload: { activeRole },
+        payload: { activeRole, officeUser },
       } = action;
+
+      const primaryOffice = officeUser?.transportation_office_assignments?.find(
+        (office) => office.primaryOffice === true,
+      );
 
       return {
         ...state,
         activeRole: activeRole.roleType,
+        activeOffice: primaryOffice?.transportationOffice,
         hasSucceeded: true,
         hasErrored: false,
         isLoading: false,
@@ -71,6 +83,13 @@ const authReducer = (state = initialState, action = {}) => {
         isSettingActiveRole: false,
       };
     }
+    case SET_ACTIVE_OFFICE: {
+      return {
+        ...state,
+        activeOffice: action.payload,
+      };
+    }
+
     default:
       return state;
   }
