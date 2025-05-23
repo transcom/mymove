@@ -386,6 +386,17 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		shipmentSITAllowance := int(90)
 		estimatedWeight := unit.Pound(1400)
 
+		requestedDays := 90
+		officeRemarks := "TESTING REMARKS"
+		sitExtension := models.SITDurationUpdate{
+			RequestedDays: requestedDays,
+			RequestReason: models.SITExtensionRequestReasonAwaitingCompletionOfResidence,
+			Status:        models.SITExtensionStatusPending,
+			OfficeRemarks: &officeRemarks,
+		}
+
+		populatesitExtensions := []models.SITDurationUpdate{sitExtension}
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -394,6 +405,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 					PrimeEstimatedWeight: &estimatedWeight,
 					RequiredDeliveryDate: &aMonthAgo,
 					UpdatedAt:            aMonthAgo,
+					SITDurationUpdates:   populatesitExtensions,
 				},
 			},
 			{
@@ -402,7 +414,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 		}, nil)
 
-		// Add sitExtension for existing shipment
+		// Link sitExtension for existing shipment
 		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
 			{
 				Model:    shipment,
