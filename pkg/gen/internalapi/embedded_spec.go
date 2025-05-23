@@ -2812,6 +2812,44 @@ func init() {
         }
       }
     },
+    "/ranks/{affiliation}\u0026{grade}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "$ref": "#/parameters/AffiliationParam"
+          },
+          {
+            "$ref": "#/parameters/OrderPayGradeParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/rate_engine_postal_codes/{postal_code}": {
       "get": {
         "description": "Verifies if a zipcode is valid for origin or destination location for a move.",
@@ -4225,9 +4263,6 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
-        "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
-        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -4252,6 +4287,9 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -4463,6 +4501,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -6257,6 +6300,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -7219,6 +7265,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -7509,6 +7585,9 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -8813,6 +8892,92 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
+    "OrderPayGradeParam": {
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "type": "string",
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true,
+      "name": "grade",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -12217,6 +12382,124 @@ func init() {
         }
       }
     },
+    "/ranks/{affiliation}\u0026{grade}": {
+      "get": {
+        "description": "Get ranks for specified affiliation",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Get ranks for specified affiliation",
+        "operationId": "getRanks",
+        "parameters": [
+          {
+            "enum": [
+              "ARMY",
+              "NAVY",
+              "MARINES",
+              "AIR_FORCE",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "OTHER"
+            ],
+            "type": "string",
+            "x-nullable": true,
+            "description": "Military branch of service",
+            "name": "affiliation",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "E_1",
+              "E_2",
+              "E_3",
+              "E_4",
+              "E_5",
+              "E_6",
+              "E_7",
+              "E_8",
+              "E_9",
+              "E_9_SPECIAL_SENIOR_ENLISTED",
+              "O_1_ACADEMY_GRADUATE",
+              "O_2",
+              "O_3",
+              "O_4",
+              "O_5",
+              "O_6",
+              "O_7",
+              "O_8",
+              "O_9",
+              "O_10",
+              "W_1",
+              "W_2",
+              "W_3",
+              "W_4",
+              "W_5",
+              "AVIATION_CADET",
+              "CIVILIAN_EMPLOYEE",
+              "ACADEMY_CADET",
+              "MIDSHIPMAN"
+            ],
+            "type": "string",
+            "x-display-value": {
+              "ACADEMY_CADET": "Service Academy Cadet",
+              "AVIATION_CADET": "Aviation Cadet",
+              "CIVILIAN_EMPLOYEE": "Civilian Employee",
+              "E_1": "E-1",
+              "E_2": "E-2",
+              "E_3": "E-3",
+              "E_4": "E-4",
+              "E_5": "E-5",
+              "E_6": "E-6",
+              "E_7": "E-7",
+              "E_8": "E-8",
+              "E_9": "E-9",
+              "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+              "MIDSHIPMAN": "Midshipman",
+              "O_10": "O-10",
+              "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+              "O_2": "O-2",
+              "O_3": "O-3",
+              "O_4": "O-4",
+              "O_5": "O-5",
+              "O_6": "O-6",
+              "O_7": "O-7",
+              "O_8": "O-8",
+              "O_9": "O-9",
+              "W_1": "W-1",
+              "W_2": "W-2",
+              "W_3": "W-3",
+              "W_4": "W-4",
+              "W_5": "W-5"
+            },
+            "x-nullable": true,
+            "name": "grade",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list all ranks for specified affiliation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rank"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "ranks not found"
+          }
+        }
+      }
+    },
     "/rate_engine_postal_codes/{postal_code}": {
       "get": {
         "description": "Verifies if a zipcode is valid for origin or destination location for a move.",
@@ -13645,9 +13928,6 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
-        "grade": {
-          "$ref": "#/definitions/OrderPayGrade"
-        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -13672,6 +13952,9 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -13883,6 +14166,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -15681,6 +15969,9 @@ func init() {
           "type": "boolean",
           "x-omitempty": false
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -16646,6 +16937,36 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "type": "object",
+      "title": "Rank",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paygradeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rankAbbv": {
+          "type": "string",
+          "example": "SGT"
+        },
+        "rankName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Seargent"
+        },
+        "rankOrder": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -16936,6 +17257,9 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "rank": {
+          "$ref": "#/definitions/Rank"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -18252,6 +18576,92 @@ func init() {
     }
   },
   "parameters": {
+    "AffiliationParam": {
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "SPACE_FORCE",
+        "OTHER"
+      ],
+      "type": "string",
+      "x-nullable": true,
+      "description": "Military branch of service",
+      "name": "affiliation",
+      "in": "path",
+      "required": true
+    },
+    "OrderPayGradeParam": {
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "E_9_SPECIAL_SENIOR_ENLISTED",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "type": "string",
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true,
+      "name": "grade",
+      "in": "path",
+      "required": true
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
