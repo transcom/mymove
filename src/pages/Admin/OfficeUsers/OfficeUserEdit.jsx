@@ -148,33 +148,21 @@ const OfficeUserEdit = ({ adminUser }) => {
     setInactivateOpen(false);
   };
 
-  // rendering tool bar with added error alerts
+  // rendering tool bar
   const renderToolBar = () => {
     return (
-      <>
-        {serverError && (
-          <Alert type="error" slim className={styles.error}>
-            {serverError}
-          </Alert>
-        )}
-        {inactivateOpen && !userData.active && (
-          <Alert type="error" slim className={styles.error}>
-            This deletion failed as this user is already tied to existing moves. The user is already inactive.
-          </Alert>
-        )}
-        <Toolbar sx={{ display: 'flex', gap: '10px' }}>
-          <SaveButton />
-          <DeleteButton
-            mutationOptions={{
-              onSuccess: async (data) => {
-                // setting user data so we can use it in the delete function
-                setUserData(data);
-                handleDeleteClick();
-              },
-            }}
-          />
-        </Toolbar>
-      </>
+      <Toolbar sx={{ display: 'flex', gap: '10px' }}>
+        <SaveButton />
+        <DeleteButton
+          mutationOptions={{
+            onSuccess: async (data) => {
+              // setting user data so we can use it in the delete function
+              setUserData(data);
+              handleDeleteClick();
+            },
+          }}
+        />
+      </Toolbar>
     );
   };
 
