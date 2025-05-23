@@ -118,7 +118,7 @@ export default function ReviewBillableWeight() {
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
-  const weightAllowance = order?.entitlement?.totalWeight;
+  const weightAllowance = order?.entitlement?.authorizedWeight;
 
   const shipmentsMissingInformation = filteredShipments?.filter((shipment) => {
     return !shipment.primeEstimatedWeight || (shipment.reweigh?.requestedAt && !shipment.reweigh?.weight);
