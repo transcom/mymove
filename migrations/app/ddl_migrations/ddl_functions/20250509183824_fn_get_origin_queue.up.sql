@@ -55,7 +55,13 @@ BEGIN
     IF sort IS NOT NULL THEN
         CASE sort
             WHEN 'locator' THEN sort_column := 'base.locator';
-            WHEN 'status' THEN sort_column := 'base.status';
+            WHEN 'status' THEN sort_column := 'CASE base.status
+                WHEN ''SERVICE COUNSELING COMPLETED'' THEN 1
+                WHEN ''SUBMITTED'' THEN 2
+                WHEN ''NEEDS SERVICE COUNSELING'' THEN 3
+                WHEN ''APPROVALS REQUESTED'' THEN 4
+                WHEN ''APPROVED'' THEN 5
+                ELSE 99 END';
             WHEN 'customerName' THEN sort_column := 'base.sm_last_name, base.sm_first_name';
             WHEN 'edipi' THEN sort_column := 'base.sm_edipi';
             WHEN 'emplid' THEN sort_column := 'base.sm_emplid';
@@ -78,7 +84,11 @@ BEGIN
     END IF;
 
     IF sort_column IS NULL THEN
-        sort_column := 'status';
+        sort_column := 'CASE base.status
+            WHEN ''APPROVALS REQUESTED'' THEN 1
+            WHEN ''SUBMITTED'' THEN 2
+            WHEN ''SERVICE COUNSELING COMPLETED'' THEN 3
+            ELSE 99 END';
     END IF;
 
     IF sort_order IS NULL THEN
@@ -392,10 +402,7 @@ BEGIN
             sort_order, sort_order
         );
     ELSE
-        sql_query := sql_query || format(
-            ' ORDER BY %s %s, locator ASC ',
-            sort_column, sort_order
-        );
+        sql_query := sql_query || ' ORDER BY ' || sort_column || ' ' || sort_order || ', locator ASC ';
     END IF;
 
     sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';
