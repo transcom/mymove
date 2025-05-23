@@ -1,6 +1,6 @@
 import React from 'react';
 
-import CompletePPMCloseoutConfirmationModal from './CompletePPMCloseoutConfirmationModal';
+import { CompletePPMCloseoutConfirmationModal } from './CompletePPMCloseoutConfirmationModal';
 
 export default {
   title: 'Office Components/CompletePPMCloseoutConfirmationModal',
