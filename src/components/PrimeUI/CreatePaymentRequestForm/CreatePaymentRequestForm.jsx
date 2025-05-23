@@ -89,7 +89,10 @@ const CreatePaymentRequestForm = ({
                             />
                           </div>
                           <ServiceItem serviceItem={mtoServiceItem} mtoShipment={mtoShipment} />
-                          {(mtoServiceItem.reServiceCode === 'DDASIT' || mtoServiceItem.reServiceCode === 'DOASIT') && (
+                          {(mtoServiceItem.reServiceCode === 'DDASIT' ||
+                            mtoServiceItem.reServiceCode === 'DOASIT' ||
+                            mtoServiceItem.reServiceCode === 'IDASIT' ||
+                            mtoServiceItem.reServiceCode === 'IOASIT') && (
                             <>
                               <TextField
                                 id={`${mtoServiceItem.id}-billedWeight`}
