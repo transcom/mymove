@@ -1,3 +1,4 @@
 # This is the views migrations manifest.
 # If a migration is not recorded here, then it will error.
 # Naming convention: vw_some_view.up.sql  running <generate-ddl-migration some_view views> will create this file.
+20250506213002_vw_v_intl_locations.up.sql
