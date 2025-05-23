@@ -9,7 +9,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -17,13 +17,13 @@ import (
 // Params:
 // - customs is a slice that will be modified by the factory
 // - db can be set to nil to create a stubbed model that is not stored in DB.
-func BuildPrivilege(db *pop.Connection, customs []Customization, traits []Trait) models.Privilege {
+func BuildPrivilege(db *pop.Connection, customs []Customization, traits []Trait) roles.Privilege {
 	customs = setupCustomizations(customs, traits)
 
 	// Find privilege assertion and convert to privileges Privilege
-	var cPrivilege models.Privilege
+	var cPrivilege roles.Privilege
 	if result := findValidCustomization(customs, Privilege); result != nil {
-		cPrivilege = result.Model.(models.Privilege)
+		cPrivilege = result.Model.(roles.Privilege)
 		if result.LinkOnly {
 			return cPrivilege
 		}
@@ -31,9 +31,9 @@ func BuildPrivilege(db *pop.Connection, customs []Customization, traits []Trait)
 
 	// create privilege
 	privilegeUUID := uuid.Must(uuid.NewV4())
-	privilege := models.Privilege{
+	privilege := roles.Privilege{
 		ID:            privilegeUUID,
-		PrivilegeType: models.PrivilegeTypeSupervisor,
+		PrivilegeType: roles.PrivilegeTypeSupervisor,
 		PrivilegeName: "Supervisor",
 	}
 
@@ -49,13 +49,13 @@ func BuildPrivilege(db *pop.Connection, customs []Customization, traits []Trait)
 }
 
 // lookup a privilege by privilege type, if it doesn't exist make it
-func FetchOrBuildPrivilegeByPrivilegeType(db *pop.Connection, privilegeType models.PrivilegeType) models.Privilege {
-	privilegeName := models.PrivilegeName(cases.Title(language.Und).String(string(privilegeType)))
+func FetchOrBuildPrivilegeByPrivilegeType(db *pop.Connection, privilegeType roles.PrivilegeType) roles.Privilege {
+	privilegeName := roles.PrivilegeName(cases.Title(language.Und).String(string(privilegeType)))
 
 	if db == nil {
 		return BuildPrivilege(db, []Customization{
 			{
-				Model: models.Privilege{
+				Model: roles.Privilege{
 					PrivilegeType: privilegeType,
 					PrivilegeName: privilegeName,
 				},
@@ -63,7 +63,7 @@ func FetchOrBuildPrivilegeByPrivilegeType(db *pop.Connection, privilegeType mode
 		}, nil)
 	}
 
-	var privilege models.Privilege
+	var privilege roles.Privilege
 	err := db.Where("privilege_type=$1", privilegeType).First(&privilege)
 	if err != nil && err != sql.ErrNoRows {
 		log.Panic(err)
@@ -73,7 +73,7 @@ func FetchOrBuildPrivilegeByPrivilegeType(db *pop.Connection, privilegeType mode
 
 	return BuildPrivilege(db, []Customization{
 		{
-			Model: models.Privilege{
+			Model: roles.Privilege{
 				PrivilegeType: privilegeType,
 				PrivilegeName: privilegeName,
 			},

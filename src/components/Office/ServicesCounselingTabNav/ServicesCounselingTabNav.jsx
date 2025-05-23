@@ -42,7 +42,7 @@ const ServicesCounselingTabNav = ({
       to={`/counseling/moves/${moveCode}/details`}
       data-testid="MoveDetails-Tab"
     >
-      <span className="tab-title">Move details</span>
+      <span className="tab-title">Move Details</span>
       {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
     </NavLink>,
     <NavLink
@@ -58,7 +58,7 @@ const ServicesCounselingTabNav = ({
       className={({ isActive }) => (isActive ? 'usa-current' : '')}
       to={`/counseling/moves/${moveCode}/customer-support-remarks`}
     >
-      <span className="tab-title">Customer support remarks</span>
+      <span className="tab-title">Customer Support Remarks</span>
     </NavLink>,
     <NavLink
       end
@@ -66,7 +66,7 @@ const ServicesCounselingTabNav = ({
       to={`/counseling/moves/${moveCode}/history`}
       data-testid="MoveHistory-Tab"
     >
-      <span className="tab-title">Move history</span>
+      <span className="tab-title">Move History</span>
     </NavLink>,
   ];
 

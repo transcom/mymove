@@ -20,7 +20,7 @@ import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
 import { DutyLocationShape } from 'types/dutyLocation';
 import formStyles from 'styles/form.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';

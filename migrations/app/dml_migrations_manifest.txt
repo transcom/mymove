@@ -15,8 +15,10 @@
 20250318150925_B-22484_combine_pppo_elmendorf_richardson.up.sql
 20250319173601_B-22839_upd_duty_locs.up.sql
 20250319174432_B-22839_upd_counseling_office.up.sql
+20250416140435_B-22762_add_appl_params_emails.up.sql
 20250320153050_B-22816_update_lines_of_accounting_valid_loa_for_tac.up.sql
 20250325190721_B-22914_upd_pobox_zips.up.sql
 20250402213810_B-22761_add_cron_schedule.up.sql
 20250418132629_B-22761_add_flagSentToGexStaleInterval_to_application_parameters.up.sql
 20250422164417_B-23147_add_ranks.up.sql
+20250425132117_B-22538_add_sort_data_to_roles_and_privileges.up.sql
