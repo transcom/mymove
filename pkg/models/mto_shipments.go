@@ -583,3 +583,12 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
 	return m.ShipmentType != MTOShipmentTypePPM
 }
+
+func PrimeCanUpdateDeliveryAddress(shipmentType MTOShipmentType) bool {
+	isValid := false
+	if shipmentType != "" && shipmentType != MTOShipmentTypePPM && shipmentType != MTOShipmentTypeHHGIntoNTS {
+		isValid = true
+	}
+
+	return isValid
+}
