@@ -116,6 +116,14 @@ export class TestHarness {
   }
 
   /**
+   * build office user with multirole
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithMultirole() {
+    return this.buildDefault('OfficeUserWithTOOAndTIO');
+  }
+
+  /**
    * @returns {Promise<User>}
    */
   async buildNeedsOrdersUser() {
@@ -599,6 +607,22 @@ export class TestHarness {
    */
   async buildApprovedMoveWithPPMProgearWeightTicketOffice() {
     return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2() {
+    return this.buildDefault('ApprovedMoveWithPPMWithMultipleProgearWeightTicketsOffice2');
   }
 
   /**

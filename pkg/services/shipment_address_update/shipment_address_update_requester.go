@@ -280,11 +280,21 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
 
+	// Check if shipmentType's delivery address can be updated and set pickup address.
+	var originalPickupAddress models.Address
+	canUpdateDestAddress := models.PrimeCanUpdateDeliveryAddress(shipment.ShipmentType)
+	if canUpdateDestAddress {
+		originalPickupAddress = *shipment.PickupAddress
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
+			originalPickupAddress = shipment.StorageFacility.Address
+		}
+	}
+
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
-	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTS {
-		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTS-Release shipments")
+	if !canUpdateDestAddress {
+		return nil, apperror.NewUnprocessableEntityError("\ndestination address cannot be created or updated for PPM and NTS shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
@@ -387,34 +397,24 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	// international shipments don't need to be concerned with shorthaul/linehaul
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if canUpdateDestAddress {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address cannot be updated for PPM and NTS shipments")
 		}
 	}
 
 	if !updateNeedsTOOReview && !isInternationalShipment {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-			if err != nil {
-				return nil, err
-			}
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+		if canUpdateDestAddress {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, originalPickupAddress, addressUpdate.OriginalAddress, newAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "destination address update requests cannot be updated for PPM and NTS shipments")
 		}
 	}
 
@@ -571,6 +571,22 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		for i, serviceItem := range shipmentDetails.MTOServiceItems {
 			if shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeEstimatedWeight != nil || shipment.MarketCode != models.MarketCodeInternational && shipment.PrimeActualWeight != nil {
 				var updatedServiceItem *models.MTOServiceItem
+
+				// Recalculate pricing if SIT is approved and Service Item is DDD or FSC
+				if shipmentHasApprovedDestSIT && (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC) {
+					sitPricingEstimate, err := serviceItemCreator.FindSITEstimatedPrice(appCtx, &serviceItem, shipment)
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+					updatedServiceItem = &serviceItem
+					updatedServiceItem.PricingEstimate = &sitPricingEstimate
+
+					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItem(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt), mtoserviceitem.UpdateMTOServiceItemBasicValidator)
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+				}
+
 				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
 					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
 					if err != nil {

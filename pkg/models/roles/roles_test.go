@@ -101,3 +101,41 @@ func (suite *RolesSuite) TestFindRoles() {
 	suite.NoError(err)
 	suite.GreaterOrEqual(len(userRoles), 2)
 }
+
+func (suite *RolesSuite) TestDefaultRole() {
+	suite.Run("Happy path", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					Email: "officeuser1@example.com",
+				},
+			},
+			{
+				Model: models.User{
+					Roles: []m.Role{
+						{
+							RoleType: m.RoleTypeContractingOfficer,
+						},
+						{
+							RoleType: m.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+		userRoles, err := m.FetchRolesForUser(suite.DB(), *officeUser.UserID)
+		suite.NoError(err)
+		suite.Equal(2, len(userRoles), userRoles)
+
+		// Default should be ContractingOfficer
+		defaultRole, err := userRoles.Default()
+		suite.FatalNoError(err)
+		suite.Equal(m.RoleTypeContractingOfficer, defaultRole.RoleType, "User role should've defaulted alphabetically")
+	})
+	suite.Run("Error on no roles", func() {
+		var emptyRoles m.Roles
+		_, err := emptyRoles.Default()
+		suite.Error(err)
+		suite.ErrorContains(err, "no roles available")
+	})
+}

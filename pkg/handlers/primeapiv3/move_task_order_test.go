@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			mock.AnythingOfType("models.Move"),
 		).Return(nil, nil)
 		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mockShipmentRateAreaFinder,
 		}
@@ -789,7 +789,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Value:   "TEST",
 			},
 			{
-				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Key:     models.ServiceItemParamNameMTOEarliestRequestedPickup,
 				KeyType: models.ServiceItemParamTypeTimestamp,
 				Value:   "2023-05-03T14:38:30Z",
 			},
@@ -1478,7 +1478,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Run("Failure 'Not Found' for non-available move", func() {
 		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mtoshipment.NewMTOShipmentRateAreaFetcher(),
 		}
@@ -1511,7 +1511,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		// This tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mockShipmentRateAreaFinder,
 		}
@@ -1630,7 +1630,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		// This tests fields that aren't other structs and Addresses
 		handler := GetMoveTaskOrderHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			movetaskorder.NewMoveTaskOrderFetcher(waf),
 			mockShipmentRateAreaFinder,
 		}
