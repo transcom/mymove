@@ -172,6 +172,16 @@ const LabeledDetails = ({ historyRecord }) => {
     );
   });
 
+  // if a TOO was unassigned, we can append that to the line items
+  // this will always show as too_assigned_id: null in changedValues
+  if (changedValues?.too_assigned_id !== undefined || changedValues?.too_destination_assigned_id !== undefined) {
+    lineItems.push(
+      <div key="too-unassigned">
+        <span>Task ordering officer unassigned</span>
+      </div>,
+    );
+  }
+
   return (
     <>
       <span className={styles.shipmentType}>{shipmentDisplay}</span>
