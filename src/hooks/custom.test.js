@@ -8,11 +8,12 @@ import {
 } from 'hooks/custom';
 import { shipmentStatuses } from 'constants/shipments';
 
-describe('includedStatusesForCalculatingWeights returns true for approved, diversion requested, or cancellation requested', () => {
+describe('includedStatusesForCalculatingWeights returns true for approved, approvals requested, diversion requested, or cancellation requested', () => {
   it.each([
     [shipmentStatuses.DRAFT, false],
     [shipmentStatuses.SUBMITTED, false],
     [shipmentStatuses.APPROVED, true],
+    [shipmentStatuses.APPROVALS_REQUESTED, true],
     [shipmentStatuses.REJECTED, false],
     [shipmentStatuses.CANCELLATION_REQUESTED, true],
     [shipmentStatuses.CANCELED, false],
@@ -23,7 +24,7 @@ describe('includedStatusesForCalculatingWeights returns true for approved, diver
   });
 });
 
-describe('for all shipments that are approved, have a cancellation requested, or have a diversion requested', () => {
+describe('for all shipments that are approved, approvals requested, have a cancellation requested, or have a diversion requested', () => {
   it('useCalculatedTotalBillableWeight returns the calculated billable weight', () => {
     let mtoShipments = [
       {

@@ -26,7 +26,7 @@ func (suite *FactorySuite) TestBuildShipmentAddressUpdate() {
 		addressUpdate := BuildShipmentAddressUpdate(suite.DB(), []Customization{}, []Trait{GetTraitShipmentAddressUpdateRequested})
 
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, addressUpdate.Status)
-		suite.Equal(models.MTOShipmentStatusApproved, addressUpdate.Shipment.Status)
+		suite.Equal(models.MTOShipmentStatusApprovalsRequested, addressUpdate.Shipment.Status)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, addressUpdate.Shipment.MoveTaskOrder.Status)
 		suite.Equal("CRQST1", addressUpdate.Shipment.MoveTaskOrder.Locator)
 		suite.NotNil(addressUpdate.Shipment.MoveTaskOrder.AvailableToPrimeAt)
