@@ -16,11 +16,19 @@ import (
 )
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *internalmessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &internalmessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 // Address payload
@@ -48,6 +56,10 @@ func Address(address *models.Address) *internalmessages.Address {
 	if address.UsPostRegionCityID != nil {
 		usPostRegionCitiesID := *address.UsPostRegionCityID
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(usPostRegionCitiesID.String())
+	}
+
+	if address.CountryId != nil {
+		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
 	return payloadAddress
@@ -749,6 +761,7 @@ func CountryCodeName(country *models.Country) *internalmessages.Country {
 	return &internalmessages.Country{
 		Code: country.Country,
 		Name: country.CountryName,
+		ID:   *handlers.FmtUUID(country.ID),
 	}
 }
 

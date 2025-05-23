@@ -15,6 +15,7 @@ import (
 // AddressModel model
 func AddressModel(address *internalmessages.Address) *models.Address {
 	var blankSwaggerID strfmt.UUID
+
 	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
@@ -23,6 +24,12 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	countryId := uuid.FromStringOrNil(address.CountryID.String())
+
+	countryModel := &models.Country{
+		CountryName: address.Country.Name,
+		Country:     address.Country.Code,
+	}
 
 	return &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
@@ -33,6 +40,8 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		State:              *address.State,
 		PostalCode:         *address.PostalCode,
 		County:             address.County,
+		CountryId:          &countryId,
+		Country:            countryModel,
 		UsPostRegionCityID: &usPostRegionCitiesID,
 	}
 }

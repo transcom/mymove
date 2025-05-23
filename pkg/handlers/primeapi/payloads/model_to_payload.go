@@ -309,11 +309,19 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primemessages.DutyLocation
 }
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *primemessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &primemessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 // Address payload
@@ -337,6 +345,10 @@ func Address(address *models.Address) *primemessages.Address {
 
 	if address.UsPostRegionCityID != nil && address.UsPostRegionCityID != &uuid.Nil {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	if address.CountryId != nil {
+		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
 	return payloadAddress
@@ -1254,6 +1266,7 @@ func CountryCodeName(country *models.Country) *primemessages.Country {
 	return &primemessages.Country{
 		Code: country.Country,
 		Name: country.CountryName,
+		ID:   *handlers.FmtUUID(country.ID),
 	}
 }
 

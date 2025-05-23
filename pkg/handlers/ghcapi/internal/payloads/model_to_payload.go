@@ -800,11 +800,19 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 }
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *ghcmessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &ghcmessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 // Address payload
@@ -829,6 +837,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 
 	if address.UsPostRegionCityID != nil {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	if address.CountryId != nil {
+		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
 	}
 
 	return payloadAddress
@@ -2950,6 +2962,7 @@ func CountryCodeName(country *models.Country) *ghcmessages.Country {
 	return &ghcmessages.Country{
 		Code: country.Country,
 		Name: country.CountryName,
+		ID:   *handlers.FmtUUID(country.ID),
 	}
 }
 

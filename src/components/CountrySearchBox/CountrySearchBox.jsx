@@ -14,28 +14,6 @@ import RequiredAsterisk from 'components/form/RequiredAsterisk';
 
 const getOptionName = (option) => option.name;
 
-const formatOptionLabel = (option, input) => {
-  const { name } = option;
-  const { inputValue } = input;
-
-  const optionLabel = name || '';
-  const inputText = inputValue || '';
-
-  const searchIndex = optionLabel.toLowerCase().indexOf(inputText.toLowerCase());
-
-  if (searchIndex === -1) {
-    return <span>{optionLabel}</span>;
-  }
-
-  return (
-    <span>
-      {optionLabel.substr(0, searchIndex)}
-      <mark>{optionLabel.substr(searchIndex, inputText.length)}</mark>
-      {optionLabel.substr(searchIndex + inputText.length)}
-    </span>
-  );
-};
-
 const formatCountry = (option, input) => {
   const { inputValue } = input;
   const outputLabel = `${option?.name || ''} (${option?.code || ''})`;
@@ -59,6 +37,7 @@ const formatCountry = (option, input) => {
 const uswdsBlack = '#565c65';
 const uswdsBlue = '#2491ff';
 
+const MIN_SEARCH_LENGTH = 2;
 const DEBOUNCE_TIMER_MS = 200;
 
 const customStyles = {
@@ -110,7 +89,6 @@ export const CountrySearchBoxComponent = ({
   input,
   name,
   errorMsg,
-  displayAddress,
   hint,
   placeholder,
   isDisabled,
@@ -150,6 +128,11 @@ export const CountrySearchBoxComponent = ({
   }
 
   const loadOptions = debounce((query, callback) => {
+    if (!query || query.length < MIN_SEARCH_LENGTH) {
+      callback(null);
+      return undefined;
+    }
+
     searchCountries(query)
       .then((locations) => {
         callback(locations);
@@ -162,17 +145,6 @@ export const CountrySearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    // if (!selectedValue.address && !handleCountryOnChange) {
-    //   const address = await showAddress(selectedValue.address_id);
-    //   const newValue = {
-    //     ...selectedValue,
-    //     address,
-    //   };
-    //   countryState(newValue);
-    //   onChange(newValue);
-    //   return newValue;
-    // }
-
     countryState(selectedValue);
     onChange(selectedValue);
 
@@ -190,7 +162,6 @@ export const CountrySearchBoxComponent = ({
   const inputId = `${name}-input`;
 
   const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
-  const locationClasses = classNames('location', { 'location-error': errorMsg });
   const labelClasses = classNames(styles.title, {
     [styles.titleWithError]: errorMsg,
   });
@@ -210,20 +181,20 @@ export const CountrySearchBoxComponent = ({
   };
 
   const handleFocus = () => {
-    // if (handleCountryOnChange) {
-    //   handleCountryOnChange(null);
-    // } else {
-    //   onChange(null);
-    // }
+    if (handleCountryOnChange) {
+      handleCountryOnChange(null);
+    } else {
+      onChange(null);
+    }
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasLocation = !!value && !!value.address;
+  const hasCountry = !!value && !!value.address;
 
   return (
     <FormGroup>
       <div className="labelWrapper">
-        <Label hint={hint} htmlFor={inputId} className={labelClasses} data-testid={`${name}-label`}>
+        <Label hint={hint} htmlFor={inputId} className={labelClasses} data-testid={`${name}-country-label`}>
           <span>
             {title} {showRequiredAsterisk && <RequiredAsterisk />}
           </span>
@@ -236,17 +207,17 @@ export const CountrySearchBoxComponent = ({
           inputId={inputId}
           className={dutyInputClasses}
           cacheOptions
-          formatOptionLabel={handleCountryOnChange ? formatCountry : formatOptionLabel}
+          formatOptionLabel={formatCountry}
           getOptionValue={getOptionName}
           getOptionLabel={(option) => option.name}
           loadOptions={loadOptions}
           onChange={selectOption}
           onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
-          placeholder={placeholder || 'Start typing a duty location...'}
+          placeholder={placeholder}
           value={
             (handleCountryOnChange && !!value && value.city != null && value.city !== '') ||
-            (!handleCountryOnChange && hasLocation)
+            (!handleCountryOnChange && hasCountry)
               ? value
               : ''
           }
@@ -256,11 +227,6 @@ export const CountrySearchBoxComponent = ({
           isDisabled={isDisabled}
         />
       </div>
-      {displayAddress && hasLocation && (
-        <p className={locationClasses}>
-          {value.address.city}, {value.address.state} {value.address.postalCode}
-        </p>
-      )}
       {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
     </FormGroup>
   );
@@ -290,8 +256,7 @@ CountrySearchBoxContainer.propTypes = {
 };
 
 CountrySearchBoxContainer.defaultProps = {
-  displayAddress: true,
-  title: 'Name of Duty Location:',
+  title: 'Country:',
   errorMsg: '',
   input: {
     name: '',
@@ -300,7 +265,7 @@ CountrySearchBoxContainer.defaultProps = {
     countryState: () => {},
   },
   hint: '',
-  placeholder: 'Start typing a duty location...',
+  placeholder: 'Start typing a country name, code',
   isDisabled: false,
   searchCountries: SearchDutyLocations,
   handleCountryOnChange: null,

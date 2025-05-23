@@ -85,7 +85,19 @@ export const AddressFields = ({
 
   const handleOnCountryChange = (value) => {
     // eslint-disable-next-line no-console
-    console.debug(value.name);
+    console.debug(value);
+    const countryId = value ? value.id : null;
+    const countryName = value ? value.name : null;
+    const countryCode = value ? value.code : null;
+    setFieldValue(`${name}.countryId`, countryId).then(() => {
+      setFieldTouched(`${name}.countryId`, false);
+    });
+    setFieldValue(`${name}.country.`, countryCode).then(() => {
+      setFieldTouched(`${name}.country`, false);
+    });
+    setFieldValue(`${name}.countryName`, countryName).then(() => {
+      setFieldTouched(`${name}.countryName`, true);
+    });
   };
 
   return (
