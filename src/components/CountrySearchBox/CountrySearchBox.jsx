@@ -97,7 +97,11 @@ export const CountrySearchBoxComponent = ({
 }) => {
   const { value, onChange, countryState, name: inputName } = input;
 
-  const [inputValue, setInputValue] = useState('');
+  const countryInfo =
+    handleCountryOnChange && !!value && value.countryName != null && value.countryCode != null
+      ? `${value.countryName} (${value.countryCode})`
+      : '';
+  const [inputValue, setInputValue] = useState(countryInfo);
   let disabledStyles = {};
   if (isDisabled) {
     disabledStyles = {
@@ -189,7 +193,6 @@ export const CountrySearchBoxComponent = ({
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasCountry = !!value;
 
   return (
     <FormGroup>
@@ -215,12 +218,7 @@ export const CountrySearchBoxComponent = ({
           onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
           placeholder={placeholder}
-          value={
-            (handleCountryOnChange && !!value && value.countryName != null && value.countryCode !== '') ||
-            (!handleCountryOnChange && hasCountry)
-              ? value
-              : ''
-          }
+          inputValue={inputValue}
           noOptionsMessage={noOptionsMessage}
           onFocus={handleFocus}
           styles={isDisabled ? disabledStyles : customStyles}

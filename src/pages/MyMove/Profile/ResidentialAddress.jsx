@@ -31,8 +31,8 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
       county: serviceMember.residential_address?.county || '',
       usPostRegionCitiesID: serviceMember.residential_address?.usPostRegionCitiesID || '',
       countryID: serviceMember.residential_address?.countryID || '',
-      countryName: serviceMember.residential_address?.country?.countryName || '',
-      countryCode: serviceMember.residential_address?.country?.country || '',
+      countryName: serviceMember.residential_address?.country?.name || '',
+      countryCode: serviceMember.residential_address?.country?.code || '',
     },
   };
 
