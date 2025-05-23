@@ -2050,8 +2050,13 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 				},
 			},
 		}, nil)
-
-		shipmentPPM := factory.BuildMTOShipmentWithMove(&movePPM, suite.DB(), nil, nil)
+		shipmentPPM := factory.BuildMTOShipmentWithMove(&movePPM, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
 		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
