@@ -29,10 +29,10 @@ const MultiRoleSelectApplication = ({ userRoles, setActiveRole, activeRole }) =>
   const assumedRole = activeRole || userRoleTypes[0];
 
   const [rolesAvailableToUser] = useMemo(() => {
-    const lookup = Object.fromEntries(userRoleTypes.map((e) => [e, e]));
+    const lookup = Object.fromEntries([[assumedRole, assumedRole], ...userRoleTypes.map((e) => [e, e])]);
     const result = adminOfficeRoles.filter(({ roleType }) => lookup[roleType] === roleType);
     return [result];
-  }, [userRoleTypes]);
+  }, [userRoleTypes, assumedRole]);
 
   const handleSelectRole = ({ target: { value: roleType } }) => {
     if (typeof roleType === 'string') {
