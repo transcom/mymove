@@ -33,7 +33,7 @@ type MTOServiceItem struct {
 	MoveTaskOrderID                   uuid.UUID                      `db:"move_id"`
 	MTOShipment                       MTOShipment                    `belongs_to:"mto_shipments" fk_id:"mto_shipment_id"`
 	MTOShipmentID                     *uuid.UUID                     `db:"mto_shipment_id"`
-	ReService                         ReService                      `belongs_to:"re_services" fk_id:"re_service_id"`
+	ReService                         ReService                      `belongs_to:"re_services" fk_id:"re_service_id" json:"re_service"`
 	ReServiceID                       uuid.UUID                      `db:"re_service_id"`
 	Reason                            *string                        `db:"reason"`
 	RejectionReason                   *string                        `db:"rejection_reason"`

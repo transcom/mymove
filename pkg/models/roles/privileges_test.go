@@ -1,4 +1,4 @@
-package models_test
+package roles_test
 
 import (
 	"testing"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -31,16 +32,16 @@ func (suite *PrivilegesSuite) TestFetchPrivilegesForUser() {
 		},
 		{
 			Model: models.User{
-				Privileges: []models.Privilege{
+				Privileges: []roles.Privilege{
 					{
-						PrivilegeType: models.PrivilegeTypeSupervisor,
+						PrivilegeType: roles.PrivilegeTypeSupervisor,
 					},
 				},
 			},
 		},
 	}, nil)
 
-	userPrivileges, err := models.FetchPrivilegesForUser(suite.DB(), *officeUserOne.UserID)
+	userPrivileges, err := roles.FetchPrivilegesForUser(suite.DB(), *officeUserOne.UserID)
 	suite.NoError(err)
 	suite.Equal(1, len(userPrivileges), userPrivileges)
 
