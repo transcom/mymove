@@ -686,7 +686,7 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 	for _, cert := range signedCertifications {
 		if cert.PpmID != nil { // Required to avoid error, service members signatures have nil ppm ids
 			if *cert.PpmID == ppmid { // PPM ID needs to be checked to prevent signatures from other PPMs on the same move from populating
-				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT {
+				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT || *cert.CertificationType == models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT {
 					sswDate := FormatDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
 					return sswDate, nil
 				}
