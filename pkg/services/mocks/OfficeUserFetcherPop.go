@@ -104,9 +104,9 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontex
 	return r0, r1
 }
 
-// FetchOfficeUsersWithWorkloadByRoleAndOffice provides a mock function with given fields: appCtx, role, officeID
-func (_m *OfficeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUserWithWorkload, error) {
-	ret := _m.Called(appCtx, role, officeID)
+// FetchOfficeUsersWithWorkloadByRoleAndOffice provides a mock function with given fields: appCtx, role, officeID, queueType
+func (_m *OfficeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID, queueType string) ([]models.OfficeUserWithWorkload, error) {
+	ret := _m.Called(appCtx, role, officeID, queueType)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchOfficeUsersWithWorkloadByRoleAndOffice")
@@ -114,19 +114,19 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUsersWithWorkloadByRoleAndOffice(appC
 
 	var r0 []models.OfficeUserWithWorkload
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) ([]models.OfficeUserWithWorkload, error)); ok {
-		return rf(appCtx, role, officeID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID, string) ([]models.OfficeUserWithWorkload, error)); ok {
+		return rf(appCtx, role, officeID, queueType)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) []models.OfficeUserWithWorkload); ok {
-		r0 = rf(appCtx, role, officeID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID, string) []models.OfficeUserWithWorkload); ok {
+		r0 = rf(appCtx, role, officeID, queueType)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.OfficeUserWithWorkload)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) error); ok {
-		r1 = rf(appCtx, role, officeID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, roles.RoleType, uuid.UUID, string) error); ok {
+		r1 = rf(appCtx, role, officeID, queueType)
 	} else {
 		r1 = ret.Error(1)
 	}
