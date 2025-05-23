@@ -593,7 +593,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
         <div className={styles.detailCrating}>
           <dl>
             {generateDetailText({
-              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : 0,
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
             })}
             {description && generateDetailText({ Description: description }, id)}
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
@@ -634,7 +634,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
         <div key={`${id}-${code}-detail-section-element`} className={styles.detailCrating}>
           <dl>
             {generateDetailText({
-              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : 0,
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
             })}
             {description && generateDetailText({ Description: description }, id)}
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
