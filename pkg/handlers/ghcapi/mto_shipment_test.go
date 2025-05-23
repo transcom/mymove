@@ -5601,8 +5601,34 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
+
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: true,
+		}
+
+		handlerConfig := suite.NewHandlerConfig()
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
 		handler := UpdateShipmentHandler{
-			suite.NewHandlerConfig(),
+			handlerConfig,
 			shipmentUpdater,
 			sitstatus.NewShipmentSITStatus(),
 		}
@@ -5695,6 +5721,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		spouseProGearWeight := unit.Pound(200)
 		estimatedIncentive := 654321
 		sitEstimatedCost := 67500
+		hasGunSafe := true
+		gunSafeWeight := unit.Pound(400)
 
 		params := suite.getUpdateShipmentParams(ppmShipment.Shipment)
 		params.Body.ShipmentType = ghcmessages.MTOShipmentTypePPM
@@ -5716,6 +5744,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			HasProGear:                  &hasProGear,
 			ProGearWeight:               handlers.FmtPoundPtr(&proGearWeight),
 			SpouseProGearWeight:         handlers.FmtPoundPtr(&spouseProGearWeight),
+			HasGunSafe:                  &hasGunSafe,
+			GunSafeWeight:               handlers.FmtPoundPtr(&gunSafeWeight),
 		}
 
 		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
@@ -5773,6 +5803,135 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(handlers.FmtBool(hasProGear), updatedShipment.PpmShipment.HasProGear)
 		suite.Equal(handlers.FmtPoundPtr(&proGearWeight), updatedShipment.PpmShipment.ProGearWeight)
 		suite.Equal(handlers.FmtPoundPtr(&spouseProGearWeight), updatedShipment.PpmShipment.SpouseProGearWeight)
+		suite.Equal(handlers.FmtBool(hasGunSafe), updatedShipment.PpmShipment.HasGunSafe)
+		suite.Equal(handlers.FmtPoundPtr(&gunSafeWeight), updatedShipment.PpmShipment.GunSafeWeight)
+	})
+
+	suite.Run("Successful PATCH - Integration Test (PPM) - Gun safe stored data does not change with FF off", func() {
+		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
+		builder := query.NewQueryBuilder()
+		fetcher := fetch.NewFetcher(builder)
+		mockSender := suite.TestNotificationSender()
+		mtoShipmentUpdater := mtoshipment.NewOfficeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+
+		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
+		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
+
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		handlerConfig := suite.NewHandlerConfig()
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		handler := UpdateShipmentHandler{
+			handlerConfig,
+			shipmentUpdater,
+			sitstatus.NewShipmentSITStatus(),
+		}
+
+		hasGunSafe := true
+		gunSafeWeight := unit.Pound(400)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasGunSafe:    &hasGunSafe,
+					GunSafeWeight: &gunSafeWeight,
+				},
+			},
+		}, nil)
+		year, month, day := time.Now().Date()
+		actualMoveDate := time.Date(year, month, day-7, 0, 0, 0, 0, time.UTC)
+		expectedDepartureDate := actualMoveDate.Add(time.Hour * 24 * 2)
+
+		// we expect initial setup data to have no secondary addresses
+		suite.Nil(ppmShipment.SecondaryPickupAddress)
+		suite.Nil(ppmShipment.SecondaryDestinationAddress)
+
+		sitExpected := true
+		sitLocation := ghcmessages.SITLocationTypeDESTINATION
+		sitEstimatedWeight := unit.Pound(1700)
+		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
+		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
+		estimatedWeight := unit.Pound(3000)
+		proGearWeight := unit.Pound(300)
+		spouseProGearWeight := unit.Pound(200)
+		estimatedIncentive := 654321
+		sitEstimatedCost := 67500
+		hasGunSafePayload := false
+		gunSafeWeightPayload := unit.Pound(200)
+
+		params := suite.getUpdateShipmentParams(ppmShipment.Shipment)
+		params.Body.ShipmentType = ghcmessages.MTOShipmentTypePPM
+		params.Body.PpmShipment = &ghcmessages.UpdatePPMShipment{
+			ActualMoveDate:            handlers.FmtDatePtr(&actualMoveDate),
+			ExpectedDepartureDate:     handlers.FmtDatePtr(&expectedDepartureDate),
+			SitExpected:               &sitExpected,
+			SitEstimatedWeight:        handlers.FmtPoundPtr(&sitEstimatedWeight),
+			SitEstimatedEntryDate:     handlers.FmtDatePtr(&sitEstimatedEntryDate),
+			SitEstimatedDepartureDate: handlers.FmtDatePtr(&sitEstimatedDepartureDate),
+			SitLocation:               &sitLocation,
+			EstimatedWeight:           handlers.FmtPoundPtr(&estimatedWeight),
+			ProGearWeight:             handlers.FmtPoundPtr(&proGearWeight),
+			SpouseProGearWeight:       handlers.FmtPoundPtr(&spouseProGearWeight),
+			HasGunSafe:                &hasGunSafePayload,
+			GunSafeWeight:             handlers.FmtPoundPtr(&gunSafeWeightPayload),
+		}
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+
+		// gun safe fields does not get updated in the DB with FF off
+		suite.Equal(handlers.FmtBool(hasGunSafe), updatedShipment.PpmShipment.HasGunSafe)
+		suite.Equal(handlers.FmtPoundPtr(&gunSafeWeight), updatedShipment.PpmShipment.GunSafeWeight)
+		suite.NotEqual(handlers.FmtBool(hasGunSafePayload), updatedShipment.PpmShipment.HasGunSafe)
+		suite.NotEqual(handlers.FmtPoundPtr(&gunSafeWeightPayload), updatedShipment.PpmShipment.GunSafeWeight)
 	})
 
 	suite.Run("Successful PATCH Delete Addresses - Integration Test (PPM)", func() {
