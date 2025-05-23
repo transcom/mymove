@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexWebhookSubscriptionsHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: query.NewQueryFilter,
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		).Return(0, expectedError).Once()
 
 		handler := IndexWebhookSubscriptionsHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    webhookSubscriptionListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetWebhookSubscriptionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 		).Return(models.WebhookSubscription{}, expectedError).Once()
 
 		handler := GetWebhookSubscriptionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			webhookSubscriptionFetcher,
 			query.NewQueryFilter,
 		}
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 	setupHandler := func() CreateWebhookSubscriptionHandler {
 		return CreateWebhookSubscriptionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			webhooksubscription.NewWebhookSubscriptionCreator(query.NewQueryBuilder()),
 			query.NewQueryFilter,
 		}
@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -271,7 +271,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -315,7 +315,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -342,7 +342,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			webhooksubscription.NewWebhookSubscriptionUpdater(queryBuilder),
 			query.NewQueryFilter,
 		}

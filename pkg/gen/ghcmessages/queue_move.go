@@ -40,6 +40,9 @@ type QueueMove struct {
 	// Format: date-time
 	CloseoutInitiated *strfmt.DateTime `json:"closeoutInitiated,omitempty"`
 
+	// comma‑separated list of PPM shipment closeout initiated dates (YYYY‑MM‑DD)
+	CloseoutInitiatedDates *string `json:"closeoutInitiatedDates,omitempty"`
+
 	// closeout location
 	CloseoutLocation *string `json:"closeoutLocation,omitempty"`
 
@@ -58,6 +61,9 @@ type QueueMove struct {
 
 	// destination duty location
 	DestinationDutyLocation *DutyLocation `json:"destinationDutyLocation,omitempty"`
+
+	// destination g b l o c
+	DestinationGBLOC GBLOC `json:"destinationGBLOC,omitempty"`
 
 	// id
 	// Format: uuid
@@ -96,6 +102,9 @@ type QueueMove struct {
 	// requested move date
 	// Format: date
 	RequestedMoveDate *strfmt.Date `json:"requestedMoveDate,omitempty"`
+
+	// comma‑separated list of shipment dates (YYYY‑MM‑DD)
+	RequestedMoveDates *string `json:"requestedMoveDates,omitempty"`
 
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
@@ -141,6 +150,10 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationDutyLocation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationGBLOC(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -318,6 +331,23 @@ func (m *QueueMove) validateDestinationDutyLocation(formats strfmt.Registry) err
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateDestinationGBLOC(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.DestinationGBLOC.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationGBLOC")
+		}
+		return err
 	}
 
 	return nil
@@ -538,6 +568,10 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateLockedByOfficeUser(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -657,6 +691,24 @@ func (m *QueueMove) contextValidateDestinationDutyLocation(ctx context.Context, 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) contextValidateDestinationGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.DestinationGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationGBLOC")
+		}
+		return err
 	}
 
 	return nil

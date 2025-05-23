@@ -1,6 +1,7 @@
 package roles
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -58,6 +59,25 @@ func (r Role) TableName() string {
 
 // Roles is a slice of Role objects
 type Roles []Role
+
+// Default returns the Role whose RoleName is first alphabetically.
+// Returns an error if the slice is empty.
+func (r Roles) Default() (*Role, error) {
+	if len(r) == 0 {
+		return nil, errors.New("no roles available")
+	}
+	earliestRole := r[0]
+	earliestIdx := 0
+	// Loop over each role recording the earliest alphabet character we can find
+	for i, role := range r[1:] {
+		// Go lets us compare strings with > and <
+		if role.RoleName < earliestRole.RoleName {
+			earliestRole = role
+			earliestIdx = i + 1 // Starting at second entry in the array
+		}
+	}
+	return &r[earliestIdx], nil
+}
 
 // HasRole validates if Role has a role of a particular type
 func (rs Roles) HasRole(roleType RoleType) bool {
