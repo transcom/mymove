@@ -123,9 +123,8 @@ func checkDepartureDate() sitExtensionValidator {
 			currentSIT := shipmentSITStatus.CurrentSIT
 			for _, serviceItem := range shipment.MTOServiceItems {
 				if serviceItem.SITDepartureDate != nil &&
-					(serviceItem.SITDepartureDate == shipmentSITStatus.CurrentSIT.SITDepartureDate) &&
-					(serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT) {
-					endDate := models.GetAuthorizedSITEndDate(*shipment)
+					(serviceItem.SITDepartureDate == shipmentSITStatus.CurrentSIT.SITDepartureDate) {
+					endDate := models.GetAuthorizedSITEndDateForSitExtension(*shipment, serviceItem.ReService.Code)
 					format := "2006-01-02"
 					if currentSIT.SITDepartureDate != nil && !endDate.IsZero() {
 						if currentSIT.SITDepartureDate.Before(*endDate) || currentSIT.SITDepartureDate.Equal(*endDate) {

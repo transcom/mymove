@@ -680,9 +680,12 @@ func (suite *ModelSuite) TestIsShipmentOCONUS() {
 	})
 }
 
-func (suite *ModelSuite) TestGetAuthorizedSITEndDate() {
-	suite.Run("valid OriginSITAuthEndDate and nil DestinationSITAuthEndDate", func() {
-		today := time.Now()
+func (suite *ModelSuite) GetAuthorizedSITEndDateForSitExtension() {
+	var ZeroTime time.Time
+	today := time.Now()
+	tomorrow := today.Add(time.Hour * 24)
+
+	suite.Run("valid OriginSITAuthEndDate and Code", func() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -692,13 +695,11 @@ func (suite *ModelSuite) TestGetAuthorizedSITEndDate() {
 			},
 		}, nil)
 
-		endDate := models.GetAuthorizedSITEndDate(shipment)
+		endDate := models.GetAuthorizedSITEndDateForSitExtension(shipment, models.ReServiceCodeDOASIT)
 		suite.Equal(&today, endDate)
 	})
 
-	suite.Run("zero OriginSITAuthEndDate and valid DestinationSITAuthEndDate", func() {
-		today := time.Now()
-		var ZeroTime time.Time
+	suite.Run("valid DestinationSITAuthEndDate and Code", func() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -708,27 +709,11 @@ func (suite *ModelSuite) TestGetAuthorizedSITEndDate() {
 			},
 		}, nil)
 
-		endDate := models.GetAuthorizedSITEndDate(shipment)
+		endDate := models.GetAuthorizedSITEndDateForSitExtension(shipment, models.ReServiceCodeDDASIT)
 		suite.Equal(&today, endDate)
 	})
 
-	suite.Run("both nil OriginSITAuthEndDate and DestinationSITAuthEndDate", func() {
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					DestinationSITAuthEndDate: nil,
-					OriginSITAuthEndDate:      nil,
-				},
-			},
-		}, nil)
-
-		endDate := models.GetAuthorizedSITEndDate(shipment)
-		suite.True(endDate.IsZero())
-	})
-
-	suite.Run("both valid OriginSITAuthEndDate and DestinationSITAuthEndDate", func() {
-		today := time.Now()
-		tomorrow := today.Add(time.Hour * 24)
+	suite.Run("valid OriginSITAuthEndDate, DestinationSITAuthEndDate and Code", func() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -738,7 +723,35 @@ func (suite *ModelSuite) TestGetAuthorizedSITEndDate() {
 			},
 		}, nil)
 
-		endDate := models.GetAuthorizedSITEndDate(shipment)
+		endDate := models.GetAuthorizedSITEndDateForSitExtension(shipment, models.ReServiceCodeDOASIT)
 		suite.Equal(&today, endDate)
+	})
+
+	suite.Run("valid Reservice code and nil AuthorizedEndDate", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					OriginSITAuthEndDate:      nil,
+					DestinationSITAuthEndDate: nil,
+				},
+			},
+		}, nil)
+
+		endDate := models.GetAuthorizedSITEndDateForSitExtension(shipment, models.ReServiceCodeDOASIT)
+		suite.True(endDate.IsZero())
+	})
+
+	suite.Run("empty Reservice code and valid date", func() {
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					OriginSITAuthEndDate:      &today,
+					DestinationSITAuthEndDate: &tomorrow,
+				},
+			},
+		}, nil)
+
+		endDate := models.GetAuthorizedSITEndDateForSitExtension(shipment, "")
+		suite.True(endDate.IsZero())
 	})
 }

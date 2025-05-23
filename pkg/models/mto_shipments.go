@@ -584,16 +584,14 @@ func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
 	return m.ShipmentType != MTOShipmentTypePPM
 }
 
-func GetAuthorizedSITEndDate(shipment MTOShipment) *time.Time {
+func GetAuthorizedSITEndDateForSitExtension(shipment MTOShipment, code ReServiceCode) *time.Time {
 	var endDate time.Time
-	if (shipment.OriginSITAuthEndDate != nil) &&
-		(shipment.DestinationSITAuthEndDate == nil || (shipment.DestinationSITAuthEndDate.IsZero() && !shipment.OriginSITAuthEndDate.IsZero())) {
-		endDate = *shipment.OriginSITAuthEndDate
-	} else if (shipment.DestinationSITAuthEndDate != nil) &&
-		(shipment.OriginSITAuthEndDate == nil || (shipment.OriginSITAuthEndDate.IsZero() && !shipment.DestinationSITAuthEndDate.IsZero())) {
-		endDate = *shipment.DestinationSITAuthEndDate
-	} else if shipment.OriginSITAuthEndDate != nil && shipment.DestinationSITAuthEndDate != nil {
-		endDate = *shipment.OriginSITAuthEndDate
+	if code != "" {
+		if code == "DOASIT" && shipment.OriginSITAuthEndDate != nil {
+			endDate = *shipment.OriginSITAuthEndDate
+		} else if code == "DDASIT" && shipment.DestinationSITAuthEndDate != nil {
+			endDate = *shipment.DestinationSITAuthEndDate
+		}
 	}
 	return &endDate
 }
