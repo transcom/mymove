@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -87,7 +88,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -643,7 +644,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -707,7 +708,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -784,7 +785,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -856,7 +857,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -902,7 +903,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -961,7 +962,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1007,7 +1008,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1053,7 +1054,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1112,7 +1113,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1148,7 +1149,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1184,7 +1185,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1247,7 +1248,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1310,7 +1311,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1387,7 +1388,7 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	var orderFetcherTest orderFetcher
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           scUser.User.Roles,
+		ActiveRole:      scUser.User.Roles[0],
 		OfficeUserID:    scUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -1396,21 +1397,21 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	appCtx := suite.AppContextWithSessionForTest(&session)
 
 	createdMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-	createdMove.SCAssignedID = &scUser.ID
-	createdMove.SCAssignedUser = &scUser
+	createdMove.SCCounselingAssignedID = &scUser.ID
+	createdMove.SCCounselingAssignedUser = &scUser
 	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, models.QueueTypeCounseling)
 
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
-		SCAssignedUser: &scUser.LastName,
+		AssignedTo: &scUser.LastName, NeedsPPMCloseout: models.BoolPointer(false),
 	})
 
 	suite.FatalNoError(err)
 	suite.FatalNoError(updateError)
 	suite.Equal(1, len(moves))
-	suite.Equal(moves[0].SCAssignedID, createdMove.SCAssignedID)
-	suite.Equal(createdMove.SCAssignedUser.ID, moves[0].SCAssignedUser.ID)
-	suite.Equal(createdMove.SCAssignedUser.FirstName, moves[0].SCAssignedUser.FirstName)
-	suite.Equal(createdMove.SCAssignedUser.LastName, moves[0].SCAssignedUser.LastName)
+	suite.Equal(moves[0].SCCounselingAssignedID, createdMove.SCCounselingAssignedID)
+	suite.Equal(createdMove.SCCounselingAssignedUser.ID, moves[0].SCCounselingAssignedUser.ID)
+	suite.Equal(createdMove.SCCounselingAssignedUser.FirstName, moves[0].SCCounselingAssignedUser.FirstName)
+	suite.Equal(createdMove.SCCounselingAssignedUser.LastName, moves[0].SCCounselingAssignedUser.LastName)
 }
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	waf := entitlements.NewWeightAllotmentFetcher()
@@ -1448,7 +1449,7 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1560,7 +1561,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1588,7 +1589,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1634,7 +1635,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1668,7 +1669,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1702,7 +1703,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1761,7 +1762,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUserSC.User.Roles,
+			ActiveRole:      officeUserSC.User.Roles[0],
 			OfficeUserID:    officeUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1791,7 +1792,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1848,10 +1849,11 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		},
 	}, nil)
 
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	suite.NotEmpty(officeUser.User.Roles)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           officeUser.User.Roles,
+		ActiveRole:      officeUser.User.Roles[0],
 		OfficeUserID:    officeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -1869,7 +1871,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 	waf := entitlements.NewWeightAllotmentFetcher()
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           officeUser.User.Roles,
+		ActiveRole:      officeUser.User.Roles[0],
 		OfficeUserID:    officeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -1951,7 +1953,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1981,19 +1983,105 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by move status", func() {
 		expectedMove1, expectedMove2, session := setupTestData()
-		params := services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
+
+		moveNeedsSC := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusNeedsServiceCounseling,
+					Locator: "A1SC01",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moveSubmitted := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusSUBMITTED,
+					Locator: "B2SUB2",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moveApprovalsRequested := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVALSREQUESTED,
+					Locator: "C3APP3",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		moveApproved := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "D4APR4",
+					Show:    models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		expectedStatusesAsc := []models.MoveStatus{
+			models.MoveStatusServiceCounselingCompleted,
+			models.MoveStatusSUBMITTED,
+			models.MoveStatusNeedsServiceCounseling,
+			models.MoveStatusAPPROVALSREQUESTED,
+			models.MoveStatusAPPROVED,
+			models.MoveStatusAPPROVED,
+		}
+
+		expectedLocatorsAsc := []string{
+			expectedMove2.Locator,          // SERVICE COUNSELING COMPLETED
+			moveSubmitted.Locator,          // SUBMITTED (NEW MOVE)
+			moveNeedsSC.Locator,            // NEEDS SERVICE COUNSELING
+			moveApprovalsRequested.Locator, // APPROVALS REQUESTED
+			expectedMove1.Locator,          // APPROVED
+			moveApproved.Locator,           // APPROVED
+		}
+
+		params := services.ListOrderParams{
+			Sort:  models.StringPointer("status"),
+			Order: models.StringPointer("asc"),
+		}
 		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove1.Status, moves[0].Status)
-		suite.Equal(expectedMove2.Status, moves[1].Status)
+		suite.Equal(6, len(moves))
 
-		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("desc")}
+		for i, move := range moves {
+			suite.Equal(expectedStatusesAsc[i], move.Status, fmt.Sprintf("Unexpected status at index %d (asc)", i))
+			suite.Equal(expectedLocatorsAsc[i], move.Locator, fmt.Sprintf("Unexpected locator at index %d (asc)", i))
+		}
+
+		expectedStatusesDesc := []models.MoveStatus{
+			models.MoveStatusAPPROVED,
+			models.MoveStatusAPPROVED,
+			models.MoveStatusAPPROVALSREQUESTED,
+			models.MoveStatusNeedsServiceCounseling,
+			models.MoveStatusSUBMITTED,
+			models.MoveStatusServiceCounselingCompleted,
+		}
+
+		expectedLocatorsDesc := []string{
+			expectedMove1.Locator,          // APPROVED
+			moveApproved.Locator,           // APPROVED
+			moveApprovalsRequested.Locator, // APPROVALS REQUESTED
+			moveNeedsSC.Locator,            // NEEDS SERVICE COUNSELING
+			moveSubmitted.Locator,          // SUBMITTED
+			expectedMove2.Locator,          // SERVICE COUNSELING COMPLETED
+		}
+
+		params.Order = models.StringPointer("desc")
 		moves, _, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(expectedMove2.Status, moves[0].Status)
-		suite.Equal(expectedMove1.Status, moves[1].Status)
+		suite.Equal(6, len(moves))
+
+		for i, move := range moves {
+			suite.Equal(expectedStatusesDesc[i], move.Status, fmt.Sprintf("Unexpected status at index %d (asc)", i))
+			suite.Equal(expectedLocatorsDesc[i], move.Locator, fmt.Sprintf("Unexpected locator at index %d (asc)", i))
+		}
 	})
 
 	suite.Run("Sort by service member affiliations", func() {
@@ -2033,13 +2121,77 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 	})
 
+	suite.Run("Sort by request move date including pickup, delivery, and PPM expected departure", func() {
+		_, _, session := setupTestData()
+
+		expectedDepartureDate := time.Date(testdatagen.GHCTestYear, 01, 01, 0, 0, 0, 0, time.UTC)
+		requestedDeliveryDate := time.Date(testdatagen.GHCTestYear, 01, 02, 0, 0, 0, 0, time.UTC)
+
+		// PPM (expected departure date only)
+		movePPM := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "PPM001",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+
+		shipmentPPM := factory.BuildMTOShipmentWithMove(&movePPM, suite.DB(), nil, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ShipmentID:            shipmentPPM.ID,
+					ExpectedDepartureDate: expectedDepartureDate,
+				},
+			},
+		}, nil)
+
+		// NTSr (delivery date only)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "NTS001",
+					Status:  models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          models.MTOShipmentTypeHHGOutOfNTS,
+					RequestedPickupDate:   nil,
+					RequestedDeliveryDate: &requestedDeliveryDate,
+				},
+			},
+		}, nil)
+
+		// sort by requestedMoveDate asc and validate order
+		params := services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.True(len(moves) >= 4)
+
+		suite.Equal("PPM001", moves[0].Locator) // jan 1
+		suite.Equal("NTS001", moves[1].Locator) // jan 2
+		suite.Equal("TTZ123", moves[2].Locator) // jan 3 (pickup)
+		suite.Equal("AA1234", moves[3].Locator) // feb 20
+
+		params.Order = models.StringPointer("desc")
+		moves, _, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+
+		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("TTZ123", moves[1].Locator)
+		suite.Equal("NTS001", moves[2].Locator)
+		suite.Equal("PPM001", moves[3].Locator)
+	})
+
 	suite.Run("Sort by submitted date (appearedInTooAt) in TOO queue ", func() {
 		// Scenario: In order to sort the moves the submitted_at, service_counseling_completed_at, and approvals_requested_at are checked to which are the minimum
 		// Expected: The moves appear in the order they are created below
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2138,7 +2290,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(1, len(moves))
 		suite.Equal(5, count)
 
-		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal("AA5678", moves[0].Locator)
 
 		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc"), PerPage: models.Int64Pointer(3)}
 		moves, count, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
@@ -2147,9 +2299,9 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(3, len(moves))
 		suite.Equal(5, count)
 
-		suite.Equal("AA1234", moves[0].Locator)
-		suite.Equal("BB1234", moves[1].Locator)
-		suite.Equal("UU1234", moves[2].Locator)
+		suite.Equal("AA5678", moves[0].Locator)
+		suite.Equal("TTZ123", moves[1].Locator)
+		suite.Equal("AA1234", moves[2].Locator)
 
 		// Sorting by a column with non-unique values
 		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
@@ -2159,17 +2311,17 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(5, len(moves))
 		suite.Equal(5, count)
 
-		suite.Equal(models.MoveStatusAPPROVED, moves[0].Status)
-		suite.Equal(models.MoveStatusAPPROVED, moves[1].Status)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[0].Status)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[1].Status)
 		suite.Equal(models.MoveStatusAPPROVED, moves[2].Status)
-		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[3].Status)
-		suite.Equal(models.MoveStatusServiceCounselingCompleted, moves[4].Status)
+		suite.Equal(models.MoveStatusAPPROVED, moves[3].Status)
+		suite.Equal(models.MoveStatusAPPROVED, moves[4].Status)
 
-		suite.Equal("AA1234", moves[0].Locator)
-		suite.Equal("BB1234", moves[1].Locator)
-		suite.Equal("UU1234", moves[2].Locator)
-		suite.Equal("AA5678", moves[3].Locator)
-		suite.Equal("TTZ123", moves[4].Locator)
+		suite.Equal("AA5678", moves[0].Locator)
+		suite.Equal("TTZ123", moves[1].Locator)
+		suite.Equal("AA1234", moves[2].Locator)
+		suite.Equal("BB1234", moves[3].Locator)
+		suite.Equal("UU1234", moves[4].Locator)
 	})
 }
 
@@ -2489,7 +2641,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2576,7 +2728,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -2617,7 +2769,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -2693,7 +2845,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 		hqOfficeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
 		hqSession := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           hqOfficeUser.User.Roles,
+			ActiveRole:      hqOfficeUser.User.Roles[0],
 			OfficeUserID:    hqOfficeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2709,7 +2861,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 		}, []roles.RoleType{roles.RoleTypeHQ})
 		hqSessionAGFM := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           hqOfficeUserAGFM.User.Roles,
+			ActiveRole:      hqOfficeUserAGFM.User.Roles[0],
 			OfficeUserID:    hqOfficeUserAGFM.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2795,7 +2947,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -2876,7 +3028,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           tooOfficeUser.User.Roles,
+		ActiveRole:      tooOfficeUser.User.Roles[0],
 		OfficeUserID:    tooOfficeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -2896,7 +3048,7 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -2962,7 +3114,7 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3080,7 +3232,7 @@ func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() 
 		}, nil)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3153,7 +3305,7 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3209,7 +3361,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -3771,7 +3923,7 @@ func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
 		suite.Equal("KKFA", secondaryTransportationOfficeAssignment.TransportationOffice.Gbloc)
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

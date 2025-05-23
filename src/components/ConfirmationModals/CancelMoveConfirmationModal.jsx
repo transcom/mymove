@@ -12,7 +12,13 @@ export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveID, title, 
     </ModalTitle>
     <p>{content}</p>
     <ModalActions>
-      <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
+      <Button
+        className="usa-button--secondary"
+        secondary
+        type="button"
+        onClick={() => onClose()}
+        data-testid="modalBackButton"
+      >
         {closeText}
       </Button>
       <Button

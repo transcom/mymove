@@ -55,11 +55,17 @@ BEGIN
     IF sort IS NOT NULL THEN
         CASE sort
             WHEN 'locator' THEN sort_column := 'base.locator';
-            WHEN 'status' THEN sort_column := 'base.status';
+            WHEN 'status' THEN sort_column := 'CASE base.status
+                WHEN ''SERVICE COUNSELING COMPLETED'' THEN 1
+                WHEN ''SUBMITTED'' THEN 2
+                WHEN ''NEEDS SERVICE COUNSELING'' THEN 3
+                WHEN ''APPROVALS REQUESTED'' THEN 4
+                WHEN ''APPROVED'' THEN 5
+                ELSE 99 END';
             WHEN 'customerName' THEN sort_column := 'base.sm_last_name, base.sm_first_name';
             WHEN 'edipi' THEN sort_column := 'base.sm_edipi';
             WHEN 'emplid' THEN sort_column := 'base.sm_emplid';
-            WHEN 'requestedMoveDate' THEN sort_column := 'base.earliest_requested_pickup_date';
+            WHEN 'requestedMoveDate' THEN sort_column := 'LEAST(base.earliest_requested_pickup_date, base.earliest_expected_departure_date, base.earliest_requested_delivery_date)';
             WHEN 'appearedInTooAt' THEN sort_column := 'GREATEST(base.submitted_at, base.service_counseling_completed_at, base.approvals_requested_at)';
             WHEN 'branch' THEN sort_column := 'base.sm_affiliation';
             WHEN 'originDutyLocation' THEN sort_column := 'base.origin_duty_location_name';
@@ -78,7 +84,11 @@ BEGIN
     END IF;
 
     IF sort_column IS NULL THEN
-        sort_column := 'status';
+        sort_column := 'CASE base.status
+            WHEN ''APPROVALS REQUESTED'' THEN 1
+            WHEN ''SUBMITTED'' THEN 2
+            WHEN ''SERVICE COUNSELING COMPLETED'' THEN 3
+            ELSE 99 END';
     END IF;
 
     IF sort_order IS NULL THEN
@@ -142,6 +152,7 @@ BEGIN
                         ''status'', ms.status,
                         ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                        ''requested_delivery_date'', TO_CHAR(ms.requested_delivery_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
                         ''prime_estimated_weight'', ms.prime_estimated_weight,
                         ''ppm_shipment'', CASE
@@ -388,10 +399,7 @@ BEGIN
             sort_order, sort_order
         );
     ELSE
-        sql_query := sql_query || format(
-            ' ORDER BY %s %s, locator ASC ',
-            sort_column, sort_order
-        );
+        sql_query := sql_query || ' ORDER BY ' || sort_column || ' ' || sort_order || ', locator ASC ';
     END IF;
 
     sql_query := sql_query || ' LIMIT $14 OFFSET $15 ';
