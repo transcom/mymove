@@ -223,7 +223,8 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		// Set up:          No customizations or traits provided
 		// Expected outcome: Address should be created with default values
 
-		address := BuildMinimalAddress(suite.DB(), nil, nil)
+		address, err := BuildMinimalAddress(suite.DB(), nil, nil)
+		suite.NoError(err)
 
 		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
 		suite.NoError(err)
@@ -240,7 +241,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		// Set up:          Create a minimal address with a customized StreetAddress1 and PostalCode
 		// Expected outcome: Address should be created with custom values
 
-		address := BuildMinimalAddress(suite.DB(), []Customization{
+		address, err := BuildMinimalAddress(suite.DB(), []Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: customStreet,
@@ -249,6 +250,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 				},
 			},
 		}, nil)
+		suite.NoError(err)
 
 		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
 		suite.NoError(err)
@@ -265,9 +267,10 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		// Set up:          Create a minimal address with a trait
 		// Expected outcome: Address should be created with trait values
 
-		address := BuildMinimalAddress(suite.DB(), nil, []Trait{
+		address, err := BuildMinimalAddress(suite.DB(), nil, []Trait{
 			GetTraitAddress2,
 		})
+		suite.NoError(err)
 
 		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
 		suite.NoError(err)
@@ -287,7 +290,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		precount, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
 
-		address := BuildMinimalAddress(nil, []Customization{
+		address, err := BuildMinimalAddress(nil, []Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: customStreet,
@@ -296,6 +299,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 				},
 			},
 		}, nil)
+		suite.NoError(err)
 
 		suite.Equal(customStreet, address.StreetAddress1)
 		suite.Equal(customPostalCode, address.PostalCode)
@@ -314,7 +318,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 		precount, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
 
-		address := BuildMinimalAddress(suite.DB(), []Customization{
+		address, err := BuildMinimalAddress(suite.DB(), []Customization{
 			{
 				Model: models.Address{
 					ID:             uuid.Must(uuid.NewV4()),
@@ -325,6 +329,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 				LinkOnly: true,
 			},
 		}, nil)
+		suite.NoError(err)
 
 		count, err := suite.DB().Count(&models.Address{})
 		suite.NoError(err)
