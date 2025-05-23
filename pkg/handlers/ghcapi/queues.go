@@ -670,7 +670,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 			}
 
 			// Convert payload
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, string(appCtx.Session().ActiveRole.RoleType), string(models.QueueTypeCounseling))
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, string(appCtx.Session().ActiveRole.RoleType), string(models.QueueTypeCloseout))
 
 			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
 			if appCtx.Session().IsOfficeUser() {
