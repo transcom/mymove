@@ -93,8 +93,8 @@ describe('ShipmentWeightDetails', () => {
     const initialWeight = await screen.findByText('Initial weight');
     expect(initialWeight).toBeTruthy();
 
-    const reweighButton = await screen.findByText('Request reweigh');
-    expect(reweighButton).toBeTruthy();
+    const reweighButton = screen.queryByText('Request reweigh');
+    expect(reweighButton).toBeNull();
 
     const actualWeight = await screen.findByText('Actual shipment weight');
     expect(actualWeight).toBeTruthy();

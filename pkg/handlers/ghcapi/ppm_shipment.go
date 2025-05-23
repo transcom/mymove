@@ -6,11 +6,12 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	ppmsitops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -26,7 +27,7 @@ type GetPPMSITEstimatedCostHandler struct {
 }
 
 // Handle calculates and returns SIT Estimated Cost for the PPM Shipment
-func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimatedCostParams) middleware.Responder {
+func (h GetPPMSITEstimatedCostHandler) Handle(params ppm.GetPPMSITEstimatedCostParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -35,13 +36,13 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return ppmsitops.NewGetPPMSITEstimatedCostNotFound().WithPayload(payload), err
+					return ppm.NewGetPPMSITEstimatedCostNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
-					return ppmsitops.NewGetPPMSITEstimatedCostForbidden().WithPayload(payload), err
+					return ppm.NewGetPPMSITEstimatedCostForbidden().WithPayload(payload), err
 				case apperror.QueryError:
-					return ppmsitops.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
+					return ppm.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
 				default:
-					return ppmsitops.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
+					return ppm.NewGetPPMSITEstimatedCostInternalServerError().WithPayload(payload), err
 				}
 			}
 
@@ -49,7 +50,7 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 			errPayload := &ghcmessages.Error{Message: &errInstance}
 
 			if !appCtx.Session().IsOfficeApp() {
-				return ppmsitops.NewGetPPMSITEstimatedCostForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+				return ppm.NewGetPPMSITEstimatedCostForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
 
 			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
@@ -88,7 +89,7 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 
 			returnPayload := payloads.PPMSITEstimatedCost(calculatedCostDetails)
 
-			return ppmsitops.NewGetPPMSITEstimatedCostOK().WithPayload(returnPayload), nil
+			return ppm.NewGetPPMSITEstimatedCostOK().WithPayload(returnPayload), nil
 		})
 }
 
@@ -100,7 +101,7 @@ type UpdatePPMSITHandler struct {
 }
 
 // Handle updates SIT related data for PPM
-func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middleware.Responder {
+func (h UpdatePPMSITHandler) Handle(params ppm.UpdatePPMSITParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
@@ -109,13 +110,13 @@ func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middlew
 				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return ppmsitops.NewUpdatePPMSITNotFound().WithPayload(payload), err
+					return ppm.NewUpdatePPMSITNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
-					return ppmsitops.NewUpdatePPMSITForbidden().WithPayload(payload), err
+					return ppm.NewUpdatePPMSITForbidden().WithPayload(payload), err
 				case apperror.QueryError:
-					return ppmsitops.NewUpdatePPMSITInternalServerError().WithPayload(payload), err
+					return ppm.NewUpdatePPMSITInternalServerError().WithPayload(payload), err
 				default:
-					return ppmsitops.NewUpdatePPMSITInternalServerError().WithPayload(payload), err
+					return ppm.NewUpdatePPMSITInternalServerError().WithPayload(payload), err
 				}
 			}
 
@@ -123,7 +124,7 @@ func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middlew
 			errPayload := &ghcmessages.Error{Message: &errInstance}
 
 			if !appCtx.Session().IsOfficeApp() {
-				return ppmsitops.NewUpdatePPMSITForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+				return ppm.NewUpdatePPMSITForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
 
 			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
@@ -144,7 +145,7 @@ func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middlew
 			if payload == nil {
 				invalidShipmentError := apperror.NewBadDataError("Invalid ppm shipment: params Body is nil")
 				appCtx.Logger().Error(invalidShipmentError.Error())
-				return ppmsitops.NewUpdatePPMSITBadRequest(), invalidShipmentError
+				return ppm.NewUpdatePPMSITBadRequest(), invalidShipmentError
 			}
 
 			ppmShipment.SITLocation = (*models.SITLocationType)(payload.SitLocation)
@@ -162,6 +163,129 @@ func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middlew
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), updatedPPMShipment)
 
-			return ppmsitops.NewUpdatePPMSITOK().WithPayload(returnPayload), nil
+			return ppm.NewUpdatePPMSITOK().WithPayload(returnPayload), nil
+		})
+}
+
+// SendPPMToCustomerHandler is the handler that sends PPM to customer
+type SendPPMToCustomerHandler struct {
+	handlers.HandlerConfig
+	services.PPMShipmentFetcher
+	services.MoveTaskOrderUpdater
+}
+
+// Handle send PPM to customer status change
+func (h SendPPMToCustomerHandler) Handle(params ppm.SendPPMToCustomerParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("UpdatePPMSendToCustomer error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return ppm.NewSendPPMToCustomerNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return ppm.NewSendPPMToCustomerForbidden().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return ppm.NewSendPPMToCustomerPreconditionFailed().WithPayload(payload), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError("Validation errors", "SendShipmentToCustomer", h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return ppm.NewSendPPMToCustomerUnprocessableEntity().WithPayload(payload), err
+				case apperror.QueryError:
+					return ppm.NewSendPPMToCustomerInternalServerError().WithPayload(payload), err
+				default:
+					return ppm.NewSendPPMToCustomerInternalServerError().WithPayload(payload), err
+				}
+			}
+
+			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+			errPayload := &ghcmessages.Error{Message: &errInstance}
+
+			if !appCtx.Session().IsOfficeApp() {
+				return ppm.NewSendPPMToCustomerForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil || ppmShipmentID.IsNil() {
+				appCtx.Logger().Error("error with PPM Shipment ID", zap.Error(err))
+
+				return ppm.NewSendPPMToCustomerBadRequest().WithPayload(errPayload), err
+			}
+
+			ppmEagerAssociations := []string{"PickupAddress",
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDestinationAddress",
+				"Shipment.MoveTaskOrder"}
+
+			ppmShipment, err := h.GetPPMShipment(appCtx, ppmShipmentID, ppmEagerAssociations, nil)
+			if err != nil {
+				return handleError(err)
+			}
+
+			ppmShipment, err = h.UpdateStatusServiceCounselingSendPPMToCustomer(appCtx, *ppmShipment, params.IfMatch, &ppmShipment.Shipment.MoveTaskOrder)
+			if err != nil {
+				return handleError(err)
+			}
+
+			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
+
+			return ppm.NewSendPPMToCustomerOK().WithPayload(returnPayload), nil
+		})
+}
+
+// SubmitPPMShipmentDocumentationHandler is the handler to allow an office user to submit a PPMShipment and change it to NEEDS_CLOSEOUT status
+type SubmitPPMShipmentDocumentationHandler struct {
+	handlers.HandlerConfig
+	services.PPMShipmentNewSubmitter
+}
+
+// Handle routes PPM shipment to the service counselor with the NEEDS_CLOSEOUT status.
+func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetPPMSITEstimatedCost error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return ppm.NewSubmitPPMShipmentDocumentationNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return ppm.NewSubmitPPMShipmentDocumentationForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return ppm.NewSubmitPPMShipmentDocumentationInternalServerError().WithPayload(payload), err
+				case apperror.ConflictError:
+					return ppm.NewSubmitPPMShipmentDocumentationConflict().WithPayload(payload), err
+				default:
+					return ppm.NewSubmitPPMShipmentDocumentationInternalServerError().WithPayload(payload), err
+				}
+			}
+
+			if !appCtx.Session().IsOfficeApp() {
+				errInstance := "Request should come from the office app."
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return ppm.NewSubmitPPMShipmentDocumentationForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				appCtx.Logger().Error("error with PPM Shipment ID", zap.Error(err))
+				return handleError(err)
+			} else if ppmShipmentID.IsNil() {
+				appCtx.Logger().Error("nil PPM Shipment ID")
+				payload := &ghcmessages.Error{Message: handlers.FmtString("nil PPM shipment ID")}
+				return ppm.NewSubmitPPMShipmentDocumentationBadRequest().WithPayload(payload), errors.New("nil PPM shipment ID")
+			}
+
+			ppmShipment, err := h.PPMShipmentNewSubmitter.SubmitNewCustomerCloseOut(appCtx, ppmShipmentID, models.SignedCertification{})
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.SubmitPPMShipmentDocumentationHandler", zap.Error(err))
+				return handleError(err)
+			}
+
+			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
+
+			return ppm.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
 }

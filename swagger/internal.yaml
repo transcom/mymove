@@ -489,6 +489,25 @@ definitions:
         description: The amount of SIT that will be reimbursed
         type: integer
         x-nullable: true
+      weightShipped:
+        description: The total weight shipped for a small package
+        type: integer
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      isProGear:
+        description: Indicates if the customer is claiming an expense as pro-gear or not
+        type: boolean
+        x-nullable: true
+      proGearBelongsToSelf:
+        description: Indicates if the pro-gear belongs to the customer or their spouse
+        type: boolean
+        x-nullable: true
+      proGearDescription:
+        description: A brief description of the pro-gear
+        type: string
     required:
       - movingExpenseType
       - description
@@ -2119,16 +2138,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       destinationAddress:
         $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
@@ -2142,16 +2151,6 @@ definitions:
       hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
-        x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
         x-nullable: true
       w2Address:
         x-nullable: true
@@ -2174,7 +2173,7 @@ definitions:
         x-nullable: true
       hasProGear:
         description: |
-          Indicates whether PPM shipment has pro gear.
+          Indicates whether PPM shipment has pro-gear.
         type: boolean
         x-nullable: true
       proGearWeight:
@@ -3302,6 +3301,7 @@ definitions:
       - STORAGE
       - TOLLS
       - WEIGHING_FEE
+      - SMALL_PACKAGE
     x-display-value:
       CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
@@ -3312,6 +3312,7 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+      SMALL_PACKAGE: Small package reimbursement
     x-nullable: true
     x-omitempty: false
   SubmittedMovingExpenseType:
@@ -3491,6 +3492,27 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      weightShipped:
+        description: The total weight shipped for a small package
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      isProGear:
+        description: Indicates if the customer is claiming an expense as pro-gear or not
+        type: boolean
+        x-nullable: true
+      proGearBelongsToSelf:
+        description: Indicates if the pro-gear belongs to the customer or their spouse
+        type: boolean
+        x-nullable: true
+      proGearDescription:
+        description: A brief description of the pro-gear
+        type: string
     required:
       - id
       - createdAt
@@ -3591,6 +3613,16 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      amount:
+        description: The total amount of the expense as indicated on the receipt
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      trackingNumber:
+        description: Tracking number for a small package expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -3773,17 +3805,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/Address'
       secondaryDestinationAddress:
@@ -3804,17 +3825,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -4151,6 +4161,7 @@ definitions:
       - OIL
       - OTHER
       - PACKING_MATERIALS
+      - SMALL_PACKAGE
       - RENTAL_EQUIPMENT
       - STORAGE
       - TOLLS
@@ -4165,6 +4176,7 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+      SMALL_PACKAGE: Small package
   VLocation:
     description: A postal code, city, and state lookup
     type: object

@@ -122,6 +122,31 @@ paths:
           description: >-
             Only return moves updated since this time. Formatted like
             "2021-07-23T18:30:47.116Z"
+        - in: query
+          name: acknowledged
+          type: boolean
+          x-nullable: true
+          description: >-
+            When set to true, only moves where both the move and all its
+            shipments are acknowledged will be included in the results. When set
+            to false, only moves where either the move or any one (or more) of
+            its shipments are NOT acknowledged will be included in the results.
+        - in: query
+          name: acknowledgedAfter
+          type: string
+          format: date-time
+          description: >-
+            Only return moves where the move or any one (or more) of its
+            shipments was acknowledged after this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
+        - in: query
+          name: acknowledgedBefore
+          type: string
+          format: date-time
+          description: >-
+            Only return moves where the move or any one (or more) of its
+            shipments was acknowledged before this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
       responses:
         '200':
           description: >-
@@ -4773,28 +4798,6 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled
-          once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once
-          the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -5246,6 +5249,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - TERMINATION_FOR_CAUSE
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:
@@ -5289,6 +5293,14 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      terminationComments:
+        type: string
+        x-nullable: true
+        readOnly: true
+      terminatedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       primeAcknowledgedAt:
         format: date-time
         type: string
@@ -5596,6 +5608,9 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+      - PODFSC
+      - POEFSC
+      - UBP
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating

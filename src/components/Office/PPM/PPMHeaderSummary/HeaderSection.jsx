@@ -14,6 +14,8 @@ import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { updateMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries, usePPMShipmentDocsQueries } from 'hooks/queries';
+import { getPPMTypeLabel, PPM_TYPES } from 'shared/constants';
+import { getTotalPackageWeightSPR, hasProGearSPR, hasSpouseProGearSPR } from 'utils/ppmCloseout';
 import { ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 
 export const sectionTypes = {
@@ -97,42 +99,51 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Actual Expense Reimbursement</Label>
-            <span data-testid="isActualExpenseReimbursement" className={styles.light}>
-              {isFetchingItems && updatedItemName === 'isActualExpenseReimbursement' ? (
+            <Label>Expense Type</Label>
+            <span data-testid="expenseType" className={styles.light}>
+              {isFetchingItems && updatedItemName === 'expenseType' ? (
                 <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
               ) : (
                 <>
-                  {sectionInfo.isActualExpenseReimbursement ? 'Yes' : 'No'}
+                  {getPPMTypeLabel(sectionInfo.ppmType)}
                   <OpenModalButton
-                    onClick={() => handleEditOnClick(sectionInfo.type, 'isActualExpenseReimbursement')}
+                    onClick={() => handleEditOnClick(sectionInfo.type, 'expenseType')}
                     isDisabled={isFetchingItems || readOnly || isCivilian}
                   />
                 </>
               )}
             </span>
           </div>
-          <div>
-            <Label>Planned Move Start Date</Label>
-            <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
-          </div>
-          <div>
-            <Label>Actual Move Start Date</Label>
-            <span data-testid="actualMoveDate" className={styles.light}>
-              {isFetchingItems && updatedItemName === 'actualMoveDate' ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                <>
-                  {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
-                  <OpenModalButton
-                    onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
-                    isDisabled={isFetchingItems || readOnly}
-                    ariaLabel="Edit actual move start date"
-                  />
-                </>
-              )}
-            </span>
-          </div>
+          {sectionInfo.ppmType !== PPM_TYPES.SMALL_PACKAGE ? (
+            <>
+              <div>
+                <Label>Planned Move Start Date</Label>
+                <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
+              </div>
+              <div>
+                <Label>Actual Move Start Date</Label>
+                <span data-testid="actualMoveDate" className={styles.light}>
+                  {isFetchingItems && updatedItemName === 'actualMoveDate' ? (
+                    <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                  ) : (
+                    <>
+                      {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
+                      <OpenModalButton
+                        onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
+                        isDisabled={isFetchingItems || readOnly}
+                        ariaLabel="Edit actual move start date"
+                      />
+                    </>
+                  )}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div>
+              <Label>Shipped Date</Label>
+              <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
+            </div>
+          )}
           <div>
             <Label>Starting Address</Label>
             <span data-testid="pickupAddress" className={styles.light}>
@@ -167,46 +178,89 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
               )}
             </span>
           </div>
-          <div>
-            <Label>Miles</Label>
-            <span className={styles.light}>
-              {isFetchingItems && isRecalulatedItem('miles') ? (
-                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-              ) : (
-                sectionInfo.miles
+          {sectionInfo.ppmType !== PPM_TYPES.SMALL_PACKAGE ? (
+            <>
+              {sectionInfo.miles && (
+                <div>
+                  <Label>Miles</Label>
+                  <span className={styles.light}>
+                    {isFetchingItems && isRecalulatedItem('miles') ? (
+                      <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                    ) : (
+                      sectionInfo.miles
+                    )}
+                  </span>
+                </div>
               )}
-            </span>
-          </div>
-          <div>
-            <Label>Estimated Net Weight</Label>
-            <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
-          </div>
-          <div>
-            <Label>Actual Net Weight</Label>
-            <span>{formatWeight(sectionInfo.actualWeight)}</span>
-          </div>
-          <div>
-            <Label>Allowable Weight</Label>
-            {isFetchingItems && updatedItemName === 'allowableWeight' ? (
-              <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
-            ) : (
-              <>
-                <b>{formatWeight(sectionInfo.allowableWeight)}</b>
-                <OpenModalButton
-                  onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
-                  isDisabled={isFetchingItems || readOnly}
-                  dataTestId="editAllowableWeightButton"
-                  ariaLabel="Edit allowable weight"
+              <div>
+                <Label>Estimated Net Weight</Label>
+                <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
+              </div>
+              <div>
+                <Label>Actual Net Weight</Label>
+                <span>{formatWeight(sectionInfo.actualWeight)}</span>
+              </div>
+              <div>
+                <Label>Allowable Weight</Label>
+                {isFetchingItems && updatedItemName === 'allowableWeight' ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  <>
+                    <b>{formatWeight(sectionInfo.allowableWeight)}</b>
+                    <OpenModalButton
+                      onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
+                      isDisabled={isFetchingItems || readOnly}
+                      dataTestId="editAllowableWeightButton"
+                      ariaLabel="Edit allowable weight"
+                    />
+                  </>
+                )}
+                <ToolTip
+                  icon="info-circle"
+                  style={{ display: 'inline-block', height: '15px', margin: '0' }}
+                  textAreaSize="large"
+                  text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
                 />
-              </>
-            )}
-            <ToolTip
-              icon="info-circle"
-              style={{ display: 'inline-block', height: '15px', margin: '0' }}
-              textAreaSize="large"
-              text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
-            />
-          </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <Label>Allowable Weight</Label>
+                {isFetchingItems && updatedItemName === 'allowableWeight' ? (
+                  <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+                ) : (
+                  <>
+                    <span>{formatWeight(sectionInfo.allowableWeight)}</span>
+                    <OpenModalButton
+                      onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
+                      isDisabled={isFetchingItems || readOnly}
+                      dataTestId="editAllowableWeightButton"
+                      ariaLabel="Edit allowable weight"
+                    />
+                  </>
+                )}
+                <ToolTip
+                  icon="info-circle"
+                  style={{ display: 'inline-block', height: '15px', margin: '0' }}
+                  textAreaSize="large"
+                  text="The total PPM weight sent via Small Package (all shipments combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's remaining weight entitlement."
+                />
+              </div>
+              <div>
+                <Label>Total Weight Shipped</Label>
+                <span>{formatWeight(getTotalPackageWeightSPR(sectionInfo.movingExpenses))}</span>
+              </div>
+              <div>
+                <Label>Pro-gear</Label>
+                <span>{hasProGearSPR(sectionInfo.movingExpenses)}</span>
+              </div>
+              <div>
+                <Label>Spouse Pro-gear</Label>
+                <span>{hasSpouseProGearSPR(sectionInfo.movingExpenses)}</span>
+              </div>
+            </>
+          )}
         </div>
       );
 
@@ -476,18 +530,17 @@ export default function HeaderSection({
       case 'pickupAddress':
         body = {
           pickupAddress: values.pickupAddress,
-          actualPickupPostalCode: values.pickupAddress?.postalCode,
         };
         break;
       case 'destinationAddress':
         body = {
           destinationAddress: values.destinationAddress,
-          actualDestinationPostalCode: values.destinationAddress?.postalCode,
         };
         break;
-      case 'isActualExpenseReimbursement':
+      case 'expenseType':
         body = {
-          isActualExpenseReimbursement: values.isActualExpenseReimbursement === 'true',
+          ppmType: values.ppmType,
+          isActualExpenseReimbursement: values.ppmType === PPM_TYPES.ACTUAL_EXPENSE,
         };
         break;
 
@@ -532,6 +585,7 @@ export default function HeaderSection({
           sectionInfo={sectionInfo}
           editItemName={itemName}
           sectionType={sectionType}
+          grade={grade}
         />
       )}
     </section>

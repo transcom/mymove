@@ -235,8 +235,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	ppmModel := &models.PPMShipment{
 		PPMType:                        models.PPMType(ppmShipment.PpmType),
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
@@ -546,6 +544,9 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
 		WeightStored:      handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
+		WeightShipped:     handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightShipped),
+		TrackingNumber:    handlers.FmtStringPtr(movingExpense.TrackingNumber),
+		IsProGear:         handlers.FmtBoolPtr(movingExpense.IsProGear),
 	}
 
 	if movingExpense.PaidWithGTCC != nil {
@@ -562,6 +563,14 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 
 	if movingExpense.SitReimburseableAmount != nil {
 		model.SITReimburseableAmount = handlers.FmtInt64PtrToPopPtr(movingExpense.SitReimburseableAmount)
+	}
+
+	if movingExpense.ProGearBelongsToSelf != nil {
+		model.ProGearBelongsToSelf = handlers.FmtBool(*movingExpense.ProGearBelongsToSelf)
+	}
+
+	if movingExpense.ProGearDescription != "" {
+		model.ProGearDescription = handlers.FmtStringPtr(&movingExpense.ProGearDescription)
 	}
 
 	return model

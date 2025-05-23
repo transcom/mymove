@@ -128,13 +128,11 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -534,6 +532,26 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.SITReimburseableAmount != nil {
 		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
+	}
+
+	if movingExpense.TrackingNumber != nil {
+		payload.TrackingNumber = movingExpense.TrackingNumber
+	}
+
+	if movingExpense.WeightShipped != nil {
+		payload.WeightShipped = handlers.FmtPoundPtr(movingExpense.WeightShipped)
+	}
+
+	if movingExpense.IsProGear != nil {
+		payload.IsProGear = movingExpense.IsProGear
+	}
+
+	if movingExpense.ProGearBelongsToSelf != nil {
+		payload.ProGearBelongsToSelf = movingExpense.ProGearBelongsToSelf
+	}
+
+	if movingExpense.ProGearDescription != nil {
+		payload.ProGearDescription = *movingExpense.ProGearDescription
 	}
 
 	return payload

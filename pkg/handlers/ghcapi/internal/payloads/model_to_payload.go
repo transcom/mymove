@@ -3,6 +3,7 @@ package payloads
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -981,7 +982,7 @@ func SITStatuses(shipmentSITStatuses map[string]services.SITStatus, storer stora
 }
 
 // PPMShipment payload
-func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
+func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmessages.PPMShipment {
 	if ppmShipment == nil || ppmShipment.ID.IsNil() {
 		return nil
 	}
@@ -1000,8 +1001,6 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
@@ -1012,6 +1011,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
@@ -1024,6 +1024,17 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
 		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
+	}
+
+	if ppmShipment.WeightTickets != nil {
+		weightTickets := WeightTickets(storer, ppmShipment.WeightTickets)
+		payloadPPMShipment.WeightTickets = weightTickets
+	}
+
+	if ppmShipment.FinalIncentive != nil {
+		finalIncentive := handlers.FmtCost(ppmShipment.FinalIncentive)
+		payloadPPMShipment.FinalIncentive = finalIncentive
 	}
 
 	if ppmShipment.SITLocation != nil {
@@ -1215,6 +1226,26 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 
 	if movingExpense.SITReimburseableAmount != nil {
 		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
+	}
+
+	if movingExpense.TrackingNumber != nil {
+		payload.TrackingNumber = movingExpense.TrackingNumber
+	}
+
+	if movingExpense.WeightShipped != nil {
+		payload.WeightShipped = handlers.FmtPoundPtr(movingExpense.WeightShipped)
+	}
+
+	if movingExpense.IsProGear != nil {
+		payload.IsProGear = movingExpense.IsProGear
+	}
+
+	if movingExpense.ProGearBelongsToSelf != nil {
+		payload.ProGearBelongsToSelf = movingExpense.ProGearBelongsToSelf
+	}
+
+	if movingExpense.ProGearDescription != nil {
+		payload.ProGearDescription = *movingExpense.ProGearDescription
 	}
 
 	return payload
@@ -1550,6 +1581,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 		PoeLocation:                 Port(mtoShipment.MTOServiceItems, "POE"),
 		PodLocation:                 Port(mtoShipment.MTOServiceItems, "POD"),
+		TerminationComments:         handlers.FmtStringPtr(mtoShipment.TerminationComments),
+		TerminatedAt:                handlers.FmtDateTimePtr(mtoShipment.TerminatedAt),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -1641,6 +1674,21 @@ func MTOShipments(storer storage.FileStorer, mtoShipments *models.MTOShipments, 
 			payload[i] = MTOShipment(storer, &copyOfMtoShipment, nil)
 		}
 	}
+	return &payload
+}
+
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *ghcmessages.Error {
+	errDetail := handlers.FmtString(handlers.InternalServerErrDetail)
+
+	if detail != nil {
+		errDetail = detail
+	}
+
+	msg := fmt.Sprintf("%v | Instance: %v", *errDetail, traceID)
+	payload := ghcmessages.Error{Message: &msg}
+
 	return &payload
 }
 
@@ -2197,7 +2245,8 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
 		status == models.MTOShipmentStatusDiversionRequested ||
-		status == models.MTOShipmentStatusCancellationRequested
+		status == models.MTOShipmentStatusCancellationRequested ||
+		status == models.MTOShipmentStatusTerminatedForCause
 }
 
 func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.AvailableOfficeUsers {
@@ -2253,7 +2302,7 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 		isAssignable = true
 	}
 
-	isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+	isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 	// in TOO queues, all moves are assignable for supervisor users
 	if activeRole == string(roles.RoleTypeTOO) && isSupervisor {
 		isAssignable = true
@@ -2329,6 +2378,30 @@ func attachApprovalRequestTypes(move models.Move) []string {
 	for _, item := range move.MTOServiceItems {
 		if item.Status == models.MTOServiceItemStatusSubmitted {
 			requestTypes = append(requestTypes, string(item.ReService.Code))
+		}
+	}
+	if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestAmendedOrders))
+	}
+	if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+		requestTypes = append(requestTypes, string(models.ApprovalRequestExcessWeight))
+	}
+	for _, shipment := range move.MTOShipments {
+		if shipment.Status == models.MTOShipmentStatusSubmitted {
+			if shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestDiversion))
+			}
+			if !shipment.Diversion {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestNewShipment))
+			}
+		}
+		if shipment.DeliveryAddressUpdate != nil && shipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusRequested {
+			requestTypes = append(requestTypes, string(models.ApprovalRequestDestinationAddressUpdate))
+		}
+		for _, sitDurationUpdate := range shipment.SITDurationUpdates {
+			if sitDurationUpdate.Status == models.SITExtensionStatusPending {
+				requestTypes = append(requestTypes, string(models.ApprovalRequestSITExtension))
+			}
 		}
 	}
 
@@ -2426,7 +2499,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		// determine if the move is assignable
 		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, officeUser, ppmCloseoutGblocs, activeRole)
 
-		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 		// only need to attach available office users if move is assignable
 		var apiAvailableOfficeUsers ghcmessages.AvailableOfficeUsers
 		if assignable {
@@ -2594,7 +2667,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			isAssignable = true
 		}
 
-		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 		if isSupervisor {
 			isAssignable = true
 		}

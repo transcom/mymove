@@ -97,6 +97,8 @@ const (
 	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
 	// MTOShipmentStatusDiversionRequested indicates that the TOO has requested that the Prime divert a shipment
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
+	// MTOShipmentTerminatedForCause indicates that a shipment has been terminated for cause by a COR
+	MTOShipmentStatusTerminatedForCause MTOShipmentStatus = "TERMINATED_FOR_CAUSE"
 )
 
 // LOAType represents the possible TAC and SAC types for a mto shipment
@@ -189,6 +191,8 @@ type MTOShipment struct {
 	MobileHome                       *MobileHome            `json:"mobile_home" has_one:"mobile_home" fk_id:"shipment_id"`
 	MarketCode                       MarketCode             `json:"market_code" db:"market_code"`
 	PrimeAcknowledgedAt              *time.Time             `db:"prime_acknowledged_at"`
+	TerminationComments              *string                `json:"termination_comments" db:"termination_comments"`
+	TerminatedAt                     *time.Time             `json:"terminated_at" db:"terminated_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -210,6 +214,7 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusCancellationRequested),
 		string(MTOShipmentStatusCanceled),
 		string(MTOShipmentStatusDiversionRequested),
+		string(MTOShipmentStatusTerminatedForCause),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {
@@ -551,4 +556,8 @@ func IsShipmentOCONUS(shipment MTOShipment) *bool {
 
 	isOCONUS := *shipment.PickupAddress.IsOconus || *shipment.DestinationAddress.IsOconus
 	return &isOCONUS
+}
+
+func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
+	return m.ShipmentType != MTOShipmentTypePPM
 }

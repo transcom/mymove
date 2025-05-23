@@ -15,7 +15,7 @@ const serviceItemStatuses = {
   REJECTED: 'REJECTED',
 };
 
-export const LOCATION_TYPES_ONE_OF = PropTypes.oneOf([LOCATION_TYPES.ORIGIN, LOCATION_TYPES.DESTINATION]);
+export const LOCATION_TYPES_ONE_OF = PropTypes.oneOf([LOCATION_TYPES.ORIGIN, LOCATION_TYPES.DESTINATION, '']);
 
 const serviceItemStatusesOneOf = PropTypes.oneOf([
   serviceItemStatuses.SUBMITTED,
