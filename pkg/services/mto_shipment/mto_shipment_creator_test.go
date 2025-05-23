@@ -85,85 +85,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.NotEmpty(invalidErr.ValidationErrors)
 	})
 
-	suite.Run("Test requested pickup date requirement for various shipment types", func() {
-		subtestData := suite.createSubtestDataV2(nil)
-		creator := subtestData.shipmentCreator
-
-		// Default is HHG, but we set it explicitly below via the test cases
-		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-			{
-				Model:    subtestData.move,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		testCases := []struct {
-			desc         string
-			input        *time.Time
-			shipmentType models.MTOShipmentType
-			shouldError  bool
-		}{
-			{"Nil input for HHG shipment", nil, models.MTOShipmentTypeHHG, true},
-			{"Zero time for HHG shipment", &time.Time{}, models.MTOShipmentTypeHHG, true},
-			{"Current time for HHG shipment", models.TimePointer(time.Now()), models.MTOShipmentTypeHHG, true},
-			{"Future date for HHG shipment", futureDate, models.MTOShipmentTypeHHG, false},
-			{"Nil input for HHG Out of NTS shipment", nil, models.MTOShipmentTypeHHGOutOfNTS, false},
-			{"Zero time for HHG Out of NTS shipment", &time.Time{}, models.MTOShipmentTypeHHGOutOfNTS, false},
-			{"Future date for HHG Out of NTS shipment", futureDate, models.MTOShipmentTypeHHGOutOfNTS, false},
-			{"Nil input for PPM shipment", nil, models.MTOShipmentTypePPM, false},
-			{"Future date for PPM shipment", models.TimePointer(time.Now()), models.MTOShipmentTypePPM, false},
-		}
-
-		for _, testCase := range testCases {
-			var err error
-			if testCase.shipmentType == models.MTOShipmentTypeHHGOutOfNTS || testCase.shipmentType == models.MTOShipmentTypeHHGIntoNTS {
-				storageFacility := factory.BuildStorageFacility(nil, nil, nil)
-				storageFacility.ID = uuid.Must(uuid.NewV4())
-
-				mtoShipmentWithStorageFacility := factory.BuildMTOShipment(nil, []factory.Customization{
-					{
-						Model:    subtestData.move,
-						LinkOnly: true,
-					},
-					{
-						Model: models.MTOShipment{
-							ShipmentType:        testCase.shipmentType,
-							Status:              models.MTOShipmentStatusSubmitted,
-							RequestedPickupDate: testCase.input,
-						},
-					},
-					{
-						Model:    storageFacility,
-						LinkOnly: true,
-					},
-				}, nil)
-
-				mtoShipmentWithStorageFacilityClear := clearShipmentIDFields(&mtoShipmentWithStorageFacility)
-
-				_, err = creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentWithStorageFacilityClear)
-			} else {
-				mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-				mtoShipmentClear.ShipmentType = testCase.shipmentType
-				mtoShipmentClear.RequestedPickupDate = testCase.input
-
-				_, err = creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
-			}
-
-			if testCase.shouldError {
-				if suite.Errorf(err, "should have errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input) {
-					suite.IsType(apperror.InvalidInputError{}, err)
-					if testCase.input != nil && !testCase.input.IsZero() {
-						suite.Contains(err.Error(), "RequestedPickupDate must be greater than or equal to tomorrow's date.")
-					} else {
-						suite.Contains(err.Error(), fmt.Sprintf("RequestedPickupDate is required to create %s %s shipment", GetAorAnByShipmentType(testCase.shipmentType), testCase.shipmentType))
-					}
-				}
-			} else {
-				suite.NoErrorf(err, "should have not errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input)
-			}
-		}
-	})
-
 	// Happy path
 	suite.Run("If a domestic shipment is created successfully it should be returned", func() {
 		subtestData := suite.createSubtestData(nil)
@@ -335,7 +256,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		destinationType := models.DestinationTypeHomeOfRecord
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
-
 		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 			{
 				Model:    subtestData.move,
@@ -386,7 +306,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{models.MTOShipmentTypeHHGOutOfNTS, false},
 			{models.MTOShipmentTypePPM, false},
 		}
-
 		for _, testCase := range testCases {
 			mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 				{
@@ -673,7 +592,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MTOAgents: agents,
+					MTOAgents:           agents,
+					RequestedPickupDate: futureDate,
 				},
 			},
 		}, nil)
@@ -781,7 +701,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		})
 		creator := subtestData.shipmentCreator
 		move := subtestData.move
-
 		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
 			{
 				Model:    move,
@@ -1282,6 +1201,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 	suite.Run("Child diversion shipment creation should inherit parent's weight", func() {
 		currentTime := time.Now()
+
 		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -1476,6 +1396,123 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		suite.Error(err)
 		suite.Equal("At least one address for a UB shipment must be OCONUS", err.Error())
+	})
+
+	suite.Run("RequestedPickupDate validation check - must be in the future for shipment types other than PPM", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		now := time.Now()
+		yesterday := now.AddDate(0, 0, -1)
+		tomorrow := now.AddDate(0, 0, 1)
+
+		testCases := []struct {
+			input        *time.Time
+			shipmentType models.MTOShipmentType
+			shouldError  bool
+		}{
+			// HHG
+			{nil, models.MTOShipmentTypeHHG, true},
+			{&time.Time{}, models.MTOShipmentTypeHHG, true},
+			{&yesterday, models.MTOShipmentTypeHHG, true},
+			{&now, models.MTOShipmentTypeHHG, true},
+			{&tomorrow, models.MTOShipmentTypeHHG, false},
+			// NTS
+			{nil, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&time.Time{}, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&yesterday, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&now, models.MTOShipmentTypeHHGIntoNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGIntoNTS, false},
+			// NTSR
+			{nil, models.MTOShipmentTypeHHGOutOfNTS, false},
+			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTS, false},
+			{&yesterday, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&now, models.MTOShipmentTypeHHGOutOfNTS, true},
+			{&tomorrow, models.MTOShipmentTypeHHGOutOfNTS, false},
+			// BOAT HAUL AWAY
+			{nil, models.MTOShipmentTypeBoatHaulAway, false},
+			{&time.Time{}, models.MTOShipmentTypeBoatHaulAway, false},
+			{&yesterday, models.MTOShipmentTypeBoatHaulAway, true},
+			{&now, models.MTOShipmentTypeBoatHaulAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatHaulAway, false},
+			// BOAT TOW AWAY
+			{nil, models.MTOShipmentTypeBoatTowAway, false},
+			{&time.Time{}, models.MTOShipmentTypeBoatTowAway, false},
+			{&yesterday, models.MTOShipmentTypeBoatTowAway, true},
+			{&now, models.MTOShipmentTypeBoatTowAway, true},
+			{&tomorrow, models.MTOShipmentTypeBoatTowAway, false},
+			// MOBILE HOME
+			{nil, models.MTOShipmentTypeMobileHome, false},
+			{&time.Time{}, models.MTOShipmentTypeMobileHome, false},
+			{&yesterday, models.MTOShipmentTypeMobileHome, true},
+			{&now, models.MTOShipmentTypeMobileHome, true},
+			{&tomorrow, models.MTOShipmentTypeMobileHome, false},
+			// UB
+			{nil, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&time.Time{}, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&yesterday, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&now, models.MTOShipmentTypeUnaccompaniedBaggage, true},
+			{&tomorrow, models.MTOShipmentTypeUnaccompaniedBaggage, false},
+			// PPM - should always pass validation
+			{nil, models.MTOShipmentTypePPM, false},
+			{&time.Time{}, models.MTOShipmentTypePPM, false},
+			{&yesterday, models.MTOShipmentTypePPM, false},
+			{&now, models.MTOShipmentTypePPM, false},
+			{&tomorrow, models.MTOShipmentTypePPM, false},
+		}
+
+		for _, testCase := range testCases {
+			// Default is HHG, but we set it explicitly below via the test cases
+			var mtoShipment models.MTOShipment
+			if testCase.shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				mtoShipment = factory.BuildUBShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ShipmentType: testCase.shipmentType,
+						},
+					},
+				}, nil)
+			} else {
+				mtoShipment = factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType: testCase.shipmentType,
+						},
+					},
+				}, nil)
+			}
+
+			mtoShipment.RequestedPickupDate = testCase.input // Zero case does not merge correctly on customization
+
+			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+			mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+
+			shipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+			testCaseInputString := ""
+			if testCase.input == nil {
+				testCaseInputString = "nil"
+			} else {
+				testCaseInputString = (*testCase.input).String()
+			}
+
+			if testCase.shouldError {
+				suite.Nil(shipment, "Should error for %s | %s", testCase.shipmentType, testCaseInputString)
+				suite.Error(err)
+				if testCase.input != nil && !(*testCase.input).IsZero() {
+					suite.Equal("RequestedPickupDate must be greater than or equal to tomorrow's date.", err.Error())
+				} else {
+					suite.Contains(err.Error(), fmt.Sprintf("RequestedPickupDate is required to create or modify %s %s shipment", GetAorAnByShipmentType(testCase.shipmentType), testCase.shipmentType))
+				}
+			} else {
+				suite.NoError(err, "Should not error for %s | %s", testCase.shipmentType, testCaseInputString)
+				suite.NotNil(shipment)
+			}
+		}
 	})
 }
 
