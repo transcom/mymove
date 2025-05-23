@@ -132,7 +132,7 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('td').at(0).text()).toContain('International Crating - Standalone');
     expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
     expect(wrapper.find('dt').at(0).text()).toBe('Estimated Price:');
-    expect(wrapper.find('dd').at(0).text()).toBe('0');
+    expect(wrapper.find('dd').at(0).text()).toBe('-');
     expect(wrapper.find('dt').at(1).text()).toBe('Description:');
     expect(wrapper.find('dd').at(1).text()).toBe('grandfather clock');
     expect(wrapper.find('dt').at(2).text()).toBe('Item size:');
@@ -176,7 +176,7 @@ describe('ServiceItemsTable', () => {
 
     expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
     expect(wrapper.find('dt').at(0).text()).toBe('Estimated Price:');
-    expect(wrapper.find('dd').at(0).text()).toBe('0');
+    expect(wrapper.find('dd').at(0).text()).toBe('-');
     expect(wrapper.find('dt').at(1).text()).toBe('Description:');
     expect(wrapper.find('dd').at(1).text()).toBe('grandfather clock');
     expect(wrapper.find('dt').at(2).text()).toBe('Item size:');
