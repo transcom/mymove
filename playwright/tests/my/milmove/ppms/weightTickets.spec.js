@@ -36,6 +36,21 @@ test.describe('About Your PPM', () => {
   });
 });
 
+test.describe('About You PPM with incorrect Xlsx Upload', () => {
+  forEachViewport(async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
+      await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.clickOnGoToMoveButton();
+      await customerPpmPage.navigateToAboutPage({ selectAdvance: false });
+    });
+
+    test('Fill out weight ticket with incorrect Xlsx document', async ({ customerPpmPage }) => {
+      await customerPpmPage.submitIncorrectXlsxFileForWeightTicketPage();
+    });
+  });
+});
+
 test.describe('(MultiMove) About Your PPM', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
 

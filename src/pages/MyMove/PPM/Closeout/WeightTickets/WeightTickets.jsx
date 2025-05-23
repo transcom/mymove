@@ -30,6 +30,7 @@ import { APP_NAME } from 'constants/apps';
 
 const WeightTickets = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [displayHelpDeskLink, setDisplayHelpDeskLink] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,10 +48,12 @@ const WeightTickets = () => {
   const toggleErrorModal = () => {
     setIsErrorModalVisible((prev) => !prev);
   };
+
   const appName = APP_NAME.MYMOVE;
 
-  const errorModalMessage =
-    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ";
+  const [errorModalMessage, setErrorModalMessage] = useState(
+    "Something went wrong uploading your weight ticket. Please try again. If that doesn't fix it, contact the ",
+  );
 
   useEffect(() => {
     if (!weightTicketId) {
@@ -151,9 +154,16 @@ const WeightTickets = () => {
         setIsErrorModalVisible(false);
         return upload;
       })
-      .catch(() => {
-        // setErrorMessage('Failed to save the file upload');
-        setIsErrorModalVisible(true);
+      .catch((err) => {
+        if (err.response.obj.title === 'Incorrect Xlsx Template') {
+          setErrorModalMessage(
+            'The only Excel file this uploader accepts is the Weight Estimator file. Please convert any other Excel file to PDF.',
+          );
+          setIsErrorModalVisible(true);
+        } else {
+          setDisplayHelpDeskLink(true);
+          setIsErrorModalVisible(true);
+        }
       });
   };
 
@@ -251,7 +261,12 @@ const WeightTickets = () => {
               onBack={handleBack}
               appName={appName}
             />
-            <ErrorModal isOpen={isErrorModalVisible} closeModal={toggleErrorModal} errorMessage={errorModalMessage} />
+            <ErrorModal
+              isOpen={isErrorModalVisible}
+              closeModal={toggleErrorModal}
+              errorMessage={errorModalMessage}
+              displayHelpDeskLink={displayHelpDeskLink}
+            />
           </Grid>
         </Grid>
       </GridContainer>
