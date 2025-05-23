@@ -51,7 +51,7 @@ const MultiRoleSelectApplication = ({ userRoles, setActiveRole, activeRole }) =>
     [rolesAvailableToUser],
   );
 
-  const hasSingleDropdownOption = userRoles.length <= 1;
+  const hasSingleDropdownOption = userRoles?.length <= 1;
 
   const selectDescription = hasSingleDropdownOption
     ? `combo box is limited to the current role of ${roleLookupValues[assumedRole].name}.`
