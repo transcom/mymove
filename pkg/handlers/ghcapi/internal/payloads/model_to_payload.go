@@ -719,6 +719,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 			totalWeight = int64(weightAllotment.TotalWeightSelf)
 		}
 	}
+
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
 		aw := int64(*entitlement.AuthorizedWeight())

@@ -10,10 +10,6 @@ export const MOVE_STATUS_OPTIONS = [
   { value: MOVE_STATUSES.APPROVALS_REQUESTED, label: 'Approvals requested' },
 ];
 
-export const MOVE_STATUS_OPTIONS_DEST_QUEUE = [
-  { value: MOVE_STATUSES.APPROVALS_REQUESTED, label: 'Approvals requested' },
-];
-
 // Both moves that progressed straight from customer submission to the TOO
 // queue as well as those that completed services counseling should have the
 // status label of New move

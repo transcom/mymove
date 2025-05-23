@@ -1609,4 +1609,45 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		// Verify estimated incentive is capped at the max
 		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
 	})
+
+	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					HasGunSafe: models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			HasGunSafe: models.BoolPointer(true),
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NotNil(updatedPPM)
+		suite.NilOrNoVerrs(err)
+
+		var updatedEntitlement models.Entitlement
+		err = appCtx.DB().Find(&updatedEntitlement, originalPPM.Shipment.MoveTaskOrder.Orders.EntitlementID)
+		suite.NoError(err)
+
+		suite.True(updatedEntitlement.GunSafe)
+		suite.Equal(500, updatedEntitlement.GunSafeWeight)
+		suite.NotNil(updatedEntitlement.DBAuthorizedWeight)
+		suite.True(*updatedEntitlement.DBAuthorizedWeight > 0)
+	})
+
 }

@@ -126,6 +126,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	if *move.Orders.Entitlement.DependentsAuthorized {
 		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
+
 	civilianTDYUBAllowance := 0
 	if move.Orders.Entitlement.UBAllowance != nil {
 		civilianTDYUBAllowance = *move.Orders.Entitlement.UBAllowance

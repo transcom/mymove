@@ -141,6 +141,8 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasGunSafe:                     ppmShipment.HasGunSafe,
+		GunSafeWeight:                  handlers.FmtPoundPtr(ppmShipment.GunSafeWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
