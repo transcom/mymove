@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -181,13 +182,13 @@ func (f *EvaluationReportFormFiller) CreateCounselingReport(report models.Evalua
 }
 
 // Output outputs the form to the provided file
-func (f *EvaluationReportFormFiller) Output(output io.Writer) error {
+func (f *EvaluationReportFormFiller) Output(output io.Writer, report models.EvaluationReport) error {
 	// Loop through all pages and add headings. This must be done right before output
 	// because we need to be able to calculate the number of pages to show "Page X of Y"
 	numPages := f.pdf.PageCount()
 	for i := 1; i <= numPages; i++ {
 		f.pdf.SetPage(i)
-		f.reportPageHeader()
+		f.reportPageHeader(report)
 	}
 	return f.pdf.Output(output)
 }
@@ -196,7 +197,7 @@ func (f *EvaluationReportFormFiller) Output(output io.Writer) error {
 // It looks a bit like this:
 // ####### CONTROLLED UNCLASSIFIED INFORMATION #######
 // Report #QA-12345                        Page 1 of 3
-func (f *EvaluationReportFormFiller) reportPageHeader() {
+func (f *EvaluationReportFormFiller) reportPageHeader(report models.EvaluationReport) {
 	stripeHeight := pxToMM(18.0)
 	textHeight := pxToMM(34.0)
 
@@ -210,6 +211,8 @@ func (f *EvaluationReportFormFiller) reportPageHeader() {
 	f.pdf.CellFormat(-pageSideMarginMm+letterWidthMm/2.0, textHeight, fmt.Sprintf("Report #%s", f.reportID), "", moveRight, "LM", false, 0, "")
 	f.pdf.CellFormat(widthFill, textHeight, fmt.Sprintf("Page %d of %d", f.pdf.PageNo(), f.pdf.PageCount()), "", moveDown, "RM", false, 0, "")
 	f.pdf.SetFontStyle("")
+
+	f.safetyHeading(report)
 }
 
 // reportHeading draws the heading at the beginning of a report
@@ -248,6 +251,25 @@ func (f *EvaluationReportFormFiller) reportHeading(text string, seriousIncident 
 	f.pdf.CellFormat(widthFill, height/3.0, fmt.Sprintf("MTO REFERENCE ID #%s", mtoReferenceID), "", moveDown, "RM", false, 0, "")
 	f.pdf.MoveTo(pageSideMarginMm, headingY+height)
 	f.addVerticalSpace(bottomMargin)
+}
+
+func (f *EvaluationReportFormFiller) safetyHeading(report models.EvaluationReport) {
+	if report.Move.Orders.OrdersType == internalmessages.OrdersTypeSAFETY {
+		currentX := f.pdf.GetX()
+		currentY := f.pdf.GetY()
+		_, currentFontSizeUnit := f.pdf.GetFontSize()
+		topMargin := pxToMM(58.0)
+
+		safetyMoveHeading := "SAFETY"
+		f.pdf.SetFontUnitSize(reportHeadingFontSize)
+		f.setTextColorRed()
+		f.pdf.SetFontStyle("B")
+		f.pdf.MoveTo(0, topMargin)
+		f.pdf.CellFormat(letterWidthMm, reportHeadingFontSize, safetyMoveHeading, "", moveDown, "CM", false, 0, "")
+		f.pdf.SetFontStyle("")
+		f.pdf.SetFontUnitSize(currentFontSizeUnit)
+		f.pdf.MoveTo(currentX, currentY)
+	}
 }
 
 func (f *EvaluationReportFormFiller) seriousIncidentFlag() {
@@ -754,6 +776,10 @@ func (f *EvaluationReportFormFiller) setTextColorBaseDarker() {
 
 func (f *EvaluationReportFormFiller) setTextColorBaseDarkest() {
 	f.pdf.SetTextColor(23, 23, 23)
+}
+
+func (f *EvaluationReportFormFiller) setTextColorRed() {
+	f.pdf.SetTextColor(255, 0, 0)
 }
 
 func (f *EvaluationReportFormFiller) setFillColorBaseLight() {

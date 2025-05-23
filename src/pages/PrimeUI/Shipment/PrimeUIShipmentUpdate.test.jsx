@@ -144,9 +144,7 @@ const approvedMoveTaskOrder = {
           streetAddress1: null,
         },
         ppmShipment: {
-          actualDestinationPostalCode: '30814',
           actualMoveDate: '2022-07-13',
-          actualPickupPostalCode: '90212',
           advanceAmountReceived: 598600,
           advanceAmountRequested: 598700,
           approvedAt: '2022-07-03T14:20:21.620Z',
@@ -332,9 +330,7 @@ const approvedPPMMoveTaskOrder = {
           streetAddress1: null,
         },
         ppmShipment: {
-          actualDestinationPostalCode: '30814',
           actualMoveDate: '2022-07-13',
-          actualPickupPostalCode: '90212',
           advanceAmountReceived: 598600,
           advanceAmountRequested: 598700,
           approvedAt: '2022-07-03T14:20:21.620Z',
@@ -873,15 +869,15 @@ expect(
 
     render(mockedPPMComponent);
 
-    expect(screen.getByText(/Beverly Hills/)).toBeInTheDocument();
-    expect(screen.getByText(/CA/)).toBeInTheDocument();
-    expect(screen.getByText(/Los Angeles/)).toBeInTheDocument();
-    expect(screen.getByText(/90210/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Beverly Hills/).length).toBe(2);
+    expect(screen.getAllByText(/CA/).length).toBe(2);
+    expect(screen.getAllByText(/Los Angeles/).length).toBe(2);
+    expect(screen.getAllByText(/90210/).length).toBe(2);
 
-    expect(screen.getByText(/Fairfield/)).toBeInTheDocument();
-    expect(screen.getByText(/CO/)).toBeInTheDocument();
-    expect(screen.getByText(/Solano/)).toBeInTheDocument();
-    expect(screen.getByText(/94535/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Fairfield/).length).toBe(2);
+    expect(screen.getAllByText(/CO/).length).toBe(2);
+    expect(screen.getAllByText(/Solano/).length).toBe(2);
+    expect(screen.getAllByText(/94535/).length).toBe(2);
   });
 });
 

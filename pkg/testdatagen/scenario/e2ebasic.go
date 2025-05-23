@@ -965,7 +965,7 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, &assertions.PPMShipment)
 }
 
 func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -994,7 +994,7 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 		},
 	}
 
-	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, assertions.PPMShipment)
+	CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, nil, &assertions.PPMShipment)
 }
 
 func serviceMemberWithOrdersAndPPMMove07(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
@@ -4374,18 +4374,18 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	separation := internalmessages.OrdersTypeSEPARATION
 
-	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE1ET")
-	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE2ET")
-	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET")
-	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET")
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE1ET", false)
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE2ET", false)
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE3ET", false)
+	CreateNeedsServicesCounseling(appCtx, pcos, hhg, nil, "SCE4ET", false)
 
 	// Creates moves and shipments for NTS and NTS-release tests
 	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSHHG")
 	createNeedsServicesCounselingSingleHHG(appCtx, pcos, "NTSRHG")
 	CreateNeedsServicesCounselingMinimalNTSR(appCtx, pcos, "NTSRMN")
 
-	CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE")
-	CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3")
+	CreateNeedsServicesCounseling(appCtx, retirement, hhg, &hos, "RET1RE", false)
+	CreateNeedsServicesCounseling(appCtx, separation, hhg, &hor, "S3PAR3", false)
 
 	createBasicNTSMove(appCtx, userUploader)
 
