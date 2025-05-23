@@ -426,7 +426,7 @@ export const closeoutColumns = (
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
                   <option
                     value={officeUserId}
                     key={officeUserId}
@@ -459,6 +459,7 @@ const ServicesCounselingQueue = ({
   isBulkAssignmentFFEnabled,
   setRefetchQueue,
   activeRole,
+  activeOfficeID,
 }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
@@ -700,6 +701,7 @@ const ServicesCounselingQueue = ({
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.CLOSEOUT}
           activeRole={activeRole}
+          activeOfficeID={activeOfficeID}
         />
       </div>
     );
@@ -738,6 +740,7 @@ const ServicesCounselingQueue = ({
           isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
           queueType={QUEUE_TYPES.COUNSELING}
           activeRole={activeRole}
+          activeOfficeID={activeOfficeID}
         />
       </div>
     );
@@ -783,6 +786,7 @@ const mapStateToProps = (state) => {
   const user = selectLoggedInUser(state);
 
   return {
+    activeOfficeID: state?.auth?.activeOffice?.id,
     officeUser: user?.office_user || {},
     setRefetchQueue: state.generalState.setRefetchQueue,
   };
