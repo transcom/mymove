@@ -20,7 +20,7 @@ export function dateSelectionWeekendHolidayCheck(
   setIsDateSelectionAlertVisibleCallback,
   onErrorCallback,
 ) {
-  if (!Number.isNaN(date.getTime())) {
+  if (!Number.isNaN(date.getTime()) && countryCode) {
     // Format date to yyyy-mm-dd format
     const dateSelection = date.toISOString().replace(/T.*/, '');
     dateSelectionIsWeekendHolidayAPI(countryCode, dateSelection)
@@ -51,6 +51,9 @@ export function dateSelectionWeekendHolidayCheck(
       .catch((error) => {
         onErrorCallback(error);
       });
+  } else {
+    // Can't determine the date is a holiday/weekend without the required paramters, so remove alert message.
+    setIsDateSelectionAlertVisibleCallback(false);
   }
 }
 

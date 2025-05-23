@@ -144,9 +144,9 @@ const ShipmentForm = (props) => {
   const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
   const [isRequestedPickupDateInvalid, setIsRequestedPickupDateInvalid] = useState(false);
   const [isRequestedPickupDateChanged, setIsRequestedPickupDateChanged] = useState(false);
-  const [isRequestedPickupAddress, setIsRequestedPickupAddress] = useState(false);
   const DEFAULT_COUNTRY_CODE = 'US';
   const REQUESTED_PICKUP_DATE = 'Requested pickup date';
+  const REQUESTED_DELIVERY_DATE = 'Requested delivery date';
 
   const handleDatesError = (errResponse) => {
     const { response } = errResponse;
@@ -165,14 +165,23 @@ const ShipmentForm = (props) => {
     );
   };
 
-  const handlePickupLocationEntered = (location, date) => {
-    setIsRequestedPickupAddress(location.city);
+  const handlePickupCountryChanged = (country, date) => {
     checkDateHolidayWeekend(
-      location.country ?? DEFAULT_COUNTRY_CODE,
+      country,
       new Date(date),
       REQUESTED_PICKUP_DATE,
       setRequestedPickupDateAlertMessage,
       setIsRequestedPickupDateAlertVisible,
+    );
+  };
+
+  const handleDeliveryCountryChanged = (country, date) => {
+    checkDateHolidayWeekend(
+      country,
+      new Date(date),
+      REQUESTED_DELIVERY_DATE,
+      setRequestedDeliveryDateAlertMessage,
+      setIsRequestedDeliveryDateAlertVisible,
     );
   };
 
@@ -294,7 +303,7 @@ const ShipmentForm = (props) => {
       dateSelectionIsWeekendHoliday,
       DEFAULT_COUNTRY_CODE,
       new Date(mtoShipment.requestedDeliveryDate),
-      'Requested delivery date',
+      REQUESTED_DELIVERY_DATE,
       setRequestedDeliveryDateAlertMessage,
       setIsRequestedDeliveryDateAlertVisible,
       onErrorHandler,
@@ -758,7 +767,7 @@ const ShipmentForm = (props) => {
 
           if (!error && isRequestedPickupDateChanged && !isPPM && !pickupDate.isAfter(today)) {
             setIsRequestedPickupDateInvalid(true);
-            error = 'Requested pickup date must be in the future.';
+            error = `${REQUESTED_PICKUP_DATE} must be in the future.`;
           } else {
             setIsRequestedPickupDateInvalid(false);
           }
@@ -776,10 +785,9 @@ const ShipmentForm = (props) => {
           });
 
           setIsRequestedPickupDateChanged(true);
-
           if (!validatePickupDate(e)) {
             checkDateHolidayWeekend(
-              DEFAULT_COUNTRY_CODE,
+              values.pickup?.address?.country,
               new Date(e),
               REQUESTED_PICKUP_DATE,
               setRequestedPickupDateAlertMessage,
@@ -796,15 +804,29 @@ const ShipmentForm = (props) => {
               requestedDate: formatDate(e, datePickerFormat),
             },
           });
-          dateSelectionWeekendHolidayCheck(
-            dateSelectionIsWeekendHoliday,
-            DEFAULT_COUNTRY_CODE,
+
+          let deliveryCountry;
+          if (isNTS) {
+            deliveryCountry = values.storageFacility?.address?.country;
+          } else if (isNTSR) {
+            deliveryCountry = values.delivery?.address?.country;
+          } else {
+            deliveryCountry =
+              values.hasDeliveryAddress === 'true' ? values.delivery?.address?.country : newDutyLocationAddress.country;
+          }
+
+          checkDateHolidayWeekend(
+            deliveryCountry,
             new Date(e),
-            'Requested delivery date',
+            REQUESTED_DELIVERY_DATE,
             setRequestedDeliveryDateAlertMessage,
             setIsRequestedDeliveryDateAlertVisible,
-            handleDatesError,
           );
+        };
+
+        const handleAddressKnownChange = (e) => {
+          handleAddressToggleChange(e, values, setValues, blankAddress);
+          handleDeliveryCountryChanged(values.delivery?.address?.country, values.delivery.requestedDate);
         };
 
         return (
@@ -973,9 +995,7 @@ const ShipmentForm = (props) => {
                         name="pickup.address"
                         legend="Pickup Address"
                         formikProps={formikProps}
-                        onLocationEntered={(location) =>
-                          handlePickupLocationEntered(location, values.pickup.requestedDate)
-                        }
+                        onCountryChanged={(country) => handlePickupCountryChanged(country, values.pickup.requestedDate)}
                         render={(fields) => (
                           <>
                             <p>What address are the movers picking up from?</p>
@@ -1089,9 +1109,8 @@ const ShipmentForm = (props) => {
                         </Alert>
                       )}
                       <DatePickerInput
-                        disabled={!isRequestedPickupAddress}
                         name="pickup.requestedDate"
-                        label="Requested pickup date"
+                        label={REQUESTED_PICKUP_DATE}
                         id="requestedPickupDate"
                         validate={validatePickupDate}
                         onChange={handlePickupDateChange}
@@ -1153,6 +1172,9 @@ const ShipmentForm = (props) => {
                           <AddressFields
                             name="delivery.address"
                             formikProps={formikProps}
+                            onCountryChanged={(country) =>
+                              handleDeliveryCountryChanged(country, values.delivery.requestedDate)
+                            }
                             render={(fields) => {
                               return fields;
                             }}
@@ -1259,7 +1281,7 @@ const ShipmentForm = (props) => {
                           )}
                           <DatePickerInput
                             name="delivery.requestedDate"
-                            label="Requested delivery date"
+                            label={REQUESTED_DELIVERY_DATE}
                             id="requestedDeliveryDate"
                             validate={validateDate}
                             onChange={handleDeliveryDateChange}
@@ -1285,7 +1307,7 @@ const ShipmentForm = (props) => {
                         )}
                         <DatePickerInput
                           name="delivery.requestedDate"
-                          label="Requested delivery date"
+                          label={REQUESTED_DELIVERY_DATE}
                           id="requestedDeliveryDate"
                           validate={validateDate}
                           onChange={handleDeliveryDateChange}
@@ -1331,7 +1353,7 @@ const ShipmentForm = (props) => {
                                 value="true"
                                 title="Yes, I know my delivery address"
                                 checked={hasDeliveryAddress === 'true'}
-                                onChange={(e) => handleAddressToggleChange(e, values, setValues, blankAddress)}
+                                onChange={(e) => handleAddressKnownChange(e)}
                               />
                               <Field
                                 as={Radio}
@@ -1349,6 +1371,9 @@ const ShipmentForm = (props) => {
                             <AddressFields
                               name="delivery.address"
                               formikProps={formikProps}
+                              onCountryChanged={(country) =>
+                                handleDeliveryCountryChanged(country, values.delivery.requestedDate)
+                              }
                               render={(fields) => (
                                 <>
                                   {fields}
@@ -1486,7 +1511,7 @@ const ShipmentForm = (props) => {
                           )}
                           <DatePickerInput
                             name="delivery.requestedDate"
-                            label="Requested delivery date"
+                            label={REQUESTED_DELIVERY_DATE}
                             id="requestedDeliveryDate"
                             validate={validateDate}
                             onChange={handleDeliveryDateChange}

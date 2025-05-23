@@ -112,7 +112,7 @@ describe('AddressFields component', () => {
     });
   });
 
-  it('calls onLocationEntered when a location value is entered', async () => {
+  it('calls onCountryChanged when a country value is entered', async () => {
     const mockLocationData = [
       {
         city: 'New York',
@@ -125,31 +125,31 @@ describe('AddressFields component', () => {
 
     ghcApi.searchLocationByZipCityState.mockResolvedValue(mockLocationData);
 
-    const onLocationEntered = jest.fn();
+    const onCountryChanged = jest.fn();
 
     render(
       <Provider store={mockStore.store}>
         <Formik initialValues={{}}>
           {(formikProps) => (
-            <AddressFields name="address" formikProps={formikProps} onLocationEntered={onLocationEntered} />
+            <AddressFields name="address" formikProps={formikProps} onCountryChanged={onCountryChanged} />
           )}
         </Formik>
       </Provider>,
     );
 
-    const locationInput = screen.getByRole('combobox', { name: /location lookup/i });
+    const countryInput = screen.getByRole('combobox', { name: /country/i });
 
-    await userEvent.type(locationInput, 'New York');
+    await userEvent.type(countryInput, 'US');
 
     await waitFor(() => {
       expect(ghcApi.searchLocationByZipCityState).toHaveBeenCalledWith('New York');
     });
 
     // Simulate selecting the option
-    await userEvent.type(locationInput, '{arrowdown}{enter}');
+    await userEvent.type(countryInput, '{arrowdown}{enter}');
 
     await waitFor(() => {
-      expect(onLocationEntered).toHaveBeenCalledWith(
+      expect(onCountryChanged).toHaveBeenCalledWith(
         expect.objectContaining({
           city: 'New York',
           state: 'NY',

@@ -18,7 +18,7 @@ import LocationInput from 'components/form/fields/LocationInput';
  * @param zipCity
  * @param address1LabelHint string to override display labelHint if street 1 is Optional/Required per context.
  * This is specifically designed to handle unique display between customer and office/prime sim for address 1.
- * @param onLocationEntered function that will be called with the location information when a location is entered
+ * @param onCountryChanged function that will be called with the country when a country is entered.
  * @return {JSX.Element}
  * @constructor
  */
@@ -31,7 +31,7 @@ export const AddressFields = ({
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
-  onLocationEntered,
+  onCountryChanged,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
@@ -72,15 +72,9 @@ export const AddressFields = ({
     setFieldValue(`${name}.usPostRegionCitiesID`, usPostRegionCitiesID).then(() => {
       setFieldTouched(`${name}.usPostRegionCitiesID`, true);
     });
-    if (onLocationEntered) {
-      onLocationEntered({
-        city,
-        state,
-        county,
-        postalCode,
-        usPostRegionCitiesID,
-      });
-    }
+
+    // Move to country change handler when that is available in the upstream
+    onCountryChanged();
   };
 
   return (
