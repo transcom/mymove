@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { func, string, bool } from 'prop-types';
+import { useLocation } from 'react-router';
 
 import styles from './OrdersDetailForm.module.scss';
 
@@ -40,6 +41,8 @@ const OrdersDetailForm = ({
   hhgLongLineOfAccounting,
   ntsLongLineOfAccounting,
 }) => {
+  const location = useLocation();
+
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
   // The text/placeholder are different if the customer is retiring or separating.
@@ -67,7 +70,7 @@ const OrdersDetailForm = ({
         name="payGrade"
         label="Pay grade"
         id="payGradeInput"
-        options={payGradeOptions}
+        options={payGradeOptions || location.state.payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
         showRequiredAsterisk
@@ -247,7 +250,6 @@ OrdersDetailForm.propTypes = {
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
-  payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
   hhgLongLineOfAccounting: string,
   ntsLongLineOfAccounting: string,
@@ -274,7 +276,6 @@ OrdersDetailForm.defaultProps = {
   showNTSLoa: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
-  payGradeOptions: null,
   formIsDisabled: false,
   hhgLongLineOfAccounting: '',
   ntsLongLineOfAccounting: '',

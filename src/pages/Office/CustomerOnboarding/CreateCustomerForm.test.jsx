@@ -333,6 +333,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -429,6 +430,7 @@ describe('CreateCustomerForm', () => {
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: false,
         },
@@ -574,6 +576,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -655,6 +658,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'COAST_GUARD',
           isSafetyMoveSelected: true,
           isBluebarkMoveSelected: false,
         },
@@ -730,6 +734,7 @@ describe('CreateCustomerForm', () => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
+          affiliation: 'ARMY',
           isSafetyMoveSelected: false,
           isBluebarkMoveSelected: true,
         },

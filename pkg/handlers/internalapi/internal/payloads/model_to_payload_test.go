@@ -364,3 +364,16 @@ func (suite *PayloadsSuite) TestCountriesPayload() {
 		suite.True(len(payload) == 0)
 	})
 }
+
+func (suite *PayloadsSuite) TestPayGrades() {
+	payGrades := models.PayGrades{
+		{Grade: "E-1", GradeDescription: models.StringPointer("E-1")},
+		{Grade: "O-3", GradeDescription: models.StringPointer("O-3")},
+		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
+	}
+
+	result := PayGrades(payGrades)
+
+	suite.Equal(len(payGrades), len(result))
+	suite.Equal(payGrades[0].Grade, result[0].Grade)
+}
