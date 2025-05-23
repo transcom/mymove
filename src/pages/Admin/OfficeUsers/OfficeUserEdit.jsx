@@ -114,7 +114,7 @@ const OfficeUserEdit = ({ adminUser }) => {
   const deleteUser = async () => {
     try {
       await deleteOfficeUser(userData.id);
-      redirect('/');
+      redirect('./..');
     } catch (err) {
       if (err?.statusCode === 409) {
         setInactivateOpen(true);
