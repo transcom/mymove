@@ -11,7 +11,8 @@ import { selectLoggedInUser } from 'store/entities/selectors';
 import { OfficeUserInfoShape } from 'types/index';
 
 export const LocationInput = (props) => {
-  const { label, name, displayAddress, placeholder, isDisabled, handleLocationChange, officeUser } = props;
+  const { label, name, displayAddress, placeholder, isDisabled, handleLocationChange, officeUser, includePOBoxes } =
+    props;
   const [field, meta] = useField(props);
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
@@ -32,6 +33,7 @@ export const LocationInput = (props) => {
       isDisabled={isDisabled}
       searchLocations={officeUser?.id ? ghcSearchLocationByZipCityState : searchLocationByZipCityState}
       handleLocationOnChange={handleLocationChange}
+      includePOBoxes={includePOBoxes}
     />
   );
 };
@@ -44,6 +46,7 @@ LocationInput.propTypes = {
   isDisabled: PropTypes.bool,
   handleLocationChange: PropTypes.func.isRequired,
   officeUser: OfficeUserInfoShape,
+  includePOBoxes: PropTypes.bool,
 };
 
 LocationInput.defaultProps = {
@@ -51,6 +54,7 @@ LocationInput.defaultProps = {
   placeholder: '',
   isDisabled: false,
   officeUser: {},
+  includePOBoxes: false,
 };
 
 const mapStateToProps = (state) => {

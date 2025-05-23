@@ -23,14 +23,14 @@ func NewVLocation() services.VLocation {
 	return &vLocation{}
 }
 
-func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, exactMatch ...bool) (*models.VLocations, error) {
+func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, includePOBoxes bool, exactMatch ...bool) (*models.VLocations, error) {
 	exact := false
 
 	if len(exactMatch) > 0 {
 		exact = true
 	}
 
-	locationList, err := FindLocationsByZipCity(appCtx, search, exclusionStateFilters, exact)
+	locationList, err := FindLocationsByZipCity(appCtx, search, exclusionStateFilters, includePOBoxes, exact)
 
 	if err != nil {
 		switch err {
@@ -49,7 +49,7 @@ func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, sear
 // to determine when the state and postal code need to be parsed from the search string
 // If there is only one result and no comma and the search string is all numbers we then search
 // using the entered postal code rather than city name
-func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, exactMatch bool) (models.VLocations, error) {
+func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusionStateFilters []string, includePOBoxes bool, exactMatch bool) (models.VLocations, error) {
 	var locationList []models.VLocation
 	searchSlice := strings.Split(search, ",")
 	city := ""
@@ -74,18 +74,26 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string, exclusi
 	}
 
 	sqlQuery := `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
-		FROM v_locations vl where vl.uspr_zip_id like ? AND
+		FROM v_locations vl WHERE vl.uspr_zip_id like ? AND
 		vl.city_name like upper(?) AND vl.state like upper(?)`
 
 	if exactMatch {
-		sqlQuery = `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
-		FROM v_locations vl where vl.uspr_zip_id = ? AND
+		sqlQuery = `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id, vl.is_po_box
+		FROM v_locations vl WHERE vl.uspr_zip_id = ? AND
 		vl.city_name = upper(?) AND vl.state = upper(?)`
 	}
 
 	// apply filter to exclude specific states if provided
 	for _, value := range exclusionStateFilters {
 		sqlQuery += ` AND vl.state NOT in ('` + value + `')`
+	}
+
+	// apply filter to exclude PO Boxes if provided
+	if !includePOBoxes {
+		sqlQuery += ` AND NOT vl.is_po_box`
+	} else if exactMatch {
+		// ensure non PO Box matches, if any, are first
+		sqlQuery += ` ORDER BY vl.is_po_box ASC`
 	}
 
 	sqlQuery += ` limit 30`
