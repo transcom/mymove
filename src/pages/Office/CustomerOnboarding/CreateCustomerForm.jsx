@@ -90,7 +90,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       postalCode: '',
     },
     [backupContactName]: {
-      name: '',
+      firstName: '',
+      lastName: '',
       telephone: '',
       email: '',
     },
@@ -109,6 +110,10 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     const createOktaAccount = values.create_okta_account === 'true';
     const cacUser = values.cac_user === 'true';
 
+    const backupContactFirstName = values[backupContactName].firstName;
+    const backupContactLastName = values[backupContactName].lastName;
+    const backupContactFullName = `${backupContactFirstName} ${backupContactLastName}`;
+
     const body = {
       affiliation: values.affiliation,
       edipi: values.edipi,
@@ -125,7 +130,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       residentialAddress: values[residentialAddressName],
       backupMailingAddress: values[backupAddressName],
       backupContact: {
-        name: values[backupContactName].name,
+        name: backupContactFullName,
         email: values[backupContactName].email,
         phone: values[backupContactName].telephone,
       },
@@ -443,7 +448,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   </SectionWrapper>
                   <SectionWrapper className={sectionStyles}>
                     <h3>Backup Contact</h3>
-                    <TextField label="Name" id="backupContactName" name="backup_contact.name" required />
+                    <TextField
+                      label="First Name"
+                      id="backupContactFirstName"
+                      name="backup_contact.firstName"
+                      required
+                    />
+                    <TextField label="Last Name" id="backupContactLastName" name="backup_contact.lastName" required />
                     <TextField label="Email" id="backupContactEmail" name="backup_contact.email" required />
                     <MaskedTextField
                       label="Phone"
