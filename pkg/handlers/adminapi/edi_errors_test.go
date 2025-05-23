@@ -66,7 +66,7 @@ func (suite *HandlerSuite) TestFetchEdiErrorsHandler() {
 		mockFetcher.On("FetchEdiErrors", mock.Anything, mock.Anything).Return(expectedEdiErrors, len(expectedEdiErrors), nil)
 
 		handler := FetchEdiErrorsHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			ediErrorFetcher: mockFetcher,
 			NewPagination:   pagination.NewPagination,
 		}
@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestFetchEdiErrorsHandlerFailure() {
 	mockFetcher.On("FetchEdiErrors", mock.Anything, mock.Anything).Return(models.EdiErrors{}, 0, expectedErr)
 
 	handler := FetchEdiErrorsHandler{
-		HandlerConfig:   suite.HandlerConfig(),
+		HandlerConfig:   suite.NewHandlerConfig(),
 		ediErrorFetcher: mockFetcher,
 		NewPagination:   pagination.NewPagination,
 	}
@@ -151,7 +151,7 @@ func (suite *HandlerSuite) TestGetEdiErrorHandler() {
 		mockFetcher.On("FetchEdiErrorByID", mock.Anything, ediErrorID).Return(expected, nil)
 
 		handler := GetEdiErrorHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			ediErrorFetcher: mockFetcher,
 		}
 
@@ -182,7 +182,7 @@ func (suite *HandlerSuite) TestGetEdiErrorHandler() {
 		})).Return(models.EdiError{}, apperror.NewNotFoundError(missingID, "EDIError not found"))
 
 		handler := GetEdiErrorHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			ediErrorFetcher: mockFetcher,
 		}
 

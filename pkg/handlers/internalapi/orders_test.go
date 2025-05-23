@@ -91,7 +91,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
 
@@ -214,7 +214,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
 		response := createHandler.Handle(params)
@@ -336,7 +336,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 		createHandler := CreateOrdersHandler{handlerConfig}
 
@@ -372,7 +372,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 	showHandler := ShowOrdersHandler{handlerConfig}
 
@@ -787,7 +787,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -939,7 +939,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -1040,7 +1040,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -1112,7 +1112,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
@@ -1219,7 +1219,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := UpdateOrdersHandler{handlerConfig}
@@ -1359,7 +1359,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
 
 	handler := UpdateOrdersHandler{handlerConfig}

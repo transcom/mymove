@@ -48,7 +48,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 
 		// Create handler
 		handler := UpdateReweighHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			reweighservice.NewReweighUpdater(movetaskorder.NewMoveTaskOrderChecker(), paymentRequestShipmentRecalculator),
 		}
 		// Make an available MTO

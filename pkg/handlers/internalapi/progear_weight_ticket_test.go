@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		}
 
 		subtestData.handler = CreateProGearWeightTicketHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			progearCreator,
 		}
 
@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		).Return(nil, serverErr)
 
 		handler := CreateProGearWeightTicketHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockCreator,
 		}
 
@@ -256,7 +256,7 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 		).Return(nil, err)
 
 		handler := UpdateProGearWeightTicketHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			&mockUpdater,
 		}
 
