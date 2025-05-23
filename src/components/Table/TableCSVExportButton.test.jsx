@@ -188,7 +188,7 @@ describe('TableCSVExportButton', () => {
     totalCount: 0,
   };
 
-  it('is diabled when there is nothing to export', () => {
+  it('is disabled when there is nothing to export', () => {
     act(() => {
       const wrapper = mount(<TableCSVExportButton {...noResultsProps} />);
       const exportButton = wrapper.find('span[data-test-id="csv-export-btn-text"]');
@@ -197,5 +197,27 @@ describe('TableCSVExportButton', () => {
     });
 
     expect(getPaymentRequestsQueue).toBeCalled();
+  });
+
+  it('disables button when totalCount is 0', () => {
+    const wrapper = mount(<TableCSVExportButton {...noResultsProps} />);
+    const button = wrapper.find('button[data-test-id="csv-export-btn-visible"]');
+
+    expect(button.prop('disabled')).toBe(true);
+  });
+
+  it('sets CSV data correctly after fetch', async () => {
+    const wrapper = mount(<TableCSVExportButton {...defaultProps} />);
+
+    await act(async () => {
+      wrapper.find('button[data-test-id="csv-export-btn-visible"]').simulate('click');
+    });
+
+    jest.runAllTimers();
+    wrapper.update();
+
+    const csvData = wrapper.find('CSVLink').prop('data');
+    expect(csvData).toHaveLength(1);
+    expect(csvData[0]['Customer name']).toBe('Spacemen, Leo');
   });
 });
