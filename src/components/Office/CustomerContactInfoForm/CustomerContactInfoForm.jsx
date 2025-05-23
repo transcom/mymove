@@ -36,8 +36,8 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     emailIsPreferred: Yup.boolean(),
     cacUser: Yup.boolean().required('Required'),
     [backupContactName]: Yup.object().shape({
-      firstName: Yup.string().required('Required'),
-      lastName: Yup.string().required('Required'),
+      firstName: Yup.string().trim().min(1, 'Required').required('Required'),
+      lastName: Yup.string().trim().min(1, 'Required').required('Required'),
       email: Yup.string()
         .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
         .required('Required'),
