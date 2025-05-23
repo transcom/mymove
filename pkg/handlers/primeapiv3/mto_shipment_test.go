@@ -1996,7 +1996,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - Internal Server error GetLocationsByZipCityState", func() {
-		// Under Test: UpdateMTOShipmentHandler
+		// Under Test: CreateMTOShipmentHandler
 		// Setup:   Mock location to return an error
 		// Expected:   500 Response returned
 		handler, move := setupTestData(false, true)

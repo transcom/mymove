@@ -3413,17 +3413,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		appCtx := suite.AppContextForTest()
 
-		var ghcDomesticTransitTime models.GHCDomesticTransitTime
-		err := appCtx.DB().Where("distance_miles_lower <= ? "+
-			"AND distance_miles_upper >= ? "+
-			"AND weight_lbs_lower <= ? "+
-			"AND (weight_lbs_upper >= ? OR weight_lbs_upper = 0)",
-			500, 500, 11000, 11000).First(&ghcDomesticTransitTime)
-		suite.NoError(err)
-
-		ghcDomesticTransitTime.MaxDaysTransitTime = 12
-
-		verrs, err := suite.DB().ValidateAndSave(&ghcDomesticTransitTime)
+		ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     10001,
+			WeightLbsUpper:     0,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
 		suite.Assert().False(verrs.HasAny())
 		suite.NoError(err)
 
