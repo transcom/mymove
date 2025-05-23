@@ -2169,6 +2169,11 @@ func (suite *MTOServiceItemServiceSuite) setupAssignmentTestData() (models.MTOSe
 			},
 		},
 		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+		{
 			Model:    officeUser1,
 			LinkOnly: true,
 			Type:     &factory.OfficeUsers.TOOAssignedUser,
