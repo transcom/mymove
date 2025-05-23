@@ -47,9 +47,7 @@ const mtoShipments = [
     id: '22ee7ad8-7147-4ee0-bbe6-264aef36d7cc',
     moveTaskOrderID: '01912827-b4e5-46cb-a800-4273830956cd',
     ppmShipment: {
-      actualDestinationPostalCode: null,
       actualMoveDate: null,
-      actualPickupPostalCode: null,
       advanceAmountReceived: null,
       advanceAmountRequested: 598700,
       approvedAt: null,
@@ -260,7 +258,7 @@ describe('Evaluation Report Container', () => {
     render(
       <EvaluationReportPreview
         evaluationReport={evaluationReport}
-        grade="E_4"
+        grade="E-4"
         moveCode="TEST123"
         customerInfo={customerInfo}
         mtoShipments={mtoShipments}

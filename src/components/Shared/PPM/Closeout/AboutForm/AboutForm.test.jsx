@@ -31,8 +31,6 @@ const shipmentProps = {
   mtoShipment: {
     ppmShipment: {
       actualMoveDate: '31 May 2022',
-      actualPickupPostalCode: '',
-      actualDestinationPostalCode: '',
       pickupAddress: {
         streetAddress1: '812 S 129th St',
         streetAddress2: '#123',
@@ -115,6 +113,7 @@ describe('AboutForm component', () => {
       expect(screen.getAllByTestId('City')[1]).toHaveTextContent('');
       expect(screen.getAllByTestId('State')[1]).toHaveTextContent('');
       expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(3);
 
       expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
@@ -151,15 +150,10 @@ describe('AboutForm component', () => {
 
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('');
-      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('');
-      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('');
 
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('');
-      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('');
-      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('');
+      expect(screen.getAllByLabelText(/Location Lookup/).length).toBe(3);
 
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
@@ -219,7 +213,7 @@ describe('AboutForm component', () => {
       expect(screen.getAllByTestId(/City/)[2]).toHaveTextContent('Jacksonville');
       expect(screen.getAllByTestId(/State/)[2]).toHaveTextContent('FL');
       expect(screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent('32217');
-
+      expect(screen.getByText('Jacksonville, FL 32217 ()'));
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -254,7 +248,7 @@ describe('AboutForm component', () => {
       // street 1 is now OPTIONAL for onboarding but required for PPM doc upload. If this fails it means addtional labelHints
       // have been introduced elsewhere within the control.
       const hints = document.getElementsByClassName('usa-hint');
-      expect(hints.length).toBe(15);
+      expect(hints.length).toBe(18);
       // verify labelHints are actually 'Optional'
       for (let i = 0; i < hints.length; i += 1) {
         expect(hints[i]).toHaveTextContent('Required');
@@ -332,8 +326,6 @@ describe('AboutForm component', () => {
           expect(shipmentProps.onSubmit).toHaveBeenCalledWith(
             {
               actualMoveDate: '31 May 2022',
-              actualPickupPostalCode: '',
-              actualDestinationPostalCode: '',
               pickupAddress: {
                 streetAddress1: '812 S 129th St',
                 streetAddress2: '#123',

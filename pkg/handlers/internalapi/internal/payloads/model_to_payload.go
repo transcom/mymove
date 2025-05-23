@@ -129,13 +129,11 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -742,6 +740,21 @@ func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 	return payload
 }
 
+// PayGrades payload
+func PayGrades(payGrades models.PayGrades) []*internalmessages.OrderPayGrades {
+	var payloadPayGrades []*internalmessages.OrderPayGrades
+
+	for _, payGrade := range payGrades {
+		tempPayGrade := internalmessages.OrderPayGrades{
+			Grade:       payGrade.Grade,
+			Description: *payGrade.GradeDescription,
+		}
+		payloadPayGrades = append(payloadPayGrades, &tempPayGrade)
+	}
+
+	return payloadPayGrades
+}
+
 // get pay grade / rank for orders drop down
 func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, grade string) ([]*internalmessages.Rank, error) {
 	var dropdownOptions []*internalmessages.Rank
@@ -757,7 +770,7 @@ func GetRankDropdownOptions(appCtx appcontext.AppContext, affiliation string, gr
 		JOIN pay_grades ON ranks.pay_grade_id = pay_grades.id
 		WHERE affiliation = $1
 		AND grade = $2
-		ORDER BY ranks.rank_order DESC
+		ORDER BY ranks.rank_order ASC
 	`, affiliation, grade).All(&dropdownOptions)
 	if err != nil {
 		return nil, err

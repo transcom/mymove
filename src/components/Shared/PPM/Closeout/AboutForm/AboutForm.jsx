@@ -9,7 +9,7 @@ import styles from './AboutForm.module.scss';
 
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
 import closingPageStyles from 'components/Shared/PPM/Closeout/Closeout.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Hint from 'components/Hint';
@@ -63,8 +63,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
 
   const initialValues = {
     actualMoveDate: actualMoveDate || '',
-    actualPickupPostalCode: '',
-    actualDestinationPostalCode: '',
     pickupAddress,
     secondaryPickupAddress: hasSecondaryPickupAddress ? secondaryPickupAddress : {},
     destinationAddress,
@@ -145,7 +143,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     name="pickupAddress"
                     legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Shipped from Address' : 'Pickup Address'}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                     className={styles.AddressFieldSet}
                     render={(fields) => (
@@ -181,12 +178,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                           </div>
                         </FormGroup>
                         {values.hasSecondaryPickupAddress === 'true' && (
-                          <AddressFields
-                            name="secondaryPickupAddress"
-                            labelHint="Required"
-                            locationLookup
-                            formikProps={formikProps}
-                          />
+                          <AddressFields name="secondaryPickupAddress" labelHint="Required" formikProps={formikProps} />
                         )}
                       </>
                     )}
@@ -196,7 +188,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     legend={ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Destination Address' : 'Delivery Address'}
                     className={styles.AddressFieldSet}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                     render={(fields) => (
                       <>
@@ -234,7 +225,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                           <AddressFields
                             name="secondaryDestinationAddress"
                             labelHint="Required"
-                            locationLookup
                             formikProps={formikProps}
                           />
                         )}
@@ -289,7 +279,6 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
                     name={formFieldsName}
                     className={styles.AddressFieldSet}
                     labelHint="Required"
-                    locationLookup
                     formikProps={formikProps}
                   />
                 </SectionWrapper>
