@@ -7,7 +7,7 @@ import OrdersDetailForm from './OrdersDetailForm';
 
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_TYPE } from 'constants/orders';
 import { renderWithRouter } from 'testUtils';
 
 const dutyLocation = {
@@ -44,7 +44,7 @@ const initialValues = {
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
-const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_TYPE);
 
 const defaultProps = {
   deptIndicatorOptions: deptOptions,
