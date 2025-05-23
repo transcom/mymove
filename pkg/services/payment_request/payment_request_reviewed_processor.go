@@ -170,7 +170,6 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		return nil
 	})
 	paymentRequestNotifier := notifications.NewPaymentRequestFailed(pr)
-
 	if transactionError != nil {
 		errDescription := transactionError.Error()
 

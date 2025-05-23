@@ -213,7 +213,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		gexSender := services.GexSender(nil)
 		sendToSyncada := false
 		mockNotificationSender := notifications.NewStubNotificationSender("")
-
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
 			reviewedPaymentRequestFetcher,
@@ -221,8 +220,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession,
-			mockNotificationSender,
-		)
+			mockNotificationSender)
 		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.AppContextForTest())
 
 		var ediProcessing models.EDIProcessing

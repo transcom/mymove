@@ -40,6 +40,24 @@ jest.mock('services/internalApi', () => ({
       },
     ]);
   }),
+  getPayGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          grade: 'E-5',
+          description: ' E-5',
+        },
+        {
+          grade: 'E-6',
+          description: ' E-6',
+        },
+        {
+          description: 'Civilian',
+          grade: 'CIVILIAN_EMPLOYEE',
+        },
+      ],
+    }),
+  ),
 }));
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>

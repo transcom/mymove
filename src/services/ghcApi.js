@@ -1130,3 +1130,7 @@ export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
 export function getResponseError(response, defaultErrorMessage) {
   return response?.body?.detail || response?.statusText || defaultErrorMessage;
 }
+
+export async function getPayGradeOptions(affiliation) {
+  return makeGHCRequestRaw('orders.getPayGrades', { affiliation });
+}

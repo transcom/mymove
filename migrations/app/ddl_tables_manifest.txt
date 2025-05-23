@@ -22,3 +22,4 @@
 20250422164303_tbl_B-23147_create_ranks_table.up.sql
 20250425124456_tbl_B-22538_alter_roles.up.sql
 20250425124510_tbl_B-22538_alter_privileges.up.sql
+20250516151608_tbl_add_order_column_to_pay_grade.up.sql
