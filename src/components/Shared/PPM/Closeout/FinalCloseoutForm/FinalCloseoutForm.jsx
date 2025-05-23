@@ -18,6 +18,7 @@ import {
 } from 'utils/ppmCloseout';
 import {
   calculateTotalNetWeightForProGearWeightTickets,
+  calculateTotalNetWeightForGunSafeWeightTickets,
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 import affiliations from 'content/serviceMemberAgencies';
@@ -37,6 +38,9 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
   const totalNetWeight = getTotalNetWeightForWeightTickets(mtoShipment?.ppmShipment?.weightTickets);
   const totalProGearWeight = calculateTotalNetWeightForProGearWeightTickets(
     mtoShipment?.ppmShipment?.proGearWeightTickets,
+  );
+  const totalGunSafeWeight = calculateTotalNetWeightForGunSafeWeightTickets(
+    mtoShipment?.ppmShipment?.gunSafeWeightTickets,
   );
 
   const canChoosePPMLocation =
@@ -100,6 +104,7 @@ const FinalCloseoutForm = ({ initialValues, mtoShipment, onBack, onSubmit, affil
                 <>
                   <li>{formatWeight(totalNetWeight)} total net weight</li>
                   <li>{formatWeight(totalProGearWeight)} of pro-gear</li>
+                  <li>{formatWeight(totalGunSafeWeight)} of gun safe weight</li>
                   <li>${formatCents(totalExpensesClaimed)} in expenses claimed</li>
                 </>
               )}
