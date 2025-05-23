@@ -720,6 +720,14 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
 	}
 
+	if ppmShipment.HasGunSafe != nil {
+		model.HasGunSafe = ppmShipment.HasGunSafe
+	}
+
+	if ppmShipment.GunSafeWeight != nil {
+		model.GunSafeWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.GunSafeWeight)
+	}
+
 	return model
 }
 
