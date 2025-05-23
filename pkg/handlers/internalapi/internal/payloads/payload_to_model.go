@@ -244,8 +244,6 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	ppmModel := &models.PPMShipment{
 		PPMType:                        models.PPMType(ppmShipment.PpmType),
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,

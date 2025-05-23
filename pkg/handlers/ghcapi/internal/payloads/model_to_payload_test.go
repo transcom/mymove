@@ -393,12 +393,53 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	}
 
 	isActualExpenseReimbursement := true
+	emptyWeight1 := unit.Pound(1000)
+	emptyWeight2 := unit.Pound(1200)
+	fullWeight1 := unit.Pound(1500)
+	fullWeight2 := unit.Pound(1500)
+	pgBoolCustomer := true
+	pgBoolSpouse := false
+	weightCustomer := unit.Pound(100)
+	weightSpouse := unit.Pound(120)
+	finalIncentive := unit.Cents(20000)
+
+	weightTickets := models.WeightTickets{
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight1,
+			FullWeight:  &fullWeight1,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight2,
+			FullWeight:  &fullWeight2,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+	proGearWeightTickets := models.ProgearWeightTickets{
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolCustomer,
+			Weight:        &weightCustomer,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolSpouse,
+			Weight:        &weightSpouse,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+	}
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+		WeightTickets:                weightTickets,
+		ProgearWeightTickets:         proGearWeightTickets,
+		FinalIncentive:               &finalIncentive,
 	}
 
 	suite.Run("Success -", func() {
@@ -423,6 +464,9 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(len(returnedPPMShipment.WeightTickets), 2)
+		suite.Equal(ProGearWeightTickets(suite.storer, proGearWeightTickets), returnedPPMShipment.ProGearWeightTickets)
+		suite.Equal(handlers.FmtCost(&finalIncentive), returnedPPMShipment.FinalIncentive)
 	})
 
 	suite.Run("Destination street address 1 returns empty string to convey OPTIONAL state ", func() {

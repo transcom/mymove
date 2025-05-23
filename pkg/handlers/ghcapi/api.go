@@ -411,6 +411,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmShowAOAPacketHandler = showAOAPacketHandler{handlerConfig, SSWPPMComputer, SSWPPMGenerator, AOAPacketCreator}
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
+	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(shipmentRouter)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, handlerConfig.NotificationSender()))
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
@@ -665,11 +666,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		log.Fatalln(err)
 	}
 
-	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(shipmentRouter)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	ghcAPI.PpmSendPPMToCustomerHandler = SendPPMToCustomerHandler{
 		handlerConfig,
 		ppmShipmentFetcher,
@@ -679,7 +675,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmFinishDocumentReviewHandler = FinishDocumentReviewHandler{
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
-			ppmShipmentRouter, signedCertificationCreator, signedCertificationUpdater, SSWPPMComputer,
+			ppmShipmentRouter,
+			signedCertificationCreator, signedCertificationUpdater, SSWPPMComputer,
 		),
 	}
 
@@ -852,6 +849,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		countrySearcher,
 	}
+
+	ppmShipmentNewSubmitter := ppmshipment.NewPPMShipmentNewSubmitter(ppmShipmentFetcher, signedCertificationCreator, ppmShipmentRouter)
+	ghcAPI.PpmSubmitPPMShipmentDocumentationHandler = SubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentNewSubmitter}
 
 	return ghcAPI
 }

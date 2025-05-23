@@ -4607,6 +4607,56 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Routes the PPM shipment to the service\ncounselor PPM Closeout queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a PNG, JPEG, PDF, or spreadsheet.",
@@ -13487,32 +13537,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -16346,28 +16376,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received\n",
@@ -23228,6 +23240,82 @@ func init() {
           "description": "Weight stored in SIT",
           "name": "weightStored",
           "in": "query",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
+      "post": {
+        "description": "Routes the PPM shipment to the service\ncounselor PPM Closeout queue for review.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Saves signature and routes PPM shipment to service counselor",
+        "operationId": "submitPPMShipmentDocumentation",
+        "responses": {
+          "200": {
+            "description": "Returns the updated PPM shipment",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
           "required": true
         }
       ]
@@ -32757,32 +32845,12 @@ func init() {
         "eTag"
       ],
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "description": "The actual start date of when the PPM shipment left the origin.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received.\n",
@@ -35675,28 +35743,10 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received\n",
