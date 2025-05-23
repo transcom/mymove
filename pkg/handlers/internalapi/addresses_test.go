@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 				AddressID:   *handlers.FmtUUID(ts.ID),
 			}
 
-			handler := ShowAddressHandler{suite.HandlerConfig()}
+			handler := ShowAddressHandler{suite.NewHandlerConfig()}
 			res := handler.Handle(params)
 
 			response := res.(*addressop.ShowAddressOK)
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		}
 
 		handler := GetLocationByZipCityStateHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			VLocation:     vLocationServices}
 
 		response := handler.Handle(params)
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: countrySearcher}
 
 		response := handler.Handle(params)
@@ -149,7 +149,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: countrySearcher}
 
 		response := handler.Handle(params)
@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: &mockCountrySearcher,
 		}
 
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestCountrySearchHandler() {
 		}
 
 		handler := SearchCountriesHandler{
-			HandlerConfig:   suite.HandlerConfig(),
+			HandlerConfig:   suite.NewHandlerConfig(),
 			CountrySearcher: &mockCountrySearcher,
 		}
 

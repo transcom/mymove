@@ -68,7 +68,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -199,7 +199,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -397,7 +397,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -520,7 +520,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -571,7 +571,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		Roles:           officeUser.User.Roles,
+		ActiveRole:      officeUser.User.Roles[0],
 		OfficeUserID:    officeUser.ID,
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
@@ -632,7 +632,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1099,7 +1099,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1336,7 +1336,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListByAllFilters
 		tioNameLocator = fmt.Sprintf("%s %s", officeUser.FirstName, officeUser.LastName)
 		session = auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
