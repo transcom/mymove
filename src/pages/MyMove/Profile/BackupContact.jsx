@@ -42,6 +42,8 @@ export const BackupContact = ({ serviceMember, currentBackupContacts, updateServ
   const handleSubmit = (values) => {
     const payload = {
       name: values?.name || '',
+      firstName: values?.firstName || '',
+      lastName: values?.lastName || '',
       email: values?.email || '',
       telephone: values?.telephone || '',
       permission: values.permission === undefined ? NonePermission : values.permission,

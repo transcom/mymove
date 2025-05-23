@@ -10,11 +10,15 @@ export const BackupContactInfoFields = ({ name, legend, className, render, label
   const backupContactInfoFieldsUUID = useRef(uuidv4());
 
   let nameFieldName = 'name';
+  let firstNameFieldName = 'firstName';
+  let lastNameFieldName = 'lastName';
   let emailFieldName = 'email';
   let phoneFieldName = 'telephone';
 
   if (name !== '') {
     nameFieldName = `${name}.name`;
+    firstNameFieldName = `${name}.firstName`;
+    lastNameFieldName = `${name}.lastName`;
     emailFieldName = `${name}.email`;
     phoneFieldName = `${name}.telephone`;
   }
@@ -27,6 +31,20 @@ export const BackupContactInfoFields = ({ name, legend, className, render, label
             label="Name"
             id={`name_${backupContactInfoFieldsUUID.current}`}
             name={nameFieldName}
+            required
+            labelHint={labelHintProp}
+          />
+          <TextField
+            label="First Name"
+            id={`firstName_${backupContactInfoFieldsUUID.current}`}
+            name={firstNameFieldName}
+            required
+            labelHint={labelHintProp}
+          />
+          <TextField
+            label="Last Name"
+            id={`lastName_${backupContactInfoFieldsUUID.current}`}
+            name={lastNameFieldName}
             required
             labelHint={labelHintProp}
           />
