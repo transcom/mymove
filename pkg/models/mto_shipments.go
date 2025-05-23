@@ -587,6 +587,15 @@ func (m *MTOShipment) CanSendReweighEmailForShipmentType() bool {
 	return m.ShipmentType != MTOShipmentTypePPM
 }
 
+func PrimeCanUpdateDeliveryAddress(shipmentType MTOShipmentType) bool {
+	isValid := false
+	if shipmentType != "" && shipmentType != MTOShipmentTypePPM && shipmentType != MTOShipmentTypeHHGIntoNTS {
+		isValid = true
+	}
+
+	return isValid
+}
+
 func IsShipmentApprovable(dbShipment MTOShipment) bool {
 	// check if any service items on current shipment still need to be reviewed
 	if dbShipment.MTOServiceItems != nil {
