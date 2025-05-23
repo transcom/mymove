@@ -371,7 +371,7 @@ func priceIntlFuelSurchargeSIT(_ appcontext.AppContext, fuelSurchargeCode models
 	return totalCost, displayParams, nil
 }
 
-func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, services.PricingDisplayParams, error) {
 	if pickupDeliverySITCode != models.ReServiceCodeIOPSIT && pickupDeliverySITCode != models.ReServiceCodeIDDSIT {
 		return 0, nil, fmt.Errorf("unsupported Intl PickupDeliverySIT code of %s", pickupDeliverySITCode)
 	}
@@ -393,6 +393,10 @@ func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITC
 		return 0, nil, errors.New("perUnitCents is required")
 	}
 
+	if distance == 0 {
+		return 0, nil, errors.New("distance is required")
+	}
+
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 
 	var reContract models.ReContract
@@ -405,7 +409,13 @@ func priceIntlPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITC
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
-	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+
+	if distance > 50 {
+		// multiply with distance if over 50 miles
+		escalatedPrice = escalatedPrice * weight.ToCWTFloat64() * float64(distance)
+	} else {
+		escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+	}
 
 	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
