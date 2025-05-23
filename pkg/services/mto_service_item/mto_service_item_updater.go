@@ -294,40 +294,6 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		}
 
 		move := serviceItem.MoveTaskOrder
-		moveWithServiceItems, err := models.FetchMoveByMoveIDWithServiceItems(txnAppCtx.DB(), move.ID)
-		if err != nil {
-			return err
-		}
-		destServiceItemsNeedingReview := false
-		originServiceItemsNeedingReview := false
-		for _, request := range moveWithServiceItems.MTOServiceItems {
-			if request.Status == models.MTOServiceItemStatusSubmitted {
-				if _, isDestination := models.DestinationServiceItemCodesMap[request.ReService.Code]; isDestination {
-					destServiceItemsNeedingReview = true
-				} else if _, isOrigin := models.OriginServiceItemCodesMap[request.ReService.Code]; isOrigin {
-					originServiceItemsNeedingReview = true
-				}
-			}
-		}
-
-		if serviceItem.ReService == (models.ReService{}) || serviceItem.ReService.Code == "" {
-			return apperror.NewNotFoundError(move.ID, "ReService or ReService.Code is nil or empty.")
-		}
-		if _, isDestination := models.DestinationServiceItemCodesMap[updatedServiceItem.ReService.Code]; !destServiceItemsNeedingReview && isDestination {
-			move.TOODestinationAssignedID = nil
-		} else if _, isOrigin := models.OriginServiceItemCodesMap[updatedServiceItem.ReService.Code]; !originServiceItemsNeedingReview && isOrigin {
-			move.TOOAssignedID = nil
-		}
-
-		//When updating a service item - remove the TOO assigned user
-		verrs, err := appCtx.DB().ValidateAndSave(&move)
-		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(move.ID, nil, verrs, "")
-		}
-		if err != nil {
-			return err
-		}
-
 		if _, err = p.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
