@@ -381,6 +381,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		year, month, day := now.Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		departureDate := contactDatePlusGracePeriod.Add(time.Hour * 24)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipmentSITAllowance := int(90)
@@ -406,6 +407,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 					RequiredDeliveryDate: &aMonthAgo,
 					UpdatedAt:            aMonthAgo,
 					SITDurationUpdates:   populatesitExtensions,
+					OriginSITAuthEndDate: &departureDate,
 				},
 			},
 			{
@@ -516,7 +518,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 
-		// Confirm sitExtension was status was updated for the shipment
+		// Confirm sitExtension status was updated for the shipment
 		suite.DB().Q().All(&sitExtensions)
 		suite.Equal(1, len(sitExtensions))
 		suite.Equal(models.SITExtensionStatusRemoved, sitExtensions[0].Status)

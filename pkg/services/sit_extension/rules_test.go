@@ -54,7 +54,7 @@ func (suite *SitExtensionServiceSuite) TestValidationRules() {
 			tomorrow := today.Add(time.Hour * 24)
 
 			reService := models.ReService{
-				Code: models.ReServiceCodeDOASIT,
+				Code: models.ReServiceCodeDDASIT,
 			}
 			var sitList []models.MTOServiceItem
 			sit := models.MTOServiceItem{
