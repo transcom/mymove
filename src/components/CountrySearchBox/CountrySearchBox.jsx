@@ -189,7 +189,7 @@ export const CountrySearchBoxComponent = ({
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
-  const hasCountry = !!value && !!value.address;
+  const hasCountry = !!value;
 
   return (
     <FormGroup>
@@ -216,7 +216,7 @@ export const CountrySearchBoxComponent = ({
           onInputChange={changeInputText}
           placeholder={placeholder}
           value={
-            (handleCountryOnChange && !!value && value.city != null && value.city !== '') ||
+            (handleCountryOnChange && !!value && value.countryName != null && value.countryCode !== '') ||
             (!handleCountryOnChange && hasCountry)
               ? value
               : ''
