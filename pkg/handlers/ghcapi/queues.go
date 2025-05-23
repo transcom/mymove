@@ -584,7 +584,7 @@ func (h GetPPMCloseoutQueueHandler) Handle(
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
 				CounselingOffice:        params.CounselingOffice,
-				SCAssignedUser:          params.AssignedTo,
+				AssignedTo:              params.AssignedTo,
 			}
 
 			var requestedPpmStatus models.PPMShipmentStatus

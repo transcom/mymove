@@ -30,7 +30,7 @@ RETURNS TABLE(
     full_or_partial_ppm TEXT,
     orders_id UUID,
     locked_by UUID,
-    sc_assigned_id UUID,
+    sc_closeout_assigned_id UUID,
     counseling_transportation_office_id UUID,
     orders JSONB,
     ppm_shipments JSONB,
@@ -76,7 +76,7 @@ BEGIN
                 m.locator::TEXT                       AS locator,
                 m.ppm_type::TEXT                      AS full_or_partial_ppm,
                 m.locked_by                           AS locked_by,
-                m.sc_assigned_id                      AS sc_assigned_id,
+                m.sc_closeout_assigned_id                      AS sc_closeout_assigned_id,
                 m.counseling_transportation_office_id AS counseling_transportation_office_id,
                 m.status::TEXT                        AS status,
                 m.submitted_at::timestamptz           AS move_submitted_at,
@@ -139,7 +139,7 @@ BEGIN
             LEFT JOIN duty_locations dest_dl ON dest_dl.id = o.new_duty_location_id
             LEFT JOIN transportation_offices counseling_to ON counseling_to.id = m.counseling_transportation_office_id
             LEFT JOIN transportation_offices closeout_to   ON closeout_to.id = m.closeout_office_id
-            LEFT JOIN office_users sc       ON sc.id = m.sc_assigned_id
+            LEFT JOIN office_users sc       ON sc.id = m.sc_closeout_assigned_id
             LEFT JOIN addresses AS origin_dl_addr ON origin_dl.address_id = origin_dl_addr.id
             LEFT JOIN addresses AS dest_dl_addr ON dest_dl.address_id = dest_dl_addr.id
             LEFT JOIN LATERAL (
@@ -206,7 +206,7 @@ BEGIN
                 full_or_partial_ppm::TEXT,
                 (orders->>''id'')::UUID AS orders_id,
                 locked_by::UUID,
-                sc_assigned_id::UUID,
+                sc_closeout_assigned_id::UUID,
                 counseling_transportation_office_id::UUID,
                 orders::JSONB,
                 ppm_shipments::JSONB,
