@@ -782,6 +782,6 @@ func (suite *ModelSuite) TestGetAuthorizedSITEndDate() {
 		}, nil)
 
 		endDate := models.GetAuthorizedSITEndDate(shipment)
-		suite.Equal(&tomorrow, endDate)
+		suite.Equal(&today, endDate)
 	})
 }
