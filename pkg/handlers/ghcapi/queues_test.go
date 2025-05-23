@@ -75,8 +75,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	activeRole := string(roles.RoleTypeTOO)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
+		ActiveRole:  &activeRole,
 	}
 	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
@@ -2556,8 +2558,10 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, subtestData.officeUsers[0])
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
 		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
@@ -3176,8 +3180,10 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 
 		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetDestinationRequestsQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
 		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
@@ -3308,8 +3314,10 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 
 		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetDestinationRequestsQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
 		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()

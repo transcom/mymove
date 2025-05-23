@@ -25,7 +25,7 @@ type PPMCloseoutQueueItem struct {
 	FullOrPartialPPM                 *string            `json:"full_or_partial_ppm" db:"full_or_partial_ppm"`
 	OrdersID                         *uuid.UUID         `json:"orders_id" db:"orders_id"`
 	LockedBy                         *uuid.UUID         `json:"locked_by" db:"locked_by"`
-	SCAssignedID                     *uuid.UUID         `json:"sc_assigned_id" db:"sc_assigned_id"`
+	SCCloseoutAssignedID             *uuid.UUID         `json:"sc_closeout_assigned_id" db:"sc_closeout_assigned_id"`
 	CounselingTransportationOfficeID *uuid.UUID         `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	Orders                           json.RawMessage    `json:"orders" db:"orders"`
 	PpmShipments                     json.RawMessage    `json:"ppm_shipments" db:"ppm_shipments"`
@@ -104,7 +104,7 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 			params.CounselingOffice,
 			params.DestinationDutyLocation,
 			params.CloseoutLocation,
-			params.SCAssignedUser,
+			params.AssignedTo,
 			hasSafetyPrivilege,
 			page,
 			perPage,
@@ -156,8 +156,8 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		if queueItem.LockedBy != nil {
 			move.LockedByOfficeUserID = queueItem.LockedBy
 		}
-		if queueItem.SCAssignedID != nil {
-			move.SCAssignedID = queueItem.SCAssignedID
+		if queueItem.SCCloseoutAssignedID != nil {
+			move.SCCounselingAssignedID = queueItem.SCCloseoutAssignedID
 		}
 		if queueItem.CounselingTransportationOfficeID != nil {
 			move.CounselingOfficeID = queueItem.CounselingTransportationOfficeID
@@ -185,7 +185,7 @@ func mapPPMCloseoutQueueItemsToMoves(queueItems []PPMCloseoutQueueItem) ([]model
 		if err := json.Unmarshal(queueItem.ScAssigned, &scUser); err != nil {
 			return nil, fmt.Errorf("unmarshal ScAssigned JSON: %w", err)
 		}
-		move.SCAssignedUser = &scUser
+		move.SCCloseoutAssignedUser = &scUser
 
 		// Account for the json agg of multiple mts
 		var mtoShipments models.MTOShipments

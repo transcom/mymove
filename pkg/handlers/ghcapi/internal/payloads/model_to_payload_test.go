@@ -393,12 +393,53 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	}
 
 	isActualExpenseReimbursement := true
+	emptyWeight1 := unit.Pound(1000)
+	emptyWeight2 := unit.Pound(1200)
+	fullWeight1 := unit.Pound(1500)
+	fullWeight2 := unit.Pound(1500)
+	pgBoolCustomer := true
+	pgBoolSpouse := false
+	weightCustomer := unit.Pound(100)
+	weightSpouse := unit.Pound(120)
+	finalIncentive := unit.Cents(20000)
+
+	weightTickets := models.WeightTickets{
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight1,
+			FullWeight:  &fullWeight1,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight2,
+			FullWeight:  &fullWeight2,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+	proGearWeightTickets := models.ProgearWeightTickets{
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolCustomer,
+			Weight:        &weightCustomer,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolSpouse,
+			Weight:        &weightSpouse,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+	}
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+		WeightTickets:                weightTickets,
+		ProgearWeightTickets:         proGearWeightTickets,
+		FinalIncentive:               &finalIncentive,
 	}
 
 	suite.Run("Success -", func() {
@@ -423,6 +464,9 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(len(returnedPPMShipment.WeightTickets), 2)
+		suite.Equal(ProGearWeightTickets(suite.storer, proGearWeightTickets), returnedPPMShipment.ProGearWeightTickets)
+		suite.Equal(handlers.FmtCost(&finalIncentive), returnedPPMShipment.FinalIncentive)
 	})
 
 	suite.Run("Destination street address 1 returns empty string to convey OPTIONAL state ", func() {
@@ -2044,56 +2088,6 @@ func (suite *PayloadsSuite) TestCounselingOffices() {
 		suite.Equal(office1.ID.String(), payload[0].ID.String())
 		suite.Equal(office2.ID.String(), payload[1].ID.String())
 	})
-}
-
-func (suite *PayloadsSuite) TestGetAssignedUserAndID() {
-	// Create mock users and IDs
-	userTOO := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userTOODestination := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	userSC := &models.OfficeUser{ID: uuid.Must(uuid.NewV4())}
-	idTOO := uuid.Must(uuid.NewV4())
-	idTOODestination := uuid.Must(uuid.NewV4())
-	idSC := uuid.Must(uuid.NewV4())
-
-	// Create a mock move with assigned users
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				ID:                         uuid.Must(uuid.NewV4()),
-				TOOAssignedUser:            userTOO,
-				TOOAssignedID:              &idTOO,
-				TOODestinationAssignedUser: userTOODestination,
-				TOODestinationAssignedID:   &idTOODestination,
-				SCAssignedUser:             userSC,
-				SCAssignedID:               &idSC,
-			},
-			LinkOnly: true,
-		},
-	}, nil)
-
-	// Define test cases
-	testCases := []struct {
-		name         string
-		role         string
-		queueType    string
-		officeUser   *models.OfficeUser
-		officeUserID *uuid.UUID
-	}{
-		{"TOO assigned user for TaskOrder queue", string(roles.RoleTypeTOO), string(models.QueueTypeTaskOrder), userTOO, &idTOO},
-		{"TOO assigned user for DestinationRequest queue", string(roles.RoleTypeTOO), string(models.QueueTypeDestinationRequest), userTOODestination, &idTOODestination},
-		{"SC assigned user", string(roles.RoleTypeServicesCounselor), "", userSC, &idSC},
-		{"Unknown role should return nil", "UnknownRole", "", nil, nil},
-		{"TOO with unknown queue should return nil", string(roles.RoleTypeTOO), "UnknownQueue", nil, nil},
-	}
-
-	// Run test cases
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			expectedOfficeUser, expectedOfficeUserID := getAssignedUserAndID(tc.role, tc.queueType, move)
-			suite.Equal(tc.officeUser, expectedOfficeUser)
-			suite.Equal(tc.officeUserID, expectedOfficeUserID)
-		})
-	}
 }
 
 func (suite *PayloadsSuite) TestQueueMovesApprovalRequestTypes() {

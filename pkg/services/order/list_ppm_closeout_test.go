@@ -757,6 +757,44 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 				SubmittedAt: &now,
 			},
 		)
-		suite.ErrorContains(err, "submitted at parameter should not be used for PPM queue. Please use closeout initiated instead")
+		suite.ErrorContains(err, "submitted at parameter should not be used for PPM closeout queue. Please use closeout initiated instead")
+	})
+
+	suite.Run("can filter by sc assigned closeout", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Move{
+						PPMType:              models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:          &now,
+						Locator:              "LATEST",
+						CloseoutOfficeID:     &transportationOffice.ID,
+						SCCloseoutAssignedID: models.UUIDPointer(servicesCounselor.ID),
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				AssignedTo: &servicesCounselor.FirstName,
+			},
+		)
+		suite.Equal(count, 1)
+		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
+		suite.FatalNoError(err)
 	})
 }

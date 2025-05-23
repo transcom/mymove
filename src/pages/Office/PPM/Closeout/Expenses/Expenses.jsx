@@ -189,20 +189,22 @@ const Expenses = () => {
         <GridContainer className={ppmPageStyles.gridContainer}>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
-              <ShipmentTag shipmentType={shipmentTypes.PPM} />
-              <h1>Expenses</h1>
-              {renderError()}
-              <ExpenseForm
-                ppmType={ppmType}
-                expense={currentExpense}
-                receiptNumber={currentIndex + 1}
-                onBack={handleBack}
-                onSubmit={handleSubmit}
-                onCreateUpload={handleCreateUpload}
-                onUploadComplete={handleUploadComplete}
-                onUploadDelete={handleUploadDelete}
-                appName={appName}
-              />
+              <div className={ppmPageStyles.closeoutPageWrapper}>
+                <ShipmentTag shipmentType={shipmentTypes.PPM} />
+                <h1>Expenses</h1>
+                {renderError()}
+                <ExpenseForm
+                  ppmType={ppmType}
+                  expense={currentExpense}
+                  receiptNumber={currentIndex + 1}
+                  onBack={handleBack}
+                  onSubmit={handleSubmit}
+                  onCreateUpload={handleCreateUpload}
+                  onUploadComplete={handleUploadComplete}
+                  onUploadDelete={handleUploadDelete}
+                  appName={appName}
+                />
+              </div>
             </Grid>
           </Grid>
         </GridContainer>

@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -106,8 +107,13 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 			setUpPPMShipperRouterMock(nil),
 		)
 
+		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		})
+
 		updatedPPMShipment, err := submitter.SubmitNewCustomerCloseOut(
-			suite.AppContextForTest(),
+			appCtx,
 			nonexistentPPMShipmentID,
 			models.SignedCertification{},
 		)
@@ -260,6 +266,83 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 					"SubmitCloseOutDocumentation",
 					txAppCtx,
 					mock.AnythingOfType("*models.PPMShipment"),
+				)
+
+				var expectedAllowableWeight = unit.Pound(0)
+				if len(existingPPMShipment.WeightTickets) >= 1 {
+					for _, weightTicket := range existingPPMShipment.WeightTickets {
+						expectedAllowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+					}
+				}
+				if suite.NotNil(updatedPPMShipment.AllowableWeight) {
+					suite.Equal(*updatedPPMShipment.AllowableWeight, expectedAllowableWeight)
+				}
+
+				return nil
+			}
+
+			// just fulfilling the return type at this point since we already checked for an error
+			return err
+		})
+
+		suite.NoError(txErr)
+	})
+
+	suite.Run("Incentive-based PPM: Can create a signed certification, route the PPMShipment, and calculate allowable weight properly without signature if an office user is submitting for the customer", func() {
+		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		})
+
+		creator := setUpSignedCertificationCreatorMock(nil, nil)
+
+		router := setUpPPMShipperRouterMock(
+			func(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
+				ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
+
+				return nil
+			})
+
+		expectedShipment := refectchPPMShipment(existingPPMShipment.ID)
+		mockFetcher := setUpPPMShipmentFetcherMock(expectedShipment, nil)
+
+		submitter := NewPPMShipmentNewSubmitter(
+			mockFetcher,
+			creator,
+			router,
+		)
+
+		// starting a transaction so that the txAppCtx can be used to check the mock call
+		txErr := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
+			txAppCtx.Session()
+
+			scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.OfficeApp,
+				ActiveRole:      scUser.User.Roles[0],
+				OfficeUserID:    scUser.ID,
+				IDToken:         "fake_token",
+				AccessToken:     "fakeAccessToken",
+			})
+
+			updatedPPMShipment, err := submitter.SubmitNewCustomerCloseOut(
+				appCtx,
+				existingPPMShipment.ID,
+				models.SignedCertification{},
+			)
+
+			if suite.NoError(err) && suite.NotNil(updatedPPMShipment) {
+				suite.Equal(models.PPMShipmentStatusNeedsCloseout, updatedPPMShipment.Status)
+				var nilCert *models.SignedCertification
+				suite.Equal(nilCert, updatedPPMShipment.SignedCertification)
+
+				// Shouldn't call the cert creator if office user is completing the PPM
+				creator.(*mocks.SignedCertificationCreator).AssertNotCalled(
+					suite.T(),
+					"CreateSignedCertification",
+					txAppCtx,
+					models.SignedCertification{},
 				)
 
 				var expectedAllowableWeight = unit.Pound(0)
