@@ -13,8 +13,6 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 	key := models.ServiceItemParamNamePerUnitCents
 	var mtoServiceItem models.MTOServiceItem
-	expectedOverFiftyMilesPerUnitCentsSIT := "21796"
-	expectedLessThanFiftyMilesPerUnitCentsSIT := "16417"
 
 	setupTestData := func(serviceCode models.ReServiceCode) {
 		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -457,7 +455,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(expectedLessThanFiftyMilesPerUnitCentsSIT, perUnitCents)
+		suite.Equal("16417", perUnitCents)
 	})
 
 	suite.Run("success - over 50 miles returns perUnitCent value for IOPSIT", func() {
@@ -469,7 +467,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(expectedOverFiftyMilesPerUnitCentsSIT, perUnitCents)
+		suite.Equal("16", perUnitCents)
 	})
 
 	suite.Run("success - less than 50 miles returns perUnitCent value for IDDSIT", func() {
@@ -481,7 +479,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(expectedLessThanFiftyMilesPerUnitCentsSIT, perUnitCents)
+		suite.Equal("2830", perUnitCents)
 	})
 
 	suite.Run("success - over 50 miles returns perUnitCent value for IDDSIT", func() {
@@ -493,7 +491,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPerUnitCentsLookup() {
 
 		perUnitCents, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal(expectedOverFiftyMilesPerUnitCentsSIT, perUnitCents)
+		suite.Equal("21796", perUnitCents)
 	})
 
 	suite.Run("failure - unauthorized service code", func() {

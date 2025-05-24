@@ -217,7 +217,7 @@ type DomesticOriginSITPickupPricer interface {
 //
 //go:generate mockery --name InternationalOriginSITPickupPricer
 type InternationalOriginSITPickupPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -233,7 +233,7 @@ type DomesticDestinationSITDeliveryPricer interface {
 //
 //go:generate mockery --name InternationalDestinationSITDeliveryPricer
 type InternationalDestinationSITDeliveryPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, perUnitCents int, distance int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

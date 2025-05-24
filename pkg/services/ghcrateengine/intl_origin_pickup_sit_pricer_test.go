@@ -12,9 +12,11 @@ import (
 )
 
 const (
-	iopsitTestWeight               = unit.Pound(4555)
-	iopsitTestPerUnitCents         = unit.Cents(15000)
-	iopsitTestEscalationCompounded = 1.04071
+	iopsitTestWeight                  = unit.Pound(4555)
+	iopsitTestPerUnitCents            = unit.Cents(15000)
+	iopsitTestEscalationCompounded    = 1.04071
+	iopsitTestDistanceLessThan50Miles = 1
+	iopsitTestDistanceOver50Miles     = 100
 )
 
 var iopsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.July, 5, 10, 22, 11, 456, time.UTC)
@@ -115,6 +117,11 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalOriginSITPickupPricer()
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(iopsitTestWeight)),
 			},
+			{
+				Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(iopsitTestDistanceLessThan50Miles)),
+			},
 		}
 		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
 			{
@@ -147,7 +154,7 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalOriginSITPickupPricer()
 				},
 			})
 
-		priceCents, displayParams, err := pricer.Price(suite.AppContextForTest(), cy.Contract.Code, cy.StartDate.AddDate(0, 0, 1), iopsitTestWeight, int(iopsitTestPerUnitCents))
+		priceCents, displayParams, err := pricer.Price(suite.AppContextForTest(), cy.Contract.Code, cy.StartDate.AddDate(0, 0, 1), iopsitTestWeight, int(iopsitTestPerUnitCents), int(iopsitTestDistanceLessThan50Miles))
 		suite.NoError(err)
 		suite.Equal(expectIOPSITTestTotalCost, priceCents)
 

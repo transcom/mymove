@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	iddsitTestWeight               = unit.Pound(4555)
-	iddsitTestPerUnitCents         = unit.Cents(15000)
-	iddsitTestEscalationCompounded = 1.04071
+	iddsitTestWeight                  = unit.Pound(4555)
+	iddsitTestPerUnitCents            = unit.Cents(15000)
+	iddsitTestEscalationCompounded    = 1.04071
+	iddsitTestDistanceLessThan50Miles = 1
 )
 
 var expectIDDSITTestTotalCost = unit.Cents(711081)
@@ -114,6 +115,11 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalDestinationSITeliveryPr
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(iddsitTestWeight)),
 			},
+			{
+				Key:     models.ServiceItemParamNameDistanceZipSITDest,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(iddsitTestDistanceLessThan50Miles)),
+			},
 		}
 		paymentServiceItem := factory.BuildPaymentServiceItemWithParams(suite.DB(), serviceItem.ReService.Code, paymentServiceItemParams, []factory.Customization{
 			{
@@ -146,7 +152,7 @@ func (suite *GHCRateEngineServiceSuite) TestInternationalDestinationSITeliveryPr
 				},
 			})
 
-		priceCents, displayParams, err := pricer.Price(suite.AppContextForTest(), cy.Contract.Code, cy.StartDate.AddDate(0, 0, 1), iddsitTestWeight, int(iddsitTestPerUnitCents))
+		priceCents, displayParams, err := pricer.Price(suite.AppContextForTest(), cy.Contract.Code, cy.StartDate.AddDate(0, 0, 1), iddsitTestWeight, int(iddsitTestPerUnitCents), int(iddsitTestDistanceLessThan50Miles))
 		suite.NoError(err)
 		suite.Equal(expectIDDSITTestTotalCost, priceCents)
 
