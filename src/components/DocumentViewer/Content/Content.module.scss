@@ -32,6 +32,19 @@
       padding-bottom: 75px;
     }
   }
+  .zoomDisplayButton {
+    color: #0050d8;
+    cursor: default;
+    text-decoration: none;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    opacity: 1;
+    background: transparent;
+    border: none;
+    margin-right: 1rem;
+  }
 }
 
 :global(.pg-viewer-wrapper) {
@@ -55,22 +68,3 @@
     }
   }
 }
-
-// TODO
-/*
-.docArrows {
-  position: fixed;
-  top: 50vh;
-  display: flex;
-  justify-content: space-between;
-  width: $contentWidth;
-  @include icon-hover-state;
-  .arrowButton {
-    @include u-padding(1.5);
-    @include u-margin(1);
-    background: white;
-    @include u-radius('pill');
-    @include u-shadow(2);
-  }
-}
-*/
