@@ -1,24 +1,194 @@
 package move
 
 import (
+	"errors"
+	"slices"
 	"time"
 
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	mocks "github.com/transcom/mymove/pkg/services/mocks"
 )
 
+type TestMoves struct {
+	// Moves
+	defaultMoveWithShipments                  models.Move
+	latestMoveWithShipments                   models.Move
+	defaultLatestMoveWithShipmentsNeedsSC     models.Move
+	safetyMove                                models.Move
+	defaultMoveWithShipmentsApproved          models.Move
+	defaultLatestMoveWithShipmentsSCCompleted models.Move
+	counselingOffice1                         models.TransportationOffice
+	assignedOfficeUser                        models.OfficeUser
+}
+
+func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMoves) {
+	testData := &TestMoves{}
+
+	specifiedTimestampEarliest := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+	specifiedTimestamp1 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+	specifiedTimestampLatest := time.Date(2022, 04, 03, 0, 0, 0, 0, time.UTC)
+
+	navy := models.AffiliationNAVY
+
+	// Duty Locations
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+
+	// Offices
+	office1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name: "JPPSO Random Office 1234",
+			},
+		},
+	}, nil)
+	testData.counselingOffice1 = office1
+
+	officeUserApprovedStatus := models.OfficeUserStatusAPPROVED
+	officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				FirstName: "Cam",
+				LastName:  "Newton",
+				Email:     "camNewton@mail.mil",
+				Status:    &officeUserApprovedStatus,
+				Telephone: "555-555-5555",
+			},
+		},
+	}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	testData.assignedOfficeUser = officeUser1
+
+	edipi1 := "1122334455"
+	emplid1 := "1122334455"
+	firstName1 := "Grant"
+
+	// Test Moves
+	testData.defaultMoveWithShipments = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:            "AAA3T0",
+				SubmittedAt:        &specifiedTimestampEarliest,
+				Status:             models.MoveStatusNeedsServiceCounseling,
+				SCAssignedID:       &officeUser1.ID,
+				CounselingOfficeID: &office1.ID,
+			},
+			Type: &factory.Move,
+		},
+		{
+			Model: models.ServiceMember{
+				FirstName:   &firstName1,
+				Edipi:       &edipi1,
+				Emplid:      &emplid1,
+				Affiliation: &navy,
+			},
+		},
+	}, nil)
+
+	testData.safetyMove = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator: "AAA3T3",
+				Status:  models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeSAFETY,
+			},
+		},
+	}, nil)
+
+	testData.latestMoveWithShipments = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:     "AAA3T1",
+				SubmittedAt: &specifiedTimestampLatest,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+	}, nil)
+
+	testData.defaultLatestMoveWithShipmentsNeedsSC = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:     "AAA3T2",
+				SubmittedAt: &specifiedTimestamp1,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+	}, nil)
+
+	testData.defaultLatestMoveWithShipmentsSCCompleted = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:     "AAA3T4",
+				SubmittedAt: &specifiedTimestamp1,
+				Status:      models.MoveStatusServiceCounselingCompleted,
+			},
+		},
+	}, nil)
+
+	testData.defaultMoveWithShipmentsApproved = factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Move{
+				Locator:     "AAA3T5",
+				SubmittedAt: &specifiedTimestamp1,
+				Status:      models.MoveStatusAPPROVED,
+			},
+		},
+	}, nil)
+
+	return testData
+}
+
 func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
-	counselingQueueFetcher := NewCounselingQueueFetcher()
+	suite.Run("default sort is by submitted at oldest -> newest", func() {
 
-	suite.Run("test filtering by all params", func() {
-
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
 					Gbloc: "KKFA",
@@ -26,219 +196,486 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
+		// Mocks
 		fetcher := &mocks.OfficeUserGblocFetcher{}
 		fetcher.On("FetchGblocForOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
-			officeUser.ID,
+			scOfficeUser.ID,
 		).Return("KKFA", nil)
 
-		fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-		yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
 
-		army := models.AffiliationARMY
-		navy := models.AffiliationNAVY
+		suite.makeCounselingSubtestData()
+		counselingQueueParams := services.CounselingQueueParams{}
 
-		first1 := "Adam"
-		last1 := "Smith"
-		first2 := "Will"
-		last2 := "Smilmer"
-		first3 := "Jason"
-		last3 := "Smighler"
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
 
-		emplid1 := "111188879"
-		emplid2 := "111188878"
-		emplid3 := "111133333"
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(3))
+		suite.FatalTrue(suite.NotEmpty(returnedMoves, "No moves were found when there should have been 3"))
+		suite.Equal("AAA3T0", string(returnedMoves[0].Locator))
+		suite.Equal("AAA3T2", string(returnedMoves[1].Locator))
+		suite.Equal("AAA3T1", string(returnedMoves[2].Locator))
+	})
 
-		edipi1 := "111145678"
-		edipi2 := "111145998"
-		edipi3 := "111133333"
-
-		submittedAt1 := time.Date(2022, 05, 01, 0, 0, 0, 0, time.UTC)
-		submittedAt2 := time.Date(2022, 05, 01, 0, 0, 0, 0, time.UTC)
-		submittedAt3 := time.Date(2022, 05, 01, 0, 0, 0, 0, time.UTC)
-
-		requestedPickupDate1 := time.Date(2022, 07, 01, 0, 0, 0, 0, time.UTC)
-		requestedPickupDate2 := time.Date(2022, 07, 01, 0, 0, 0, 0, time.UTC)
-		requestedPickupDate3 := time.Date(2022, 07, 01, 0, 0, 0, 0, time.UTC)
-
-		office1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+	suite.Run("can sort descending showing newest first and oldest last", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
-					Name: "JPPSO Testy McTest",
-				},
-			},
-		}, nil)
-		office2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Name: "PPO Rome Test Office",
-				},
-			},
-		}, nil)
-
-		status := models.OfficeUserStatusAPPROVED
-		officeUser1 := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-			{
-				Model: models.OfficeUser{
-					FirstName: "Cam",
-					LastName:  "Newton",
-					Email:     "camNewton@mail.mil",
-					Status:    &status,
-					Telephone: "555-555-5555",
+					Gbloc: "KKFA",
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		move1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					FirstName:   &first1,
-					LastName:    &last1,
-					Emplid:      &emplid1,
-					Edipi:       &edipi1,
-					Affiliation: &army,
-				},
-			},
-			{
-				Model: models.Move{
-					Locator:            "AAA3T6",
-					SubmittedAt:        &submittedAt1,
-					SCAssignedID:       &officeUser1.ID,
-					CounselingOfficeID: &office1.ID,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &requestedPickupDate1,
-				},
-			},
-			{
-				Model:    fortGordon,
-				LinkOnly: true,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
-			},
-		}, nil)
-		move2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					FirstName:   &first2,
-					LastName:    &last2,
-					Affiliation: &army,
-					Emplid:      &emplid2,
-					Edipi:       &edipi2,
-				},
-			},
-			{
-				Model: models.Move{
-					Locator:            "AAA3T1",
-					SubmittedAt:        &submittedAt2,
-					SCAssignedID:       &officeUser1.ID,
-					CounselingOfficeID: &office1.ID,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &requestedPickupDate2,
-				},
-			},
-			{
-				Model:    fortGordon,
-				LinkOnly: true,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
-			},
-		}, nil)
-		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					FirstName:   &first3,
-					LastName:    &last3,
-					Affiliation: &army,
-					Emplid:      &emplid3,
-					Edipi:       &edipi3,
-				},
-			},
-			{
-				Model: models.Move{
-					Locator:            "AAA3T0",
-					SubmittedAt:        &submittedAt3,
-					SCAssignedID:       &officeUser1.ID,
-					CounselingOfficeID: &office2.ID,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &requestedPickupDate3,
-				},
-			},
-			{
-				Model:    fortGordon,
-				LinkOnly: true,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
-			},
-		}, nil)
-
-		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					Affiliation: &navy,
-				},
-			},
-			{
-				Model: models.Move{
-					Locator: "ZZZZZZ",
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &requestedPickupDate3,
-				},
-			},
-			{
-				Model:    yuma,
-				LinkOnly: true,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
-			},
-		}, nil)
-
-		// Sort by locator in descending order
-		dutyLocationFilter := "fort"
-		branchFilter := "Army"
-		emplidFilter := "1111"
-		edipiFilter := "1111"
-		locatorFilter := "AA"
-		nameFilter := "Smi"
-		submittedAtFilter := time.Date(2022, 05, 01, 0, 0, 0, 0, time.UTC)
-		requestedMoveDateFilter := "2022-07-01"
-		serviceCounselorFilterName := "New"
-		counselingOfficeNameFilter := "JPP"
-
-		sortBy := "Locator"
-		desc := "desc"
-
-		ListOrderParams := services.CounselingQueueParams{
-			Branch:                 &branchFilter,
-			Locator:                &locatorFilter,
-			Edipi:                  &edipiFilter,
-			Emplid:                 &emplidFilter,
-			CustomerName:           &nameFilter,
-			OriginDutyLocationName: &dutyLocationFilter,
-			SubmittedAt:            &submittedAtFilter,
-			RequestedMoveDate:      &requestedMoveDateFilter,
-			Sort:                   &sortBy,
-			Order:                  &desc,
-			CounselingOffice:       &counselingOfficeNameFilter,
-			SCAssignedUser:         &serviceCounselorFilterName,
-		}
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			OfficeUserID: officeUser.ID,
+			OfficeUserID: scOfficeUser.ID,
 		})
 
-		moves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, ListOrderParams)
-		suite.NoError(err)
-		suite.Equal(int64(2), count)
-		suite.Equal(2, len(moves))
-		suite.Equal(move1.Locator, moves[0].Locator)
-		suite.Equal(move2.Locator, moves[1].Locator)
+		suite.makeCounselingSubtestData()
+
+		desc := "desc"
+		counselingQueueParams := services.CounselingQueueParams{
+			Order: &desc,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Greater(count, int64(0))
+		suite.FatalTrue(suite.NotEmpty(returnedMoves, "No moves were found when there should have been"))
+		suite.Equal("AAA3T0", string(returnedMoves[2].Locator))
+		suite.Equal("AAA3T1", string(returnedMoves[0].Locator))
+	})
+
+	suite.Run("returns moves based on status", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		suite.makeCounselingSubtestData()
+
+		statuses := []string{"NEEDS SERVICE COUNSELING", "SERVICE COUNSELING COMPLETED"}
+		counselingQueueParams := services.CounselingQueueParams{
+			Status: statuses,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Greater(count, int64(0))
+		suite.FatalTrue(suite.NotEmpty(returnedMoves, "No moves were found when there should have been"))
+		suite.Equal("AAA3T0", returnedMoves[0].Locator)
+		suite.Equal("AAA3T2", returnedMoves[1].Locator)
+		suite.Equal("AAA3T4", returnedMoves[2].Locator)
+		suite.Equal("AAA3T1", returnedMoves[3].Locator)
+
+		for _, m := range returnedMoves {
+			var err error
+			if !slices.Contains(statuses, string(m.Status)) {
+				err = errors.New("Moves of incorrect status has been returned")
+			}
+			suite.NoError(err, "Moves of incorrect status has been returned")
+		}
+
+	})
+
+	suite.Run("returns moves filtered by customer name", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			CustomerName: testData.defaultMoveWithShipments.Orders.ServiceMember.FirstName,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by edipi", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			Edipi: testData.defaultMoveWithShipments.Orders.ServiceMember.Edipi,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by emplid", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			Emplid: testData.defaultMoveWithShipments.Orders.ServiceMember.Emplid,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by locator", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			Locator: &testData.defaultMoveWithShipments.Locator,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by submitted_at", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			SubmittedAt: testData.defaultMoveWithShipments.SubmittedAt,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by branch", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			Branch: (*string)(testData.defaultMoveWithShipments.Orders.ServiceMember.Affiliation),
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by branch", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			OriginDutyLocationName: &testData.defaultMoveWithShipments.Orders.OriginDutyLocation.Name,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by counseling office", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, nil)
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			CounselingOffice: &testData.counselingOffice1.Name,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
+	suite.Run("see safety moves if permitted", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+			{
+				Model: models.User{
+					Privileges: []roles.Privilege{
+						{
+							PrivilegeType: roles.PrivilegeTypeSupervisor,
+						},
+						{
+							PrivilegeType: roles.PrivilegeTypeSafety,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		hasSafetyPrivilege := scOfficeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSafety)
+
+		counselingQueueParams := services.CounselingQueueParams{
+			HasSafetyPrivilege: &hasSafetyPrivilege,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(4))
+		suite.Equal(testData.safetyMove.Locator, returnedMoves[3].Locator)
+		suite.Equal(internalmessages.OrdersTypeSAFETY, returnedMoves[3].Orders.OrdersType)
+	})
+
+	suite.Run("returns moves filtered by assigned office user", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, nil)
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		counselingQueueParams := services.CounselingQueueParams{
+			SCAssignedUser: &testData.assignedOfficeUser.LastName,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+		suite.Equal(testData.defaultMoveWithShipments.SCAssignedID, returnedMoves[0].SCAssignedID)
 	})
 }
