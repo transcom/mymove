@@ -82,7 +82,6 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Current duty location').fill('Tinker');
       await expect(page.getByText(originLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
-      await page.getByLabel('Counseling office').selectOption({ label: 'PPPO Tinker AFB - USAF' });
       const counselingOffice = page.locator('#counselingOfficeId');
       await counselingOffice.selectOption('PPPO Tinker AFB - USAF');
       const dutyLocation = 'Elmendorf AFB, AK 99506';

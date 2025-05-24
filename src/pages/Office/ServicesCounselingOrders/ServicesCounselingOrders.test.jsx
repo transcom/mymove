@@ -118,6 +118,24 @@ jest.mock('services/ghcApi', () => ({
   },
   counselingUpdateOrder: jest.fn(),
   getOrder: jest.fn(),
+  getPayGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          grade: 'E-5',
+          description: ' E-5',
+        },
+        {
+          grade: 'E-6',
+          description: ' E-6',
+        },
+        {
+          description: 'Civilian',
+          grade: 'CIVILIAN_EMPLOYEE',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -291,7 +309,7 @@ describe('Orders page', () => {
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
-      expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
+      expect(screen.getByTestId('payGradeInput')).toHaveValue('E-5');
     });
 
     it('disables fields for correct statuses', async () => {

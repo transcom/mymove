@@ -60,7 +60,7 @@ type Customer struct {
 
 	// rank
 	// Required: true
-	Rank *Rank `json:"rank"`
+	Rank *OrderPayGrade `json:"rank"`
 
 	// user ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
