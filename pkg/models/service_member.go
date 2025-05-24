@@ -222,6 +222,24 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 		return ServiceMember{}, err
 	}
 
+	if serviceMember.ResidentialAddress.CountryId != nil {
+		country, err := FetchCountryByID(db, *serviceMember.ResidentialAddress.CountryId)
+		if err != nil {
+			return ServiceMember{}, err
+		}
+		if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State == "HI" {
+			boolTrueVal := true
+			serviceMember.ResidentialAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+		}
+		serviceMember.ResidentialAddress.Country = &country
+	} else {
+		boolFalseVal := false
+		serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+	}
+
 	return serviceMember, nil
 }
 
@@ -253,19 +271,18 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 
 			serviceMember.ResidentialAddress.County = county
 
-			// until international moves are supported, we will default the country for created addresses to "US"
-			if serviceMember.ResidentialAddress.Country != nil && serviceMember.ResidentialAddress.Country.Country != "" {
-				country, err := FetchCountryByCode(appCtx.DB(), serviceMember.ResidentialAddress.Country.Country)
+			if serviceMember.ResidentialAddress.CountryId != nil {
+				country, err := FetchCountryByID(appCtx.DB(), *serviceMember.ResidentialAddress.CountryId)
 				if err != nil {
 					return err
 				}
 				serviceMember.ResidentialAddress.Country = &country
-				serviceMember.ResidentialAddress.CountryId = &country.ID
 			} else {
 				country, err := FetchCountryByCode(appCtx.DB(), "US")
 				if err != nil {
 					return err
 				}
+
 				serviceMember.ResidentialAddress.Country = &country
 				serviceMember.ResidentialAddress.CountryId = &country.ID
 			}
