@@ -47,8 +47,8 @@ export const EditContactInfo = ({
       county: serviceMember.residential_address?.county || '',
       usPostRegionCitiesID: serviceMember.residential_address?.usPostRegionCitiesID || '',
       countryID: serviceMember.residential_address?.countryID || '',
-      countryName: serviceMember.residential_address?.country?.name || '',
-      countryCode: serviceMember.residential_address?.country?.code || '',
+      name: serviceMember.residential_address?.country?.name || '',
+      code: serviceMember.residential_address?.country?.code || '',
     },
     [backupAddressName]: {
       streetAddress1: serviceMember.backup_mailing_address?.streetAddress1 || '',
@@ -60,8 +60,8 @@ export const EditContactInfo = ({
       county: serviceMember.backup_mailing_address?.county || '',
       usPostRegionCitiesID: serviceMember.backup_mailing_address?.usPostRegionCitiesID || '',
       countryID: serviceMember.backup_mailing_address?.countryID || '',
-      countryName: serviceMember.backup_mailing_address?.country?.name || '',
-      countryCode: serviceMember.backup_mailing_address?.country?.code || '',
+      name: serviceMember.backup_mailing_address?.country?.name || '',
+      code: serviceMember.backup_mailing_address?.country?.code || '',
     },
     [backupContactName]: {
       name: currentBackupContacts[0]?.name || '',

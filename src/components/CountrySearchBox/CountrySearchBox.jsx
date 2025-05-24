@@ -92,14 +92,13 @@ export const CountrySearchBoxComponent = ({
   hint,
   placeholder,
   isDisabled,
-  handleCountryOnChange,
   showRequiredAsterisk,
 }) => {
   const { value, onChange, countryState, name: inputName } = input;
 
   const countryInfo =
-    handleCountryOnChange && !!value && value.countryName != null && value.countryCode != null
-      ? `${value.countryName} (${value.countryCode})`
+    value.country != null && value.country.name != null && value.country.code != null
+      ? `${value.country.name} (${value.country.code})`
       : '';
   const [inputValue, setInputValue] = useState(countryInfo);
   let disabledStyles = {};
@@ -152,10 +151,6 @@ export const CountrySearchBoxComponent = ({
     countryState(selectedValue);
     onChange(selectedValue);
 
-    if (handleCountryOnChange !== null) {
-      handleCountryOnChange(selectedValue);
-    }
-
     return selectedValue;
   };
 
@@ -176,20 +171,12 @@ export const CountrySearchBoxComponent = ({
 
   const handleKeyDown = (event) => {
     if (event.key === 'Backspace' && !inputValue) {
-      if (handleCountryOnChange) {
-        handleCountryOnChange(null);
-      } else {
-        onChange(null);
-      }
+      onChange(null);
     }
   };
 
   const handleFocus = () => {
-    if (handleCountryOnChange) {
-      handleCountryOnChange(null);
-    } else {
-      onChange(null);
-    }
+    onChange(null);
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
@@ -250,7 +237,6 @@ CountrySearchBoxContainer.propTypes = {
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
   searchCountries: PropTypes.func,
-  handleCountryOnChange: PropTypes.func,
 };
 
 CountrySearchBoxContainer.defaultProps = {
@@ -266,7 +252,6 @@ CountrySearchBoxContainer.defaultProps = {
   placeholder: 'Start typing a country name, code',
   isDisabled: false,
   searchCountries: SearchDutyLocations,
-  handleCountryOnChange: null,
 };
 
 CountrySearchBoxContainer.propTypes = {

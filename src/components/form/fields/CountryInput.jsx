@@ -31,7 +31,6 @@ export const CountryInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchCountries={officeUser?.id ? ghcSearchCountry : searchCountry}
-      handleCountryOnChange={handleCountryChange}
     />
   );
 };
