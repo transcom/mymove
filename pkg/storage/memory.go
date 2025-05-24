@@ -117,7 +117,7 @@ func (fs *Memory) Fetch(key string) (io.ReadCloser, error) {
 func (fs *Memory) Tags(_ string) (map[string]string, error) {
 	tags := make(map[string]string)
 	// Assume anti-virus complete
-	tags["av-status"] = "CLEAN"
+	tags["GuardDutyMalwareScanStatus"] = "NO_THREATS_FOUND"
 	return tags, nil
 }
 
