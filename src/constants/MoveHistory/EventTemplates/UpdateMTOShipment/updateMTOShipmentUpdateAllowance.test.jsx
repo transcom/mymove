@@ -15,7 +15,11 @@ describe('when given an update to the allowance due to MTOShipment update, updat
         shipment_locator: 'ABC123-01',
       },
     ],
-    changedValues: { authorized_weight: 1650 },
+    changedValues: {
+      authorized_weight: 1650,
+      gun_safe_weight: 222,
+      gun_safe: true,
+    },
   };
 
   it('correctly matches the update to the allowance, update MTO shipment event', () => {
@@ -28,5 +32,9 @@ describe('when given an update to the allowance due to MTOShipment update, updat
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Max billable weight')).toBeInTheDocument();
     expect(screen.getByText(': 1,650 lbs')).toBeInTheDocument();
+    expect(screen.getByText('Gun safe weight allowance')).toBeInTheDocument();
+    expect(screen.getByText(': 222 lbs')).toBeInTheDocument();
+    expect(screen.getByText('Gun safe authorized')).toBeInTheDocument();
+    expect(screen.getByText(': Yes')).toBeInTheDocument();
   });
 });

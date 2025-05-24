@@ -1393,6 +1393,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 	ocie := false
 	proGearWeight := models.Int64Pointer(100)
 	proGearWeightSpouse := models.Int64Pointer(10)
+	gunSafeWeight := models.Int64Pointer(400)
 	rmeWeight := models.Int64Pointer(10000)
 
 	subtestData.body = &ghcmessages.UpdateAllowancePayload{
@@ -1401,6 +1402,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(60),
 	}
@@ -1468,6 +1470,20 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: true,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := UpdateAllowanceHandler{
 			handlerConfig,
@@ -1495,6 +1511,63 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
+		suite.Equal(*body.GunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
+		suite.NotEqual(order.Entitlement.GunSafeWeight, int(ordersPayload.Entitlement.GunSafeWeight))
+	})
+
+	suite.Run("Returns 200 when all validations pass - gun safe FF off", func() {
+		handlerConfig := suite.NewHandlerConfig()
+		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+		gunSafeWeight := models.Int64Pointer(100)
+		body.GunSafeWeight = gunSafeWeight
+
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		handler := UpdateAllowanceHandler{
+			handlerConfig,
+			orderservice.NewOrderUpdater(moveRouter),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.UpdateAllowanceOK{}, response)
+		orderOK := response.(*orderop.UpdateAllowanceOK)
+		ordersPayload := orderOK.Payload
+
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
+		suite.Equal(order.Entitlement.GunSafeWeight, int(ordersPayload.Entitlement.GunSafeWeight))
+		suite.NotEqual(*gunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
@@ -1666,6 +1739,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	proGearWeight := models.Int64Pointer(100)
 	proGearWeightSpouse := models.Int64Pointer(10)
 	rmeWeight := models.Int64Pointer(10000)
+	gunSafeWeight := models.Int64Pointer(200)
 
 	body := &ghcmessages.CounselingUpdateAllowancePayload{
 		Agency: &affiliation,
@@ -1673,6 +1747,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		OrganizationalClothingAndIndividualEquipment: &ocie,
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
+		GunSafeWeight:                  gunSafeWeight,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 		StorageInTransit:               models.Int64Pointer(80),
 		WeightRestriction:              models.Int64Pointer(0),
@@ -1694,6 +1769,20 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
 			Body:        body,
 		}
+
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: true,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		handler := CounselingUpdateAllowanceHandler{
@@ -1720,8 +1809,64 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(*body.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
 		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
+		suite.Equal(*gunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
+	})
+
+	suite.Run("Returns 200 when all validations pass - gun safe FF off", func() {
+		handlerConfig := suite.NewHandlerConfig()
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
+		order := move.Orders
+		gunSafeWeight := models.Int64Pointer(500)
+		payload := body
+		payload.GunSafeWeight = gunSafeWeight
+
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.CounselingUpdateAllowanceParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        payload,
+		}
+
+		gunSafeFF := services.FeatureFlag{
+			Key:   "gun_safe",
+			Match: false,
+		}
+
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(gunSafeFF, nil)
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+		handler := CounselingUpdateAllowanceHandler{
+			handlerConfig,
+			orderservice.NewOrderUpdater(moveRouter),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		suite.IsType(&orderop.CounselingUpdateAllowanceOK{}, response)
+		orderOK := response.(*orderop.CounselingUpdateAllowanceOK)
+		ordersPayload := orderOK.Payload
+
+		// Validate outgoing payload
+		suite.NoError(ordersPayload.Validate(strfmt.Default))
+
+		suite.Equal(order.Entitlement.GunSafeWeight, int(ordersPayload.Entitlement.GunSafeWeight))
+		suite.NotEqual(*gunSafeWeight, ordersPayload.Entitlement.GunSafeWeight)
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
