@@ -9,7 +9,7 @@ type QueryFilter struct {
 	mock.Mock
 }
 
-// Column provides a mock function with given fields:
+// Column provides a mock function with no fields
 func (_m *QueryFilter) Column() string {
 	ret := _m.Called()
 
@@ -27,7 +27,7 @@ func (_m *QueryFilter) Column() string {
 	return r0
 }
 
-// Comparator provides a mock function with given fields:
+// Comparator provides a mock function with no fields
 func (_m *QueryFilter) Comparator() string {
 	ret := _m.Called()
 
@@ -45,7 +45,7 @@ func (_m *QueryFilter) Comparator() string {
 	return r0
 }
 
-// Value provides a mock function with given fields:
+// Value provides a mock function with no fields
 func (_m *QueryFilter) Value() interface{} {
 	ret := _m.Called()
 
