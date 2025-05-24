@@ -743,10 +743,10 @@ func (h GetCounselingQueueHandler) Handle(
 					"user is not authenticated with Services Counselor or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
-				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
+				return queues.NewGetCounselingQueueForbidden(), forbiddenErr
 			}
 
-			CounselingQueueParams := services.CounselingQueueParams{
+			counselingQueueParams := services.CounselingQueueParams{
 				Branch:                 params.Branch,
 				Locator:                params.Locator,
 				Edipi:                  params.Edipi,
@@ -772,21 +772,21 @@ func (h GetCounselingQueueHandler) Handle(
 			var requestedPpmStatus models.PPMShipmentStatus
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
 				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
-				CounselingQueueParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
+				counselingQueueParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else if len(params.Status) == 0 {
-				CounselingQueueParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
+				counselingQueueParams.Status = nil
 			} else {
-				CounselingQueueParams.Status = params.Status
+				counselingQueueParams.Status = params.Status
 			}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
-				CounselingQueueParams.Page = models.Int64Pointer(1)
+				counselingQueueParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
-				CounselingQueueParams.PerPage = models.Int64Pointer(20)
+				counselingQueueParams.PerPage = models.Int64Pointer(20)
 			}
 
 			var officeUser models.OfficeUser
@@ -796,14 +796,14 @@ func (h GetCounselingQueueHandler) Handle(
 				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
-					return queues.NewGetServicesCounselingQueueInternalServerError(), err
+					return queues.NewGetCounselingQueueInternalServerError(), err
 				}
 
 				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
 			}
 
 			if params.ViewAsGBLOC != nil && ((appCtx.Session().ActiveRole.RoleType == roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
-				CounselingQueueParams.ViewAsGBLOC = params.ViewAsGBLOC
+				counselingQueueParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			privileges, err := roles.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
@@ -825,7 +825,7 @@ func (h GetCounselingQueueHandler) Handle(
 					if err != nil {
 						appCtx.Logger().
 							Error("error fetching safety move office users", zap.Error(err))
-						return queues.NewGetMovesQueueInternalServerError(), err
+						return queues.NewGetCounselingQueueInternalServerError(), err
 					}
 				}
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
@@ -840,19 +840,19 @@ func (h GetCounselingQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				return queues.NewGetCounselingQueueInternalServerError(), err
 			}
 
 			hasSafetyPrivilege := privileges.HasPrivilege(roles.PrivilegeTypeSafety)
-			CounselingQueueParams.HasSafetyPrivilege = &hasSafetyPrivilege
+			counselingQueueParams.HasSafetyPrivilege = &hasSafetyPrivilege
 
 			var moves models.Moves
 			var count int64
-			moves, count, err = h.FetchCounselingQueue(appCtx, CounselingQueueParams)
+			moves, count, err = h.FetchCounselingQueue(appCtx, counselingQueueParams)
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				return queues.NewGetCounselingQueueInternalServerError(), err
 			}
 
 			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
@@ -879,8 +879,8 @@ func (h GetCounselingQueueHandler) Handle(
 			queueMoves := payloads.CounselingQueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
 
 			result := &ghcmessages.CounselingQueueMovesResult{
-				Page:       *CounselingQueueParams.Page,
-				PerPage:    *CounselingQueueParams.PerPage,
+				Page:       *counselingQueueParams.Page,
+				PerPage:    *counselingQueueParams.PerPage,
 				TotalCount: int64(count),
 				QueueMoves: *queueMoves,
 			}

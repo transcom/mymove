@@ -90,23 +90,7 @@ BEGIN
               )
           )
         )::JSONB AS orders,
-        COALESCE(
-                  (
-                      SELECT json_agg(
-                          json_build_object(
-                              ''id'', ms.id,
-                              ''shipment_type'', ms.shipment_type,
-                              ''status'', ms.status,
-                              ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                              ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                              ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                              ''prime_estimated_weight'', ms.prime_estimated_weight
-                          )
-                      )
-                      FROM cte_mto_shipments AS ms
-                  ),
-                  ''[]''
-        )::JSONB AS mto_shipments,
+        COALESCE(ms_agg.mto_shipments, ''[]''::jsonb) AS mto_shipments,
         json_build_object(
           ''id'',   co.id,
           ''name'', co.name
@@ -121,8 +105,22 @@ BEGIN
     LEFT JOIN addresses addr
           ON origin_duty_locations.address_id = addr.id
     LEFT JOIN office_users AS sc_user ON m.sc_assigned_id = sc_user.id
-	LEFT JOIN cte_mto_shipments on cte_mto_shipments.move_id = m.id
-    LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = cte_mto_shipments.id
+ 	  LEFT JOIN LATERAL (
+                SELECT json_agg(
+                        json_build_object(
+                              ''id'', ms.id,
+                              ''shipment_type'', ms.shipment_type,
+                              ''status'', ms.status,
+                              ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                              ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                              ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                              ''prime_estimated_weight'', ms.prime_estimated_weight
+                          )
+                        )::JSONB AS mto_shipments
+                FROM   mto_shipments ms
+				        JOIN ppm_shipments ON ms.id = ppm_shipments.shipment_id
+                WHERE  ms.move_id = m.id
+                ) ms_agg ON TRUE
     JOIN move_to_gbloc ON move_to_gbloc.move_id = m.id
     JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = m.id
     Where m.show = TRUE
@@ -149,6 +147,8 @@ BEGIN
 --
   IF m_status IS NOT NULL THEN
     sql_query := sql_query || ' AND m.status = ANY($5) ';
+  ELSE
+	sql_query := sql_query || ' AND m.status = ''NEEDS SERVICE COUNSELING''';
   END IF;
 
   IF move_code IS NOT NULL THEN
@@ -183,7 +183,7 @@ BEGIN
     sql_query := sql_query || ' AND (sc_user.first_name || '' '' || sc_user.last_name) ILIKE ''%'' || $12 || ''%'' ';
   END IF;
 
-  IF NOT has_safety_privilege THEN
+  IF has_safety_privilege IS NOT TRUE THEN
       sql_query := sql_query || ' AND o.orders_type != ''SAFETY'' ';
   END IF;
 
