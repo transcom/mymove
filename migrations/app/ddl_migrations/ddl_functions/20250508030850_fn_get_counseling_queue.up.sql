@@ -28,7 +28,7 @@ RETURNS TABLE (
     orders_id UUID,
     status TEXT,
     locked_by UUID,
-    sc_assigned_id UUID,
+    sc_counseling_assigned_id UUID,
     counseling_transportation_office_id UUID,
     sc_assigned JSONB,
 	orders JSONB,
@@ -62,7 +62,7 @@ BEGIN
       m.orders_id AS orders_id,
       m.status::TEXT AS status,
       m.locked_by AS locked_by,
-      m.sc_assigned_id AS sc_assigned_id,
+      m.sc_counseling_assigned_id AS sc_counseling_assigned_id,
       m.counseling_transportation_office_id AS counseling_transportation_office_id,
       json_build_object(''first_name'', sc_user.first_name, ''last_name'', sc_user.last_name, ''id'', sc_user.id)::JSONB AS sc_assigned,
       json_build_object(
@@ -104,7 +104,7 @@ BEGIN
           ON m.counseling_transportation_office_id = co.id
     LEFT JOIN addresses addr
           ON origin_duty_locations.address_id = addr.id
-    LEFT JOIN office_users AS sc_user ON m.sc_assigned_id = sc_user.id
+    LEFT JOIN office_users AS sc_user ON m.sc_counseling_assigned_id = sc_user.id
  	  LEFT JOIN LATERAL (
                 SELECT json_agg(
                         json_build_object(
