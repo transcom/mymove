@@ -11,7 +11,7 @@ describe('When a service counselor updates shipping allowances', () => {
     eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'NAVY',
-      grade: 'E_4',
+      grade: 'E-4',
     },
   };
   it('it correctly matches the event that updates the service member profile ', () => {

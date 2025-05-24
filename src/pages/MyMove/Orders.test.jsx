@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
-import { getOrders, patchOrders, showCounselingOffices } from 'services/internalApi';
+import { getOrders, getPayGradeOptions, patchOrders, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import {
@@ -28,6 +28,24 @@ jest.mock('services/internalApi', () => ({
         {
           id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
           name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
+  getPayGradeOptions: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          grade: 'E-5',
+          description: ' E-5',
+        },
+        {
+          grade: 'E-8',
+          description: ' E-8',
+        },
+        {
+          description: 'Civilian',
+          grade: 'CIVILIAN_EMPLOYEE',
         },
       ],
     }),
@@ -179,7 +197,7 @@ const testPropsWithUploads = {
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: false,
-  grade: 'E_8',
+  grade: 'E-8',
   new_duty_location: {
     address: {
       city: 'Des Moines',
@@ -305,7 +323,7 @@ describe('Orders page', () => {
               proGear: 2000,
               proGearSpouse: 500,
             },
-            grade: 'E_7',
+            grade: 'E-8',
             has_dependents: false,
             id: 'testOrders1',
             issue_date: '2024-02-29',
@@ -431,6 +449,16 @@ describe('Orders page', () => {
 
   it('renders appropriate order data on load', async () => {
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
+    getPayGradeOptions.mockImplementation(() =>
+      Promise.resolve({
+        body: [
+          {
+            grade: 'E-8',
+            description: ' E-8',
+          },
+        ],
+      }),
+    );
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -446,7 +474,7 @@ describe('Orders page', () => {
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
     expect(screen.getByLabelText('No')).toBeChecked();
     expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E_8');
+    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E-8');
     expect(screen.queryByText('Altus AFB')).toBeInTheDocument();
   });
 
@@ -479,7 +507,7 @@ describe('Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      grade: 'E_1',
+      grade: 'E-1',
     };
     patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
     getOrders.mockImplementation(() => Promise.resolve());
