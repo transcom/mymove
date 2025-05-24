@@ -7,7 +7,7 @@ import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
-import { useUserQueries, useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
+import { useUserQueries, useCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -17,7 +17,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
-  useServicesCounselingQueueQueries: jest.fn(),
+  useCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueuePPMQueries: jest.fn(),
   useBulkAssignmentQueries: () => {
     return {
@@ -284,7 +284,7 @@ describe('ServicesCounselingQueue', () => {
 
   describe('no moves in service counseling statuses', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
+    useCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     const wrapper = mount(
@@ -304,7 +304,7 @@ describe('ServicesCounselingQueue', () => {
 
   describe('Service Counselor', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
+    useCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mount(
       <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
@@ -428,7 +428,7 @@ describe('ServicesCounselingQueue', () => {
     }
     moves.queueResult.totalCount = moves.queueResult.data.length;
 
-    useServicesCounselingQueueQueries.mockReturnValue(moves);
+    useCounselingQueueQueries.mockReturnValue(moves);
     const wrapper = mount(
       <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
@@ -454,7 +454,7 @@ describe('ServicesCounselingQueue', () => {
   describe('filter sessionStorage filters - no cache-  Service Counselor', () => {
     window.sessionStorage.clear();
     useUserQueries.mockReturnValue(serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
+    useCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     const wrapper = mount(
       <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue />
@@ -479,7 +479,7 @@ describe('ServicesCounselingQueue', () => {
         //  ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
 
         useUserQueries.mockReturnValue(user);
-        useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+        useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
         useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
         render(
           <MockProviders>
@@ -500,7 +500,7 @@ describe('ServicesCounselingQueue', () => {
     ])('a %s user accessing path "%s"', async (userDescription, queueType, showsCounselingTab, user) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useUserQueries.mockReturnValue(user);
-      useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+      useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
       useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
       render(
         <MockProviders path={pagePath} params={{ queueType }}>
@@ -516,7 +516,7 @@ describe('ServicesCounselingQueue', () => {
 
           // Check for the "Counseling" columns.
           expect(screen.getByText(/Status/)).toBeInTheDocument();
-          expect(screen.getAllByText(/Requested move date/)[0]).toBeInTheDocument();
+          expect(screen.getAllByText(/Requested move date\(s\)/)[0]).toBeInTheDocument();
           expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
           expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
           expect(screen.getByText(/Assigned/)).toBeInTheDocument();
