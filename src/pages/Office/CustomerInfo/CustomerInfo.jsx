@@ -5,7 +5,9 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 
-import CustomerContactInfoForm from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
+import CustomerContactInfoForm, {
+  backupContactName,
+} from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
 
 import styles from './CustomerInfo.module.scss';
 
@@ -57,14 +59,15 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       customerAddress,
       suffix,
       middleName,
-      name,
-      email,
-      telephone,
       backupAddress,
       phoneIsPreferred,
       emailIsPreferred,
       secondaryPhone,
     } = values;
+
+    const backupFirstName = values[backupContactName.toString()]?.firstName || '';
+    const backupLastName = values[backupContactName.toString()]?.lastName || '';
+    const backupFullName = `${backupFirstName} ${backupLastName}`;
 
     const body = {
       first_name: firstName,
@@ -75,9 +78,9 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       suffix,
       middle_name: middleName,
       backup_contact: {
-        name,
-        email,
-        phone: telephone,
+        name: backupFullName,
+        email: values[backupContactName.toString()]?.email || '',
+        phone: values[backupContactName.toString()]?.telephone || '',
       },
       backupAddress,
       phoneIsPreferred,
@@ -87,6 +90,8 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     };
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
+
+  const [backupContactFirstName, backupContactLastName] = customer.backup_contact.name.split(/ (.+)/).filter(Boolean);
 
   const initialValues = {
     firstName: customer.first_name,
@@ -104,6 +109,12 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     emailIsPreferred: customer.emailIsPreferred,
     phoneIsPreferred: customer.phoneIsPreferred,
     cacUser: formatTrueFalseInputValue(customer?.cacValidated),
+    [backupContactName]: {
+      firstName: backupContactFirstName,
+      lastName: backupContactLastName,
+      telephone: customer.backup_contact.phone,
+      email: customer.backup_contact.email,
+    },
   };
 
   return (
