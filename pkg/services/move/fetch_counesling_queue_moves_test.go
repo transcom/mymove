@@ -33,7 +33,9 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 
 	specifiedTimestampEarliest := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
 	specifiedTimestamp1 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-	specifiedTimestampLatest := time.Date(2022, 04, 03, 0, 0, 0, 0, time.UTC)
+	specifiedTimestamp2 := time.Date(2022, 04, 03, 0, 0, 0, 0, time.UTC)
+	specifiedTimestamp3 := time.Date(2022, 04, 04, 0, 0, 0, 0, time.UTC)
+	specifiedTimestampLatest := time.Date(2022, 04, 05, 0, 0, 0, 0, time.UTC)
 
 	navy := models.AffiliationNAVY
 
@@ -159,7 +161,7 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 		{
 			Model: models.Move{
 				Locator:     "AAA3T4",
-				SubmittedAt: &specifiedTimestamp1,
+				SubmittedAt: &specifiedTimestamp2,
 				Status:      models.MoveStatusServiceCounselingCompleted,
 			},
 		},
@@ -175,7 +177,7 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 		{
 			Model: models.Move{
 				Locator:     "AAA3T5",
-				SubmittedAt: &specifiedTimestamp1,
+				SubmittedAt: &specifiedTimestamp3,
 				Status:      models.MoveStatusAPPROVED,
 			},
 		},
