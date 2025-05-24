@@ -3,6 +3,18 @@ import { test, expect } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject weight tickets', async ({ page, scPage }) => {
   // Create a move with TestHarness, and then navigate to the move details page for it
+  await page.route('**/ghc/v1/ppm-shipments/*/payment-packet', async (route) => {
+    // mocked blob
+    const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+    const arrayBuffer = await fakePdfBlob.arrayBuffer();
+    // playwright route mocks only want a Buffer or string
+    const bodyBuffer = Buffer.from(arrayBuffer);
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/pdf',
+      body: bodyBuffer,
+    });
+  });
   const move = await scPage.testHarness.buildApprovedMoveWithPPMWeightTicketOffice();
   await scPage.navigateToCloseoutMove(move.locator);
 
@@ -16,30 +28,11 @@ test('A service counselor can approve/reject weight tickets', async ({ page, scP
   await scPage.waitForPage.reviewDocumentsConfirmation();
 
   // Click "Confirm" on confirmation page, returning to move details page
-  await page.getByRole('button', { name: 'PPM Review Complete' }).click();
+  await page.getByRole('button', { name: 'Preview PPM Payment Packet' }).click();
+  await expect(page.getByTestId('loading-spinner')).not.toBeVisible();
+  await page.getByRole('button', { name: 'Complete PPM Review' }).click();
+  await page.getByRole('button', { name: 'Yes' }).click();
   await scPage.waitForPage.moveDetails();
-
-  // NOTE: Code below is commented out because the feature for the SC to be able to review documents AFTER it has been submitted will be picked up at a future date.
-  // Currently SC is unable to re-review documents after it has been submitted, so these tests were failing.
-
-  // Return to the weight ticket and verify that it's approved
-  // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewWeightTicket();
-  // await expect(page.getByRole('radio', { name: 'Accept' })).toBeChecked();
-
-  // // Click "Reject" on the weight ticket, provide a reason, then save
-  // await page.getByText('Reject').click();
-  // await page.getByLabel('Reason').fill('Justification for rejection');
-  // await page.getByRole('button', { name: 'Continue' }).click();
-  // await scPage.waitForPage.reviewDocumentsConfirmation();
-  // await page.getByRole('button', { name: 'Confirm' }).click();
-  // await scPage.waitForPage.moveDetails();
-
-  // // Return to the weight ticket and verify that it's been edited
-  // await page.getByRole('button', { name: 'Review documents' }).click();
-  // await scPage.waitForPage.reviewWeightTicket();
-  // await expect(page.getByRole('radio', { name: 'Reject' })).toBeChecked();
-  // await expect(page.getByLabel('Reason')).toHaveValue('Justification for rejection');
 });
 
 test('A services counselor can reduce PPM weights for a move with excess weight', async ({ page, scPage }) => {
