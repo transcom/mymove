@@ -79,11 +79,11 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 		},
 		{
 			Model: models.Move{
-				Locator:            "AAA3T0",
-				SubmittedAt:        &specifiedTimestampEarliest,
-				Status:             models.MoveStatusNeedsServiceCounseling,
-				SCAssignedID:       &officeUser1.ID,
-				CounselingOfficeID: &office1.ID,
+				Locator:                "AAA3T0",
+				SubmittedAt:            &specifiedTimestampEarliest,
+				Status:                 models.MoveStatusNeedsServiceCounseling,
+				SCCounselingAssignedID: &officeUser1.ID,
+				CounselingOfficeID:     &office1.ID,
 			},
 			Type: &factory.Move,
 		},
@@ -676,6 +676,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 		suite.FatalNoError(err)
 		suite.Equal(count, int64(1))
 		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
-		suite.Equal(testData.defaultMoveWithShipments.SCAssignedID, returnedMoves[0].SCAssignedID)
+		suite.Equal(testData.defaultMoveWithShipments.SCCounselingAssignedID, returnedMoves[0].SCCounselingAssignedID)
 	})
 }
