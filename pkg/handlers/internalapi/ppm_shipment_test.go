@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -86,7 +87,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 
 	setUpHandler := func(submitter services.PPMShipmentNewSubmitter) SubmitPPMShipmentDocumentationHandler {
 		return SubmitPPMShipmentDocumentationHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			submitter,
 		}
 	}
@@ -559,7 +560,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 
 	setUpHandler := func(submitter services.PPMShipmentUpdatedSubmitter) ResubmitPPMShipmentDocumentationHandler {
 		return ResubmitPPMShipmentDocumentationHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			submitter,
 		}
 	}
@@ -569,7 +570,15 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 
 		request, params := setUpRequestAndParams(ppmShipment, false, false)
 
-		officeUser := factory.BuildOfficeUser(nil, nil, nil)
+		officeUser := factory.BuildOfficeUser(nil, []factory.Customization{{
+			Model: models.User{
+				Roles: roles.Roles{
+					{
+						RoleType: roles.RoleTypeTOO,
+					},
+				},
+			},
+		}}, nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params.HTTPRequest = request
 
@@ -993,7 +1002,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -1030,7 +1039,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -1062,7 +1071,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,
@@ -1092,7 +1101,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := showAOAPacketHandler{
 			HandlerConfig:    handlerConfig,
 			SSWPPMComputer:   &mockSSWPPMComputer,

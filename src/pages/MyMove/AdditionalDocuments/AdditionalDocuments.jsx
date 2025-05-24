@@ -18,6 +18,7 @@ import { updateMove as updateMoveAction } from 'store/entities/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const AdditionalDocuments = ({ moves, updateMove }) => {
   const { moveId } = useParams();
@@ -37,23 +38,7 @@ const AdditionalDocuments = ({ moves, updateMove }) => {
   };
 
   const handleUpload = async (file) => {
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    return createUploadForAdditionalDocuments(newFile, moveId);
+    return createUploadForAdditionalDocuments(appendTimestampToFilename(file), moveId);
   };
 
   const handleUploadComplete = () => {

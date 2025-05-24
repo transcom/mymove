@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
@@ -117,4 +118,54 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 		suite.NoError(err)
 		suite.NotNil(dbDocument.DeletedAt)
 	})
+}
+
+func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicketTotalSumsCorrectly() {
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{Model: serviceMember, LinkOnly: true},
+	}, nil)
+	document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+	factoryTickets := []struct {
+		weight        unit.Pound
+		belongsToSelf bool
+	}{
+		{weight: 100, belongsToSelf: true},
+		{weight: 200, belongsToSelf: true},
+		{weight: 50, belongsToSelf: false},
+		{weight: 25, belongsToSelf: false},
+	}
+
+	var tickets []models.ProgearWeightTicket
+	for _, ft := range factoryTickets {
+		t := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{Model: serviceMember, LinkOnly: true},
+			{Model: ppmShipment, LinkOnly: true},
+			{Model: document, LinkOnly: true},
+			{
+				Model: models.ProgearWeightTicket{
+					Weight:        models.PoundPointer(ft.weight),
+					BelongsToSelf: models.BoolPointer(ft.belongsToSelf),
+				},
+			},
+		}, nil)
+		tickets = append(tickets, t)
+	}
+
+	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: serviceMember.ID,
+	})
+	deleter := NewProgearWeightTicketDeleter()
+	err := deleter.DeleteProgearWeightTicket(appCtx, ppmShipment.ID, tickets[3].ID)
+	suite.NoError(err)
+
+	var shipment models.MTOShipment
+	suite.NoError(suite.DB().
+		Q().
+		Find(&shipment, ppmShipment.ShipmentID))
+
+	suite.Equal(300, shipment.ActualProGearWeight.Int())
+	suite.Equal(50, shipment.ActualSpouseProGearWeight.Int())
 }

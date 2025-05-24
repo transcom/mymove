@@ -65,7 +65,7 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 		if err != nil {
 			return err
 		}
-		updatedPPMShipment.Shipment.MoveTaskOrder.SCAssignedID = nil
+		updatedPPMShipment.Shipment.MoveTaskOrder.SCCloseoutAssignedID = nil
 		err = validatePPMShipment(appCtx, updatedPPMShipment, ppmShipment, &ppmShipment.Shipment, PPMShipmentUpdaterChecks...)
 
 		if err != nil {

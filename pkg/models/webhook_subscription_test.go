@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestWebhookSubscription_NotNullConstraint() {
 		print(err)
 	}
 
-	suite.verifyValidationErrors(webhookSubscription, expectedErrors)
+	suite.verifyValidationErrors(webhookSubscription, expectedErrors, nil)
 }
 
 func (suite *ModelSuite) TestWebhookSubscription_Instantiation() {

@@ -62,6 +62,7 @@ const shipmentProps = {
         city: 'Jacksonville',
         state: 'FL',
         postalCode: '32217',
+        county: 'Duval',
         usPostRegionCitiesID: '',
       },
     },
@@ -213,7 +214,8 @@ describe('AboutForm component', () => {
       expect(screen.getAllByTestId(/City/)[2]).toHaveTextContent('Jacksonville');
       expect(screen.getAllByTestId(/State/)[2]).toHaveTextContent('FL');
       expect(screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent('32217');
-      expect(screen.getByText('Jacksonville, FL 32217 ()'));
+      expect(screen.getAllByTestId(/County/)[2]).toHaveTextContent('Duval');
+      expect(screen.getByText('Jacksonville, FL 32217 (Duval)'));
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
@@ -357,6 +359,7 @@ describe('AboutForm component', () => {
                 city: 'Jacksonville',
                 state: 'FL',
                 postalCode: '32217',
+                county: 'Duval',
                 usPostRegionCitiesID: '',
               },
             },

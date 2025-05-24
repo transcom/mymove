@@ -122,13 +122,15 @@ export { default as updateAssignedOfficeUser } from './UpdateAssignedOfficeUser/
 export { default as deleteAssignedOfficeUser } from './UpdateAssignedOfficeUser/DeleteAssignedOfficeUser';
 export { default as UpdatePaymentRequestStatusMoves } from './UpdatePaymentRequestStatus/UpdatePaymentRequestStatusMoves';
 export { default as reviewShipmentAddressUpdate } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdate';
+export { default as reviewShipmentAddressUpdateMove } from './ReviewShipmentAddressUpdate/reviewShipmentAddressUpdateMove';
 export { default as FinishDocumentReviewMoves } from './FinishDocumentReview/FinishDocumentReviewMoves';
 export { default as saveBulkAssignmentData } from './SaveBulkAssignmentData/SaveBulkAssignmentData';
-export { default as approveShipments } from './ApproveShipments/approveShipments';
 export { default as updatePaymentServiceItemStatus } from './UpdatePaymentServiceItem/UpdatePaymentServiceItemStatus';
+export { default as approveShipments } from './ApproveShipments/approveShipments';
 export { default as approveShipmentsUpdateAllowances } from './ApproveShipments/approveShipmentsUpdateAllowances';
 export { default as approveShipmentsApproveMove } from './ApproveShipments/approveShipmentsApproveMove';
 export { default as approveShipmentsServiceItem } from './ApproveShipments/approveShipmentsServiceItem';
 export { default as createTermination } from './CreateTermination/createTermination';
 export { default as acknowledgMove } from './AcknowledgeMovesAndShipments/acknowledgeMove';
 export { default as acknowledgeShipment } from './AcknowledgeMovesAndShipments/acknowledgeShipment';
+export { default as createMTOServiceItemUpdateShipmentStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateShipmentStatus';

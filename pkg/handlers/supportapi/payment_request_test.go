@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		queryBuilder := query.NewQueryBuilder()
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
+			HandlerConfig:               suite.NewHandlerConfig(),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 		}
@@ -92,7 +92,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		queryBuilder := query.NewQueryBuilder()
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
+			HandlerConfig:               suite.NewHandlerConfig(),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 		}
@@ -126,7 +126,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
+			HandlerConfig:               suite.NewHandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
+			HandlerConfig:               suite.NewHandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
+			HandlerConfig:               suite.NewHandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -218,7 +218,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
+			HandlerConfig:               suite.NewHandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -241,7 +241,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 		}
 
 		handler := ListMTOPaymentRequestsHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 		}
 
 		response := handler.Handle(params)
@@ -263,7 +263,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 		}
 
 		handler := ListMTOPaymentRequestsHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 		}
 
 		response := handler.Handle(params)
@@ -338,7 +338,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	setupHandler := func() GetPaymentRequestEDIHandler {
 		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		return GetPaymentRequestEDIHandler{
-			HandlerConfig:                     suite.HandlerConfig(),
+			HandlerConfig:                     suite.NewHandlerConfig(),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 			GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock(), loaFetcher),
 		}
@@ -417,7 +417,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewInvalidInputError(paymentRequest.ID, nil, validate.NewErrors(), ""))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
-			HandlerConfig:                     suite.HandlerConfig(),
+			HandlerConfig:                     suite.NewHandlerConfig(),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 			GHCPaymentRequestInvoiceGenerator: mockGenerator,
 		}
@@ -440,7 +440,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, apperror.NewConflictError(paymentRequest.ID, "conflict error"))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
-			HandlerConfig:                     suite.HandlerConfig(),
+			HandlerConfig:                     suite.NewHandlerConfig(),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 			GHCPaymentRequestInvoiceGenerator: mockGenerator,
 		}
@@ -478,7 +478,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		mockGenerator.On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New(errStr)).Once()
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
-			HandlerConfig:                     suite.HandlerConfig(),
+			HandlerConfig:                     suite.NewHandlerConfig(),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 			GHCPaymentRequestInvoiceGenerator: mockGenerator,
 		}
@@ -627,7 +627,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(reviewedPRs[0], nil)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetICNSequencer(sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName))
 		handler := ProcessReviewedPaymentRequestsHandler{
 			HandlerConfig:                 handlerConfig,
@@ -787,7 +787,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nilPr, errors.New("could not fetch payment request"))
 
 		handler := ProcessReviewedPaymentRequestsHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			PaymentRequestFetcher:         paymentRequestFetcher,
 			PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
 			PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
@@ -827,7 +827,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(reviewedPRs[0], nil)
 
 		handler := ProcessReviewedPaymentRequestsHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			PaymentRequestFetcher:         paymentRequestFetcher,
 			PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
 			PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
@@ -876,7 +876,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 			paymentRequestID,
 		).Return(&samplePaymentRequest, nil).Once()
 		handler := RecalculatePaymentRequestHandler{
-			HandlerConfig:              suite.HandlerConfig(),
+			HandlerConfig:              suite.NewHandlerConfig(),
 			PaymentRequestRecalculator: mockRecalculator,
 		}
 
@@ -950,7 +950,7 @@ func (suite *HandlerSuite) TestRecalculatePaymentRequestHandler() {
 				paymentRequestID,
 			).Return(nil, testCase.testErr)
 			handler := RecalculatePaymentRequestHandler{
-				HandlerConfig:              suite.HandlerConfig(),
+				HandlerConfig:              suite.NewHandlerConfig(),
 				PaymentRequestRecalculator: mockRecalculator,
 			}
 

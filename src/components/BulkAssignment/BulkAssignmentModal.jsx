@@ -76,6 +76,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
       const data = await getBulkAssignmentData(queueType);
       setBulkAssignmentData(data);
       initUserData(data?.availableOfficeUsers);
+
       if (!data.bulkAssignmentMoveIDs) {
         setIsDisabled(true);
         setNumberOfMoves(0);
@@ -120,7 +121,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
 
   return (
     <div>
-      <Modal className={styles.BulkModal}>
+      <Modal className={styles.BulkModal} onClose={onClose}>
         <div className={styles.BulkAssignmentTable}>
           <Formik
             onSubmit={(values) => {
@@ -346,17 +347,13 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                           Any unsaved work will be lost. Are you sure you want to cancel?
                         </small>
                         <div className={styles.confirmButtons}>
-                          <Button
-                            className={styles.cancelNoButton}
-                            data-testid="cancelModalNo"
-                            onClick={() => setShowCancelModal(false)}
-                          >
+                          <Button outline data-testid="cancelModalNo" onClick={() => setShowCancelModal(false)}>
                             No
                           </Button>
                           <Button
-                            className={styles.cancelYesButton}
-                            data-testid="cancelModalYes"
+                            className="usa-button-destructive"
                             secondary
+                            data-testid="cancelModalYes"
                             onClick={onClose}
                           >
                             Discard Changes
@@ -364,9 +361,29 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                         </div>
                       </div>
                     ) : (
-                      <ModalActions autofocus="true">
+                      <ModalActions>
                         <div className={styles.BulkAssignmentButtonsContainer}>
-                          <div className={styles.BulkAssignmentButtonsLeft}>
+                          <div>
+                            <Button
+                              onClick={handleEqualAssignClick}
+                              type="button"
+                              data-testid="modalEqualAssignButton"
+                              outline
+                              hidden={isBulkReAssignmentMode}
+                              disabled={!Object.values(selectedUsers).some(Boolean)}
+                            >
+                              Equal Assign
+                            </Button>
+                          </div>
+                          <div className={styles.BulkAssignmentButtonsRight}>
+                            <Button
+                              type="button"
+                              outline
+                              onClick={handleCancelClick(values)}
+                              data-testid="modalCancelButton"
+                            >
+                              {closeText}
+                            </Button>
                             <Button
                               disabled={isDisabled || isFormUnchanged(values)}
                               data-focus="true"
@@ -374,26 +391,6 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, submitText, closeText, 
                               data-testid="modalSubmitButton"
                             >
                               {submitText}
-                            </Button>
-                            <Button
-                              type="button"
-                              className={styles.button}
-                              unstyled
-                              onClick={handleCancelClick(values)}
-                              data-testid="modalCancelButton"
-                            >
-                              {closeText}
-                            </Button>
-                          </div>
-                          <div>
-                            <Button
-                              onClick={handleEqualAssignClick}
-                              type="button"
-                              data-testid="modalEqualAssignButton"
-                              hidden={isBulkReAssignmentMode}
-                              disabled={!Object.values(selectedUsers).some(Boolean)}
-                            >
-                              Equal Assign
                             </Button>
                           </div>
                         </div>

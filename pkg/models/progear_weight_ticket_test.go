@@ -58,7 +58,7 @@ func (suite *ModelSuite) TestProgearWeightTicketValidation() {
 		tc := tc
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&tc.progearWeightTicket, tc.expectedErrs)
+			suite.verifyValidationErrors(&tc.progearWeightTicket, tc.expectedErrs, nil)
 		})
 	}
 }

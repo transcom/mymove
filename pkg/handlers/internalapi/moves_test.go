@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 	// And: a move is patched
-	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
+	handler := PatchMoveHandler{suite.NewHandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	}
 
 	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
-	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
+	handler := PatchMoveHandler{suite.NewHandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
 	suite.IsType(&moveop.PatchMoveForbidden{}, response)
@@ -127,7 +127,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	}
 
 	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
-	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
+	handler := PatchMoveHandler{suite.NewHandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
 	suite.IsType(&moveop.PatchMoveNotFound{}, response)
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerCloseoutOfficeNotFound() {
 
 	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 	// And: a move is patched
-	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
+	handler := PatchMoveHandler{suite.NewHandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -191,16 +191,23 @@ func (suite *HandlerSuite) TestPatchMoveHandlerETagPreconditionFailure() {
 
 	closeoutOfficeUpdater := moverouter.NewCloseoutOfficeUpdater(moverouter.NewMoveFetcher(), transportationoffice.NewTransportationOfficesFetcher())
 	// And: a move is patched
-	handler := PatchMoveHandler{suite.HandlerConfig(), closeoutOfficeUpdater}
+	handler := PatchMoveHandler{suite.NewHandlerConfig(), closeoutOfficeUpdater}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.PatchMovePreconditionFailed{}, response)
 }
 
 func (suite *HandlerSuite) TestShowMoveHandler() {
+	someTime := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
 
 	// Given: a set of orders, a move, user and servicemember
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				LockExpiresAt: &someTime,
+			},
+		},
+	}, nil)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -211,7 +218,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: show Move is queried
-	showHandler := ShowMoveHandler{suite.HandlerConfig()}
+	showHandler := ShowMoveHandler{suite.NewHandlerConfig()}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -221,6 +228,8 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	// And: Returned query to include our added move
 	suite.Assertions.Equal(move.OrdersID.String(), okResponse.Payload.OrdersID.String())
 
+	// should have a lockExpiresAt field if passed in by request
+	suite.True(someTime.Equal(handlers.FmtDateTimePtrToPop(&okResponse.Payload.LockExpiresAt)))
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
@@ -238,7 +247,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: Show move is queried
-	showHandler := ShowMoveHandler{suite.HandlerConfig()}
+	showHandler := ShowMoveHandler{suite.NewHandlerConfig()}
 	showResponse := showHandler.Handle(showMoveParams)
 	// Then: expect a forbidden response
 	suite.CheckResponseForbidden(showResponse)
@@ -300,7 +309,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// When: a move is submitted
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
@@ -382,7 +391,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// When: a move is submitted
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
@@ -422,7 +431,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// And: a move is submitted
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
@@ -475,7 +484,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// When: a move is submitted
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
@@ -525,7 +534,7 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 			MoveID:      strfmt.UUID(move.ID.String()),
 		}
 		// And: a move is submitted
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())}
 		response := handler.Handle(params)
@@ -547,8 +556,8 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 	suite.Run("Gets all moves belonging to a service member", func() {
 
-		time := time.Now()
-		laterTime := time.AddDate(0, 0, 1)
+		now := time.Now()
+		laterTime := now.AddDate(0, 0, 1)
 		// Given: A servicemember and a user
 		user := factory.BuildDefaultUser(suite.DB())
 
@@ -581,7 +590,8 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 			{
 				Model: models.Move{
-					CreatedAt: time,
+					CreatedAt:     now,
+					LockExpiresAt: &laterTime,
 				},
 			},
 		}, nil)
@@ -614,7 +624,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 
 		// And: a move is submitted
 		fakeS3 := storageTest.NewFakeS3Storage(true)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := GetAllMovesHandler{handlerConfig}

@@ -53,6 +53,12 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
+	// RequestedPickupDate must be in the future if set
+	err = MTOShipmentHasValidRequestedPickupDate().Validate(appCtx, shipment, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	err = f.router.Approve(appCtx, shipment)
 	if err != nil {
 		return nil, err

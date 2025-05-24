@@ -19,7 +19,6 @@ import {
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
-  patchMTOShipment,
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
@@ -28,6 +27,7 @@ import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm'
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const ProGear = () => {
   const dispatch = useDispatch();
@@ -97,24 +97,7 @@ const ProGear = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, false)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, appendTimestampToFilename(file), false)
       .then((upload) => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -148,38 +131,6 @@ const ProGear = () => {
       });
   };
 
-  const updateMtoShipment = (values) => {
-    const belongsToSelf = values.belongsToSelf === 'true';
-    let proGear;
-    let spouseProGear;
-    if (belongsToSelf) {
-      proGear = values.weight;
-    }
-    if (!belongsToSelf) {
-      spouseProGear = values.weight;
-    }
-    const payload = {
-      belongsToSelf,
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-      },
-      shipmentType: mtoShipment.shipmentType,
-      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
-      actualProGearWeight: parseInt(proGear, 10),
-      shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
-    };
-
-    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
-      .then((response) => {
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(response));
-      })
-      .catch(() => {
-        setErrorMessage('Failed to update MTO shipment due to server error.');
-      });
-  };
-
   const updateProGearWeightTicket = (values) => {
     const hasWeightTickets = !values.missingWeightTicket;
     const belongsToSelf = values.belongsToSelf === 'true';
@@ -204,7 +155,6 @@ const ProGear = () => {
           .then((response) => {
             dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
             mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
-            updateMtoShipment(values);
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
           .catch(() => {

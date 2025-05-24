@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useReducer, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@trussworks/react-uswds';
+import { Button, ErrorMessage } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -22,7 +22,7 @@ import {
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, getLoa, counselingUpdateOrder, getOrder } from 'services/ghcApi';
+import { getTacValid, getLoa, counselingUpdateOrder, getOrder, getResponseError } from 'services/ghcApi';
 import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -45,6 +45,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const [orderTypeOptions, setOrderTypeOptions] = useState(ORDERS_TYPE_OPTIONS);
+  const [serverError, setServerError] = useState(null);
 
   const orderId = move?.ordersId;
   const initialValueOfHasDependents = orders[orderId]?.has_dependents;
@@ -70,6 +71,11 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       handleClose();
     },
     onError: (error) => {
+      const message = getResponseError(
+        error,
+        'Something went wrong, and your changes were not saved. Please refresh the page and try again.',
+      );
+      setServerError(message);
       const errorMsg = error?.response?.body;
       milmoveLogger.error(errorMsg);
     },
@@ -184,6 +190,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const order = Object.values(orders)?.[0];
 
   const counselorCanEdit =
+    move.status === MOVE_STATUSES.DRAFT ||
     move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
     move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
     (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt); // status is set to 'Approval Requested' if customer uploads amended orders.
@@ -413,6 +420,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
                   />
                 </div>
+                {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
                 <div className={styles.bottom}>
                   <div className={styles.buttonGroup}>
                     <Button

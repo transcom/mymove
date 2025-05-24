@@ -1567,7 +1567,7 @@ definitions:
             example: 4000
             description: >-
               Provided by the movers, based on weight tickets. Relevant for
-              shuttling (DDSHUT & DOSHUT) service items.
+              shuttling (IDSHUT & IOSHUT) service items.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1671,6 +1671,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - APPROVALS_REQUESTED
       diversion:
         type: boolean
       rejectionReason:
@@ -2036,6 +2037,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - APPROVALS_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
