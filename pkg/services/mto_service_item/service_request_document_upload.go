@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"path"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 const (
@@ -44,9 +44,9 @@ func (p *serviceRequestDocumentUploadCreator) assembleUploadFilePathName(appCtx 
 		}
 	}
 
-	newfilename := time.Now().Format(VersionTimeFormat) + "-" + filename
+	newFilename := utils.AppendTimestampToFilename(filename)
 	uploadFilePath := fmt.Sprintf("/mto-service-item/%s", mtoServiceItem.ID)
-	uploadFileName := path.Join(uploadFilePath, newfilename)
+	uploadFileName := path.Join(uploadFilePath, newFilename)
 
 	return uploadFileName, err
 }

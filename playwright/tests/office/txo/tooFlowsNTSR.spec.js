@@ -6,6 +6,7 @@
 
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
+import { getFutureDate } from '../../utils/playwrightUtility';
 
 import { TooFlowPage } from './tooTestFixture';
 
@@ -61,7 +62,7 @@ test.describe('TOO user', () => {
       await page.locator('#ntsRecordedWeight').clear();
       await page.locator('#ntsRecordedWeight').fill('3000');
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('15 Mar 2022');
+      await page.locator('#requestedPickupDate').fill(getFutureDate());
 
       // Storage facility info
       await page.locator('#facilityName').fill('Sample Facility Name');
