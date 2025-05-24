@@ -92,6 +92,9 @@ const PrimeUIShipmentUpdateDestinationAddress = ({ setFlashMessage }) => {
         state: newAddress.address.state,
         postalCode: newAddress.address.postalCode,
         usPostRegionCitiesID: newAddress.address.usPostRegionCitiesID,
+        countryID: newAddress.address.countryID || '',
+        countryName: newAddress.address.country?.name || '',
+        countryCode: newAddress.address.country?.code || '',
       },
       contractorRemarks: values.contractorRemarks,
     };
