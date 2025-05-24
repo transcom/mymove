@@ -173,6 +173,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Orders.DestinationGBLOC",
 		"Orders.NewDutyLocation.Address.Country",
 		"Orders.OriginDutyLocation.Address.Country", // this line breaks Eager, but works with EagerPreload
+		"Orders.Rank",
 		"ShipmentGBLOC",
 	)
 
@@ -364,6 +365,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		loadedServiceItems = append(loadedServiceItems, mto.MTOServiceItems[i])
 	}
 	mto.MTOServiceItems = loadedServiceItems
+
+	if mto.Orders.RankID == nil && *mto.Orders.Grade != "" {
+		userPayGrade, err := FindPayGradeRankByGradeAndAffiliation(appCtx, string(*mto.Orders.Grade), string(*mto.Orders.ServiceMember.Affiliation))
+		if err != nil {
+			return &models.Move{}, apperror.NewQueryError("Rank", err, "")
+		}
+		mto.Orders.Rank = &userPayGrade
+		mto.Orders.RankID = &userPayGrade.ID
+
+	}
 
 	if mto.Orders.DestinationGBLOC == nil {
 		var newDutyLocationGBLOC *string
@@ -680,4 +691,24 @@ func fetchReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.R
 		}
 	}
 	return reweigh, nil
+}
+
+func FindPayGradeRankByGradeAndAffiliation(appCtx appcontext.AppContext, grade, affiliation string) (models.Rank, error) {
+	var result models.Rank
+
+	query := appCtx.DB().Select("ranks.*").
+		LeftJoin("pay_grades", "ranks.pay_grade_id = pay_grades.id").
+		Where("pay_grades.grade = ? AND ranks.affiliation = ?", grade, affiliation)
+
+	err := query.First(&result)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return models.Rank{}, nil
+		default:
+			return models.Rank{}, err
+		}
+	}
+	return result, nil
 }
