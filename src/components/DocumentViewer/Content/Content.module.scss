@@ -3,7 +3,7 @@
 @import '../../../shared/styles/colors';
 
 .DocViewerContent {
-  height: 100%;
+  aspect-ratio: 1/1;
   position: relative;
   @include u-bg('base-lighter');
 
@@ -26,10 +26,13 @@
     }
 
     .photo-viewer-container {
-      align-items: unset; // must override to get it to respect calculating padding-top
+      align-items: center; // must override to get it to respect calculating padding-top
       // spacing for controls/title bar
-      padding-top: 75px;
-      padding-bottom: 75px;
+      padding: 4em;
+    }
+
+    .photo{
+      padding: 4em;
     }
   }
 }
