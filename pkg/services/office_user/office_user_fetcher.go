@@ -61,7 +61,7 @@ func (o *officeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext,
 
 func (o *officeUserFetcherPop) FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error) {
 	var officeUser models.OfficeUser
-	err := appCtx.DB().Eager("TransportationOffice", "TransportationOfficeAssignments", "TransportationOfficeAssignments.TransportationOffice", "User.Roles").Find(&officeUser, id)
+	err := appCtx.DB().Eager("TransportationOffice", "TransportationOfficeAssignments", "TransportationOfficeAssignments.TransportationOffice").Find(&officeUser, id)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
