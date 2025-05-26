@@ -155,12 +155,20 @@ BEGIN
   END IF;
 
   IF requested_move_date IS NOT NULL THEN
-    sql_query := sql_query || ' AND (
-        cte_mto_shipments.requested_pickup_date::DATE = $7::DATE
-        OR ppm_shipments.expected_departure_date::DATE = $7::DATE
-        OR (cte_mto_shipments.shipment_type = ''HHG_OUTOF_NTS'' AND cte_mto_shipments.requested_delivery_date::DATE = $7::DATE)
-    )';
-  END IF;
+        sql_query := sql_query || '
+        AND EXISTS (
+            SELECT 1
+            FROM mto_shipments ms2
+            LEFT JOIN ppm_shipments ppm2 ON ppm2.shipment_id = ms2.id
+            WHERE ms2.move_id = m.id
+              AND (
+                   ms2.requested_pickup_date::DATE = $7::DATE
+                    OR ppm2.expected_departure_date::DATE = $7::DATE
+                    OR (ms2.shipment_type = ''HHG_OUTOF_NTS''
+                        AND ms2.requested_delivery_date::DATE = $7::DATE)
+              )
+        )';
+    END IF;
 
   IF date_submitted IS NOT NULL THEN
       sql_query := sql_query || ' AND m.submitted_at::DATE = $8::DATE ';
