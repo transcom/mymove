@@ -98,6 +98,18 @@ BEGIN
                             ''prime_estimated_weight'', ms.prime_estimated_weight,
                             ''delivery_address_update'', json_build_object(
                                 ''status'', ms.address_update_status
+                            ),
+                            ''sit_duration_updates'', (
+                                SELECT json_agg(
+                                    json_build_object(
+                                        ''status'', se.status
+                                    )
+                                )
+                                FROM sit_extensions se
+                                LEFT JOIN mto_shipments ON mto_shipments.id = se.mto_shipment_id
+                                LEFT JOIN mto_service_items ON mto_shipments.id = mto_service_items.mto_shipment_id
+                                LEFT JOIN re_services ON mto_service_items.re_service_id = re_services.id
+                                WHERE se.mto_shipment_id = ms.id AND re_services.code IN (''DDFSIT'', ''DDASIT'', ''DDDSIT'', ''DDSFSC'', ''IDFSIT'', ''IDASIT'', ''IDDSIT'', ''IDSFSC'')
                             )
                         )
                     )
