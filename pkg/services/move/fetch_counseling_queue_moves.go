@@ -109,15 +109,15 @@ func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueuePara
 
 type MoveWithCount struct {
 	models.Move
-	OrdersRaw           json.RawMessage              `json:"orders" db:"orders"`
-	Orders              *models.Order                `json:"-"`
-	MTOShipmentsRaw     json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
-	MTOShipments        *models.MTOShipments         `json:"-"`
-	CounselingOfficeRaw json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
-	CounselingOffice    *models.TransportationOffice `json:"-"`
-	SCAssignedUserRaw   json.RawMessage              `json:"sc_assigned" db:"sc_assigned"`
-	SCAssignedUser      *models.OfficeUser           `json:"-"`
-	TotalCount          int64                        `json:"total_count" db:"total_count"`
+	OrdersRaw                json.RawMessage              `json:"orders" db:"orders"`
+	Orders                   *models.Order                `json:"-"`
+	MTOShipmentsRaw          json.RawMessage              `json:"mto_shipments" db:"mto_shipments"`
+	MTOShipments             *models.MTOShipments         `json:"-"`
+	CounselingOfficeRaw      json.RawMessage              `json:"counseling_transportation_office" db:"counseling_transportation_office"`
+	CounselingOffice         *models.TransportationOffice `json:"-"`
+	SCAssignedUserRaw        json.RawMessage              `json:"sc_assigned" db:"sc_assigned"`
+	SCCounselingAssignedUser *models.OfficeUser           `json:"-"`
+	TotalCount               int64                        `json:"total_count" db:"total_count"`
 }
 
 func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error) {
@@ -154,7 +154,7 @@ func movesWithCountToMoves(movesWithCount []MoveWithCount) ([]models.Move, error
 			return moves, fmt.Errorf("error unmarshaling sc_assigned JSON: %w", err)
 		}
 		movesWithCount[i].SCAssignedUserRaw = nil
-		movesWithCount[i].SCAssignedUser = &scAssigned
+		movesWithCount[i].SCCounselingAssignedUser = &scAssigned
 	}
 
 	// the handler consumes a Move object and NOT the MoveWithCount struct used in this func

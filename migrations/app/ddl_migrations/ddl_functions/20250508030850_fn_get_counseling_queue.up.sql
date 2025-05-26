@@ -21,7 +21,7 @@ CREATE OR REPLACE FUNCTION get_counseling_queue(
 	sort_direction TEXT DEFAULT NULL
 )
 RETURNS TABLE (
-	id UUID,
+	  id UUID,
     show BOOLEAN,
     locator TEXT,
     submitted_at TIMESTAMP WITH TIME ZONE,
@@ -31,10 +31,10 @@ RETURNS TABLE (
     sc_counseling_assigned_id UUID,
     counseling_transportation_office_id UUID,
     sc_assigned JSONB,
-	orders JSONB,
-	mto_shipments JSONB,
-  	counseling_transportation_office JSONB,
-	total_count BIGINT
+    counseling_transportation_office JSONB,
+    orders JSONB,
+    mto_shipments JSONB,
+    total_count BIGINT
 ) LANGUAGE plpgsql AS $$
 DECLARE
   sql_query 	TEXT;
@@ -50,52 +50,52 @@ BEGIN
 
 
   sql_query := '
-	WITH cte_mto_shipments AS (
-    select distinct ON (mto_shipments.id) mto_shipments.*
-	FROM mto_shipments
-	)
     Select
-      m.id AS id,
-      m.show AS show,
-      m.locator::TEXT AS locator,
-      m.submitted_at::TIMESTAMP WITH TIME ZONE AS submitted_at,
-      m.orders_id AS orders_id,
-      m.status::TEXT AS status,
-      m.locked_by AS locked_by,
-      m.sc_counseling_assigned_id AS sc_counseling_assigned_id,
-      m.counseling_transportation_office_id AS counseling_transportation_office_id,
-      json_build_object(''first_name'', sc_user.first_name, ''last_name'', sc_user.last_name, ''id'', sc_user.id)::JSONB AS sc_assigned,
-      json_build_object(
-        ''id'',                         o.id,
-        ''orders_type'',                o.orders_type,
-        ''origin_duty_location_gbloc'', o.gbloc,
-        ''department_indicator'',       o.department_indicator,
-        ''service_member'', json_build_object(
-          ''id'',           sm.id,
-          ''first_name'',   sm.first_name,
-          ''last_name'',    sm.last_name,
-          ''edipi'',        sm.edipi,
-          ''emplid'',       sm.emplid,
-          ''affiliation'',  sm.affiliation
-        ),
-        ''origin_duty_location'', json_build_object(
-              ''id'',   origin_duty_locations.id,
-              ''name'', origin_duty_locations.name,
-              ''address'', json_build_object(
-                  ''street_address_1'', addr.street_address_1,
-                  ''street_address_2'', addr.street_address_2,
-                  ''city'',           addr.city,
-                  ''state'',          addr.state,
-                  ''postal_code'',    addr.postal_code
-              )
-          )
-        )::JSONB AS orders,
-        COALESCE(ms_agg.mto_shipments, ''[]''::jsonb) AS mto_shipments,
-        json_build_object(
-          ''id'',   co.id,
-          ''name'', co.name
-    	)::JSONB AS counseling_transportation_office,
-    	COUNT(*) OVER() AS total_count
+    m.id AS id,
+    m.show AS show,
+    m.locator::TEXT AS locator,
+    m.submitted_at::TIMESTAMP WITH TIME ZONE AS submitted_at,
+    m.orders_id AS orders_id,
+    m.status::TEXT AS status,
+    m.locked_by AS locked_by,
+    m.sc_counseling_assigned_id AS sc_counseling_assigned_id,
+    m.counseling_transportation_office_id AS counseling_transportation_office_id,
+		json_build_object(
+				''id'', sc_user.id,
+				''first_name'', sc_user.first_name,
+				''last_name'', sc_user.last_name
+		)::JSONB AS sc_assigned,
+		json_build_object(
+				''id'', co.id,
+				''name'', co.name
+		)::JSONB AS counseling_transportation_office,
+		json_build_object(
+				''id'', o.id,
+				''orders_type'', o.orders_type,
+				''origin_duty_location_gbloc'', o.gbloc,
+				''department_indicator'',       o.department_indicator,
+				''service_member'', json_build_object(
+					''id'',           sm.id,
+					''first_name'',   sm.first_name,
+          			''last_name'',    sm.last_name,
+          			''edipi'',        sm.edipi,
+          			''emplid'',       sm.emplid,
+          			''affiliation'',  sm.affiliation
+				),
+				''origin_duty_location'', json_build_object(
+					''id'',   origin_duty_locations.id,
+					''name'', origin_duty_locations.name,
+					''address'', json_build_object(
+						''street_address_1'', addr.street_address_1,
+                  		''street_address_2'', addr.street_address_2,
+                  		''city'',           addr.city,
+                  		''state'',          addr.state,
+                  		''postal_code'',    addr.postal_code
+					)
+				)
+		  )::JSONB AS orders,
+      COALESCE(ms_agg.mto_shipments)::JSONB AS mto_shipments,
+		COUNT(*) OVER() AS total_count
     From moves m
     JOIN orders o ON m.orders_id = o.id
     JOIN service_members sm ON o.service_member_id = sm.id
@@ -105,20 +105,19 @@ BEGIN
     LEFT JOIN addresses addr
           ON origin_duty_locations.address_id = addr.id
     LEFT JOIN office_users AS sc_user ON m.sc_counseling_assigned_id = sc_user.id
- 	  LEFT JOIN LATERAL (
+ 	LEFT JOIN LATERAL (
                 SELECT json_agg(
-                        json_build_object(
-                              ''id'', ms.id,
-                              ''shipment_type'', ms.shipment_type,
-                              ''status'', ms.status,
-                              ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                              ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                              ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
-                              ''prime_estimated_weight'', ms.prime_estimated_weight
-                          )
-                        )::JSONB AS mto_shipments
+                       	json_build_object(
+							''id'', ms.id,
+							''shipment_type'', ms.shipment_type,
+                            ''status'', ms.status,
+                            ''requested_pickup_date'', TO_CHAR(ms.requested_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                            ''scheduled_pickup_date'', TO_CHAR(ms.scheduled_pickup_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                            ''approved_date'', TO_CHAR(ms.approved_date, ''YYYY-MM-DD"T00:00:00Z"''),
+                            ''prime_estimated_weight'', ms.prime_estimated_weight
+						)
+                       )::JSONB AS mto_shipments
                 FROM   mto_shipments ms
-				        JOIN ppm_shipments ON ms.id = ppm_shipments.shipment_id
                 WHERE  ms.move_id = m.id
                 ) ms_agg ON TRUE
     JOIN move_to_gbloc ON move_to_gbloc.move_id = m.id

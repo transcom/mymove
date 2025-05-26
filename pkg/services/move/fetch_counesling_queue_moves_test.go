@@ -36,6 +36,7 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 	specifiedTimestamp2 := time.Date(2022, 04, 03, 0, 0, 0, 0, time.UTC)
 	specifiedTimestamp3 := time.Date(2022, 04, 04, 0, 0, 0, 0, time.UTC)
 	specifiedTimestampLatest := time.Date(2022, 04, 05, 0, 0, 0, 0, time.UTC)
+	specifiedTimestamp4 := time.Date(2022, 04, 02, 11, 0, 0, 0, time.UTC)
 
 	navy := models.AffiliationNAVY
 
@@ -95,6 +96,12 @@ func (suite *MoveServiceSuite) makeCounselingSubtestData() (subtestData *TestMov
 				Edipi:       &edipi1,
 				Emplid:      &emplid1,
 				Affiliation: &navy,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate: &specifiedTimestamp4,
+				Status:              models.MTOShipmentStatusSubmitted,
 			},
 		},
 	}, nil)
@@ -679,5 +686,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 		suite.Equal(count, int64(1))
 		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
 		suite.Equal(testData.defaultMoveWithShipments.SCCounselingAssignedID, returnedMoves[0].SCCounselingAssignedID)
+		suite.Equal(testData.defaultMoveWithShipments.SCCounselingAssignedID.String(), returnedMoves[0].SCCounselingAssignedUser.ID.String())
 	})
 }
