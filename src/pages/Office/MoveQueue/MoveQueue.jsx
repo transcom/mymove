@@ -125,20 +125,6 @@ export const columns = (
         },
       ),
     );
-  // createHeader(
-  //   'Approval Request Type',
-  //   (row) => {
-  //     if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
-  //       return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
-  //     }
-  //     return '';
-  //   },
-  //   {
-  //     id: 'approvalRequestTypes',
-  //     isFilterable: false,
-  //     disableSortBy: true,
-  //   },
-  // ),
   cols.push(
     createHeader('Move code', 'locator', {
       id: 'locator',
