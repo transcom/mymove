@@ -492,6 +492,42 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
 	})
 
+	suite.Run("returns moves filtered by requested pickup date", func() {
+		// Office users
+		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: "KKFA",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		// Mocks
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			scOfficeUser.ID,
+		).Return("KKFA", nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: scOfficeUser.ID,
+		})
+
+		testData := suite.makeCounselingSubtestData()
+
+		timestamp := "2022-04-02"
+		counselingQueueParams := services.CounselingQueueParams{
+			RequestedMoveDate: &timestamp,
+		}
+
+		counselingQueueFetcher := NewCounselingQueueFetcher()
+		returnedMoves, count, err := counselingQueueFetcher.FetchCounselingQueue(appCtx, counselingQueueParams)
+
+		suite.FatalNoError(err)
+		suite.Equal(count, int64(1))
+		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
+	})
+
 	suite.Run("returns moves filtered by branch", func() {
 		// Office users
 		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
@@ -527,7 +563,7 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 		suite.Equal(testData.defaultMoveWithShipments.Locator, returnedMoves[0].Locator)
 	})
 
-	suite.Run("returns moves filtered by branch", func() {
+	suite.Run("returns moves filtered by duty location", func() {
 		// Office users
 		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{

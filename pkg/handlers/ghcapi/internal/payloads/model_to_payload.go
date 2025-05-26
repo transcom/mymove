@@ -2663,7 +2663,7 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 			if assignedToUser != nil && assignedToUser.ID != uuid.Nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == *&assignedToUser.ID {
+					if officeUser.ID == assignedToUser.ID {
 						userFound = true
 						break
 					}
