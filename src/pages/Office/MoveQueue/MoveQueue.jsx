@@ -41,6 +41,7 @@ export const columns = (
   isQueueManagementEnabled,
   queueType,
   setRefetchQueue,
+  isApprovalRequestTypeColEnabled,
   showBranchFilter = true,
 ) => {
   const cols = [
@@ -106,20 +107,39 @@ export const columns = (
         Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
       },
     ),
-    createHeader(
-      'Approval Request Type',
-      (row) => {
-        if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
-          return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
-        }
-        return '';
-      },
-      {
-        id: 'approvalRequestTypes',
-        isFilterable: false,
-        disableSortBy: true,
-      },
-    ),
+  ];
+  if (isApprovalRequestTypeColEnabled)
+    cols.push(
+      createHeader(
+        'Approval Request Type',
+        (row) => {
+          if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
+            return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
+          }
+          return '';
+        },
+        {
+          id: 'approvalRequestTypes',
+          isFilterable: false,
+          disableSortBy: true,
+        },
+      ),
+    );
+  // createHeader(
+  //   'Approval Request Type',
+  //   (row) => {
+  //     if (row.status === MOVE_STATUSES.APPROVALS_REQUESTED && row.approvalRequestTypes) {
+  //       return formatApprovalRequestTypes(queueType, row.approvalRequestTypes);
+  //     }
+  //     return '';
+  //   },
+  //   {
+  //     id: 'approvalRequestTypes',
+  //     isFilterable: false,
+  //     disableSortBy: true,
+  //   },
+  // ),
+  cols.push(
     createHeader('Move code', 'locator', {
       id: 'locator',
       isFilterable: true,
@@ -175,7 +195,7 @@ export const columns = (
       id: 'counselingOffice',
       isFilterable: true,
     }),
-  ];
+  );
   if (isQueueManagementEnabled)
     cols.push(
       createHeader(
@@ -228,6 +248,7 @@ const MoveQueue = ({
   isBulkAssignmentFFEnabled,
   activeRole,
   setRefetchQueue,
+  isApprovalRequestTypeColEnabled,
 }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
@@ -371,7 +392,14 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeColEnabled,
+            showBranchFilter,
+          )}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
@@ -401,7 +429,14 @@ const MoveQueue = ({
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, queueType, setRefetchQueue, showBranchFilter)}
+          columns={columns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            setRefetchQueue,
+            isApprovalRequestTypeColEnabled,
+            showBranchFilter,
+          )}
           title="Destination requests"
           handleClick={handleClick}
           useQueries={useDestinationRequestsQueueQueries}
