@@ -96,7 +96,7 @@ type Move struct {
 	AdditionalDocumentsID                          *uuid.UUID            `json:"additional_documents_id" db:"additional_documents_id"`
 	AdditionalDocuments                            *Document             `belongs_to:"documents" fk_id:"additional_documents_id"`
 	SCCounselingAssignedID                         *uuid.UUID            `json:"sc_counseling_assigned_id" db:"sc_counseling_assigned_id"`
-	SCCounselingAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"sc_counseling_assigned_id"`
+	SCCounselingAssignedUser                       *OfficeUser           `json:"sc_assigned" belongs_to:"office_users" fk_id:"sc_counseling_assigned_id"`
 	SCCloseoutAssignedID                           *uuid.UUID            `json:"sc_closeout_assigned_id" db:"sc_closeout_assigned_id"`
 	SCCloseoutAssignedUser                         *OfficeUser           `belongs_to:"office_users" fk_id:"sc_closeout_assigned_id"`
 	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`
