@@ -2535,8 +2535,12 @@ func (suite *PayloadsSuite) TestPayGrades() {
 		{Grade: "W-2", GradeDescription: models.StringPointer("W-2")},
 	}
 
-	result := PayGrades(payGrades)
-
-	suite.Equal(len(payGrades), len(result))
-	suite.Equal(payGrades[0].Grade, result[0].Grade)
+	for _, payGrade := range payGrades {
+		suite.Run(payGrade.Grade, func() {
+			grades := models.PayGrades{payGrade}
+			result := PayGrades(grades)
+			suite.Equal(payGrade.Grade, result[0].Grade)
+			suite.Equal(*payGrade.GradeDescription, result[0].Description)
+		})
+	}
 }

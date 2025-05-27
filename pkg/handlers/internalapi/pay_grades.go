@@ -14,7 +14,7 @@ type GetPayGradesHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handle retrieves orders in the system belonging to the logged in user given order ID
+// Handle retrieves pay grades for a given affiliation
 func (h GetPayGradesHandler) Handle(params ordersop.GetPayGradesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -22,8 +22,6 @@ func (h GetPayGradesHandler) Handle(params ordersop.GetPayGradesParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-
-			appCtx.DB()
 
 			if len(payGrades) < 1 {
 				return ordersop.NewGetPayGradesNotFound(), nil
