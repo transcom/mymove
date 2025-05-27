@@ -624,9 +624,9 @@ func IsShipmentApprovable(dbShipment MTOShipment) bool {
 func GetAuthorizedSITEndDateForSitExtension(shipment MTOShipment, code ReServiceCode) *time.Time {
 	var endDate time.Time
 	if code != "" {
-		if code == "DOASIT" && shipment.OriginSITAuthEndDate != nil {
+		if code == ReServiceCodeDOASIT && shipment.OriginSITAuthEndDate != nil {
 			endDate = *shipment.OriginSITAuthEndDate
-		} else if code == "DDASIT" && shipment.DestinationSITAuthEndDate != nil {
+		} else if code == ReServiceCodeDDASIT && shipment.DestinationSITAuthEndDate != nil {
 			endDate = *shipment.DestinationSITAuthEndDate
 		}
 	}

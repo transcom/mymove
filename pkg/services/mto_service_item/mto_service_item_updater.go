@@ -512,12 +512,13 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	}
 
 	// Only if service item types are DOASIT or DDASIT
-	// if the SIT departure date is on or before the authorized end date delete any pending sit extensions
+	// if the SIT departure date is on or before the authorized end date
+	// then REMOVE any pending sit extensions
 	if len(shipment.SITDurationUpdates) > 0 {
 		endDate := models.GetAuthorizedSITEndDateForSitExtension(shipment, updatedServiceItem.ReService.Code)
 		if mtoServiceItem.SITDepartureDate != nil && !endDate.IsZero() {
 			if mtoServiceItem.SITDepartureDate.Before(*endDate) || mtoServiceItem.SITDepartureDate.Equal(*endDate) {
-				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = 'REMOVED' WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
+				err = appCtx.DB().RawQuery("UPDATE sit_extensions SET status = ? WHERE status = ? AND mto_shipment_id = ?", models.SITExtensionStatusRemoved, models.SITExtensionStatusPending, updatedServiceItem.MTOShipmentID).Exec()
 				if err != nil {
 					return nil, err
 				}
