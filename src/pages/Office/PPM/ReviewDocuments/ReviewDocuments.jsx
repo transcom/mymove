@@ -309,8 +309,6 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
 
   const uploads = showOverview ? getAllUploads() : currentDocumentSet?.uploads;
 
-  const filesForViewer = paymentPacketFile ? [paymentPacketFile, ...uploads] : uploads;
-
   const handleSubmitPPMShipmentModal = () => {
     onContinue();
   };
@@ -326,7 +324,13 @@ export const ReviewDocuments = ({ readOnly, setShowLoadingSpinner }) => {
         onSubmit={handleSubmitPPMShipmentModal}
       />
       <div className={styles.embed}>
-        <DocumentViewer files={filesForViewer} allowDownload isFileUploading={isFileUploading} />
+        {paymentPacketFile ? (
+          // View the payment packet preview, allowing full unmount of the uploads
+          <DocumentViewer key="packet" files={[paymentPacketFile]} allowDownload isFileUploading={false} />
+        ) : (
+          // View the uploads
+          <DocumentViewer key="docs" files={uploads} allowDownload isFileUploading={isFileUploading} />
+        )}
       </div>
       <DocumentViewerSidebar
         title={readOnly ? 'View documents' : 'Review documents'}
