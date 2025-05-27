@@ -4201,7 +4201,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					StreetAddress1: "1 some street",
 					City:           "Charlotte",
 					State:          "NC",
-					PostalCode:     "28290",
+					PostalCode:     "28290343", // Fake ZIP to cause error
 					IsOconus:       models.BoolPointer(false),
 				},
 			}}, nil)
@@ -4317,7 +4317,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateRequiredDeliveryDateUpdate() {
 					StreetAddress3: models.StringPointer("c/o Another Person"),
 					City:           "Cordova",
 					State:          "AK",
-					PostalCode:     "99677",
+					PostalCode:     "99677898", // Fake ZIP to cause error
 					IsOconus:       models.BoolPointer(true),
 				},
 			}}, nil)
@@ -4521,7 +4521,7 @@ func (suite *MTOShipmentServiceSuite) TestCalculateRequiredDeliveryDate() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, conusAddress, zone5Address, time.Now(), 500, move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, conusAddress, zone5Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
 		suite.NotNil(err)
 		suite.Nil(RDD)
 		suite.Equal(fmt.Sprintf("error fetching pickup rate area id for address ID: %s", conusAddress.ID), err.Error())
@@ -4576,7 +4576,7 @@ func (suite *MTOShipmentServiceSuite) TestCalculateRequiredDeliveryDate() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, conusAddress, zone5Address, time.Now(), 500, move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, conusAddress, zone5Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
 		suite.NotNil(err)
 		suite.Nil(RDD)
 		suite.Equal(fmt.Sprintf("error fetching destination rate area id for address ID: %s", zone5Address.ID), err.Error())
@@ -4636,31 +4636,31 @@ func (suite *MTOShipmentServiceSuite) TestCalculateRequiredDeliveryDate() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		// Zone 1 -> Zone 4 UB
-		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), 500, move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
 		suite.Nil(err)
 		suite.NotNil(RDD)
 		suite.Equal(pickupDate.AddDate(0, 0, IntraAlaskaUBTransitTime).Day(), RDD.Day())
 
 		// Zone 1 -> Zone 4 HHG
-		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), 500, move.ID, models.MTOShipmentTypeHHG)
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeHHG)
 		suite.Nil(err)
 		suite.NotNil(RDD)
 		suite.Equal(pickupDate.AddDate(0, 0, AlaskaZone1ToZone4HHGTransitTime).Day(), RDD.Day())
 
 		// Zone 1 -> Zone 4 NTS-Release
-		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), 500, move.ID, models.MTOShipmentTypeHHGOutOfNTS)
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone1Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeHHGOutOfNTS)
 		suite.Nil(err)
 		suite.NotNil(RDD)
 		suite.Equal(pickupDate.AddDate(0, 0, AlaskaZone1ToZone4HHGTransitTime).Day(), RDD.Day())
 
 		// Zone 2 -> Zone 4 UB
-		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone2Address, zone4Address, time.Now(), 500, move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone2Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
 		suite.Nil(err)
 		suite.NotNil(RDD)
 		suite.Equal(pickupDate.AddDate(0, 0, IntraAlaskaUBTransitTime).Day(), RDD.Day())
 
 		// Zone 2 -> Zone 4 HHG
-		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone2Address, zone4Address, time.Now(), 500, move.ID, models.MTOShipmentTypeHHG)
+		RDD, err = CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, zone2Address, zone4Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeHHG)
 		suite.Nil(err)
 		suite.NotNil(RDD)
 		suite.Equal(pickupDate.AddDate(0, 0, AlaskaZone2ToZone4HHGTransitTime).Day(), RDD.Day())
@@ -4702,7 +4702,7 @@ func (suite *MTOShipmentServiceSuite) TestCalculateRequiredDeliveryDate() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, unsavedZone1Address, savedZone2Address, time.Now(), 500, move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, unsavedZone1Address, savedZone2Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
 		suite.NotNil(err)
 		suite.Nil(RDD)
 		suite.Equal(fmt.Sprintf("error fetching pickup rate area id for address ID: %s", unsavedZone1Address.ID), err.Error())
@@ -4744,7 +4744,7 @@ func (suite *MTOShipmentServiceSuite) TestCalculateRequiredDeliveryDate() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
-		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, savedZone2Address, unsavedZone1Address, time.Now(), 500, move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
+		RDD, err := CalculateRequiredDeliveryDate(suite.AppContextForTest(), planner, savedZone2Address, unsavedZone1Address, time.Now(), models.IntPointer(500), move.ID, models.MTOShipmentTypeUnaccompaniedBaggage)
 		suite.NotNil(err)
 		suite.Nil(RDD)
 		suite.Equal(fmt.Sprintf("error fetching destination rate area id for address ID: %s", unsavedZone1Address.ID), err.Error())
