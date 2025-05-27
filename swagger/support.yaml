@@ -1671,6 +1671,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - APPROVALS_REQUESTED
       diversion:
         type: boolean
       rejectionReason:
@@ -2005,6 +2006,7 @@ definitions:
           - CANCELLATION_REQUESTED
           - CANCELED
           - DIVERSION_REQUESTED
+          - APPROVALS_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
