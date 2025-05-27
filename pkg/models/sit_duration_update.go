@@ -87,6 +87,7 @@ func (m *SITDurationUpdate) Validate(_ *pop.Connection) (*validate.Errors, error
 		string(SITExtensionStatusPending),
 		string(SITExtensionStatusApproved),
 		string(SITExtensionStatusDenied),
+		string(SITExtensionStatusRemoved),
 	}})
 
 	if m.DecisionDate != nil {

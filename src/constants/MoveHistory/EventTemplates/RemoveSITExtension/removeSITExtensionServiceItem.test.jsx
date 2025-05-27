@@ -2,13 +2,16 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import removeSITExtensionServiceItem from 'constants/MoveHistory/EventTemplates/RemoveSITExtension/removeSITExtensionServiceItem';
-import Actions from 'constants/MoveHistory/Database/Actions';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
+import a from 'constants/MoveHistory/Database/Actions';
+import t from 'constants/MoveHistory/Database/Tables';
+import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 
 describe('when given a removeSITExtensionServiceItem history record', () => {
   const historyRecord = {
-    action: Actions.UPDATE,
+    action: a.UPDATE,
     changedValues: {
-      status: 'REMOVED',
+      status: SIT_EXTENSION_STATUS.REMOVED,
     },
     context: [
       {
@@ -18,8 +21,8 @@ describe('when given a removeSITExtensionServiceItem history record', () => {
         shipment_type: 'HHG',
       },
     ],
-    eventName: 'updateMTOServiceItem',
-    tableName: 'sit_extensions',
+    eventName: o.updateMTOServiceItem,
+    tableName: t.sit_extensions,
   };
 
   it('matches the template from getTemplate', () => {
