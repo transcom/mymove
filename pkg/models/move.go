@@ -77,10 +77,10 @@ type Move struct {
 	PrimeCounselingCompletedAt                     *time.Time            `db:"prime_counseling_completed_at"`
 	ExcessUnaccompaniedBaggageWeightQualifiedAt    *time.Time            `db:"excess_unaccompanied_baggage_weight_qualified_at"` // UB specific excess tracking
 	ExcessUnaccompaniedBaggageWeightAcknowledgedAt *time.Time            `db:"excess_unaccompanied_baggage_weight_acknowledged_at"`
-	ExcessWeightQualifiedAt                        *time.Time            `db:"excess_weight_qualified_at"` // Overall excess weight tracking (Includes UB in the sum if it violates excess)
+	ExcessWeightQualifiedAt                        *time.Time            `db:"excess_weight_qualified_at" json:"excess_weight_qualified_at"` // Overall excess weight tracking (Includes UB in the sum if it violates excess)
 	ExcessWeightUploadID                           *uuid.UUID            `db:"excess_weight_upload_id"`
 	ExcessWeightUpload                             *Upload               `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
-	ExcessWeightAcknowledgedAt                     *time.Time            `db:"excess_weight_acknowledged_at"`
+	ExcessWeightAcknowledgedAt                     *time.Time            `db:"excess_weight_acknowledged_at" json:"excess_weight_acknowledged_at"`
 	BillableWeightsReviewedAt                      *time.Time            `db:"billable_weights_reviewed_at"`
 	FinancialReviewFlag                            bool                  `db:"financial_review_flag"`
 	FinancialReviewFlagSetAt                       *time.Time            `db:"financial_review_flag_set_at"`
