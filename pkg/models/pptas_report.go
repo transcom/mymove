@@ -106,4 +106,5 @@ type PPTASShipment struct {
 	DeliveryDate                *time.Time
 	ActualOriginNetWeight       *unit.Pound
 	DestinationReweighNetWeight *unit.Pound
+	MaxBillableWeight           *unit.Pound
 }

@@ -244,3 +244,7 @@ properties:
     type: number
     format: double
     x-nullable: true
+  maxBillableWeight:
+    type: number
+    format: double
+    x-nullable: true

@@ -225,6 +225,11 @@ func populateShipmentFields(
 			pptasShipment.Miles = int64(*shipment.Distance)
 		}
 
+		if shipment.BillableWeightCap != nil {
+			maxBillableWeight := shipment.BillableWeightCap.Float64()
+			pptasShipment.MaxBillableWeight = &maxBillableWeight
+		}
+
 		pptasShipments = append(pptasShipments, &pptasShipment)
 	}
 

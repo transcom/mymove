@@ -673,6 +673,11 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "maxBillableWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "miles": {
           "type": "integer"
         },
@@ -1570,6 +1575,11 @@ func init() {
         "loa": {
           "description": "Line of Accounting",
           "type": "string",
+          "x-nullable": true
+        },
+        "maxBillableWeight": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "miles": {

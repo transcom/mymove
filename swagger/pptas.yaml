@@ -543,6 +543,10 @@ definitions:
         type: number
         format: double
         x-nullable: true
+      maxBillableWeight:
+        type: number
+        format: double
+        x-nullable: true
   PPTASReport:
     description: >
       Report for Navy PPTAS, contains information about Service Members, Orders,
