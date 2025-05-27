@@ -1298,7 +1298,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			distance, distance, &weight, &weight).First(&ghcDomesticTransitTime)
 
 		if err != nil {
-			return nil, errors.Errorf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight, distance)
+			return nil, errors.Errorf("failed to find transit time for shipment of %d lbs weight and %d mile distance", &weight, distance)
 		}
 
 		// Add the max transit time to the pickup date to get the new required delivery date
