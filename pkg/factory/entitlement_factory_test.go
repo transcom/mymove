@@ -30,7 +30,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 			RequiredMedicalEquipmentWeight:               1000,
 			OrganizationalClothingAndIndividualEquipment: true,
 		}
-		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E-1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE1), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		suite.NoError(err)
 		defEnt.WeightAllotted = &allotment
 
@@ -90,7 +90,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		suite.Equal(custEnt.OrganizationalClothingAndIndividualEquipment, entitlement.OrganizationalClothingAndIndividualEquipment)
 
 		// Set the weight allotment on the custom object so as to compare
-		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E-1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), string(models.ServiceMemberGradeE1), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		suite.NoError(err)
 		custEnt.WeightAllotted = &allotment
 		custEnt.DBAuthorizedWeight = custEnt.AuthorizedWeight()
