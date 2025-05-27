@@ -458,6 +458,40 @@ describe('formatAssignedOfficeUserFromContext', () => {
       re_assigned_too: 'McLaurin, Terry',
     });
   });
+  it('properly formats a TOOs name for assignment', () => {
+    const values = {
+      changedValues: {
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: null,
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      assigned_too: 'McLaurin, Terry',
+    });
+  });
+  it('properly formats a TOOs name for reassignment', () => {
+    const values = {
+      changedValues: {
+        too_destination_assigned_id: 'fb625e3c-067c-49d7-8fd9-88ef040e6137',
+      },
+      oldValues: {
+        too_destination_assigned_id: '759a87ad-dc75-4b34-b551-d31309a79f64',
+      },
+      context: [{ assigned_office_user_last_name: 'McLaurin', assigned_office_user_first_name: 'Terry' }],
+    };
+
+    const result = formatters.formatAssignedOfficeUserFromContext(values);
+
+    expect(result).toEqual({
+      re_assigned_too: 'McLaurin, Terry',
+    });
+  });
   it('properly formats a TIOs name for assignment', () => {
     const values = {
       changedValues: {
@@ -674,5 +708,41 @@ describe('toTitleCase', () => {
     const values = 'Portland Oregon';
     const result = formatters.toTitleCase(values);
     expect(result).toEqual('Portland Oregon');
+  });
+});
+
+describe('formatFullName', () => {
+  const { formatFullName } = formatters;
+
+  it('returns the full name with first, middle, and last names', () => {
+    expect(formatFullName('John', 'M', 'Doe')).toBe('John M Doe');
+  });
+
+  it('returns the full name without a middle name', () => {
+    expect(formatFullName('John', '', 'Doe')).toBe('John Doe');
+  });
+
+  it('returns the full name without a first name', () => {
+    expect(formatFullName('', 'M', 'Doe')).toBe('M Doe');
+  });
+
+  it('returns the full name without a last name', () => {
+    expect(formatFullName('John', 'M', '')).toBe('John M');
+  });
+
+  it('returns the full name with only a first name', () => {
+    expect(formatFullName('John', '', '')).toBe('John');
+  });
+
+  it('returns the full name with only a middle name', () => {
+    expect(formatFullName('', 'M', '')).toBe('M');
+  });
+
+  it('returns the full name with only a last name', () => {
+    expect(formatFullName('', '', 'Doe')).toBe('Doe');
+  });
+
+  it('returns an empty string if all names are empty', () => {
+    expect(formatFullName('', '', '')).toBe('');
   });
 });

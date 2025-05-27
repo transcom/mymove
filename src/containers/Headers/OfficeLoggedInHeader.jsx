@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import classnames from 'classnames';
 
 import GblocSwitcher from 'components/Office/GblocSwitcher/GblocSwitcher';
@@ -57,9 +57,9 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
             {activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1 ? (
               <GblocSwitcher acticeRole={activeRole} officeUser={officeUser} />
             ) : (
-              <Link to="/">
+              <a href="/">
                 {officeUser.transportation_office.gbloc} {queueText}
-              </Link>
+              </a>
             )}
           </li>
         </ul>
