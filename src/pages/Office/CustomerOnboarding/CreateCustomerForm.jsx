@@ -110,9 +110,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     const createOktaAccount = values.create_okta_account === 'true';
     const cacUser = values.cac_user === 'true';
 
-    const backupContactFirstName = values[backupContactName].firstName;
-    const backupContactLastName = values[backupContactName].lastName;
-    const backupContactFullName = `${backupContactFirstName} ${backupContactLastName}`;
+    const valuesBackupFirstName = (values[backupContactName].firstName || '').trim();
+    const valuesBackupLastName = (values[backupContactName].lastName || '').trim();
+    const valuesBackupFullName = `${valuesBackupFirstName} ${valuesBackupLastName}`.trim();
 
     const body = {
       affiliation: values.affiliation,
@@ -130,7 +130,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
       residentialAddress: values[residentialAddressName],
       backupMailingAddress: values[backupAddressName],
       backupContact: {
-        name: backupContactFullName,
+        name: valuesBackupFullName,
         email: values[backupContactName].email,
         phone: values[backupContactName].telephone,
       },
