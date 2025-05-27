@@ -1,6 +1,6 @@
 import React from 'react';
 
-import MultiRoleSelectApplication from './MultiRoleSelectApplication';
+import MultiRoleSelectApplication, { ConnectedSelectApplication } from './MultiRoleSelectApplication';
 import style from './MultiRoleStoryDecorator.module.scss';
 
 import { configureStore } from 'shared/store';
@@ -23,9 +23,7 @@ export default {
     ),
   ],
   component: MultiRoleSelectApplication,
-  args: {
-    setActiveRole: () => {},
-  },
+  args: {},
   argTypes: {
     inactiveRoles: {
       options: optionInactiveRoles,
@@ -43,9 +41,23 @@ export default {
 };
 
 export const MultiRoleUser = {
-  render: (args) => (
-    <MockProviders store={mockStore.store}>
-      <MultiRoleSelectApplication {...args} />
-    </MockProviders>
-  ),
+  render: ({ activeRole, inactiveRoles }) => {
+    const mockState = {
+      auth: {
+        activeRole,
+      },
+      entities: {
+        user: [
+          {
+            inactiveRoles,
+          },
+        ],
+      },
+    };
+    return (
+      <MockProviders store={mockStore.store} initialState={mockState}>
+        <ConnectedSelectApplication />
+      </MockProviders>
+    );
+  },
 };
