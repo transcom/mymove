@@ -797,4 +797,87 @@ func (suite *OrderServiceSuite) TestListPPMCloseoutOrders() {
 		suite.Equal(filteredMoves[0].Locator, ppmShipment.Shipment.MoveTaskOrder.Locator)
 		suite.FatalNoError(err)
 	})
+
+	suite.Run("can sort by branch affiliation", func() {
+		servicesCounselor, appCtx := createUserAndCtx(suite.DB())
+
+		now := time.Now()
+		army := models.AffiliationARMY
+		navy := models.AffiliationNAVY
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		serviceMemberArmy := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		serviceMemberNavy := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &navy,
+				},
+			},
+		}, nil)
+
+		ppmShipmentArmy := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{
+						ServiceMemberID: serviceMemberArmy.ID,
+					},
+				},
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "ARMYAR",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		ppmShipmentNavy := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.Order{
+						ServiceMemberID: serviceMemberNavy.ID,
+					},
+				},
+				{
+					Model: models.Move{
+						PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+						SubmittedAt:      &now,
+						Locator:          "NAVYNA",
+						CloseoutOfficeID: &transportationOffice.ID,
+					},
+					Type: &factory.Move,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipmentArmy.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		filteredMoves, count, err := orderFetcher.ListPPMCloseoutOrders(
+			appCtx,
+			servicesCounselor.ID,
+			&services.ListOrderParams{
+				Sort: models.StringPointer("branch"),
+			},
+		)
+		suite.Equal(count, 2)
+		suite.FatalNoError(err)
+		// Army should be the first move
+		suite.Equal(filteredMoves[0].Locator, ppmShipmentArmy.Shipment.MoveTaskOrder.Locator, "Army move not sorted properly it should be the first in the slice")
+		suite.Equal(filteredMoves[1].Locator, ppmShipmentNavy.Shipment.MoveTaskOrder.Locator, "The navy move should be the second in the slice")
+	})
+
 }

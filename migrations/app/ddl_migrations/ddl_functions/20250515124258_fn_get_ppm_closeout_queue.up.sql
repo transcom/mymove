@@ -61,6 +61,7 @@ BEGIN
         WHEN ''ppmStatus''                THEN sort_column := ''ppm_status'';
         WHEN ''assignedTo''               THEN sort_column := ''counselor_name'';
         WHEN ''closeoutInitiated''        THEN sort_column := ''ppm_submitted_at'';
+        WHEN ''branch''                   THEN sort_column := ''branch_out'';
         ELSE                              sort_column := ''ppm_submitted_at'';
     END CASE;
 
