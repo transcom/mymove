@@ -33,6 +33,8 @@ const (
 	EagerPreloadAssociationWeightTickets = "WeightTickets"
 	// EagerPreloadAssociationProgearWeightTickets is the name of the association for the pro-gear weight tickets
 	EagerPreloadAssociationProgearWeightTickets = "ProgearWeightTickets"
+	// EagerPreloadAssociationGunSafeWeightTickets is the name of the association for the gun safe weight tickets
+	EagerPreloadAssociationGunSafeWeightTickets = "GunSafeWeightTickets"
 	// EagerPreloadAssociationMovingExpenses is the name of the association for the moving expenses
 	EagerPreloadAssociationMovingExpenses = "MovingExpenses"
 	// EagerPreloadAssociationW2Address is the name of the association for the W2 address
@@ -64,6 +66,8 @@ const (
 	PostLoadAssociationWeightTicketUploads = "WeightTicketUploads"
 	// PostLoadAssociationProgearWeightTicketUploads is the name of the association for the pro-gear weight ticket uploads
 	PostLoadAssociationProgearWeightTicketUploads = "ProgearWeightTicketUploads"
+	// PostLoadAssociationGunSafeWeightTicketUploads is the name of the association for the gun safe weight ticket uploads
+	PostLoadAssociationGunSafeWeightTicketUploads = "GunSafeWeightTicketUploads"
 	// PostLoadAssociationMovingExpenseUploads is the name of the association for the moving expense uploads
 	PostLoadAssociationMovingExpenseUploads = "MovingExpenseUploads"
 	// PostLoadAssociationUploadedOrders is the name of the association for the orders uploaded by the service member
@@ -78,6 +82,7 @@ func GetListOfAllPreloadAssociations() []string {
 		EagerPreloadAssociationServiceMember,
 		EagerPreloadAssociationWeightTickets,
 		EagerPreloadAssociationProgearWeightTickets,
+		EagerPreloadAssociationGunSafeWeightTickets,
 		EagerPreloadAssociationMovingExpenses,
 		EagerPreloadAssociationW2Address,
 		EagerPreloadAssociationAOAPacket,
@@ -97,6 +102,7 @@ func GetListOfAllPostloadAssociations() []string {
 		PostLoadAssociationSignedCertification,
 		PostLoadAssociationWeightTicketUploads,
 		PostLoadAssociationProgearWeightTicketUploads,
+		PostLoadAssociationGunSafeWeightTicketUploads,
 		PostLoadAssociationMovingExpenseUploads,
 		PostLoadAssociationUploadedOrders,
 	}
@@ -155,6 +161,7 @@ func (f ppmShipmentFetcher) GetPPMShipment(
 	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterDeleted()
 	ppmShipment.WeightTickets = ppmShipment.WeightTickets.FilterRejected()
 	ppmShipment.ProgearWeightTickets = ppmShipment.ProgearWeightTickets.FilterDeleted()
+	ppmShipment.GunSafeWeightTickets = ppmShipment.GunSafeWeightTickets.FilterDeleted()
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterDeleted()
 	ppmShipment.MovingExpenses = ppmShipment.MovingExpenses.FilterRejected()
 
@@ -218,6 +225,19 @@ func (f ppmShipmentFetcher) PostloadAssociations(
 				}
 
 				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
+			}
+
+		case PostLoadAssociationGunSafeWeightTicketUploads:
+			for i := range ppmShipment.GunSafeWeightTickets {
+				gunSafeWeightTicket := &ppmShipment.GunSafeWeightTickets[i]
+				err := appCtx.DB().Load(gunSafeWeightTicket,
+					"Document.UserUploads.Upload")
+
+				if err != nil {
+					return apperror.NewQueryError("GunSafeWeightTickets", err, "failed to load GunSafeWeightTickets document uploads")
+				}
+
+				gunSafeWeightTicket.Document.UserUploads = gunSafeWeightTicket.Document.UserUploads.FilterDeleted()
 			}
 
 		case PostLoadAssociationMovingExpenseUploads:
@@ -319,6 +339,7 @@ func FindPPMShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.PPMShi
 			"WeightTickets",
 			"MovingExpenses",
 			"ProgearWeightTickets",
+			"GunSafeWeightTickets",
 			"W2Address",
 		).
 		Find(&ppmShipment, id)

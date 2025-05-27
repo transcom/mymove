@@ -49,7 +49,6 @@ export const ReviewDocuments = ({ readOnly }) => {
   const weightTickets = useMemo(() => documents?.WeightTickets ?? [], [documents?.WeightTickets]);
   const movingExpenses = useMemo(() => documents?.MovingExpenses ?? [], [documents?.MovingExpenses]);
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
-  const gunSafeWeightTickets = documents?.GunSafeWeightTickets ?? [];
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
@@ -132,19 +131,6 @@ export const ReviewDocuments = ({ readOnly }) => {
     proGearWeightTickets.sort(compareChronologically);
 
     documentSets = documentSets.concat(proGearWeightTickets.map(constructProGearWeightTicket));
-  }
-
-  const constructGunSafeWeightTicket = (weightTicket, tripNumber) => ({
-    documentSetType: PPM_DOCUMENT_TYPES.GUN_SAFE_WEIGHT_TICKET,
-    documentSet: weightTicket,
-    uploads: weightTicket.document.uploads,
-    tripNumber,
-  });
-
-  if (gunSafeWeightTickets.length > 0) {
-    gunSafeWeightTickets.sort(compareChronologically);
-
-    documentSets = documentSets.concat(gunSafeWeightTickets.map(constructGunSafeWeightTicket));
   }
 
   if (movingExpenses.length > 0) {
