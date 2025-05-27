@@ -32,7 +32,7 @@ func (m MTOEarliestRequestedPickupLookup) lookup(appCtx appcontext.AppContext, k
 
 	var earliestPickupDate *time.Time
 	for _, shipment := range moveTaskOrder.MTOShipments {
-		if shipment.Status == models.MTOShipmentStatusApproved &&
+		if (shipment.Status == models.MTOShipmentStatusApproved || shipment.Status == models.MTOShipmentStatusApprovalsRequested) &&
 			shipment.RequestedPickupDate != nil &&
 			shipment.DeletedAt == nil &&
 			shipment.ShipmentType != models.MTOShipmentTypePPM {
