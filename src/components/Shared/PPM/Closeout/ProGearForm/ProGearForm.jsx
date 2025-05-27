@@ -16,7 +16,7 @@ import Hint from 'components/Hint';
 import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
 import ppmStyles from 'components/Shared/PPM/PPM.module.scss';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { uploadShape } from 'types/uploads';
 import { APP_NAME } from 'constants/apps';

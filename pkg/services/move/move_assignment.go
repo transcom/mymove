@@ -35,6 +35,8 @@ func (a moveAssigner) BulkMoveAssignment(appCtx appcontext.AppContext, queueType
 		assign = func(move *models.Move, userID uuid.UUID) { move.TOOTaskOrderAssignedID = &userID }
 	case string(models.QueueTypePaymentRequest):
 		assign = func(move *models.Move, userID uuid.UUID) { move.TIOAssignedID = &userID }
+	case string(models.QueueTypeDestinationRequest):
+		assign = func(move *models.Move, userID uuid.UUID) { move.TOODestinationAssignedID = &userID }
 	default:
 		return nil, apperror.NewBadDataError("Invalid queue type")
 	}
