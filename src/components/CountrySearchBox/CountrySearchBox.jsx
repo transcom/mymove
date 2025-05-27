@@ -97,10 +97,10 @@ export const CountrySearchBoxComponent = ({
   const { value, onChange, countryState, name: inputName } = input;
 
   const countryInfo =
-    !!value && value.country != null && value.country.name != null && value.country.code != null
-      ? `${value.country.name} (${value.country.code})`
+    !!value && value.countryName !== '' && value.countryCode !== ''
+      ? `${value.countryName} (${value.countryCode})`
       : '';
-  const [inputValue, setInputValue] = useState(countryInfo);
+  const [inputValue, setInputValue] = useState(countryInfo !== '' ? countryInfo : '');
   let disabledStyles = {};
   if (isDisabled) {
     disabledStyles = {
