@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
 	})
 
-	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
+	suite.Run("POST failure - 422 Unprocessable Entity Error - Invalid Input", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
@@ -243,6 +243,36 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		unprocessableEntity := response.(*mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity)
 
 		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box address")
+	})
+
+	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
+		subtestData := makeSubtestData()
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		handler := UpdateShipmentDestinationAddressHandler{
+			suite.NewHandlerConfig(),
+			&mockCreator,
+			vLocationServices,
+		}
+
+		err := apperror.NewUnprocessableEntityError("\ndestination address cannot be created or updated for PPM and NTS shipments")
+
+		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(nil, err)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(subtestData)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError{}, response)
+		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError)
+
+		// Validate outgoing payload
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
 	})
 
 	suite.Run("POST failure - 409 Request conflict reponse Error", func() {
