@@ -17,6 +17,7 @@ cities_id IS 'An id of a record in the re_cities table'
 state_id IS 'An id of a record in the re_states table'
 us_post_regions_id IS 'An id of a record in the re_us_post_regions table'
 country_id IS 'An id of a record in the re_countries table'
+is_po_box IS 'Indicates if zip code is PO Box only'
 */
 type VLocation struct {
 	UsPostRegionCitiesID *uuid.UUID        `db:"uprc_id" json:"uprc_id" rw:"r"`
@@ -34,6 +35,7 @@ type VLocation struct {
 	CountryName          string            `db:"country" json:"country" rw:"r"`
 	CountryId            *uuid.UUID        `db:"country_id" json:"country_id" rw:"r"`
 	Country              *Country          `belongs_to:"re_countries" fk_id:"country_id" rw:"r"`
+	IsPoBox              bool              `json:"is_po_box" db:"is_po_box" rw:"r"`
 }
 
 type VLocations []VLocation
