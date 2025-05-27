@@ -57,7 +57,6 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		}
 
 		return params
-
 	}
 
 	suite.Run("POST failure - 500 Internal Server GetLocationsByZipCityState returns error", func() {
@@ -207,6 +206,43 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("POST failure - 422 - invalid input, PO box zip used in address", func() {
+		// Under Test: TestUpdateShipmentDestinationAddressHandler
+		// Setup:      Create a shipment with a PO Box only destination address, handler should return unprocessable entity
+		// Expected:   422 Unprocessable Entity Response returned
+		contractorRemark := "This is a contractor remark"
+		body := primemessages.UpdateShipmentDestinationAddress{
+			ContractorRemarks: &contractorRemark,
+			NewAddress: &primemessages.Address{
+				City:           swag.String("State College"),
+				PostalCode:     swag.String("16805"),
+				State:          swag.String("PA"),
+				StreetAddress1: swag.String("1234 N. 1st Street"),
+			},
+		}
+
+		params := mtoshipmentops.UpdateShipmentDestinationAddressParams{
+			HTTPRequest: req,
+			Body:        &body,
+		}
+
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+		handler := UpdateShipmentDestinationAddressHandler{
+			suite.NewHandlerConfig(),
+			&mockCreator,
+			vLocationServices,
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+		unprocessableEntity := response.(*mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity)
+
+		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box address")
 	})
 
 	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
