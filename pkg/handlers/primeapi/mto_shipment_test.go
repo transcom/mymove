@@ -209,7 +209,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	})
 
 	suite.Run("POST failure - 422 - invalid input, PO box zip used in address", func() {
-		// Under Test: CreateMTOShipmentHandler
+		// Under Test: TestUpdateShipmentDestinationAddressHandler
 		// Setup:      Create a shipment with a PO Box only destination address, handler should return unprocessable entity
 		// Expected:   422 Unprocessable Entity Response returned
 		contractorRemark := "This is a contractor remark"
