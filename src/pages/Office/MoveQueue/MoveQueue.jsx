@@ -125,7 +125,8 @@ export const columns = (
           },
         ),
   ];
-  if (isApprovalRequestTypeColEnabled)
+
+  if (isApprovalRequestTypeColEnabled) {
     cols.push(
       createHeader(
         'Approval Request Type',
@@ -142,6 +143,8 @@ export const columns = (
         },
       ),
     );
+  }
+
   cols.push(
     createHeader('Move code', 'locator', {
       id: 'locator',
