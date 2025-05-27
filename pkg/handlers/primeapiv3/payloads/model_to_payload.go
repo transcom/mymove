@@ -185,7 +185,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		OrderNumber:                    order.OrdersNumber,
 		LinesOfAccounting:              order.TAC,
 		Grade:                          grade,
-		Rank:                           &rank, // Convert prime API "Rank" into our internal tracking of "Grade"
+		Rank:                           &rank,
 		ETag:                           etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:                   strfmt.Date(order.ReportByDate),
 		OrdersType:                     primev3messages.OrdersType(order.OrdersType),
