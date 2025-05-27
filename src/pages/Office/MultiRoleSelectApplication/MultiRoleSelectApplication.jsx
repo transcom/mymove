@@ -82,13 +82,14 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
   const hasSingleDropdownOption = inactiveRoles?.length === 0;
 
   const selectDescription = ((assumed) => {
-    switch (roleLookupValues[assumed]?.name) {
+    const roleName = roleLookupValues[assumed]?.name;
+    switch (roleName) {
       case EMPTY_ROLE: {
         return 'combo box has no roles options.';
       }
       default: {
         return hasSingleDropdownOption
-          ? `combo box is limited to the current role of ${assumed}.`
+          ? `combo box is limited to the current role of ${roleName}.`
           : 'combo box with roles to switch to.';
       }
     }
