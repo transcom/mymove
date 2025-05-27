@@ -326,6 +326,7 @@ export const closeoutColumns = (
       {
         id: 'ppmStatus',
         isFilterable: false, // Currently this queue only has one status
+        disableSortBy: true,
         Filter: (props) => (
           // eslint-disable-next-line react/jsx-props-no-spreading
           <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
