@@ -1012,7 +1012,7 @@ func (suite *HandlerSuite) TestPaymentRequestBulkDownloadHandler() {
 			PaymentRequestID: proofOfServiceDoc.PaymentRequestID.String(),
 		}
 
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := PaymentRequestBulkDownloadHandler{
