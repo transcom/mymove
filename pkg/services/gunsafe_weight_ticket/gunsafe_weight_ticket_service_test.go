@@ -1,23 +1,23 @@
 package gunsafeweightticket
 
-// import (
-// 	"testing"
+import (
+	"testing"
 
-// 	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/suite"
 
-// 	"github.com/transcom/mymove/pkg/testingsuite"
-// )
+	"github.com/transcom/mymove/pkg/testingsuite"
+)
 
-// type ProgearWeightTicketSuite struct {
-// 	*testingsuite.PopTestSuite
-// }
+type GunSafeWeightTicketSuite struct {
+	*testingsuite.PopTestSuite
+}
 
-// func TestProgearWeightTicketServiceSuite(t *testing.T) {
-// 	ts := &ProgearWeightTicketSuite{
-// 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-// 	}
+func TestGunSafeWeightTicketServiceSuite(t *testing.T) {
+	ts := &GunSafeWeightTicketSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+	}
 
-// 	suite.Run(t, ts)
+	suite.Run(t, ts)
 
-// 	ts.PopTestSuite.TearDown()
-// }
+	ts.PopTestSuite.TearDown()
+}

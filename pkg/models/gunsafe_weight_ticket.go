@@ -60,6 +60,7 @@ func (p *GunSafeWeightTicket) Validate(_ *pop.Connection) (*validate.Errors, err
 		&StringIsNilOrNotBlank{Name: "Description", Field: p.Description},
 		&validators.UUIDIsPresent{Name: "DocumentID", Field: p.DocumentID},
 		&OptionalPoundIsNonNegative{Name: "Weight", Field: p.Weight},
+		&OptionalPoundIsNonNegative{Name: "SubmittedWeight", Field: p.Weight},
 		&OptionalStringInclusion{Name: "Status", Field: (*string)(p.Status), List: AllowedPPMDocumentStatuses},
 		&StringIsNilOrNotBlank{Name: "Reason", Field: p.Reason},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: p.DeletedAt},

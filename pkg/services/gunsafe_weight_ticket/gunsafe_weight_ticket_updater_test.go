@@ -1,465 +1,457 @@
 package gunsafeweightticket
 
-// import (
-// 	"fmt"
-// 	"time"
-
-// 	"github.com/gofrs/uuid"
-
-// 	"github.com/transcom/mymove/pkg/apperror"
-// 	"github.com/transcom/mymove/pkg/auth"
-// 	"github.com/transcom/mymove/pkg/etag"
-// 	"github.com/transcom/mymove/pkg/factory"
-// 	"github.com/transcom/mymove/pkg/models"
-// )
-
-// func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
-// 	setupForTest := func(_ *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
-// 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-// 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-// 			{
-// 				Model:    serviceMember,
-// 				LinkOnly: true,
-// 			},
-// 		}, nil)
-
-// 		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
-
-// 		now := time.Now()
-// 		if hasdocFiles {
-// 			for i := 0; i < 2; i++ {
-// 				var deletedAt *time.Time
-// 				if i == 1 {
-// 					deletedAt = &now
-// 				}
-// 				factory.BuildUserUpload(suite.DB(), []factory.Customization{
-// 					{
-// 						Model:    document,
-// 						LinkOnly: true,
-// 					},
-// 					{
-// 						Model: models.UserUpload{
-// 							DeletedAt: deletedAt,
-// 						},
-// 					},
-// 				}, nil)
-// 			}
-// 		}
-
-// 		originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
-// 			{
-// 				Model:    serviceMember,
-// 				LinkOnly: true,
-// 			},
-// 			{
-// 				Model:    ppmShipment,
-// 				LinkOnly: true,
-// 			},
-// 			{
-// 				Model:    document,
-// 				LinkOnly: true,
-// 			},
-// 			{
-// 				Model: models.ProgearWeightTicket{
-// 					DocumentID:    document.ID,
-// 					PPMShipmentID: ppmShipment.ID,
-// 				},
-// 			},
-// 		}, nil)
-// 		suite.NotNil(originalProgearWeightTicket.ID)
-
-// 		return &originalProgearWeightTicket
-// 	}
-
-// 	suite.Run("Returns an error if the original doesn't exist", func() {
-// 		badProgearWeightTicket := models.ProgearWeightTicket{
-// 			ID: uuid.Must(uuid.NewV4()),
-// 		}
-// 		originalProgearWeightTicket := setupForTest(nil, false)
-
-// 		session := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
-// 		})
-
-// 		updater := NewCustomerProgearWeightTicketUpdater()
-
-// 		updatedProgearWeightTicket, err := updater.UpdateProgearWeightTicket(session, badProgearWeightTicket, "")
-
-// 		suite.Nil(updatedProgearWeightTicket)
-
-// 		if suite.Error(err) {
-// 			suite.IsType(apperror.NotFoundError{}, err)
-
-// 			suite.Equal(
-// 				fmt.Sprintf("ID: %s not found while looking for ProgearWeightTicket", badProgearWeightTicket.ID.String()),
-// 				err.Error(),
-// 			)
-// 		}
-// 	})
-
-// 	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
-// 		originalProgearWeightTicket := setupForTest(nil, false)
-// 		session := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
-// 		})
-// 		suite.Equal(originalProgearWeightTicket.Document.ServiceMemberID, session.Session().ServiceMemberID)
-// 		updater := NewCustomerProgearWeightTicketUpdater()
-
-// 		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(session, *originalProgearWeightTicket, "")
-
-// 		suite.Nil(updatedProgearWeightTicket)
-
-// 		if suite.Error(updateErr) {
-// 			suite.IsType(apperror.PreconditionFailedError{}, updateErr)
-
-// 			suite.Equal(
-// 				fmt.Sprintf("Precondition failed on update to object with ID: '%s'. The If-Match header value did not match the eTag for this record.", originalProgearWeightTicket.ID.String()),
-// 				updateErr.Error(),
-// 			)
-// 		}
-// 	})
-
-// 	suite.Run("Successfully updates", func() {
-// 		originalProgearWeightTicket := setupForTest(nil, true)
-// 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
-// 		})
-
-// 		updater := NewCustomerProgearWeightTicketUpdater()
-
-// 		desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 			ID:               originalProgearWeightTicket.ID,
-// 			Description:      models.StringPointer("Self progear"),
-// 			Weight:           models.PoundPointer(3000),
-// 			HasWeightTickets: models.BoolPointer(true),
-// 			BelongsToSelf:    models.BoolPointer(true),
-// 		}
-
-// 		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 		suite.Nil(updateErr)
-// 		suite.Equal(originalProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
-// 		suite.Equal(originalProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
-// 		suite.Equal(*desiredProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
-// 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
-// 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
-// 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
-// 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.SubmittedWeight)
-// 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.SubmittedBelongsToSelf)
-// 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.SubmittedHasWeightTickets)
-// 	})
-
-// 	suite.Run("Succesfully updates when files are required", func() {
-// 		originalProgearWeightTicket := setupForTest(nil, true)
-// 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
-// 		})
-
-// 		updater := NewCustomerProgearWeightTicketUpdater()
-
-// 		desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 			ID:               originalProgearWeightTicket.ID,
-// 			Description:      models.StringPointer("Self progear"),
-// 			Weight:           models.PoundPointer(3000),
-// 			HasWeightTickets: models.BoolPointer(true),
-// 			BelongsToSelf:    models.BoolPointer(true),
-// 		}
-
-// 		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 		suite.Nil(updateErr)
-// 		suite.Equal(originalProgearWeightTicket.ID, updatedProgearWeightTicket.ID)
-// 		suite.Equal(originalProgearWeightTicket.DocumentID, updatedProgearWeightTicket.DocumentID)
-// 		suite.Equal(*desiredProgearWeightTicket.Description, *updatedProgearWeightTicket.Description)
-// 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.Weight)
-// 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.HasWeightTickets)
-// 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.BelongsToSelf)
-// 		suite.Equal(*desiredProgearWeightTicket.Weight, *updatedProgearWeightTicket.SubmittedWeight)
-// 		suite.Equal(*desiredProgearWeightTicket.BelongsToSelf, *updatedProgearWeightTicket.SubmittedBelongsToSelf)
-// 		suite.Equal(*desiredProgearWeightTicket.HasWeightTickets, *updatedProgearWeightTicket.SubmittedHasWeightTickets)
-// 		suite.Len(updatedProgearWeightTicket.Document.UserUploads, 2)
-// 	})
-
-// 	suite.Run("Fails to update when files are missing", func() {
-// 		originalProgearWeightTicket := setupForTest(nil, false)
-// 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
-// 		})
-
-// 		updater := NewCustomerProgearWeightTicketUpdater()
-
-// 		desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 			ID:               originalProgearWeightTicket.ID,
-// 			Description:      models.StringPointer("Self progear"),
-// 			Weight:           models.PoundPointer(3000),
-// 			HasWeightTickets: models.BoolPointer(true),
-// 			BelongsToSelf:    models.BoolPointer(true),
-// 		}
-
-// 		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 		suite.Nil(updatedProgearWeightTicket)
-// 		suite.NotNil(updateErr)
-// 		suite.IsType(apperror.InvalidInputError{}, updateErr)
-// 		suite.Equal("Invalid input found while validating the progear weight ticket.", updateErr.Error())
-// 	})
-
-// 	suite.Run("Status and reason related", func() {
-// 		suite.Run("successfully", func() {
-
-// 			suite.Run("changes status and reason", func() {
-// 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
-// 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 					ApplicationName: auth.OfficeApp,
-// 					OfficeUserID:    uuid.Must(uuid.NewV4()),
-// 				})
-// 				updater := NewOfficeProgearWeightTicketUpdater()
-
-// 				status := models.PPMDocumentStatusExcluded
-
-// 				desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 					ID:     originalProgearWeightTicket.ID,
-// 					Status: &status,
-// 					Reason: models.StringPointer("bad data"),
-// 				}
-
-// 				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 				suite.Nil(updateErr)
-// 				suite.NotNil(updatedProgearWeightTicket)
-// 				suite.Equal(*desiredProgearWeightTicket.Status, *updatedProgearWeightTicket.Status)
-// 				suite.Equal(*desiredProgearWeightTicket.Reason, *updatedProgearWeightTicket.Reason)
-// 			})
-
-// 			suite.Run("changes reason", func() {
-// 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 					ApplicationName: auth.OfficeApp,
-// 					OfficeUserID:    uuid.Must(uuid.NewV4()),
-// 				})
-
-// 				status := models.PPMDocumentStatusExcluded
-// 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
-// 					{
-// 						Model: models.ProgearWeightTicket{
-// 							Status: &status,
-// 							Reason: models.StringPointer("some temporary reason"),
-// 						},
-// 					},
-// 				}, nil)
-
-// 				updater := NewOfficeProgearWeightTicketUpdater()
-
-// 				desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 					ID:     originalProgearWeightTicket.ID,
-// 					Reason: models.StringPointer("bad data"),
-// 				}
-
-// 				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 				suite.Nil(updateErr)
-// 				suite.NotNil(updatedProgearWeightTicket)
-// 				suite.Equal(status, *updatedProgearWeightTicket.Status)
-// 				suite.Equal(*desiredProgearWeightTicket.Reason, *updatedProgearWeightTicket.Reason)
-// 			})
-
-// 			suite.Run("changes reason from rejected to approved", func() {
-// 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 					ApplicationName: auth.OfficeApp,
-// 					OfficeUserID:    uuid.Must(uuid.NewV4()),
-// 				})
-
-// 				status := models.PPMDocumentStatusExcluded
-// 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
-// 					{
-// 						Model: models.ProgearWeightTicket{
-// 							Status: &status,
-// 							Reason: models.StringPointer("some temporary reason"),
-// 						},
-// 					},
-// 				}, nil)
-
-// 				updater := NewOfficeProgearWeightTicketUpdater()
-
-// 				desiredStatus := models.PPMDocumentStatusApproved
-// 				desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 					ID:     originalProgearWeightTicket.ID,
-// 					Status: &desiredStatus,
-// 					Reason: models.StringPointer(""),
-// 				}
-
-// 				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 				suite.Nil(updateErr)
-// 				suite.NotNil(updatedProgearWeightTicket)
-// 				suite.Equal(desiredStatus, *updatedProgearWeightTicket.Status)
-// 				suite.Equal((*string)(nil), updatedProgearWeightTicket.Reason)
-// 			})
-// 		})
-
-// 		suite.Run("fails", func() {
-// 			suite.Run("to update when status or reason are changed", func() {
-// 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 					ApplicationName: auth.OfficeApp,
-// 					OfficeUserID:    uuid.Must(uuid.NewV4()),
-// 				})
-
-// 				originalProgearWeightTicket := setupForTest(nil, true)
-
-// 				updater := NewCustomerProgearWeightTicketUpdater()
-
-// 				status := models.PPMDocumentStatusExcluded
-
-// 				desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 					ID:               originalProgearWeightTicket.ID,
-// 					Description:      models.StringPointer("Self progear"),
-// 					Weight:           models.PoundPointer(3000),
-// 					HasWeightTickets: models.BoolPointer(true),
-// 					BelongsToSelf:    models.BoolPointer(true),
-// 					Status:           &status,
-// 					Reason:           models.StringPointer("bad data"),
-// 				}
-
-// 				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 				suite.Nil(updatedProgearWeightTicket)
-// 				suite.NotNil(updateErr)
-// 				suite.IsType(apperror.InvalidInputError{}, updateErr)
-// 				suite.Equal("Invalid input found while validating the progear weight ticket.", updateErr.Error())
-// 			})
-
-// 			suite.Run("to update status", func() {
-// 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-// 					ApplicationName: auth.OfficeApp,
-// 					OfficeUserID:    uuid.Must(uuid.NewV4()),
-// 				})
-
-// 				status := models.PPMDocumentStatusExcluded
-// 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
-// 					{
-// 						Model: models.ProgearWeightTicket{
-// 							Status: &status,
-// 							Reason: models.StringPointer("some temporary reason"),
-// 						},
-// 					},
-// 				}, nil)
-
-// 				updater := NewOfficeProgearWeightTicketUpdater()
-
-// 				desiredStatus := models.PPMDocumentStatusApproved
-// 				desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 					ID:     originalProgearWeightTicket.ID,
-// 					Status: &desiredStatus,
-// 					Reason: models.StringPointer("bad data"),
-// 				}
-
-// 				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 				suite.Nil(updatedProgearWeightTicket)
-// 				suite.NotNil(updateErr)
-// 				suite.IsType(apperror.InvalidInputError{}, updateErr)
-// 				suite.Equal("Invalid input found while validating the progear weight ticket.", updateErr.Error())
-// 			})
-
-// 			suite.Run("to update because of invalid status", func() {
-// 				appCtx := suite.AppContextWithSessionForTest(
-// 					&auth.Session{
-// 						ApplicationName: auth.OfficeApp,
-// 						OfficeUserID:    uuid.Must(uuid.NewV4()),
-// 					})
-
-// 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
-
-// 				updater := NewOfficeProgearWeightTicketUpdater()
-
-// 				status := models.PPMDocumentStatus("invalid status")
-// 				desiredProgearWeightTicket := &models.ProgearWeightTicket{
-// 					ID:     originalProgearWeightTicket.ID,
-// 					Status: &status,
-// 					Reason: models.StringPointer("bad data"),
-// 				}
-
-// 				updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *desiredProgearWeightTicket, etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt))
-
-// 				suite.Nil(updatedProgearWeightTicket)
-// 				suite.NotNil(updateErr)
-// 				suite.IsType(apperror.InvalidInputError{}, updateErr)
-// 				suite.Equal("invalid input found while updating the ProgearWeightTicket", updateErr.Error())
-// 			})
-// 		})
-// 	})
-// }
-
-// func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDeletedUploads() {
-// 	var progearWeightTicket models.ProgearWeightTicket
-// 	var serviceMember models.ServiceMember
-// 	suite.PreloadData(func() {
-// 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-// 		serviceMember = ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-
-// 		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
-
-// 		progearWeightTicket = factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
-// 			{
-// 				Model:    document,
-// 				LinkOnly: true,
-// 			},
-// 			{
-// 				Model:    serviceMember,
-// 				LinkOnly: true,
-// 			},
-// 			{
-// 				Model:    ppmShipment,
-// 				LinkOnly: true,
-// 			},
-// 			{
-// 				Model: models.ProgearWeightTicket{
-// 					DocumentID:    document.ID,
-// 					PPMShipmentID: ppmShipment.ID,
-// 				},
-// 			},
-// 		}, nil)
-// 	})
-
-// 	// Test successful fetch
-// 	suite.Run("Returns a progear weight ticket successfully with correct ID", func() {
-// 		session := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: serviceMember.ID,
-// 		})
-// 		fetchedProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, progearWeightTicket.ID)
-// 		suite.NoError(err)
-// 		suite.Equal(progearWeightTicket.ID, fetchedProgearWeightTicket.ID)
-// 	})
-
-// 	// Test 404 fetch
-// 	suite.Run("Returns not found error when progear weight ticket id doesn't exist", func() {
-// 		session := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: serviceMember.ID,
-// 		})
-// 		progearID := uuid.Must(uuid.NewV4())
-// 		expectedError := apperror.NewNotFoundError(progearID, "while looking for ProgearWeightTicket")
-
-// 		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, progearID)
-
-// 		suite.Nil(progear)
-// 		suite.Equalf(err, expectedError, "while looking for ProgearWeightTicket")
-// 	})
-
-// 	suite.Run("404 Not Found Error - progear can only be fetched for service member associated with the current session", func() {
-// 		maliciousSession := suite.AppContextWithSessionForTest(&auth.Session{
-// 			ApplicationName: auth.MilApp,
-// 			ServiceMemberID: uuid.Must(uuid.NewV4()),
-// 		})
-
-// 		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(maliciousSession, progearWeightTicket.ID)
-// 		suite.Error(err)
-// 		suite.Nil(progear)
-// 		suite.IsType(apperror.NotFoundError{}, err)
-// 	})
-// }
+import (
+	"fmt"
+	"time"
+
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
+)
+
+func (suite *GunSafeWeightTicketSuite) TestUpdateGunSafeWeightTicket() {
+	setupForTest := func(_ *models.GunSafeWeightTicket, hasdocFiles bool) *models.GunSafeWeightTicket {
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+		now := time.Now()
+		if hasdocFiles {
+			for i := 0; i < 2; i++ {
+				var deletedAt *time.Time
+				if i == 1 {
+					deletedAt = &now
+				}
+				factory.BuildUserUpload(suite.DB(), []factory.Customization{
+					{
+						Model:    document,
+						LinkOnly: true,
+					},
+					{
+						Model: models.UserUpload{
+							DeletedAt: deletedAt,
+						},
+					},
+				}, nil)
+			}
+		}
+
+		originalGunSafeWeightTicket := factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    document,
+				LinkOnly: true,
+			},
+			{
+				Model: models.GunSafeWeightTicket{
+					DocumentID:    document.ID,
+					PPMShipmentID: ppmShipment.ID,
+				},
+			},
+		}, nil)
+		suite.NotNil(originalGunSafeWeightTicket.ID)
+
+		return &originalGunSafeWeightTicket
+	}
+
+	suite.Run("Returns an error if the original doesn't exist", func() {
+		badGunSafeWeightTicket := models.GunSafeWeightTicket{
+			ID: uuid.Must(uuid.NewV4()),
+		}
+		originalGunSafeWeightTicket := setupForTest(nil, false)
+
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalGunSafeWeightTicket.Document.ServiceMemberID,
+		})
+
+		updater := NewCustomerGunSafeWeightTicketUpdater()
+
+		updatedGunSafeWeightTicket, err := updater.UpdateGunSafeWeightTicket(session, badGunSafeWeightTicket, "")
+
+		suite.Nil(updatedGunSafeWeightTicket)
+
+		if suite.Error(err) {
+			suite.IsType(apperror.NotFoundError{}, err)
+
+			suite.Equal(
+				fmt.Sprintf("ID: %s not found while looking for GunSafeWeightTicket", badGunSafeWeightTicket.ID.String()),
+				err.Error(),
+			)
+		}
+	})
+
+	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
+		originalGunSafeWeightTicket := setupForTest(nil, false)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalGunSafeWeightTicket.Document.ServiceMemberID,
+		})
+		suite.Equal(originalGunSafeWeightTicket.Document.ServiceMemberID, session.Session().ServiceMemberID)
+		updater := NewCustomerGunSafeWeightTicketUpdater()
+
+		updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(session, *originalGunSafeWeightTicket, "")
+
+		suite.Nil(updatedGunSafeWeightTicket)
+
+		if suite.Error(updateErr) {
+			suite.IsType(apperror.PreconditionFailedError{}, updateErr)
+
+			suite.Equal(
+				fmt.Sprintf("Precondition failed on update to object with ID: '%s'. The If-Match header value did not match the eTag for this record.", originalGunSafeWeightTicket.ID.String()),
+				updateErr.Error(),
+			)
+		}
+	})
+
+	suite.Run("Successfully updates", func() {
+		originalGunSafeWeightTicket := setupForTest(nil, true)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalGunSafeWeightTicket.Document.ServiceMemberID,
+		})
+
+		updater := NewCustomerGunSafeWeightTicketUpdater()
+
+		desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+			ID:               originalGunSafeWeightTicket.ID,
+			Description:      models.StringPointer("Self gunsafe"),
+			Weight:           models.PoundPointer(3000),
+			HasWeightTickets: models.BoolPointer(true),
+		}
+
+		updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalGunSafeWeightTicket.ID, updatedGunSafeWeightTicket.ID)
+		suite.Equal(originalGunSafeWeightTicket.DocumentID, updatedGunSafeWeightTicket.DocumentID)
+		suite.Equal(*desiredGunSafeWeightTicket.Description, *updatedGunSafeWeightTicket.Description)
+		suite.Equal(*desiredGunSafeWeightTicket.Weight, *updatedGunSafeWeightTicket.Weight)
+		suite.Equal(*desiredGunSafeWeightTicket.HasWeightTickets, *updatedGunSafeWeightTicket.HasWeightTickets)
+		suite.Equal(*desiredGunSafeWeightTicket.Weight, *updatedGunSafeWeightTicket.SubmittedWeight)
+		suite.Equal(*desiredGunSafeWeightTicket.HasWeightTickets, *updatedGunSafeWeightTicket.SubmittedHasWeightTickets)
+	})
+
+	suite.Run("Succesfully updates when files are required", func() {
+		originalGunSafeWeightTicket := setupForTest(nil, true)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalGunSafeWeightTicket.Document.ServiceMemberID,
+		})
+
+		updater := NewCustomerGunSafeWeightTicketUpdater()
+
+		desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+			ID:               originalGunSafeWeightTicket.ID,
+			Description:      models.StringPointer("Self gunsafe"),
+			Weight:           models.PoundPointer(3000),
+			HasWeightTickets: models.BoolPointer(true),
+		}
+
+		updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+		suite.Nil(updateErr)
+		suite.Equal(originalGunSafeWeightTicket.ID, updatedGunSafeWeightTicket.ID)
+		suite.Equal(originalGunSafeWeightTicket.DocumentID, updatedGunSafeWeightTicket.DocumentID)
+		suite.Equal(*desiredGunSafeWeightTicket.Description, *updatedGunSafeWeightTicket.Description)
+		suite.Equal(*desiredGunSafeWeightTicket.Weight, *updatedGunSafeWeightTicket.Weight)
+		suite.Equal(*desiredGunSafeWeightTicket.HasWeightTickets, *updatedGunSafeWeightTicket.HasWeightTickets)
+		suite.Equal(*desiredGunSafeWeightTicket.Weight, *updatedGunSafeWeightTicket.SubmittedWeight)
+		suite.Equal(*desiredGunSafeWeightTicket.HasWeightTickets, *updatedGunSafeWeightTicket.SubmittedHasWeightTickets)
+		suite.Len(updatedGunSafeWeightTicket.Document.UserUploads, 2)
+	})
+
+	suite.Run("Fails to update when files are missing", func() {
+		originalGunSafeWeightTicket := setupForTest(nil, false)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalGunSafeWeightTicket.Document.ServiceMemberID,
+		})
+
+		updater := NewCustomerGunSafeWeightTicketUpdater()
+
+		desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+			ID:               originalGunSafeWeightTicket.ID,
+			Description:      models.StringPointer("Self gunsafe"),
+			Weight:           models.PoundPointer(3000),
+			HasWeightTickets: models.BoolPointer(true),
+		}
+
+		updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+		suite.Nil(updatedGunSafeWeightTicket)
+		suite.NotNil(updateErr)
+		suite.IsType(apperror.InvalidInputError{}, updateErr)
+		suite.Equal("Invalid input found while validating the gunSafe weight ticket.", updateErr.Error())
+	})
+
+	suite.Run("Status and reason related", func() {
+		suite.Run("successfully", func() {
+
+			suite.Run("changes status and reason", func() {
+				originalGunSafeWeightTicket := factory.BuildGunSafeWeightTicket(suite.DB(), nil, nil)
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
+				updater := NewOfficeGunSafeWeightTicketUpdater()
+
+				status := models.PPMDocumentStatusExcluded
+
+				desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+					ID:     originalGunSafeWeightTicket.ID,
+					Status: &status,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedGunSafeWeightTicket)
+				suite.Equal(*desiredGunSafeWeightTicket.Status, *updatedGunSafeWeightTicket.Status)
+				suite.Equal(*desiredGunSafeWeightTicket.Reason, *updatedGunSafeWeightTicket.Reason)
+			})
+
+			suite.Run("changes reason", func() {
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
+
+				status := models.PPMDocumentStatusExcluded
+				originalGunSafeWeightTicket := factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.GunSafeWeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
+					},
+				}, nil)
+
+				updater := NewOfficeGunSafeWeightTicketUpdater()
+
+				desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+					ID:     originalGunSafeWeightTicket.ID,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedGunSafeWeightTicket)
+				suite.Equal(status, *updatedGunSafeWeightTicket.Status)
+				suite.Equal(*desiredGunSafeWeightTicket.Reason, *updatedGunSafeWeightTicket.Reason)
+			})
+
+			suite.Run("changes reason from rejected to approved", func() {
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
+
+				status := models.PPMDocumentStatusExcluded
+				originalGunSafeWeightTicket := factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.GunSafeWeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
+					},
+				}, nil)
+
+				updater := NewOfficeGunSafeWeightTicketUpdater()
+
+				desiredStatus := models.PPMDocumentStatusApproved
+				desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+					ID:     originalGunSafeWeightTicket.ID,
+					Status: &desiredStatus,
+					Reason: models.StringPointer(""),
+				}
+
+				updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+				suite.Nil(updateErr)
+				suite.NotNil(updatedGunSafeWeightTicket)
+				suite.Equal(desiredStatus, *updatedGunSafeWeightTicket.Status)
+				suite.Equal((*string)(nil), updatedGunSafeWeightTicket.Reason)
+			})
+		})
+
+		suite.Run("fails", func() {
+			suite.Run("to update when status or reason are changed", func() {
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
+
+				originalGunSafeWeightTicket := setupForTest(nil, true)
+
+				updater := NewCustomerGunSafeWeightTicketUpdater()
+
+				status := models.PPMDocumentStatusExcluded
+
+				desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+					ID:               originalGunSafeWeightTicket.ID,
+					Description:      models.StringPointer("Self gunsafe"),
+					Weight:           models.PoundPointer(3000),
+					HasWeightTickets: models.BoolPointer(true),
+					Status:           &status,
+					Reason:           models.StringPointer("bad data"),
+				}
+
+				updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedGunSafeWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("Invalid input found while validating the gunSafe weight ticket.", updateErr.Error())
+			})
+
+			suite.Run("to update status", func() {
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
+
+				status := models.PPMDocumentStatusExcluded
+				originalGunSafeWeightTicket := factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+					{
+						Model: models.GunSafeWeightTicket{
+							Status: &status,
+							Reason: models.StringPointer("some temporary reason"),
+						},
+					},
+				}, nil)
+
+				updater := NewOfficeGunSafeWeightTicketUpdater()
+
+				desiredStatus := models.PPMDocumentStatusApproved
+				desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+					ID:     originalGunSafeWeightTicket.ID,
+					Status: &desiredStatus,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedGunSafeWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("Invalid input found while validating the gunSafe weight ticket.", updateErr.Error())
+			})
+
+			suite.Run("to update because of invalid status", func() {
+				appCtx := suite.AppContextWithSessionForTest(
+					&auth.Session{
+						ApplicationName: auth.OfficeApp,
+						OfficeUserID:    uuid.Must(uuid.NewV4()),
+					})
+
+				originalGunSafeWeightTicket := factory.BuildGunSafeWeightTicket(suite.DB(), nil, nil)
+
+				updater := NewOfficeGunSafeWeightTicketUpdater()
+
+				status := models.PPMDocumentStatus("invalid status")
+				desiredGunSafeWeightTicket := &models.GunSafeWeightTicket{
+					ID:     originalGunSafeWeightTicket.ID,
+					Status: &status,
+					Reason: models.StringPointer("bad data"),
+				}
+
+				updatedGunSafeWeightTicket, updateErr := updater.UpdateGunSafeWeightTicket(appCtx, *desiredGunSafeWeightTicket, etag.GenerateEtag(originalGunSafeWeightTicket.UpdatedAt))
+
+				suite.Nil(updatedGunSafeWeightTicket)
+				suite.NotNil(updateErr)
+				suite.IsType(apperror.InvalidInputError{}, updateErr)
+				suite.Equal("invalid input found while updating the GunSafeWeightTicket", updateErr.Error())
+			})
+		})
+	})
+}
+
+func (suite *GunSafeWeightTicketSuite) TestFetchGunSafeWeightTicketByIDExcludeDeletedUploads() {
+	var gunsafeWeightTicket models.GunSafeWeightTicket
+	var serviceMember models.ServiceMember
+	suite.PreloadData(func() {
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMember = ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+		gunsafeWeightTicket = factory.BuildGunSafeWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.GunSafeWeightTicket{
+					DocumentID:    document.ID,
+					PPMShipmentID: ppmShipment.ID,
+				},
+			},
+		}, nil)
+	})
+
+	// Test successful fetch
+	suite.Run("Returns a gunsafe weight ticket successfully with correct ID", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+		fetchedGunSafeWeightTicket, err := FetchGunSafeWeightTicketByIDExcludeDeletedUploads(session, gunsafeWeightTicket.ID)
+		suite.NoError(err)
+		suite.Equal(gunsafeWeightTicket.ID, fetchedGunSafeWeightTicket.ID)
+	})
+
+	// Test 404 fetch
+	suite.Run("Returns not found error when gunsafe weight ticket id doesn't exist", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+		gunsafeID := uuid.Must(uuid.NewV4())
+		expectedError := apperror.NewNotFoundError(gunsafeID, "while looking for GunSafeWeightTicket")
+
+		gunsafe, err := FetchGunSafeWeightTicketByIDExcludeDeletedUploads(session, gunsafeID)
+
+		suite.Nil(gunsafe)
+		suite.Equalf(err, expectedError, "while looking for GunSafeWeightTicket")
+	})
+
+	suite.Run("404 Not Found Error - gunsafe can only be fetched for service member associated with the current session", func() {
+		maliciousSession := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
+		})
+
+		gunsafe, err := FetchGunSafeWeightTicketByIDExcludeDeletedUploads(maliciousSession, gunsafeWeightTicket.ID)
+		suite.Error(err)
+		suite.Nil(gunsafe)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+}
