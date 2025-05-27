@@ -1803,7 +1803,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		payload := body
 		payload.GunSafeWeight = gunSafeWeight
 
-		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
+		requestUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		params := orderop.CounselingUpdateAllowanceParams{
