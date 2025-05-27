@@ -175,7 +175,7 @@ export const CountrySearchBoxComponent = ({
     }
   };
 
-  const handleFocus = () => {
+  const handleBlur = () => {
     onChange(null);
   };
 
@@ -207,7 +207,7 @@ export const CountrySearchBoxComponent = ({
           placeholder={placeholder}
           inputValue={inputValue}
           noOptionsMessage={noOptionsMessage}
-          onFocus={handleFocus}
+          onBlur={handleBlur}
           styles={isDisabled ? disabledStyles : customStyles}
           isDisabled={isDisabled}
         />
