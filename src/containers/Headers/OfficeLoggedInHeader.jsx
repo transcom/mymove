@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import classnames from 'classnames';
 
 import GblocSwitcher from 'components/Office/GblocSwitcher/GblocSwitcher';
@@ -13,6 +13,7 @@ import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { roleTypes } from 'constants/userRoles';
 import { checkForLockedMovesAndUnlock } from 'services/ghcApi';
+import { ConnectedSelectApplication } from 'pages/Office/MultiRoleSelectApplication/MultiRoleSelectApplication';
 
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
@@ -49,22 +50,29 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
     checkForLockedMovesAndUnlock(officeUser.id);
   }
 
+  const navListItems = [
+    activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1 ? (
+      <GblocSwitcher acticeRole={activeRole} officeUser={officeUser} />
+    ) : (
+      <Link to="/">
+        {officeUser.transportation_office.gbloc} {queueText}
+      </Link>
+    ),
+    <ConnectedSelectApplication />,
+
+    <OfficeUserInfo lastName={officeUser.last_name} firstName={officeUser.first_name} handleLogout={handleLogout} />,
+  ];
+
   return (
     <MilMoveHeader>
-      {officeUser?.transportation_office && (
-        <ul className="usa-nav__primary">
-          <li className={classnames('usa-nav__primary-item')}>
-            {activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1 ? (
-              <GblocSwitcher acticeRole={activeRole} officeUser={officeUser} />
-            ) : (
-              <a href="/">
-                {officeUser.transportation_office.gbloc} {queueText}
-              </a>
-            )}
-          </li>
-        </ul>
-      )}
-      <OfficeUserInfo lastName={officeUser.last_name} firstName={officeUser.first_name} handleLogout={handleLogout} />
+      <ul className="usa-nav__primary">
+        {officeUser?.transportation_office &&
+          navListItems.map((content, i) => (
+            <li key={i} className={classnames('usa-nav__primary-item')}>
+              {content}
+            </li>
+          ))}
+      </ul>
     </MilMoveHeader>
   );
 };
