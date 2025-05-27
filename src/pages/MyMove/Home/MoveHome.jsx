@@ -68,7 +68,6 @@ import {
 } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import ToolTip from 'shared/ToolTip/ToolTip';
 
 const Description = ({ className, children, dataTestId }) => (
@@ -101,15 +100,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
-  const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsManageSupportingDocsEnabled(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
 
   const handleCancelMove = () => {
     cancelMove(moveId)
@@ -259,12 +250,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking to see if prime has completed counseling, return true
   const isPrimeCounselingComplete = () => {
     return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
-  };
-
-  // check for FF and if move is submitted, can refactor once FF is removed
-  // to just use hasSubmittedMove
-  const isAdditionalDocumentsButtonAvailable = () => {
-    return isManageSupportingDocsEnabled && hasSubmittedMove();
   };
 
   // logic that handles deleting a shipment
@@ -601,9 +586,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   headerText="Profile complete"
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
-                  actionBtnLabel={
-                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Additional Documentation' : null
-                  }
+                  actionBtnLabel="Upload/Manage Additional Documentation"
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
                   <Description>Make sure to keep your personal information up to date during your move.</Description>
