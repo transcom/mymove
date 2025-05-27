@@ -63,9 +63,9 @@ const CreateMoveCustomerInfo = () => {
       secondaryPhone,
     } = values;
 
-    const backupFirstName = values[backupContactName.toString()]?.firstName || '';
-    const backupLastName = values[backupContactName.toString()]?.lastName || '';
-    const backupFullName = `${backupFirstName} ${backupLastName}`;
+    const valuesBackupFirstName = (values[backupContactName.toString()]?.firstName || '').trim();
+    const valuesBackupLastName = (values[backupContactName.toString()]?.lastName || '').trim();
+    const valuesBackupFullName = `${valuesBackupFirstName} ${valuesBackupLastName}`.trim();
 
     const body = {
       first_name: firstName,
@@ -76,7 +76,7 @@ const CreateMoveCustomerInfo = () => {
       suffix,
       middle_name: middleName,
       backup_contact: {
-        name: backupFullName,
+        name: valuesBackupFullName,
         email: values[backupContactName.toString()]?.email || '',
         phone: values[backupContactName.toString()]?.telephone || '',
       },
@@ -89,8 +89,11 @@ const CreateMoveCustomerInfo = () => {
     mutateCustomerInfo({ customerId: customerData.id, ifMatchETag: customerData.eTag, body });
   };
 
-  const backupContactFullName = customerData?.backup_contact?.name || '';
-  const [backupContactFirstName, backupContactLastName] = backupContactFullName.split(/ (.+)/).filter(Boolean);
+  const initialBackupFullName = (customerData?.backup_contact?.name || '').trim();
+  const [initialBackupFirstName = '', initialBackupLastName = ''] = initialBackupFullName
+    .split(/ (.+)/)
+    .map((part) => part?.trim())
+    .filter(Boolean);
 
   const initialValues = {
     firstName: customerData?.first_name || '',
@@ -106,8 +109,8 @@ const CreateMoveCustomerInfo = () => {
     phoneIsPreferred: customerData?.phoneIsPreferred || false,
     cacUser: formatTrueFalseInputValue(customerData?.cacValidated),
     [backupContactName]: {
-      firstName: backupContactFirstName,
-      lastName: backupContactLastName,
+      firstName: initialBackupFirstName,
+      lastName: initialBackupLastName,
       email: customerData?.backup_contact?.email || '',
       telephone: customerData?.backup_contact?.phone || '',
     },

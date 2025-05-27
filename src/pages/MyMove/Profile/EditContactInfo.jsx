@@ -31,9 +31,10 @@ export const EditContactInfo = ({
   const { state } = useLocation();
   const [serverError, setServerError] = useState(null);
 
-  const currentBackupContactFullName = currentBackupContacts[0]?.name || '';
-  const [currentBackupContactFirstName, currentBackupContactLastName] = currentBackupContactFullName
+  const currentBackupContactFullName = (currentBackupContacts[0]?.name || '').trim();
+  const [currentBackupContactFirstName = '', currentBackupContactLastName = ''] = currentBackupContactFullName
     .split(/ (.+)/)
+    .map((part) => part?.trim())
     .filter(Boolean);
 
   const initialValues = {
@@ -87,9 +88,9 @@ export const EditContactInfo = ({
 
     serviceMemberPayload.secondary_telephone = values?.secondary_telephone;
 
-    const backupFirstName = values[backupContactName.toString()]?.firstName || '';
-    const backupLastName = values[backupContactName.toString()]?.lastName || '';
-    const backupFullName = `${backupFirstName} ${backupLastName}`;
+    const backupFirstName = (values[backupContactName.toString()]?.firstName || '').trim();
+    const backupLastName = (values[backupContactName.toString()]?.lastName || '').trim();
+    const backupFullName = `${backupFirstName} ${backupLastName}`.trim();
 
     const backupContactPayload = {
       id: currentBackupContacts[0].id,
