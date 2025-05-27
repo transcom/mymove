@@ -39,10 +39,10 @@
 
 :global(.pg-viewer-wrapper) {
   .controls {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
+    width: 77%;
     background: rgba(255, 255, 255, 0.75);
     height: 50px;
     display: flex;
