@@ -7,7 +7,7 @@ import styles from './Profile.module.scss';
 import 'styles/office.scss';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
