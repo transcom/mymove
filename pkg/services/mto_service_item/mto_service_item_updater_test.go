@@ -401,13 +401,13 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-					SITDurationUpdates:   populatesitExtensions,
-					OriginSITAuthEndDate: &departureDate,
+					Status:                    models.MTOShipmentStatusApproved,
+					SITDaysAllowance:          &shipmentSITAllowance,
+					PrimeEstimatedWeight:      &estimatedWeight,
+					RequiredDeliveryDate:      &aMonthAgo,
+					UpdatedAt:                 aMonthAgo,
+					SITDurationUpdates:        populatesitExtensions,
+					DestinationSITAuthEndDate: &departureDate,
 				},
 			},
 			{
@@ -461,7 +461,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOASIT,
+					Code: models.ReServiceCodeDDASIT,
 				},
 			},
 			{
