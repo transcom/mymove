@@ -473,4 +473,70 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.NotNil(createdPPMShipment.MaxIncentive)
 		suite.Equal(*createdPPMShipment.MaxIncentive, unit.Cents(maxIncentive))
 	})
+
+	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		// Set required fields for PPMShipment
+		subtestData := createSubtestData(models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			SITExpected:           models.BoolPointer(false),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50308",
+				County:         models.StringPointer("POLK"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+				County:         models.StringPointer("COLUMBIA"),
+			},
+			HasGunSafe: models.BoolPointer(true),
+		}, nil)
+
+		ppmEstimator.On(
+			"EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil, nil).Once()
+
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
+
+		newPPMShipment := subtestData.newPPMShipment
+
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, newPPMShipment)
+		suite.NotNil(createdPPMShipment)
+		suite.NilOrNoVerrs(err)
+
+		var updatedEntitlement models.Entitlement
+		err = appCtx.DB().Find(&updatedEntitlement, subtestData.move.Orders.EntitlementID)
+		suite.NoError(err)
+
+		suite.True(updatedEntitlement.GunSafe)
+		suite.Equal(500, updatedEntitlement.GunSafeWeight)
+	})
 }

@@ -260,6 +260,22 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
+			/** Feature Flag - GUN_SAFE **/
+			const featureFlagNameGunSafe = "gun_safe"
+			isGunSafeFeatureOn := false
+			flag, ffErr := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameGunSafe, map[string]string{})
+
+			if ffErr != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameGunSafe), zap.Error(ffErr))
+			} else {
+				isGunSafeFeatureOn = flag.Match
+			}
+			// set payloads for gun safe to nil if FF is turned OFF
+			if !isGunSafeFeatureOn && payload.PpmShipment != nil {
+				payload.PpmShipment.HasGunSafe = nil
+				payload.PpmShipment.GunSafeWeight = nil
+			}
+
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
 			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS && mtoShipment.NTSRecordedWeight != nil {

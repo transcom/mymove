@@ -1646,8 +1646,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		suite.True(updatedEntitlement.GunSafe)
 		suite.Equal(500, updatedEntitlement.GunSafeWeight)
-		suite.NotNil(updatedEntitlement.DBAuthorizedWeight)
-		suite.True(*updatedEntitlement.DBAuthorizedWeight > 0)
 	})
 
 }

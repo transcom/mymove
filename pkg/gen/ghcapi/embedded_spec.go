@@ -9395,7 +9395,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -9418,6 +9419,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",
@@ -28687,7 +28696,8 @@ func init() {
         "destinationAddress",
         "sitExpected",
         "estimatedWeight",
-        "hasProGear"
+        "hasProGear",
+        "hasGunSafe"
       ],
       "properties": {
         "closeoutOfficeID": {
@@ -28710,6 +28720,14 @@ func init() {
           "description": "Date the customer expects to move.\n",
           "type": "string",
           "format": "date"
+        },
+        "gunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "hasGunSafe": {
+          "description": "Indicates whether PPM shipment has gun safe.\n",
+          "type": "boolean"
         },
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro-gear.\n",

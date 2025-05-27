@@ -8091,6 +8091,13 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
       isActualExpenseReimbursement:
         description: >-
           Used for PPM shipments only. Denotes if this shipment uses the Actual
@@ -8110,6 +8117,7 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+      - hasGunSafe
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
