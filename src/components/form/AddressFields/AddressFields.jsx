@@ -88,15 +88,15 @@ export const AddressFields = ({
     console.debug(value);
     const countryID = value ? value.id : null;
     const countryName = value ? value.name : null;
-    const countryCode = value ? value.code : null;
-    setFieldValue(`${name}.country.id`, countryID).then(() => {
-      setFieldTouched(`${name}.country.id`, false);
+    const countryCode = value ? value.country.code : null;
+    setFieldValue(`${name}.countryID`, countryID).then(() => {
+      setFieldTouched(`${name}.countryID`, false);
     });
-    setFieldValue(`${name}.country.code.`, countryCode).then(() => {
-      setFieldTouched(`${name}.country.code`, false);
+    setFieldValue(`${name}.countryCode`, countryCode).then(() => {
+      setFieldTouched(`${name}.countryCode`, false);
     });
-    setFieldValue(`${name}.country.name`, countryName).then(() => {
-      setFieldTouched(`${name}.country.name`, true);
+    setFieldValue(`${name}.countryName`, countryName).then(() => {
+      setFieldTouched(`${name}.countryName`, true);
     });
   };
 
