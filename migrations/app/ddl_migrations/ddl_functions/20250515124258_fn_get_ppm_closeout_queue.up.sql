@@ -3,43 +3,43 @@
 DROP FUNCTION IF EXISTS get_ppm_closeout_queue;
 
 CREATE OR REPLACE FUNCTION get_ppm_closeout_queue(
-    user_gbloc                 TEXT    DEFAULT NULL,
-    customer_name_in         TEXT    DEFAULT NULL,
-    edipi                      TEXT    DEFAULT NULL,
-    emplid                     TEXT    DEFAULT NULL,
-    m_status                   TEXT[]  DEFAULT NULL,
-    move_code                  TEXT    DEFAULT NULL,
-    ppm_submitted_at_in             DATE    DEFAULT NULL,
-    branch                     TEXT    DEFAULT NULL,
-    moves_ppm_type_full_or_partial_ppm_filter        TEXT    DEFAULT NULL, -- Moves declaration of FULL or PARTIAL. Not to be confused with ppm_shipments.ppm_type
-    origin_duty_location       TEXT    DEFAULT NULL,
-    counseling_office          TEXT    DEFAULT NULL,
-    destination_duty_location  TEXT    DEFAULT NULL,
-    ppm_closeout_location_filter      TEXT    DEFAULT NULL,
-    sc_assigned_user           TEXT    DEFAULT NULL,
-    has_safety_privilege       BOOLEAN DEFAULT FALSE,
-    page                       INT     DEFAULT 1,
-    per_page                   INT     DEFAULT 20,
-    sort                       TEXT    DEFAULT NULL,
-    sort_direction             TEXT    DEFAULT NULL
+    user_gbloc                                      TEXT    DEFAULT NULL,
+    customer_name_in                                TEXT    DEFAULT NULL,
+    edipi                                           TEXT    DEFAULT NULL,
+    emplid                                          TEXT    DEFAULT NULL,
+    m_status                                        TEXT[]  DEFAULT NULL,
+    move_code                                       TEXT    DEFAULT NULL,
+    ppm_submitted_at_in                             DATE    DEFAULT NULL,
+    branch                                          TEXT    DEFAULT NULL,
+    moves_ppm_type_full_or_partial_ppm_filter       TEXT    DEFAULT NULL, -- Moves declaration of FULL or PARTIAL. Not to be confused with ppm_shipments.ppm_type
+    origin_duty_location                            TEXT    DEFAULT NULL,
+    counseling_office                               TEXT    DEFAULT NULL,
+    destination_duty_location                       TEXT    DEFAULT NULL,
+    ppm_closeout_location_filter                    TEXT    DEFAULT NULL,
+    sc_assigned_user                                TEXT    DEFAULT NULL,
+    has_safety_privilege                            BOOLEAN DEFAULT FALSE,
+    page                                            INT     DEFAULT 1,
+    per_page                                        INT     DEFAULT 20,
+    sort                                            TEXT    DEFAULT NULL,
+    sort_direction                                  TEXT    DEFAULT NULL
 )
 RETURNS TABLE(
-    id               UUID,
-    show             BOOLEAN,
-    locator          TEXT,
-    full_or_partial_ppm TEXT,
-    orders_id UUID,
-    locked_by UUID,
-    sc_closeout_assigned_id UUID,
+    id                                  UUID,
+    show                                BOOLEAN,
+    locator                             TEXT,
+    full_or_partial_ppm                 TEXT,
+    orders_id                           UUID,
+    locked_by                           UUID,
+    sc_closeout_assigned_id             UUID,
     counseling_transportation_office_id UUID,
-    orders JSONB,
-    ppm_shipments JSONB,
-    counseling_transportation_office JSONB,
-    ppm_closeout_location JSONB,
-    sc_assigned JSONB,
-    mto_shipments JSONB,
-    status TEXT,
-    total_count BIGINT
+    orders                              JSONB,
+    ppm_shipments                       JSONB,
+    counseling_transportation_office    JSONB,
+    ppm_closeout_location               JSONB,
+    sc_assigned                         JSONB,
+    mto_shipments                       JSONB,
+    status                              TEXT,
+    total_count                         BIGINT
 ) AS '
 DECLARE
     offset_value INT;
@@ -61,6 +61,7 @@ BEGIN
         WHEN ''ppmStatus''                THEN sort_column := ''ppm_status'';
         WHEN ''assignedTo''               THEN sort_column := ''counselor_name'';
         WHEN ''closeoutInitiated''        THEN sort_column := ''ppm_submitted_at'';
+        WHEN ''closeoutLocation''         THEN sort_column := ''closeout_name'';
         WHEN ''branch''                   THEN sort_column := ''branch_out'';
         ELSE                              sort_column := ''ppm_submitted_at'';
     END CASE;
