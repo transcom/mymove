@@ -38,7 +38,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
+const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalRequestTypeColEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -237,7 +237,14 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole }) => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tooQueueColumns(moveLockFlag, isQueueManagementFFEnabled, queueType, null, showBranchFilter)}
+          columns={tooQueueColumns(
+            moveLockFlag,
+            isQueueManagementFFEnabled,
+            queueType,
+            null,
+            isApprovalRequestTypeColEnabled,
+            showBranchFilter,
+          )}
           title="All moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}

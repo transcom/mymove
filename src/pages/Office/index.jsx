@@ -231,7 +231,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                           <MoveQueue
                             isQueueManagementFFEnabled={queueManagementFlag}
                             activeRole={props.activeRole}
-                            isApprovalRequestTypeColEnabled={approvalRequestTypeFlag}
+                            isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
                           />
                         </PrivateRoute>
                       }
@@ -257,6 +257,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                           <HeadquartersQueues
                             isQueueManagementFFEnabled={queueManagementFlag}
                             activeRole={props.activeRole}
+                            isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
                           />
                         </PrivateRoute>
                       }
@@ -331,7 +332,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                               userPrivileges={props.userPrivileges}
                               isBulkAssignmentFFEnabled={bulkAssignmentFlag}
                               activeRole={props.activeRole}
-                              isApprovalRequestTypeColEnabled={approvalRequestTypeFlag}
+                              isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
                             />
                           </PrivateRoute>
                         }
@@ -347,6 +348,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
                             <HeadquartersQueues
                               isQueueManagementFFEnabled={queueManagementFlag}
                               activeRole={props.activeRole}
+                              isApprovalRequestTypeFFEnabled={approvalRequestTypeFlag}
                             />
                           </PrivateRoute>
                         }
