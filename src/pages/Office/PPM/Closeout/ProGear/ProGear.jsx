@@ -217,21 +217,23 @@ const ProGear = () => {
         <GridContainer>
           <Grid row>
             <Grid col desktop={{ col: 8, offset: 2 }}>
-              <ShipmentTag shipmentType={shipmentTypes.PPM} />
-              <h1>Pro-gear</h1>
-              {renderError()}
-              <ProGearForm
-                entitlements={entitlements}
-                proGear={currentProGearWeightTicket}
-                setNumber={currentIndex + 1}
-                onCreateUpload={handleCreateUpload}
-                onUploadComplete={handleUploadComplete}
-                onUploadDelete={handleUploadDelete}
-                onBack={handleBack}
-                onSubmit={handleSubmit}
-                isSubmitted={isSubmitted}
-                appName={appName}
-              />
+              <div className={ppmPageStyles.closeoutPageWrapper}>
+                <ShipmentTag shipmentType={shipmentTypes.PPM} />
+                <h1>Pro-gear</h1>
+                {renderError()}
+                <ProGearForm
+                  entitlements={entitlements}
+                  proGear={currentProGearWeightTicket}
+                  setNumber={currentIndex + 1}
+                  onCreateUpload={handleCreateUpload}
+                  onUploadComplete={handleUploadComplete}
+                  onUploadDelete={handleUploadDelete}
+                  onBack={handleBack}
+                  onSubmit={handleSubmit}
+                  isSubmitted={isSubmitted}
+                  appName={appName}
+                />
+              </div>
             </Grid>
           </Grid>
         </GridContainer>

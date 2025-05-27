@@ -2289,7 +2289,6 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool"),
 			mock.AnythingOfType("string")).Return(outputFile, nil)
 
 		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
@@ -2350,7 +2349,6 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool"),
 			mock.AnythingOfType("string")).Return(outputFile, errors.New("error"))
 
 		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
@@ -2542,7 +2540,6 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool"),
 			mock.AnythingOfType("string")).Return(outputFile, apperror.NewUnprocessableEntityError("test"))
 
 		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
@@ -2595,7 +2592,6 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool"),
 			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
 
 		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
@@ -2649,7 +2645,6 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUploadAll, //Verify ALL enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool"),
 			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
 
 		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
@@ -2703,7 +2698,6 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUpload, //Verify Order only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool"),
 			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
 
 		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
@@ -2758,7 +2752,6 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderAmendmentUpload, //Verify Amendment only enum is used
 			mock.AnythingOfType("models.Move"),
-			mock.AnythingOfType("bool"),
 			mock.AnythingOfType("string")).Return(outputFile, errors.New("test"))
 
 		mockPrimeDownloadMoveUploadPDFGenerator.On("CleanupFile",
