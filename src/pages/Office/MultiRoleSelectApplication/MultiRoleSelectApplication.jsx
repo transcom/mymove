@@ -22,6 +22,8 @@ export const roleLookupValues = Object.fromEntries(
   adminOfficeRoles.map(({ roleType, name }) => [roleType, { roleType, name }]),
 );
 
+const EMPTY_ROLE = 'none';
+
 const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }) => {
   const navigate = useNavigate();
   const isSettingActiveRole = useSelector(selectIsSettingActiveRole);
@@ -31,22 +33,21 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
   const [reset, setReset] = useState(false);
   useEffect(() => {
     if (!reset && pendingRole !== mainRole) {
+      setPendingRole(mainRole);
       setTimeout(() => {
         setActiveRole(mainRole);
         setReset(true);
-      }, 50);
-
-      setPendingRole(mainRole);
+      }, 0);
     }
     if (reset && mainRole === activeRole) {
       setTimeout(() => {
         navigate('/');
         setReset(false);
-      }, 50);
+      }, 5);
     }
   }, [pendingRole, mainRole, reset, activeRole, setActiveRole, isSettingActiveRole, navigate]);
 
-  const assumedRoleType = activeRole || inactiveRoles[0];
+  const assumedRoleType = (activeRole || inactiveRoles[0]) ?? EMPTY_ROLE;
 
   const userRoleTypes = getRoleTypesFromRoles(inactiveRoles);
 
@@ -64,24 +65,38 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
 
   const applicationOptions = useMemo(
     () =>
-      rolesAvailableToUser.map(({ roleType, name }) => (
-        <option key={roleType} value={roleType}>
-          {name}
+      assumedRoleType === EMPTY_ROLE ? (
+        <option key={EMPTY_ROLE} value={EMPTY_ROLE}>
+          no role
         </option>
-      )),
-    [rolesAvailableToUser],
+      ) : (
+        rolesAvailableToUser.map(({ roleType, name }) => (
+          <option key={roleType} value={roleType}>
+            {name}
+          </option>
+        ))
+      ),
+    [rolesAvailableToUser, assumedRoleType],
   );
 
   const hasSingleDropdownOption = inactiveRoles?.length === 0;
 
-  const selectDescription = hasSingleDropdownOption
-    ? `combo box is limited to the current role of ${roleLookupValues[assumedRoleType].name}.`
-    : 'combo box with roles to switch to.';
+  const selectDescription = ((assumed) => {
+    switch (roleLookupValues[assumed]?.name) {
+      case EMPTY_ROLE: {
+        return 'combo box has no roles options.';
+      }
+      default: {
+        return hasSingleDropdownOption
+          ? `combo box is limited to the current role of ${assumed}.`
+          : 'combo box with roles to switch to.';
+      }
+    }
+  })(assumedRoleType);
 
   const selectId = 'role-select';
   const labelTextId = 'role-select-label';
 
-  /* eslint-disable react/jsx-props-no-spreading */
   const selectDropdownContent = (
     <select
       key={assumedRoleType}

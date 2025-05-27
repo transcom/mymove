@@ -20,6 +20,31 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('MultiRoleSelectApplication component', () => {
+  it('renders "no role" when there are no roles', async () => {
+    const mockState = {
+      entities: {
+        user: [
+          {
+            inactiveRoles: [],
+          },
+        ],
+      },
+      auth: {
+        activeRole: null,
+      },
+    };
+
+    const mockStore = configureStore({});
+    render(
+      <MockProviders store={mockStore} initialState={mockState}>
+        <ConnectedSelectApplication />
+      </MockProviders>,
+    );
+
+    const roleLabel = await screen.findByText('Role:');
+    expect(roleLabel).toBeInTheDocument();
+  });
+
   it('renders the active role if one exists', async () => {
     const testUserRoles = [roleLookupValues.services_counselor];
 
