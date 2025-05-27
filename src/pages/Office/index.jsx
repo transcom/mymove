@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Routes, Link, matchPath, Navigate, useLocation } from 'react-router-dom';
+import { Route, Routes, matchPath, Navigate, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 
@@ -125,16 +125,7 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
   const [bulkAssignmentFlag, setBulkAssignmentFlag] = useState(false);
 
   const location = useLocation();
-  const displayChangeRole =
-    props.userIsLoggedIn &&
-    props.userRoles?.length > 1 &&
-    !matchPath(
-      {
-        path: '/select-application',
-        end: true,
-      },
-      location.pathname,
-    );
+
   const isFullscreenPage = matchPath(
     {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -181,7 +172,6 @@ const OfficeApp = ({ loadUser, loadInternalSchema, loadPublicSchema, ...props })
             <BypassBlock />
             <CUIHeader />
             {props.userIsLoggedIn && props.activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
             {props.userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
@@ -633,7 +623,7 @@ OfficeApp.propTypes = {
   loginIsLoading: PropTypes.bool,
   userIsLoggedIn: PropTypes.bool,
   userPermissions: PropTypes.arrayOf(PropTypes.string),
-  userRoles: UserRolesShape,
+  userInactiveRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
@@ -650,7 +640,7 @@ OfficeApp.defaultProps = {
   loginIsLoading: false,
   userIsLoggedIn: false,
   userPermissions: [],
-  userRoles: [],
+  userInactiveRoles: [],
   activeRole: null,
   userPrivileges: [],
   underMaintenance: false,
@@ -667,7 +657,7 @@ const mapStateToProps = (state) => {
     loginIsLoading: selectGetCurrentUserIsLoading(state),
     userIsLoggedIn: selectIsLoggedIn(state),
     userPermissions: user?.permissions || [],
-    userRoles: user?.roles || [],
+    userInactiveRoles: user?.inactiveRoles || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,

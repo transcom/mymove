@@ -70,3 +70,20 @@ export function LogoutUserWithOktaRedirect() {
   };
   return Swagger.http(req);
 }
+
+// updates a users server-side session
+// with their new active role
+export function UpdateActiveRoleServerSession(roleType) {
+  const updateActiveRoleEndpoint = '/auth/activeRole';
+  const req = {
+    url: updateActiveRoleEndpoint,
+    method: 'PATCH',
+    credentials: 'same-origin',
+    requestInterceptor,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ roleType }),
+  };
+  return Swagger.http(req);
+}
