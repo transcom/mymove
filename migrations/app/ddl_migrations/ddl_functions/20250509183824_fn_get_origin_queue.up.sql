@@ -345,6 +345,9 @@ BEGIN
 								moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL
 								AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL
 							)
+                            OR (
+                                orders.uploaded_amended_orders_id IS NOT NULL
+                                AND orders.amended_orders_acknowledged_at IS NULL)
 						)
 					)
 				)
