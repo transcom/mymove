@@ -302,7 +302,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		response := handler.Handle(params)
 		resp, ok := response.(*mtoshipmentops.UpdateMTOShipmentAddressConflict)
 		suite.True(ok, "Expected response to be of type UpdateMTOShipmentAddressConflict")
-		suite.Contains(*resp.Payload.Detail, "This shipment is approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address")
+		suite.Contains(*resp.Payload.Detail, "This shipment has already been approved, please use the updateShipmentDestinationAddress endpoint / ShipmentAddressUpdateRequester service to update the destination address")
 	})
 
 	suite.Run("Fail - Conflict due to updating pickup address on NTS-Release shipment", func() {
@@ -385,6 +385,48 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Failure - Unprocessable when updating address with PO Box postal code", func() {
+		// Testcase:   address is updated on a shipment that's available to MTO with  PO Box postal code
+		// Expected:   Failure response 422
+		// Under Test: UpdateMTOShipmentAddress handler code and mtoShipmentAddressUpdater service object
+		handler, availableMove := setupTestData()
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		newAddress2 := models.Address{
+			StreetAddress1: "7 Q St",
+			StreetAddress2: models.StringPointer("6622 Airport Way S #1430"),
+			StreetAddress3: models.StringPointer("441 SW Río de la Plata Drive"),
+			City:           "SANTA CLARITA",
+			County:         models.StringPointer("LOS ANGELES"),
+			State:          "CA",
+			PostalCode:     "91310", // PO Box only postal code
+		}
+		// Update with new address
+		payload := payloads.Address(&newAddress2)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(shipment.PickupAddress.ID),
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(shipment.PickupAddress.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+		unprocessableEntity := response.(*mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity)
+
+		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box address")
 	})
 
 	suite.Run("Failure - Unprocessable with AK FF off and valid AK address", func() {
