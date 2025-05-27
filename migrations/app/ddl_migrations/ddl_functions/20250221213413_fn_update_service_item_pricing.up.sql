@@ -29,6 +29,11 @@ DECLARE
     standalone BOOLEAN;
     external BOOLEAN;
     cubic_feet NUMERIC;
+    declared_contract_id UUID;
+    declared_escalation_factor NUMERIC;
+    declared_oconus_factor NUMERIC;
+    declared_market_code TEXT;
+    declared_is_oconus BOOLEAN;
     standalone_crate_cap NUMERIC;
     external_crate_minimum NUMERIC;
 BEGIN

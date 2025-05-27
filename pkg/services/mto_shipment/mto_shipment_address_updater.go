@@ -229,14 +229,15 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 			}
 		}
 
-		_, err = UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&mtoShipment.MTOServiceItems, newAddress, appCtx)
+		_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, f.addressCreator, &mtoShipment, newAddress, &oldAddress, appCtx)
 		if err != nil {
 			return apperror.NewQueryError("No updated service items on shipment address change", err, "")
 		}
 
-		_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment, newAddress, &oldAddress, appCtx)
+		// update the service item pricing if relevant fields have changed..ie mileage
+		err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &mtoShipment, nil)
 		if err != nil {
-			return apperror.NewQueryError("No updated service items on shipment address change", err, "")
+			return err
 		}
 
 		return err
