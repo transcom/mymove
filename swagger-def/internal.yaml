@@ -2169,6 +2169,14 @@ definitions:
         example: false
         x-omitempty: false
         x-nullable: true
+      hasGunSafe:
+        description: >
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+      gunSafeWeight:
+        type: integer
+        x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -4572,6 +4580,11 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches

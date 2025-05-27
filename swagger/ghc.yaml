@@ -4936,6 +4936,13 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: >-
+            Toggles whether the search results should include postal codes that
+            only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
@@ -10147,6 +10154,7 @@ definitions:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATED_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:
@@ -11166,6 +11174,19 @@ definitions:
         description: >-
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      hasGunSafe:
+        description: |
+          Indicates whether PPM shipment has gun safe.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      gunSafeWeight:
+        description: >-
+          The estimated weight of the gun safe being moved belonging to the
+          service member.
         type: integer
         x-nullable: true
         x-omitempty: false

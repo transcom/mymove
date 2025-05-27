@@ -1074,8 +1074,8 @@ export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
 }
 
-export async function searchLocationByZipCityState(search) {
-  return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
+export async function searchLocationByZipCityState(search, includePOBoxes) {
+  return makeGHCRequest('addresses.getLocationByZipCityState', { search, includePOBoxes }, { normalize: false });
 }
 
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
@@ -1125,8 +1125,28 @@ export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
   );
 }
 
-// Attempt at catch-all error handling
-// TODO improve this function when we have better standardized errors
-export function getResponseError(response, defaultErrorMessage) {
-  return response?.body?.detail || response?.statusText || defaultErrorMessage;
+export function getResponseError(errorOrResponse, defaultErrorMessage) {
+  const response = errorOrResponse?.response || errorOrResponse;
+  if (!response) return defaultErrorMessage;
+
+  const body = response.body || response.data || {};
+
+  const detail = body.detail || response.statusText || defaultErrorMessage;
+
+  const invalidFields = body.invalid_fields || body.invalidFields;
+
+  if (invalidFields && typeof invalidFields === 'object') {
+    const fieldErrors = Object.entries(invalidFields)
+      .map(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          return `${field}: ${messages.join(', ')}`;
+        }
+        return `${field}: ${messages}`;
+      })
+      .join('\n');
+
+    return `${detail}\n${fieldErrors}`;
+  }
+
+  return detail;
 }
