@@ -82,7 +82,7 @@ describe('EvaluationReports', () => {
 
       renderWithProviders(<EvaluationReports customerInfo={{}} grade="" />, mockRoutingOptions);
 
-      const h1 = await screen.getByRole('heading', { name: 'Quality Assurance Reports', level: 1 });
+      const h1 = screen.getByRole('heading', { name: 'Quality Assurance Reports', level: 1 });
       expect(h1).toBeInTheDocument();
 
       expect(screen.getByRole('heading', { name: 'Shipment QAE reports (0)', level: 2 })).toBeInTheDocument();
