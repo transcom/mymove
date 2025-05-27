@@ -62,7 +62,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack, se
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
-    // grade: Yup.string().required('Required'),
+    grade: Yup.string().required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')

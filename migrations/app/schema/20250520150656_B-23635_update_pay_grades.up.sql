@@ -45,4 +45,4 @@ SET
 FROM updates
 WHERE pay_grades.id = updates.id::uuid;
 
-INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('ec620134-d40f-4ebb-bfeb-0e4e0ef06d14', 'ACADEMY_GRADUATE', 'Academy Graduate', NOW(), NOW(),28);
+INSERT INTO pay_grades (id, grade, grade_description,created_at, updated_at, "order")VALUES ('ec620134-d40f-4ebb-bfeb-0e4e0ef06d14', 'ACADEMY_GRADUATE', 'Academy Graduate', NOW(), NOW(),29);
