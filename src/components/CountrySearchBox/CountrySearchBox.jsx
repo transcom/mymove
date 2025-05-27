@@ -100,7 +100,8 @@ export const CountrySearchBoxComponent = ({
     !!value && value.countryName !== '' && value.countryCode !== ''
       ? `${value.countryName} (${value.countryCode})`
       : '';
-  const [inputValue, setInputValue] = useState(countryInfo !== '' ? countryInfo : '');
+  const [inputValue, setInputValue] = useState(countryInfo !== '' ? countryInfo : null);
+  const [currentValue, setCurrentValue] = useState(countryInfo !== '' ? countryInfo : null);
   let disabledStyles = {};
   if (isDisabled) {
     disabledStyles = {
@@ -148,14 +149,21 @@ export const CountrySearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    countryState(selectedValue);
-    onChange(selectedValue);
+    if (selectedValue != null) {
+      countryState(selectedValue);
+      onChange(selectedValue);
+    }
 
+    setCurrentValue(selectedValue);
+    setInputValue(''); // Clear the input after selection
     return selectedValue;
   };
 
-  const changeInputText = (text) => {
-    setInputValue(text);
+  const changeInputText = (newValue, meta) => {
+    if (meta.action === 'input-change') {
+      setCurrentValue(newValue);
+      setInputValue(newValue);
+    }
   };
 
   const inputId = `${name}-input`;
@@ -175,8 +183,10 @@ export const CountrySearchBoxComponent = ({
     }
   };
 
-  const handleBlur = () => {
+  const handleFocus = () => {
     onChange(null);
+    setCurrentValue('');
+    setInputValue('');
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
@@ -202,12 +212,13 @@ export const CountrySearchBoxComponent = ({
           getOptionLabel={(option) => option.name}
           loadOptions={loadOptions}
           onChange={selectOption}
+          onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
-          placeholder={placeholder}
           inputValue={inputValue}
+          placeholder={placeholder}
+          value={currentValue}
           noOptionsMessage={noOptionsMessage}
-          onBlur={handleBlur}
           styles={isDisabled ? disabledStyles : customStyles}
           isDisabled={isDisabled}
         />

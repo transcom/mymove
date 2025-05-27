@@ -88,7 +88,7 @@ export const AddressFields = ({
     console.debug(value);
     const countryID = value ? value.id : null;
     const countryName = value ? value.name : null;
-    const countryCode = value ? value.country.code : null;
+    const countryCode = value ? value.code : null;
     setFieldValue(`${name}.countryID`, countryID).then(() => {
       setFieldTouched(`${name}.countryID`, false);
     });
