@@ -48,6 +48,13 @@ type UpdatePPMShipment struct {
 	// Read Only: true
 	FinalIncentive *int64 `json:"finalIncentive"`
 
+	// gun safe weight
+	GunSafeWeight *int64 `json:"gunSafeWeight,omitempty"`
+
+	// Indicates whether PPM shipment has gun safe.
+	//
+	HasGunSafe *bool `json:"hasGunSafe,omitempty"`
+
 	// Indicates whether PPM shipment has pro-gear.
 	//
 	HasProGear *bool `json:"hasProGear,omitempty"`
