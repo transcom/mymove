@@ -45,6 +45,11 @@ const mockFiles = [
   },
 ];
 
+// zoom steps: 10% through 200%
+const zoomSteps = [0.1, 0.25, 0.5, 0.75, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0];
+const zoomStepIndex = 4; // default of 1.0 = 100%
+const getZoomPercentage = () => Math.round(zoomSteps[zoomStepIndex] * 100);
+
 const mockSetRotationValue = jest.fn();
 const mockSaveRotation = jest.fn();
 
@@ -65,6 +70,7 @@ jest.mock('@transcom/react-file-viewer', () => ({
             handleZoomOut: jest.fn(),
             handleRotateLeft: () => mockSetRotationValue(rotateLeft()),
             handleRotateRight: () => mockSetRotationValue(rotateRight()),
+            zoomPercentage: getZoomPercentage(),
           })}
         <button type="button" data-testid="rotateLeftButton" onClick={rotateLeft}>
           Rotate left
@@ -177,5 +183,17 @@ describe('DocViewerContent', () => {
     );
     const saveBtn = screen.getByRole('button', { name: /save/i });
     expect(saveBtn).toBeDisabled();
+  });
+
+  it('renders initial zoom percentage of 100%', () => {
+    render(
+      <DocViewerContent
+        fileType={mockFiles[2].contentType}
+        filePath={mockFiles[2].url}
+        rotationValue={mockFiles[2].rotation}
+      />,
+    );
+
+    expect(screen.getByTestId('currentZoomPercentage').textContent).toContain('100%');
   });
 });
