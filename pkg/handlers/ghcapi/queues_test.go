@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -74,10 +75,12 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	activeRole := string(roles.RoleTypeTOO)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
+		ActiveRole:  &activeRole,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -121,7 +124,7 @@ func (suite *HandlerSuite) TestListPrimeMovesHandler() {
 	params := queues.ListPrimeMovesParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	handler := ListPrimeMovesHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(waf),
@@ -198,15 +201,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 		orderFetcher := mocks.OrderFetcher{}
-		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
-			officeUser.ID, roles.RoleTypeTOO, mock.Anything).Return(expectedMoves, 4, nil)
+		orderFetcher.On("ListOriginRequestsOrders", mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetMovesQueueHandler{
 			handlerConfig,
@@ -281,7 +284,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		HTTPRequest: request,
 		Branch:      models.StringPointer("AIR_FORCE"),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -370,7 +373,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -525,7 +528,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -534,7 +537,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
 
-	suite.Run("loads results with all STATUSes selected", func() {
+	suite.Run("loads results with all statuses selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
@@ -556,7 +559,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
 		// test that the moves are sorted by status descending
-		suite.Equal(ghcmessages.MoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
+		suite.Equal(ghcmessages.MoveStatus("APPROVALS REQUESTED"), payload.QueueMoves[0].Status)
 	})
 
 	suite.Run("loads results with all STATUSes and 1 page selected", func() {
@@ -783,7 +786,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -930,7 +933,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -962,7 +965,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -1015,7 +1018,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetMovesQueueHandler{
 		handlerConfig,
@@ -1065,7 +1068,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
@@ -1142,7 +1145,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
@@ -1222,7 +1225,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 		Page:        models.Int64Pointer(1),
 		PerPage:     models.Int64Pointer(1),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
@@ -1258,7 +1261,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		Page:        models.Int64Pointer(1),
 		PerPage:     models.Int64Pointer(1),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
@@ -1295,7 +1298,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		Page:        models.Int64Pointer(1),
 		PerPage:     models.Int64Pointer(1),
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetPaymentRequestsQueueHandler{
 		handlerConfig,
@@ -1525,7 +1528,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 
 	request := httptest.NewRequest("GET", "/queues/counseling", nil)
 	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		handlerConfig,
@@ -1659,6 +1662,240 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 	})
 }
 
+type ppmCloseoutSubtestData struct {
+	ppmNeedsCloseoutMove models.Move
+	officeUser           models.OfficeUser
+	handler              GetPPMCloseoutQueueHandler
+	request              *http.Request
+}
+
+func (suite *HandlerSuite) makePPMCloseoutSubtestData() (subtestData *ppmCloseoutSubtestData) {
+	subtestData = &ppmCloseoutSubtestData{}
+	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+	waf := entitlements.NewWeightAllotmentFetcher()
+	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
+	requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	now := time.Now()
+	subtestData.ppmNeedsCloseoutMove = factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SubmittedAt:      &submittedAt,
+				Status:           models.MoveStatusServiceCounselingCompleted,
+				CloseoutOfficeID: &transportationOffice.ID,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				Status:      models.PPMShipmentStatusNeedsCloseout,
+				SubmittedAt: &now,
+			},
+		},
+	}, nil)
+
+	// Create a move with an origin duty location outside of office user GBLOC
+	dutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "Fort Eisenhower",
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "77777",
+			},
+		},
+	}, nil)
+
+	// Create a custom postal code to GBLOC
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocationAddress.PostalCode, "UUUU")
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Fort Sam Houston",
+			},
+		},
+		{
+			Model:    dutyLocationAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create a move with an origin duty location outside of office user GBLOC
+	excludedGBLOCMove := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    excludedGBLOCMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+		},
+	}, nil)
+
+	excludedStatusMove := factory.BuildSubmittedMove(suite.DB(), []factory.Customization{
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    excludedStatusMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: "06001",
+			},
+			Type: &factory.Addresses.PickupAddress,
+		},
+	}, nil)
+
+	request := httptest.NewRequest("GET", "/queues/counseling", nil)
+	subtestData.request = suite.AuthenticateOfficeRequest(request, subtestData.officeUser)
+	handlerConfig := suite.NewHandlerConfig()
+	mockUnlocker := movelocker.NewMoveUnlocker()
+	subtestData.handler = GetPPMCloseoutQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(waf),
+		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestGetPPMCloseoutQueueHandler() {
+	suite.Run("returns moves in the needs closeout status when NeedsPPMCloseout is true", func() {
+		subtestData := suite.makePPMCloseoutSubtestData()
+
+		needsPpmCloseout := true
+		params := queues.GetPPMCloseoutQueueParams{
+			HTTPRequest:      subtestData.request,
+			NeedsPPMCloseout: &needsPpmCloseout,
+		}
+
+		// Validate incoming payload: no body to validate
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetPPMCloseoutQueueOK{}, response)
+		payload := response.(*queues.GetPPMCloseoutQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload.QueueMoves, 1)
+
+		for _, move := range payload.QueueMoves {
+			// Fail if a ppm has a status other than needs closeout
+			if models.MoveStatus(move.PpmStatus) != models.MoveStatus(models.PPMShipmentStatusNeedsCloseout) {
+				suite.Fail("Test does not return moves with the correct status.")
+			}
+		}
+	})
+
+	suite.Run("queue moves payload will concat the closeout initiated values", func() {
+		subtestData := suite.makePPMCloseoutSubtestData()
+
+		now := time.Now()
+		yesterday := time.Now().AddDate(0, 0, -1)
+		twoDaysAgo := time.Now().AddDate(0, 0, -2)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+
+		// By not setting a submittedAt value for the PPM shipment, we are declaring
+		// it has not entered the closeout phase
+		factoryMadeMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					PPMType:          models.StringPointer(models.MovePPMTypeFULL),
+					SubmittedAt:      &now,
+					Locator:          "FINDME",
+					CloseoutOfficeID: &transportationOffice.ID,
+					Status:           models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+		ppmShipmentYesterday := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.PPMShipment{
+						SubmittedAt: &yesterday,
+						Status:      models.PPMShipmentStatusNeedsCloseout,
+					},
+				},
+				{
+					Model:    factoryMadeMove,
+					LinkOnly: true,
+				},
+			},
+		)
+		ppmShipmentTwoDaysAgo := factory.BuildPPMShipmentThatNeedsCloseout(
+			suite.DB(),
+			nil,
+			[]factory.Customization{
+				{
+					Model: models.PPMShipment{
+						SubmittedAt: &twoDaysAgo,
+						Status:      models.PPMShipmentStatusNeedsCloseout,
+					},
+				},
+				{
+					Model:    factoryMadeMove,
+					LinkOnly: true,
+				},
+			},
+		)
+
+		// The factory should always return this information
+		suite.NotEmpty(ppmShipmentYesterday.Shipment.MoveTaskOrder.Orders.ServiceMember)
+		suite.NotEmpty(ppmShipmentTwoDaysAgo.Shipment.MoveTaskOrder.Orders.ServiceMember)
+
+		params := queues.GetPPMCloseoutQueueParams{
+			HTTPRequest:      subtestData.request,
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Locator:          models.StringPointer("FINDME"),
+		}
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetPPMCloseoutQueueOK{}, response)
+		payload := response.(*queues.GetPPMCloseoutQueueOK).Payload
+		suite.Len(payload.QueueMoves, 1)
+		expectedCloseoutInitiatedDates := fmt.Sprintf("%s, %s",
+			twoDaysAgo.Format("Jan 2 2006"),
+			yesterday.Format("Jan 2 2006"),
+		)
+		suite.Equal(expectedCloseoutInitiatedDates, *payload.QueueMoves[0].CloseoutInitiatedDates)
+	})
+}
+
 func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 	suite.Run("SC - returns an unauthorized error when an attempt is made by a non supervisor", func() {
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
@@ -1684,7 +1921,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("COUNSELING"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -1746,7 +1983,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("COUNSELING"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -1872,7 +2109,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("DESTINATION_REQUESTS"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -1949,7 +2186,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("TASK_ORDER"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -2033,7 +2270,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("CLOSEOUT"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -2083,7 +2320,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -2159,7 +2396,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			HTTPRequest: request,
 			QueueType:   models.StringPointer("PAYMENT_REQUEST"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -2321,10 +2558,12 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, subtestData.officeUsers[0])
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetMovesQueueHandler{
 			handlerConfig,
@@ -2368,7 +2607,7 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 		params := queues.GetServicesCounselingQueueParams{
 			HTTPRequest: request,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetServicesCounselingQueueHandler{
 			handlerConfig,
@@ -2405,7 +2644,7 @@ func (suite *HandlerSuite) TestAvailableOfficeUsers() {
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetPaymentRequestsQueueHandler{
 			handlerConfig,
@@ -2475,7 +2714,7 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 				UserData:  userData,
 			},
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -2547,7 +2786,7 @@ func (suite *HandlerSuite) TestSaveBulkAssignmentDataHandler() {
 				UserData:  userData,
 			},
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := SaveBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -2624,7 +2863,7 @@ func (suite *HandlerSuite) TestLockAndUnlockBulkAssignmentMoves() {
 			HTTPRequest: getRequest,
 			QueueType:   models.StringPointer("COUNSELING"),
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		getHandler := GetBulkAssignmentDataHandler{
 			handlerConfig,
 			officeusercreator.NewOfficeUserFetcherPop(),
@@ -2809,7 +3048,7 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueuesHandler() {
 	params := queues.GetDestinationRequestsQueueParams{
 		HTTPRequest: request,
 	}
-	handlerConfig := suite.HandlerConfig()
+	handlerConfig := suite.NewHandlerConfig()
 	mockUnlocker := movelocker.NewMoveUnlocker()
 	handler := GetDestinationRequestsQueueHandler{
 		handlerConfig,
@@ -2941,10 +3180,12 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 
 		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetDestinationRequestsQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetDestinationRequestsQueueHandler{
 			handlerConfig,
@@ -3073,10 +3314,12 @@ func (suite *HandlerSuite) TestGetDestinationRequestsQueueAssignedUser() {
 
 		request := httptest.NewRequest("GET", "/queues/destination-requests", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		activeRole := string(roles.RoleTypeTOO)
 		params := queues.GetDestinationRequestsQueueParams{
 			HTTPRequest: request,
+			ActiveRole:  &activeRole,
 		}
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := GetDestinationRequestsQueueHandler{
 			handlerConfig,

@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockLocker := movelocker.NewMoveLocker()
 
 		handler := GetMoveHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 			MoveLocker:    mockLocker,
 		}
@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		// Validate incoming payload: no body to validate
 
 		handler := GetMoveHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 			MoveLocker:    mockLocker,
 		}
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 		}
 		req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
@@ -185,7 +185,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockLocker := movelocker.NewMoveLocker()
 
 		handler := GetMoveHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 			MoveLocker:    mockLocker,
 		}
@@ -216,7 +216,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockLocker := movelocker.NewMoveLocker()
 
 		handler := GetMoveHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 			MoveLocker:    mockLocker,
 		}
@@ -250,7 +250,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockLocker := movelocker.NewMoveLocker()
 
 		handler := GetMoveHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveFetcher:   &mockFetcher,
 			MoveLocker:    mockLocker,
 		}
@@ -467,7 +467,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := SearchMovesHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveSearcher:  &mockSearcher,
 			MoveUnlocker:  mockUnlocker,
 		}
@@ -519,7 +519,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		mockSearcher := mocks.MoveSearcher{}
 
 		handler := SearchMovesHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveSearcher:  &mockSearcher,
 		}
 		mockSearcher.On("SearchMoves",
@@ -564,7 +564,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		mockSearcher := mocks.MoveSearcher{}
 		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := SearchMovesHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveSearcher:  &mockSearcher,
 			MoveUnlocker:  mockUnlocker,
 		}
@@ -703,7 +703,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
@@ -748,7 +748,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		}
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 
@@ -767,7 +767,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
@@ -803,7 +803,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
@@ -839,7 +839,7 @@ func (suite *HandlerSuite) TestSetFinancialReviewFlagHandler() {
 		req, move := setupTestData()
 		mockFlagSetter := mocks.MoveFinancialReviewFlagSetter{}
 		handler := SetFinancialReviewFlagHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			MoveFinancialReviewFlagSetter: &mockFlagSetter,
 		}
 		mockFlagSetter.On("SetFinancialReviewFlag",
@@ -898,7 +898,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	suite.Run("Successful update of closeout office", func() {
 		req, move, transportationOffice := setupTestData()
 		handler := UpdateMoveCloseoutOfficeHandler{
-			HandlerConfig:             suite.HandlerConfig(),
+			HandlerConfig:             suite.NewHandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
@@ -930,7 +930,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	suite.Run("Unsuccessful move not found", func() {
 		req, move, transportationOffice := setupTestData()
 		handler := UpdateMoveCloseoutOfficeHandler{
-			HandlerConfig:             suite.HandlerConfig(),
+			HandlerConfig:             suite.NewHandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
@@ -962,7 +962,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 		req, move, _ := setupTestData()
 		handler := UpdateMoveCloseoutOfficeHandler{
-			HandlerConfig:             suite.HandlerConfig(),
+			HandlerConfig:             suite.NewHandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
@@ -986,7 +986,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 	suite.Run("Unsuccessful eTag does not match", func() {
 		req, move, transportationOffice := setupTestData()
 		handler := UpdateMoveCloseoutOfficeHandler{
-			HandlerConfig:             suite.HandlerConfig(),
+			HandlerConfig:             suite.NewHandlerConfig(),
 			MoveCloseoutOfficeUpdater: closeoutOfficeUpdater,
 		}
 
@@ -1081,14 +1081,14 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		req = suite.AuthenticateOfficeRequest(req, assignedUser)
 
 		handler := UpdateAssignedOfficeUserHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			MoveAssignedOfficeUserUpdater: assignedOfficeUserUpdater,
 			officeUserFetcherPop:          officeUserFetcher,
 		}
 		return req, handler, move, assignedUser
 	}
 
-	suite.Run("Successful update of a move's SC", func() {
+	suite.Run("Successful update of a move's counseling queue SC", func() {
 		req, handler, move, officeUser := setupTestData()
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
@@ -1109,7 +1109,30 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Equal(officeUserID, payload.SCAssignedUser.OfficeUserID)
+		suite.Equal(officeUserID, payload.SCCounselingAssignedUser.OfficeUserID)
+	})
+	suite.Run("Successful update of a move's closeout queue SC", func() {
+		req, handler, move, officeUser := setupTestData()
+
+		officeUserID := strfmt.UUID(officeUser.ID.String())
+		moveID := strfmt.UUID(move.ID.String())
+		queueType := string(models.QueueTypeCloseout)
+		params := moveops.UpdateAssignedOfficeUserParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.AssignOfficeUserBody{
+				OfficeUserID: &officeUserID,
+				QueueType:    &queueType,
+			},
+			MoveID: moveID,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateAssignedOfficeUserOK{}, response)
+		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(officeUserID, payload.SCCloseoutAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful update of a move's TOO", func() {
 		req, handler, move, officeUser := setupTestData()
@@ -1186,7 +1209,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		req = suite.AuthenticateOfficeRequest(req, assignedUser)
 
 		handler := DeleteAssignedOfficeUserHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
+			HandlerConfig:                 suite.NewHandlerConfig(),
 			MoveAssignedOfficeUserUpdater: assignedOfficeUserUpdater,
 		}
 
@@ -1218,7 +1241,7 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 	setupLockedMove := func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           validOfficeUser.User.Roles,
+			ActiveRole:      roles.Role{},
 			OfficeUserID:    validOfficeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -1244,7 +1267,7 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 		req := httptest.NewRequest("GET", "/moves/{officeUserID}/CheckForLockedMovesAndUnlock", nil)
 
 		handler := CheckForLockedMovesAndUnlockHandler{
-			HandlerConfig: suite.HandlerConfig(),
+			HandlerConfig: suite.NewHandlerConfig(),
 			MoveUnlocker:  movelocker.NewMoveUnlocker(),
 		}
 

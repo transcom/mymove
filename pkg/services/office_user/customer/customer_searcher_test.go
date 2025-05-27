@@ -15,7 +15,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
+			ActiveRole:      scUser.User.Roles[0],
 			OfficeUserID:    scUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -39,7 +39,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
+			ActiveRole:      scUser.User.Roles[0],
 			OfficeUserID:    scUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -65,7 +65,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
+			ActiveRole:      scUser.User.Roles[0],
 			OfficeUserID:    scUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -91,7 +91,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
+			ActiveRole:      scUser.User.Roles[0],
 			OfficeUserID:    scUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -118,7 +118,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
+			ActiveRole:      scUser.User.Roles[0],
 			OfficeUserID:    scUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -133,7 +133,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           officeUser.User.Roles,
+			ActiveRole:      officeUser.User.Roles[0],
 			OfficeUserID:    officeUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -184,7 +184,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           privilegedUserSC.User.Roles,
+			ActiveRole:      privilegedUserSC.User.Roles[0],
 			OfficeUserID:    privilegedUserSC.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
@@ -227,7 +227,7 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		hqUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
-			Roles:           hqUser.User.Roles,
+			ActiveRole:      hqUser.User.Roles[0],
 			OfficeUserID:    hqUser.ID,
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",

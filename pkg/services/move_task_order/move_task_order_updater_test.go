@@ -105,7 +105,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.SCAssignedUser,
+				Type:     &factory.OfficeUsers.SCCounselingAssignedUser,
 			},
 		}, nil)
 
@@ -113,7 +113,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(session, move.ID, eTag)
 		suite.NoError(err)
-		suite.Nil(actualMTO.SCAssignedID)
+		suite.Nil(actualMTO.SCCounselingAssignedID)
 	})
 	suite.Run("Move status is updated successfully (with HHG shipment)", func() {
 		session := suite.AppContextWithSessionForTest(&auth.Session{

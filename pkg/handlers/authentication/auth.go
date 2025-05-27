@@ -80,6 +80,12 @@ func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) fun
 
 			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
+			if session == nil {
+				// No auth session present
+				logger.Warn("No auth session found")
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
+			}
 
 			route, r, _ := api.Context().RouteInfo(r)
 			if route == nil {
@@ -104,14 +110,7 @@ func PermissionsMiddleware(appCtx appcontext.AppContext, api APIWithContext) fun
 			for _, v := range permissionsRequiredAsInterfaceArray {
 				permission := v.(string)
 				logger.Info("Permission required: ", zap.String("permission", permission))
-				access, err := checkUserPermission(appCtx, session, permission)
-
-				if err != nil {
-					logger.Error("Unexpected error looking up permissions", zap.String("permission error", err.Error()))
-					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-					return
-				}
-
+				access := checkUserPermission(*session, permission)
 				if !access {
 					logger.Warn("Permission denied", zap.String("permission", permission))
 					http.Error(w, http.StatusText(401), http.StatusUnauthorized)
@@ -444,7 +443,7 @@ func PrimeSimulatorAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
-			if session == nil || !session.Roles.HasRole(roles.RoleTypePrimeSimulator) {
+			if session == nil || !(session.ActiveRole.RoleType == roles.RoleTypePrimeSimulator) {
 				logger.Error("forbidden user for prime simulator")
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
@@ -657,6 +656,116 @@ func (h LogoutOktaRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 			fmt.Fprint(w, redirectURL)
 		}
 	}
+}
+
+type ActiveRoleUpdateHandler struct {
+	Context
+	handlers.HandlerConfig
+	services.RoleAssociater
+}
+
+func NewActiveRoleUpdateHandler(ac Context, hc handlers.HandlerConfig, rf services.RoleAssociater) ActiveRoleUpdateHandler {
+	handler := ActiveRoleUpdateHandler{
+		Context:        ac,
+		HandlerConfig:  hc,
+		RoleAssociater: rf,
+	}
+	return handler
+}
+
+func (h ActiveRoleUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	appCtx := h.AppContextFromRequest(r)
+
+	// Attempting to use a session manager with a faulty context will panic
+	defer func() {
+		if r := recover(); r != nil {
+			appCtx.Logger().Error("Panic: likely multiple session managers causing context conflict",
+				zap.Any("panic", r),
+				zap.String("userID", string(appCtx.Session().UserID.String())))
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+	}()
+
+	var body struct {
+		RoleType string `json:"roleType"`
+	}
+
+	if appCtx.Session() == nil {
+		appCtx.Logger().Error("request to update server session current role but context had no session to update",
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.RoleType == "" {
+		appCtx.Logger().Error("invalid roleType payload",
+			zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	requestedRole := roles.RoleType(body.RoleType)
+
+	userRoles, err := h.RoleAssociater.FetchRolesForUser(appCtx, appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("failed to fetch roles for user when updating server session current role",
+			zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	hasRole := false
+	userNewlyAssignedActiveRole := roles.Role{}
+	for _, r := range userRoles {
+		if r.RoleType == requestedRole {
+			hasRole = true
+			userNewlyAssignedActiveRole = r
+			break
+		}
+	}
+
+	if !hasRole {
+		appCtx.Logger().Warn("user attempted to switch to unauthorized role",
+			zap.String("requestedRole", string(requestedRole)),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	// We have the role, now fetch the permissions
+	newPermissions := GetPermissionsForRole(userNewlyAssignedActiveRole.RoleType)
+
+	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+	if sessionManager == nil {
+		appCtx.Logger().Error("Updating user current role in session, cannot get session manager from request",
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	// As we are going to change their privileges with this request, generate
+	// a new session token to prevent fixation attacks
+	ctx := r.Context()
+	err = sessionManager.RenewToken(ctx)
+	if err != nil {
+		appCtx.Logger().Error("Error renewing session token", zap.Error(err),
+			zap.String("userID", string(appCtx.Session().UserID.String())))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	// Set new active role in the session memory
+	appCtx.Session().ActiveRole = userNewlyAssignedActiveRole
+	appCtx.Session().Permissions = newPermissions
+
+	// Persist in the session store
+	sessionManager.Put(ctx, "session", appCtx.Session())
+
+	// 200
+	w.WriteHeader(http.StatusOK)
 }
 
 // loginStateCookieName is the name given to the cookie storing the encrypted okta.mil state nonce.
@@ -1079,8 +1188,18 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 			zap.String("user_id", appCtx.Session().UserID.String()))
 		return authorizationResultUnauthorized
 	}
-	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
-	appCtx.Session().Permissions = getPermissionsForUser(appCtx, userIdentity.ID)
+
+	defaultRole, err := userIdentity.Roles.Default()
+	if err != nil {
+		appCtx.Logger().Warn("Active user requesting authentication as a known user but could not find a default role, proceeding without a role",
+			zap.String("application_name", string(appCtx.Session().ApplicationName)),
+			zap.String("hostname", appCtx.Session().Hostname),
+			zap.String("user_id", appCtx.Session().UserID.String()))
+	} else {
+		appCtx.Session().ActiveRole = *defaultRole
+	}
+
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx)
 
 	appCtx.Session().UserID = userIdentity.ID
 	if appCtx.Session().IsMilApp() && userIdentity.ServiceMemberID != nil {
@@ -1343,8 +1462,14 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		appCtx.Session().AdminUserID = adminUser.ID
 	}
 
-	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
-	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
+	defaultRole, err := user.Roles.Default()
+	if err != nil {
+		// Customers will be created without a role
+		appCtx.Logger().Warn("Authenticating unknown user, cannot get default role from session manager, proceeding without a role")
+	} else {
+		appCtx.Session().ActiveRole = *defaultRole
+	}
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx)
 
 	if sessionManager == nil {
 		appCtx.Logger().Error("Authenticating user, cannot get session manager from request")

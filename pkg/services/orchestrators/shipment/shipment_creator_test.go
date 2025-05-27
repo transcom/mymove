@@ -229,7 +229,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				Roles:           roles.Roles{},
+				ActiveRole:      roles.Role{},
 			}
 
 			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), &tc.shipment)
@@ -259,7 +259,9 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			UserID:          *scOfficeUser.UserID,
 			IDToken:         "fake token",
 		}
-		session.Roles = append(session.Roles, identity.Roles...)
+		defaultRole, err := identity.Roles.Default()
+		suite.FatalNoError(err)
+		session.ActiveRole = *defaultRole
 		appCtx := suite.AppContextWithSessionForTest(session)
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
@@ -301,7 +303,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				ApplicationName: auth.OfficeApp,
 				UserID:          user.ID,
 				IDToken:         "fake token",
-				Roles:           roles.Roles{},
+				ActiveRole:      roles.Role{},
 			}
 
 			appCtx := suite.AppContextWithSessionForTest(session)
@@ -365,7 +367,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 
 		mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(suite.AppContextWithSessionForTest(session), shipment)
@@ -430,7 +432,9 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 				UserID:          *scOfficeUser.UserID,
 				IDToken:         "fake token",
 			}
-			session.Roles = append(session.Roles, identity.Roles...)
+			defaultRole, err := identity.Roles.Default()
+			suite.FatalNoError(err)
+			session.ActiveRole = *defaultRole
 			appCtx := suite.AppContextWithSessionForTest(session)
 
 			mtoShipment, err := subtestData.shipmentCreatorOrchestrator.CreateShipment(appCtx, &shipment)
