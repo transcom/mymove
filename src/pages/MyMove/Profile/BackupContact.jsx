@@ -43,8 +43,11 @@ export const BackupContact = ({ serviceMember, currentBackupContacts, updateServ
   };
 
   const handleSubmit = (values) => {
+    const valueFirstName = (values?.firstName || '').trim();
+    const valueLastName = (values?.lastName || '').trim();
+
     const payload = {
-      name: `${values?.firstName || ''} ${values?.lastName || ''}`,
+      name: `${valueFirstName} ${valueLastName}`.trim(),
       email: values?.email || '',
       telephone: values?.telephone || '',
       permission: values.permission === undefined ? NonePermission : values.permission,

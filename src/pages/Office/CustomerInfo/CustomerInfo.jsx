@@ -65,9 +65,9 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       secondaryPhone,
     } = values;
 
-    const backupFirstName = values[backupContactName.toString()]?.firstName || '';
-    const backupLastName = values[backupContactName.toString()]?.lastName || '';
-    const backupFullName = `${backupFirstName} ${backupLastName}`;
+    const backupFirstName = (values[backupContactName.toString()]?.firstName || '').trim();
+    const backupLastName = (values[backupContactName.toString()]?.lastName || '').trim();
+    const backupFullName = `${backupFirstName} ${backupLastName}`.trim();
 
     const body = {
       first_name: firstName,
@@ -91,7 +91,11 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     mutateCustomerInfo({ customerId: customer.id, ifMatchETag: customer.eTag, body });
   };
 
-  const [backupContactFirstName, backupContactLastName] = customer.backup_contact.name.split(/ (.+)/).filter(Boolean);
+  const initialBackupContactFullName = (customer.backup_contact.name || '').trim();
+  const [initialBackupContactFirstName = '', initialBackupContactLastName = ''] = initialBackupContactFullName
+    .split(/ (.+)/)
+    .map((part) => part?.trim())
+    .filter(Boolean);
 
   const initialValues = {
     firstName: customer.first_name,
@@ -110,8 +114,8 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     phoneIsPreferred: customer.phoneIsPreferred,
     cacUser: formatTrueFalseInputValue(customer?.cacValidated),
     [backupContactName]: {
-      firstName: backupContactFirstName,
-      lastName: backupContactLastName,
+      firstName: initialBackupContactFirstName,
+      lastName: initialBackupContactLastName,
       telephone: customer.backup_contact.phone,
       email: customer.backup_contact.email,
     },

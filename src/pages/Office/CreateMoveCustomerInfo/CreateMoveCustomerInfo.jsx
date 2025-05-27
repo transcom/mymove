@@ -63,9 +63,9 @@ const CreateMoveCustomerInfo = () => {
       secondaryPhone,
     } = values;
 
-    const backupFirstName = values[backupContactName.toString()]?.firstName || '';
-    const backupLastName = values[backupContactName.toString()]?.lastName || '';
-    const backupFullName = `${backupFirstName} ${backupLastName}`;
+    const backupFirstName = (values[backupContactName.toString()]?.firstName || '').trim();
+    const backupLastName = (values[backupContactName.toString()]?.lastName || '').trim();
+    const backupFullName = `${backupFirstName} ${backupLastName}`.trim();
 
     const body = {
       first_name: firstName,
@@ -89,8 +89,11 @@ const CreateMoveCustomerInfo = () => {
     mutateCustomerInfo({ customerId: customerData.id, ifMatchETag: customerData.eTag, body });
   };
 
-  const backupContactFullName = customerData?.backup_contact?.name || '';
-  const [backupContactFirstName, backupContactLastName] = backupContactFullName.split(/ (.+)/).filter(Boolean);
+  const backupContactFullName = (customerData?.backup_contact?.name || '').trim();
+  const [backupContactFirstName = '', backupContactLastName = ''] = backupContactFullName
+    .split(/ (.+)/)
+    .map((part) => part?.trim())
+    .filter(Boolean);
 
   const initialValues = {
     firstName: customerData?.first_name || '',
