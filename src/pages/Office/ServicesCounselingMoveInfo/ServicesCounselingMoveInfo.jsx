@@ -38,6 +38,7 @@ const PPMReview = lazy(() => import('pages/Office/PPM/Closeout/Review/Review'));
 const PPMExpenses = lazy(() => import('pages/Office/PPM/Closeout/Expenses/Expenses'));
 const WeightTickets = lazy(() => import('pages/Office/PPM/Closeout/WeightTickets/WeightTickets'));
 const ProGear = lazy(() => import('pages/Office/PPM/Closeout/ProGear/ProGear'));
+const GunSafe = lazy(() => import('pages/Office/PPM/Closeout/GunSafe/GunSafe'));
 const PPMFinalCloseout = lazy(() => import('pages/Office/PPM/Closeout/FinalCloseout/FinalCloseout'));
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
@@ -281,6 +282,8 @@ const ServicesCounselingMoveInfo = () => {
           />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} end element={<ProGear />} />
           <Route path={servicesCounselingRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} end element={<ProGear />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_PATH} end element={<GunSafe />} />
+          <Route path={servicesCounselingRoutes.SHIPMENT_PPM_GUN_SAFE_EDIT_PATH} end element={<GunSafe />} />
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
