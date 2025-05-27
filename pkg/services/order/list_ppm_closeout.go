@@ -73,13 +73,16 @@ func (f orderFetcher) ListPPMCloseoutOrders(
 		return nil, 0, err
 	}
 
-	page := 1
+	// Leave as nil pointers to rely on proc default
+	var page *int
 	if params.Page != nil {
-		page = int(*params.Page)
+		paramPagePtr := int(*params.Page)
+		page = &paramPagePtr
 	}
-	perPage := 20
+	var perPage *int
 	if params.PerPage != nil {
-		perPage = int(*params.PerPage)
+		paramPerPagePtr := int(*params.PerPage)
+		perPage = &paramPerPagePtr
 	}
 
 	const q = `
