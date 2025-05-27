@@ -1072,7 +1072,10 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 
 		var pickupLocation *models.Address
 		var deliveryLocation *models.Address
-		weight := shipment.PrimeEstimatedWeight
+		var weight *int
+		if shipment.PrimeEstimatedWeight != nil {
+			weight = models.IntPointer(shipment.PrimeEstimatedWeight.Int())
+		}
 
 		switch shipment.ShipmentType {
 		case models.MTOShipmentTypeHHGIntoNTS:
@@ -1096,12 +1099,14 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			}
 			pickupLocation = &shipment.StorageFacility.Address
 			deliveryLocation = shipment.DestinationAddress
-			weight = shipment.NTSRecordedWeight
+			if shipment.NTSRecordedWeight != nil {
+				weight = models.IntPointer(shipment.NTSRecordedWeight.Int())
+			}
 		default:
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = shipment.DestinationAddress
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int(), shipment.MoveTaskOrderID, shipment.ShipmentType)
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight, shipment.MoveTaskOrderID, shipment.ShipmentType)
 		if calcErr != nil {
 			return calcErr
 		}
@@ -1250,7 +1255,7 @@ func CalculateUnaccompaniedBaggageRequiredDeliveryDate(appCtx appcontext.AppCont
 // on the ghc_domestic_transit_times table and adds the max_days_transit_time to the pickup date required delivery date. For shipments with with an
 // OCONUS address additional days from re_intl_transit_times are added. For UB and shipments with two OCONUS addresses the value from re_intl_transit_times
 // is added directly to the pick up date.
-func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int, moveID uuid.UUID, shipmentType models.MTOShipmentType) (*time.Time, error) {
+func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight *int, moveID uuid.UUID, shipmentType models.MTOShipmentType) (*time.Time, error) {
 	var requiredDeliveryDate time.Time
 
 	if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
@@ -1268,7 +1273,12 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	}
 
 	// If either address is CONUS get the domestic transit time based on weight and distance
-	if !destinationIsAlaska || !pickupIsAlaska {
+	if !destinationIsAlaska || !pickupIsAlaska && shipmentType != models.MTOShipmentTypeUnaccompaniedBaggage {
+		if weight == nil {
+			return nil, fmt.Errorf("unable to calculate domestic transit time due to missing weight for move ID: %s", moveID)
+		}
+
+		// p := *planner
 		distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode)
 		if err != nil {
 			return nil, err
@@ -1279,7 +1289,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			"AND distance_miles_upper >= ? "+
 			"AND weight_lbs_lower <= ? "+
 			"AND (weight_lbs_upper >= ? OR weight_lbs_upper = 0)",
-			distance, distance, weight, weight).First(&ghcDomesticTransitTime)
+			distance, distance, &weight, &weight).First(&ghcDomesticTransitTime)
 
 		if err != nil {
 			return nil, errors.Errorf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight, distance)
