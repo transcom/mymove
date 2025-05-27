@@ -1049,6 +1049,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		if _, err = o.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
+		if _, err = o.moveRouter.UpdateShipmentStatusToApprovalsRequested(txnAppCtx, mtoShipment); err != nil {
+			return err
+		}
 
 		return nil
 	})

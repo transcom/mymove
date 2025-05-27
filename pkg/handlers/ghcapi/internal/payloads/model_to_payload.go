@@ -121,7 +121,8 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:                             OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                                  handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:                            additionalDocumentsPayload,
-		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
+		SCCounselingAssignedUser:                       AssignedOfficeUser(move.SCCounselingAssignedUser),
+		SCCloseoutAssignedUser:                         AssignedOfficeUser(move.SCCloseoutAssignedUser),
 		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
 		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 		CounselingOfficeID:                             handlers.FmtUUIDPtr(move.CounselingOfficeID),
@@ -718,6 +719,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 			totalWeight = int64(weightAllotment.TotalWeightSelf)
 		}
 	}
+
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
 		aw := int64(*entitlement.AuthorizedWeight())
@@ -2245,6 +2247,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 	return status == models.MTOShipmentStatusSubmitted ||
 		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusApprovalsRequested ||
 		status == models.MTOShipmentStatusDiversionRequested ||
 		status == models.MTOShipmentStatusCancellationRequested ||
 		status == models.MTOShipmentStatusTerminatedForCause
@@ -2288,7 +2291,7 @@ func BulkAssignmentData(appCtx appcontext.AppContext, moves []models.MoveWithEar
 	return *bulkAssignmentData
 }
 
-func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, officeUser models.OfficeUser, ppmCloseoutGblocs bool, activeRole string) bool {
+func queueMoveIsAssignable(move models.Move, assignedToUser *models.OfficeUser, isCloseoutQueue bool, officeUser models.OfficeUser, ppmCloseoutGblocs bool, activeRole string) bool {
 	// default to false
 	isAssignable := false
 
@@ -2299,7 +2302,7 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 	}
 
 	// if its unassigned its assignable in all cases
-	if assignedToUser == nil {
+	if assignedToUser == nil || assignedToUser.ID == uuid.Nil {
 		isAssignable = true
 	}
 
@@ -2331,12 +2334,6 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 }
 
 func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []models.OfficeUser, officeUser models.OfficeUser, ppmCloseoutGblocs bool, isCloseoutQueue bool) []models.OfficeUser {
-	// if the office user currently assigned to the move works outside of the logged in users counseling office
-	// add them to the set
-	if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-		officeUsers = append(officeUsers, *move.SCAssignedUser)
-	}
-
 	var onlySelfAssign bool
 
 	// if there is no counseling office
@@ -2357,21 +2354,6 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 	}
 
 	return officeUsers
-}
-
-func getAssignedUserAndID(activeRole string, queueType string, move models.Move) (*models.OfficeUser, *uuid.UUID) {
-	switch activeRole {
-	case string(roles.RoleTypeTOO):
-		switch queueType {
-		case string(models.QueueTypeTaskOrder):
-			return move.TOOAssignedUser, move.TOOAssignedID
-		case string(models.QueueTypeDestinationRequest):
-			return move.TOODestinationAssignedUser, move.TOODestinationAssignedID
-		}
-	case string(roles.RoleTypeServicesCounselor):
-		return move.SCAssignedUser, move.SCAssignedID
-	}
-	return nil, nil
 }
 
 func attachApprovalRequestTypes(move models.Move) []string {
@@ -2505,15 +2487,18 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		// queue assignment logic below
 
 		// determine if there is an assigned user
-		var assignedToUser *ghcmessages.AssignedOfficeUser
-		if (activeRole == string(roles.RoleTypeServicesCounselor) || activeRole == string(roles.RoleTypeHQ)) && move.SCAssignedUser != nil {
-			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
+		var assignedToUser *models.OfficeUser
+		if queueType == string(models.QueueTypeCounseling) && move.SCCounselingAssignedUser != nil {
+			assignedToUser = move.SCCounselingAssignedUser
 		}
-		if ((activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeTaskOrder)) || activeRole == string(roles.RoleTypeHQ)) && move.TOOAssignedUser != nil {
-			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
+		if queueType == string(models.QueueTypeCloseout) && move.SCCloseoutAssignedUser != nil {
+			assignedToUser = move.SCCloseoutAssignedUser
 		}
-		if activeRole == string(roles.RoleTypeTOO) && queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
-			assignedToUser = AssignedOfficeUser(move.TOODestinationAssignedUser)
+		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
+			assignedToUser = move.TOOAssignedUser
+		}
+		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
+			assignedToUser = move.TOODestinationAssignedUser
 		}
 		// these branches have their own closeout specific offices
 		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
@@ -2533,20 +2518,16 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 				availableOfficeUsers = officeUsersSafety
 			}
 
-			// Determine the assigned user and ID based on active role and queue type
-			assignedUser, assignedID := getAssignedUserAndID(activeRole, queueType, move)
-			// Ensure assignedUser and assignedID are not nil before proceeding
-			if assignedUser != nil && assignedID != nil {
-
+			if assignedToUser != nil && assignedToUser.ID != uuid.Nil {
 				userFound := false
 				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == *assignedID {
+					if officeUser.ID == assignedToUser.ID {
 						userFound = true
 						break
 					}
 				}
 				if !userFound {
-					availableOfficeUsers = append(availableOfficeUsers, *assignedUser)
+					availableOfficeUsers = append(availableOfficeUsers, *assignedToUser)
 				}
 			}
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
@@ -2587,7 +2568,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
 			CounselingOfficeID:      handlers.FmtUUID(transportationOfficeId),
-			AssignedTo:              assignedToUser,
+			AssignedTo:              AssignedOfficeUser(assignedToUser),
 			Assignable:              assignable,
 			AvailableOfficeUsers:    apiAvailableOfficeUsers,
 			ApprovalRequestTypes:    approvalRequestTypes,
