@@ -1,4 +1,4 @@
--- B-23581 Paul Stonebraker add sc_closeout_assigned_id columm, rename sc_assigned_id to sc_counseling_assigned_id
+-- B-23698 Paul Stonebraker add sc_closeout_assigned_id columm, sc_counseling_assigned_id column, too_task_order_assigned_id column, tio_payment_requests_assigned_id
 ALTER TABLE moves
     ADD COLUMN IF NOT EXISTS too_destination_assigned_id uuid
         CONSTRAINT moves_too_destination_assigned_id_fkey
