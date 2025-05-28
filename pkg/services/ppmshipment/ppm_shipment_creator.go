@@ -148,7 +148,7 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		var mtoShipment models.MTOShipment
-		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
+		if err := txnAppCtx.DB().EagerPreload("MoveTaskOrder").Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
 			return err
 		}
 
@@ -164,6 +164,20 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 				return err
 			}
 			ppmShipment.Shipment = mtoShipment
+		}
+
+		moveStatus := mtoShipment.MoveTaskOrder.Status
+		switch moveStatus {
+		case models.MoveStatusDRAFT:
+			ppmShipment.Status = models.PPMShipmentStatusDraft
+		case models.MoveStatusNeedsServiceCounseling:
+			ppmShipment.Status = models.PPMShipmentStatusSubmitted
+		case models.MoveStatusSUBMITTED,
+			models.MoveStatusAPPROVALSREQUESTED,
+			models.MoveStatusServiceCounselingCompleted:
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
+		default:
+			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 		}
 
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
@@ -189,7 +203,6 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 
 		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 			mtoShipment.Status = models.MTOShipmentStatusApproved
-			ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 			now := time.Now()
 			ppmShipment.ApprovedAt = &now
 		}
