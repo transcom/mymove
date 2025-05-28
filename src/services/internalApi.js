@@ -572,6 +572,10 @@ export async function searchLocationByZipCityState(search) {
   return makeInternalRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
 }
 
+export async function searchCountry(search) {
+  return makeInternalRequest('addresses.searchCountries', { search }, { normalize: false });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeInternalRequestRaw(
     'calendar.isDateWeekendHoliday',

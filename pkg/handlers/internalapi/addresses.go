@@ -26,6 +26,7 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(rawAddress.UsPostRegionCitiesID.String())
+	countryID := uuid.FromStringOrNil(rawAddress.Country.ID.String())
 
 	return &models.Address{
 		StreetAddress1:     *rawAddress.StreetAddress1,
@@ -36,6 +37,7 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 		PostalCode:         *rawAddress.PostalCode,
 		County:             rawAddress.County,
 		UsPostRegionCityID: &usPostRegionCitiesID,
+		CountryId:          &countryID,
 	}
 }
 
@@ -48,6 +50,8 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	a.PostalCode = *payload.PostalCode
 	usPostRegionCitiesID := uuid.FromStringOrNil(payload.UsPostRegionCitiesID.String())
 	a.UsPostRegionCityID = &usPostRegionCitiesID
+	countryID := uuid.FromStringOrNil(payload.Country.ID.String())
+	a.CountryId = &countryID
 	if payload.County == nil {
 		a.County = nil
 	} else {
@@ -126,5 +130,31 @@ func (h GetLocationByZipCityStateHandler) Handle(params addressop.GetLocationByZ
 
 			returnPayload := payloads.VLocations(*locationList)
 			return addressop.NewGetLocationByZipCityStateOK().WithPayload(returnPayload), nil
+		})
+}
+
+// SearchCountriesHandler returns a list of countries
+type SearchCountriesHandler struct {
+	handlers.HandlerConfig
+	services.CountrySearcher
+}
+
+// Handle returns a list of locations based on the search query
+func (h SearchCountriesHandler) Handle(params addressop.SearchCountriesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return addressop.NewSearchCountriesForbidden(), noServiceMemberIDErr
+			}
+
+			countries, err := h.CountrySearcher.SearchCountries(appCtx, params.Search)
+			if err != nil {
+				appCtx.Logger().Error("Error searching for countries: ", zap.Error(err))
+				return addressop.NewSearchCountriesInternalServerError(), err
+			}
+
+			returnPayload := payloads.Countries(countries)
+			return addressop.NewSearchCountriesOK().WithPayload(returnPayload), nil
 		})
 }

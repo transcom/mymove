@@ -1698,12 +1698,14 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.NotNil(sitStatus)
 
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		country := &primemessages.Country{Code: "US"}
+
 		addr := primemessages.Address{
 			StreetAddress1: &destinationAddress.StreetAddress1,
 			City:           &destinationAddress.City,
 			State:          &destinationAddress.State,
 			PostalCode:     &destinationAddress.PostalCode,
-			Country:        models.StringPointer("US"),
+			Country:        country,
 		}
 
 		milTime := "1400Z"

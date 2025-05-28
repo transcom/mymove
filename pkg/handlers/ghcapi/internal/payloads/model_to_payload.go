@@ -800,11 +800,19 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 }
 
 // Country payload
-func Country(country *models.Country) *string {
+func Country(country *models.Country) *ghcmessages.Country {
 	if country == nil {
 		return nil
 	}
-	return &country.Country
+	if *country == (models.Country{}) {
+		return nil
+	}
+	payloadCountry := &ghcmessages.Country{
+		ID:   strfmt.UUID(country.ID.String()),
+		Code: country.Country,
+		Name: country.CountryName,
+	}
+	return payloadCountry
 }
 
 // Address payload
@@ -829,6 +837,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 
 	if address.UsPostRegionCityID != nil {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	if address.Country.ID != uuid.Nil {
+		payloadAddress.CountryID = strfmt.UUID(address.Country.ID.String())
 	}
 
 	return payloadAddress
@@ -2949,4 +2961,25 @@ func Port(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.
 		}
 	}
 	return nil
+}
+
+func CountryCodeName(country *models.Country) *ghcmessages.Country {
+	if country == nil || *country == (models.Country{}) {
+		return nil
+	}
+
+	return &ghcmessages.Country{
+		Code: country.Country,
+		Name: country.CountryName,
+		ID:   *handlers.FmtUUID(country.ID),
+	}
+}
+
+func Countries(countries models.Countries) ghcmessages.Countries {
+	payload := make(ghcmessages.Countries, len(countries))
+	for i, country := range countries {
+		copyOfCountry := country
+		payload[i] = CountryCodeName(&copyOfCountry)
+	}
+	return payload
 }

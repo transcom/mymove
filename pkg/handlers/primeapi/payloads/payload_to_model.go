@@ -55,7 +55,11 @@ func AddressModel(address *primemessages.Address) *models.Address {
 		modelAddress.PostalCode = *address.PostalCode
 	}
 	if address.Country != nil {
-		modelAddress.Country = CountryModel(address.Country)
+		modelAddress.Country = CountryModel(&address.Country.Name)
+	}
+	countryId := uuid.FromStringOrNil(address.Country.ID.String())
+	if countryId != uuid.Nil {
+		modelAddress.CountryId = &countryId
 	}
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 	if usPostRegionCitiesID != uuid.Nil {

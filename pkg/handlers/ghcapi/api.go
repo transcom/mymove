@@ -137,6 +137,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	assignedOfficeUserUpdater := move.NewAssignedOfficeUserUpdater(move.NewMoveFetcher())
 	vLocation := address.NewVLocation()
+	countrySearcher := address.NewCountrySearcher()
 
 	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
@@ -842,6 +843,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.ReServiceItemsGetAllReServiceItemsHandler = GetReServiceItemsHandler{
 		handlerConfig,
 		serviceItemFetcher,
+	}
+
+	ghcAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
+		handlerConfig,
+		countrySearcher,
 	}
 
 	ppmShipmentNewSubmitter := ppmshipment.NewPPMShipmentNewSubmitter(ppmShipmentFetcher, signedCertificationCreator, ppmShipmentRouter)

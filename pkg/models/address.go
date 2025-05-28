@@ -58,8 +58,14 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 			// This is an unknown error from the db
 			zap.L().Error("DB Insertion error", zap.Error(err))
 		}
-	} else {
-		response = &address
+	} else if address.CountryId != nil {
+		country, err := FetchCountryByID(dbConnection, *address.CountryId)
+		if err != nil {
+			zap.L().Error("Error getting country", zap.Error(err))
+		} else {
+			address.Country = &country
+			response = &address
+		}
 	}
 	return response
 }

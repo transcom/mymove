@@ -1,8 +1,6 @@
 package address
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -50,27 +48,25 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 	}
 
 	// until international moves are supported, we will default the country for created addresses to "US"
-	if mergedAddress.Country != nil && mergedAddress.Country.Country != "US" {
-		return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", mergedAddress.Country.Country)
-	}
+	// if mergedAddress.Country != nil && mergedAddress.Country.Country != "US" {
+	// 	return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", mergedAddress.Country.Country)
+	// }
 	// first we will check to see if the country values have changed at all
-	// until international moves are supported, we will default the country for created addresses to "US"
-	if mergedAddress.Country != nil && mergedAddress.Country.Country != "" && mergedAddress.Country != originalAddress.Country {
-		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+	if mergedAddress.CountryId != nil {
+		country, err := models.FetchCountryByID(appCtx.DB(), *mergedAddress.CountryId)
 		if err != nil {
 			return nil, err
 		}
 		mergedAddress.Country = &country
-		mergedAddress.CountryId = &country.ID
-	} else if mergedAddress.Country == nil {
+	} else {
 		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
 		if err != nil {
 			return nil, err
 		}
+
 		mergedAddress.Country = &country
 		mergedAddress.CountryId = &country.ID
 	}
-
 	// Evaluate address and populate addresses isOconus value
 	isOconus, err := models.IsAddressOconus(appCtx.DB(), mergedAddress)
 	if err != nil {
@@ -113,6 +109,9 @@ func mergeAddress(address, originalAddress models.Address) models.Address {
 	}
 	if address.UsPostRegionCityID != nil {
 		mergedAddress.UsPostRegionCityID = address.UsPostRegionCityID
+	}
+	if address.CountryId != nil {
+		mergedAddress.CountryId = address.CountryId
 	}
 
 	mergedAddress.StreetAddress2 = services.SetOptionalStringField(address.StreetAddress2, mergedAddress.StreetAddress2)
