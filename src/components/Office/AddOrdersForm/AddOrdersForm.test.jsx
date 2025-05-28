@@ -114,18 +114,21 @@ jest.mock('services/ghcApi', () => ({
     }),
   ),
   getPayGradeOptions: jest.fn().mockImplementation(() => {
-    const E_5 = 'E-5';
-    const E_6 = 'E-6';
+    const MOCKED__ORDERS_PAY_GRADE_TYPE = {
+      E_5: 'E-5',
+      E_6: 'E-6',
+      CIVILIAN_EMPLOYEE: 'CIVILIAN_EMPLOYEE',
+    };
 
     return Promise.resolve({
       body: [
         {
-          grade: E_5,
-          description: E_5,
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_5,
         },
         {
-          grade: E_6,
-          description: E_6,
+          grade: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
+          description: MOCKED__ORDERS_PAY_GRADE_TYPE.E_6,
         },
       ],
     });
