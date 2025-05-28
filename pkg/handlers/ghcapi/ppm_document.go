@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -18,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 // GetPPMDocumentsHandler is the handler that fetches all of the documents for a PPM shipment for the office api
@@ -204,9 +204,10 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 					WithPayload(errPayload), err
 			}
 
-			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
+			filenameWithTimestamp := utils.AppendTimestampToFilename("AOA.pdf")
+			filenameDisposition := fmt.Sprintf("inline; filename=\"%s\"", filenameWithTimestamp)
 
-			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filenameDisposition).WithPayload(payload), nil
 		})
 }
 
@@ -255,8 +256,9 @@ func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacket
 					WithPayload(errPayload), err
 			}
 
-			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+			filenameWithTimestamp := utils.AppendTimestampToFilename("ppm_payment_packet.pdf")
+			filenameDisposition := fmt.Sprintf("inline; filename=\"%s\"", filenameWithTimestamp)
 
-			return ppmdocumentops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+			return ppmdocumentops.NewShowPaymentPacketOK().WithContentDisposition(filenameDisposition).WithPayload(payload), nil
 		})
 }
