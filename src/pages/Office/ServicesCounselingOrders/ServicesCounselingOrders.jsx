@@ -332,7 +332,12 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
 
   return (
     <div className={styles.sidebar}>
-      <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={ordersFormValidationSchema}
+        onSubmit={onSubmit}
+        validateOnChange
+      >
         {(formik) => {
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
