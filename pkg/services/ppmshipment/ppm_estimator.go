@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
@@ -486,6 +487,24 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
+	var dateForMultiplier time.Time
+	var nilTime time.Time
+	if ppmShipment.ActualMoveDate != nil {
+		dateForMultiplier = *ppmShipment.ActualMoveDate
+	} else if ppmShipment.ExpectedDepartureDate != nilTime {
+		dateForMultiplier = ppmShipment.ExpectedDepartureDate
+	} else {
+		return nil, apperror.NewNotFoundError(ppmShipment.ID, " No expected departure date or actual move date on PPM shipment")
+	}
+
+	var gccMultiplier models.GCCMultiplier
+	err = appCtx.DB().Q().
+		Where("$1 between start_date and end_date", dateForMultiplier).
+		First(&gccMultiplier)
+	if err != nil && err != sql.ErrNoRows {
+		logger.Error("error getting GCC multiplier")
+		return nil, err
+	}
 
 	// if we are getting the max incentive, we want to use the addresses on the orders, else use what's on the shipment
 	if isMaxIncentiveCheck {
@@ -608,6 +627,11 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		}
 
 		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
+		if gccMultiplier.ID != uuid.Nil {
+			multiplier := gccMultiplier.Multiplier
+			multipliedPrice := float64(centsValue) * multiplier
+			totalPrice = unit.Cents(int(multipliedPrice))
+		}
 		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
 		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
 
