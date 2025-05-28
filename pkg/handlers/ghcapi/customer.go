@@ -34,6 +34,7 @@ func addressModelFromPayload(rawAddress *ghcmessages.Address) *models.Address {
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(rawAddress.UsPostRegionCitiesID.String())
+	countryID := uuid.FromStringOrNil(rawAddress.Country.ID.String())
 
 	return &models.Address{
 		StreetAddress1:     *rawAddress.StreetAddress1,
@@ -43,6 +44,7 @@ func addressModelFromPayload(rawAddress *ghcmessages.Address) *models.Address {
 		State:              *rawAddress.State,
 		PostalCode:         *rawAddress.PostalCode,
 		UsPostRegionCityID: &usPostRegionCitiesID,
+		CountryId:          &countryID,
 	}
 }
 

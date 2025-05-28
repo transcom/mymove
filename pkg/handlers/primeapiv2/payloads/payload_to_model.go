@@ -57,7 +57,7 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(&address.Country.Name)
 	}
-	countryId := uuid.FromStringOrNil(address.CountryID.String())
+	countryId := uuid.FromStringOrNil(address.Country.ID.String())
 	if countryId != uuid.Nil {
 		modelAddress.CountryId = &countryId
 	}

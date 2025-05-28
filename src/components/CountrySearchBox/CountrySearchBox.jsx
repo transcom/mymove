@@ -97,8 +97,8 @@ export const CountrySearchBoxComponent = ({
   const { value, onChange, countryState, name: inputName } = input;
 
   const countryInfo =
-    !!value && value.countryName !== '' && value.countryCode !== ''
-      ? `${value.countryName} (${value.countryCode})`
+    !!value && !!value.country && value.country.name !== '' && value.country.code !== ''
+      ? `${value.country.name} (${value.country.code})`
       : '';
   const [inputValue, setInputValue] = useState(countryInfo !== '' ? countryInfo : null);
   const [currentValue, setCurrentValue] = useState(countryInfo !== '' ? countryInfo : null);

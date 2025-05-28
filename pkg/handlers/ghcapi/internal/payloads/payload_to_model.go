@@ -93,7 +93,7 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
-	countryId := uuid.FromStringOrNil(address.CountryID.String())
+	countryId := uuid.FromStringOrNil(address.Country.ID.String())
 
 	modelAddress := &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
@@ -128,12 +128,14 @@ func PPMDestinationAddressModel(address *ghcmessages.PPMDestinationAddress) *mod
 		return nil
 	}
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	countryID := uuid.FromStringOrNil(address.Country.ID.String())
 
 	modelAddress := &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2:     address.StreetAddress2,
 		StreetAddress3:     address.StreetAddress3,
 		UsPostRegionCityID: &usPostRegionCitiesID,
+		CountryId:          &countryID,
 	}
 
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {

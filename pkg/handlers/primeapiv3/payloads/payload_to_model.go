@@ -58,7 +58,7 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(&address.Country.Name)
 	}
-	countryId := uuid.FromStringOrNil(address.CountryID.String())
+	countryId := uuid.FromStringOrNil(address.Country.ID.String())
 	if countryId != uuid.Nil {
 		modelAddress.CountryId = &countryId
 	}
@@ -100,8 +100,9 @@ func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) 
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
 	}
-	if address.Country != nil {
-		modelAddress.Country = CountryModel(&address.Country.Name)
+	countryID := uuid.FromStringOrNil(address.Country.ID.String())
+	if countryID != uuid.Nil {
+		modelAddress.CountryId = &countryID
 	}
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 	if usPostRegionCitiesID != uuid.Nil {

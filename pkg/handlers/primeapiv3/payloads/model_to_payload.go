@@ -305,8 +305,8 @@ func Address(address *models.Address) *primev3messages.Address {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
 	}
 
-	if address.CountryId != nil {
-		payloadAddress.CountryID = strfmt.UUID(address.CountryId.String())
+	if address.Country.ID != uuid.Nil {
+		payloadAddress.CountryID = strfmt.UUID(address.Country.ID.String())
 	}
 
 	return payloadAddress
@@ -328,6 +328,14 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		County:         address.County,
+	}
+
+	if address.UsPostRegionCityID != nil && address.UsPostRegionCityID != &uuid.Nil {
+		payload.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	if address.Country.ID != uuid.Nil {
+		payload.Country.ID = strfmt.UUID(address.Country.ID.String())
 	}
 	// Street address 1 is optional per business rule but not nullable on the database level.
 	// Check if streetAddress 1 is using place holder value to represent 'NULL'.

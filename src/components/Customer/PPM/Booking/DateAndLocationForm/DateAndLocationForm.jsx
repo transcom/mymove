@@ -77,16 +77,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
 
   if (mtoShipment?.ppmShipment?.pickupAddress) {
     initialValues.pickupAddress = { address: { ...mtoShipment.ppmShipment.pickupAddress } };
-
-    if (initialValues.pickupAddress.address?.country) {
-      initialValues.pickupAddress.address.countryCode = initialValues.pickupAddress.address.country.code;
-      initialValues.pickupAddress.address.countryName = initialValues.pickupAddress.address.country.name;
-      initialValues.pickupAddress.address.countryID = initialValues.pickupAddress.address.country.id;
-    } else {
-      initialValues.pickupAddress.address.countryCode = '';
-      initialValues.pickupAddress.address.countryName = '';
-      initialValues.pickupAddress.address.countryID = '';
-    }
   }
 
   if (mtoShipment?.ppmShipment?.secondaryPickupAddress) {
