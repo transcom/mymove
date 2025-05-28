@@ -92,6 +92,9 @@ export const AddressFields = ({
     setFieldValue(`${name}.country.id`, countryID).then(() => {
       setFieldTouched(`${name}.country.id`, false);
     });
+    setFieldValue(`${name}.countryID`, countryID).then(() => {
+      setFieldTouched(`${name}.countryID`, false);
+    });
     setFieldValue(`${name}.country.code`, countryCode).then(() => {
       setFieldTouched(`${name}.country.code`, false);
     });
