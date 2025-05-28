@@ -208,6 +208,15 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 		}
 	}
 
+	if serviceMember.BackupMailingAddress != nil && serviceMember.BackupMailingAddress.CountryId != nil {
+		country, err := FetchCountryByID(db, *serviceMember.BackupMailingAddress.CountryId)
+		if err != nil {
+			return ServiceMember{}, err
+		}
+
+		serviceMember.BackupMailingAddress.Country = &country
+	}
+
 	return serviceMember, nil
 }
 
@@ -225,7 +234,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 		return ServiceMember{}, err
 	}
 
-	if serviceMember.ResidentialAddress.CountryId != nil {
+	if serviceMember.ResidentialAddress != nil && serviceMember.ResidentialAddress.CountryId != nil {
 		country, err := FetchCountryByID(db, *serviceMember.ResidentialAddress.CountryId)
 		if err != nil {
 			return ServiceMember{}, err
@@ -241,6 +250,15 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 	} else {
 		boolFalseVal := false
 		serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+	}
+
+	if serviceMember.BackupMailingAddress != nil && serviceMember.BackupMailingAddress.CountryId != nil {
+		country, err := FetchCountryByID(db, *serviceMember.BackupMailingAddress.CountryId)
+		if err != nil {
+			return ServiceMember{}, err
+		}
+
+		serviceMember.BackupMailingAddress.Country = &country
 	}
 
 	return serviceMember, nil
