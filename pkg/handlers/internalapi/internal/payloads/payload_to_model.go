@@ -24,12 +24,17 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
-	countryId := uuid.FromStringOrNil(address.Country.ID.String())
 
-	countryModel := &models.Country{
-		ID:          uuid.FromStringOrNil(address.Country.ID.String()),
-		CountryName: address.Country.Name,
-		Country:     address.Country.Code,
+	var countryModel *models.Country
+	countryId := uuid.Nil
+
+	if address.Country != nil {
+		countryId = uuid.FromStringOrNil(address.Country.ID.String())
+		countryModel = &models.Country{
+			ID:          countryId,
+			CountryName: address.Country.Name,
+			Country:     address.Country.Code,
+		}
 	}
 
 	return &models.Address{

@@ -41,7 +41,7 @@ export const AddressFields = ({
 
   useEffect(() => {
     const fetchFlag = async () => {
-      setIsCountrySearchEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COUNTRY_FINDER));
+      setIsCountrySearchEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER));
     };
     fetchFlag();
   }, []);
