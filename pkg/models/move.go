@@ -553,6 +553,8 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.MovingExpenses.Document.UserUploads.Upload",
 		"MTOShipments.PPMShipment.ProgearWeightTickets",
 		"MTOShipments.PPMShipment.ProgearWeightTickets.Document.UserUploads.Upload",
+		"MTOShipments.PPMShipment.GunSafeWeightTickets",
+		"MTOShipments.PPMShipment.GunSafeWeightTickets.Document.UserUploads.Upload",
 		"MTOShipments.DestinationAddress.Country",
 		"MTOShipments.SecondaryDeliveryAddress.Country",
 		"MTOShipments.TertiaryDeliveryAddress.Country",
@@ -642,6 +644,11 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 				nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
 			}
+			// We do not need to consider deleted gun safe weight tickets
+			if len(moves[0].MTOShipments[0].PPMShipment.GunSafeWeightTickets) > 0 {
+				nonDeletedGunSafeTickets := moves[0].MTOShipments[0].PPMShipment.GunSafeWeightTickets.FilterDeleted()
+				moves[0].MTOShipments[0].PPMShipment.GunSafeWeightTickets = nonDeletedGunSafeTickets
+			}
 		}
 	}
 
@@ -666,6 +673,7 @@ func FetchMoveByMoveIDWithOrders(db *pop.Connection, moveID uuid.UUID) (Move, er
 	var move Move
 	err := db.Q().Eager(
 		"Orders",
+		"Orders.Entitlement",
 	).Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {

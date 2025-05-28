@@ -67,6 +67,7 @@ export const WEIGHT_TICKET_SET_TYPE = {
 export const PPM_DOCUMENT_TYPES = {
   WEIGHT_TICKET: 'WEIGHT_TICKET',
   PROGEAR_WEIGHT_TICKET: 'PROGEAR_WEIGHT_TICKET',
+  GUN_SAFE_WEIGHT_TICKET: 'GUN_SAFE_WEIGHT_TICKET',
   MOVING_EXPENSE: 'MOVING_EXPENSE',
 };
 
@@ -252,6 +253,7 @@ export const FEATURE_FLAG_KEYS = {
   CUSTOMER_REGISTRATION: 'customer_registration',
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
   TERMINATING_SHIPMENTS: 'terminating_shipments',
+  GUN_SAFE: 'gun_safe',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

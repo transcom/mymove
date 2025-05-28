@@ -285,6 +285,14 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.FinalIncentive = handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive)
 	}
 
+	if ppmShipment.HasGunSafe != nil {
+		ppmModel.HasGunSafe = ppmShipment.HasGunSafe
+	}
+
+	if ppmShipment.GunSafeWeight != nil {
+		ppmModel.GunSafeWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.GunSafeWeight)
+	}
+
 	return ppmModel
 }
 
@@ -641,6 +649,19 @@ func ProgearWeightTicketModelFromUpdate(progearWeightTicket *internalmessages.Up
 		Weight:           handlers.PoundPtrFromInt64Ptr(progearWeightTicket.Weight),
 		HasWeightTickets: handlers.FmtBool(progearWeightTicket.HasWeightTickets),
 		BelongsToSelf:    handlers.FmtBool(progearWeightTicket.BelongsToSelf),
+	}
+	return model
+}
+
+// GunSafeWeightTicketModelFromUpdate
+func GunSafeWeightTicketModelFromUpdate(gunSafeWeightTicket *internalmessages.UpdateGunSafeWeightTicket) *models.GunSafeWeightTicket {
+	if gunSafeWeightTicket == nil {
+		return nil
+	}
+	model := &models.GunSafeWeightTicket{
+		Description:      &gunSafeWeightTicket.Description,
+		Weight:           handlers.PoundPtrFromInt64Ptr(gunSafeWeightTicket.Weight),
+		HasWeightTickets: handlers.FmtBool(gunSafeWeightTicket.HasWeightTickets),
 	}
 	return model
 }

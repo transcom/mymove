@@ -178,6 +178,7 @@ type PPMDocuments struct {
 	WeightTickets
 	MovingExpenses
 	ProgearWeightTickets
+	GunSafeWeightTickets
 }
 
 // PPMType represents the type of a PPM shipment
@@ -254,12 +255,15 @@ type PPMShipment struct {
 	WeightTickets                  WeightTickets        `has_many:"weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	MovingExpenses                 MovingExpenses       `has_many:"moving_expenses" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	ProgearWeightTickets           ProgearWeightTickets `has_many:"progear_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
+	GunSafeWeightTickets           GunSafeWeightTickets `has_many:"gunsafe_weight_tickets" fk_id:"ppm_shipment_id" order_by:"created_at asc"`
 	SignedCertification            *SignedCertification `has_one:"signed_certification" fk_id:"ppm_id"`
 	AOAPacketID                    *uuid.UUID           `json:"aoa_packet_id" db:"aoa_packet_id"`
 	AOAPacket                      *Document            `belongs_to:"documents" fk_id:"aoa_packet_id"`
 	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
 	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
 	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
+	HasGunSafe                     *bool                `json:"has_gun_safe" db:"has_gun_safe"`
+	GunSafeWeight                  *unit.Pound          `json:"gun_safe_weight" db:"gun_safe_weight"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -299,6 +303,8 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
+		&OptionalPoundIsNonNegative{Name: "GunSafeWeight", Field: p.GunSafeWeight},
+		&OptionalPoundIsMax{Name: "GunSafeWeight", Field: p.GunSafeWeight, Max: 500},
 		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
 		&OptionalCentIsNotNegative{Name: "MaxIncentive", Field: p.MaxIncentive},
 		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},
