@@ -2494,8 +2494,12 @@ func (suite *PayloadsSuite) TestPayGrades() {
 		suite.Run(payGrade.Grade, func() {
 			grades := models.PayGrades{payGrade}
 			result := PayGrades(grades)
-			suite.Equal(payGrade.Grade, result[0].Grade)
-			suite.Equal(*payGrade.GradeDescription, result[0].Description)
+
+			suite.Require().Len(result, 1)
+			actual := result[0]
+
+			suite.Equal(payGrade.Grade, actual.Grade)
+			suite.Equal(*payGrade.GradeDescription, actual.Description)
 		})
 	}
 }
