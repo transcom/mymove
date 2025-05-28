@@ -3,10 +3,10 @@
 -- B-21902 - Samay Sofo added has_safety_privilege parameter to filter out safety orders and also retrieved orders_type
 -- B-22760 - Paul Stonebraker retrieve mto_service_items for the moves and delivery address update requests for the shipments
 -- B-23545 - Daniel Jordan updating returns to use destination, filtering adjustments, removing gbloc return
+-- B-22759 - Paul Stonebraker add SIT extensions as part of the mto_shipments
 
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
--- B-22759 - Paul Stonebraker add SIT extensions as part of the mto_shipments
 
 DROP FUNCTION IF EXISTS get_destination_queue;
 CREATE OR REPLACE FUNCTION get_destination_queue(
