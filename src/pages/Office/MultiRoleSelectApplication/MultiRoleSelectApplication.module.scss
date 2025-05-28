@@ -36,6 +36,7 @@
         --top-color: #{$link-light};
         font-size: max(12pt, 1em);
         padding: 0rem 1rem;
+        width: 20rem;
 
         :hover{
             background-color: var(--bg-color);
@@ -47,6 +48,7 @@
             background-color: var(--bg-color);
             color: var(--top-color);
             font-weight: bold;
+            text-overflow: ellipsis;
         }
     }
 }
