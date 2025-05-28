@@ -114,9 +114,7 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
 
   return (
     <label className={classNames(multiRoleUlContainerStyle, multiRoleWrapperStyle)}>
-      <div id={labelTextId} aria-label={selectDescription} aria-hidden>
-        Role:
-      </div>
+      <div id={labelTextId} aria-label={selectDescription} aria-hidden />
       {selectDropdownContent}
     </label>
   );
