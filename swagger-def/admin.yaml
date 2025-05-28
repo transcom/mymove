@@ -960,6 +960,13 @@ definitions:
       roleName:
         type: string
         example: Task Ordering Officer
+      sort:
+        type: integer
+        format: int32
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -987,35 +994,9 @@ definitions:
       privilegeName:
         type: string
         example: Supervisor
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-  RolePrivilege:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4780-65aa-42ec-a945-5fd87dec0538
-      roleId:
-        type: string
-        format: uuid
-        example: c728caf3-5f9d-4db6-a9d1-7cd8ff013b2e
-      roleType:
-        type: string
-        example: task_ordering_officer
-      privilegeId:
-        type: string
-        format: uuid
-        example: 463c2034-d197-4d9a-897e-8bbe64893a31
-      privilegeType:
-        type: string
-        example: supervisor
+      sort:
+        type: integer
+        format: int32
       createdAt:
         type: string
         format: date-time
@@ -1743,7 +1724,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/RolePrivilege'
+              $ref: '#/definitions/Role'
         "401":
           description: request requires user authentication
         "404":
@@ -2552,6 +2533,33 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: Server error
+    delete:
+      produces:
+        - application/json
+      summary: Deletes a User
+      description: Deletes a single user (including Roles, Privileges, and BackupContacts) in any status unless they have a move, documents, etc. This endpoint is used in the Admin UI that will allow the admin user to delete a user.
+      operationId: deleteUser
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '204':
+          description: deleted
+        "401":
+          description: request requires user authentication
+        "403":
+          description: User cannot be deleted, forbidden
+        "404":
+          description: User not found
+        "409":
+          description: User cannot be deleted due to associated data
+        "500":
+          description: server error
   /webhook-subscriptions:
     get:
       produces:
