@@ -76,8 +76,7 @@ type CounselingQueueMove struct {
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
 	// requested move date
-	// Format: date
-	RequestedMoveDate *strfmt.Date `json:"requestedMoveDate,omitempty"`
+	RequestedMoveDate *string `json:"requestedMoveDate,omitempty"`
 
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
@@ -139,10 +138,6 @@ func (m *CounselingQueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginGBLOC(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequestedMoveDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -343,18 +338,6 @@ func (m *CounselingQueueMove) validateOriginGBLOC(formats strfmt.Registry) error
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("originGBLOC")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *CounselingQueueMove) validateRequestedMoveDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedMoveDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("requestedMoveDate", "body", "date", m.RequestedMoveDate.String(), formats); err != nil {
 		return err
 	}
 

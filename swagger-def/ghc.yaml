@@ -4037,15 +4037,6 @@ paths:
             type: string
             enum:
               - NEEDS SERVICE COUNSELING
-              - SERVICE COUNSELING COMPLETED
-        - in: query
-          name: needsPPMCloseout
-          type: boolean
-          description: Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
-        - in: query
-          name: closeoutLocation
-          type: string
-          description: closeout location
         - in: query
           name: viewAsGBLOC
           type: string
@@ -8166,7 +8157,6 @@ definitions:
         type: string
         x-nullable: true
       requestedMoveDate:
-        format: date
         type: string
         x-nullable: true
       departmentIndicator:

@@ -769,11 +769,7 @@ func (h GetCounselingQueueHandler) Handle(
 				activeRole = *params.ActiveRole
 			}
 
-			var requestedPpmStatus models.PPMShipmentStatus
-			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
-				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
-				counselingQueueParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
-			} else if len(params.Status) == 0 {
+			if len(params.Status) == 0 {
 				counselingQueueParams.Status = nil
 			} else {
 				counselingQueueParams.Status = params.Status
@@ -876,7 +872,7 @@ func (h GetCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.CounselingQueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
+			queueMoves := payloads.CounselingQueueMoves(moves, officeUsers, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
 
 			result := &ghcmessages.CounselingQueueMovesResult{
 				Page:       *counselingQueueParams.Page,

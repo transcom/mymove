@@ -3,7 +3,6 @@ package move
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/lib/pq"
@@ -23,14 +22,11 @@ func NewCounselingQueueFetcher() services.CounselingQueueFetcher {
 }
 
 func (o *counselingQueueFetcher) FetchCounselingQueue(appCtx appcontext.AppContext, counselingQueueParams services.CounselingQueueParams) ([]models.Move, int64, error) {
-	var movesWithCount []MoveWithCount
-	var moves models.Moves
-
 	movesWithCount, err := getCounselingQueueDbFunc(counselingQueueParams, appCtx)
 	if err != nil {
 		appCtx.Logger().
 			Error("error fetching list of moves for office user", zap.Error(err))
-		return moves, 0, err
+		return models.Moves{}, 0, err
 	}
 
 	var count int64
@@ -40,7 +36,7 @@ func (o *counselingQueueFetcher) FetchCounselingQueue(appCtx appcontext.AppConte
 		count = 0
 	}
 
-	moves, err = movesWithCountToMoves(movesWithCount)
+	moves, err := movesWithCountToMoves(movesWithCount)
 	if err != nil {
 		return moves, 0, err
 	}
@@ -50,7 +46,6 @@ func (o *counselingQueueFetcher) FetchCounselingQueue(appCtx appcontext.AppConte
 
 func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueueParams, appCtx appcontext.AppContext) ([]MoveWithCount, error) {
 	var movesWithCount []MoveWithCount
-	var requestedDateTime *time.Time
 
 	var officeUserGbloc string
 	if counselingQueueParams.ViewAsGBLOC != nil {
@@ -64,17 +59,6 @@ func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueuePara
 		}
 	}
 
-	requestedDateTime = nil
-	if counselingQueueParams.RequestedMoveDate != nil {
-		date, err := time.Parse("2006-01-02", *counselingQueueParams.RequestedMoveDate)
-		if err != nil {
-			appCtx.Logger().
-				Error("error fetching list of moves for office user", zap.Error(err))
-			return movesWithCount, err
-		}
-		requestedDateTime = &date
-	}
-
 	err := appCtx.DB().
 		RawQuery(
 			`SELECT * FROM get_counseling_queue($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
@@ -84,7 +68,7 @@ func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueuePara
 			counselingQueueParams.Emplid,
 			pq.Array(counselingQueueParams.Status),
 			counselingQueueParams.Locator,
-			requestedDateTime,
+			counselingQueueParams.RequestedMoveDate,
 			counselingQueueParams.SubmittedAt,
 			counselingQueueParams.Branch,
 			counselingQueueParams.OriginDutyLocationName,
@@ -100,7 +84,7 @@ func getCounselingQueueDbFunc(counselingQueueParams services.CounselingQueuePara
 
 	if err != nil {
 		appCtx.Logger().
-			Error("error fetching list of moves for office user", zap.Error(err))
+			Error("error fetching moves for counseling queue", zap.Error(err))
 		return movesWithCount, err
 	}
 

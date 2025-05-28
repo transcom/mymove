@@ -47,10 +47,6 @@ type GetCounselingQueueParams struct {
 	  In: query
 	*/
 	Branch *string
-	/*closeout location
-	  In: query
-	*/
-	CloseoutLocation *string
 	/*filters using a counselingOffice name of the move
 	  In: query
 	*/
@@ -71,10 +67,6 @@ type GetCounselingQueueParams struct {
 	  In: query
 	*/
 	Locator *string
-	/*Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
-	  In: query
-	*/
-	NeedsPPMCloseout *bool
 	/*direction of sort order if applied
 	  In: query
 	*/
@@ -145,11 +137,6 @@ func (o *GetCounselingQueueParams) BindRequest(r *http.Request, route *middlewar
 		res = append(res, err)
 	}
 
-	qCloseoutLocation, qhkCloseoutLocation, _ := qs.GetOK("closeoutLocation")
-	if err := o.bindCloseoutLocation(qCloseoutLocation, qhkCloseoutLocation, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
 	qCounselingOffice, qhkCounselingOffice, _ := qs.GetOK("counselingOffice")
 	if err := o.bindCounselingOffice(qCounselingOffice, qhkCounselingOffice, route.Formats); err != nil {
 		res = append(res, err)
@@ -172,11 +159,6 @@ func (o *GetCounselingQueueParams) BindRequest(r *http.Request, route *middlewar
 
 	qLocator, qhkLocator, _ := qs.GetOK("locator")
 	if err := o.bindLocator(qLocator, qhkLocator, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qNeedsPPMCloseout, qhkNeedsPPMCloseout, _ := qs.GetOK("needsPPMCloseout")
-	if err := o.bindNeedsPPMCloseout(qNeedsPPMCloseout, qhkNeedsPPMCloseout, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -289,24 +271,6 @@ func (o *GetCounselingQueueParams) bindBranch(rawData []string, hasKey bool, for
 	return nil
 }
 
-// bindCloseoutLocation binds and validates parameter CloseoutLocation from query.
-func (o *GetCounselingQueueParams) bindCloseoutLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.CloseoutLocation = &raw
-
-	return nil
-}
-
 // bindCounselingOffice binds and validates parameter CounselingOffice from query.
 func (o *GetCounselingQueueParams) bindCounselingOffice(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -393,29 +357,6 @@ func (o *GetCounselingQueueParams) bindLocator(rawData []string, hasKey bool, fo
 		return nil
 	}
 	o.Locator = &raw
-
-	return nil
-}
-
-// bindNeedsPPMCloseout binds and validates parameter NeedsPPMCloseout from query.
-func (o *GetCounselingQueueParams) bindNeedsPPMCloseout(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-
-	value, err := swag.ConvertBool(raw)
-	if err != nil {
-		return errors.InvalidType("needsPPMCloseout", "query", "bool", raw)
-	}
-	o.NeedsPPMCloseout = &value
 
 	return nil
 }
@@ -603,7 +544,7 @@ func (o *GetCounselingQueueParams) bindStatus(rawData []string, hasKey bool, for
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"NEEDS SERVICE COUNSELING", "SERVICE COUNSELING COMPLETED"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"NEEDS SERVICE COUNSELING"}, true); err != nil {
 			return err
 		}
 
