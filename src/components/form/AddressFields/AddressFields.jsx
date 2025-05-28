@@ -30,6 +30,7 @@ export const AddressFields = ({
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
+  includePOBoxes,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
@@ -105,6 +106,7 @@ export const AddressFields = ({
             placeholder="Start typing a Zip or City, State Zip"
             label="Location Lookup"
             handleLocationChange={handleOnLocationChange}
+            includePOBoxes={includePOBoxes}
           />
 
           <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
@@ -185,6 +187,7 @@ AddressFields.propTypes = {
     setFieldTouched: PropTypes.func,
     setFieldValue: PropTypes.func,
   }),
+  includePOBoxes: PropTypes.bool,
 };
 
 AddressFields.defaultProps = {
@@ -194,6 +197,7 @@ AddressFields.defaultProps = {
   validators: {},
   address1LabelHint: null,
   formikProps: {},
+  includePOBoxes: false,
 };
 
 export default AddressFields;

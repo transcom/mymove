@@ -123,7 +123,7 @@ BEGIN
                 WHERE id = service_item.id;
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
+                    cubic_feet := ROUND(((length/1000) * (width/1000) * (height/1000)) / 1728, 2);
 
                     IF cubic_feet < external_crate_minimum AND external THEN
                         cubic_feet := external_crate_minimum;
@@ -155,7 +155,7 @@ BEGIN
                 WHERE id = service_item.id;
 
                 IF length IS NOT NULL AND height IS NOT NULL AND width IS NOT NULL THEN
-                    cubic_feet := ((length/1000) * (width/1000) * (height/1000)) / 1728;
+                    cubic_feet := ROUND(((length/1000) * (width/1000) * (height/1000)) / 1728, 2);
 
                     IF cubic_feet < external_crate_minimum AND external THEN
                         cubic_feet := external_crate_minimum;
@@ -354,20 +354,28 @@ BEGIN
                     escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, declared_contract_id, service_code, shipment.requested_pickup_date, distance);
                 END IF;
 
-                IF escalated_price IS NOT NULL AND shipment.prime_estimated_weight IS NOT NULL THEN
+                IF distance IS NOT NULL AND escalated_price IS NOT NULL AND shipment.prime_estimated_weight IS NOT NULL THEN
                     RAISE NOTICE ''escalated_price = $% cents'', escalated_price;
 
-                    -- multiply by 110% of estimated weight
-                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
+                    IF distance > 50 THEN
+                        -- multiply by 110% of estimated weight
+                        -- multiply by mileage
+                        estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100) * distance, 2) * 100;
 
-                    RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
+                        RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100) * %) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight, distance;
+                    ELSE
+                        -- multiply by 110% of estimated weight
+                        estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight * 1.1) / 100), 2) * 100;
+
+                        RAISE NOTICE ''%: Received estimated price of % (% * (% * 1.1) / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
+                    END IF;
 
                     -- update the pricing_estimate value in mto_service_items
                     UPDATE mto_service_items
                     SET pricing_estimate = estimated_price
                     WHERE id = service_item.id;
                 ELSE
-                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, prime_estimated_weight: %]'', service_code, escalated_price, shipment.prime_estimated_weight;
+                    RAISE NOTICE ''service_code: % - Failed to compute pricing[escalated_price: %, prime_estimated_weight: %, distance: %]'', service_code, escalated_price, shipment.prime_estimated_weight, distance;
                 END IF;
 
 			WHEN service_code IN (''IOFSIT'', ''IDFSIT'') THEN
