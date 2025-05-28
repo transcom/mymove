@@ -1284,7 +1284,6 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 			return nil, fmt.Errorf("unable to calculate domestic transit time due to missing weight for move ID: %s", moveID)
 		}
 
-		// p := *planner
 		distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode)
 		if err != nil {
 			return nil, err
