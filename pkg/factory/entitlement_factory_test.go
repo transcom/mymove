@@ -137,7 +137,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		testEnt := BuildEntitlement(nil, nil, nil)
 		// Set the weight allotment on the custom object to O_9
 		testEnt.DBAuthorizedWeight = nil // clear original value
-		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "O-9", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		allotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), string(models.PaygradeO9), internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		suite.NoError(err)
 		testEnt.WeightAllotted = &allotment
 		testEnt.DBAuthorizedWeight = testEnt.AuthorizedWeight()
