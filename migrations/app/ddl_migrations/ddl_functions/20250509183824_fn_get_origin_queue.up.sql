@@ -1,4 +1,5 @@
 -- B-23540 - Daniel Jordan - initial function creation for TOO origin queue refactor into db func
+-- B-22712 -- Paul Stonebraker - add move data for excess weight, attach diversions and SIT extensions to mto shipments
 
 DROP FUNCTION IF EXISTS get_origin_queue;
 CREATE OR REPLACE FUNCTION get_origin_queue(

@@ -6,6 +6,8 @@
 
 -- database function that returns a list of moves that have destination requests
 -- this includes shipment address update requests, destination SIT, & destination shuttle
+-- B-22759 - Paul Stonebraker add SIT extensions as part of the mto_shipments
+
 DROP FUNCTION IF EXISTS get_destination_queue;
 CREATE OR REPLACE FUNCTION get_destination_queue(
     user_gbloc TEXT DEFAULT NULL,
