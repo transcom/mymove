@@ -119,6 +119,7 @@ type Move struct {
 type MoveWithEarliestDate struct {
 	ID           uuid.UUID `json:"id" db:"id"`
 	EarliestDate time.Time `db:"earliest_date"`
+	// test
 }
 
 // TableName overrides the table name used by Pop.
