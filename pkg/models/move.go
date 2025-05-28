@@ -95,16 +95,22 @@ type Move struct {
 	LockExpiresAt                                  *time.Time            `json:"lock_expires_at" db:"lock_expires_at"`
 	AdditionalDocumentsID                          *uuid.UUID            `json:"additional_documents_id" db:"additional_documents_id"`
 	AdditionalDocuments                            *Document             `belongs_to:"documents" fk_id:"additional_documents_id"`
+	SCAssignedID                                   *uuid.UUID            `json:"sc_assigned_id" db:"sc_assigned_id"`                             // old column
+	SCAssignedUser                                 *OfficeUser           `belongs_to:"office_users" fk_id:"sc_assigned_id"`                      // old column
+	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`                           // old column
+	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"` // old column
+	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`                           // old column
+	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`                     // old column
 	SCCounselingAssignedID                         *uuid.UUID            `json:"sc_counseling_assigned_id" db:"sc_counseling_assigned_id"`
 	SCCounselingAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"sc_counseling_assigned_id"`
 	SCCloseoutAssignedID                           *uuid.UUID            `json:"sc_closeout_assigned_id" db:"sc_closeout_assigned_id"`
 	SCCloseoutAssignedUser                         *OfficeUser           `belongs_to:"office_users" fk_id:"sc_closeout_assigned_id"`
-	TOOAssignedID                                  *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`
-	TOOAssignedUser                                *OfficeUser           `json:"too_assigned" belongs_to:"office_users" fk_id:"too_assigned_id"`
-	TIOAssignedID                                  *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
-	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	TOOTaskOrderAssignedID                         *uuid.UUID            `json:"too_task_order_assigned_id" db:"too_task_order_assigned_id"`
+	TOOTaskOrderAssignedUser                       *OfficeUser           `belongs_to:"office_users" fk_id:"too_task_order_assigned_id"`
 	TOODestinationAssignedID                       *uuid.UUID            `json:"too_destination_assigned_id" db:"too_destination_assigned_id"`
 	TOODestinationAssignedUser                     *OfficeUser           `json:"too_destination_assigned" belongs_to:"office_users" fk_id:"too_destination_assigned_id"`
+	TIOPaymentRequestsAssignedID                   *uuid.UUID            `json:"tio_payment_requests_assigned_id" db:"tio_payment_requests_assigned_id"`
+	TIOPaymentRequestsAssignedUser                 *OfficeUser           `belongs_to:"office_users" fk_id:"tio_payment_requests_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	CounselingOffice                               *TransportationOffice `json:"counseling_transportation_office" belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 	PrimeAcknowledgedAt                            *time.Time            `db:"prime_acknowledged_at"`
