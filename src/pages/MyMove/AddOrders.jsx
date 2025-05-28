@@ -19,6 +19,8 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
 import { setCanAddOrders as setCanAddOrdersAction, setMoveId as setMoveIdAction } from 'store/general/actions';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const AddOrders = ({
   context,
@@ -33,6 +35,7 @@ const AddOrders = ({
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
   const navigate = useNavigate();
 
   // if the user did NOT come from the create a move button, we want to redirect them to their current move
@@ -132,6 +135,19 @@ const AddOrders = ({
     }
   };
 
+  useEffect(() => {
+    const checkBluebarkFeatureFlag = async () => {
+      // debugger;
+      const isBluebarkEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BLUEBARK_MOVE);
+      if (!isBluebarkEnabled) {
+        const options = orderTypes;
+        delete orderTypes.BLUEBARK;
+        setOrderTypes(options);
+      }
+    };
+    checkBluebarkFeatureFlag();
+  }, [orderTypes]);
+
   const initialValues = {
     orders_type: '',
     issue_date: '',
@@ -150,9 +166,8 @@ const AddOrders = ({
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
   const allowedOrdersTypes = showAllOrdersTypes
-    ? ORDERS_TYPE_OPTIONS
+    ? orderTypes
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
-
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   if (isLoading) {
