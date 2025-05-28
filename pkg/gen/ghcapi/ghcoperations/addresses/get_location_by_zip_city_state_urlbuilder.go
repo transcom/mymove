@@ -10,11 +10,15 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/swag"
 )
 
 // GetLocationByZipCityStateURL generates an URL for the get location by zip city state operation
 type GetLocationByZipCityStateURL struct {
 	Search string
+
+	IncludePOBoxes *bool
 
 	_basePath string
 	// avoid unkeyed usage
@@ -54,6 +58,18 @@ func (o *GetLocationByZipCityStateURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var includePOBoxesQ string
+	if o.IncludePOBoxes != nil {
+		includePOBoxesQ = swag.FormatBool(*o.IncludePOBoxes)
+	}
+	if includePOBoxesQ != "" {
+		qs.Set("includePOBoxes", includePOBoxesQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }
