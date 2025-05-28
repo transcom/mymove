@@ -129,8 +129,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		}
 
 		if ppmState >= PPMShipmentStateActualDatesZipsAndAdvance {
-			oldShipment.ActualPickupPostalCode = models.StringPointer("90210")
-			oldShipment.ActualDestinationPostalCode = models.StringPointer("79912")
 			oldShipment.HasReceivedAdvance = &oldFlags.hasReceivedAdvance
 
 			if oldFlags.hasReceivedAdvance {
@@ -481,9 +479,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				hasReceivedAdvance:  false,
 			},
 			newShipment: models.PPMShipment{
-				ActualPickupPostalCode:      models.StringPointer("90210"),
-				ActualDestinationPostalCode: models.StringPointer("79912"),
-				HasReceivedAdvance:          models.BoolPointer(false),
+				HasReceivedAdvance: models.BoolPointer(false),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
@@ -495,8 +491,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				suite.Nil(mergedShipment.AdvanceAmountRequested)
 
 				// ensure fields were set correctly
-				suite.Equal(newShipment.ActualPickupPostalCode, mergedShipment.ActualPickupPostalCode)
-				suite.Equal(newShipment.ActualDestinationPostalCode, mergedShipment.ActualDestinationPostalCode)
 				suite.Equal(newShipment.HasReceivedAdvance, mergedShipment.HasReceivedAdvance)
 				suite.Nil(mergedShipment.AdvanceAmountReceived)
 			},
@@ -511,10 +505,8 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				hasReceivedAdvance:  false,
 			},
 			newShipment: models.PPMShipment{
-				ActualPickupPostalCode:      models.StringPointer("90210"),
-				ActualDestinationPostalCode: models.StringPointer("79912"),
-				HasReceivedAdvance:          models.BoolPointer(true),
-				AdvanceAmountReceived:       models.CentPointer(unit.Cents(3300)),
+				HasReceivedAdvance:    models.BoolPointer(true),
+				AdvanceAmountReceived: models.CentPointer(unit.Cents(3300)),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields weren't changed
@@ -526,8 +518,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				suite.Equal(oldShipment.AdvanceAmountRequested, mergedShipment.AdvanceAmountRequested)
 
 				// ensure fields were set correctly
-				suite.Equal(newShipment.ActualPickupPostalCode, mergedShipment.ActualPickupPostalCode)
-				suite.Equal(newShipment.ActualDestinationPostalCode, mergedShipment.ActualDestinationPostalCode)
 				suite.Equal(newShipment.HasReceivedAdvance, mergedShipment.HasReceivedAdvance)
 				suite.Equal(newShipment.AdvanceAmountReceived, mergedShipment.AdvanceAmountReceived)
 			},
@@ -552,8 +542,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 
 				suite.Equal(oldShipment.HasRequestedAdvance, mergedShipment.HasRequestedAdvance)
 				suite.Equal(oldShipment.AdvanceAmountRequested, mergedShipment.AdvanceAmountRequested)
-				suite.Equal(oldShipment.ActualPickupPostalCode, mergedShipment.ActualPickupPostalCode)
-				suite.Equal(oldShipment.ActualDestinationPostalCode, mergedShipment.ActualDestinationPostalCode)
 
 				// ensure fields were set correctly
 				suite.Equal(newShipment.HasReceivedAdvance, mergedShipment.HasReceivedAdvance)
