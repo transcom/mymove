@@ -1113,6 +1113,18 @@ export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }
 
+export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.submitPPMShipmentDocumentation',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export function getResponseError(errorOrResponse, defaultErrorMessage) {
   const response = errorOrResponse?.response || errorOrResponse;
   if (!response) return defaultErrorMessage;
