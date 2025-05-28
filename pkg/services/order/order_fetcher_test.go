@@ -664,7 +664,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -728,7 +728,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -756,7 +756,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move2,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 
 		destinationSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -805,7 +805,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -877,7 +877,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -923,7 +923,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -982,7 +982,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		internationalOriginShuttleServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1028,7 +1028,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		domesticDestinationShuttleServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1074,7 +1074,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		domesticOriginShuttleServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1135,7 +1135,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 
 		moves, moveCount, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
@@ -1171,7 +1171,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 
 		moves, moveCount, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
@@ -1205,7 +1205,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1329,7 +1329,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		destinationSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -1392,7 +1392,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model:    move,
 				LinkOnly: true,
 			},
-		}, nil)
+		}, []factory.Trait{factory.GetTraitApprovalsRequestedShipment})
 		suite.NotNil(shipment)
 		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -2163,22 +2163,25 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 	suite.Run("Sort by request move date", func() {
 		_, _, session := setupTestData()
+
 		params := services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
-		suite.Equal(2, len(moves[0].MTOShipments)) // the move with two shipments has the earlier date
-		suite.Equal(1, len(moves[1].MTOShipments))
+		suite.Equal("AA1234", moves[0].Locator)
+		suite.Equal(1, len(moves[0].MTOShipments)) // the move with two shipments has the earlier date
+		suite.Equal(2, len(moves[1].MTOShipments))
 		// NOTE: You have to use Jan 02, 2006 as the example for date/time formatting in Go
-		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[1].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
+		suite.Equal(requestedMoveDate2.Format("2006/01/02"), moves[1].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 
 		params = services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("desc")}
 		moves, _, err = orderFetcher.ListOriginRequestsOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
-		suite.Equal(1, len(moves[0].MTOShipments)) // the move with one shipment should be first
-		suite.Equal(2, len(moves[1].MTOShipments))
-		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
+		suite.Equal("AA1234", moves[1].Locator)
+		suite.Equal(2, len(moves[0].MTOShipments)) // the move with one shipment should be first
+		suite.Equal(1, len(moves[1].MTOShipments))
+		suite.Equal(requestedMoveDate2.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 	})
 
 	suite.Run("Sort by request move date including pickup, delivery, and PPM expected departure", func() {
@@ -2266,9 +2269,21 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		}, nil)
 		move2 := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
-		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), nil, nil)
-		move3 := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
-		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), nil, nil)
+		factory.BuildMTOShipmentWithMove(&move2, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
+		move3 := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		factory.BuildMTOShipmentWithMove(&move3, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApprovalsRequested,
+				},
+			},
+		}, nil)
 
 		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
 
