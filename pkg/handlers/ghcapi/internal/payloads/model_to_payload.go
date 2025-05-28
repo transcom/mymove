@@ -2577,10 +2577,12 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 	return &queueMoves
 }
 
-func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.CounselingQueueMoves {
+func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser, activeRole string, queueType string) *ghcmessages.CounselingQueueMoves {
 	queueMoves := make(ghcmessages.CounselingQueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
+		var requestedDatesStr *string
+		var formattedDates []string
 
 		var transportationOffice string
 		var transportationOfficeId uuid.UUID
@@ -2600,6 +2602,15 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
+
+			if shipment.RequestedPickupDate != nil {
+				formattedDates = append(formattedDates, shipment.RequestedPickupDate.Format("Jan 2 2006"))
+			}
+		}
+
+		if len(formattedDates) > 0 {
+			s := strings.Join(formattedDates, ", ")
+			requestedDatesStr = &s
 		}
 
 		var deptIndicator ghcmessages.DeptIndicator
@@ -2622,11 +2633,6 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
 
-		var closeoutLocation string
-		if move.CloseoutOffice != nil {
-			closeoutLocation = move.CloseoutOffice.Name
-		}
-
 		approvalRequestTypes := attachApprovalRequestTypes(move)
 
 		// queue assignment logic below
@@ -2635,18 +2641,9 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 		if queueType == string(models.QueueTypeCounseling) && move.SCCounselingAssignedUser != nil {
 			assignedToUser = move.SCCounselingAssignedUser
 		}
-		if queueType == string(models.QueueTypeTaskOrder) && move.TOOAssignedUser != nil {
-			assignedToUser = move.TOOAssignedUser
-		}
-		if queueType == string(models.QueueTypeDestinationRequest) && move.TOODestinationAssignedUser != nil {
-			assignedToUser = move.TOODestinationAssignedUser
-		}
-		// these branches have their own closeout specific offices
-		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
-		// requestedPpmStatus also represents if we are viewing the closeout queue
-		isCloseoutQueue := requestedPpmStatus != nil && *requestedPpmStatus == models.PPMShipmentStatusNeedsCloseout
+
 		// determine if the move is assignable
-		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, officeUser, ppmCloseoutGblocs, activeRole)
+		assignable := queueMoveIsAssignable(move, assignedToUser, false, officeUser, false, activeRole)
 
 		isSupervisor := officeUser.User.Privileges.HasPrivilege(roles.PrivilegeTypeSupervisor)
 		// only need to attach available office users if move is assignable
@@ -2673,7 +2670,7 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 				}
 			}
 			if activeRole == string(roles.RoleTypeServicesCounselor) {
-				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
+				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, false, false)
 			}
 
 			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
@@ -2686,7 +2683,7 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 			Locator:              move.Locator,
 			SubmittedAt:          handlers.FmtDateTimePtr(move.SubmittedAt),
 			AppearedInTooAt:      handlers.FmtDateTimePtr(findLastSentToTOO(move)),
-			RequestedMoveDate:    handlers.FmtDatePtr(earliestRequestedPickup),
+			RequestedMoveDate:    requestedDatesStr,
 			DepartmentIndicator:  &deptIndicator,
 			ShipmentsCount:       int64(len(validMTOShipments)),
 			OriginDutyLocation:   DutyLocation(move.Orders.OriginDutyLocation),

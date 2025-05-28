@@ -4199,17 +4199,6 @@ paths:
             type: string
             enum:
               - NEEDS SERVICE COUNSELING
-              - SERVICE COUNSELING COMPLETED
-        - in: query
-          name: needsPPMCloseout
-          type: boolean
-          description: >-
-            Only used for Services Counseling queue. If true, show PPM moves
-            that are ready for closeout. Otherwise, show all other moves.
-        - in: query
-          name: closeoutLocation
-          type: string
-          description: closeout location
         - in: query
           name: viewAsGBLOC
           type: string
@@ -5074,6 +5063,13 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: >-
+            Toggles whether the search results should include postal codes that
+            only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
@@ -8617,7 +8613,6 @@ definitions:
         type: string
         x-nullable: true
       requestedMoveDate:
-        format: date
         type: string
         x-nullable: true
       departmentIndicator:
@@ -10364,6 +10359,7 @@ definitions:
       - CANCELED
       - DIVERSION_REQUESTED
       - TERMINATED_FOR_CAUSE
+      - APPROVALS_REQUESTED
   ReweighRequester:
     type: string
     enum:

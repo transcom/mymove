@@ -50,7 +50,7 @@ BEGIN
 
 
   sql_query := '
-    Select
+    SELECT
     m.id AS id,
     m.show AS show,
     m.locator::TEXT AS locator,
@@ -121,11 +121,10 @@ BEGIN
                 WHERE  ms.move_id = m.id
                 ) ms_agg ON TRUE
     JOIN move_to_gbloc ON move_to_gbloc.move_id = m.id
-    JOIN move_to_dest_gbloc ON move_to_dest_gbloc.move_id = m.id
-    Where m.show = TRUE
+    WHERE m.show = TRUE
   ';
 
-  IF user_gbloc IS NOT NULL AND user_gbloc <> 'USMC' THEN
+  IF user_gbloc IS NOT NULL THEN
           sql_query := sql_query || ' AND move_to_gbloc.gbloc = $1 ';
   END IF;
 --
@@ -221,7 +220,7 @@ BEGIN
       WHEN 'originDutyLocation' THEN
         sql_query := sql_query || format(' ORDER BY origin_duty_locations.name %s', sort_ord);
       WHEN 'assignedTo' THEN
-        sql_query := sql_query || format(' ORDER BY sc_user.first_name %s', sort_ord);
+        sql_query := sql_query || format(' ORDER BY sc_user.last_name %s', sort_ord);
       WHEN 'counselingOffice' THEN
         sql_query := sql_query || format(' ORDER BY co.name %s', sort_ord);
       ELSE

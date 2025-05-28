@@ -19,13 +19,11 @@ type GetCounselingQueueURL struct {
 	ActiveRole         *string
 	AssignedTo         *string
 	Branch             *string
-	CloseoutLocation   *string
 	CounselingOffice   *string
 	CustomerName       *string
 	Edipi              *string
 	Emplid             *string
 	Locator            *string
-	NeedsPPMCloseout   *bool
 	Order              *string
 	OriginDutyLocation *string
 	OriginGBLOC        *string
@@ -95,14 +93,6 @@ func (o *GetCounselingQueueURL) Build() (*url.URL, error) {
 		qs.Set("branch", branchQ)
 	}
 
-	var closeoutLocationQ string
-	if o.CloseoutLocation != nil {
-		closeoutLocationQ = *o.CloseoutLocation
-	}
-	if closeoutLocationQ != "" {
-		qs.Set("closeoutLocation", closeoutLocationQ)
-	}
-
 	var counselingOfficeQ string
 	if o.CounselingOffice != nil {
 		counselingOfficeQ = *o.CounselingOffice
@@ -141,14 +131,6 @@ func (o *GetCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if locatorQ != "" {
 		qs.Set("locator", locatorQ)
-	}
-
-	var needsPPMCloseoutQ string
-	if o.NeedsPPMCloseout != nil {
-		needsPPMCloseoutQ = swag.FormatBool(*o.NeedsPPMCloseout)
-	}
-	if needsPPMCloseoutQ != "" {
-		qs.Set("needsPPMCloseout", needsPPMCloseoutQ)
 	}
 
 	var orderQ string

@@ -129,7 +129,7 @@ export const counselingColumns = (
       },
     ),
     createHeader(
-      'Requested move date(s)',
+      'Requested move date',
       (row) => {
         return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
       },
@@ -455,7 +455,7 @@ export const closeoutColumns = (
 
 export const serviceCounselingColumns = (
   moveLockFlag,
-  ppmCloseoutOriginLocationList,
+  originLocationList,
   supervisor,
   queueType,
   isQueueManagementEnabled,
@@ -469,7 +469,7 @@ export const serviceCounselingColumns = (
         // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
         if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
           return (
-            <div id={row.id}>
+            <div data-testid="lock-icon">
               <FontAwesomeIcon icon="lock" />
             </div>
           );
@@ -515,6 +515,42 @@ export const serviceCounselingColumns = (
       isFilterable: true,
     }),
     createHeader(
+      'Status',
+      (row) => {
+        return row.status !== MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED
+          ? SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`]
+          : null;
+      },
+      {
+        id: 'status',
+        disableSortBy: true,
+      },
+    ),
+    createHeader(
+      'Requested move date(s)',
+      (row) => {
+        return row.requestedMoveDate;
+      },
+      {
+        id: 'requestedMoveDate',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter {...props} />,
+      },
+    ),
+    createHeader(
+      'Date submitted',
+      (row) => {
+        return formatDateFromIso(row.submittedAt, DATE_FORMAT_STRING);
+      },
+      {
+        id: 'submittedAt',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
+    createHeader(
       'Branch',
       (row) => {
         return serviceMemberAgencyLabel(row.customer.agency);
@@ -528,9 +564,9 @@ export const serviceCounselingColumns = (
         ),
       },
     ),
-    createHeader('Status', (row) => {
-      return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
-    }),
+    createHeader('Origin GBLOC', 'originGBLOC', {
+      disableSortBy: true,
+    }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
     supervisor
       ? createHeader(
           'Origin duty location',
@@ -545,7 +581,7 @@ export const serviceCounselingColumns = (
             },
             Filter: (props) => (
               <MultiSelectTypeAheadCheckBoxFilter
-                options={ppmCloseoutOriginLocationList}
+                options={originLocationList}
                 placeholder="Start typing a duty location..."
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...props}
@@ -573,8 +609,9 @@ export const serviceCounselingColumns = (
           return !row?.assignable ? (
             <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
-            <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
+            <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
+                key={row.id}
                 onChange={(e) => {
                   handleQueueAssignment(row.id, e.target.value, getQueue(queueType));
                   setRefetchQueue(true);
@@ -833,7 +870,7 @@ const ServicesCounselingQueue = ({
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(
+          columns={serviceCounselingColumns(
             moveLockFlag,
             inPPMCloseoutGBLOC,
             ppmCloseoutOriginLocationList,
@@ -872,7 +909,7 @@ const ServicesCounselingQueue = ({
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(
+          columns={serviceCounselingColumns(
             moveLockFlag,
             originLocationList,
             supervisor,

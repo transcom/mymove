@@ -88,6 +88,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5392,25 +5399,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "NEEDS SERVICE COUNSELING",
-                "SERVICE COUNSELING COMPLETED"
+                "NEEDS SERVICE COUNSELING"
               ],
               "type": "string"
             },
             "description": "filters the status of the move",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
-            "name": "needsPPMCloseout",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "closeout location",
-            "name": "closeoutLocation",
             "in": "query"
           },
           {
@@ -8339,7 +8333,6 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -12002,7 +11995,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -17787,6 +17781,13 @@ func init() {
             "name": "search",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "x-nullable": true,
+            "description": "Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.",
+            "name": "includePOBoxes",
+            "in": "query"
           }
         ],
         "responses": {
@@ -24505,25 +24506,12 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "NEEDS SERVICE COUNSELING",
-                "SERVICE COUNSELING COMPLETED"
+                "NEEDS SERVICE COUNSELING"
               ],
               "type": "string"
             },
             "description": "filters the status of the move",
             "name": "status",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
-            "name": "needsPPMCloseout",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "closeout location",
-            "name": "closeoutLocation",
             "in": "query"
           },
           {
@@ -27888,7 +27876,6 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -31555,7 +31542,8 @@ func init() {
         "CANCELLATION_REQUESTED",
         "CANCELED",
         "DIVERSION_REQUESTED",
-        "TERMINATED_FOR_CAUSE"
+        "TERMINATED_FOR_CAUSE",
+        "APPROVALS_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
