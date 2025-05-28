@@ -207,6 +207,10 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			}
 
 			entitlement := move.Orders.Entitlement
+			if entitlement == nil {
+				return apperror.NewQueryError("Entitlement", fmt.Errorf("entitlement is nil after fetching move with ID %s", move.ID), "Move is missing an associated entitlement.")
+			}
+
 			entitlement.GunSafe = *ppmShipment.HasGunSafe
 			maxGunSafeWeight := 0
 
@@ -219,7 +223,7 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 
 			verrs, err := appCtx.DB().ValidateAndUpdate(entitlement)
 			if verrs != nil && verrs.HasAny() {
-				return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the Entitlement.")
+				return apperror.NewInvalidInputError(entitlement.ID, err, verrs, "Invalid input found while updating the gun safe entitlement.")
 			}
 			if err != nil {
 				return apperror.NewQueryError("Entitlement", err, "")
