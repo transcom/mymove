@@ -58,11 +58,11 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 }
 
 const (
-	// AVStatusCLEAN string CLEAN
+	// AVStatusCLEAN string NO_THREATS_FOUND
 	AVStatusCLEAN string = "NO_THREATS_FOUND"
 
 	// AVStatusUNKNOWN string UNKNOWN
-	// Placeholder for error when scanning, actual scan results from ClamAV are CLEAN or INFECTED
+	// Placeholder for error when scanning, actual scan results from ClamAV are NO_THREATS_FOUND or INFECTED
 	AVStatusUNKNOWN string = "UNKNOWN"
 
 	// Default value for parameter store environment variable

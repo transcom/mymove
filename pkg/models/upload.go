@@ -20,7 +20,7 @@ type AVStatusType string
 const (
 	// AVStatusPROCESSING string PROCESSING
 	AVStatusPROCESSING AVStatusType = "PROCESSING"
-	// AVStatusCLEAN string CLEAN
+	// AVStatusCLEAN string NO_THREATS_FOUND
 	AVStatusCLEAN AVStatusType = "NO_THREATS_FOUND"
 	// AVStatusINFECTED string INFECTED
 	AVStatusINFECTED AVStatusType = "THREATS_FOUND"
