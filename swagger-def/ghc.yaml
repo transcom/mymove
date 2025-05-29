@@ -7107,30 +7107,12 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
-      actualPickupPostalCode:
-        description: >
-          The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
           - $ref: 'definitions/PPMDestinationAddress.yaml'
-      actualDestinationPostalCode:
-        description: >
-          The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -7978,6 +7960,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -7986,7 +7972,10 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+        x-nullable: true
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
