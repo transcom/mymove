@@ -19,8 +19,20 @@ const multiRoleWrapperStyle = styles['dropdown-wrapper-style'];
 const multiRoleUlContainerStyle = styles['dropdown-ul-container-style'];
 
 export const roleLookupValues = Object.fromEntries(
-  adminOfficeRoles.map(({ roleType, name }) => [roleType, { roleType, name }]),
+  adminOfficeRoles.map(({ roleType, name, abbv }) => [roleType, { roleType, name, abbv }]),
 );
+
+const roleOrder = [
+  roleLookupValues.services_counselor,
+  roleLookupValues.task_ordering_officer,
+  roleLookupValues.task_invoicing_officer,
+  roleLookupValues.qae,
+  roleLookupValues.customer_service_representative,
+  roleLookupValues.gsr,
+  roleLookupValues.headquarters,
+  roleLookupValues.contracting_officer,
+  roleLookupValues.prime_simulator,
+];
 
 const EMPTY_ROLE = 'none';
 
@@ -53,7 +65,7 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
 
   const [rolesAvailableToUser] = useMemo(() => {
     const lookup = Object.fromEntries([[assumedRoleType, assumedRoleType], ...userRoleTypes.map((e) => [e, e])]);
-    const result = adminOfficeRoles.filter(({ roleType }) => lookup[roleType] === roleType);
+    const result = roleOrder.filter(({ roleType }) => lookup[roleType] === roleType);
     return [result];
   }, [userRoleTypes, assumedRoleType]);
 
@@ -70,11 +82,14 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
           no role
         </option>
       ) : (
-        rolesAvailableToUser.map(({ roleType, abbv }) => (
-          <option key={roleType} value={roleType} hidden={assumedRoleType === roleType}>
-            {abbv}
-          </option>
-        ))
+        rolesAvailableToUser.map(({ roleType, abbv }) => {
+          const current = assumedRoleType === roleType;
+          return (
+            <option key={roleType} value={roleType} selected={current}>
+              {abbv}
+            </option>
+          );
+        })
       ),
     [rolesAvailableToUser, assumedRoleType],
   );
