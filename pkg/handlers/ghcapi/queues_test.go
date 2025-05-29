@@ -1741,10 +1741,14 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 	suite.Run("returns moves in the needs counseling status by default", func() {
 		subtestData := suite.makeCounselingSubtestData()
 
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
 		params := queues.GetCounselingQueueParams{
 			HTTPRequest: subtestData.request,
 			Sort:        models.StringPointer("branch"),
 			Order:       models.StringPointer("asc"),
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -1767,9 +1771,13 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 
 	suite.Run("returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
 		subtestData := suite.makeCounselingSubtestData()
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
 		params := queues.GetCounselingQueueParams{
 			HTTPRequest: subtestData.request,
 			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
 		}
 
 		response := subtestData.handler.Handle(params)
@@ -1800,8 +1808,12 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 		request := httptest.NewRequest("GET", "/queues/counselingQueue", nil)
 		request = suite.AuthenticateOfficeRequest(request, user)
 
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
 		params := queues.GetCounselingQueueParams{
 			HTTPRequest: request,
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
 		}
 
 		response := subtestData.handler.Handle(params)

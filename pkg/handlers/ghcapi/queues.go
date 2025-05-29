@@ -775,16 +775,6 @@ func (h GetCounselingQueueHandler) Handle(
 				counselingQueueParams.Status = params.Status
 			}
 
-			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-			// for perPage.
-			if params.Page == nil {
-				counselingQueueParams.Page = models.Int64Pointer(1)
-			}
-			// Same for perPage
-			if params.PerPage == nil {
-				counselingQueueParams.PerPage = models.Int64Pointer(20)
-			}
-
 			var officeUser models.OfficeUser
 			var assignedGblocs []string
 			var err error
