@@ -95,6 +95,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
 	vLocation := address.NewVLocation()
+	vIntlLocation := address.NewVIntlLocation()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
@@ -300,6 +301,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
 		handlerConfig,
 		vLocation,
+	}
+
+	internalAPI.AddressesGetOconusLocationHandler = GetOconusLocationHandler{
+		handlerConfig,
+		vIntlLocation,
 	}
 
 	internalAPI.ValidationCodeValidateCodeHandler = ValidationCodeValidationCodeHandler{

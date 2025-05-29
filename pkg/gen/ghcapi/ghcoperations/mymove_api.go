@@ -240,6 +240,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetMovesQueueHandler: queues.GetMovesQueueHandlerFunc(func(params queues.GetMovesQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetMovesQueue has not yet been implemented")
 		}),
+		AddressesGetOconusLocationHandler: addresses.GetOconusLocationHandlerFunc(func(params addresses.GetOconusLocationParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetOconusLocation has not yet been implemented")
+		}),
 		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		}),
@@ -606,6 +609,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// QueuesGetMovesQueueHandler sets the operation handler for the get moves queue operation
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
+	// AddressesGetOconusLocationHandler sets the operation handler for the get oconus location operation
+	AddressesGetOconusLocationHandler addresses.GetOconusLocationHandler
 	// OrderGetOrderHandler sets the operation handler for the get order operation
 	OrderGetOrderHandler order.GetOrderHandler
 	// PpmGetPPMActualWeightHandler sets the operation handler for the get p p m actual weight operation
@@ -994,6 +999,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesGetMovesQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetMovesQueueHandler")
+	}
+	if o.AddressesGetOconusLocationHandler == nil {
+		unregistered = append(unregistered, "addresses.GetOconusLocationHandler")
 	}
 	if o.OrderGetOrderHandler == nil {
 		unregistered = append(unregistered, "order.GetOrderHandler")
@@ -1516,6 +1524,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/moves"] = queues.NewGetMovesQueue(o.context, o.QueuesGetMovesQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/oconus-lookup/{country}/{search}"] = addresses.NewGetOconusLocation(o.context, o.AddressesGetOconusLocationHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
