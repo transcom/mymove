@@ -70,9 +70,9 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
           no role
         </option>
       ) : (
-        rolesAvailableToUser.map(({ roleType, name }) => (
-          <option key={roleType} value={roleType}>
-            {name}
+        rolesAvailableToUser.map(({ roleType, abbv }) => (
+          <option key={roleType} value={roleType} hidden={assumedRoleType === roleType}>
+            {abbv}
           </option>
         ))
       ),
@@ -114,7 +114,9 @@ const MultiRoleSelectApplication = ({ inactiveRoles, setActiveRole, activeRole }
 
   return (
     <label className={classNames(multiRoleUlContainerStyle, multiRoleWrapperStyle)}>
-      <div id={labelTextId} aria-label={selectDescription} aria-hidden />
+      <div id={labelTextId} aria-label={selectDescription} aria-hidden>
+        Role:
+      </div>
       {selectDropdownContent}
     </label>
   );
