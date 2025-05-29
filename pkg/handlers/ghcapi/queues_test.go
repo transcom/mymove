@@ -1738,8 +1738,6 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 			Order:       models.StringPointer("asc"),
 		}
 
-		// Validate incoming payload: no body to validate
-
 		response := subtestData.handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&queues.GetCounselingQueueOK{}, response)
@@ -1764,8 +1762,6 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 			HTTPRequest: subtestData.request,
 			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
 		}
-
-		// Validate incoming payload: no body to validate
 
 		response := subtestData.handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -1799,14 +1795,11 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 			HTTPRequest: request,
 		}
 
-		// Validate incoming payload: no body to validate
-
 		response := subtestData.handler.Handle(params)
 		suite.IsNotErrResponse(response)
 		suite.IsType(&queues.GetCounselingQueueForbidden{}, response)
 		payload := response.(*queues.GetCounselingQueueForbidden).Payload
 
-		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
 	})
 }

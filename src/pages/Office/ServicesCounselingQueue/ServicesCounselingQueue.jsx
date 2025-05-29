@@ -517,9 +517,7 @@ export const serviceCounselingColumns = (
     createHeader(
       'Status',
       (row) => {
-        return row.status !== MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED
-          ? SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`]
-          : null;
+        return SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`];
       },
       {
         id: 'status',

@@ -25,15 +25,13 @@ func (o *counselingQueueFetcher) FetchCounselingQueue(appCtx appcontext.AppConte
 	movesWithCount, err := getCounselingQueueDbFunc(counselingQueueParams, appCtx)
 	if err != nil {
 		appCtx.Logger().
-			Error("error fetching list of moves for office user", zap.Error(err))
+			Error("error in method getCounselingQueueDbFunc. Failed to fetch list of moves for the counseling queue", zap.Error(err))
 		return models.Moves{}, 0, err
 	}
 
-	var count int64
+	count := int64(0)
 	if len(movesWithCount) > 0 {
 		count = movesWithCount[0].TotalCount
-	} else {
-		count = 0
 	}
 
 	moves, err := movesWithCountToMoves(movesWithCount)

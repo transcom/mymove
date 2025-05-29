@@ -4012,9 +4012,9 @@ paths:
           type: string
           description: filters to match the unique service member's EMPLID
         - in: query
-          name: requestedMoveDate
+          name: requestedMoveDates
           type: string
-          description: filters the requested pickup date of a shipment on the move
+          description: filters the requested pickup dates from shipments on the move
         - in: query
           name: submittedAt
           type: string

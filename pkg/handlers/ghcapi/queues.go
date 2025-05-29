@@ -754,7 +754,7 @@ func (h GetCounselingQueueHandler) Handle(
 				CustomerName:           params.CustomerName,
 				OriginDutyLocationName: params.OriginDutyLocation,
 				SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
-				RequestedMoveDate:      params.RequestedMoveDate,
+				RequestedMoveDate:      params.RequestedMoveDates,
 				Page:                   params.Page,
 				PerPage:                params.PerPage,
 				Sort:                   params.Sort,
@@ -842,9 +842,8 @@ func (h GetCounselingQueueHandler) Handle(
 			hasSafetyPrivilege := privileges.HasPrivilege(roles.PrivilegeTypeSafety)
 			counselingQueueParams.HasSafetyPrivilege = &hasSafetyPrivilege
 
-			var moves models.Moves
-			var count int64
-			moves, count, err = h.FetchCounselingQueue(appCtx, counselingQueueParams)
+			moves, count, err := h.FetchCounselingQueue(appCtx, counselingQueueParams)
+
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))

@@ -87,10 +87,10 @@ type GetCounselingQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
-	/*filters the requested pickup date of a shipment on the move
+	/*filters the requested pickup dates from shipments on the move
 	  In: query
 	*/
-	RequestedMoveDate *string
+	RequestedMoveDates *string
 	/*field that results should be sorted by
 	  In: query
 	*/
@@ -187,8 +187,8 @@ func (o *GetCounselingQueueParams) BindRequest(r *http.Request, route *middlewar
 		res = append(res, err)
 	}
 
-	qRequestedMoveDate, qhkRequestedMoveDate, _ := qs.GetOK("requestedMoveDate")
-	if err := o.bindRequestedMoveDate(qRequestedMoveDate, qhkRequestedMoveDate, route.Formats); err != nil {
+	qRequestedMoveDates, qhkRequestedMoveDates, _ := qs.GetOK("requestedMoveDates")
+	if err := o.bindRequestedMoveDates(qRequestedMoveDates, qhkRequestedMoveDates, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -475,8 +475,8 @@ func (o *GetCounselingQueueParams) bindPerPage(rawData []string, hasKey bool, fo
 	return nil
 }
 
-// bindRequestedMoveDate binds and validates parameter RequestedMoveDate from query.
-func (o *GetCounselingQueueParams) bindRequestedMoveDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindRequestedMoveDates binds and validates parameter RequestedMoveDates from query.
+func (o *GetCounselingQueueParams) bindRequestedMoveDates(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -488,7 +488,7 @@ func (o *GetCounselingQueueParams) bindRequestedMoveDate(rawData []string, hasKe
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-	o.RequestedMoveDate = &raw
+	o.RequestedMoveDates = &raw
 
 	return nil
 }
