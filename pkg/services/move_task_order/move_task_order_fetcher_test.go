@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/entitlements"
@@ -1435,5 +1436,57 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAcknowledgeme
 		suite.Len(primeMoves, 1, "Move 1 was acknowledged today and was udpated today")
 		suite.Equal(move1.ID, primeMoves[0].ID)
 
+	})
+	suite.Run("Success with fetching a MTO with RankID", func() {
+		// Create a rank
+		rank := factory.BuildRank(suite.DB(), nil, nil)
+
+		rankID := rank.ID
+		orders := models.Order{
+			RankID: &rankID,
+		}
+
+		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: orders,
+			},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.NotNil(actualMTO.Orders.RankID)
+		suite.Equal(*expectedMTO.Orders.RankID, *actualMTO.Orders.RankID)
+		suite.NotNil(actualMTO.Orders.Rank)
+		suite.Equal(internalmessages.OrderPayGradeE1, *actualMTO.Orders.Grade)
+		suite.Equal(rank.RankName, actualMTO.Orders.Rank.RankName)
+	})
+
+	suite.Run("Success with fetching a MTO without RankID", func() {
+		// Create a move without a RankID
+
+		orders := models.Order{
+			RankID: nil,
+		}
+
+		expectedMTO := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: orders,
+			},
+		}, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		actualMTO, err := fetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Nil(actualMTO.Orders.RankID)
+		suite.Nil(actualMTO.Orders.Rank)
 	})
 }
