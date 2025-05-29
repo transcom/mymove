@@ -72,7 +72,7 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ serv
 		moveRouter,
 		moveWeights,
 		recalculator,
-		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement()},
+		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement(), MTOShipmentHasValidRequestedPickupDate()},
 	}
 }
 
@@ -86,7 +86,7 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ servic
 		moveRouter,
 		moveWeights,
 		recalculator,
-		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement()},
+		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate(), checkUBShipmentOCONUSRequirement(), MTOShipmentHasValidRequestedPickupDate()},
 	}
 }
 
@@ -108,6 +108,7 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ service
 
 // setNewShipmentFields validates the updated shipment
 func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
+
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}

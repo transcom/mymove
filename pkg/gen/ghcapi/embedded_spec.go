@@ -13937,7 +13937,11 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "id": {
           "type": "string",
@@ -13985,6 +13989,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -32626,7 +32635,11 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "destinationDutyLocation": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "id": {
           "type": "string",
@@ -32674,6 +32687,11 @@ func init() {
         "requestedMoveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "requestedMoveDates": {
+          "description": "comma‑separated list of shipment dates (YYYY‑MM‑DD)",
+          "type": "string",
           "x-nullable": true
         },
         "shipmentsCount": {
