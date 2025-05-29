@@ -86,6 +86,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const allowedOrdersTypes = {
     ...ORDERS_TYPE_OPTIONS,
     ...(isSafetyPrivileged ? { SAFETY: 'Safety' } : {}),
+    ...(isBluebarkMoveSelected ? { BLUEBARK: 'BLUEBARK' } : {}),
   };
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 

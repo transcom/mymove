@@ -68,12 +68,12 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
     grade: currentOrders?.grade || null,
     origin_duty_location: currentOrders?.origin_duty_location || null,
   };
-
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
   const allowedOrdersTypes = showAllOrdersTypes
     ? ORDERS_TYPE_OPTIONS
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
+
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   return (

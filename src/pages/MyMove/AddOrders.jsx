@@ -152,6 +152,7 @@ const AddOrders = ({
   const allowedOrdersTypes = showAllOrdersTypes
     ? ORDERS_TYPE_OPTIONS
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
+
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   if (isLoading) {
