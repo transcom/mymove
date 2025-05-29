@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
@@ -34,50 +33,6 @@ func BuildRank(db *pop.Connection, customs []Customization, traits []Trait) mode
 		}
 
 		rank.Affiliation = string(models.DepartmentIndicatorARMY)
-		rank.RankAbbv = "SrA"
-		rank.RankName = "Senior Airman"
-
-		mustCreate(db, &rank)
-	}
-
-	return rank
-}
-
-// lookup a privilege by privilege type, if it doesn't exist make it
-func FetchOrBuildRankByPayGradeAndAffiliation(db *pop.Connection, payGrade string, affiliation string) models.Rank {
-	var rank models.Rank
-	var pg models.PayGrade
-
-	// doesn't work if you try to fetch rank and join pay grade for some reason
-	err := db.Q().Where("grade = $1", payGrade).First(&pg)
-	if err != nil {
-		log.Panic(fmt.Errorf("database is not configured properly and is missing static pay grade data. pay grade: %s err: %w", payGrade, err))
-	}
-
-	err = db.Q().Where("pay_grade_id = $1", pg.ID).First(&rank)
-	if err != nil && err != sql.ErrNoRows {
-		log.Panic(fmt.Errorf("database is not configured properly and is missing static pay grade data. pay grade: %s err: %w", payGrade, err))
-	} else if err == nil {
-		return rank
-	}
-
-	return BuildRankForFetch(db, payGrade, affiliation)
-}
-func BuildRankForFetch(db *pop.Connection, payGrade string, affiliation string) models.Rank {
-
-	var rank models.Rank
-
-	if db != nil {
-		var existingPayGrade models.PayGrade
-		err := db.Where("grade = ?", payGrade).First(&existingPayGrade)
-		if err == nil {
-			// PayGrade exists
-			rank.PayGradeID = existingPayGrade.ID
-		} else {
-			log.Panic(fmt.Errorf("database is not configured properly and is missing static hhg allowance and pay grade data. pay grade: %s err: %w", models.ServiceMemberGradeE4, err))
-		}
-
-		rank.Affiliation = affiliation
 		rank.RankAbbv = "SrA"
 		rank.RankName = "Senior Airman"
 

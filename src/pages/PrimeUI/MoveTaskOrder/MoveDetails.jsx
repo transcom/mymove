@@ -217,7 +217,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                     <dd>{`${moveTaskOrder.order.rank}`}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
-                    <dt>PayGrade:</dt>
+                    <dt>Pay Grade:</dt>
                     <dd>{`${payGradeFormat(moveTaskOrder.order.grade)}`}</dd>
                   </div>
                   <div className={descriptionListStyles.row}>
