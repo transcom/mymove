@@ -64,8 +64,8 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               suffix="lbs"
               onInput={handleEstimatedWeight}
             />
-            <Label className={styles.Label}>Pro-gear?</Label>
-            <FormGroup>
+            <Label className={styles.radioLabel}>Pro-gear?</Label>
+            <FormGroup className={styles.radioGroup}>
               <Radio
                 id="hasProGearYes"
                 label="Yes"
@@ -117,8 +117,8 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
             )}
             {isGunSafeEnabled && (
               <>
-                <Label className={styles.Label}>Gun safe?</Label>
-                <FormGroup>
+                <Label className={styles.radioLabel}>Gun safe?</Label>
+                <FormGroup className={styles.radioGroup}>
                   <Radio
                     id="hasGunSafeYes"
                     label="Yes"

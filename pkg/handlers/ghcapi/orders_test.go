@@ -1795,7 +1795,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(*body.StorageInTransit, *ordersPayload.Entitlement.StorageInTransit)
 	})
 
-	suite.Run("Returns 200 when all validations pass - gun safe FF off", func() {
+	suite.Run("Returns 200 when all validations pass - gun safe FF off, SC only", func() {
 		handlerConfig := suite.HandlerConfig()
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 		order := move.Orders

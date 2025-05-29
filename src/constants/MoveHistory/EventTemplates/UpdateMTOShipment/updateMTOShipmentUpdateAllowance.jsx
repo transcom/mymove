@@ -11,10 +11,15 @@ export const formatChangedValues = (historyRecord) => {
   return formatMoveHistoryMaxBillableWeight(formattedRecord);
 };
 
+export const isUpdatedAllowances = (changedValues) => {
+  return changedValues.gun_safe !== undefined || changedValues.gun_safe_weight !== undefined;
+};
+
 export default {
   action: a.UPDATE,
   eventName: o.updateMTOShipment,
   tableName: t.entitlements,
-  getEventNameDisplay: () => 'Updated shipment',
+  getEventNameDisplay: ({ changedValues }) =>
+    isUpdatedAllowances(changedValues) ? 'Updated allowances' : 'Updated shipment',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
