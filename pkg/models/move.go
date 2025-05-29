@@ -860,8 +860,8 @@ func ClearTOOAssignments(move *Move) (*Move, error) {
 
 	// clear out the origin-TOO assignment if nothing origin-type is still pending
 	if !originPending {
-		move.TOOAssignedID = nil
-		move.TOOAssignedUser = nil
+		move.TOOTaskOrderAssignedID = nil
+		move.TOOTaskOrderAssignedUser = nil
 	}
 
 	// clear out the destination-TOO assignment if nothing destination-type is still pending
