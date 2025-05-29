@@ -13,7 +13,7 @@ export default {
     return (
       <>
         <div> Counseling Completed </div>
-        {changedValues?.sc_assigned_id !== undefined ? <div> Counselor Unassigned </div> : null}
+        {changedValues?.sc_counseling_assigned_id !== undefined ? <div> Counselor Unassigned </div> : null}
       </>
     );
   },
