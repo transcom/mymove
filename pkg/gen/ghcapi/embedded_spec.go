@@ -5371,8 +5371,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the requested pickup date of a shipment on the move",
-            "name": "requestedMoveDate",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
             "in": "query"
           },
           {
@@ -24478,8 +24478,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the requested pickup date of a shipment on the move",
-            "name": "requestedMoveDate",
+            "description": "filters the requested pickup dates from shipments on the move",
+            "name": "requestedMoveDates",
             "in": "query"
           },
           {
