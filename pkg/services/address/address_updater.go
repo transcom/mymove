@@ -1,6 +1,8 @@
 package address
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -52,7 +54,7 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 	// 	return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", mergedAddress.Country.Country)
 	// }
 	// first we will check to see if the country values have changed at all
-	if mergedAddress.CountryId != nil {
+	if mergedAddress.CountryId != nil && mergedAddress.CountryId != &uuid.Nil {
 		country, err := models.FetchCountryByID(appCtx.DB(), *mergedAddress.CountryId)
 		if err != nil {
 			return nil, err
@@ -110,7 +112,7 @@ func mergeAddress(address, originalAddress models.Address) models.Address {
 	if address.UsPostRegionCityID != nil {
 		mergedAddress.UsPostRegionCityID = address.UsPostRegionCityID
 	}
-	if address.CountryId != nil {
+	if address.CountryId != nil && *address.CountryId != uuid.Nil {
 		mergedAddress.CountryId = address.CountryId
 	}
 
