@@ -644,8 +644,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
@@ -881,6 +879,14 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
 	}
 
+	if movingExpense.PaidWithGTCC != nil {
+		model.PaidWithGTCC = handlers.FmtBool(*movingExpense.PaidWithGTCC)
+	}
+
+	if movingExpense.MissingReceipt != nil {
+		model.MissingReceipt = handlers.FmtBool(*movingExpense.MissingReceipt)
+	}
+
 	model.Amount = handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount)
 	model.SITStartDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate)
 	model.SITEndDate = handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate)
@@ -996,4 +1002,15 @@ func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
 		UsprcCountyNm:        *vLocation.County,
 		UsPostRegionCitiesID: &usPostRegionCitiesID,
 	}
+}
+
+func OfficeUserModelFromUpdate(payload *ghcmessages.OfficeUserUpdate, officeUser *models.OfficeUser) *models.OfficeUser {
+	if payload == nil || officeUser == nil {
+		return officeUser
+	}
+
+	if payload.Telephone != nil {
+		officeUser.Telephone = *payload.Telephone
+	}
+	return officeUser
 }

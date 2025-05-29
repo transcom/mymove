@@ -14,7 +14,7 @@ import ToolTip from 'shared/ToolTip/ToolTip';
 import { DatePickerInput, DropdownInput, DutyLocationInput } from 'components/form/fields';
 import RequiredAsterisk, { requiredAsteriskMessage } from 'components/form/RequiredAsterisk';
 import { Form } from 'components/form/Form';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -482,7 +482,7 @@ const AddOrdersForm = ({
                     labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                     label={
                       <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                        If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                        If the customer&apos;s orders specify a UB weight allowance, enter it here.
                         <ToolTip
                           text={
                             <span className={styles.toolTipText}>
@@ -516,7 +516,7 @@ const AddOrdersForm = ({
                       labelHint={<span className={styles.civilianUBAllowanceLabel}>Optional</span>}
                       label={
                         <Label onClick={toggleCivilianTDYUBTooltip} className={styles.labelwithToolTip}>
-                          If the customer&apos;s orders specify a specific UB weight allowance, enter it here.
+                          If the customer&apos;s orders specify a UB weight allowance, enter it here.
                           <ToolTip
                             text={
                               <span className={styles.toolTipText}>

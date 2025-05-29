@@ -31,7 +31,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -121,20 +120,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		if isInternational {
 			serviceCode = models.ReService{Code: models.ReServiceCodeIOFSIT}
 		}
-
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(10, 1, 1)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID:                   mto.ID,
@@ -810,20 +795,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-		startDate := time.Now().AddDate(-10, 0, 0)
 		sitDepartureDate := time.Now().Add(time.Hour * 72)
-		endDate := startDate.AddDate(10, 1, 1)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
 
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -1125,18 +1097,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 	}
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
-		startDate := time.Now().AddDate(-1, 0, 0)
-		endDate := startDate.AddDate(1, 1, 1)
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
-
 		subtestData = &localSubtestData{}
 		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -1379,19 +1339,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			},
 		}, nil)
 		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
-		startDate := time.Now().AddDate(-10, 0, 0)
-		endDate := startDate.AddDate(10, 1, 1)
-
-		testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeReContractYear(suite.DB(),
-			testdatagen.Assertions{
-				ReContractYear: models.ReContractYear{
-					Name:                 "Test Contract Year",
-					EscalationCompounded: 1.125,
-					StartDate:            startDate,
-					EndDate:              endDate,
-				},
-			})
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{

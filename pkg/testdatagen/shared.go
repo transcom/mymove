@@ -37,6 +37,7 @@ type Assertions struct {
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyLocation                             models.DutyLocation
+	EdiError                                 models.EdiError
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	Entitlement                              models.Entitlement
@@ -72,10 +73,12 @@ type Assertions struct {
 	ProofOfServiceDoc                        models.ProofOfServiceDoc
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
+	ReDomesticAccessorialPrice               models.ReDomesticAccessorialPrice
 	ReDomesticLinehaulPrice                  models.ReDomesticLinehaulPrice
 	ReDomesticOtherPrice                     models.ReDomesticOtherPrice
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	ReDomesticServiceAreaPrice               models.ReDomesticServiceAreaPrice
+	ReTaskOrderFee                           models.ReTaskOrderFee
 	Reimbursement                            models.Reimbursement
 	Report                                   models.EvaluationReport
 	ReportViolation                          models.ReportViolation

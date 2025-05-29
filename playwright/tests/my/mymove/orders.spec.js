@@ -33,15 +33,15 @@ test.describe('Orders', () => {
     //
     await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'new_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('New duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'new_duty_location');
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'origin_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('Current duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'origin_duty_location');
 
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
     await page
@@ -97,16 +97,18 @@ test.describe('(MultiMove) Orders', () => {
     //
     await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'new_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('New duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'new_duty_location');
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'origin_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('Current duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85364', 'origin_duty_location');
 
+    const counselingDropdown = page.getByRole('combobox', { name: 'Counseling Office' });
+    await expect(counselingDropdown.locator('option')).toHaveCount(17);
     await page.getByRole('combobox', { name: 'Counseling Office' }).selectOption({ label: 'PPPO DMO Camp Pendleton' });
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
 
@@ -136,7 +138,7 @@ test.describe('Download Orders', () => {
   test('Users can download their orders for viewing', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
 
     // Sign-in and navigate to move home page
     await customerPage.signInAsExistingCustomer(userId);
@@ -162,7 +164,7 @@ test.describe('Download Amended Orders', () => {
   test('Users can download their amended orders for viewing', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
     const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
-    const userId = move.Orders.ServiceMember.user_id;
+    const userId = move?.Orders?.service_member?.user_id;
 
     // Sign-in and navigate to move home page
     await customerPage.signInAsExistingCustomer(userId);

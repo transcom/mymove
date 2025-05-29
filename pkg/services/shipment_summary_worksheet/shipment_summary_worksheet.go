@@ -199,7 +199,7 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool, ordersType internalmessages.OrdersType) (models.SSWMaxWeightEntitlement, error) {
+func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.OrderPayGrade, orders models.Order, spouseHasProGear bool, ordersType internalmessages.OrdersType) (models.SSWMaxWeightEntitlement, error) {
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	waf := entitlements.NewWeightAllotmentFetcher()
 	entitlements, err := waf.GetWeightAllotment(appCtx, string(grade), ordersType)
@@ -208,10 +208,11 @@ func SSWGetEntitlement(appCtx appcontext.AppContext, grade internalmessages.Orde
 	}
 	//entitlements := models.GetWeightAllotment(grade, ordersType)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
-	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
-	if !hasDependents {
+	if orders.Entitlement.DependentsAuthorized == nil || !*orders.Entitlement.DependentsAuthorized {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
 		return models.SSWMaxWeightEntitlement(sswEntitlements), nil
+	} else {
+		sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
 	return models.SSWMaxWeightEntitlement(sswEntitlements), nil
@@ -242,6 +243,10 @@ const (
 
 const (
 	trustedAgentText = "Trusted Agent Requires POA \nor Letter of Authorization"
+)
+
+const (
+	safetyMoveText = "SAFETY"
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
@@ -319,12 +324,17 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.MaxIncentive
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
+
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page1.SafetyMoveHeading = safetyMoveText
+	}
+
 	return page1, nil
 }
 
@@ -413,6 +423,10 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 		government constructed cost (GCC).`
 	}
 
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page2.SafetyMoveHeading = safetyMoveText
+	}
+
 	return page2, nil
 }
 
@@ -435,6 +449,11 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data mode
 		return page3, err
 	}
 	page3.AddShipments = page3Map
+
+	if data.Order.OrdersType == internalmessages.OrdersTypeSAFETY {
+		page3.SafetyMoveHeading = safetyMoveText
+	}
+
 	return page3, nil
 }
 
@@ -1078,6 +1097,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder.Orders.Entitlement",
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
@@ -1130,7 +1150,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
 	}
 
-	weightAllotment, err := SSWGetEntitlement(appCtx, *ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
+	weightAllotment, err := SSWGetEntitlement(appCtx, *ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
 	if err != nil {
 		return nil, err
 	}
@@ -1255,7 +1275,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
-		Creation: "2024-11-13 13:44:05 UTC",
+		Creation: "2025-04-10 18:37:27 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 

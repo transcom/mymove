@@ -442,6 +442,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build international hhg move needing SC approval
+   * @returns {Promise<Move>}
+   */
+  async buildIntlHHGMoveNeedsSC() {
+    return this.buildDefault('IntlHHGMoveNeedsSC');
+  }
+
+  /**
    * Use testharness to build hhg move needing SC approval in a non-default GBLOC
    * @returns {Promise<Move>}
    */
@@ -522,6 +530,14 @@ export class TestHarness {
    */
   async buildSubmittedMoveWithPPMShipmentForSC() {
     return this.buildDefault('SubmittedMoveWithPPMShipmentForSC');
+  }
+
+  /**
+   * Use testharness to build submitted move with too created ppm shipment for SC
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithSubmittedPPMShipmentForSC() {
+    return this.buildDefault('ApprovedMoveWithSubmittedPPMShipmentForSC');
   }
 
   /**

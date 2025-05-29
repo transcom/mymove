@@ -24,6 +24,7 @@ import (
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingCompleted() {
@@ -806,8 +807,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 	setupPricerData := func() {
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		startDate := time.Date(testdatagen.GHCTestYear, time.February, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(testdatagen.GHCTestYear, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
@@ -1051,8 +1052,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	setupPricerData := func() {
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
-		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		startDate := time.Date(testdatagen.GHCTestYear, time.February, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(testdatagen.GHCTestYear, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
@@ -1412,5 +1413,187 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePPMType()
 		suite.NoError(err)
 		suite.Equal(updatedMove.ID, move.ID)
 		suite.Nil(updatedMove.PPMType)
+	})
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingSendPPMToCustomer() {
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
+	queryBuilder := query.NewQueryBuilder()
+	planner := &routemocks.Planner{}
+	ppmEstimator := &mocks.PPMEstimator{}
+	estimatedIncentive := 654321
+	sitEstimatedCost := 67500
+	maxIncentive := 987654
+
+	ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("models.PPMShipment"),
+		mock.AnythingOfType("*models.PPMShipment")).
+		Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil)
+
+	ppmEstimator.On("MaxIncentive",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("models.PPMShipment"),
+		mock.AnythingOfType("*models.PPMShipment")).
+		Return(models.CentPointer(unit.Cents(maxIncentive)), nil)
+
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		queryBuilder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
+	mtoUpdater := mt.NewMoveTaskOrderUpdater(
+		queryBuilder,
+		siCreator,
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
+	)
+
+	suite.Run("SUCCESS - send PPM to Customer", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(ppmShipment.UpdatedAt)
+
+		updatedPpmShipment, err := mtoUpdater.UpdateStatusServiceCounselingSendPPMToCustomer(session, ppmShipment, eTag, &move)
+		suite.NoError(err)
+		suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, updatedPpmShipment.Status)
+	})
+
+	suite.Run("SUCCESS - estimated and max incentives are recalculated when conditions are met", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		ppmShipment.EstimatedIncentive = nil
+		ppmShipment.MaxIncentive = nil
+		suite.MustSave(&ppmShipment)
+		eTag := etag.GenerateEtag(ppmShipment.UpdatedAt)
+		updatedPpmShipment, err := mtoUpdater.UpdateStatusServiceCounselingSendPPMToCustomer(session, ppmShipment, eTag, &move)
+		suite.NoError(err)
+		suite.NotNil(updatedPpmShipment.MaxIncentive)
+		suite.NotNil(updatedPpmShipment.EstimatedIncentive)
+	})
+
+	suite.Run("FAIL - stale eTag", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
+			},
+		}, nil)
+
+		oldTime := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
+		eTag := etag.GenerateEtag(oldTime)
+
+		_, err := mtoUpdater.UpdateStatusServiceCounselingSendPPMToCustomer(session, ppmShipment, eTag, &move)
+		suite.Error(err)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
+	})
+
+	suite.Run("FAIL - shipment not found", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: false,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(ppmShipment.UpdatedAt)
+		ppmShipment.ShipmentID = uuid.Must(uuid.NewV4())
+		_, err := mtoUpdater.UpdateStatusServiceCounselingSendPPMToCustomer(session, ppmShipment, eTag, &move)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }
