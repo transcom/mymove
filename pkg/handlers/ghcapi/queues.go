@@ -854,11 +854,6 @@ func (h GetCounselingQueueHandler) Handle(
 						moves[i] = *unlockedMove
 					}
 				}
-				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
-				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
-				if err != nil {
-					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
-				}
 			}
 
 			queueMoves := payloads.CounselingQueueMoves(moves, officeUsers, officeUser, officeUsersSafety, activeRole, string(models.QueueTypeCounseling))
