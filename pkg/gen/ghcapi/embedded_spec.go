@@ -11079,6 +11079,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "actualGunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -16323,6 +16328,11 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
+        "actualGunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualProGearWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -30095,6 +30105,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "actualGunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualPickupDate": {
           "type": "string",
           "format": "date",
@@ -35474,6 +35489,11 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
+        "actualGunSafeWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "actualProGearWeight": {
           "type": "integer",
           "x-nullable": true,

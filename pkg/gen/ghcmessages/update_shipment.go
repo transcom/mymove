@@ -20,6 +20,9 @@ import (
 // swagger:model UpdateShipment
 type UpdateShipment struct {
 
+	// actual gun safe weight
+	ActualGunSafeWeight *int64 `json:"actualGunSafeWeight"`
+
 	// actual pro gear weight
 	ActualProGearWeight *int64 `json:"actualProGearWeight"`
 

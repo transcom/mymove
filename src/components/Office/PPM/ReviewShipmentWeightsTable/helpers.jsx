@@ -154,6 +154,10 @@ export const PPMReviewWeightsTableColumns = [
       isFilterable: false,
     },
   ),
+  createHeader('Gun safe', (row) => (row.actualGunSafeWeight > 0 ? formatWeight(row.actualGunSafeWeight) : DASH), {
+    id: 'gunSafe',
+    isFilterable: false,
+  }),
   createHeader(
     'Estimated weight',
     (row) => (row.ppmShipment.estimatedWeight > 0 ? formatWeight(row.ppmShipment.estimatedWeight) : DASH),
