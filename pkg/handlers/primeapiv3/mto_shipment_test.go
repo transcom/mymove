@@ -2677,6 +2677,112 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", fetchedMtoShipment.ID), nil)
 
 		eTag := etag.GenerateEtag(fetchedMtoShipment.UpdatedAt)
+		patchDateParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+
+		tomorrowPointer := models.TimePointer(time.Now().AddDate(0, 0, 1))
+		patchDateParams.Body = &primev3messages.UpdateMTOShipment{
+			ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
+			// Estimated weight is intentionally omitted as it is not needed for UB shipments' RDD
+		}
+
+		// setting the AK flag to true
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: true,
+		}
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+
+		patchResponse := patchHandler.Handle(patchDateParams)
+		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+
+		responsePayload := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
+	})
+
+	suite.Run("PATCH Success - updates a intra-Alaska HHG shipment's required delivery date when a scheduled pickup date is provided", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Create an approved intra Alaska HHG shipment, add a scheduled delivery date but leave the estimted weight nil.
+		// Expected:   200 Response returned, RDD set
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		zone4Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "CORDOVA",
+					State:          "AK",
+					PostalCode:     "99677",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+		zone1Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "Fort Richardson",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    zone4Address,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    zone1Address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		var fetchedMove models.Move
+		err := suite.DB().Find(&fetchedMove, move.ID)
+		suite.NoError(err)
+		var fetchedMtoShipment models.MTOShipment
+		err = suite.DB().Find(&fetchedMtoShipment, hhgShipment.ID)
+		suite.NoError(err)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", fetchedMtoShipment.ID), nil)
+
+		eTag := etag.GenerateEtag(fetchedMtoShipment.UpdatedAt)
 		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   patchReq,
 			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
@@ -2686,6 +2792,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		tomorrowPointer := models.TimePointer(time.Now().AddDate(0, 0, 1))
 		patchParams.Body = &primev3messages.UpdateMTOShipment{
 			ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
+			// Estimated weight is intentionally omitted as it is not needed for UB shipments' RDD
 		}
 
 		// setting the AK flag to true
@@ -2709,6 +2816,381 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
 
 		responsePayload := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
+	})
+
+	suite.Run("PATCH Success - doesn't update an intra-Alaska HHG shipment's required delivery date when prime estimated weight is provided", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Create an approved intra Alaska HHG shipment. Add estimted weight this should succeed but not update the RDD. Patch a scheduled pickup date.
+		// Expected:   200 Response returned, RDD set
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		zone2Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "FORT WAINWRIGHT",
+					State:          "AK",
+					PostalCode:     "99703",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+		zone1Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "Fort Richardson",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    zone2Address,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    zone1Address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		var fetchedMove models.Move
+		err := suite.DB().Find(&fetchedMove, move.ID)
+		suite.NoError(err)
+		var fetchedMtoShipment models.MTOShipment
+		err = suite.DB().Find(&fetchedMtoShipment, hhgShipment.ID)
+		suite.NoError(err)
+
+		// setting the AK flag to true
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: true,
+		}
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", fetchedMtoShipment.ID), nil)
+
+		eTag := etag.GenerateEtag(fetchedMtoShipment.UpdatedAt)
+		patchWeightParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+
+		// Update the just the weight, no RDD should be calculated
+		patchWeightParams.Body = &primev3messages.UpdateMTOShipment{
+			PrimeEstimatedWeight: models.Int64Pointer(1000),
+		}
+
+		patchResponse := patchHandler.Handle(patchWeightParams)
+		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+
+		responsePayload := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.Nil(responsePayload.Payload.RequiredDeliveryDate)
+
+		// Update the scheduled pickup date, RDD should be calculated
+		suite.NotNil(responsePayload.Payload.UpdatedAt)
+		eTag = etag.GenerateEtag(time.Time(responsePayload.Payload.UpdatedAt))
+		patchDateParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+
+		tomorrowPointer := models.TimePointer(time.Now().AddDate(0, 0, 1))
+		patchDateParams.Body = &primev3messages.UpdateMTOShipment{
+			ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
+		}
+
+		patchResponse = patchHandler.Handle(patchDateParams)
+		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+
+		responsePayload = patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
+	})
+
+	suite.Run("PATCH Success - doesn't update an CONUS/Alaska HHG shipment's required delivery date when just scheduled pickup date is provided", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Create an approved CONUS to Alaska HHG shipment. Add scheduled pickup date this should succeed but not update the RDD. Patch a scheduled pickup date.
+		// Expected:   200 Response returned, RDD set
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		conusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "Charlotte",
+					State:          "NC",
+					PostalCode:     "28290",
+				},
+			}}, nil)
+		zone1Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "Fort Richardson",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+			}}, nil)
+
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    conusAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    zone1Address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		var fetchedMove models.Move
+		err := suite.DB().Find(&fetchedMove, move.ID)
+		suite.NoError(err)
+		var fetchedMtoShipment models.MTOShipment
+		err = suite.DB().Find(&fetchedMtoShipment, hhgShipment.ID)
+		suite.NoError(err)
+
+		// setting the AK flag to true
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: true,
+		}
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", fetchedMtoShipment.ID), nil)
+
+		eTag := etag.GenerateEtag(fetchedMtoShipment.UpdatedAt)
+		firstPatchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+
+		// Update just the scheduled pickup date, no RDD should be calculated
+		tomorrowPointer := models.TimePointer(time.Now().AddDate(0, 0, 1))
+		firstPatchParams.Body = &primev3messages.UpdateMTOShipment{
+			ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
+		}
+
+		patchResponse := patchHandler.Handle(firstPatchParams)
+		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+
+		responsePayload := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.Nil(responsePayload.Payload.RequiredDeliveryDate)
+
+		// Update the weight, RDD should be calculated
+		suite.NotNil(responsePayload.Payload.UpdatedAt)
+		eTag = etag.GenerateEtag(time.Time(responsePayload.Payload.UpdatedAt))
+		secondPatchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+
+		secondPatchParams.Body = &primev3messages.UpdateMTOShipment{
+			PrimeEstimatedWeight: models.Int64Pointer(1000),
+		}
+
+		patchResponse = patchHandler.Handle(secondPatchParams)
+		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+
+		responsePayload = patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
+	})
+
+	suite.Run("PATCH Success - doesn't update an CONUS/CONUS HHG shipment's required delivery date when just scheduled pickup date is provided", func() {
+		// Under Test: UpdateMTOShipmentHandler
+		// Setup:   Create an approved CONUS to CONUS HHG shipment. Add scheduled pickup date this should succeed but not update the RDD. Patch a scheduled pickup date.
+		// Expected:   200 Response returned, RDD set
+
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+			planner,
+			vLocationServices,
+		}
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		conusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "Scott AFB",
+					State:          "IL",
+					PostalCode:     "62225",
+				},
+			}}, nil)
+		zone1Address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1 some street",
+					City:           "JB Charleston",
+					State:          "SC",
+					PostalCode:     "29404",
+				},
+			}}, nil)
+
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    conusAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    zone1Address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		var fetchedMove models.Move
+		err := suite.DB().Find(&fetchedMove, move.ID)
+		suite.NoError(err)
+		var fetchedMtoShipment models.MTOShipment
+		err = suite.DB().Find(&fetchedMtoShipment, hhgShipment.ID)
+		suite.NoError(err)
+
+		// setting the AK flag to true
+		expectedFeatureFlag := services.FeatureFlag{
+			Key:   "enable_alaska",
+			Match: true,
+		}
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+		mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(expectedFeatureFlag, nil)
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		patchHandler.HandlerConfig = handlerConfig
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", fetchedMtoShipment.ID), nil)
+
+		eTag := etag.GenerateEtag(fetchedMtoShipment.UpdatedAt)
+		firstPatchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+
+		// Update just the scheduled pickup date, no RDD should be calculated
+		tomorrowPointer := models.TimePointer(time.Now().AddDate(0, 0, 1))
+		firstPatchParams.Body = &primev3messages.UpdateMTOShipment{
+			ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
+		}
+
+		patchResponse := patchHandler.Handle(firstPatchParams)
+		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+
+		responsePayload := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+		suite.Nil(responsePayload.Payload.RequiredDeliveryDate)
+
+		// Update the weight, RDD should be calculated
+		suite.NotNil(responsePayload.Payload.UpdatedAt)
+		eTag = etag.GenerateEtag(time.Time(responsePayload.Payload.UpdatedAt))
+		secondPatchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: strfmt.UUID(fetchedMtoShipment.ID.String()),
+			IfMatch:       eTag,
+		}
+
+		secondPatchParams.Body = &primev3messages.UpdateMTOShipment{
+			PrimeEstimatedWeight: models.Int64Pointer(1000),
+		}
+
+		patchResponse = patchHandler.Handle(secondPatchParams)
+		suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+
+		responsePayload = patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 		suite.NotNil(responsePayload.Payload.RequiredDeliveryDate)
 	})
