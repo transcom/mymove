@@ -89,6 +89,7 @@ function formatShipmentDate(shipmentDateString) {
 function showShipmentFilter(shipment) {
   return (
     shipment.status === shipmentStatuses.APPROVED ||
+    shipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELED ||
@@ -825,6 +826,7 @@ export const MoveTaskOrder = (props) => {
     mtoShipments?.forEach((mtoShipment) => {
       if (
         mtoShipment.status === shipmentStatuses.APPROVED ||
+        mtoShipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
         mtoShipment.status === shipmentStatuses.DIVERSION_REQUESTED
       ) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
@@ -1235,7 +1237,7 @@ export const MoveTaskOrder = (props) => {
           </div>
 
           <div className={moveTaskOrderStyles.weightHeader} id="move-weights">
-            <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
+            <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.authorizedWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
               {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) &&
@@ -1267,6 +1269,7 @@ export const MoveTaskOrder = (props) => {
           {mtoShipments.map((mtoShipment) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
+              mtoShipment.status !== shipmentStatuses.APPROVALS_REQUESTED &&
               mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
               mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED &&
               mtoShipment.status !== shipmentStatuses.CANCELED &&

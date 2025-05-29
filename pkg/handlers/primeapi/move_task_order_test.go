@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
+	"regexp"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -388,7 +389,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		now := time.Now()
 		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			Move: successMove,
 			Reweigh: models.Reweigh{
 				VerificationReason:     models.StringPointer("Justification"),
@@ -396,6 +397,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Weight:                 models.PoundPointer(4000),
 			},
 		})
+		suite.NoError(err)
 
 		// Validate incoming payload: no body to validate
 
@@ -962,7 +964,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		successShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
+					Status:              models.MTOShipmentStatusApproved,
+					RequestedPickupDate: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -1068,7 +1071,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Value:   "TEST",
 			},
 			{
-				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Key:     models.ServiceItemParamNameMTOEarliestRequestedPickup,
 				KeyType: models.ServiceItemParamTypeTimestamp,
 				Value:   "2023-05-03T14:38:30Z",
 			},
@@ -1452,7 +1455,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		later := nowDate.AddDate(0, 0, 3) // this is an arbitrary amount
 		finalAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		contact1 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+		contact1, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				DateOfContact:              time.Date(2023, time.December, 04, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1400Z",
@@ -1460,8 +1463,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Type:                       models.CustomerContactTypeFirst,
 			},
 		})
+		suite.NoError(err)
 
-		contact2 := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+		contact2, err := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
 				DateOfContact:              time.Date(2023, time.December, 8, 0, 0, 0, 0, time.UTC),
 				TimeMilitary:               "1600Z",
@@ -1469,6 +1473,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Type:                       models.CustomerContactTypeSecond,
 			},
 		})
+		suite.NoError(err)
+
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
@@ -1987,7 +1993,25 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		}
 
 		ppmEstimator := &mocks.PPMEstimator{}
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+			planner,
+			queryBuilder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
@@ -2071,7 +2095,25 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		}
 
 		ppmEstimator := &mocks.PPMEstimator{}
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(
+			planner,
+			queryBuilder,
+			moveRouter,
+			ghcrateengine.NewDomesticUnpackPricer(),
+			ghcrateengine.NewDomesticPackPricer(),
+			ghcrateengine.NewDomesticLinehaulPricer(),
+			ghcrateengine.NewDomesticShorthaulPricer(),
+			ghcrateengine.NewDomesticOriginPricer(),
+			ghcrateengine.NewDomesticDestinationPricer(),
+			ghcrateengine.NewFuelSurchargePricer(),
+			ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+			ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+			ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+			ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+			ghcrateengine.NewDomesticOriginSITPickupPricer(),
+			ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+			ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			suite.NewHandlerConfig(),
@@ -2304,9 +2346,13 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
-		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderOK)
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderOK{}, response)
+		contentDisposition := response.(*movetaskorderops.DownloadMoveOrderOK).ContentDisposition
 
-		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderOK{}, downloadMoveOrderResponse)
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(fmt.Sprintf(`inline; filename=\"Customer-ORDERS,AMENDMENTS-for-MTO-%s-\d{14}.pdf\"`, locator)).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
+
 	})
 
 	suite.Run("Successful DownloadMoveOrder - error generating PDF - 500", func() {

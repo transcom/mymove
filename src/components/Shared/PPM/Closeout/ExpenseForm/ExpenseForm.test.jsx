@@ -212,7 +212,6 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.queryByRole('heading', { level: 3, name: 'Dates' })).not.toBeInTheDocument();
-
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
@@ -251,7 +250,6 @@ describe('ExpenseForm component', () => {
       expect(screen.getByLabelText('Start date')).toHaveDisplayValue('24 Sep 2022');
       expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('End date')).toHaveDisplayValue('26 Dec 2022');
-
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });

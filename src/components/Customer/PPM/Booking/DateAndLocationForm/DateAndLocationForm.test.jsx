@@ -92,6 +92,27 @@ describe('DateAndLocationForm component', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
       expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toBeInstanceOf(HTMLInputElement);
     });
+
+    it('disables the save button if the move has been locked by an office user', async () => {
+      await act(async () => {
+        const defaultPropsWithLock = {
+          ...defaultProps,
+          mtoShipment: {
+            ppmShipment: {},
+          },
+          isMoveLocked: true,
+        };
+
+        render(
+          <Provider store={mockStore.store}>
+            <DateAndLocationForm {...defaultPropsWithLock} />
+          </Provider>,
+        );
+
+        await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+      });
+    });
   });
 
   describe('displays conditional inputs', () => {
@@ -231,7 +252,6 @@ describe('DateAndLocationForm component', () => {
       );
 
       const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
-
       await userEvent.click(hasSecondaryDestinationAddress);
       const secondaryPostalCodes = screen.getAllByTestId(/ZIP/);
       const locationLookups = screen.getAllByLabelText(/Location Lookup/);
@@ -520,6 +540,7 @@ describe('validates form fields and displays error messages', () => {
 
       // verify 2nd delivery address is populated
       expect(screen.getByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
+
       expect(address1[3]).toHaveValue('68 West Elm');
       expect(screen.getAllByText('Fort Benning, GA 94611 (Muscogee)')[1]);
 

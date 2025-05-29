@@ -938,6 +938,18 @@ export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
 
+// the above downloadPPMPaymentPacket does not return a blob, but a response
+// this call is necessary to download the packet to display in the doc viewer
+export async function fetchPaymentPacketBlob(id) {
+  const res = await fetch(`/ghc/v1/ppm-shipments/${id}/payment-packet`, {
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to download packet: ${res.status}`);
+  }
+  return res.blob();
+}
+
 export async function sendPPMToCustomer(params) {
   const operationPath = 'ppm.sendPPMToCustomer';
   return makeGHCRequest(
@@ -1074,8 +1086,8 @@ export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
 }
 
-export async function searchLocationByZipCityState(search) {
-  return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
+export async function searchLocationByZipCityState(search, includePOBoxes) {
+  return makeGHCRequest('addresses.getLocationByZipCityState', { search, includePOBoxes }, { normalize: false });
 }
 
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
@@ -1097,7 +1109,7 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, qu
 }
 
 export async function checkForLockedMovesAndUnlock(officeUserID) {
-  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
     officeUserID,
   });
 }
@@ -1111,4 +1123,42 @@ export async function deleteAssignedOfficeUserForMove({ moveID, queueType }) {
 
 export async function getAllReServiceItems() {
   return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
+}
+
+export async function submitPPMShipmentSignedCertification(ppmShipmentId) {
+  return makeGHCRequest(
+    'ppm.submitPPMShipmentDocumentation',
+    {
+      ppmShipmentId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export function getResponseError(errorOrResponse, defaultErrorMessage) {
+  const response = errorOrResponse?.response || errorOrResponse;
+  if (!response) return defaultErrorMessage;
+
+  const body = response.body || response.data || {};
+
+  const detail = body.detail || response.statusText || defaultErrorMessage;
+
+  const invalidFields = body.invalid_fields || body.invalidFields;
+
+  if (invalidFields && typeof invalidFields === 'object') {
+    const fieldErrors = Object.entries(invalidFields)
+      .map(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          return `${field}: ${messages.join(', ')}`;
+        }
+        return `${field}: ${messages}`;
+      })
+      .join('\n');
+
+    return `${detail}\n${fieldErrors}`;
+  }
+
+  return detail;
 }

@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import styles from './BoatShipmentForm.module.scss';
 
 import RequiredTag from 'components/form/RequiredTag';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
@@ -61,7 +61,7 @@ const validationShape = {
   customerRemarks: Yup.string(),
 };
 
-const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
+const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit, isMoveLocked }) => {
   const { year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
     mtoShipment?.boatShipment || {};
 
@@ -359,7 +359,12 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <Button className={styles.backButton} type="button" onClick={onBack} secondary outline>
                   Back
                 </Button>
-                <Button className={styles.saveButton} type="button" onClick={handleSubmit} disabled={!isValid}>
+                <Button
+                  className={styles.saveButton}
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={!isValid || isMoveLocked}
+                >
                   Continue
                 </Button>
               </div>

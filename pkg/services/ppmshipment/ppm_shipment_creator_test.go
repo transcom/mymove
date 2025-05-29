@@ -108,7 +108,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Fort Eisenhower",
+				City:           "WALESKA",
 				State:          "GA",
 				PostalCode:     "30183",
 				County:         models.StringPointer("COLUMBIA"),
@@ -174,7 +174,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
-				City:           "Honolulu",
+				City:           "HONOLULU",
 				State:          "HI",
 				PostalCode:     "96821",
 			},
@@ -310,41 +310,41 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		pickupAddress := models.Address{
 			StreetAddress1: "123 Any Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		secondaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		tertiaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Pickup Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		destinationAddress := models.Address{
 			StreetAddress1: "123 Any Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 
 		secondaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
 		tertiaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Destination Street",
-			City:           "SomeCity",
+			City:           "BEVERLY HILLS",
 			State:          "CA",
 			PostalCode:     "90210",
 		}
@@ -387,7 +387,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&sitExpected, createdPPMShipment.SITExpected)
 			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
-			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, createdPPMShipment.Status)
+			suite.Equal(models.PPMShipmentStatusDraft, createdPPMShipment.Status)
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
 			suite.Equal(&maxIncentive, createdPPMShipment.MaxIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
@@ -419,6 +419,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	suite.Run("Can successfully create an international PPM with incentives when existing iHHG shipment is on move", func() {
 		scOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		identity, err := models.FetchUserIdentity(suite.DB(), scOfficeUser.User.OktaID)
+		suite.NotEmpty(identity.Roles)
 		suite.NoError(err)
 
 		session := &auth.Session{
@@ -472,4 +473,83 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		suite.NotNil(createdPPMShipment.MaxIncentive)
 		suite.Equal(*createdPPMShipment.MaxIncentive, unit.Cents(maxIncentive))
 	})
+}
+
+func (suite *PPMShipmentSuite) TestPPMShipmentCreator_StatusMapping() {
+	ppmEstimator := &mocks.PPMEstimator{}
+
+	creator := NewPPMShipmentCreator(ppmEstimator, address.NewAddressCreator())
+
+	sc := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *sc.UserID,
+		IDToken:         "fake token",
+	}
+	suite.NotEmpty(sc.User.Roles)
+	session.ActiveRole = sc.User.Roles[0]
+	appCtx := suite.AppContextWithSessionForTest(session)
+
+	makePPM := func(ms models.MoveStatus) *models.PPMShipment {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{{
+			Model: models.Move{Status: ms},
+		}}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusDraft,
+			}},
+			{Model: move, LinkOnly: true},
+		}, nil)
+		return &models.PPMShipment{
+			ShipmentID:            shipment.ID,
+			Shipment:              shipment,
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			SITExpected:           models.BoolPointer(false),
+			PPMType:               models.PPMTypeIncentiveBased,
+			PickupAddress: &models.Address{
+				StreetAddress1: "123 Test St",
+				City:           "Tulsa",
+				State:          "OK",
+				PostalCode:     "74133",
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "456 Test Ave",
+				City:           "Beverly Hills",
+				State:          "CA",
+				PostalCode:     "90210",
+			},
+		}
+	}
+
+	cases := []struct {
+		name          string
+		moveStatus    models.MoveStatus
+		wantPPMStatus models.PPMShipmentStatus
+	}{
+		{"draft → draft", models.MoveStatusDRAFT, models.PPMShipmentStatusDraft},
+		{"needs service counseling → submitted", models.MoveStatusNeedsServiceCounseling, models.PPMShipmentStatusSubmitted},
+		{"submitted → waiting on customer", models.MoveStatusSUBMITTED, models.PPMShipmentStatusWaitingOnCustomer},
+		{"approvals requested → waiting on customer", models.MoveStatusAPPROVALSREQUESTED, models.PPMShipmentStatusWaitingOnCustomer},
+		{"approved → waiting on customer", models.MoveStatusAPPROVED, models.PPMShipmentStatusWaitingOnCustomer},
+		{"service counseling completed → waiting on customer", models.MoveStatusServiceCounselingCompleted, models.PPMShipmentStatusWaitingOnCustomer},
+	}
+
+	for _, tc := range cases {
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil, nil).Once()
+		ppm := makePPM(tc.moveStatus)
+		created, err := creator.CreatePPMShipmentWithDefaultCheck(appCtx, ppm)
+		suite.NoError(err, tc.name)
+		suite.Equal(tc.wantPPMStatus, created.Status, tc.name)
+	}
 }

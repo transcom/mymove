@@ -76,11 +76,10 @@ func FindByZipCode(db *pop.Connection, zipCode string) (*UsPostRegionCity, error
 	}
 	return &usprc, nil
 }
-
 func FindByZipCodeAndCity(db *pop.Connection, zipCode string, city string) (*UsPostRegionCity, error) {
 	var usprc UsPostRegionCity
 	err := db.Where("uspr_zip_id = ?", zipCode).
-		Where("u_s_post_region_city_nm = ?", city).
+		Where("lower(u_s_post_region_city_nm) = LOWER(?)", city).
 		First(&usprc)
 	if err != nil {
 		switch err {

@@ -24,7 +24,7 @@ import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import Hint from 'components/Hint/index';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedShipmentAddressUpdateReviewRequestModal from 'components/Office/ShipmentAddressUpdateReviewRequestModal/ShipmentAddressUpdateReviewRequestModal';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
@@ -880,17 +880,19 @@ const ShipmentForm = (props) => {
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
-                {!isCreatePage && mtoShipment?.status !== 'APPROVED' && (
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      handleShowCancellationModal();
-                    }}
-                    unstyled
-                  >
-                    Delete shipment
-                  </Button>
-                )}
+                {!isCreatePage &&
+                  mtoShipment?.status !== 'APPROVED' &&
+                  mtoShipment?.status !== 'APPROVALS_REQUESTED' && (
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        handleShowCancellationModal();
+                      }}
+                      unstyled
+                    >
+                      Delete shipment
+                    </Button>
+                  )}
               </div>
               {isPPM && !isAdvancePage && isServiceCounselor && isCreatePage && (
                 <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
@@ -910,7 +912,7 @@ const ShipmentForm = (props) => {
                 ) : (
                   <p data-testid="weightAllowance">
                     <strong>Weight allowance: </strong>
-                    {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
+                    {formatWeight(serviceMember.weightAllotment.authorizedWeight)}
                   </p>
                 )}
               </SectionWrapper>
@@ -920,8 +922,8 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {isMobileHome && (
-                  <MobileHomeShipmentForm
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -933,8 +935,8 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
-                {isBoat && (
-                  <BoatShipmentForm
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}

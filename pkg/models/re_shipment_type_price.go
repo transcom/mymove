@@ -7,6 +7,9 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // ReShipmentTypePrice model struct
@@ -40,4 +43,18 @@ func (r *ReShipmentTypePrice) Validate(_ *pop.Connection) (*validate.Errors, err
 		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
 		&Float64IsGreaterThan{Field: r.Factor, Name: "Factor", Compared: -0.01},
 	), nil
+}
+
+// FetchMarketFactor retrieves the market factor for a given service and contract
+func FetchMarketFactor(appCtx appcontext.AppContext, contractID, serviceID uuid.UUID, marketCode string) (float64, error) {
+	var shipmentTypePrice ReShipmentTypePrice
+
+	err := appCtx.DB().Where("contract_id = ? AND service_id = ? AND market = ?", contractID, serviceID, marketCode).
+		First(&shipmentTypePrice)
+
+	if err != nil {
+		return 0, errors.Wrap(err, "error fetching market factor")
+	}
+
+	return shipmentTypePrice.Factor, nil
 }

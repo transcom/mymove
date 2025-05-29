@@ -22,7 +22,7 @@ import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import profileImage from 'scenes/Review/images/profile.png';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
@@ -48,6 +48,7 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
   setShowLoadingSpinner,
+  isMoveLocked,
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [currentDutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
@@ -388,10 +389,10 @@ const EditOrdersForm = ({
                   </Callout>
                   <DutyLocationInput
                     name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
+                    label="Destination Location (As Authorized on Orders)"
                     displayAddress={false}
                     showRequiredAsterisk
-                    hint="Enter the option closest to your delivery address. Your move counselor will identify if there might be a cost to you."
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
                     onDutyLocationChange={(e) => {
@@ -605,7 +606,7 @@ const EditOrdersForm = ({
               <WizardNavigation
                 editMode
                 onCancelClick={onCancel}
-                disableNext={!isValid || isSubmitting}
+                disableNext={!isValid || isSubmitting || isMoveLocked}
                 onNextClick={handleSubmit}
               />
             </div>

@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,22 +21,24 @@ const STREET_ADDRESS_1_NOT_PROVIDED string = "n/a"
 
 // Address is an address
 type Address struct {
-	ID                 uuid.UUID         `json:"id" db:"id"`
-	CreatedAt          time.Time         `json:"created_at" db:"created_at"`
-	UpdatedAt          time.Time         `json:"updated_at" db:"updated_at"`
-	StreetAddress1     string            `json:"street_address_1" db:"street_address_1"`
-	StreetAddress2     *string           `json:"street_address_2" db:"street_address_2"`
-	StreetAddress3     *string           `json:"street_address_3" db:"street_address_3"`
-	City               string            `json:"city" db:"city"`
-	State              string            `json:"state" db:"state"`
-	PostalCode         string            `json:"postal_code" db:"postal_code"`
-	CountryId          *uuid.UUID        `json:"country_id" db:"country_id"`
-	Country            *Country          `belongs_to:"re_countries" fk_id:"country_id"`
-	County             *string           `json:"county" db:"county"`
-	IsOconus           *bool             `json:"is_oconus" db:"is_oconus"`
-	UsPostRegionCityID *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
-	UsPostRegionCity   *UsPostRegionCity `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
-	DestinationGbloc   *string           `db:"-"` // this tells Pop not to look in the db for this value
+	ID                  uuid.UUID          `json:"id" db:"id"`
+	CreatedAt           time.Time          `json:"created_at" db:"created_at"`
+	UpdatedAt           time.Time          `json:"updated_at" db:"updated_at"`
+	StreetAddress1      string             `json:"street_address_1" db:"street_address_1"`
+	StreetAddress2      *string            `json:"street_address_2" db:"street_address_2"`
+	StreetAddress3      *string            `json:"street_address_3" db:"street_address_3"`
+	City                string             `json:"city" db:"city"`
+	State               string             `json:"state" db:"state"`
+	PostalCode          string             `json:"postal_code" db:"postal_code"`
+	CountryId           *uuid.UUID         `json:"country_id" db:"country_id"`
+	Country             *Country           `belongs_to:"re_countries" fk_id:"country_id"`
+	County              *string            `json:"county" db:"county"`
+	IsOconus            *bool              `json:"is_oconus" db:"is_oconus"`
+	UsPostRegionCityID  *uuid.UUID         `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
+	UsPostRegionCity    *UsPostRegionCity  `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
+	DestinationGbloc    *string            `db:"-"` // this tells Pop not to look in the db for this value
+	IntlCityCountriesID *uuid.UUID         `json:"intl_city_countries_id" db:"intl_city_countries_id"`
+	IntlCityCountries   *IntlCityCountries `belongs_to:"intl_city_countries" fk_id:"intl_city_countries_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -50,7 +53,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	}
 	address := Address{}
 	var response *Address
-	if err := dbConnection.Q().Eager("Country").Find(&address, id); err != nil {
+	if err := dbConnection.Q().Eager("Country", "UsPostRegionCity").Find(&address, id); err != nil {
 		response = nil
 		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
@@ -63,13 +66,70 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
-		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
-		&validators.StringIsPresent{Field: a.City, Name: "City"},
-		&validators.StringIsPresent{Field: a.State, Name: "State"},
-		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
-	), nil
+func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, error) {
+	var vs []validate.Validator
+	vs = append(vs, &validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.City, Name: "City"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.State, Name: "State"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"})
+
+	var validPostalCode bool
+	if dbConnection != nil {
+		var err error
+		validPostalCode, err = ValidPostalCode(dbConnection, a.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if dbConnection != nil && a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil && validPostalCode {
+		validUSPRC, err := ValidateUsPostRegionCityID(dbConnection, *a)
+		if err != nil {
+			return nil, err
+		}
+
+		if !validUSPRC {
+			vs = append(vs, &validators.StringsMatch{Field: strconv.FormatBool(validUSPRC), Field2: "true", Name: "UsPostRegionCityID", Message: "UsPostRegionCityID is invalid."})
+		}
+	}
+
+	return validate.Validate(vs...), nil
+}
+
+// Validate an addresses USPRC assignment
+func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, error) {
+
+	if address.UsPostRegionCityID != nil && strings.TrimSpace(address.City) != "" && strings.TrimSpace(address.PostalCode) != "" {
+		expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			return false, err
+		}
+
+		if expectedUSPRC.ID == *address.UsPostRegionCityID {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func ValidPostalCode(db *pop.Connection, postalCode string) (bool, error) {
+
+	zipCount, err := db.Where("uspr_zip_id = $1", postalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
+	if err != nil {
+		return false, err
+	}
+
+	if zipCount == 0 {
+		return false, nil
+	}
+
+	if len(strings.TrimSpace(postalCode)) != 5 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // MarshalLogObject is required to be able to zap.Object log TDLs

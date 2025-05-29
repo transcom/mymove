@@ -7,6 +7,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import scrollToTop from 'shared/scrollToTop';
+import appendTimestampToFilename from 'utils/fileUpload';
 import {
   getResponseError,
   patchOrders,
@@ -25,7 +26,7 @@ import {
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { formatWeight, formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { FEATURE_FLAG_KEYS } from 'shared/constants';
+import { checkIfMoveIsLocked, FEATURE_FLAG_KEYS, MOVE_LOCKED_WARNING } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -43,6 +44,7 @@ const EditOrders = ({
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState('');
   const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
   const { entitlement: allowances } = currentOrder;
@@ -59,6 +61,12 @@ const EditOrders = ({
     move = currentMove || previousMoves;
     isMoveApproved = checkIfMoveStatusIsApproved(move.status);
   }
+
+  useEffect(() => {
+    if (checkIfMoveIsLocked(move)) {
+      setIsMoveLocked(true);
+    }
+  }, [move]);
 
   useEffect(() => {
     const checkAlaskaFeatureFlag = async () => {
@@ -112,24 +120,7 @@ const EditOrders = ({
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;
-
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    return createUploadForDocument(newFile, documentId);
+    return createUploadForDocument(appendTimestampToFilename(file), documentId);
   };
 
   const handleUploadComplete = async () => {
@@ -257,41 +248,49 @@ const EditOrders = ({
   }
 
   return (
-    <div className="grid-container usa-prose">
-      <div className="grid-row">
-        <div className="grid-col-12">
-          {serverError && (
-            <div className="usa-width-one-whole error-message">
-              <Alert type="error" heading="An error occurred">
-                {serverError}
-              </Alert>
-            </div>
-          )}
-          {isMoveApproved && (
-            <div className="usa-width-one-whole error-message">
-              <Alert type="warning" heading="Your move is approved">
-                To make a change to your orders, you will need to contact your local PPPO office.
-              </Alert>
-            </div>
-          )}
-          {!isMoveApproved && (
-            <div className="usa-width-one-whole" data-testid="edit-orders-form-container">
-              <EditOrdersForm
-                initialValues={initialValues}
-                onSubmit={submitOrders}
-                filePondEl={filePondEl}
-                createUpload={handleUploadFile}
-                onUploadComplete={handleUploadComplete}
-                onDelete={handleDeleteFile}
-                ordersTypeOptions={ordersTypeOptions}
-                currentDutyLocation={currentOrder?.origin_duty_location}
-                onCancel={handleCancel}
-              />
-            </div>
-          )}
+    <>
+      {isMoveLocked && (
+        <Alert headingLevel="h4" type="warning">
+          {MOVE_LOCKED_WARNING}
+        </Alert>
+      )}
+      <div className="grid-container usa-prose">
+        <div className="grid-row">
+          <div className="grid-col-12">
+            {serverError && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="error" heading="An error occurred">
+                  {serverError}
+                </Alert>
+              </div>
+            )}
+            {isMoveApproved && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="warning" heading="Your move is approved">
+                  To make a change to your orders, you will need to contact your local PPPO office.
+                </Alert>
+              </div>
+            )}
+            {!isMoveApproved && (
+              <div className="usa-width-one-whole" data-testid="edit-orders-form-container">
+                <EditOrdersForm
+                  initialValues={initialValues}
+                  onSubmit={submitOrders}
+                  filePondEl={filePondEl}
+                  createUpload={handleUploadFile}
+                  onUploadComplete={handleUploadComplete}
+                  onDelete={handleDeleteFile}
+                  ordersTypeOptions={ordersTypeOptions}
+                  currentDutyLocation={currentOrder?.origin_duty_location}
+                  onCancel={handleCancel}
+                  isMoveLocked={isMoveLocked}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

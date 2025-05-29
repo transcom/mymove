@@ -8,14 +8,14 @@ import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types/dutyLocation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
+const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, isMoveLocked }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
@@ -139,6 +139,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 onCancelClick={onCancel}
                 disableNext={!isValid || isSubmitting}
                 onNextClick={handleSubmit}
+                readOnly={isMoveLocked}
               />
             </div>
           </Form>

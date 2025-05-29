@@ -462,7 +462,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationGBLOC = originDutyLocationGBLOC
 
 				if payload.MoveID != "" {
-
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {
 						return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -568,6 +567,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					DependentsTwelveAndOver: dependentsTwelveAndOver,
 					AccompaniedTour:         payload.AccompaniedTour,
 					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
+					GunSafe:                 order.Entitlement.GunSafe,
+					GunSafeWeight:           order.Entitlement.GunSafeWeight,
 				}
 
 				/*

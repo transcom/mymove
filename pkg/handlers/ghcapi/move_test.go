@@ -312,8 +312,8 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "123 Main St",
-					City:           "Beverly Hills",
-					State:          "CA",
+					City:           "SCOTT AFB",
+					State:          "IL",
 					PostalCode:     ZIPs["AGFM"],
 				},
 			},
@@ -332,8 +332,8 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "123 Main St",
-					City:           "Beverly Hills",
-					State:          "CA",
+					City:           "EVANSVILLE",
+					State:          "IN",
 					PostalCode:     ZIPs["BGNC"],
 				},
 			},
@@ -342,8 +342,8 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			{
 				Model: models.Address{
 					StreetAddress1: "123 Main St",
-					City:           "Beverly Hills",
-					State:          "CA",
+					City:           "HALLANDALE",
+					State:          "FL",
 					PostalCode:     ZIPs["CLPK"],
 				},
 			},
@@ -1088,7 +1088,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		return req, handler, move, assignedUser
 	}
 
-	suite.Run("Successful update of a move's SC", func() {
+	suite.Run("Successful update of a move's counseling queue SC", func() {
 		req, handler, move, officeUser := setupTestData()
 
 		officeUserID := strfmt.UUID(officeUser.ID.String())
@@ -1109,7 +1109,30 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Equal(officeUserID, payload.SCAssignedUser.OfficeUserID)
+		suite.Equal(officeUserID, payload.SCCounselingAssignedUser.OfficeUserID)
+	})
+	suite.Run("Successful update of a move's closeout queue SC", func() {
+		req, handler, move, officeUser := setupTestData()
+
+		officeUserID := strfmt.UUID(officeUser.ID.String())
+		moveID := strfmt.UUID(move.ID.String())
+		queueType := string(models.QueueTypeCloseout)
+		params := moveops.UpdateAssignedOfficeUserParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.AssignOfficeUserBody{
+				OfficeUserID: &officeUserID,
+				QueueType:    &queueType,
+			},
+			MoveID: moveID,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateAssignedOfficeUserOK{}, response)
+		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(officeUserID, payload.SCCloseoutAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful update of a move's TOO", func() {
 		req, handler, move, officeUser := setupTestData()

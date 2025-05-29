@@ -201,6 +201,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 	}
 
+	// Now that we have the move and order, construct the allotment (hhg allowance)
+	// Only fetch if grade is not nil
+	if mto.Orders.Grade != nil {
+		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*mto.Orders.Grade), mto.Orders.OrdersType)
+		if err != nil {
+			return nil, err
+		}
+		mto.Orders.Entitlement.WeightAllotted = &allotment
+	}
+
 	for i := range mto.MTOShipments {
 		var nonDeletedAgents models.MTOAgents
 		loadErr := appCtx.DB().
@@ -213,16 +223,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		}
 
 		mto.MTOShipments[i].MTOAgents = nonDeletedAgents
-	}
-
-	// Now that we have the move and order, construct the allotment (hhg allowance)
-	// Only fetch if grade is not nil
-	if mto.Orders.Grade != nil {
-		allotment, err := f.waf.GetWeightAllotment(appCtx, string(*mto.Orders.Grade), mto.Orders.OrdersType)
-		if err != nil {
-			return nil, err
-		}
-		mto.Orders.Entitlement.WeightAllotted = &allotment
 	}
 
 	// Due to a bug in Pop for EagerPreload the New Address of the DeliveryAddressUpdate and the PortLocation (City, Country, UsPostRegionCity.UsPostRegion.State") must be loaded manually.

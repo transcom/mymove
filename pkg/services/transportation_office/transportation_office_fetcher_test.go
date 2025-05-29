@@ -105,6 +105,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		{
 			Model: models.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -131,6 +132,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		{
 			Model: models.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -156,6 +158,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		{
 			Model: models.Address{
 				PostalCode: "59801",
+				City:       "MISSOULA",
 			},
 		},
 	}, nil)
@@ -184,6 +187,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		{
 			Model: models.Address{
 				PostalCode: "20906",
+				City:       "ASPEN HILL",
 			},
 		},
 	}, nil)
@@ -238,6 +242,8 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 
 		customAddress := models.Address{
 			StreetAddress1: "987 Another Street",
+			City:           "BEVERLY HILLS",
+			PostalCode:     "90210",
 		}
 
 		customUser := models.User{
@@ -284,6 +290,8 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -353,7 +361,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			ServiceMemberID: serviceMember.ID,
 		})
 		suite.Nil(err)
-		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, appCtx.Session().ServiceMemberID)
+		departmentIndictor, err := findOconusGblocDepartmentIndicator(appCtx, dutylocation, serviceMember.ID)
 		suite.NotNil(departmentIndictor)
 		suite.Nil(err)
 		suite.NotNil(departmentIndictor.DepartmentIndicator)
@@ -470,6 +478,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 			Model: models.Address{
 				PostalCode: "32228",
 				IsOconus:   models.BoolPointer(false),
+				City:       "JACKSONVILLE",
 			},
 		},
 	}, nil)
@@ -552,7 +561,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 
 		return serviceMember
 	}
-	setupDataForOconusSearchCounselingOffice := func(postalCode string, gbloc string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
+	setupDataForOconusSearchCounselingOffice := func(postalCode string, city string, gbloc string) (models.ReRateArea, models.OconusRateArea, models.UsPostRegionCity, models.DutyLocation) {
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
@@ -569,7 +578,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 		suite.NotNil(us_country)
 		suite.Nil(err)
 
-		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), postalCode)
+		usprc, err := models.FindByZipCodeAndCity(suite.AppContextForTest().DB(), postalCode, city)
 		suite.NotNil(usprc)
 		suite.FatalNoError(err)
 
@@ -582,6 +591,8 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 				Model: models.Address{
 					IsOconus:           models.BoolPointer(true),
 					UsPostRegionCityID: &usprc.ID,
+					City:               usprc.USPostRegionCityNm,
+					PostalCode:         usprc.UsprZipID,
 				},
 			},
 		}, nil)
@@ -608,7 +619,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 
 	suite.Run("success - findOconusGblocDepartmentIndicator - returns default GBLOC for departmentAffiliation if no specific departmentAffilation mapping is defined", func() {
 		const fairbanksAlaskaPostalCode = "99790"
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(fairbanksAlaskaPostalCode, "JEAT")
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(fairbanksAlaskaPostalCode, "FAIRBANKS", "JEAT")
 
 		// setup department affiliation to GBLOC mappings
 		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "JEAT")
@@ -629,7 +640,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 
 	suite.Run("success - findOconusGblocDepartmentIndicator - returns specific GBLOC for departmentAffiliation when a specific departmentAffilation mapping is defined -- simulate Zone 2 scenerio", func() {
 		const fairbanksAlaskaPostalCode = "99790"
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(fairbanksAlaskaPostalCode, "MBFL")
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice(fairbanksAlaskaPostalCode, "FAIRBANKS", "MBFL")
 
 		// setup department affiliation to GBLOC mappings
 		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MBFL")
@@ -652,7 +663,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 	})
 
 	suite.Run("failure - findOconusGblocDepartmentIndicator - returns error when find service member ID fails", func() {
-		_, _, _, dutylocation := setupDataForOconusSearchCounselingOffice("99714", "JEAT")
+		_, _, _, dutylocation := setupDataForOconusSearchCounselingOffice("99714", "FAIRBANKS", "JEAT")
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			// create fake service member ID to raise NOT found error
@@ -665,7 +676,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 	})
 
 	suite.Run("failure - not found duty location returns error", func() {
-		_, oconusRateArea, _, _ := setupDataForOconusSearchCounselingOffice("99619", "MAPS")
+		_, oconusRateArea, _, _ := setupDataForOconusSearchCounselingOffice("99619", "KODIAK", "MAPS")
 
 		// setup department affiliation to GBLOC mappings
 		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPS")
@@ -683,7 +694,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOfficeForPrime
 	})
 
 	suite.Run("Should return closest counseling office based on service affiliation", func() {
-		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice("99619", "MAPS")
+		_, oconusRateArea, _, dutylocation := setupDataForOconusSearchCounselingOffice("99619", "KODIAK", "MAPS")
 
 		// setup department affiliation to GBLOC mappings
 		jppsoRegion, err := models.FetchJppsoRegionByCode(suite.DB(), "MAPS")

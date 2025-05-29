@@ -27,6 +27,7 @@ func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) err
 	} else if err != nil {
 		return err
 	}
+	oktaID := user.OktaID
 
 	var adminUser models.AdminUser
 	adminUserCount, err := appCtx.DB().Where("user_id = ?", id).Count(&adminUser)
@@ -81,6 +82,13 @@ func (o *userDeleter) DeleteUser(appCtx appcontext.AppContext, id uuid.UUID) err
 		appCtx.Logger().Error(transactionError.Error())
 		return transactionError
 	}
+
+	/*
+		Now that we have deleted the user from the milmove db, we will remove their okta account.
+		We are intentionally keeping this process outside the milmove db delete transaction as it should not impact the ability to process a deletion from milmove db.
+		This is considered more of a convenience to clean up the okta account.
+	*/
+	models.DeleteOktaUserHandled(appCtx, oktaID)
 
 	return nil
 }
