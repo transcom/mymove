@@ -24,7 +24,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	state := "FL"
 	postalcode := "33621"
 	country := models.Country{
-		Country: "US",
+		Country:     "US",
+		CountryName: "United States",
 	}
 	county := "HILLSBOROUGH"
 
@@ -40,6 +41,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	}
 
 	isActualExpenseReimbursement := true
+	hasGunSafe := models.BoolPointer(true)
+	gunSafeWeight := models.PoundPointer(333)
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
@@ -47,6 +50,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		PickupAddress:                &expectedAddress,
 		DestinationAddress:           &expectedAddress,
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+		HasGunSafe:                   hasGunSafe,
+		GunSafeWeight:                gunSafeWeight,
 	}
 
 	suite.Run("Success -", func() {
@@ -73,6 +78,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 
 		suite.Equal(internalmessages.PPMType(models.PPMTypeActualExpense), returnedPPMShipment.PpmType)
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+		suite.Equal(handlers.FmtBool(*hasGunSafe), returnedPPMShipment.HasGunSafe)
+		suite.Equal(handlers.FmtPoundPtr(gunSafeWeight), returnedPPMShipment.GunSafeWeight)
 	})
 }
 
@@ -333,5 +340,27 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 		suite.Equal(expense.IsProGear, result.IsProGear, "IsProGear should match")
 		suite.Equal(expense.ProGearBelongsToSelf, result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
 		suite.Equal(proGearDescription, result.ProGearDescription, "ProGearDescription should match")
+	})
+}
+
+func (suite *PayloadsSuite) TestCountriesPayload() {
+	suite.Run("Correctly transform array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		countries = append(countries, models.Country{Country: "US", CountryName: "UNITED STATES"})
+		payload := Countries(countries)
+		suite.True(len(payload) == 1)
+		suite.Equal(payload[0].Code, "US")
+		suite.Equal(payload[0].Name, "UNITED STATES")
+	})
+
+	suite.Run("empty array of countries into payload", func() {
+		countries := make([]models.Country, 0)
+		payload := Countries(countries)
+		suite.True(len(payload) == 0)
+	})
+
+	suite.Run("nil countries into payload", func() {
+		payload := Countries(nil)
+		suite.True(len(payload) == 0)
 	})
 }

@@ -48,12 +48,12 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import { selectLoggedInUser } from 'store/entities/selectors';
-import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { handleQueueAssignment, getQueue } from 'utils/queues';
 import retryPageLoading from 'utils/retryPageLoading';
+import { setRefetchQueue as setRefetchQueueAction } from 'store/general/actions';
 
 export const counselingColumns = (
   moveLockFlag,
@@ -457,8 +457,8 @@ const ServicesCounselingQueue = ({
   isQueueManagementFFEnabled,
   officeUser,
   isBulkAssignmentFFEnabled,
-  setRefetchQueue,
   activeRole,
+  setRefetchQueue,
 }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
@@ -547,7 +547,6 @@ const ServicesCounselingQueue = ({
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
-  const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
     const payload = {
@@ -749,7 +748,7 @@ const ServicesCounselingQueue = ({
         <ConnectedFlashMessage />
         <div className={styles.searchFormContainer}>
           <h1>Search for a customer</h1>
-          {searchHappened && counselorMoveCreateFeatureFlag && (
+          {searchHappened && isCounselorMoveCreateFFEnabled && (
             <Button type="submit" onClick={handleAddCustomerClick} className={styles.addCustomerBtn}>
               Add Customer
             </Button>

@@ -48,22 +48,22 @@ const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal>
+        <Modal onClose={() => onClose(false)}>
           <ModalClose handleClick={() => onClose(false)} />
           <ModalTitle>
             <h3>Delete this?</h3>
           </ModalTitle>
           {deleteDetailMessage}
           <ModalActions>
+            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
+              No, Keep It
+            </Button>
             <Button
               className="usa-button--destructive"
               type="submit"
               onClick={() => onSubmit(itemToDelete.itemType, itemToDelete.itemId, itemToDelete.itemNumber)}
             >
               Yes, Delete
-            </Button>
-            <Button type="button" onClick={() => onClose(false)} data-testid="modalBackButton" secondary>
-              No, Keep It
             </Button>
           </ModalActions>
         </Modal>

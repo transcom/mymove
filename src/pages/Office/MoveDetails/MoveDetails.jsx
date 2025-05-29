@@ -63,8 +63,8 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
   const [enableBoat, setEnableBoat] = useState(false);
@@ -274,6 +274,7 @@ const MoveDetails = ({
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
+      shipment.status === shipmentStatuses.APPROVALS_REQUESTED ||
       shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
       shipment.status === shipmentStatuses.CANCELED ||
@@ -295,7 +296,8 @@ const MoveDetails = ({
     const nonDeletedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
     const nonPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
     const nonPpmApprovedShipments = nonPpmShipments.filter(
-      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+      (shipment) =>
+        shipment?.status === shipmentStatuses.APPROVED || shipment?.status === shipmentStatuses.APPROVALS_REQUESTED,
     );
     const onlyPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
@@ -486,6 +488,7 @@ const MoveDetails = ({
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
     ubAllowance: allowances.unaccompaniedBaggageAllowance,
+    authorizedWeight: order.entitlement.authorizedWeight,
   };
 
   const customerInfo = {

@@ -82,7 +82,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.EditPPMHeaderSummaryModal}>
+        <Modal className={styles.EditPPMHeaderSummaryModal} onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle className={styles.ModalTitle}>
             <h3>{title}</h3>
@@ -195,17 +195,17 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     )}
                   </div>
                   <ModalActions>
-                    <Button type="submit" disabled={!isValid}>
-                      Save
-                    </Button>
                     <Button
                       type="button"
                       onClick={() => onClose()}
                       data-testid="modalCancelButton"
-                      outline
+                      secondary
                       className={styles.CancelButton}
                     >
                       Cancel
+                    </Button>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
                     </Button>
                   </ModalActions>
                 </Form>

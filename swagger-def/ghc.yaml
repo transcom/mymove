@@ -4710,11 +4710,46 @@ paths:
           name: search
           type: string
           required: true
+        - in: query
+          name: includePOBoxes
+          type: boolean
+          x-nullable: true
+          description: Toggles whether the search results should include postal codes that only contain PO Boxes. If omitted, the default value is false.
       responses:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
             $ref: '#/definitions/VLocations'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /addresses/countries:
+    get:
+      summary: Returns the countries matching the search query
+      description: >
+        Search API using search string that returns list of countries containing its code and name.
+        Will return all if 'search' query string parameter is not available/empty. If 2 chars are provided search will
+        do an exact match on country code and also do a starts with match on country name. If not 2 characters search
+        will do a starts with match on country name.
+      operationId: searchCountries
+      tags:
+        - addresses
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: false
+          description: Search string for countries
+      responses:
+        '200':
+          description: countries matching the search query
+          schema:
+            $ref: '#/definitions/Countries'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -5966,7 +6001,9 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
-      SCAssignedUser:
+      SCCounselingAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      SCCloseoutAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
       TOOAssignedUser:
         $ref: '#/definitions/AssignedOfficeUser'
@@ -7960,6 +7997,10 @@ definitions:
         format: date
         type: string
         x-nullable: true
+      requestedMoveDates:
+        type: string
+        description: comma‑separated list of shipment dates (YYYY‑MM‑DD)
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -7968,7 +8009,10 @@ definitions:
         $ref: 'definitions/DutyLocation.yaml'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+        x-nullable: true
       originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
         $ref: '#/definitions/GBLOC'
       ppmType:
         type: string
@@ -8602,6 +8646,10 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  ReServiceItems:
+    type: array
+    items:
+      $ref: 'definitions/ReServiceItem.yaml'
   TransportationOffices:
     type: array
     items:
@@ -8610,10 +8658,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/VLocation.yaml'
-  ReServiceItems:
+  Countries:
     type: array
     items:
-      $ref: 'definitions/ReServiceItem.yaml'
+      $ref: 'definitions/Country.yaml'
   GBLOCs:
     type: array
     items:

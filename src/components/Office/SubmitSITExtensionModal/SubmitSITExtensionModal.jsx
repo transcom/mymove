@@ -140,7 +140,7 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.SubmitSITExtensionModal}>
+        <Modal className={styles.SubmitSITExtensionModal} onClose={() => onClose()}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Edit SIT authorization</h2>
@@ -167,17 +167,17 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
                   <Label htmlFor="officeRemarks">Office remarks</Label>
                   <Field as={Textarea} data-testid="officeRemarks" label="No" name="officeRemarks" id="officeRemarks" />
                   <ModalActions>
-                    <Button type="submit" disabled={!isValid}>
-                      Save
-                    </Button>
                     <Button
                       type="button"
                       onClick={() => onClose()}
                       data-testid="modalCancelButton"
-                      outline
+                      secondary
                       className={styles.CancelButton}
                     >
                       Cancel
+                    </Button>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
                     </Button>
                   </ModalActions>
                 </Form>

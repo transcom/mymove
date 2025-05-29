@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/testharnessapi"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
+	"github.com/transcom/mymove/pkg/services/roles"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
 )
@@ -702,12 +703,17 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 }
 
 func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	// As we currently do not have an auth api with swagger to create the endpoints
+	// with their dependencies, this is where they can be declared
+	roleFetcher := roles.NewRolesFetcher()
+
 	site.Route("/auth/", func(r chi.Router) {
 		r.Use(middleware.NoCache())
 		r.Method("GET", "/okta", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie()))
 		r.Method("GET", "/okta/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender()))
 		r.Method("POST", "/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
 		r.Method("POST", "/logoutOktaRedirect", authentication.NewLogoutOktaRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+		r.Method("PATCH", "/activeRole", authentication.NewActiveRoleUpdateHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, roleFetcher))
 	})
 
 	if routingConfig.ServeDevlocalAuth {

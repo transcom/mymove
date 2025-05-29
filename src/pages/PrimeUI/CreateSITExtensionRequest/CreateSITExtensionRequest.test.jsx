@@ -33,12 +33,7 @@ const moveTaskOrder = {
       id: '2',
       shipmentType: 'HHG',
       requestedPickupDate: '2021-11-26',
-      pickupAddress: {
-        streetAddress1: '100 1st Avenue',
-        city: 'New York',
-        state: 'NY',
-        postalCode: '10001',
-      },
+      pickupAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
       marketCode: 'd',
     },
   ],

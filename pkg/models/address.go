@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -52,7 +53,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	}
 	address := Address{}
 	var response *Address
-	if err := dbConnection.Q().Eager("Country").Find(&address, id); err != nil {
+	if err := dbConnection.Q().Eager("Country", "UsPostRegionCity").Find(&address, id); err != nil {
 		response = nil
 		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
@@ -65,13 +66,70 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
-		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
-		&validators.StringIsPresent{Field: a.City, Name: "City"},
-		&validators.StringIsPresent{Field: a.State, Name: "State"},
-		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
-	), nil
+func (a *Address) Validate(dbConnection *pop.Connection) (*validate.Errors, error) {
+	var vs []validate.Validator
+	vs = append(vs, &validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.City, Name: "City"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.State, Name: "State"})
+	vs = append(vs, &validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: *a.UsPostRegionCityID, Name: "UsPostRegionCityID"})
+
+	var validPostalCode bool
+	if dbConnection != nil {
+		var err error
+		validPostalCode, err = ValidPostalCode(dbConnection, a.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if dbConnection != nil && a.UsPostRegionCityID != nil && *a.UsPostRegionCityID != uuid.Nil && validPostalCode {
+		validUSPRC, err := ValidateUsPostRegionCityID(dbConnection, *a)
+		if err != nil {
+			return nil, err
+		}
+
+		if !validUSPRC {
+			vs = append(vs, &validators.StringsMatch{Field: strconv.FormatBool(validUSPRC), Field2: "true", Name: "UsPostRegionCityID", Message: "UsPostRegionCityID is invalid."})
+		}
+	}
+
+	return validate.Validate(vs...), nil
+}
+
+// Validate an addresses USPRC assignment
+func ValidateUsPostRegionCityID(db *pop.Connection, address Address) (bool, error) {
+
+	if address.UsPostRegionCityID != nil && strings.TrimSpace(address.City) != "" && strings.TrimSpace(address.PostalCode) != "" {
+		expectedUSPRC, err := FindByZipCodeAndCity(db, address.PostalCode, address.City)
+		if err != nil {
+			return false, err
+		}
+
+		if expectedUSPRC.ID == *address.UsPostRegionCityID {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func ValidPostalCode(db *pop.Connection, postalCode string) (bool, error) {
+
+	zipCount, err := db.Where("uspr_zip_id = $1", postalCode).CountByField(&UsPostRegionCity{}, "uspr_zip_id")
+	if err != nil {
+		return false, err
+	}
+
+	if zipCount == 0 {
+		return false, nil
+	}
+
+	if len(strings.TrimSpace(postalCode)) != 5 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // MarshalLogObject is required to be able to zap.Object log TDLs

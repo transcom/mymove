@@ -57,7 +57,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	futureDate := models.TimePointer(time.Now().Add(24 * time.Hour))
+	now := time.Now()
+	futureDate := models.TimePointer(now.Add(24 * time.Hour))
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -90,7 +91,25 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		return mockUpdater
 	}
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(
+		planner,
+		builder,
+		moveRouter,
+		ghcrateengine.NewDomesticUnpackPricer(),
+		ghcrateengine.NewDomesticPackPricer(),
+		ghcrateengine.NewDomesticLinehaulPricer(),
+		ghcrateengine.NewDomesticShorthaulPricer(),
+		ghcrateengine.NewDomesticOriginPricer(),
+		ghcrateengine.NewDomesticDestinationPricer(),
+		ghcrateengine.NewFuelSurchargePricer(),
+		ghcrateengine.NewDomesticDestinationFirstDaySITPricer(),
+		ghcrateengine.NewDomesticDestinationSITDeliveryPricer(),
+		ghcrateengine.NewDomesticDestinationAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticDestinationSITFuelSurchargePricer(),
+		ghcrateengine.NewDomesticOriginFirstDaySITPricer(),
+		ghcrateengine.NewDomesticOriginSITPickupPricer(),
+		ghcrateengine.NewDomesticOriginAdditionalDaysSITPricer(),
+		ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoServiceItemCreator,
@@ -98,7 +117,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	)
 	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 	mockCreator := mocks.ShipmentCreator{}
 
@@ -109,6 +128,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	var ppmDestinationAddress primev3messages.PPMDestinationAddress
 	var secondaryDestinationAddress primev3messages.Address
 	var tertiaryDestinationAddress primev3messages.Address
+	var POBoxAddress primev3messages.Address
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
@@ -177,12 +197,21 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
 		}
+		newPOBoxAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddressPOBoxCONUS})
+		POBoxAddress = primev3messages.Address{
+			City:           &newPOBoxAddress.City,
+			PostalCode:     &newPOBoxAddress.PostalCode,
+			State:          &newPOBoxAddress.State,
+			StreetAddress1: &newPOBoxAddress.StreetAddress1,
+			StreetAddress2: newPOBoxAddress.StreetAddress2,
+			StreetAddress3: newPOBoxAddress.StreetAddress3,
+		}
 	}
 
 	setupTestData := func(boatFeatureFlag bool, ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 		vLocationServices := address.NewVLocation()
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "",
 			Match: true,
@@ -274,7 +303,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 
 		handler := CreateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentCreator,
 			mtoChecker,
 			vLocationServices,
@@ -507,7 +536,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -604,6 +633,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil)
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -611,7 +646,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Return(nil, nil)
 
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -826,7 +861,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ApplicationName: auth.OfficeApp,
 			UserID:          user.ID,
 			IDToken:         "fake token",
-			Roles:           roles.Roles{},
+			ActiveRole:      roles.Role{},
 		}
 		ctx := auth.SetSessionInRequestContext(req, session)
 
@@ -910,7 +945,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Return(nil, nil)
 
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -1082,6 +1117,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			MtoShipmentID: badID,
 			FirstName:     handlers.FmtString("Mary"),
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1148,6 +1184,37 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// so InvalidFields won't be added to the payload.
 
 		suite.Contains(*unprocessableEntity.Payload.Detail, "PickupAddress is required")
+	})
+
+	suite.Run("POST failure - 422 - invalid input, PO box zip used in address", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Setup:      Create a shipment with a PO Box only destination address, handler should return unprocessable entity
+		// Expected:   422 Unprocessable Entity Response returned
+
+		handler, move := setupTestData(false, false)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(futureDate),
+				ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev3messages.Address }{POBoxAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		unprocessableEntity := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+
+		suite.Contains(*unprocessableEntity.Payload.Detail, "cannot accept PO Box address")
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
@@ -1343,6 +1410,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				UpdatedAt:        time.Now(),
 			},
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1599,6 +1667,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			HasProGear:                 &hasProGear,
 			SitExpected:                &sitExpected,
 		}
+
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 			Body: &primev3messages.CreateMTOShipment{
@@ -1631,14 +1700,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
 		}
-
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1708,7 +1780,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
@@ -1758,14 +1830,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some address",
@@ -1851,14 +1927,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2002,14 +2082,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2099,7 +2183,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to true
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2127,14 +2211,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2224,7 +2312,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to true
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
@@ -2252,14 +2340,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2358,7 +2450,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to false
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2386,14 +2478,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, mtoServiceItemCreator)
 		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			shipmentUpdater,
 			planner,
 			vLocationServices,
 		}
 
-		now := time.Now()
 		mto_shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: futureDate,
+				},
+			},
 			{
 				Model: models.Address{
 					StreetAddress1: "some pickup address",
@@ -2492,7 +2588,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to false
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
@@ -2576,7 +2672,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2638,7 +2734,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
@@ -2700,7 +2796,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the AK flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_alaska",
@@ -2762,7 +2858,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		// setting the HI flag to false and use a valid address
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 
 		expectedFeatureFlag := services.FeatureFlag{
 			Key:   "enable_hawaii",
