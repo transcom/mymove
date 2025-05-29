@@ -1,6 +1,8 @@
 package sitextension
 
 import (
+	"time"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -11,6 +13,119 @@ import (
 )
 
 func (suite *SitExtensionServiceSuite) TestValidationRules() {
+
+	suite.Run("checkDepartureDates", func() {
+		shipmentId := uuid.Must(uuid.NewV4())
+		today := time.Now()
+		aFewDaysLater := today.Add(time.Hour * 72)
+
+		reServiceDOASIT := models.ReService{
+			Code: models.ReServiceCodeDOASIT,
+		}
+		reServiceDDASIT := models.ReService{
+			Code: models.ReServiceCodeDDASIT,
+		}
+		sitWDOA := models.MTOServiceItem{
+			MTOShipmentID:    &shipmentId,
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &today,
+			SITDepartureDate: &aFewDaysLater,
+			ReService:        reServiceDOASIT,
+		}
+		sitWDDA := models.MTOServiceItem{
+			MTOShipmentID:    &shipmentId,
+			Status:           models.MTOServiceItemStatusApproved,
+			SITEntryDate:     &today,
+			SITDepartureDate: &aFewDaysLater,
+			ReService:        reServiceDDASIT,
+		}
+
+		suite.Run("success only DOASIT", func() {
+			move := factory.BuildMove(suite.DB(), nil, nil)
+			sitList := []models.MTOServiceItem{sitWDOA}
+			shipment := models.MTOShipment{
+				ID:                   shipmentId,
+				OriginSITAuthEndDate: &today,
+				MTOServiceItems:      sitList,
+				MoveTaskOrder:        move,
+				MoveTaskOrderID:      move.ID,
+			}
+
+			var emptySitExt models.SITDurationUpdate
+			err := checkDepartureDate().Validate(suite.AppContextForTest(), emptySitExt, &shipment)
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("success only DDASIT", func() {
+			move := factory.BuildMove(suite.DB(), nil, nil)
+			sitList := []models.MTOServiceItem{sitWDDA}
+			shipment := models.MTOShipment{
+				ID:                   shipmentId,
+				OriginSITAuthEndDate: &today,
+				MTOServiceItems:      sitList,
+				MoveTaskOrder:        move,
+				MoveTaskOrderID:      move.ID,
+			}
+
+			var emptySitExt models.SITDurationUpdate
+			err := checkDepartureDate().Validate(suite.AppContextForTest(), emptySitExt, &shipment)
+			suite.NilOrNoVerrs(err)
+		})
+
+		suite.Run("success DDASIT and DOASIT", func() {
+			sitList := []models.MTOServiceItem{sitWDOA, sitWDDA}
+
+			move := factory.BuildMove(suite.DB(), nil, nil)
+			shipment := models.MTOShipment{
+				ID:                   shipmentId,
+				OriginSITAuthEndDate: &today,
+				MTOServiceItems:      sitList,
+				MoveTaskOrder:        move,
+				MoveTaskOrderID:      move.ID,
+			}
+
+			var emptySitExt models.SITDurationUpdate
+			err := checkDepartureDate().Validate(suite.AppContextForTest(), emptySitExt, &shipment)
+			suite.NilOrNoVerrs(err)
+		})
+	})
+
+	suite.Run("checkDepartureDates", func() {
+		suite.Run("failure", func() {
+			shipmentId := uuid.Must(uuid.NewV4())
+			today := time.Now()
+			tomorrow := today.Add(time.Hour * 24)
+
+			reService := models.ReService{
+				Code: models.ReServiceCodeDDASIT,
+			}
+			var sitList []models.MTOServiceItem
+			sit := models.MTOServiceItem{
+				MTOShipmentID:    &shipmentId,
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &today,
+				SITDepartureDate: &today,
+				ReService:        reService,
+			}
+			sitList = append(sitList, sit)
+
+			move := factory.BuildMove(suite.DB(), nil, nil)
+			shipment := models.MTOShipment{
+				ID:                        shipmentId,
+				DestinationSITAuthEndDate: &today,
+				ActualDeliveryDate:        &tomorrow,
+				MTOServiceItems:           sitList,
+				MoveTaskOrder:             move,
+				MoveTaskOrderID:           move.ID,
+			}
+
+			var emptySitExt models.SITDurationUpdate
+			err := checkDepartureDate().Validate(suite.AppContextForTest(), emptySitExt, &shipment)
+			suite.Error(err)
+			suite.Contains(err.Error(), "cannot be prior or equal to the SIT end date ")
+		})
+	})
+
 	suite.Run("checkShipmentID", func() {
 		suite.Run("success", func() {
 			sit := models.SITDurationUpdate{MTOShipmentID: uuid.Must(uuid.NewV4())}

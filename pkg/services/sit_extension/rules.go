@@ -105,3 +105,25 @@ func checkMinimumSITDuration() sitExtensionValidator {
 	},
 	)
 }
+
+func checkDepartureDate() sitExtensionValidator {
+	return sitExtensionValidatorFunc(func(appCtx appcontext.AppContext, _ models.SITDurationUpdate, shipment *models.MTOShipment) error {
+		// Only if service item types are DOASIT or DDASIT
+		// The prime cannot create a SIT Extension if the SIT departure date
+		// is before or equal to the authorized end date.
+		for _, serviceItem := range shipment.MTOServiceItems {
+			if serviceItem.SITDepartureDate != nil {
+				endDate := models.GetAuthorizedSITEndDateForSitExtension(*shipment, serviceItem.ReService.Code)
+				format := "2006-01-02"
+				if !endDate.IsZero() {
+					if serviceItem.SITDepartureDate.Before(*endDate) || serviceItem.SITDepartureDate.Equal(*endDate) {
+						sitErr := fmt.Sprintf("\nSIT departure date (%s) cannot be prior or equal to the SIT end date (%s)", serviceItem.SITDepartureDate.Format(format), endDate.Format(format))
+						return apperror.NewConflictError(shipment.ID, sitErr)
+					}
+				}
+			}
+		}
+		return nil
+	},
+	)
+}
