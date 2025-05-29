@@ -12000,6 +12000,13 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      gccMultiplier:
+        description: Multiplier applied to incentives
+        type: number
+        format: float
+        example: 1.3
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
   PPMActualWeight:

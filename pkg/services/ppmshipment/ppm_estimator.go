@@ -1,7 +1,6 @@
 package ppmshipment
 
 import (
-	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
@@ -487,23 +486,15 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
-	var dateForMultiplier time.Time
-	var nilTime time.Time
-	if ppmShipment.ActualMoveDate != nil {
-		dateForMultiplier = *ppmShipment.ActualMoveDate
-	} else if ppmShipment.ExpectedDepartureDate != nilTime {
-		dateForMultiplier = ppmShipment.ExpectedDepartureDate
-	} else {
-		return nil, apperror.NewNotFoundError(ppmShipment.ID, " No expected departure date or actual move date on PPM shipment")
-	}
 
-	var gccMultiplier models.GCCMultiplier
-	err = appCtx.DB().Q().
-		Where("$1 between start_date and end_date", dateForMultiplier).
-		First(&gccMultiplier)
-	if err != nil && err != sql.ErrNoRows {
+	gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *ppmShipment)
+	if err != nil {
 		logger.Error("error getting GCC multiplier")
 		return nil, err
+	}
+	if gccMultiplier.ID != uuid.Nil {
+		ppmShipment.GCCMultiplierID = &gccMultiplier.ID
+		ppmShipment.GCCMultiplier = &gccMultiplier
 	}
 
 	// if we are getting the max incentive, we want to use the addresses on the orders, else use what's on the shipment
@@ -627,12 +618,17 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		}
 
 		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
-		if gccMultiplier.ID != uuid.Nil {
+		// only apply the multiplier if centsValue is positive
+		if gccMultiplier.Multiplier > 0 && centsValue > 0 {
+			oldCentsValue := centsValue
 			multiplier := gccMultiplier.Multiplier
 			multipliedPrice := float64(centsValue) * multiplier
-			totalPrice = unit.Cents(int(multipliedPrice))
+			centsValue = unit.Cents(int(multipliedPrice))
+			logger.Debug(fmt.Sprintf("Applying GCC multiplier: %f to service item price %s, original price: %d, new price: %d", multiplier, serviceItem.ReService.Code, oldCentsValue, centsValue))
+		} else {
+			logger.Debug(fmt.Sprintf("Service item price %s %d, no GCC multiplier applied (negative price or no multiplier)",
+				serviceItem.ReService.Code, centsValue))
 		}
-		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
 		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
 
 		if err != nil {

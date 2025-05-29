@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS gcc_multipliers (
     id          			uuid NOT NULL PRIMARY KEY,
 	multiplier              numeric(5, 2) NOT NULL,
 	start_date              date UNIQUE NOT NULL,
-    end_date              date UNIQUE NOT NULL,
+    end_date                date UNIQUE NOT NULL,
     created_at  			timestamp   NOT NULL DEFAULT NOW(),
     updated_at  			timestamp   NOT NULL DEFAULT NOW()
 );

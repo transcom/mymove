@@ -114,6 +114,12 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		gcc = gcc.AddCents(*serviceItems.storageReimbursementCosts)
 	}
 
+	if ppmShipment.GCCMultiplier != nil {
+		ppmCloseoutObj.Multiplier = &ppmShipment.GCCMultiplier.Multiplier
+	} else {
+		ppmCloseoutObj.Multiplier = models.Float64Pointer(1.00)
+	}
+
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
 	ppmCloseoutObj.ActualMoveDate = ppmShipment.ActualMoveDate

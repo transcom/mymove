@@ -6,3 +6,7 @@ ALTER TABLE ppm_shipments
 ALTER TABLE ppm_shipments
     DROP COLUMN IF EXISTS actual_pickup_postal_code,
     DROP COLUMN IF EXISTS actual_destination_postal_code;
+
+ALTER TABLE ppm_shipments
+ADD COLUMN IF NOT EXISTS gcc_multiplier_id	uuid
+	CONSTRAINT fk_ppm_shipments_gcc_multiplier_id REFERENCES gcc_multipliers (id);
