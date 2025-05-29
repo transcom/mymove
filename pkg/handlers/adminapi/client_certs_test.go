@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestIndexClientCertsHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexClientCertsHandler{
-			HandlerConfig:         suite.HandlerConfig(),
+			HandlerConfig:         suite.NewHandlerConfig(),
 			NewQueryFilter:        query.NewQueryFilter,
 			ClientCertListFetcher: clientcert.NewClientCertListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestIndexClientCertsHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexUsersHandler{
-			HandlerConfig:  suite.HandlerConfig(),
+			HandlerConfig:  suite.NewHandlerConfig(),
 			NewQueryFilter: newQueryFilter,
 			ListFetcher:    clientCertListFetcher,
 			NewPagination:  pagination.NewPagination,
@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestGetClientCertHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientcert.NewClientCertFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestGetClientCertHandler() {
 			mock.Anything,
 		).Return(clientCert, nil).Once()
 		handler := GetClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -147,7 +147,7 @@ func (suite *HandlerSuite) TestGetClientCertHandler() {
 			mock.Anything,
 		).Return(models.ClientCert{}, expectedError).Once()
 		handler := GetClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertFetcher,
 			newMockQueryFilterBuilder(&mocks.QueryFilter{}),
 		}
@@ -190,7 +190,7 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 			&clientCert).Return(&clientCert, nil, nil).Once()
 
 		handler := CreateClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertCreator,
 		}
 
@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestCreateClientCertificateHandler() {
 			&clientCert).Return(&models.ClientCert{}, nil, expectedError).Once()
 
 		handler := CreateClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertCreator,
 		}
 
@@ -251,7 +251,7 @@ func (suite *HandlerSuite) TestUpdateClientCertificateHandler() {
 		).Return(&clientCert, nil, nil).Once()
 
 		handler := UpdateClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertUpdater,
 			newQueryFilter,
 		}
@@ -282,7 +282,7 @@ func (suite *HandlerSuite) TestUpdateClientCertificateHandler() {
 		).Return(nil, err, nil).Once()
 
 		handler := UpdateClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertUpdater,
 			newQueryFilter,
 		}
@@ -312,7 +312,7 @@ func (suite *HandlerSuite) TestDeleteClientCertificateHandler() {
 			clientCert.ID,
 		).Return(&clientCert, nil, nil).Once()
 		handler := RemoveClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertRemover,
 			newQueryFilter,
 		}
@@ -340,7 +340,7 @@ func (suite *HandlerSuite) TestDeleteClientCertificateHandler() {
 			clientCert.ID,
 		).Return(nil, err, nil).Once()
 		handler := RemoveClientCertHandler{
-			suite.HandlerConfig(),
+			suite.NewHandlerConfig(),
 			clientCertRemover,
 			newQueryFilter,
 		}

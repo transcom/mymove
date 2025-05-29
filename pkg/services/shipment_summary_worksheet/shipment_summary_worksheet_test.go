@@ -2329,7 +2329,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPaymentPacketWithNilFi
 			PaidWithGTCC:      models.BoolPointer(true),
 		},
 	}
-	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	signedCertType := models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT
 	cert := models.SignedCertification{
 		CertificationType: &signedCertType,
 		CertificationText: "APPROVED",

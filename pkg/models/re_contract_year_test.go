@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			EscalationCompounded: 1.74,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReContractYear, expErrors)
+		suite.verifyValidationErrors(&validReContractYear, expErrors, nil)
 	})
 
 	suite.Run("test empty ReContractYear", func() {
@@ -33,7 +33,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			"escalation":            {"Escalation can not be blank.", "0.000000 is not greater than 0.000000."},
 			"escalation_compounded": {"EscalationCompounded can not be blank.", "0.000000 is not greater than 0.000000."},
 		}
-		suite.verifyValidationErrors(&emptyReContractYear, expErrors)
+		suite.verifyValidationErrors(&emptyReContractYear, expErrors, nil)
 	})
 
 	suite.Run("test end date after start date, negative escalation, negative escalation compounded for ReContractYear", func() {
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			"escalation":            {"-1.000000 is not greater than 0.000000."},
 			"escalation_compounded": {"-1.740000 is not greater than 0.000000."},
 		}
-		suite.verifyValidationErrors(&badDatesReContractYear, expErrors)
+		suite.verifyValidationErrors(&badDatesReContractYear, expErrors, nil)
 	})
 }
 

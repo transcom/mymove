@@ -6,6 +6,7 @@
 
 // @ts-check
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
+import { appendTimestampToFilenamePrefix, getFutureDate } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -104,7 +105,7 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      await page.locator('#requestedPickupDate').fill(getFutureDate());
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -192,7 +193,9 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+
+      const filenameWithTimestamp = appendTimestampToFilenamePrefix('AF Orders Sample');
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -203,7 +206,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -216,7 +219,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
       await page.getByTestId('closeMenu').click();
@@ -227,7 +230,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButtonAmended.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText(filenameWithTimestamp)).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
       await page.getByTestId('closeMenu').click();
@@ -245,7 +248,9 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText('Uploading')).toBeVisible();
       await expect(page.getByText('Uploading')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(
+        page.getByTestId('uploads-table').getByText(appendTimestampToFilenamePrefix('AF Orders Sample')),
+      ).toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).not.toBeVisible();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(1);
@@ -257,7 +262,7 @@ test.describe('Services counselor user', () => {
       await firstDeleteButton.click();
       await page.getByTestId('confirm-delete').click();
       await expect(page.getByText('Yes, delete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample')).not.toBeVisible();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
     });
   });
@@ -270,13 +275,13 @@ test.describe('Services counselor user', () => {
 
     test('is able to add a shipment', async ({ page, scPage }) => {
       test.slow();
-      const deliveryDate = new Date().toLocaleDateString('en-US');
+      const pickupDate = getFutureDate();
       await expect(page.locator('[data-testid="ShipmentContainer"] .usa-button')).toHaveCount(2);
 
       // add a shipment
       await page.locator('[data-testid="dropdown"]').first().selectOption({ label: 'HHG' });
 
-      await page.locator('#requestedPickupDate').fill(deliveryDate);
+      await page.locator('#requestedPickupDate').fill(pickupDate);
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
       await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
@@ -321,7 +326,7 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      await page.locator('#requestedPickupDate').fill(getFutureDate());
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -335,7 +340,7 @@ test.describe('Services counselor user', () => {
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
-      await page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+      await page.getByLabel('Requested pickup date').fill(getFutureDate());
 
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
@@ -347,7 +352,7 @@ test.describe('Services counselor user', () => {
       test.slow();
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
+      await page.locator('#requestedPickupDate').fill(getFutureDate());
       await page.locator('#requestedPickupDate').blur();
       await page.getByText('Use pickup address').click();
 
@@ -375,6 +380,8 @@ test.describe('Services counselor user', () => {
       // Edit the shipment so that the tag disappears
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
+      await page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
@@ -387,6 +394,18 @@ test.describe('Services counselor user', () => {
 
   test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
     test.slow();
+    await page.route('**/ghc/v1/ppm-shipments/*/payment-packet', async (route) => {
+      // mocked blob
+      const fakePdfBlob = new Blob(['%PDF-1.4 foo'], { type: 'application/pdf' });
+      const arrayBuffer = await fakePdfBlob.arrayBuffer();
+      // playwright route mocks only want a Buffer or string
+      const bodyBuffer = Buffer.from(arrayBuffer);
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/pdf',
+        body: bodyBuffer,
+      });
+    });
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
@@ -411,8 +430,13 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
-    await page.getByRole('button', { name: 'PPM Review Complete' }).click();
+    await page.getByRole('button', { name: 'Preview PPM Payment Packet' }).click();
+    await expect(page.getByTestId('loading-spinner')).not.toBeVisible();
+    await page.getByRole('button', { name: 'Complete PPM Review' }).click();
+    await page.getByRole('button', { name: 'Yes' }).click();
     await scPage.waitForPage.moveDetails();
+
+    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
 
     // Navigate to the "View documents" page
     await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();

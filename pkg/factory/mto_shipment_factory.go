@@ -117,7 +117,11 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		newMTOShipment.CustomerRemarks = models.StringPointer("Please treat gently")
 
 		if shipmentHasPickupDetails {
-			newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+			if cMtoShipment.RequestedPickupDate == nil {
+				newMTOShipment.RequestedPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC))
+			} else {
+				newMTOShipment.RequestedPickupDate = cMtoShipment.RequestedPickupDate
+			}
 			if cMtoShipment.ScheduledPickupDate == nil {
 				newMTOShipment.ScheduledPickupDate = models.TimePointer(time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC))
 			} else {
@@ -245,7 +249,7 @@ func BuildBaseMTOShipment(db *pop.Connection, customs []Customization, traits []
 // BuildMTOShipment creates a single MTOShipment and associated set relationships
 // It will make a move record, if one is not provided.
 // It will make pickup addresses if the shipment type is not one of (HHGOutOfNTS, PPM)
-// It will make delivery addresses if the shipment type is not one of (HHGIntoNTSDom, PPM)
+// It will make delivery addresses if the shipment type is not one of (HHGIntoNTS, PPM)
 // It will make a storage facility if the shipment type is HHGOutOfNTS
 func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	return buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuild)
@@ -538,6 +542,16 @@ func GetTraitSubmittedShipment() []Customization {
 		{
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}
+}
+
+func GetTraitApprovalsRequestedShipment() []Customization {
+	return []Customization{
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApprovalsRequested,
 			},
 		},
 	}

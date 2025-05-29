@@ -161,7 +161,7 @@ BEGIN
     WHERE m.show = TRUE
   ';
 
-  IF user_gbloc IS NOT NULL AND user_gbloc <> 'USMC' THEN
+  IF user_gbloc IS NOT NULL THEN
     sql_query := sql_query || ' AND mtg.gbloc = $1';
   END IF;
 

@@ -1,4 +1,5 @@
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
+import { appendTimestampToFilenamePrefix, formatDate } from '../../utils/playwrightUtility';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
@@ -6,16 +7,6 @@ const createCustomerFF = process.env.FEATURE_FLAG_COUNSELOR_MOVE_CREATE;
 const alaskaFF = process.env.FEATURE_FLAG_ENABLE_ALASKA;
 const LocationLookup1 = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 const LocationLookup2 = 'BEVERLY HILLS, CA 90212 (LOS ANGELES)';
-
-/**
- * @param {Date} date
- */
-function formatDate(date) {
-  const day = date.toLocaleString('default', { day: '2-digit' });
-  const month = date.toLocaleString('default', { month: 'short' });
-  const year = date.toLocaleString('default', { year: 'numeric' });
-  return `${day} ${month} ${year}`;
-}
 
 test.describe('Services counselor user', () => {
   test.describe('Can create a customer with an international Alaska move', () => {
@@ -79,9 +70,10 @@ test.describe('Services counselor user', () => {
       await page.getByLabel('Report by date').fill('1/25/2025');
       await page.getByLabel('Report by date').blur();
       const originLocation = 'Tinker AFB, OK 73145';
-      await page.getByLabel('Current duty location').fill('Tinker');
+      await page.getByLabel('Current duty location').fill(originLocation);
       await expect(page.getByText(originLocation, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
+      await page.getByLabel('Counseling office').selectOption({ label: 'PPPO Tinker AFB - USAF' });
       const counselingOffice = page.locator('#counselingOfficeId');
       await counselingOffice.selectOption('PPPO Tinker AFB - USAF');
       const dutyLocation = 'Elmendorf AFB, AK 99506';
@@ -100,12 +92,14 @@ test.describe('Services counselor user', () => {
       await expect(page.getByTestId('documentAlertMessage')).toContainText('Uploading');
       await expect(page.getByTestId('documentAlertMessage')).not.toBeVisible();
       await expect(page.getByText('Upload complete')).not.toBeVisible();
-      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(
+        page.getByTestId('uploads-table').getByText(appendTimestampToFilenamePrefix('AF Orders Sample')),
+      ).toBeVisible();
       await page.getByRole('button', { name: 'Done' }).click();
       await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
       await page.getByLabel('Orders number').fill('123456');
       await page.getByLabel('Orders type detail').selectOption('Shipment of HHG Permitted');
-      await page.getByLabel('TAC').nth(0).fill('TEST');
+      await page.getByTestId('hhgTacInput').fill('TEST');
       await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
       await page.getByRole('button', { name: 'Save' }).click();
 

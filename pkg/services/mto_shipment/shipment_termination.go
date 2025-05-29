@@ -46,6 +46,11 @@ func (f *shipmentTermination) TerminateShipment(appCtx appcontext.AppContext, sh
 		return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment must be in APPROVED status in order to terminate for cause")
 	}
 
+	if shipment.PPMShipment != nil && shipment.PPMShipment.ID != uuid.Nil {
+		// This shipment is tied to a PPM, it shouldn't be possible to terminate
+		return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipments tied to PPMs do not qualify for termination")
+	}
+
 	terminatedAt := time.Now()
 	shipment.TerminatedAt = &terminatedAt
 	comments := "TERMINATED FOR CAUSE - " + terminationComments

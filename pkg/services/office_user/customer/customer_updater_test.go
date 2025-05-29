@@ -44,9 +44,9 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 			Telephone: models.StringPointer("123-455-3399"),
 			ResidentialAddress: &models.Address{
 				StreetAddress1: "123 New Street",
-				City:           "Newcity",
+				City:           "BARRE",
 				State:          "MA",
-				PostalCode:     "12345",
+				PostalCode:     "01005",
 			},
 			BackupContacts: backupContacts,
 			CacValidated:   true,
@@ -74,6 +74,66 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		actualCustomer, err = customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
 		suite.NoError(err)
 		suite.Equal(actualCustomer.BackupContacts[0].Name, "Updated Backup Contact")
+	})
+
+	suite.Run("Customer fields are update returns error when USPRC lookup fails", func() {
+		defaultCustomer := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		var backupContacts []models.BackupContact
+		backupContact := models.BackupContact{
+			Email: "newbackup@mail.com",
+			Name:  "New Backup Contact",
+			Phone: "445-345-1212",
+		}
+		backupContacts = append(backupContacts, backupContact)
+
+		updatedCustomer := models.ServiceMember{
+			ID:        defaultCustomer.ID,
+			LastName:  models.StringPointer("Newlastname"),
+			FirstName: models.StringPointer("Newfirstname"),
+			Telephone: models.StringPointer("123-455-3399"),
+			ResidentialAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "29229",
+			},
+			BackupContacts: backupContacts,
+			CacValidated:   true,
+		}
+
+		expectedETag := etag.GenerateEtag(defaultCustomer.UpdatedAt)
+		actualCustomer, err := customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
+
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BARRE.")
+		suite.Nil(actualCustomer)
+
+		updatedCustomer = models.ServiceMember{
+			ID:        defaultCustomer.ID,
+			LastName:  models.StringPointer("Newlastname"),
+			FirstName: models.StringPointer("Newfirstname"),
+			Telephone: models.StringPointer("123-455-3399"),
+			ResidentialAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "01005",
+			},
+			BackupMailingAddress: &models.Address{
+				StreetAddress1: "123 New Street",
+				City:           "BARRE",
+				State:          "MA",
+				PostalCode:     "29229",
+			},
+			BackupContacts: backupContacts,
+			CacValidated:   true,
+		}
+
+		expectedETag = etag.GenerateEtag(defaultCustomer.UpdatedAt)
+		actualCustomer, err = customerUpdater.UpdateCustomer(suite.AppContextForTest(), expectedETag, updatedCustomer)
+
+		suite.Error(err, "No UsPostRegionCity found for provided zip code 29229 and city BARRE.")
+		suite.Nil(actualCustomer)
 	})
 
 	suite.Run("Empty customer is updated", func() {
@@ -105,14 +165,14 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 			Telephone: models.StringPointer("123-455-3399"),
 			ResidentialAddress: &models.Address{
 				StreetAddress1: "123 New Street",
-				City:           "Newcity",
-				State:          "MA",
-				PostalCode:     "12345",
+				City:           "EDISON",
+				State:          "OH",
+				PostalCode:     "43320",
 			},
 			BackupMailingAddress: &models.Address{
 				StreetAddress1: "456 Extra Street",
-				City:           "Metropolis",
-				State:          "TX",
+				City:           "EDISON",
+				State:          "OH",
 				PostalCode:     "43320",
 			},
 			BackupContacts: backupContacts,

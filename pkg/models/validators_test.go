@@ -930,3 +930,47 @@ func (suite *ModelSuite) TestOptionalUUIDIsPresentWithCustomMessage() {
 	validator.IsValid(errors)
 	suite.NotNil(errors)
 }
+
+func (suite *ModelSuite) TestOptionalPoundIsMax() {
+	name := "gun_safe_weight"
+	max := unit.Pound(500)
+
+	suite.Run("Success: nil field", func() {
+		validator := models.OptionalPoundIsMax{
+			Name:  name,
+			Field: nil,
+			Max:   max,
+		}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+		suite.Equal(0, errs.Count(), "Expected no errors when field is nil")
+	})
+
+	suite.Run("Success: value under max", func() {
+		val := unit.Pound(500)
+		validator := models.OptionalPoundIsMax{
+			Name:  name,
+			Field: &val,
+			Max:   max,
+		}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+		suite.Equal(0, errs.Count(), "Expected no errors for value under max")
+	})
+
+	suite.Run("Failure: value over max", func() {
+		val := unit.Pound(600)
+		validator := models.OptionalPoundIsMax{
+			Name:  name,
+			Field: &val,
+			Max:   max,
+		}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+		suite.Equal(1, errs.Count(), "Expected one error for value over max")
+
+		testErrors := errs.Get(name)
+		expected := fmt.Sprintf("must be less than or equal to %d.", max)
+		suite.Equal(expected, testErrors[0], "Wrong validation message")
+	})
+}

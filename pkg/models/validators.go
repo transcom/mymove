@@ -154,6 +154,19 @@ func (v *OptionalPoundIsPositive) IsValid(errors *validate.Errors) {
 	}
 }
 
+// OptionalPoundIsMax adds an error if the Field is greater than the Max value
+type OptionalPoundIsMax struct {
+	Name  string
+	Field *unit.Pound
+	Max   unit.Pound
+}
+
+func (v *OptionalPoundIsMax) IsValid(errors *validate.Errors) {
+	if v.Field != nil && *v.Field > v.Max {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("must be less than or equal to %d.", v.Max))
+	}
+}
+
 // Int64IsPresent validates that an int64 is greater than 0.
 type Int64IsPresent struct {
 	Name  string

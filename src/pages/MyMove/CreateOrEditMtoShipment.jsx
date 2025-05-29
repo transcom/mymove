@@ -7,7 +7,7 @@ import MobileHomeShipmentCreate from 'pages/MyMove/MobileHome/MobileHomeShipment
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { checkIfMoveIsLocked, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   updateMTOShipment as updateMTOShipmentAction,
@@ -49,6 +49,10 @@ export class CreateOrEditMtoShipment extends Component {
     const { type } = qs.parse(location.search);
 
     const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
+    let isMoveLocked = false;
+    if (checkIfMoveIsLocked(move)) {
+      isMoveLocked = true;
+    }
     let mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
     const { orders } = move ?? {};
     const oldMtoShipment = location.state?.mtoShipment;
@@ -98,6 +102,7 @@ export class CreateOrEditMtoShipment extends Component {
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}
             destinationDutyLocation={orders.new_duty_location}
+            isMoveLocked={isMoveLocked}
           />
         );
       }
@@ -113,6 +118,7 @@ export class CreateOrEditMtoShipment extends Component {
             serviceMember={serviceMember}
             destinationDutyLocation={orders.new_duty_location}
             serviceMemberMoves={serviceMemberMoves}
+            isMoveLocked={isMoveLocked}
           />
         );
       }
@@ -124,6 +130,7 @@ export class CreateOrEditMtoShipment extends Component {
             serviceMember={serviceMember}
             destinationDutyLocation={orders.new_duty_location}
             serviceMemberMoves={serviceMemberMoves}
+            isMoveLocked={isMoveLocked}
           />
         );
       }
@@ -138,6 +145,7 @@ export class CreateOrEditMtoShipment extends Component {
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
           orders={orders}
+          isMoveLocked={isMoveLocked}
         />
       );
     }

@@ -29,7 +29,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		destAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "45007",
+					PostalCode: "35007",
 				},
 			},
 		}, nil)
@@ -157,7 +157,9 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{PostalCode: "00100"},
+				Model: models.Address{
+					PostalCode: "00100",
+				},
 			},
 		}, nil)
 

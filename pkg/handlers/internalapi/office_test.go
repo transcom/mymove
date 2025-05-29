@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	}
 	// And: a move is approved
 	handler := ApproveMoveHandler{
-		suite.HandlerConfig(),
+		suite.NewHandlerConfig(),
 		moveRouter,
 	}
 	response := handler.Handle(params)
@@ -103,7 +103,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	}
 	// And: move handler is hit
 	handler := ApproveMoveHandler{
-		suite.HandlerConfig(),
+		suite.NewHandlerConfig(),
 		moveRouter,
 	}
 	response := handler.Handle(params)
@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	}
 	// And: a move is approved
 	handler := ApproveMoveHandler{
-		suite.HandlerConfig(),
+		suite.NewHandlerConfig(),
 		moveRouter,
 	}
 	response := handler.Handle(params)
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 		}
 
 		// And: a move is canceled
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CancelMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
@@ -188,7 +188,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 		}
 
 		// And: a move is canceled
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CancelMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 		}
 
 		// And: a move is canceled
-		handlerConfig := suite.HandlerConfig()
+		handlerConfig := suite.NewHandlerConfig()
 		handler := CancelMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	}
 
 	// And: a reimbursement is approved
-	handler := ApproveReimbursementHandler{suite.HandlerConfig()}
+	handler := ApproveReimbursementHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -269,7 +269,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	}
 
 	// And: a reimbursement is approved
-	handler := ApproveReimbursementHandler{suite.HandlerConfig()}
+	handler := ApproveReimbursementHandler{suite.NewHandlerConfig()}
 	response := handler.Handle(params)
 
 	// Then: expect Forbidden response

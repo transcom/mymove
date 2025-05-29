@@ -222,6 +222,23 @@ describe('ServiceInfoForm', () => {
     });
   });
 
+  it('converts the "Submit" button into the "Return to Home" button when the move has been locked by an office user', async () => {
+    render(
+      <ServiceInfoForm
+        {...testPropsWithEdipi}
+        isMoveLocked
+        newDutyLocation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
+      />,
+    );
+    const returnButton = screen.getByRole('button', { name: 'Return home' });
+
+    await userEvent.type(screen.getByLabelText('First name'), 'Leo');
+    await userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
+    await userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
+
+    expect(returnButton).toBeInTheDocument();
+  });
+
   it('uses the onCancel handler when the cancel button is clicked', async () => {
     const onCancel = jest.fn();
     render(<ServiceInfoForm {...testPropsWithEdipi} onCancel={onCancel} />);

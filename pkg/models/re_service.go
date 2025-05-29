@@ -286,7 +286,6 @@ var ValidDomesticOriginSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeDOFSIT,
 	ReServiceCodeDOPSIT,
 	ReServiceCodeDOSFSC,
-	ReServiceCodeDOSHUT,
 }
 
 // Definition of valid Domestic Destination SIT ReServiceCodes
@@ -295,7 +294,6 @@ var ValidDomesticDestinationSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeDDDSIT,
 	ReServiceCodeDDSFSC,
 	ReServiceCodeDDFSIT,
-	ReServiceCodeDDSHUT,
 }
 
 // Definition of valid International Origin SIT ReServiceCodes
@@ -303,7 +301,7 @@ var ValidInternationalOriginSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeIOASIT,
 	ReServiceCodeIOFSIT,
 	ReServiceCodeIOPSIT,
-	ReServiceCodeIOSHUT,
+	ReServiceCodeIOSFSC,
 }
 
 // Definition of valid International Destination SIT ReServiceCodes
@@ -311,8 +309,20 @@ var ValidInternationalDestinationSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeIDASIT,
 	ReServiceCodeIDDSIT,
 	ReServiceCodeIDFSIT,
-	ReServiceCodeIDSHUT,
+	ReServiceCodeIDSFSC,
 }
+
+// combined origin SIT codes (domestic + international)
+var ValidOriginSITReServiceCodes = append(
+	append([]ReServiceCode{}, ValidDomesticOriginSITReServiceCodes...),
+	ValidInternationalOriginSITReServiceCodes...,
+)
+
+// combined destination SIT codes (domestic + international)
+var ValidDestinationSITReServiceCodes = append(
+	append([]ReServiceCode{}, ValidDomesticDestinationSITReServiceCodes...),
+	ValidInternationalDestinationSITReServiceCodes...,
+)
 
 // TableName overrides the table name used by Pop.
 func (r ReService) TableName() string {
@@ -340,4 +350,16 @@ func FetchReServiceByCode(db *pop.Connection, code ReServiceCode) (*ReService, e
 		return &reService, err
 	}
 	return nil, fmt.Errorf("error fetching from re_services - required code not provided")
+}
+
+// Helper function to take in an MTO service item's ReServiceCode and validate it
+// against a given array of codes. This is primarily to support the RetrieveShipmentSIT method
+// when SIT groupings are created.
+func ContainsReServiceCode(validCodes []ReServiceCode, code ReServiceCode) bool {
+	for _, validCode := range validCodes {
+		if validCode == code {
+			return true
+		}
+	}
+	return false
 }

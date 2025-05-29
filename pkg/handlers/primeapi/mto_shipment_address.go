@@ -13,9 +13,7 @@ import (
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // UpdateMTOShipmentAddressHandler is the handler to update an address
@@ -35,30 +33,6 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 			eTag := params.IfMatch
 			mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 			addressID := uuid.FromStringOrNil(params.AddressID.String())
-
-			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipmentID, "DestinationAddress")
-			if err != nil {
-				return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(
-					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-			}
-
-			if dbShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS &&
-				(dbShipment.DestinationAddressID != nil && *dbShipment.DestinationAddressID == addressID) {
-				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"Cannot update the destination address of an NTS shipment directly, please update the storage facility address instead", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
-			}
-
-			if dbShipment.Status == models.MTOShipmentStatusApproved &&
-				(dbShipment.DestinationAddressID != nil && *dbShipment.DestinationAddressID == addressID) {
-				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"This shipment is approved, please use the updateShipmentDestinationAddress endpoint to update the destination address of an approved shipment", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
-			}
-
-			if dbShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTS &&
-				(*dbShipment.PickupAddressID != uuid.Nil && *dbShipment.PickupAddressID == addressID) {
-				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"Cannot update the pickup address of an NTS-Release shipment directly, please update the storage facility address instead", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
-			}
 
 			// Get the new address model
 			newAddress := payloads.AddressModel(payload)
@@ -95,7 +69,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 
 			addressSearch := newAddress.City + ", " + newAddress.State + " " + newAddress.PostalCode
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true)
+			locationList, err := h.GetLocationsByZipCityState(appCtx, addressSearch, statesToExclude, true, true)
 			if err != nil {
 				serverError := apperror.NewInternalServerError("Error searching for address")
 				errStr := serverError.Error() // we do this because InternalServerError wants a *string
@@ -105,6 +79,12 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 			} else if len(*locationList) == 0 {
 				unprocessableErr := apperror.NewUnprocessableEntityError(
 					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: could not find the provided location: %s", addressSearch))
+				appCtx.Logger().Warn(unprocessableErr.Error())
+				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
+			} else if len(*locationList) > 0 && (*locationList)[0].IsPoBox {
+				unprocessableErr := apperror.NewUnprocessableEntityError(
+					fmt.Sprintf("primeapi.UpdateMTOShipmentAddress: must be a physical address, cannot accept PO Box address: %s", addressSearch))
 				appCtx.Logger().Warn(unprocessableErr.Error())
 				payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payload), unprocessableErr
@@ -145,7 +125,6 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 					return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().
 						WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
-
 			}
 
 			// If no error, create a successful payload to return

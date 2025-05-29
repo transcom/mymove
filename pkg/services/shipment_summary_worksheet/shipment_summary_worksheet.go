@@ -686,7 +686,7 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 	for _, cert := range signedCertifications {
 		if cert.PpmID != nil { // Required to avoid error, service members signatures have nil ppm ids
 			if *cert.PpmID == ppmid { // PPM ID needs to be checked to prevent signatures from other PPMs on the same move from populating
-				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT {
+				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT || *cert.CertificationType == models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT {
 					sswDate := FormatDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
 					return sswDate, nil
 				}
@@ -1275,7 +1275,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
-		Creation: "2025-04-10 18:37:27 UTC",
+		Creation: "2025-05-23 17:26:58 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
