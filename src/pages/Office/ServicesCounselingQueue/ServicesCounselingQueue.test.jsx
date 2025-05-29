@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table/utils';
 
@@ -12,7 +11,6 @@ import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { servicesCounselingRoutes } from 'constants/routes';
-import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
@@ -88,14 +86,6 @@ const serviceCounselorUser = {
   isError: false,
   data: {
     office_user: { transportation_office: { gbloc: 'LKNQ' } },
-  },
-};
-
-const serviceCounselorUserForCloseout = {
-  isLoading: false,
-  isError: false,
-  data: {
-    office_user: { transportation_office: { gbloc: 'TVCB' } },
   },
 };
 
@@ -473,8 +463,6 @@ describe('ServicesCounselingQueue', () => {
     it.each([['counseling', servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH, serviceCounselorUser]])(
       'a %s user accessing the SC queue default path gets redirected appropriately to %s',
       (userDescription, expectedPath, user) => {
-        //  ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
-
         useUserQueries.mockReturnValue(user);
         useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
         useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
