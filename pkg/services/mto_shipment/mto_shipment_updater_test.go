@@ -3934,8 +3934,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.Run("An APPROVALS_REQUESTED shipment CANNOT change to CANCELED - ERROR", func() {
-		setupTestData()
-
 		testShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    mto,
