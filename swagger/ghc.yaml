@@ -4132,10 +4132,8 @@ paths:
             - emplid
             - branch
             - locator
-            - status
             - requestedMoveDate
             - submittedAt
-            - originGBLOC
             - originDutyLocation
             - counselingOffice
             - assignedTo
@@ -4158,7 +4156,9 @@ paths:
         - in: query
           name: customerName
           type: string
-          description: filters using a prefix match on the service member's last name
+          description: >-
+            filters using a prefix match on the service member's first and last
+            name
         - in: query
           name: counselingOffice
           type: string
@@ -4208,7 +4208,7 @@ paths:
             office assignment. The parameter is ignored if the requesting user
             does not have the necessary role or assignment.
         - in: query
-          name: assignedTo
+          name: SCCounselingAssigned
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.

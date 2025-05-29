@@ -2659,8 +2659,8 @@ func CounselingQueueMoves(moves []models.Move, officeUsers []models.OfficeUser, 
 			// Ensure assignedUser and assignedID are not nil before proceeding
 			if assignedToUser != nil && assignedToUser.ID != uuid.Nil {
 				userFound := false
-				for _, officeUser := range availableOfficeUsers {
-					if officeUser.ID == assignedToUser.ID {
+				for _, ou := range availableOfficeUsers {
+					if ou.ID == assignedToUser.ID {
 						userFound = true
 						break
 					}

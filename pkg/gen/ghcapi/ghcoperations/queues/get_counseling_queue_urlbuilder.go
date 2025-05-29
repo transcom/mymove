@@ -16,24 +16,24 @@ import (
 
 // GetCounselingQueueURL generates an URL for the get counseling queue operation
 type GetCounselingQueueURL struct {
-	ActiveRole         *string
-	AssignedTo         *string
-	Branch             *string
-	CounselingOffice   *string
-	CustomerName       *string
-	Edipi              *string
-	Emplid             *string
-	Locator            *string
-	Order              *string
-	OriginDutyLocation *string
-	OriginGBLOC        *string
-	Page               *int64
-	PerPage            *int64
-	RequestedMoveDates *string
-	Sort               *string
-	Status             []string
-	SubmittedAt        *strfmt.DateTime
-	ViewAsGBLOC        *string
+	SCCounselingAssigned *string
+	ActiveRole           *string
+	Branch               *string
+	CounselingOffice     *string
+	CustomerName         *string
+	Edipi                *string
+	Emplid               *string
+	Locator              *string
+	Order                *string
+	OriginDutyLocation   *string
+	OriginGBLOC          *string
+	Page                 *int64
+	PerPage              *int64
+	RequestedMoveDates   *string
+	Sort                 *string
+	Status               []string
+	SubmittedAt          *strfmt.DateTime
+	ViewAsGBLOC          *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -69,20 +69,20 @@ func (o *GetCounselingQueueURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
+	var sCCounselingAssignedQ string
+	if o.SCCounselingAssigned != nil {
+		sCCounselingAssignedQ = *o.SCCounselingAssigned
+	}
+	if sCCounselingAssignedQ != "" {
+		qs.Set("SCCounselingAssigned", sCCounselingAssignedQ)
+	}
+
 	var activeRoleQ string
 	if o.ActiveRole != nil {
 		activeRoleQ = *o.ActiveRole
 	}
 	if activeRoleQ != "" {
 		qs.Set("activeRole", activeRoleQ)
-	}
-
-	var assignedToQ string
-	if o.AssignedTo != nil {
-		assignedToQ = *o.AssignedTo
-	}
-	if assignedToQ != "" {
-		qs.Set("assignedTo", assignedToQ)
 	}
 
 	var branchQ string

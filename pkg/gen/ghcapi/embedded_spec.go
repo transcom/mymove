@@ -5310,10 +5310,8 @@ func init() {
               "emplid",
               "branch",
               "locator",
-              "status",
               "requestedMoveDate",
               "submittedAt",
-              "originGBLOC",
               "originDutyLocation",
               "counselingOffice",
               "assignedTo"
@@ -5347,7 +5345,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters using a prefix match on the service member's last name",
+            "description": "filters using a prefix match on the service member's first and last name",
             "name": "customerName",
             "in": "query"
           },
@@ -5416,7 +5414,7 @@ func init() {
           {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
-            "name": "assignedTo",
+            "name": "SCCounselingAssigned",
             "in": "query"
           },
           {
@@ -24417,10 +24415,8 @@ func init() {
               "emplid",
               "branch",
               "locator",
-              "status",
               "requestedMoveDate",
               "submittedAt",
-              "originGBLOC",
               "originDutyLocation",
               "counselingOffice",
               "assignedTo"
@@ -24454,7 +24450,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters using a prefix match on the service member's last name",
+            "description": "filters using a prefix match on the service member's first and last name",
             "name": "customerName",
             "in": "query"
           },
@@ -24523,7 +24519,7 @@ func init() {
           {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
-            "name": "assignedTo",
+            "name": "SCCounselingAssigned",
             "in": "query"
           },
           {

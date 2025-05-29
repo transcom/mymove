@@ -335,7 +335,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.edipi').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
-      expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
+      expect(firstMove.find('td.requestedMoveDates').text()).toBe('01 Mar 2021');
       expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
@@ -348,7 +348,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
       expect(secondMove.find('td.status').text()).toBe('Needs counseling');
-      expect(secondMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
+      expect(secondMove.find('td.requestedMoveDates').text()).toBe('15 Apr 2021');
       expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(secondMove.find('td.branch').text()).toBe('Coast Guard');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
@@ -360,7 +360,7 @@ describe('ServicesCounselingQueue', () => {
       expect(thirdMove.find('td.edipi').text()).toBe('4444444444');
       expect(thirdMove.find('td.locator').text()).toBe('T12MP');
       expect(thirdMove.find('td.status').text()).toBe('Needs counseling');
-      expect(thirdMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
+      expect(thirdMove.find('td.requestedMoveDates').text()).toBe('15 Apr 2021');
       expect(thirdMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(thirdMove.find('td.branch').text()).toBe('Marine Corps');
       expect(thirdMove.find('td.originGBLOC').text()).toBe('LKNQ');
@@ -377,7 +377,7 @@ describe('ServicesCounselingQueue', () => {
       expect(wrapper.find('th[data-testid="edipi"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="emplid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).not.toBe(
+      expect(wrapper.find('th[data-testid="requestedMoveDates"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
       );
       expect(wrapper.find('th[data-testid="submittedAt"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
@@ -401,7 +401,7 @@ describe('ServicesCounselingQueue', () => {
   describe('verify cached filters are displayed in respective filter column header on page reload -  Service Counselor', () => {
     window.sessionStorage.setItem(
       OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID,
-      '{"counseling":{"filters":[{"id":"customerName","value":"Spacemen"},{"id":"edipi","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"customerName","desc":false}], "page":3,"pageSize":10}}',
+      '{"counseling":{"filters":[{"id":"customerName","value":"Spacemen"},{"id":"edipi","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDates","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"customerName","desc":false}], "page":3,"pageSize":10}}',
     );
     useUserQueries.mockReturnValue(serviceCounselorUser);
 
@@ -440,7 +440,7 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('Spacemen');
     expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('7232607949');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('PPMADD');
-    expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('21 Jun 2024');
+    expect(wrapper.find('th[data-testid="requestedMoveDates"] input').instance().value).toBe('21 Jun 2024');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('20 Jun 2024');
     expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('12345');
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('ARMY');
@@ -463,16 +463,14 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('');
-    expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="requestedMoveDates"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('');
   });
 
   describe('service counseling tab routing', () => {
-    it.each([
-      ['counseling', servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH, serviceCounselorUser],
-    ])(
+    it.each([['counseling', servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH, serviceCounselorUser]])(
       'a %s user accessing the SC queue default path gets redirected appropriately to %s',
       (userDescription, expectedPath, user) => {
         //  ['closeout', servicesCounselingRoutes.DEFAULT_QUEUE_PATH, false, serviceCounselorUserForCloseout],
@@ -491,33 +489,34 @@ describe('ServicesCounselingQueue', () => {
       },
     );
 
-    it.each([
-      ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUser],
-    ])('a %s user accessing path "%s"', async (userDescription, queueType, showsCounselingTab, user) => {
-      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      useUserQueries.mockReturnValue(user);
-      useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-      useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
-      render(
-        <MockProviders path={pagePath} params={{ queueType }}>
-          <ServicesCounselingQueue isQueueManagementFFEnabled />
-        </MockProviders>,
-      );
+    it.each([['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUser]])(
+      'a %s user accessing path "%s"',
+      async (userDescription, queueType, showsCounselingTab, user) => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+        useUserQueries.mockReturnValue(user);
+        useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+        useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+        render(
+          <MockProviders path={pagePath} params={{ queueType }}>
+            <ServicesCounselingQueue isQueueManagementFFEnabled />
+          </MockProviders>,
+        );
 
-      await waitFor(() => {
-        if (showsCounselingTab === 'counseling') {
-          // Make sure "Counseling" is the active tab.
-          const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
-          expect(counselingActive).toBeInTheDocument();
+        await waitFor(() => {
+          if (showsCounselingTab === 'counseling') {
+            // Make sure "Counseling" is the active tab.
+            const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
+            expect(counselingActive).toBeInTheDocument();
 
-          // Check for the "Counseling" columns.
-          expect(screen.getByText(/Status/)).toBeInTheDocument();
-          expect(screen.getAllByText(/Requested move date\(s\)/)[0]).toBeInTheDocument();
-          expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
-          expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
-          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
-        }
-      });
-    });
+            // Check for the "Counseling" columns.
+            expect(screen.getByText(/Status/)).toBeInTheDocument();
+            expect(screen.getAllByText(/Requested move date\(s\)/)[0]).toBeInTheDocument();
+            expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
+            expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
+            expect(screen.getByText(/Assigned/)).toBeInTheDocument();
+          }
+        });
+      },
+    );
   });
 });

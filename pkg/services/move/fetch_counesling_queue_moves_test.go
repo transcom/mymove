@@ -5,15 +5,12 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stretchr/testify/mock"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	mocks "github.com/transcom/mymove/pkg/services/mocks"
 )
 
 type TestMoves struct {
@@ -205,13 +202,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
-
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
 		})
@@ -239,13 +229,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
@@ -277,13 +260,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
@@ -327,13 +303,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
-
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
 		})
@@ -361,13 +330,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
@@ -397,13 +359,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
-
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
 		})
@@ -431,13 +386,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
@@ -467,13 +415,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
-
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
 		})
@@ -501,13 +442,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
@@ -538,13 +472,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
-
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
 		})
@@ -573,13 +500,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
-
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
 		})
@@ -607,13 +527,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 				},
 			},
 		}, nil)
-
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
@@ -660,13 +573,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 			},
 		}, nil)
 
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
-
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,
 		})
@@ -697,13 +603,6 @@ func (suite *MoveServiceSuite) TestGetCounselingQueueDBFuncProcess() {
 				},
 			},
 		}, nil)
-
-		// Mocks
-		fetcher := &mocks.OfficeUserGblocFetcher{}
-		fetcher.On("FetchGblocForOfficeUser",
-			mock.AnythingOfType("*appcontext.appContext"),
-			scOfficeUser.ID,
-		).Return("KKFA", nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: scOfficeUser.ID,

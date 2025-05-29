@@ -530,7 +530,7 @@ export const serviceCounselingColumns = (
         return row.requestedMoveDate;
       },
       {
-        id: 'requestedMoveDate',
+        id: 'requestedMoveDates',
         isFilterable: true,
         // eslint-disable-next-line react/jsx-props-no-spreading
         Filter: (props) => <DateSelectFilter {...props} />,
