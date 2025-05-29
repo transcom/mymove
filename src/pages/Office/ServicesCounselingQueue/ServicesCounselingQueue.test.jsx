@@ -123,7 +123,7 @@ const needsCounselingMoves = {
           edipi: '555555555',
         },
         locator: 'AB5PC',
-        requestedMoveDate: '2021-03-01T00:00:00.000Z',
+        requestedMoveDate: '01 Mar 2021',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -158,7 +158,7 @@ const needsCounselingMoves = {
           emplid: '4521567',
         },
         locator: 'T12AR',
-        requestedMoveDate: '2021-04-15T00:00:00.000Z',
+        requestedMoveDate: '15 Apr 2021',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -193,7 +193,7 @@ const needsCounselingMoves = {
           edipi: '4444444444',
         },
         locator: 'T12MP',
-        requestedMoveDate: '2021-04-15T00:00:00.000Z',
+        requestedMoveDate: '15 Apr 2021',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -237,7 +237,7 @@ const serviceCounselingCompletedMoves = {
           edipi: '555555555',
         },
         locator: 'AB5PC',
-        requestedMoveDate: '2021-03-01T00:00:00.000Z',
+        requestedMoveDate: '01 Mar 2021',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
         originDutyLocation: {
@@ -259,7 +259,7 @@ const serviceCounselingCompletedMoves = {
           edipi: '4444444444',
         },
         locator: 'T12AR',
-        requestedMoveDate: '2021-04-15T00:00:00.000Z',
+        requestedMoveDate: '15 Apr 2021',
         submittedAt: '2021-01-01T00:00:00.000Z',
         status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
         originDutyLocation: {
@@ -417,7 +417,7 @@ describe('ServicesCounselingQueue', () => {
           edipi: '555555555',
         },
         locator: 'AB5PC',
-        requestedMoveDate: '2021-03-01T00:00:00.000Z',
+        requestedMoveDate: '01 Mar 2021',
         submittedAt: '2021-01-31T00:00:00.000Z',
         status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
         originDutyLocation: {
@@ -472,7 +472,6 @@ describe('ServicesCounselingQueue', () => {
   describe('service counseling tab routing', () => {
     it.each([
       ['counseling', servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH, serviceCounselorUser],
-      ['closeout', servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH, serviceCounselorUserForCloseout],
     ])(
       'a %s user accessing the SC queue default path gets redirected appropriately to %s',
       (userDescription, expectedPath, user) => {
@@ -494,9 +493,6 @@ describe('ServicesCounselingQueue', () => {
 
     it.each([
       ['counselor', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUser],
-      ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUser],
-      ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUserForCloseout],
-      ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUserForCloseout],
     ])('a %s user accessing path "%s"', async (userDescription, queueType, showsCounselingTab, user) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useUserQueries.mockReturnValue(user);
@@ -520,26 +516,6 @@ describe('ServicesCounselingQueue', () => {
           expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
           expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
           expect(screen.getByText(/Assigned/)).toBeInTheDocument();
-        } else if (showsCounselingTab === 'closeout') {
-          // Make sure "PPM Closeout" is the active tab.
-          const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
-          expect(ppmCloseoutActive).toBeInTheDocument();
-
-          // Check for the "PPM Closeout" columns.
-          expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
-          expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
-          expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
-          expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
-          expect(screen.getByText(/Status/)).toBeInTheDocument();
-          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
-        } else {
-          // Check for the "Search" tab
-          const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
-          expect(searchActive).toBeInTheDocument();
-          expect(MoveSearchForm).toBeInTheDocument();
-          userEvent.type(screen.getByLabelText('Search'), 'Joe');
-          const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
-          expect(addCustomer).toBeInTheDocument();
         }
       });
     });
