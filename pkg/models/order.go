@@ -241,7 +241,8 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.CloseoutOffice.Address",
 		"Entitlement",
 		"OriginDutyLocation",
-		"OriginDutyLocation.ProvidesServicesCounseling").
+		"OriginDutyLocation.ProvidesServicesCounseling",
+		"Rank").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

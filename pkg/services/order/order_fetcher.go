@@ -728,6 +728,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
+		"Rank",
 	).Find(order, orderID)
 
 	if err != nil {

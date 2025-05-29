@@ -5144,6 +5144,29 @@ paths:
       description: >-
         Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
+  '/ranks/{affiliation}&{grade}':
+    get:
+      summary: Get ranks for specified affiliation
+      description: Get ranks for specified affiliation
+      operationId: getRanks
+      tags:
+        - order
+      parameters:
+        - $ref: 'definitions/AffiliationParam.yaml'
+        - $ref: 'definitions/OrderPayGradeParam.yaml'
+      responses:
+        '200':
+          description: list all ranks for specified affiliation
+          schema:
+            type: array
+            items:
+              $ref: 'definitions/Rank.yaml'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: ranks not found
 definitions:
   ApplicationParameters:
     type: object
@@ -5829,6 +5852,7 @@ definitions:
       - E_9
       - E_9_SPECIAL_SENIOR_ENLISTED
       - O_1_ACADEMY_GRADUATE
+      - O_1
       - O_2
       - O_3
       - O_4
@@ -5859,6 +5883,7 @@ definitions:
       E_9: E-9
       E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
       O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
+      O_1: O-1
       O_2: O-2
       O_3: O-3
       O_4: O-4
@@ -6247,6 +6272,8 @@ definitions:
         readOnly: true
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        $ref: 'definitions/Rank.yaml'
       agency:
         $ref: 'definitions/Affiliation.yaml'
       entitlement:
@@ -6414,6 +6441,10 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
       originDutyLocationId:
         type: string
         format: uuid
@@ -6504,6 +6535,11 @@ definitions:
         $ref: definitions/NullableString.yaml
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       hasDependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -6584,6 +6620,11 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      rank:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       dependentsAuthorized:
         type: boolean
         x-nullable: true

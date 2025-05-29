@@ -1162,3 +1162,7 @@ export function getResponseError(errorOrResponse, defaultErrorMessage) {
 
   return detail;
 }
+
+export async function getRankOptions(affiliation, grade) {
+  return makeGHCRequestRaw('order.getRanks', { affiliation, grade }, { normalize: false });
+}

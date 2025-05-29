@@ -861,10 +861,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ppmShipmentNewSubmitter := ppmshipment.NewPPMShipmentNewSubmitter(ppmShipmentFetcher, signedCertificationCreator, ppmShipmentRouter)
 	ghcAPI.PpmSubmitPPMShipmentDocumentationHandler = SubmitPPMShipmentDocumentationHandler{handlerConfig, ppmShipmentNewSubmitter}
 
+	ghcAPI.OrderGetRanksHandler = GetRanksHandler{handlerConfig}
+  
 	ghcAPI.AddressesSearchCountriesHandler = SearchCountriesHandler{
 		handlerConfig,
 		countrySearcher,
-	}
 
 	return ghcAPI
 }
