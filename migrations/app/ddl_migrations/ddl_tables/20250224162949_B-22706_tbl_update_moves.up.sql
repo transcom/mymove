@@ -29,4 +29,4 @@ ALTER TABLE moves
 COMMENT ON COLUMN moves.too_destination_assigned_id IS 'A foreign key that points to the ID on the office_users table of the destination requests queue assigned office user';
 COMMENT ON COLUMN moves.sc_counseling_assigned_id IS 'A foreign key that points to the ID on the office_users table of the counseling queue assigned office user';
 COMMENT ON COLUMN moves.sc_closeout_assigned_id IS 'A foreign key that points to the ID on the office_users table of the closeout queue assigned office user';
-COMMENT ON COLUMN moves.sc_closeout_assigned_id IS 'A foreign key that points to the ID on the office_users table of the task order queue assigned office user';
+COMMENT ON COLUMN moves.too_task_order_assigned_id IS 'A foreign key that points to the ID on the office_users table of the task order queue assigned office user';
