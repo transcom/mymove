@@ -305,8 +305,12 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		}
 
 		daysSIT := 0
-		if serviceItem.SITDepartureDate != nil && serviceItem.SITEntryDate != nil {
-			daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+		if serviceItem.SITEntryDate != nil {
+			if serviceItem.SITDepartureDate == nil {
+				daysSIT = 89
+			} else {
+				daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+			}
 		}
 
 		price, _, err = o.destinationAddlPricer.Price(
@@ -406,8 +410,12 @@ func (o *mtoServiceItemCreator) FindSITEstimatedPrice(appCtx appcontext.AppConte
 		}
 
 		daysSIT := 0
-		if serviceItem.SITDepartureDate != nil && serviceItem.SITEntryDate != nil {
-			daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+		if serviceItem.SITEntryDate != nil {
+			if serviceItem.SITDepartureDate == nil {
+				daysSIT = 89
+			} else {
+				daysSIT = calcTotalSITDuration(*serviceItem.SITDepartureDate, *serviceItem.SITEntryDate)
+			}
 		}
 
 		price, _, err = o.originAddlPricer.Price(appCtx, contractCode, requestedPickupDate, *adjustedWeight, domesticServiceArea.ServiceArea, daysSIT, false)
