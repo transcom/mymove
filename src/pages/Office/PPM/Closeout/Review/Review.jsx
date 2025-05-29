@@ -24,6 +24,7 @@ import {
   formatGunSafeItems,
 } from 'utils/ppmCloseout';
 import {
+  calculateTotalNetWeightForGunSafeWeightTickets,
   calculateTotalNetWeightForProGearWeightTickets,
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
@@ -277,6 +278,8 @@ const Review = () => {
     handleDelete,
   );
 
+  const gunSafeTotal = calculateTotalNetWeightForGunSafeWeightTickets(gunSafe);
+
   const expenseContents = formatExpenseItems(
     expenses,
     servicesCounselingRoutes.BASE_SHIPMENT_PPM_EXPENSES_EDIT_PATH,
@@ -376,8 +379,8 @@ const Review = () => {
                       className={classnames(styles.reviewItems, 'reviewExpenses')}
                       heading={
                         <>
-                          <h3>Gun Safe</h3>
-                          <span>(${expensesTotal ? formatWeight(mtoShipment?.ppmShipment?.gunSafeWeight) : 0})</span>
+                          <h3>Gun safe</h3>
+                          <span>({formatWeight(gunSafeTotal)})</span>
                         </>
                       }
                       contents={gunSafeContents}

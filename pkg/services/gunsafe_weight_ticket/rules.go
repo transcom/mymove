@@ -48,7 +48,7 @@ func checkAdditionalRequiredFields() gunSafeWeightTicketValidator {
 		verrs := validate.NewErrors()
 
 		if newGunSafeWeightTicket.Description == nil || *newGunSafeWeightTicket.Description == "" {
-			verrs.Add("Description", "Description must have a value of at least 0")
+			verrs.Add("Description", "Description must have a value")
 		}
 
 		if newGunSafeWeightTicket.HasWeightTickets == nil {

@@ -57,7 +57,7 @@ const GunsafeForm = ({
           <div className={classnames(ppmStyles.formContainer, styles.GunsafeForm)}>
             <Form className={classnames(ppmStyles.form, styles.form)}>
               <SectionWrapper className={formStyles.formSection}>
-                <h2>Gun Safe {setNumber}</h2>
+                <h2>Set {setNumber}</h2>
                 <FormGroup>
                   {
                     <Fieldset>
