@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -1025,9 +1026,12 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			PpmShipmentID: ppmshipmentid.String(),
 		}
 		response := handler.Handle(params)
-		showAOAPacketResponse := response.(*ppmops.ShowAOAPacketOK)
+		suite.Assertions.IsType(&ppmops.ShowAOAPacketOK{}, response)
+		contentDisposition := response.(*ppmops.ShowAOAPacketOK).ContentDisposition
 
-		suite.Assertions.IsType(&ppmops.ShowAOAPacketOK{}, showAOAPacketResponse)
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(`inline; filename=\"AOA-\d{14}.pdf\"`).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
 	})
 
 	suite.Run("Unsuccessful ShowAOAPacketHandler - error generating PDF - 500", func() {
@@ -1157,9 +1161,12 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 			PpmShipmentID: strfmt.UUID(ppmshipmentid.String()),
 		}
 		response := handler.Handle(params)
-		showPaymentPacketResponse := response.(*ppmops.ShowPaymentPacketOK)
+		suite.Assertions.IsType(&ppmops.ShowPaymentPacketOK{}, response)
+		contentDisposition := response.(*ppmops.ShowPaymentPacketOK).ContentDisposition
 
-		suite.Assertions.IsType(&ppmops.ShowPaymentPacketOK{}, showPaymentPacketResponse)
+		// Validate filename content disposition formatting
+		found := regexp.MustCompile(`inline; filename=\"ppm_payment_packet-\d{14}.pdf\"`).FindString(contentDisposition)
+		suite.NotEmpty(found, "filename format invalid: %s", contentDisposition)
 	})
 
 	suite.Run("Unsuccessful ShowPaymentPacketHandler - InternalServerError", func() {
