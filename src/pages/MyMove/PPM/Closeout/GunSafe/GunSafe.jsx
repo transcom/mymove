@@ -18,7 +18,6 @@ import {
   createGunSafeWeightTicket,
   deleteUpload,
   patchGunSafeWeightTicket,
-  patchMTOShipment,
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
@@ -27,6 +26,7 @@ import GunSafeForm from 'components/Shared/PPM/Closeout/GunSafeForm/GunSafeForm'
 import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import { CUSTOMER_ERROR_MESSAGES } from 'constants/errorMessages';
 import { APP_NAME } from 'constants/apps';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const GunSafe = () => {
   const dispatch = useDispatch();
@@ -99,23 +99,7 @@ const GunSafe = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const { documentId } = currentGunSafeWeightTicket;
 
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, newFile, false)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, appendTimestampToFilename(file), false)
       .then((upload) => {
         mtoShipment.ppmShipment.gunSafeWeightTickets[currentIndex].document.uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -149,27 +133,6 @@ const GunSafe = () => {
       });
   };
 
-  const updateMtoShipment = (values) => {
-    const payload = {
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-      },
-      shipmentType: mtoShipment.shipmentType,
-      weight: parseInt(values.weight, 10),
-      shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
-    };
-
-    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
-      .then((response) => {
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(response));
-      })
-      .catch(() => {
-        setErrorMessage('Failed to update MTO shipment due to server error.');
-      });
-  };
-
   const updateGunSafeWeightTicket = (values) => {
     const hasWeightTickets = !values.missingWeightTicket;
     const payload = {
@@ -192,7 +155,6 @@ const GunSafe = () => {
           .then((response) => {
             dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
             mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
-            updateMtoShipment(values);
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
           .catch(() => {
