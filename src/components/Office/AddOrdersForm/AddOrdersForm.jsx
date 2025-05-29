@@ -154,12 +154,17 @@ const AddOrdersForm = ({
   useEffect(() => {
     const fetchData = async () => {
       const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      const isWoundedWarriorEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
 
-      const updatedOptions = alaskaEnabled
+      const optionsBasedOnAlaska = alaskaEnabled
         ? ordersTypeOptions
         : ordersTypeOptions.filter(
             (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
           );
+
+      const updatedOptions = isWoundedWarriorEnabled
+        ? optionsBasedOnAlaska
+        : optionsBasedOnAlaska.filter((e) => e.key !== ORDERS_TYPE.WOUNDED_WARRIOR);
 
       setFilteredOrderTypeOptions(updatedOptions);
     };

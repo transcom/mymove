@@ -269,7 +269,16 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
         setOrderTypeOptions(options);
       }
     };
+    const checkWoundedWarriorFeatureFlag = async () => {
+      const isWoundedWarrior = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.WOUNDED_WARRIOR_MOVE);
+      if (!isWoundedWarrior) {
+        const options = orderTypeOptions;
+        delete orderTypeOptions.WOUNDED_WARRIOR;
+        setOrderTypeOptions(options);
+      }
+    };
     checkAlaskaFeatureFlag();
+    checkWoundedWarriorFeatureFlag();
   }, [orderTypeOptions]);
 
   if (isLoading) return <LoadingPlaceholder />;
