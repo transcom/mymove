@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -258,5 +259,70 @@ func (suite *GHCRateEngineServiceSuite) TestPriceIntlCratingUncrating() {
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) TestPriceIntlFuelSurchargeSIT() {
+	fscPriceDifferenceInCents := (idsfscFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
+	fscMultiplier := idsfscWeightDistanceMultiplier * idsfscTestDistance.Float64()
+
+	suite.Run("invalid service code", func() {
+		invalidCode := models.ReServiceCodeIOSHUT
+		_, _, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), invalidCode, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.NotNil(err)
+	})
+
+	suite.Run("success with IOSFSC", func() {
+		totalCost, displayParams, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, iosfscActualPickupDate, iosfscTestDistance, iosfscTestWeight, iosfscWeightDistanceMultiplier, iosfscFuelPrice)
+		suite.NoError(err)
+		suite.Equal(iosfscPriceCents, totalCost)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
+			{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
+		}
+
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("success with IDSFSC", func() {
+		totalCost, displayParams, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIDSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.NoError(err)
+		suite.Equal(idsfscPriceCents, totalCost)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatFloat(fscPriceDifferenceInCents, 1)},
+			{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultiplier, 7)},
+		}
+
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("Invalid parameters to Price", func() {
+
+		invalidActualPickupDate := time.Time{}
+		_, _, err := priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, invalidActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "ActualPickupDate is required")
+
+		invalidDistance := unit.Miles(-1)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, invalidDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Distance cannot be less than 0")
+
+		invalidWeight := unit.Pound(0)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, invalidWeight, idsfscWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), fmt.Sprintf("Weight must be a minimum of %d", minInternationalWeight))
+
+		invalidWeightDistanceMultiplier := float64(0)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, invalidWeightDistanceMultiplier, idsfscFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "WeightBasedDistanceMultiplier is required")
+
+		invalidFuelPrice := unit.Millicents(0)
+		_, _, err = priceIntlFuelSurchargeSIT(suite.AppContextForTest(), models.ReServiceCodeIOSFSC, idsfscActualPickupDate, idsfscTestDistance, idsfscTestWeight, idsfscWeightDistanceMultiplier, invalidFuelPrice)
+		suite.Error(err)
+		suite.Contains(err.Error(), "EIAFuelPrice is required")
 	})
 }
