@@ -1,0 +1,58 @@
+@import 'shared/styles/colors';
+//placeholder enforce the inheritance of .usa-select style-rules.
+
+// hoist this mixins to a standard module later on
+// overrides .usa-select style properties. --background-url is the svg with background black, and foreground white.
+@mixin mix-mm-select-dropdown {
+    margin: 0;
+    background: {
+        image: var(--background-url);
+        repeat: no-repeat;
+        position: right 0.5rem center;
+        size: 1.25rem;
+    }
+    appearance: none;
+}
+
+// variables for the dropdown.
+:root{
+    --background-url: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'><path d='M0 0h24v24H0z' fill='none' /><path stroke='white' fill='white' d='M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z'/></svg>"), linear-gradient(transparent, transparent);
+    --top-color: inherit;
+    --bg-color: inherit;
+}
+
+// hoist this mixins to a standard module later on
+@mixin mix-mm-row-container{
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+// using :scope to maintain specificity precedence over any uswds selector properties.
+.dropdown-wrapper-style{
+    @scope (&) {
+        @include mix-mm-row-container;
+        font-weight: bold;
+        --top-color: #{$link-light};
+        color: var(--top-color);
+        font-size: max(12pt, 1em);
+        padding: 0rem 1rem;
+
+        :hover{
+            background-color: var(--bg-color);
+            color: var(--top-color);
+        }
+
+        select {
+            @include mix-mm-select-dropdown;
+            background-color: var(--bg-color);
+            color: var(--top-color);
+            font-weight: bold;
+        }
+    }
+}
+
+.dropdown-ul-container-style{
+    list-style-type: none;
+}
