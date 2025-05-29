@@ -18,7 +18,6 @@ import {
   createGunSafeWeightTicket,
   deleteUpload,
   patchGunSafeWeightTicket,
-  patchMTOShipment,
   getMTOShipmentsForMove,
   getAllMoves,
 } from 'services/internalApi';
@@ -134,27 +133,6 @@ const GunSafe = () => {
       });
   };
 
-  const updateMtoShipment = (values) => {
-    const payload = {
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-      },
-      shipmentType: mtoShipment.shipmentType,
-      weight: parseInt(values.weight, 10),
-      shipmentLocator: values.shipmentLocator,
-      eTag: mtoShipment.eTag,
-    };
-
-    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
-      .then((response) => {
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(response));
-      })
-      .catch(() => {
-        setErrorMessage('Failed to update MTO shipment due to server error.');
-      });
-  };
-
   const updateGunSafeWeightTicket = (values) => {
     const hasWeightTickets = !values.missingWeightTicket;
     const payload = {
@@ -177,7 +155,6 @@ const GunSafe = () => {
           .then((response) => {
             dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
             mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
-            updateMtoShipment(values);
             navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
           })
           .catch(() => {
