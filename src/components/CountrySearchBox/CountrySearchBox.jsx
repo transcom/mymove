@@ -96,11 +96,35 @@ export const CountrySearchBoxComponent = ({
 }) => {
   const { value, onChange, countryState, name: inputName } = input;
 
-  const [countryInfo, setCountryInfo] = useState(
-    !!value && !!value.country && value.country.name !== '' && value.country.code !== ''
-      ? `${value.country.name} (${value.country.code})`
-      : '',
-  );
+  //   const [countryInfo, setCountryInfo] = useState(
+  //     !!value && !!value.country && value.country.name !== '' && value.country.code !== ''
+  //       ? `${value.country.name} (${value.country.code})`
+  //       : '',
+  //   );
+  // const country =
+  //       !!value &&
+  //       !!value.country &&
+  //       value.country.name !== '' &&
+  //       value.country.name !== null &&
+  //       value.country.code !== '' &&
+  //       value.country.code !== null
+  //         ? `${value.country.name} (${value.country.code})`
+  //         : '';
+
+  // useEffect(() => {
+  //   const country =
+  //     !!value &&
+  //     !!value.country &&
+  //     value.country.name !== '' &&
+  //     value.country.name !== null &&
+  //     value.country.code !== '' &&
+  //     value.country.code !== null
+  //       ? `${value.country.name} (${value.country.code})`
+  //       : '';
+  //   if (countryInfo !== country) {
+  //     setCountryInfo(country);
+  //   }
+  // }, [value, countryInfo]);
 
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
@@ -156,7 +180,7 @@ export const CountrySearchBoxComponent = ({
     if (handleCountryOnChange !== null) {
       handleCountryOnChange(selectedValue);
     }
-    setCountryInfo(selectedValue);
+    // setCountryInfo(selectedValue);
     return selectedValue;
   };
 
@@ -183,7 +207,7 @@ export const CountrySearchBoxComponent = ({
         onChange(null);
       }
 
-      setCountryInfo(null);
+      // setCountryInfo('');
     }
   };
 
@@ -222,7 +246,14 @@ export const CountrySearchBoxComponent = ({
           onInputChange={changeInputText}
           placeholder={placeholder}
           value={
-            !!value && !!value.country && value.country.name !== '' && value.country.code !== '' ? countryInfo : ''
+            !!value &&
+            !!value.country &&
+            value.country.name !== '' &&
+            value.country.name !== null &&
+            value.country.code !== '' &&
+            value.country.code !== null
+              ? value.country
+              : ''
           }
           noOptionsMessage={noOptionsMessage}
           onFocus={handleFocus}
