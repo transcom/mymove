@@ -84,8 +84,6 @@ export const AddressFields = ({
   };
 
   const handleOnCountryChange = (value) => {
-    // eslint-disable-next-line no-console
-    console.debug(value);
     const countryID = value ? value.id : null;
     const countryName = value ? value.name : null;
     const countryCode = value ? value.code : null;

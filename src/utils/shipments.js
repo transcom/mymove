@@ -146,6 +146,12 @@ export const blankAddress = {
     state: '',
     postalCode: '',
     usPostRegionCitiesID: '',
+    countryID: '',
+    country: {
+      id: '',
+      name: '',
+      code: '',
+    },
   },
 };
 
