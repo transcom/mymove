@@ -486,7 +486,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator_StatusMapping() {
 		UserID:          *sc.UserID,
 		IDToken:         "fake token",
 	}
-	session.Roles = append(session.Roles, sc.User.Roles...)
+	suite.NotEmpty(sc.User.Roles)
+	session.ActiveRole = sc.User.Roles[0]
 	appCtx := suite.AppContextWithSessionForTest(session)
 
 	makePPM := func(ms models.MoveStatus) *models.PPMShipment {
