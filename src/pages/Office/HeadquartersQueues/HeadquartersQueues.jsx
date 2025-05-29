@@ -38,7 +38,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalRequestTypeColEnabled }) => {
+const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalRequestTypeFFEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -242,7 +242,7 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
             isQueueManagementFFEnabled,
             queueType,
             null,
-            isApprovalRequestTypeColEnabled,
+            isApprovalRequestTypeFFEnabled,
             showBranchFilter,
           )}
           title="All moves"
