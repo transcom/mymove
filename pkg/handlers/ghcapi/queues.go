@@ -760,14 +760,11 @@ func (h GetCounselingQueueHandler) Handle(
 				Sort:                   params.Sort,
 				Order:                  params.Order,
 				CounselingOffice:       params.CounselingOffice,
-				SCAssignedUser:         params.AssignedTo,
+				SCAssignedUser:         params.SCCounselingAssigned,
 				Status:                 params.Status,
 			}
 
-			var activeRole string
-			if params.ActiveRole != nil {
-				activeRole = *params.ActiveRole
-			}
+			activeRole := string(appCtx.Session().ActiveRole.RoleType)
 
 			if len(params.Status) == 0 {
 				counselingQueueParams.Status = nil

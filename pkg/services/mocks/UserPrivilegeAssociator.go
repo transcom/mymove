@@ -18,6 +18,36 @@ type UserPrivilegeAssociator struct {
 	mock.Mock
 }
 
+// FetchPrivilegesForUser provides a mock function with given fields: appCtx, userID
+func (_m *UserPrivilegeAssociator) FetchPrivilegesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Privileges, error) {
+	ret := _m.Called(appCtx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchPrivilegesForUser")
+	}
+
+	var r0 roles.Privileges
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (roles.Privileges, error)); ok {
+		return rf(appCtx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) roles.Privileges); ok {
+		r0 = rf(appCtx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(roles.Privileges)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdateUserPrivileges provides a mock function with given fields: appCtx, userID, privileges
 func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, privileges []roles.PrivilegeType) ([]models.UsersPrivileges, error) {
 	ret := _m.Called(appCtx, userID, privileges)
@@ -41,6 +71,36 @@ func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppCon
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, []roles.PrivilegeType) error); ok {
 		r1 = rf(appCtx, userID, privileges)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// VerifyUserPrivilegeAllowed provides a mock function with given fields: appCtx, _a1, privileges
+func (_m *UserPrivilegeAssociator) VerifyUserPrivilegeAllowed(appCtx appcontext.AppContext, _a1 []*adminmessages.OfficeUserRole, privileges []*adminmessages.OfficeUserPrivilege) (*validate.Errors, error) {
+	ret := _m.Called(appCtx, _a1, privileges)
+
+	if len(ret) == 0 {
+		panic("no return value specified for VerifyUserPrivilegeAllowed")
+	}
+
+	var r0 *validate.Errors
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []*adminmessages.OfficeUserRole, []*adminmessages.OfficeUserPrivilege) (*validate.Errors, error)); ok {
+		return rf(appCtx, _a1, privileges)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []*adminmessages.OfficeUserRole, []*adminmessages.OfficeUserPrivilege) *validate.Errors); ok {
+		r0 = rf(appCtx, _a1, privileges)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*validate.Errors)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []*adminmessages.OfficeUserRole, []*adminmessages.OfficeUserPrivilege) error); ok {
+		r1 = rf(appCtx, _a1, privileges)
 	} else {
 		r1 = ret.Error(1)
 	}

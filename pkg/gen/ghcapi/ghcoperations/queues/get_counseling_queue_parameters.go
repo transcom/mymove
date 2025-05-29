@@ -34,15 +34,15 @@ type GetCounselingQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*user's actively logged in role
-	  In: query
-	*/
-	ActiveRole *string
 	/*Used to illustrate which user is assigned to this payment request.
 
 	  In: query
 	*/
-	AssignedTo *string
+	SCCounselingAssigned *string
+	/*user's actively logged in role
+	  In: query
+	*/
+	ActiveRole *string
 	/*filters by the branch of the move's service member
 	  In: query
 	*/
@@ -51,7 +51,7 @@ type GetCounselingQueueParams struct {
 	  In: query
 	*/
 	CounselingOffice *string
-	/*filters using a prefix match on the service member's last name
+	/*filters using a prefix match on the service member's first and last name
 	  In: query
 	*/
 	CustomerName *string
@@ -122,13 +122,13 @@ func (o *GetCounselingQueueParams) BindRequest(r *http.Request, route *middlewar
 
 	qs := runtime.Values(r.URL.Query())
 
-	qActiveRole, qhkActiveRole, _ := qs.GetOK("activeRole")
-	if err := o.bindActiveRole(qActiveRole, qhkActiveRole, route.Formats); err != nil {
+	qSCCounselingAssigned, qhkSCCounselingAssigned, _ := qs.GetOK("SCCounselingAssigned")
+	if err := o.bindSCCounselingAssigned(qSCCounselingAssigned, qhkSCCounselingAssigned, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
-	qAssignedTo, qhkAssignedTo, _ := qs.GetOK("assignedTo")
-	if err := o.bindAssignedTo(qAssignedTo, qhkAssignedTo, route.Formats); err != nil {
+	qActiveRole, qhkActiveRole, _ := qs.GetOK("activeRole")
+	if err := o.bindActiveRole(qActiveRole, qhkActiveRole, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -217,6 +217,24 @@ func (o *GetCounselingQueueParams) BindRequest(r *http.Request, route *middlewar
 	return nil
 }
 
+// bindSCCounselingAssigned binds and validates parameter SCCounselingAssigned from query.
+func (o *GetCounselingQueueParams) bindSCCounselingAssigned(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.SCCounselingAssigned = &raw
+
+	return nil
+}
+
 // bindActiveRole binds and validates parameter ActiveRole from query.
 func (o *GetCounselingQueueParams) bindActiveRole(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -231,24 +249,6 @@ func (o *GetCounselingQueueParams) bindActiveRole(rawData []string, hasKey bool,
 		return nil
 	}
 	o.ActiveRole = &raw
-
-	return nil
-}
-
-// bindAssignedTo binds and validates parameter AssignedTo from query.
-func (o *GetCounselingQueueParams) bindAssignedTo(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.AssignedTo = &raw
 
 	return nil
 }
@@ -518,7 +518,7 @@ func (o *GetCounselingQueueParams) bindSort(rawData []string, hasKey bool, forma
 // validateSort carries on validations for parameter Sort
 func (o *GetCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "edipi", "emplid", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "counselingOffice", "assignedTo"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "edipi", "emplid", "branch", "locator", "requestedMoveDate", "submittedAt", "originDutyLocation", "counselingOffice", "assignedTo"}, true); err != nil {
 		return err
 	}
 
