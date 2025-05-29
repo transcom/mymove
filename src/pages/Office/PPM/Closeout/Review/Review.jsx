@@ -376,7 +376,7 @@ const Review = () => {
                       className={classnames(styles.reviewItems, 'reviewExpenses')}
                       heading={
                         <>
-                          <h3>Gun Safe</h3>
+                          <h3>Gun safe</h3>
                           <span>(${expensesTotal ? formatWeight(mtoShipment?.ppmShipment?.gunSafeWeight) : 0})</span>
                         </>
                       }

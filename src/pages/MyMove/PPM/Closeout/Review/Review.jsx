@@ -248,58 +248,56 @@ const Review = () => {
             <SectionWrapper>
               <h2>{ppmType === PPM_TYPES.SMALL_PACKAGE ? 'Small Package Expenses' : 'Documents'}</h2>
               {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
-                <ReviewItems
-                  className={classnames(styles.reviewItems, 'reviewWeightTickets')}
-                  heading={
-                    <>
-                      <h3>Weight moved</h3>
-                      <span>({formatWeight(weightTicketsTotal)})</span>
-                    </>
-                  }
-                  contents={weightTicketContents}
-                  renderAddButton={() => (
-                    <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
-                      Add More Weight
-                    </Link>
-                  )}
-                  emptyMessage="No weight moved documented. At least one trip is required to continue."
-                />
-              )}
-              {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
-                <ReviewItems
-                  className={classnames(styles.reviewItems, 'progearSection')}
-                  heading={
-                    <>
-                      <h3>Pro-gear</h3>
-                      <span>({formatWeight(proGearTotal)})</span>
-                    </>
-                  }
-                  contents={proGearContents}
-                  renderAddButton={() => (
-                    <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
-                      Add Pro-gear Weight
-                    </Link>
-                  )}
-                  emptyMessage="No pro-gear weight documented."
-                />
-              )}
-              {ppmType !== PPM_TYPES.SMALL_PACKAGE && (
-                <ReviewItems
-                  className={classnames(styles.reviewItems, 'gunSafeSection')}
-                  heading={
-                    <>
-                      <h3>Gun Safe</h3>
-                      <span>({formatWeight(gunSafeTotal)})</span>
-                    </>
-                  }
-                  contents={gunSafeContents}
-                  renderAddButton={() => (
-                    <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
-                      Add Gun Safe Weight
-                    </Link>
-                  )}
-                  emptyMessage="No gun safe weight documented."
-                />
+                <>
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'reviewWeightTickets')}
+                    heading={
+                      <>
+                        <h3>Weight moved</h3>
+                        <span>({formatWeight(weightTicketsTotal)})</span>
+                      </>
+                    }
+                    contents={weightTicketContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={weightTicketCreatePath}>
+                        Add More Weight
+                      </Link>
+                    )}
+                    emptyMessage="No weight moved documented. At least one trip is required to continue."
+                  />
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'progearSection')}
+                    heading={
+                      <>
+                        <h3>Pro-gear</h3>
+                        <span>({formatWeight(proGearTotal)})</span>
+                      </>
+                    }
+                    contents={proGearContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={proGearCreatePath}>
+                        Add Pro-gear Weight
+                      </Link>
+                    )}
+                    emptyMessage="No pro-gear weight documented."
+                  />
+                  <ReviewItems
+                    className={classnames(styles.reviewItems, 'gunSafeSection')}
+                    heading={
+                      <>
+                        <h3>Gun safe</h3>
+                        <span>({formatWeight(gunSafeTotal)})</span>
+                      </>
+                    }
+                    contents={gunSafeContents}
+                    renderAddButton={() => (
+                      <Link className="usa-button usa-button--secondary" to={gunSafeCreatePath}>
+                        Add Gun safe Weight
+                      </Link>
+                    )}
+                    emptyMessage="No gun safe weight documented."
+                  />
+                </>
               )}
               <ReviewItems
                 className={classnames(styles.reviewItems, 'reviewExpenses')}

@@ -120,10 +120,10 @@ func (suite *HandlerSuite) TestCreateGunSafeWeightTicketHandler() {
 	})
 }
 
-// UPDATE Customer test
+// UPDATE Office test
 func (suite *HandlerSuite) TestUpdateGunSafeWeightTicketHandler() {
 	// Reusable objects
-	gunsafeUpdater := gunsafe.NewCustomerGunSafeWeightTicketUpdater()
+	gunsafeUpdater := gunsafe.NewOfficeGunSafeWeightTicketUpdater()
 
 	type gunsafeUpdateSubtestData struct {
 		ppmShipment models.PPMShipment
