@@ -247,10 +247,10 @@ test.describe('(MultiMove) HHG', () => {
 
     // Fill in form to create HHG shipment
     await customerPage.waitForPage.hhgShipment();
-    await page.getByLabel('Preferred pickup date').fill('25 Dec 2022');
+    await page.getByLabel('Preferred pickup date').fill('29 May 2025');
     await page.getByLabel('Preferred pickup date').blur();
     await page.getByText('Use my current address').click();
-    await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
+    await page.getByLabel('Preferred delivery date').fill('29 May 2025');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByTestId('remarks').fill('Going to Alaska');
     await customerPage.navigateForward();
@@ -300,11 +300,13 @@ test.describe('(MultiMove) HHG', () => {
 
     // Gradual scroll to bottom to trigger the React onScroll logic
     await scrollBox.evaluate(async (el) => {
-      // eslint-disable-next-line no-promise-executor-return
-      const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-      for (let i = 0; i <= el.scrollHeight; i += 100) {
-        // eslint-disable-next-line no-param-reassign
-        el.scrollTop = i;
+      const scrWindow = el;
+      const delay = (ms) =>
+        new Promise((res) => {
+          setTimeout(res, ms);
+        });
+      for (let i = 0; i <= scrWindow.scrollHeight; i += 100) {
+        scrWindow.scrollTop = i;
         await delay(50);
       }
     });
