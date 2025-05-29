@@ -29,7 +29,7 @@ type GetCounselingQueueURL struct {
 	OriginGBLOC        *string
 	Page               *int64
 	PerPage            *int64
-	RequestedMoveDate  *string
+	RequestedMoveDates *string
 	Sort               *string
 	Status             []string
 	SubmittedAt        *strfmt.DateTime
@@ -173,12 +173,12 @@ func (o *GetCounselingQueueURL) Build() (*url.URL, error) {
 		qs.Set("perPage", perPageQ)
 	}
 
-	var requestedMoveDateQ string
-	if o.RequestedMoveDate != nil {
-		requestedMoveDateQ = *o.RequestedMoveDate
+	var requestedMoveDatesQ string
+	if o.RequestedMoveDates != nil {
+		requestedMoveDatesQ = *o.RequestedMoveDates
 	}
-	if requestedMoveDateQ != "" {
-		qs.Set("requestedMoveDate", requestedMoveDateQ)
+	if requestedMoveDatesQ != "" {
+		qs.Set("requestedMoveDates", requestedMoveDatesQ)
 	}
 
 	var sortQ string
