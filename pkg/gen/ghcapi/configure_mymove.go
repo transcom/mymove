@@ -283,6 +283,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
 		})
 	}
+	if api.QueuesGetCounselingQueueHandler == nil {
+		api.QueuesGetCounselingQueueHandler = queues.GetCounselingQueueHandlerFunc(func(params queues.GetCounselingQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetCounselingQueue has not yet been implemented")
+		})
+	}
 	if api.CustomerGetCustomerHandler == nil {
 		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -556,11 +561,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.EvaluationReportsSubmitEvaluationReportHandler == nil {
 		api.EvaluationReportsSubmitEvaluationReportHandler = evaluation_reports.SubmitEvaluationReportHandlerFunc(func(params evaluation_reports.SubmitEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SubmitEvaluationReport has not yet been implemented")
-		})
-	}
-	if api.PpmSubmitPPMShipmentDocumentationHandler == nil {
-		api.PpmSubmitPPMShipmentDocumentationHandler = ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
 		})
 	}
 	if api.TacTacValidationHandler == nil {
