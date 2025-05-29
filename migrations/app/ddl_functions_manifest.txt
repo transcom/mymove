@@ -1,6 +1,7 @@
 # This is the functions(procedures) migrations manifest.
 # If a migration is not recorded here, then it will error.
 # Naming convention: fn_some_function.up.sql  running <generate-ddl-migration some_function functions> will create this file.
+20250221213413_fn_update_service_item_pricing.up.sql
 20250223023132_fn_get_counseling_offices.up.sql
 20250225183302_fn_prime_acknowledge_moves_shipments.up.sql
 20250225233157_fn_get_destination_queue.up.sql
@@ -14,4 +15,7 @@
 20250409212810_fn_get_gbloc_indicator.up.sql
 20250409212825_fn_get_counseling_offices_for_conus.up.sql
 20250409212838_fn_get_counseling_offices_for_oconus.up.sql
+20250407180222_fn_calculate_escalated_price.up.sql
 20250505143424_fn_get_payment_request_queue.up.sql
+20250512165319_fn_calculate_ppm_sit_cost.up.sql
+20250512175124_fn_calculate_ppm_incentive.up.sql
