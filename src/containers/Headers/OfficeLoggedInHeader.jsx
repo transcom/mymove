@@ -47,31 +47,29 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   } else if (activeRole === roleTypes.TIO) {
     queueText = 'payment requests';
   } else if (validUnlockingOfficers.includes(activeRole) && location.pathname === '/') {
-    checkForLockedMovesAndUnlock(officeUser.id);
+    checkForLockedMovesAndUnlock(officeUser?.id);
   }
 
   const navListItems = [
     activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1 ? (
-      <GblocSwitcher acticeRole={activeRole} officeUser={officeUser} />
+      <GblocSwitcher activeRole={activeRole} officeUser={officeUser} />
     ) : (
       <Link to="/">
-        {officeUser.transportation_office.gbloc} {queueText}
+        {officeUser?.transportation_office?.gbloc} {queueText}
       </Link>
     ),
     <ConnectedSelectApplication />,
-
-    <OfficeUserInfo lastName={officeUser.last_name} firstName={officeUser.first_name} handleLogout={handleLogout} />,
+    <OfficeUserInfo lastName={officeUser?.last_name} firstName={officeUser?.first_name} handleLogout={handleLogout} />,
   ];
 
   return (
     <MilMoveHeader>
       <ul className="usa-nav__primary">
-        {officeUser?.transportation_office &&
-          navListItems.map((content, i) => (
-            <li key={i} className={classnames('usa-nav__primary-item')}>
-              {content}
-            </li>
-          ))}
+        {navListItems.map((content, i) => (
+          <li key={i} className={classnames('usa-nav__primary-item')}>
+            {content}
+          </li>
+        ))}
       </ul>
     </MilMoveHeader>
   );

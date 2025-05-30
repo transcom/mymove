@@ -101,8 +101,8 @@ describe('MultiRoleSelectApplication component', () => {
       </MockProviders>,
     );
     await Promise.all(
-      testUserRoles.map(async ({ name }) => {
-        const locatedOption = await screen.findByText(name);
+      testUserRoles.map(async ({ abbv }) => {
+        const locatedOption = await screen.findByText(abbv);
         expect(locatedOption).toBeInTheDocument();
       }),
     );
@@ -144,8 +144,8 @@ describe('MultiRoleSelectApplication component', () => {
 
     await act(async () => {
       await Promise.all(
-        testUserRoles.map(async ({ name }) => {
-          const locatedOption = await screen.findByText(name);
+        testUserRoles.map(async ({ abbv }) => {
+          const locatedOption = await screen.findByText(abbv);
           expect(locatedOption).toBeInTheDocument();
         }),
       );
@@ -161,7 +161,7 @@ describe('MultiRoleSelectApplication component', () => {
     });
 
     await act(async () => {
-      const optionToCompare = roleLookupValues.task_invoicing_officer.name;
+      const optionToCompare = roleLookupValues.task_invoicing_officer.abbv;
       const locatedOption = await screen.findByRole('option', { name: optionToCompare });
       expect(locatedOption.selected).toBe(true);
     });
