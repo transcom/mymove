@@ -666,6 +666,7 @@ func FetchMoveByMoveIDWithOrders(db *pop.Connection, moveID uuid.UUID) (Move, er
 	var move Move
 	err := db.Q().Eager(
 		"Orders",
+		"Orders.Entitlement",
 	).Where("show = TRUE").Find(&move, moveID)
 
 	if err != nil {
