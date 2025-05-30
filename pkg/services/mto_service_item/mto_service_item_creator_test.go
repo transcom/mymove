@@ -1572,7 +1572,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		actualPickupAddress.CountryId = &country.ID
 		actualPickupAddress.Country = &country
 		entryDate := time.Now()
-		departureDate := time.Now().AddDate(10, 0, 0)
+		departureDate := time.Now().AddDate(0, 0, 10)
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:             shipment.MoveTaskOrder,
@@ -1603,7 +1603,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		creator2 := setupDOFSITWithDepartureDate(shipment2)
 
 		entryDate := time.Now()
-		departureDate := time.Now().AddDate(10, 0, 0)
+		departureDate := time.Now().AddDate(0, 0, 10)
 
 		// Create DOASIT
 		serviceItemDOASIT := models.MTOServiceItem{
@@ -1642,7 +1642,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		createdDOASITItem := (*createdServiceItems)[0]
 		createdDOASITItemWithDeparture := (*createdServiceItemsWithDeparture)[0]
 
-		suite.Greater(createdDOASITItemWithDeparture.PricingEstimate.Int64(), createdDOASITItem.PricingEstimate.Int64())
+		suite.Greater(createdDOASITItem.PricingEstimate.Int64(), createdDOASITItemWithDeparture.PricingEstimate.Int64())
 	})
 }
 
