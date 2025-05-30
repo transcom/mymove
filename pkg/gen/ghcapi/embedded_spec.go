@@ -162,9 +162,6 @@ func init() {
         "operationId": "isDateWeekendHoliday",
         "parameters": [
           {
-            "enum": [
-              "US"
-            ],
             "type": "string",
             "description": "country code for context of date",
             "name": "countryCode",
@@ -17561,9 +17558,6 @@ func init() {
         "operationId": "isDateWeekendHoliday",
         "parameters": [
           {
-            "enum": [
-              "US"
-            ],
             "type": "string",
             "description": "country code for context of date",
             "name": "countryCode",

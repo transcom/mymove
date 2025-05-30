@@ -5025,8 +5025,6 @@ paths:
           name: countryCode
           required: true
           type: string
-          enum:
-            - US
         - description: input date to determine if weekend/holiday for given country.
           in: path
           name: date

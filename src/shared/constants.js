@@ -253,6 +253,7 @@ export const FEATURE_FLAG_KEYS = {
   COMPLETE_PPM_CLOSEOUT_FOR_CUSTOMER: 'complete_ppm_closeout_for_customer',
   TERMINATING_SHIPMENTS: 'terminating_shipments',
   COUNTRY_FINDER: 'country_finder',
+  THIRD_ADDRESS_AVAILABLE: 'third_address_available',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

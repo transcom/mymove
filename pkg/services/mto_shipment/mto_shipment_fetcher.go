@@ -71,7 +71,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"DeliveryAddressUpdate.OriginalAddress",
 			"Reweigh",
 			"SITDurationUpdates",
-			"StorageFacility.Address",
+			"StorageFacility.Address.Country",
 		). // Right now no use case for showing deleted shipments.
 		Where("move_id = ?", moveID).
 		Order("uses_external_vendor asc").

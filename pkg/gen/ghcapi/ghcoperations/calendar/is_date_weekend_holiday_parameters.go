@@ -78,20 +78,6 @@ func (o *IsDateWeekendHolidayParams) bindCountryCode(rawData []string, hasKey bo
 	// Parameter is provided by construction from the route
 	o.CountryCode = raw
 
-	if err := o.validateCountryCode(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateCountryCode carries on validations for parameter CountryCode
-func (o *IsDateWeekendHolidayParams) validateCountryCode(formats strfmt.Registry) error {
-
-	if err := validate.EnumCase("countryCode", "path", o.CountryCode, []interface{}{"US"}, true); err != nil {
-		return err
-	}
-
 	return nil
 }
 

@@ -20,7 +20,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
  * @param zipCity
  * @param address1LabelHint string to override display labelHint if street 1 is Optional/Required per context.
  * This is specifically designed to handle unique display between customer and office/prime sim for address 1.
- * @param onCountryChanged function that will be called with the country when a country is entered.
+ * @param onCountryChange function that will be called with the country code when the country input is changed.
  * @return {JSX.Element}
  * @constructor
  */
@@ -33,7 +33,7 @@ export const AddressFields = ({
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
-  onCountryChanged,
+  onCountryChange,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
@@ -83,9 +83,6 @@ export const AddressFields = ({
     setFieldValue(`${name}.usPostRegionCitiesID`, usPostRegionCitiesID).then(() => {
       setFieldTouched(`${name}.usPostRegionCitiesID`, true);
     });
-
-    // Move to country change handler when that is available in the upstream
-    onCountryChanged();
   };
 
   const handleOnCountryChange = (value) => {
@@ -106,6 +103,8 @@ export const AddressFields = ({
     setFieldValue(`${name}.country.name`, countryName).then(() => {
       setFieldTouched(`${name}.country.name`, true);
     });
+
+    onCountryChange(countryCode);
   };
 
   return (
@@ -231,6 +230,7 @@ AddressFields.propTypes = {
     setFieldTouched: PropTypes.func,
     setFieldValue: PropTypes.func,
   }),
+  onCountryChange: PropTypes.func,
 };
 
 AddressFields.defaultProps = {
@@ -240,6 +240,7 @@ AddressFields.defaultProps = {
   validators: {},
   address1LabelHint: null,
   formikProps: {},
+  onCountryChange: () => {},
 };
 
 export default AddressFields;

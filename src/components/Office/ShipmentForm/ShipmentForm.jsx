@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath, useNavigate, useParams, Link } from 'react-router-dom';
@@ -122,16 +122,18 @@ const ShipmentForm = (props) => {
   const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
   const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
+  const [countryFinderEnabled, setCountryFinderEnabled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
-    };
-    fetchData();
-  }, []);
-  useEffect(() => {
-    const fetchData = async () => {
-      setPpmSprFF(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR));
+      const [tertiaryAddressFFEnabled, ppmSprFFEnabled, countryFinderFFEnabled] = await Promise.all([
+        isBooleanFlagEnabled(FEATURE_FLAG_KEYS.THIRD_ADDRESS_AVAILABLE),
+        isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR),
+        isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COUNTRY_FINDER),
+      ]);
+      setIsTertiaryAddressEnabled(tertiaryAddressFFEnabled);
+      setPpmSprFF(ppmSprFFEnabled);
+      setCountryFinderEnabled(countryFinderFFEnabled);
     };
     fetchData();
   }, []);
@@ -153,19 +155,22 @@ const ShipmentForm = (props) => {
     setDatesErrorMessage(response?.body?.detail);
   };
 
-  const checkDateHolidayWeekend = (countryCode, date, label, setAlertMessage, setAlertVisible) => {
-    dateSelectionWeekendHolidayCheck(
-      dateSelectionIsWeekendHoliday,
-      countryCode,
-      date,
-      label,
-      setAlertMessage,
-      setAlertVisible,
-      handleDatesError,
-    );
-  };
+  const checkDateHolidayWeekend = useCallback(
+    (countryCode, date, label, setAlertMessage, setAlertVisible) => {
+      dateSelectionWeekendHolidayCheck(
+        dateSelectionIsWeekendHoliday,
+        countryFinderEnabled ? countryCode : DEFAULT_COUNTRY_CODE, // Use the default country code of 'US' if the country finder FF is disabled
+        date,
+        label,
+        setAlertMessage,
+        setAlertVisible,
+        handleDatesError,
+      );
+    },
+    [countryFinderEnabled],
+  );
 
-  const handlePickupCountryChanged = (country, date) => {
+  const handlePickupCountryChange = (country, date) => {
     checkDateHolidayWeekend(
       country,
       new Date(date),
@@ -175,7 +180,7 @@ const ShipmentForm = (props) => {
     );
   };
 
-  const handleDeliveryCountryChanged = (country, date) => {
+  const handleDeliveryCountryChange = (country, date) => {
     checkDateHolidayWeekend(
       country,
       new Date(date),
@@ -276,40 +281,6 @@ const ShipmentForm = (props) => {
     setIsCancelModalVisible(true);
   };
 
-  // onload validate pickup date
-  useEffect(() => {
-    const onErrorHandler = (e) => {
-      const { response } = e;
-      setDatesErrorMessage(response?.body?.detail);
-    };
-    dateSelectionWeekendHolidayCheck(
-      dateSelectionIsWeekendHoliday,
-      DEFAULT_COUNTRY_CODE,
-      new Date(mtoShipment.requestedPickupDate),
-      REQUESTED_PICKUP_DATE,
-      setRequestedPickupDateAlertMessage,
-      setIsRequestedPickupDateAlertVisible,
-      onErrorHandler,
-    );
-  }, [mtoShipment.requestedPickupDate]);
-
-  // onload validate delivery date
-  useEffect(() => {
-    const onErrorHandler = (e) => {
-      const { response } = e;
-      setDatesErrorMessage(response?.body?.detail);
-    };
-    dateSelectionWeekendHolidayCheck(
-      dateSelectionIsWeekendHoliday,
-      DEFAULT_COUNTRY_CODE,
-      new Date(mtoShipment.requestedDeliveryDate),
-      REQUESTED_DELIVERY_DATE,
-      setRequestedDeliveryDateAlertMessage,
-      setIsRequestedDeliveryDateAlertVisible,
-      onErrorHandler,
-    );
-  }, [mtoShipment.requestedDeliveryDate]);
-
   const successMessageAlertControl = (
     <Button type="button" onClick={() => setSuccessMessage(null)} unstyled>
       <FontAwesomeIcon icon="times" className={styles.alertClose} />
@@ -339,6 +310,50 @@ const ShipmentForm = (props) => {
     (serviceMember.agency === SERVICE_MEMBER_AGENCIES.ARMY ||
       serviceMember.agency === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
       serviceMember.agency === SERVICE_MEMBER_AGENCIES.SPACE_FORCE);
+
+  // onload validate pickup date
+  useEffect(() => {
+    checkDateHolidayWeekend(
+      mtoShipment.pickupAddress?.country?.code,
+      new Date(mtoShipment.requestedPickupDate),
+      REQUESTED_PICKUP_DATE,
+      setRequestedPickupDateAlertMessage,
+      setIsRequestedPickupDateAlertVisible,
+    );
+  }, [mtoShipment.requestedPickupDate, mtoShipment.pickupAddress?.country?.code, checkDateHolidayWeekend]);
+
+  // onload validate delivery date
+  useEffect(() => {
+    let deliveryCountry;
+    if (isNTS) {
+      deliveryCountry = mtoShipment.storageFacility?.address?.country?.code;
+    } else if (isNTSR) {
+      deliveryCountry = mtoShipment.destinationAddress?.country?.code;
+    } else {
+      deliveryCountry =
+        mtoShipment.destinationAddress?.streetAddress1 !== 'N/A'
+          ? mtoShipment.destinationAddress?.country?.code
+          : newDutyLocationAddress?.country?.code;
+    }
+
+    dateSelectionWeekendHolidayCheck(
+      dateSelectionIsWeekendHoliday,
+      deliveryCountry,
+      new Date(mtoShipment.requestedDeliveryDate),
+      REQUESTED_DELIVERY_DATE,
+      setRequestedDeliveryDateAlertMessage,
+      setIsRequestedDeliveryDateAlertVisible,
+    );
+  }, [
+    isNTS,
+    isNTSR,
+    mtoShipment.requestedDeliveryDate,
+    mtoShipment.storageFacility?.address?.country?.code,
+    mtoShipment.destinationAddress?.country?.code,
+    mtoShipment.destinationAddress?.streetAddress1,
+    newDutyLocationAddress?.country?.code,
+    checkDateHolidayWeekend,
+  ]);
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
@@ -787,7 +802,7 @@ const ShipmentForm = (props) => {
           setIsRequestedPickupDateChanged(true);
           if (!validatePickupDate(e)) {
             checkDateHolidayWeekend(
-              values.pickup?.address?.country,
+              values.pickup?.address?.country?.code,
               new Date(e),
               REQUESTED_PICKUP_DATE,
               setRequestedPickupDateAlertMessage,
@@ -807,12 +822,14 @@ const ShipmentForm = (props) => {
 
           let deliveryCountry;
           if (isNTS) {
-            deliveryCountry = values.storageFacility?.address?.country;
+            deliveryCountry = values.storageFacility?.address?.country?.code;
           } else if (isNTSR) {
-            deliveryCountry = values.delivery?.address?.country;
+            deliveryCountry = values.delivery?.address?.country?.code;
           } else {
             deliveryCountry =
-              values.hasDeliveryAddress === 'true' ? values.delivery?.address?.country : newDutyLocationAddress.country;
+              values.hasDeliveryAddress === 'true'
+                ? values.delivery?.address?.country?.code
+                : newDutyLocationAddress?.country?.code;
           }
 
           checkDateHolidayWeekend(
@@ -826,7 +843,7 @@ const ShipmentForm = (props) => {
 
         const handleAddressKnownChange = (e) => {
           handleAddressToggleChange(e, values, setValues, blankAddress);
-          handleDeliveryCountryChanged(values.delivery?.address?.country, values.delivery.requestedDate);
+          handleDeliveryCountryChange(values.delivery?.address?.country?.code, values.delivery.requestedDate);
         };
 
         return (
@@ -995,7 +1012,7 @@ const ShipmentForm = (props) => {
                         name="pickup.address"
                         legend="Pickup Address"
                         formikProps={formikProps}
-                        onCountryChanged={(country) => handlePickupCountryChanged(country, values.pickup.requestedDate)}
+                        onCountryChange={(country) => handlePickupCountryChange(country, values.pickup?.requestedDate)}
                         render={(fields) => (
                           <>
                             <p>What address are the movers picking up from?</p>
@@ -1132,7 +1149,14 @@ const ShipmentForm = (props) => {
                 {isTOO && (isNTS || isNTSR) && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    <StorageFacilityAddress values={values} formikProps={formikProps} />
+                    sd
+                    <StorageFacilityAddress
+                      values={values}
+                      formikProps={formikProps}
+                      onCountryChange={(country) =>
+                        handleDeliveryCountryChange(country, values.delivery?.requestedDate)
+                      }
+                    />
                   </>
                 )}
 
@@ -1172,8 +1196,8 @@ const ShipmentForm = (props) => {
                           <AddressFields
                             name="delivery.address"
                             formikProps={formikProps}
-                            onCountryChanged={(country) =>
-                              handleDeliveryCountryChanged(country, values.delivery.requestedDate)
+                            onCountryChange={(country) =>
+                              handleDeliveryCountryChange(country, values.delivery?.requestedDate)
                             }
                             render={(fields) => {
                               return fields;
@@ -1371,8 +1395,8 @@ const ShipmentForm = (props) => {
                             <AddressFields
                               name="delivery.address"
                               formikProps={formikProps}
-                              onCountryChanged={(country) =>
-                                handleDeliveryCountryChanged(country, values.delivery.requestedDate)
+                              onCountryChange={(country) =>
+                                handleDeliveryCountryChange(country, values.delivery?.requestedDate)
                               }
                               render={(fields) => (
                                 <>
