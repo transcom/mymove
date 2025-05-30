@@ -82,7 +82,7 @@ func (suite *ModelSuite) TestElectronicOrdersRevisionValidations() {
 		"middle_name":              {"MiddleName can not be blank."},
 		"family_name":              {"FamilyName can not be blank."},
 		"name_suffix":              {"NameSuffix can not be blank."},
-		"paygrade":                 {"Paygrade is not in the list [aviation-cadet, cadet, civilian, e-1, e-2, e-3, e-4, e-5, e-6, e-7, e-8, e-9, midshipman, o-1, o-2, o-3, o-4, o-5, o-6, o-7, o-8, o-9, o-10, w-1, w-2, w-3, w-4, w-5]."},
+		"paygrade":                 {"Paygrade is not in the list [aviation-cadet, cadet, civilian, E-1, E-2, E-3, E-4, E-5, E-6, E-7, E-8, E-9, midshipman, O-1, O-2, O-3, O-4, O-5, O-6, O-7, O-8, O-9, O-10, W-1, W-2, W-3, W-4, W-5]."},
 		"affiliation":              {"Affiliation is not in the list [air-force, army, civilian-agency, coast-guard, marine-corps, navy]."},
 		"title":                    {"Title can not be blank."},
 		"date_issued":              {"DateIssued can not be blank."},
