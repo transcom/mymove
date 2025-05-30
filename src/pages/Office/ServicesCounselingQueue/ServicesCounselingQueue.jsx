@@ -34,13 +34,13 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import {
   useCustomerSearchQueries,
   useMoveSearchQueries,
-  useServicesCounselingQueuePPMQueries,
-  useCounselingQueueQueries,
+  usePPMQueueQueries,
   useUserQueries,
+  useCounselingQueueQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingOriginLocations,
-  getServicesCounselingPPMQueue,
+  getPPMCloseoutQueue,
   getCounselingQueue,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
@@ -330,7 +330,8 @@ export const closeoutColumns = (
       },
       {
         id: 'ppmStatus',
-        isFilterable: true,
+        isFilterable: false, // Currently this queue only has one status
+        disableSortBy: true,
         Filter: (props) => (
           // eslint-disable-next-line react/jsx-props-no-spreading
           <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
@@ -340,7 +341,7 @@ export const closeoutColumns = (
     createHeader(
       'Closeout initiated',
       (row) => {
-        return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
+        return row.closeoutInitiatedDates;
       },
       {
         id: 'closeoutInitiated',
@@ -879,10 +880,10 @@ const ServicesCounselingQueue = ({
           )}
           title="Moves"
           handleClick={handleClick}
-          useQueries={useServicesCounselingQueuePPMQueries}
+          useQueries={usePPMQueueQueries}
           showCSVExport
           csvExportFileNamePrefix="PPM-Closeout-Queue"
-          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcher={getPPMCloseoutQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}

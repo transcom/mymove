@@ -6,7 +6,13 @@ import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table
 
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
-import { useUserQueries, useCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
+import {
+  useUserQueries,
+  useCounselingQueueQueries,
+  useServicesCounselingQueuePPMQueries,
+  useServicesCounselingQueueQueries,
+  usePPMQueueQueries,
+} from 'hooks/queries';
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -17,6 +23,8 @@ jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueuePPMQueries: jest.fn(),
+  useServicesCounselingQueueQueries: jest.fn(),
+  usePPMQueueQueries: jest.fn(),
   useBulkAssignmentQueries: () => {
     return {
       availableOfficeUsers: [
@@ -464,8 +472,8 @@ describe('ServicesCounselingQueue', () => {
       'a %s user accessing the SC queue default path gets redirected appropriately to %s',
       (userDescription, expectedPath, user) => {
         useUserQueries.mockReturnValue(user);
-        useCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
-        useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
+        useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
+        usePPMQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
         render(
           <MockProviders>
             <ServicesCounselingQueue />

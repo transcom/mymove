@@ -646,6 +646,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		officeuser.NewOfficeUserFetcherPop(),
 	}
 
+	ghcAPI.QueuesGetPPMCloseoutQueueHandler = GetPPMCloseoutQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(waf),
+		movelocker.NewMoveUnlocker(),
+		officeuser.NewOfficeUserFetcherPop(),
+	}
+
 	ghcAPI.QueuesGetCounselingQueueHandler = GetCounselingQueueHandler{
 		handlerConfig,
 		move.NewCounselingQueueFetcher(),
