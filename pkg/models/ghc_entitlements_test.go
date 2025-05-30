@@ -365,3 +365,31 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 		suite.Assertions.Equal(600, ubAllowance)
 	})
 }
+
+func (suite *ModelSuite) TestGetMaxGunSafeAllowance() {
+	suite.Run("returns the correct max gun safe allowance when parameter exists", func() {
+		appCtx := suite.AppContextForTest()
+
+		parameterName := "maxGunSafeAllowance"
+		parameterValue := "500"
+
+		param := models.ApplicationParameters{
+			ParameterName:  &parameterName,
+			ParameterValue: &parameterValue,
+		}
+		suite.MustSave(&param)
+
+		val, err := models.GetMaxGunSafeAllowance(appCtx)
+		suite.NoError(err)
+		suite.Equal(500, val)
+	})
+
+	suite.Run("returns an error when parameter does not exist", func() {
+		appCtx := suite.AppContextForTest()
+
+		val, err := models.GetMaxGunSafeAllowance(appCtx)
+		suite.Error(err)
+		suite.Contains(err.Error(), "error fetching max gun safe allowance")
+		suite.Equal(0, val)
+	})
+}
