@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
-import SectionWrapper from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Shared/SectionWrapper/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
 
