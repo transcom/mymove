@@ -570,7 +570,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(&counselorRemarks, createdShipment.CounselorRemarks)
 
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
-		suite.Equal(primev3messages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
+		suite.Equal(primev3messages.PPMShipmentStatusWAITINGONCUSTOMER, createdPPM.Status)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), createdPPM.ExpectedDepartureDate)
 		suite.Equal(address1.PostalCode, *createdPPM.PickupAddress.PostalCode)
 		suite.Equal(address1.PostalCode, *createdPPM.DestinationAddress.PostalCode)
