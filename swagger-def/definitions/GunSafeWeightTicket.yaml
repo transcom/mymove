@@ -1,0 +1,84 @@
+description: Gun safe associated information and weight docs for a PPM shipment
+type: object
+properties:
+  id:
+    description: The ID of the gun safe weight ticket.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  ppmShipmentId:
+    description: The ID of the PPM shipment that this gun safe weight ticket is associated with.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  updatedAt:
+    type: string
+    format: date-time
+    readOnly: true
+  createdAt:
+    type: string
+    format: date-time
+    readOnly: true
+  description:
+    description: Describes the gun safe that was moved.
+    type: string
+    x-nullable: true
+    x-omitempty: false
+  hasWeightTickets:
+    description: Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  submittedHasWeightTickets:
+    description: Indicates if the user has a weight ticket for their gun safe, otherwise they have a constructed weight.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  weight:
+    description: Weight of the gun safe.
+    type: integer
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
+  submittedWeight:
+    description: Customer submitted weight of the gun safe.
+    type: integer
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
+  documentId:
+    description: The ID of the document that is associated with the user uploads containing the gun safe weight.
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    readOnly: true
+  document:
+    allOf:
+      - description: Document that is associated with the user uploads containing the gun safe weight.
+      - $ref: 'Document.yaml'
+  status:
+    $ref: 'OmittablePPMDocumentStatus.yaml'
+  reason:
+    $ref: 'PPMDocumentStatusReason.yaml'
+  eTag:
+    description: A hash that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+  amount:
+    description: The total amount of the expense as indicated on the receipt
+    type: integer
+    x-nullable: true
+    x-omitempty: false
+  trackingNumber:
+    description: Tracking number for a small package expense
+    type: string
+    x-nullable: true
+    x-omitempty: false
+required:
+  - ppmShipmentId
+  - createdAt
+  - updatedAt
+  - documentId
+  - document

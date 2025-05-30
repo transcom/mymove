@@ -89,6 +89,8 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.HasReceivedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasReceivedAdvance, ppmShipment.HasReceivedAdvance)
 	ppmShipment.AdvanceAmountReceived = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountReceived, ppmShipment.AdvanceAmountReceived)
 	ppmShipment.IsActualExpenseReimbursement = services.SetNoNilOptionalBoolField(newPPMShipment.IsActualExpenseReimbursement, ppmShipment.IsActualExpenseReimbursement)
+	ppmShipment.HasGunSafe = services.SetNoNilOptionalBoolField(newPPMShipment.HasGunSafe, ppmShipment.HasGunSafe)
+	ppmShipment.GunSafeWeight = services.SetNoNilOptionalPoundField(newPPMShipment.GunSafeWeight, ppmShipment.GunSafeWeight)
 
 	ppmShipment.SITExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SITExpected, ppmShipment.SITExpected)
 	ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)
@@ -208,6 +210,10 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.SpouseProGearWeight = nil
 	}
 
+	if ppmShipment.HasGunSafe != nil && !*ppmShipment.HasGunSafe {
+		ppmShipment.GunSafeWeight = nil
+	}
+
 	if ppmShipment.HasRequestedAdvance != nil && !*ppmShipment.HasRequestedAdvance {
 		ppmShipment.AdvanceAmountRequested = nil
 	}
@@ -222,6 +228,10 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 
 	if len(newPPMShipment.WeightTickets) >= 1 {
 		ppmShipment.WeightTickets = newPPMShipment.WeightTickets
+	}
+
+	if len(newPPMShipment.GunSafeWeightTickets) >= 1 {
+		ppmShipment.GunSafeWeightTickets = newPPMShipment.GunSafeWeightTickets
 	}
 
 	return &ppmShipment, err

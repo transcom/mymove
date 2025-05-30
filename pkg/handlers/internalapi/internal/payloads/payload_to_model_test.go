@@ -204,6 +204,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	estimatedWeight := int64(5000)
 	proGearWeight := int64(500)
 	spouseProGearWeight := int64(50)
+	gunSafeWeight := int64(321)
 
 	address := models.Address{
 		StreetAddress1: "some address",
@@ -302,6 +303,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		ProGearWeight:                &proGearWeight,
 		SpouseProGearWeight:          &spouseProGearWeight,
 		IsActualExpenseReimbursement: models.BoolPointer(true),
+		HasGunSafe:                   models.BoolPointer(true),
+		GunSafeWeight:                &gunSafeWeight,
 	}
 
 	model := UpdatePPMShipmentModel(&ppmShipment)
@@ -319,6 +322,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	suite.True(*model.IsActualExpenseReimbursement)
 	suite.NotNil(model)
 	suite.Equal(model.PPMType, models.PPMTypeActualExpense)
+	suite.True(*model.HasGunSafe)
+	suite.Equal(unit.Pound(gunSafeWeight), *model.GunSafeWeight)
 }
 
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
@@ -527,5 +532,25 @@ func (suite *PayloadsSuite) TestMovingExpenseModelFromUpdate() {
 		suite.Equal(handlers.FmtBoolPtr(&isProGear), result.IsProGear, "IsProGear should match")
 		suite.Equal(handlers.FmtBoolPtr(&proGearBelongsToSelf), result.ProGearBelongsToSelf, "ProGearBelongsToSelf should match")
 		suite.Equal(handlers.FmtStringPtr(&proGearDescription), result.ProGearDescription, "ProGearDescription should match")
+	})
+}
+
+func (suite *PayloadsSuite) TestGunSafeWeightTicketModelFromUpdate() {
+	suite.Run("Success - Complete input", func() {
+		weight := int64(100)
+		description := "test description"
+		hasWeightTickets := true
+
+		input := &internalmessages.UpdateGunSafeWeightTicket{
+			Weight:           &weight,
+			HasWeightTickets: hasWeightTickets,
+			Description:      description,
+		}
+
+		result := GunSafeWeightTicketModelFromUpdate(input)
+
+		suite.IsType(&models.GunSafeWeightTicket{}, result)
+		suite.Equal(handlers.PoundPtrFromInt64Ptr(&weight), result.Weight)
+		suite.Equal(hasWeightTickets, *result.HasWeightTickets)
 	})
 }

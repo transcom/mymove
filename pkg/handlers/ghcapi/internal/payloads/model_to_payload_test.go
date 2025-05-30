@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services/entitlements"
 	"github.com/transcom/mymove/pkg/storage/mocks"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/unit"
@@ -401,6 +402,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	pgBoolSpouse := false
 	weightCustomer := unit.Pound(100)
 	weightSpouse := unit.Pound(120)
+	gunSafeWeight := unit.Pound(400)
 	finalIncentive := unit.Cents(20000)
 
 	weightTickets := models.WeightTickets{
@@ -431,6 +433,13 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 			UpdatedAt:     time.Now(),
 		},
 	}
+	gunSafeWeightTickets := models.GunSafeWeightTickets{
+		models.GunSafeWeightTicket{
+			Weight:    &gunSafeWeight,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
 
 	expectedPPMShipment := models.PPMShipment{
 		ID:                           ppmShipmentID,
@@ -439,6 +448,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
 		WeightTickets:                weightTickets,
 		ProgearWeightTickets:         proGearWeightTickets,
+		GunSafeWeightTickets:         gunSafeWeightTickets,
 		FinalIncentive:               &finalIncentive,
 	}
 
@@ -466,6 +476,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 		suite.Equal(len(returnedPPMShipment.WeightTickets), 2)
 		suite.Equal(ProGearWeightTickets(suite.storer, proGearWeightTickets), returnedPPMShipment.ProGearWeightTickets)
+		suite.Equal(GunSafeWeightTickets(suite.storer, gunSafeWeightTickets), returnedPPMShipment.GunSafeWeightTickets)
 		suite.Equal(handlers.FmtCost(&finalIncentive), returnedPPMShipment.FinalIncentive)
 	})
 
@@ -813,6 +824,11 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	ubAllowance := 300
 	weightRestriction := 1000
 	ubWeightRestriction := 1200
+	gunSafeWeight := 333
+
+	fetcher := entitlements.NewWeightAllotmentFetcher()
+
+	weightAllotment, err := fetcher.GetWeightAllotment(suite.AppContextForTest(), "E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -821,6 +837,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		NonTemporaryStorage:            &nonTemporaryStorage,
 		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
 		ProGearWeight:                  proGearWeight,
+		GunSafeWeight:                  gunSafeWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		StorageInTransit:               &storageInTransit,
 		TotalDependents:                &totalDependents,
@@ -832,7 +849,12 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		UBAllowance:                    &ubAllowance,
 		WeightRestriction:              &weightRestriction,
 		UBWeightRestriction:            &ubWeightRestriction,
+		WeightAllotted:                 &weightAllotment,
 	}
+
+	suite.Nil(err)
+
+	totalWeight := weightAllotment.TotalWeightSelfPlusDependents + gunSafeWeight
 
 	returnedEntitlement := Entitlement(entitlement)
 	returnedUBAllowance := entitlement.UBAllowance
@@ -855,6 +877,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
 	suite.Equal(weightRestriction, int(*returnedEntitlement.WeightRestriction))
 	suite.Equal(ubWeightRestriction, int(*returnedEntitlement.UbWeightRestriction))
+	suite.Equal(int64(totalWeight), returnedEntitlement.TotalWeight)
 }
 
 func (suite *PayloadsSuite) TestCreateCustomer() {

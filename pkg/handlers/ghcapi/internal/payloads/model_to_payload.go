@@ -707,9 +707,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var proGearWeight, proGearWeightSpouse, gunSafeWeight, totalWeight int64
 	proGearWeight = int64(entitlement.ProGearWeight)
 	proGearWeightSpouse = int64(entitlement.ProGearWeightSpouse)
+	gunSafeWeight = int64(entitlement.GunSafeWeight)
 
 	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
 		if *entitlement.DependentsAuthorized {
@@ -718,6 +719,8 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 			totalWeight = int64(weightAllotment.TotalWeightSelf)
 		}
 	}
+	totalWeight = totalWeight + gunSafeWeight
+
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
 		aw := int64(*entitlement.AuthorizedWeight())
@@ -1013,6 +1016,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *gh
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
+		GunSafeWeightTickets:           GunSafeWeightTickets(storer, ppmShipment.GunSafeWeightTickets),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
 		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
@@ -1168,6 +1172,52 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 		payload.Reason = &reason
 	}
 
+	return payload
+}
+
+// GunSafeWeightTicket payload
+func GunSafeWeightTicket(storer storage.FileStorer, gunsafe *models.GunSafeWeightTicket) *ghcmessages.GunSafeWeightTicket {
+	ppmShipmentID := strfmt.UUID(gunsafe.PPMShipmentID.String())
+
+	document, err := PayloadForDocumentModel(storer, gunsafe.Document)
+	if err != nil {
+		return nil
+	}
+
+	payload := &ghcmessages.GunSafeWeightTicket{
+		ID:               strfmt.UUID(gunsafe.ID.String()),
+		PpmShipmentID:    ppmShipmentID,
+		CreatedAt:        *handlers.FmtDateTime(gunsafe.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(gunsafe.UpdatedAt),
+		DocumentID:       *handlers.FmtUUID(gunsafe.DocumentID),
+		Document:         document,
+		Weight:           handlers.FmtPoundPtr(gunsafe.Weight),
+		HasWeightTickets: gunsafe.HasWeightTickets,
+		Description:      gunsafe.Description,
+		ETag:             etag.GenerateEtag(gunsafe.UpdatedAt),
+	}
+
+	if gunsafe.Status != nil {
+		status := ghcmessages.OmittablePPMDocumentStatus(*gunsafe.Status)
+		payload.Status = &status
+	}
+
+	if gunsafe.Reason != nil {
+		reason := ghcmessages.PPMDocumentStatusReason(*gunsafe.Reason)
+		payload.Reason = &reason
+	}
+
+	return payload
+}
+
+// GunSafeWeightTickets sets up a GunSafeWeightTicket slice for the api using model data.
+func GunSafeWeightTickets(storer storage.FileStorer, gunSafeWeightTickets models.GunSafeWeightTickets) []*ghcmessages.GunSafeWeightTicket {
+	payload := make([]*ghcmessages.GunSafeWeightTicket, len(gunSafeWeightTickets))
+	for i, gunSafeWeightTicket := range gunSafeWeightTickets {
+		copyOfGunSafeWeightTicket := gunSafeWeightTicket
+		gunSafeWeightTicketPayload := GunSafeWeightTicket(storer, &copyOfGunSafeWeightTicket)
+		payload[i] = gunSafeWeightTicketPayload
+	}
 	return payload
 }
 
@@ -1337,6 +1387,7 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
 		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
 		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
+		GunSafeWeightTickets: GunSafeWeightTickets(storer, ppmDocuments.GunSafeWeightTickets),
 	}
 
 	return payload

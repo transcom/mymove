@@ -76,6 +76,16 @@ type PPMShipment struct {
 	// Read Only: true
 	FinalIncentive *int64 `json:"finalIncentive"`
 
+	// The estimated weight of the gun safe being moved belonging to the service member.
+	GunSafeWeight *int64 `json:"gunSafeWeight"`
+
+	// All gun safe weight ticket documentation records for this PPM shipment.
+	GunSafeWeightTickets []*GunSafeWeightTicket `json:"gunSafeWeightTickets"`
+
+	// Indicates whether PPM shipment has gun safe.
+	//
+	HasGunSafe *bool `json:"hasGunSafe"`
+
 	// Indicates whether PPM shipment has pro gear for themselves or their spouse.
 	//
 	HasProGear *bool `json:"hasProGear"`
@@ -236,6 +246,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateExpectedDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGunSafeWeightTickets(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -433,6 +447,32 @@ func (m *PPMShipment) validateExpectedDepartureDate(formats strfmt.Registry) err
 
 	if err := validate.FormatOf("expectedDepartureDate", "body", "date", m.ExpectedDepartureDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateGunSafeWeightTickets(formats strfmt.Registry) error {
+	if swag.IsZero(m.GunSafeWeightTickets) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.GunSafeWeightTickets); i++ {
+		if swag.IsZero(m.GunSafeWeightTickets[i]) { // not required
+			continue
+		}
+
+		if m.GunSafeWeightTickets[i] != nil {
+			if err := m.GunSafeWeightTickets[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("gunSafeWeightTickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("gunSafeWeightTickets" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -813,6 +853,10 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateGunSafeWeightTickets(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -947,6 +991,31 @@ func (m *PPMShipment) contextValidateFinalIncentive(ctx context.Context, formats
 
 	if err := validate.ReadOnly(ctx, "finalIncentive", "body", m.FinalIncentive); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateGunSafeWeightTickets(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.GunSafeWeightTickets); i++ {
+
+		if m.GunSafeWeightTickets[i] != nil {
+
+			if swag.IsZero(m.GunSafeWeightTickets[i]) { // not required
+				return nil
+			}
+
+			if err := m.GunSafeWeightTickets[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("gunSafeWeightTickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("gunSafeWeightTickets" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
