@@ -13,12 +13,12 @@ import {
   useMoveSearchQueries,
   usePaymentRequestQueueQueries,
   useServicesCounselingQueueQueries,
-  useServicesCounselingQueuePPMQueries,
+  usePPMQueueQueries,
   useUserQueries,
 } from 'hooks/queries';
 import {
   getServicesCounselingQueue,
-  getServicesCounselingPPMQueue,
+  getPPMCloseoutQueue,
   getPaymentRequestsQueue,
   getMovesQueue,
 } from 'services/ghcApi';
@@ -309,11 +309,11 @@ const HeadquartersQueue = ({ isQueueManagementFFEnabled, activeRole, isApprovalR
           )}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
-          useQueries={useServicesCounselingQueuePPMQueries}
+          useQueries={usePPMQueueQueries}
           key="PPM Closeout Queue"
           showCSVExport
           csvExportFileNamePrefix="PPM-Closeout-Queue"
-          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcher={getPPMCloseoutQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           activeRole={activeRole}
