@@ -111,14 +111,16 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	})
 
 	suite.Run("When a reweigh already exists for the shipment, returns ConflictError", func() {
-		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
+		reweigh, err := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
+		suite.NoError(err)
+
 		existingShipment := reweigh.Shipment
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 
-		_, err := requester.RequestShipmentReweigh(session, existingShipment.ID, models.ReweighRequesterTOO)
+		_, err = requester.RequestShipmentReweigh(session, existingShipment.ID, models.ReweighRequesterTOO)
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)

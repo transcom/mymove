@@ -79,8 +79,8 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	}
 	currentAddress := ghcmessages.Address{
 		StreetAddress1: handlers.FmtString("123 New Street"),
-		City:           handlers.FmtString("Newcity"),
-		State:          handlers.FmtString("MA"),
+		City:           handlers.FmtString("SCHENECTADY"),
+		State:          handlers.FmtString("NY"),
 		PostalCode:     handlers.FmtString("12345"),
 	}
 	body.CurrentAddress.Address = currentAddress
@@ -143,14 +143,14 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 
 		residentialAddress := ghcmessages.Address{
 			StreetAddress1: handlers.FmtString("123 New Street"),
-			City:           handlers.FmtString("Newcity"),
+			City:           handlers.FmtString("Boston"),
 			State:          handlers.FmtString("MA"),
 			PostalCode:     handlers.FmtString("02110"),
 		}
 
 		backupAddress := ghcmessages.Address{
 			StreetAddress1: handlers.FmtString("123 Backup Street"),
-			City:           handlers.FmtString("Backupcity"),
+			City:           handlers.FmtString("Boston"),
 			State:          handlers.FmtString("MA"),
 			PostalCode:     handlers.FmtString("02115"),
 		}
