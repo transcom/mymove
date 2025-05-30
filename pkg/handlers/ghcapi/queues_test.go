@@ -1769,6 +1769,45 @@ func (suite *HandlerSuite) TestGetCounselingQueueHandler() {
 		suite.EqualValues(subtestData.needsCounselingMove2.Status, result2.Status)
 	})
 
+	suite.Run("unlocks office users moves when the office user is accessing the queue", func() {
+		subtestData := suite.makeCounselingSubtestData()
+
+		army := models.AffiliationARMY
+		lockedMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator:              "AAA3T6",
+					Status:               models.MoveStatusNeedsServiceCounseling,
+					LockedByOfficeUserID: &subtestData.officeUser.ID,
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		pageNumber := int64(1)
+		perPageAmt := int64(20)
+		params := queues.GetCounselingQueueParams{
+			HTTPRequest: subtestData.request,
+			Sort:        models.StringPointer("branch"),
+			Order:       models.StringPointer("asc"),
+			Page:        &pageNumber,
+			PerPage:     &perPageAmt,
+		}
+
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetCounselingQueueOK{}, response)
+		payload := response.(*queues.GetCounselingQueueOK).Payload
+
+		result1 := payload.QueueMoves[1]
+		suite.Equal(lockedMove.Locator, result1.Locator)
+		suite.Nil(result1.LockedByOfficeUserID)
+	})
+
 	suite.Run("returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
 		subtestData := suite.makeCounselingSubtestData()
 		pageNumber := int64(1)
