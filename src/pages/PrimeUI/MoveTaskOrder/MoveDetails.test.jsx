@@ -238,6 +238,10 @@ describe('PrimeUI MoveDetails page', () => {
         const gunSafe = screen.getByText('Gun Safe:');
         expect(gunSafe).toBeInTheDocument();
         expect(gunSafe.nextElementSibling.textContent).toBe('yes');
+        const rank = screen.getByText('Rank:');
+        expect(rank).toBeInTheDocument();
+        const grade = screen.getByText('Pay Grade:');
+        expect(grade).toBeInTheDocument();
         const adminRestrictedWeight = screen.getByText('Admin Restricted Weight:');
         expect(adminRestrictedWeight).toBeInTheDocument();
         expect(adminRestrictedWeight.nextElementSibling.textContent).toBe(
