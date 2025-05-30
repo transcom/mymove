@@ -76,6 +76,13 @@ type PPMShipment struct {
 	// Read Only: true
 	FinalIncentive *int64 `json:"finalIncentive"`
 
+	// The estimated weight of the gun safe being moved belonging to the service member.
+	GunSafeWeight *int64 `json:"gunSafeWeight"`
+
+	// Indicates whether PPM shipment has gun safe.
+	//
+	HasGunSafe *bool `json:"hasGunSafe"`
+
 	// Indicates whether PPM shipment has pro gear for themselves or their spouse.
 	//
 	HasProGear *bool `json:"hasProGear"`
