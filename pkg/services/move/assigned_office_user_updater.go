@@ -40,8 +40,8 @@ func (s AssignedOfficeUserUpdater) UpdateAssignedOfficeUser(appCtx appcontext.Ap
 		move.SCCloseoutAssignedID = &officeUser.ID
 		move.SCCloseoutAssignedUser = officeUser
 	case models.QueueTypeTaskOrder:
-		move.TOOAssignedID = &officeUser.ID
-		move.TOOAssignedUser = officeUser
+		move.TOOTaskOrderAssignedID = &officeUser.ID
+		move.TOOTaskOrderAssignedUser = officeUser
 	case models.QueueTypeDestinationRequest:
 		move.TOODestinationAssignedID = &officeUser.ID
 		move.TOODestinationAssignedUser = officeUser
@@ -78,8 +78,8 @@ func (s AssignedOfficeUserUpdater) DeleteAssignedOfficeUser(appCtx appcontext.Ap
 		move.SCCloseoutAssignedID = nil
 		move.SCCloseoutAssignedUser = nil
 	case models.QueueTypeTaskOrder:
-		move.TOOAssignedID = nil
-		move.TOOAssignedUser = nil
+		move.TOOTaskOrderAssignedID = nil
+		move.TOOTaskOrderAssignedUser = nil
 	case models.QueueTypeDestinationRequest:
 		move.TOODestinationAssignedID = nil
 		move.TOODestinationAssignedUser = nil

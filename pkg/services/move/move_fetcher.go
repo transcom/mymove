@@ -260,7 +260,7 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx a
 			mto_shipments.deleted_at IS NULL
 			AND (moves.status IN ('APPROVALS REQUESTED', 'SUBMITTED', 'SERVICE COUNSELING COMPLETED'))
 			AND moves.show = $1
-			AND moves.too_assigned_id IS NULL
+			AND moves.too_task_order_assigned_id IS NULL
 			AND (orders.orders_type NOT IN ($2, $3, $4))
 			AND (moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false'))) `
 	if gbloc == "USMC" {

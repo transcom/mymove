@@ -283,7 +283,7 @@ type officeUserGroup struct {
 	SCCounselingAssignedUser   CustomType
 	SCCloseoutAssignedUser     CustomType
 	TIOAssignedUser            CustomType
-	TOOAssignedUser            CustomType
+	TOOTaskOrderAssignedUser   CustomType
 	TOODestinationAssignedUser CustomType
 }
 
@@ -291,7 +291,7 @@ var OfficeUsers = officeUserGroup{
 	SCCounselingAssignedUser:   "SCCounselingAssignedUser",
 	SCCloseoutAssignedUser:     "SCCloseoutAssignedUser",
 	TIOAssignedUser:            "TIOAssignedUser",
-	TOOAssignedUser:            "TOOAssignedUser",
+	TOOTaskOrderAssignedUser:   "TOOTaskOrderAssignedUser",
 	TOODestinationAssignedUser: "TOODestinationAssignedUser",
 }
 

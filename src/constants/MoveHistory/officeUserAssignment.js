@@ -2,7 +2,7 @@
 export const ASSIGNMENT_IDS = {
   SERVICES_COUNSELOR: 'sc_counseling_assigned_id',
   CLOSEOUT_COUNSELOR: 'sc_closeout_assigned_id',
-  TASK_ORDERING_OFFICER: 'too_assigned_id',
+  TASK_ORDERING_OFFICER: 'too_task_order_assigned_id',
   TASK_INVOICING_OFFICER: 'tio_assigned_id',
   TASK_ORDERING_OFFICER_DESTINATION: 'too_destination_assigned_id',
 };
@@ -17,8 +17,12 @@ export const ASSIGNMENT_NAMES = {
     RE_ASSIGNED: 're_assigned_sc_closeout',
   },
   TASK_ORDERING_OFFICER: {
-    ASSIGNED: 'assigned_too',
-    RE_ASSIGNED: 're_assigned_too',
+    ASSIGNED: 'assigned_too_task_order',
+    RE_ASSIGNED: 're_assigned_too_task_order',
+  },
+  DESTINATION_TASK_ORDERING_OFFICER: {
+    ASSIGNED: 'assigned_too_destination',
+    RE_ASSIGNED: 're_assigned_too_destination',
   },
   TASK_INVOICING_OFFICER: {
     ASSIGNED: 'assigned_tio',

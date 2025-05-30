@@ -2176,7 +2176,7 @@ func (suite *MTOServiceItemServiceSuite) setupAssignmentTestData() (models.MTOSe
 		{
 			Model:    officeUser1,
 			LinkOnly: true,
-			Type:     &factory.OfficeUsers.TOOAssignedUser,
+			Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 		},
 		{
 			Model:    officeUser2,
@@ -2332,7 +2332,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 		}, nil)
 
@@ -2343,7 +2343,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 			},
 		}, nil)
 
-		suite.NotNil(move.TOOAssignedUser)
+		suite.NotNil(move.TOOTaskOrderAssignedUser)
 		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
 		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
 			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
@@ -2352,7 +2352,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 		err = suite.DB().Find(&serviceItem, serviceItem.ID)
 		suite.NoError(err)
-		suite.Nil(move.TOOAssignedID)
+		suite.Nil(move.TOOTaskOrderAssignedID)
 		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
 	})
 
@@ -3248,7 +3248,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		eTag2 := etag.GenerateEtag(originServiceItem2.UpdatedAt)
 
 		// confirm move has origin and destination assignments
-		suite.Equal(officeUser1.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser1.ID, *move.TOOTaskOrderAssignedID)
 		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
 
 		_, err := updater.ApproveOrRejectServiceItem(
@@ -3259,7 +3259,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 
 		// confirm assignments have not changed
-		suite.Equal(officeUser1.ID, *move.TOOAssignedID)
+		suite.Equal(officeUser1.ID, *move.TOOTaskOrderAssignedID)
 		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
 
 		_, err = updater.ApproveOrRejectServiceItem(
@@ -3270,7 +3270,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.NoError(err)
 
 		// confirm origin TOO is now unassigned and destination TOO remains assigned
-		suite.Nil(move.TOOAssignedID)
+		suite.Nil(move.TOOTaskOrderAssignedID)
 		suite.Equal(officeUser2.ID, *move.TOODestinationAssignedID)
 
 		destinationServiceItem1 := serviceItems[2]

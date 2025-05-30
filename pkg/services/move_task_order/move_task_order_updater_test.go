@@ -932,7 +932,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 			{
 				Model:    officeUser,
 				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TOOAssignedUser,
+				Type:     &factory.OfficeUsers.TOOTaskOrderAssignedUser,
 			},
 		}, nil)
 
@@ -940,7 +940,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ApproveMoveAndC
 		updatedMove, err := mtoUpdater.ApproveMoveAndCreateServiceItems(suite.AppContextForTest(), move.ID, eTag, false, false)
 
 		suite.NoError(err)
-		suite.Nil(updatedMove.TOOAssignedID)
+		suite.Nil(updatedMove.TOOTaskOrderAssignedID)
 	})
 
 	suite.Run("Approves a move and only creates Move management when it's the only one specified", func() {
