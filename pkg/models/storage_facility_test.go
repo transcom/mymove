@@ -13,7 +13,7 @@ func (suite *ModelSuite) TestStorageFacilityValidation() {
 			AddressID:    uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMTOShipment, expErrors)
+		suite.verifyValidationErrors(&validMTOShipment, expErrors, nil)
 	})
 
 	suite.Run("test invalid StorageFacility", func() {
@@ -32,6 +32,6 @@ func (suite *ModelSuite) TestStorageFacilityValidation() {
 			"phone":         {"Phone can not be blank."},
 			"email":         {"Email can not be blank."},
 		}
-		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
+		suite.verifyValidationErrors(&invalidMTOShipment, expErrors, nil)
 	})
 }

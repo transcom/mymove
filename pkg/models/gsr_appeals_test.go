@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestGsrAppealValidation() {
 			DeletedAt:               nil,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validGsrAppeal, expErrors)
+		suite.verifyValidationErrors(&validGsrAppeal, expErrors, nil)
 	})
 
 	suite.Run("test missing required fields", func() {
@@ -41,6 +41,6 @@ func (suite *ModelSuite) TestGsrAppealValidation() {
 			"remarks":        {"Remarks can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidGsrAppeal, expErrors)
+		suite.verifyValidationErrors(&invalidGsrAppeal, expErrors, nil)
 	})
 }

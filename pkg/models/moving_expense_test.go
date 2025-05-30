@@ -72,7 +72,7 @@ func (suite *ModelSuite) TestMovingExpenseValidation() {
 		tc := tc
 
 		suite.Run(name, func() {
-			suite.verifyValidationErrors(&tc.movingExpense, tc.expectedErrs)
+			suite.verifyValidationErrors(&tc.movingExpense, tc.expectedErrs, nil)
 		})
 	}
 

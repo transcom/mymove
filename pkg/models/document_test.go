@@ -30,7 +30,7 @@ func (suite *ModelSuite) Test_DocumentValidations() {
 		"service_member_id": {"ServiceMemberID can not be blank."},
 	}
 
-	suite.verifyValidationErrors(document, expErrors)
+	suite.verifyValidationErrors(document, expErrors, nil)
 }
 
 func (suite *ModelSuite) TestFetchDocument() {

@@ -12,7 +12,7 @@ func (suite *ModelSuite) TestProofOfServiceDocValidation() {
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validProofOfServiceDoc, expErrors)
+		suite.verifyValidationErrors(&validProofOfServiceDoc, expErrors, nil)
 	})
 
 	suite.Run("test empty ProofOfServiceDoc", func() {
@@ -22,6 +22,6 @@ func (suite *ModelSuite) TestProofOfServiceDocValidation() {
 			"payment_request_id": {"PaymentRequestID can not be blank."},
 		}
 
-		suite.verifyValidationErrors(&invalidProofOfServiceDoc, expErrors)
+		suite.verifyValidationErrors(&invalidProofOfServiceDoc, expErrors, nil)
 	})
 }
