@@ -1610,18 +1610,10 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeMaxIncentive, *updatedPPM.EstimatedIncentive)
 	})
 
-	suite.Run("Can update entitlement when HasGunSafe value changes", func() {
+	suite.Run("Can update gun safe authorized when HasGunSafe value changes", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			OfficeUserID: uuid.Must(uuid.NewV4()),
 		})
-
-		parameterName := "maxGunSafeAllowance"
-		parameterValue := "500"
-		param := models.ApplicationParameters{
-			ParameterName:  &parameterName,
-			ParameterValue: &parameterValue,
-		}
-		suite.MustSave(&param)
 
 		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -1645,9 +1637,66 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.NoError(err)
 
 		suite.True(updatedEntitlement.GunSafe)
-		suite.Equal(500, updatedEntitlement.GunSafeWeight)
-		suite.NotNil(updatedEntitlement.DBAuthorizedWeight)
-		suite.True(*updatedEntitlement.DBAuthorizedWeight > 0)
 	})
 
+	suite.Run("Returns error if entitlement is nil when updating gun safe", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			OfficeUserID: uuid.Must(uuid.NewV4()),
+		})
+
+		// Create an order and link it to the entitlement
+		orders := factory.BuildOrder(suite.DB(), nil, nil)
+
+		// Manually set EntitlementID to a fake UUID to simulate broken preload
+		orders.EntitlementID = nil
+		orders.Entitlement = nil
+		suite.MustSave(&orders)
+
+		// Create a move and link it to the order
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    orders,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Create an MTOShipment linked to the move
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+					Status:       models.MTOShipmentStatusDraft,
+				},
+			},
+		}, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PPMShipment{
+					HasGunSafe: models.BoolPointer(false),
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			HasGunSafe: models.BoolPointer(true),
+		}
+
+		subtestData := setUpForTests(nil, nil, nil, nil)
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.Nil(updatedPPM)
+		suite.Error(err)
+		suite.IsType(apperror.QueryError{}, err)
+		suite.Contains(err.Error(), "Move is missing an associated entitlement.")
+
+	})
 }
