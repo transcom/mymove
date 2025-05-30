@@ -106,6 +106,11 @@ describe('CustomerInfo', () => {
         />
       </MockProviders>,
     );
+
+    const [backupContactFirstName, backupContactLastName] = mockCustomer.backup_contact.name
+      .split(/ (.+)/)
+      .filter(Boolean);
+
     await waitFor(() => {
       expect(screen.getByLabelText('First name').value).toEqual(mockCustomer.first_name);
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(mockCustomer.middle_name);
@@ -131,7 +136,8 @@ describe('CustomerInfo', () => {
           `${mockCustomer.current_address.city}, ${mockCustomer.current_address.state} ${mockCustomer.current_address.postalCode} ()`,
         ),
       );
-      expect(screen.getByDisplayValue('Jane Backup').value).toEqual(mockCustomer.backup_contact.name);
+      expect(screen.getByDisplayValue('Jane').value).toEqual(backupContactFirstName);
+      expect(screen.getByDisplayValue('Backup').value).toEqual(backupContactLastName);
     });
   });
 

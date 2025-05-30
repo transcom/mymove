@@ -33,6 +33,8 @@ type BackupContact struct {
 	ServiceMember   ServiceMember           `belongs_to:"service_member" fk_id:"service_member_id"`
 	Permission      BackupContactPermission `json:"permission" db:"permission"`
 	Name            string                  `json:"name" db:"name"`
+	FirstName       string                  `json:"first_name" db:"first_name"`
+	LastName        string                  `json:"last_name" db:"last_name"`
 	Email           string                  `json:"email" db:"email"`
 	Phone           string                  `json:"phone" db:"phone"`
 }

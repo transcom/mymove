@@ -954,6 +954,16 @@ definitions:
         example: Susan Smith
         x-nullable: true
         title: Name
+      firstName:
+        type: string
+        example: Susan
+        x-nullable: true
+        title: First Name
+      lastName:
+        type: string
+        example: Smith
+        x-nullable: true
+        title: Last Name
       telephone:
         type: string
         format: telephone
@@ -1002,6 +1012,14 @@ definitions:
         example: Susan Smith
         x-nullable: true
         title: Name
+      firstName:
+        type: string
+        example: Susan
+        x-nullable: true
+      lastName:
+        type: string
+        example: Smith
+        x-nullable: true
       telephone:
         type: string
         format: telephone
@@ -1028,6 +1046,14 @@ definitions:
       name:
         type: string
         example: Susan Smith
+        x-nullable: true
+      firstName:
+        type: string
+        example: Susan
+        x-nullable: true
+      lastName:
+        type: string
+        example: Smith
         x-nullable: true
       telephone:
         type: string

@@ -7825,6 +7825,12 @@ func init() {
           "format": "x-email",
           "example": "backupContact@mail.com"
         },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
         "name": {
           "type": "string"
         },
@@ -26453,6 +26459,12 @@ func init() {
           "type": "string",
           "format": "x-email",
           "example": "backupContact@mail.com"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
         },
         "name": {
           "type": "string"

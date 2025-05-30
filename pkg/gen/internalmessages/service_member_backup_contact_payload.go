@@ -30,11 +30,19 @@ type ServiceMemberBackupContactPayload struct {
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email"`
 
+	// First Name
+	// Example: Susan
+	FirstName *string `json:"firstName,omitempty"`
+
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
+
+	// Last Name
+	// Example: Smith
+	LastName *string `json:"lastName,omitempty"`
 
 	// Name
 	// Example: Susan Smith

@@ -31,6 +31,12 @@ export const EditContactInfo = ({
   const { state } = useLocation();
   const [serverError, setServerError] = useState(null);
 
+  const currentBackupContactFullName = (currentBackupContacts[0]?.name || '').trim();
+  const [currentBackupContactFirstName = '', currentBackupContactLastName = ''] = currentBackupContactFullName
+    .split(/ (.+)/)
+    .map((part) => part?.trim())
+    .filter(Boolean);
+
   const initialValues = {
     telephone: serviceMember?.telephone || '',
     secondary_telephone: serviceMember?.secondary_telephone || '',
@@ -58,7 +64,8 @@ export const EditContactInfo = ({
       usPostRegionCitiesID: serviceMember.backup_mailing_address?.usPostRegionCitiesID || '',
     },
     [backupContactName]: {
-      name: currentBackupContacts[0]?.name || '',
+      firstName: currentBackupContactFirstName,
+      lastName: currentBackupContactLastName,
       telephone: currentBackupContacts[0]?.telephone || '',
       email: currentBackupContacts[0]?.email || '',
     },
@@ -81,16 +88,23 @@ export const EditContactInfo = ({
 
     serviceMemberPayload.secondary_telephone = values?.secondary_telephone;
 
+    const backupFirstName = (values[backupContactName.toString()]?.firstName || '').trim();
+    const backupLastName = (values[backupContactName.toString()]?.lastName || '').trim();
+    const backupFullName = `${backupFirstName} ${backupLastName}`.trim();
+
     const backupContactPayload = {
       id: currentBackupContacts[0].id,
-      name: values[backupContactName.toString()]?.name || '',
+      name: backupFullName,
+      firstName: backupFirstName,
+      lastName: backupLastName,
       email: values[backupContactName.toString()]?.email || '',
       telephone: values[backupContactName.toString()]?.telephone || '',
       permission: currentBackupContacts[0].permission,
     };
 
     const backupContactChanged =
-      initialValues[backupContactName.toString()].name !== backupContactPayload.name ||
+      initialValues[backupContactName.toString()].firstName !== backupFirstName ||
+      initialValues[backupContactName.toString()].lastName !== backupLastName ||
       initialValues[backupContactName.toString()].email !== backupContactPayload.email ||
       initialValues[backupContactName.toString()].telephone !== backupContactPayload.telephone;
 
