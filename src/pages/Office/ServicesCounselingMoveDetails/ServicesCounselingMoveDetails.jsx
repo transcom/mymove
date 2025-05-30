@@ -417,6 +417,7 @@ const ServicesCounselingMoveDetails = ({
     totalWeight: allowances.totalWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
+    gunSafeWeight: allowances.gunSafeWeight,
     storageInTransit: allowances.storageInTransit,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,

@@ -815,6 +815,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
 		proGearWeightSpouse := models.Int64Pointer(10)
+		gunSafeWeight := models.Int64Pointer(300)
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
@@ -824,6 +825,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
+			GunSafeWeight:                  gunSafeWeight,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
@@ -837,6 +839,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Equal(order.ID.String(), updatedOrder.ID.String())
 		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.GunSafeWeight, int64(updatedOrder.Entitlement.GunSafeWeight))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 17500)
@@ -922,6 +925,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		ocie := false
 		proGearWeight := models.Int64Pointer(100)
 		proGearWeightSpouse := models.Int64Pointer(10)
+		gunSafeWeight := models.Int64Pointer(300)
 		rmeWeight := models.Int64Pointer(10000)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 		weightRestriction := models.Int64Pointer(5000)
@@ -933,6 +937,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			OrganizationalClothingAndIndividualEquipment: &ocie,
 			ProGearWeight:                  proGearWeight,
 			ProGearWeightSpouse:            proGearWeightSpouse,
+			GunSafeWeight:                  gunSafeWeight,
 			RequiredMedicalEquipmentWeight: rmeWeight,
 			WeightRestriction:              weightRestriction,
 			UbWeightRestriction:            ubWeightRestriction,
