@@ -322,7 +322,12 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onAddFile }) 
 
   return (
     <div className={styles.sidebar}>
-      <Formik initialValues={initialValues} validationSchema={ordersFormValidationSchema} onSubmit={onSubmit}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={ordersFormValidationSchema}
+        onSubmit={onSubmit}
+        validateOnChange
+      >
         {(formik) => {
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
