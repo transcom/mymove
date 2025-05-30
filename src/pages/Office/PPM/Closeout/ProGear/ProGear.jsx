@@ -20,6 +20,7 @@ import ProGearForm from 'components/Shared/PPM/Closeout/ProGearForm/ProGearForm'
 import { usePPMShipmentAndDocsOnlyQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
+import appendTimestampToFilename from 'utils/fileUpload';
 
 const ProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -78,20 +79,8 @@ const ProGear = () => {
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
-    // Create a date-time stamp in the format "yyyymmddhh24miss"
-    const now = new Date();
-    const timestamp =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, '0') +
-      now.getDate().toString().padStart(2, '0') +
-      now.getHours().toString().padStart(2, '0') +
-      now.getMinutes().toString().padStart(2, '0') +
-      now.getSeconds().toString().padStart(2, '0');
-    // Create a new filename with the timestamp prepended
-    const newFileName = `${file.name}-${timestamp}`;
-    // Create and return a new File object with the new filename
-    const newFile = new File([file], newFileName, { type: file.type });
-    createUploadForPPMDocument(ppmShipment?.id, documentId, newFile, true)
+
+    createUploadForPPMDocument(ppmShipment?.id, documentId, appendTimestampToFilename(file), true)
       .then((upload) => {
         documents?.ProGearWeightTickets[currentIndex][fieldName]?.uploads.push(upload);
         setFieldTouched(fieldName, true);
