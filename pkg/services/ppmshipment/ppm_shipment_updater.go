@@ -222,6 +222,15 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			updatedPPMShipment.TertiaryDestinationAddress = updatedAddress
 		}
 
+		gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *updatedPPMShipment)
+		if err != nil {
+			return err
+		}
+		if gccMultiplier.ID != uuid.Nil {
+			updatedPPMShipment.GCCMultiplierID = &gccMultiplier.ID
+			updatedPPMShipment.GCCMultiplier = &gccMultiplier
+		}
+
 		// if the actual move date is being provided, we no longer need to calculate the estimate - it has already happened
 		if updatedPPMShipment.ActualMoveDate == nil {
 			estimatedIncentive, estimatedSITCost, err := f.estimator.EstimateIncentiveWithDefaultChecks(appCtx, *oldPPMShipment, updatedPPMShipment)

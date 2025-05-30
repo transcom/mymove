@@ -44,6 +44,7 @@ type PPMCloseout struct {
 	IntlUnpackPrice       *unit.Cents
 	IntlLinehaulPrice     *unit.Cents
 	SITReimbursement      *unit.Cents
+	Multiplier            *float64
 }
 
 type PPMActualWeight struct {
@@ -260,6 +261,8 @@ type PPMShipment struct {
 	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
 	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
 	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
+	GCCMultiplierID                *uuid.UUID           `json:"gcc_multiplier_id" db:"gcc_multiplier_id"`
+	GCCMultiplier                  *GCCMultiplier       `belongs_to:"gcc_multipliers" fk_id:"gcc_multiplier_id"`
 }
 
 // TableName overrides the table name used by Pop.
