@@ -34,7 +34,7 @@ func NewGetCounselingQueue(ctx *middleware.Context, handler GetCounselingQueueHa
 
 # Gets queued list of all customer moves needing services counseling by GBLOC origin
 
-An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
+An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here once they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
 */
 type GetCounselingQueue struct {
 	Context *middleware.Context
