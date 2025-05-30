@@ -5218,7 +5218,7 @@ paths:
             type: string
             enum:
               - INFECTED
-              - CLEAN
+              - NO_THREATS_FOUND
               - PROCESSING
             readOnly: true
         '400':
@@ -9535,7 +9535,7 @@ definitions:
         type: string
         enum:
           - INFECTED
-          - CLEAN
+          - NO_THREATS_FOUND
           - PROCESSING
         readOnly: true
       createdAt:
