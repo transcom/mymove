@@ -151,8 +151,8 @@ const mapStateToProps = (state) => {
   const user = selectLoggedInUser(state);
 
   return {
-    activeRole: state.auth.activeRole,
-    inactiveRoles: user.inactiveRoles || [],
+    activeRole: state?.auth?.activeRole,
+    inactiveRoles: user?.inactiveRoles || [],
   };
 };
 
