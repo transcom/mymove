@@ -873,5 +873,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		countrySearcher,
 	}
 
+	ghcAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
+
 	return ghcAPI
 }

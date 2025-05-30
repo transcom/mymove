@@ -323,6 +323,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		countrySearcher,
 	}
 
+	internalAPI.OrdersGetPayGradesHandler = GetPayGradesHandler{handlerConfig}
+
 	return internalAPI
 }
 

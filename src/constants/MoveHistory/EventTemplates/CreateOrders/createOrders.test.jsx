@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/CreateOrders/createOrders';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_PAY_GRADE_TYPE, ORDERS_TYPE } from 'constants/orders';
 
 describe('When given a created orders event for the orders table', () => {
   const item = {
@@ -18,7 +18,7 @@ describe('When given a created orders event for the orders table', () => {
       origin_duty_location_name: 'Los Angeles AFB',
       new_duty_location_name: 'Fairchild AFB',
       has_dependents: true,
-      grade: 'E_1',
+      grade: ORDERS_PAY_GRADE_TYPE.E_1,
     },
     context: [
       {
