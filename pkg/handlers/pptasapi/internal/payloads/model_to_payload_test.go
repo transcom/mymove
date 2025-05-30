@@ -44,10 +44,11 @@ func (suite *PayloadsSuite) TestReport() {
 			PostalCode:     "10001",
 			County:         models.StringPointer("Some County"),
 		},
-		OrdersDate:   &now,
-		TAC:          models.StringPointer("CACI"),
-		OrdersType:   internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber: models.StringPointer("123456"),
+		OrdersDate:        &now,
+		TAC:               models.StringPointer("CACI"),
+		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:      models.StringPointer("123456"),
+		MaxBillableWeight: models.PoundPointer(1000),
 	}
 
 	suite.Run("valid report", func() {
@@ -62,6 +63,7 @@ func (suite *PayloadsSuite) TestReport() {
 		suite.Equal(*report.EmailPrimary, payload.EmailPrimary)
 		suite.Equal(*report.OrdersNumber, payload.OrdersNumber)
 		suite.Equal(int64(report.ShipmentNum), payload.ShipmentNum)
+		suite.Equal(payload.MaxBillableWeight, payload.MaxBillableWeight)
 	})
 
 	suite.Run("nil report", func() {

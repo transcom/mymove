@@ -65,6 +65,9 @@ type PPTASReport struct {
 	// Example: Job
 	LastName string `json:"lastName,omitempty"`
 
+	// max billable weight
+	MaxBillableWeight *float64 `json:"maxBillableWeight,omitempty"`
+
 	// middle initial
 	// Example: G
 	MiddleInitial *string `json:"middleInitial,omitempty"`
