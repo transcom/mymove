@@ -487,15 +487,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
 
-	gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *ppmShipment)
-	if err != nil {
-		logger.Error("error getting GCC multiplier")
-		return nil, err
-	}
-	if gccMultiplier.ID != uuid.Nil {
-		ppmShipment.GCCMultiplierID = &gccMultiplier.ID
-		ppmShipment.GCCMultiplier = &gccMultiplier
-	}
+	gccMultiplier := ppmShipment.GCCMultiplier
 
 	// if we are getting the max incentive, we want to use the addresses on the orders, else use what's on the shipment
 	if isMaxIncentiveCheck {
@@ -619,7 +611,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 
 		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
 		// only apply the multiplier if centsValue is positive
-		if gccMultiplier.Multiplier > 0 && centsValue > 0 {
+		if gccMultiplier != nil && gccMultiplier.Multiplier > 0 && centsValue > 0 {
 			oldCentsValue := centsValue
 			multiplier := gccMultiplier.Multiplier
 			multipliedPrice := float64(centsValue) * multiplier

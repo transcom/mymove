@@ -225,6 +225,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"Shipment.Distance",
 			"PickupAddress",
 			"DestinationAddress",
+			"GCCMultiplier",
 		).
 		Find(&ppmShipment, ppmShipmentID)
 

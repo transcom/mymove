@@ -166,6 +166,18 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			ppmShipment.Shipment = mtoShipment
 		}
 
+		// if the expected departure date falls within a multiplier window, we need to apply that here
+		gccMultiplier, err := models.FetchGccMultiplier(appCtx.DB(), *ppmShipment)
+		if err != nil {
+			return err
+		}
+		// check if there's a valid gccMultiplier and if it's different from the current one (if there is one)
+		if gccMultiplier.ID != uuid.Nil &&
+			(ppmShipment.GCCMultiplierID == nil || *ppmShipment.GCCMultiplierID != gccMultiplier.ID) {
+			ppmShipment.GCCMultiplierID = &gccMultiplier.ID
+			ppmShipment.GCCMultiplier = &gccMultiplier
+		}
+
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
