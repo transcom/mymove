@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	)
 	mockSender := suite.TestNotificationSender()
 	waf := entitlements.NewWeightAllotmentFetcher()
-	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater, moveWeights)
 
 	type mtoCreateSubtestData struct {
@@ -769,7 +769,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	).Return(400, nil)
 
 	mockSender := suite.TestNotificationSender()
-	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(), waf, mockSender)
+	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester(mockSender), waf)
 
 	// Get shipment payment request recalculator service
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
