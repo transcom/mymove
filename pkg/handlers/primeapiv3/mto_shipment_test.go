@@ -2632,15 +2632,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			expectRDDAfterSecondUpdate bool
 		}{
 			{
-				"CONUS -> CONUS HHG update weight then schedulded pickup date", conusILAddress, conusSCAddress, models.MTOShipmentTypeHHG,
-				primev3messages.UpdateMTOShipment{
-					PrimeEstimatedWeight: models.Int64Pointer(1000),
-				}, false,
-				&primev3messages.UpdateMTOShipment{
-					ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
-				}, true,
-			},
-			{
 				"CONUS -> CONUS HHG update schedulded pickup date then weight", conusILAddress, conusSCAddress, models.MTOShipmentTypeHHG,
 				primev3messages.UpdateMTOShipment{
 					ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
@@ -2655,6 +2646,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 					ScheduledPickupDate:  handlers.FmtDatePtr(tomorrowPointer),
 					PrimeEstimatedWeight: models.Int64Pointer(1000),
 				}, true, nil, true,
+			},
+			{
+				"CONUS -> CONUS HHG update weight then schedulded pickup date", conusILAddress, conusSCAddress, models.MTOShipmentTypeHHG,
+				primev3messages.UpdateMTOShipment{
+					PrimeEstimatedWeight: models.Int64Pointer(1000),
+				}, false,
+				&primev3messages.UpdateMTOShipment{
+					ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
+				}, true,
 			},
 			{
 				"CONUS -> AK HHG update weight then schedulded pickup date", conusILAddress, zone1Address, models.MTOShipmentTypeHHG,
