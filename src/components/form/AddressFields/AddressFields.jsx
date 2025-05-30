@@ -43,7 +43,7 @@ export const AddressFields = ({
 
   useEffect(() => {
     const fetchFlag = async () => {
-      setIsCountrySearchEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COUNTRY_FINDER));
+      setIsCountrySearchEnabled(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER));
     };
     fetchFlag();
   }, []);
@@ -86,22 +86,20 @@ export const AddressFields = ({
   };
 
   const handleOnCountryChange = (value) => {
-    // eslint-disable-next-line no-console
-    console.debug(value);
     const countryID = value ? value.id : null;
     const countryName = value ? value.name : null;
     const countryCode = value ? value.code : null;
     setFieldValue(`${name}.country.id`, countryID).then(() => {
       setFieldTouched(`${name}.country.id`, false);
     });
-    setFieldValue(`${name}.countryID`, countryID).then(() => {
-      setFieldTouched(`${name}.countryID`, false);
-    });
     setFieldValue(`${name}.country.code`, countryCode).then(() => {
       setFieldTouched(`${name}.country.code`, false);
     });
     setFieldValue(`${name}.country.name`, countryName).then(() => {
-      setFieldTouched(`${name}.country.name`, true);
+      setFieldTouched(`${name}.country.name`, false);
+    });
+    setFieldValue(`${name}.countryID`, countryID).then(() => {
+      setFieldTouched(`${name}.countryID`, true);
     });
 
     onCountryChange(countryCode);
@@ -222,6 +220,7 @@ AddressFields.propTypes = {
     postalCode: PropTypes.func,
     county: PropTypes.func,
     usPostRegionCitiesID: PropTypes.func,
+    countryID: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
   formikProps: shape({

@@ -122,18 +122,18 @@ const ShipmentForm = (props) => {
   const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
   const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
   const [ppmSprFF, setPpmSprFF] = useState(false);
-  const [countryFinderEnabled, setCountryFinderEnabled] = useState(false);
+  const [oconusCityFinderEnabled, setOconusCityFinderEnabled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [tertiaryAddressFFEnabled, ppmSprFFEnabled, countryFinderFFEnabled] = await Promise.all([
+      const [tertiaryAddressFFEnabled, ppmSprFFEnabled, oconusCityFinderFFEnabled] = await Promise.all([
         isBooleanFlagEnabled(FEATURE_FLAG_KEYS.THIRD_ADDRESS_AVAILABLE),
         isBooleanFlagEnabled(FEATURE_FLAG_KEYS.PPM_SPR),
-        isBooleanFlagEnabled(FEATURE_FLAG_KEYS.COUNTRY_FINDER),
+        isBooleanFlagEnabled(FEATURE_FLAG_KEYS.OCONUS_CITY_FINDER),
       ]);
       setIsTertiaryAddressEnabled(tertiaryAddressFFEnabled);
       setPpmSprFF(ppmSprFFEnabled);
-      setCountryFinderEnabled(countryFinderFFEnabled);
+      setOconusCityFinderEnabled(oconusCityFinderFFEnabled);
     };
     fetchData();
   }, []);
@@ -159,7 +159,7 @@ const ShipmentForm = (props) => {
     (countryCode, date, label, setAlertMessage, setAlertVisible) => {
       dateSelectionWeekendHolidayCheck(
         dateSelectionIsWeekendHoliday,
-        countryFinderEnabled ? countryCode : DEFAULT_COUNTRY_CODE, // Use the default country code of 'US' if the country finder FF is disabled
+        oconusCityFinderEnabled ? countryCode : DEFAULT_COUNTRY_CODE, // Use the default country code of 'US' if the oconus city finder FF is disabled
         date,
         label,
         setAlertMessage,
@@ -167,7 +167,7 @@ const ShipmentForm = (props) => {
         handleDatesError,
       );
     },
-    [countryFinderEnabled],
+    [oconusCityFinderEnabled],
   );
 
   const handlePickupCountryChange = (country, date) => {

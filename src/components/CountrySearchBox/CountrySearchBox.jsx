@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import { debounce } from 'lodash';
 
 import styles from './CountrySearchBox.module.scss';
-import { SearchDutyLocations } from './api';
 
 import { DutyLocationShape } from 'types';
 import RequiredAsterisk from 'components/form/RequiredAsterisk';
@@ -92,16 +91,42 @@ export const CountrySearchBoxComponent = ({
   hint,
   placeholder,
   isDisabled,
+  handleCountryOnChange,
   showRequiredAsterisk,
 }) => {
   const { value, onChange, countryState, name: inputName } = input;
 
-  const countryInfo =
-    !!value && !!value.country && value.country.name !== '' && value.country.code !== ''
-      ? `${value.country.name} (${value.country.code})`
-      : '';
-  const [inputValue, setInputValue] = useState(countryInfo !== '' ? countryInfo : null);
-  const [currentValue, setCurrentValue] = useState(countryInfo !== '' ? countryInfo : null);
+  //   const [countryInfo, setCountryInfo] = useState(
+  //     !!value && !!value.country && value.country.name !== '' && value.country.code !== ''
+  //       ? `${value.country.name} (${value.country.code})`
+  //       : '',
+  //   );
+  // const country =
+  //       !!value &&
+  //       !!value.country &&
+  //       value.country.name !== '' &&
+  //       value.country.name !== null &&
+  //       value.country.code !== '' &&
+  //       value.country.code !== null
+  //         ? `${value.country.name} (${value.country.code})`
+  //         : '';
+
+  // useEffect(() => {
+  //   const country =
+  //     !!value &&
+  //     !!value.country &&
+  //     value.country.name !== '' &&
+  //     value.country.name !== null &&
+  //     value.country.code !== '' &&
+  //     value.country.code !== null
+  //       ? `${value.country.name} (${value.country.code})`
+  //       : '';
+  //   if (countryInfo !== country) {
+  //     setCountryInfo(country);
+  //   }
+  // }, [value, countryInfo]);
+
+  const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
   if (isDisabled) {
     disabledStyles = {
@@ -149,21 +174,18 @@ export const CountrySearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    if (selectedValue != null) {
-      countryState(selectedValue);
-      onChange(selectedValue);
-    }
+    countryState(selectedValue);
+    onChange(selectedValue);
 
-    setCurrentValue(selectedValue);
-    setInputValue(''); // Clear the input after selection
+    if (handleCountryOnChange !== null) {
+      handleCountryOnChange(selectedValue);
+    }
+    // setCountryInfo(selectedValue);
     return selectedValue;
   };
 
-  const changeInputText = (newValue, meta) => {
-    if (meta.action === 'input-change') {
-      setCurrentValue(newValue);
-      setInputValue(newValue);
-    }
+  const changeInputText = (text) => {
+    setInputValue(text);
   };
 
   const inputId = `${name}-input`;
@@ -179,14 +201,22 @@ export const CountrySearchBoxComponent = ({
 
   const handleKeyDown = (event) => {
     if (event.key === 'Backspace' && !inputValue) {
-      onChange(null);
+      if (handleCountryOnChange) {
+        handleCountryOnChange(null);
+      } else {
+        onChange(null);
+      }
+
+      // setCountryInfo('');
     }
   };
 
   const handleFocus = () => {
-    onChange(null);
-    setCurrentValue('');
-    setInputValue('');
+    if (handleCountryOnChange) {
+      handleCountryOnChange(null);
+    } else {
+      onChange(null);
+    }
   };
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
@@ -212,13 +242,21 @@ export const CountrySearchBoxComponent = ({
           getOptionLabel={(option) => option.name}
           loadOptions={loadOptions}
           onChange={selectOption}
-          onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           onInputChange={changeInputText}
-          inputValue={inputValue}
           placeholder={placeholder}
-          value={currentValue}
+          value={
+            !!value &&
+            !!value.country &&
+            value.country.name !== '' &&
+            value.country.name !== null &&
+            value.country.code !== '' &&
+            value.country.code !== null
+              ? value.country
+              : ''
+          }
           noOptionsMessage={noOptionsMessage}
+          onFocus={handleFocus}
           styles={isDisabled ? disabledStyles : customStyles}
           isDisabled={isDisabled}
         />
@@ -248,6 +286,7 @@ CountrySearchBoxContainer.propTypes = {
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
   searchCountries: PropTypes.func,
+  handleCountrynOnChange: PropTypes.func,
 };
 
 CountrySearchBoxContainer.defaultProps = {
@@ -262,7 +301,7 @@ CountrySearchBoxContainer.defaultProps = {
   hint: '',
   placeholder: 'Start typing a country name, code',
   isDisabled: false,
-  searchCountries: SearchDutyLocations,
+  handleCountryOnChange: null,
 };
 
 CountrySearchBoxContainer.propTypes = {
@@ -274,7 +313,6 @@ CountrySearchBoxContainer.propTypes = {
 
 CountrySearchBoxContainer.defaultProps = {
   ...CountrySearchBoxContainer.defaultProps,
-  searchCountries: SearchDutyLocations,
   isDisabled: false,
   showRequiredAsterisk: false,
 };

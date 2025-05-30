@@ -34,6 +34,7 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	// We should always have ID if the user intends to update an Address,
 	// and StreetAddress1 is a required field on creation. If both are blank, it should be treated as nil.
 	var blankSwaggerID strfmt.UUID
+	var countryID uuid.UUID
 	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
@@ -57,10 +58,10 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	}
 	if address.Country != nil {
 		modelAddress.Country = CountryModel(&address.Country.Name)
+		countryID = uuid.FromStringOrNil(address.Country.ID.String())
 	}
-	countryId := uuid.FromStringOrNil(address.Country.ID.String())
-	if countryId != uuid.Nil {
-		modelAddress.CountryId = &countryId
+	if countryID != uuid.Nil {
+		modelAddress.CountryId = &countryID
 	}
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 	if usPostRegionCitiesID != uuid.Nil {
@@ -74,6 +75,7 @@ func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) 
 	// We should always have ID if the user intends to update an Address,
 	// and City, State, PostalCode is a required field on creation. If both are blank, it should be treated as nil.
 	var blankSwaggerID strfmt.UUID
+	var countryID uuid.UUID
 	// unlike other addresses PPM destination address can be created without StreetAddress1
 	if address == nil || (address.ID == blankSwaggerID && address.City == nil && address.State == nil && address.PostalCode == nil) {
 		return nil
@@ -100,7 +102,10 @@ func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) 
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
 	}
-	countryID := uuid.FromStringOrNil(address.Country.ID.String())
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(&address.Country.Name)
+		countryID = uuid.FromStringOrNil(address.Country.ID.String())
+	}
 	if countryID != uuid.Nil {
 		modelAddress.CountryId = &countryID
 	}

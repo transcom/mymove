@@ -348,19 +348,18 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				return err
 			}
 			serviceMember.BackupMailingAddress.County = county
-			// until international moves are supported, we will default the country for created addresses to "US"
-			if serviceMember.BackupMailingAddress.Country != nil && serviceMember.BackupMailingAddress.Country.Country != "" {
-				country, err := FetchCountryByCode(appCtx.DB(), serviceMember.BackupMailingAddress.Country.Country)
+			if serviceMember.BackupMailingAddress.CountryId != nil {
+				country, err := FetchCountryByID(appCtx.DB(), *serviceMember.BackupMailingAddress.CountryId)
 				if err != nil {
 					return err
 				}
 				serviceMember.BackupMailingAddress.Country = &country
-				serviceMember.BackupMailingAddress.CountryId = &country.ID
 			} else {
 				country, err := FetchCountryByCode(appCtx.DB(), "US")
 				if err != nil {
 					return err
 				}
+
 				serviceMember.BackupMailingAddress.Country = &country
 				serviceMember.BackupMailingAddress.CountryId = &country.ID
 			}

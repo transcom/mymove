@@ -305,7 +305,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
 	}
 
-	if address.Country.ID != uuid.Nil {
+	if address.Country != nil && address.Country.ID != uuid.Nil {
 		payloadAddress.CountryID = strfmt.UUID(address.Country.ID.String())
 	}
 
@@ -334,7 +334,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		payload.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
 	}
 
-	if address.Country.ID != uuid.Nil {
+	if address.Country != nil && address.Country.ID != uuid.Nil {
 		payload.Country.ID = strfmt.UUID(address.Country.ID.String())
 	}
 	// Street address 1 is optional per business rule but not nullable on the database level.

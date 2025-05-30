@@ -79,9 +79,12 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit, isSubmitted, appName }) => {
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
       usPostRegionCitiesID: mtoShipment?.ppmShipment?.w2Address?.usPostRegionCitiesID || '',
-      countryID: mtoShipment?.ppmShipment?.w2Address?.countryID || '',
-      countryName: mtoShipment?.ppmShipment?.w2Address?.country?.name || '',
-      countryCode: mtoShipment?.ppmShipment?.w2Address?.country?.code || '',
+      countryID: mtoShipment?.ppmShipment?.w2Address?.country.id || '',
+      country: {
+        id: mtoShipment?.ppmShipment?.w2Address?.country.id || '',
+        name: mtoShipment?.ppmShipment?.w2Address?.country?.name || '',
+        code: mtoShipment?.ppmShipment?.w2Address?.country?.code || '',
+      },
     },
   };
 

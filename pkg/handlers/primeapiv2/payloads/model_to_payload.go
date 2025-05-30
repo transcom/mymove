@@ -274,7 +274,7 @@ func Address(address *models.Address) *primev2messages.Address {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
 	}
 
-	if address.Country.ID != uuid.Nil {
+	if address.Country != nil && address.Country.ID != uuid.Nil {
 		payloadAddress.CountryID = strfmt.UUID(address.Country.ID.String())
 	}
 

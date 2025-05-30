@@ -24,12 +24,17 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
-	countryId := uuid.FromStringOrNil(address.Country.ID.String())
 
-	countryModel := &models.Country{
-		ID:          uuid.FromStringOrNil(address.Country.ID.String()),
-		CountryName: address.Country.Name,
-		Country:     address.Country.Code,
+	var countryModel *models.Country
+	countryId := uuid.Nil
+
+	if address.Country != nil {
+		countryId = uuid.FromStringOrNil(address.Country.ID.String())
+		countryModel = &models.Country{
+			ID:          countryId,
+			CountryName: address.Country.Name,
+			Country:     address.Country.Code,
+		}
 	}
 
 	return &models.Address{
@@ -72,7 +77,11 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 	}
 
 	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
-	countryID := uuid.FromStringOrNil(address.Country.ID.String())
+	var countryID uuid.UUID
+
+	if address.Country != nil {
+		countryID = uuid.FromStringOrNil(address.Country.ID.String())
+	}
 
 	addressModel := &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
@@ -295,6 +304,14 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	if ppmShipment.FinalIncentive != nil {
 		ppmModel.FinalIncentive = handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive)
+	}
+
+	if ppmShipment.HasGunSafe != nil {
+		ppmModel.HasGunSafe = ppmShipment.HasGunSafe
+	}
+
+	if ppmShipment.GunSafeWeight != nil {
+		ppmModel.GunSafeWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.GunSafeWeight)
 	}
 
 	return ppmModel
