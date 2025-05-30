@@ -69,6 +69,7 @@ const config = {
         ...devices['Desktop Chrome'],
       },
     },
+
     {
       // ahobson 2022-12-14: for now, only test desktop chrome for office
       name: 'office',
@@ -78,6 +79,7 @@ const config = {
         ...devices['Desktop Chrome'],
       },
     },
+
     // ahobson 2022-12-08: leave examples for later
     // {
     //   name: 'firefox',
