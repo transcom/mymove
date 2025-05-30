@@ -3,6 +3,7 @@ package uploader
 import (
 	"fmt"
 	"io"
+	"log"
 	"path"
 
 	"github.com/gobuffalo/validate/v3"
@@ -49,6 +50,15 @@ func NewErrUnsupportedContentType(contentType string, allowedContentTypes []stri
 }
 
 func (e ErrUnsupportedContentType) Error() string {
+	return e.message
+}
+
+// ErrWrongXlsxFormat is an error for when the file is an incorrect xlsx format
+type ErrWrongXlsxFormat struct {
+	message string
+}
+
+func (e ErrWrongXlsxFormat) Error() string {
 	return e.message
 }
 
@@ -138,6 +148,14 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 func (u *Uploader) PrepareFileForUpload(appCtx appcontext.AppContext, file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
 	aFile, err := u.Storer.TempFileSystem().Create(filename)
+	log.Println("\033[1;33m[WARNING] Something unusual happened!\033[0m")
+	log.Println("uploader.go : In PrepareFileForUpload after u.Storer.TempFileSystem() line 152 afile size")
+	log.Println("afile size")
+	info, err2 := aFile.Stat()
+	if err2 != nil {
+		appCtx.Logger().Error("Could not get file info", zap.Error(err2))
+	}
+	log.Println(info.Size())
 	if err != nil {
 		errorString := "Error opening afero file"
 		appCtx.Logger().Error(errorString, zap.Error(err))
@@ -180,7 +198,13 @@ func (u *Uploader) createAndPushUploadToS3(appCtx appcontext.AppContext, file Fi
 func (u *Uploader) CreateUpload(appCtx appcontext.AppContext, file File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 
+	log.Println("\033[1;33m[WARNING] Something unusual happened!\033[0m")
+	log.Println("uploader.go line 194 : in CreateUpload print file")
+	log.Println(file.Name())
+
 	info, fileStatErr := file.Stat()
+	log.Println(file.Name())
+	log.Println(info.Size())
 	if fileStatErr != nil {
 		appCtx.Logger().Error("Could not get file info", zap.Error(fileStatErr))
 	}

@@ -3,12 +3,8 @@ package ghcapi
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
-	"path/filepath"
-	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -30,7 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/upload"
-	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
+
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
@@ -415,150 +411,46 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 			var verrs *validate.Errors
 			var url string
 			var createErr error
-			isWeightEstimatorFile := false
 
 			uploadedFile := file
 
-			// extract extension from filename
-			filename := file.Header.Filename
-			timestampPattern := regexp.MustCompile(`-(\d{14})$`)
+			newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
+				appCtx,
+				appCtx.Session().UserID,
+				h.FileStorer(),
+				uploadedFile,
+				uploadedFile.Header.Filename,
+				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				uploaderpkg.AllowedTypesPPMDocuments,
+				&document.ID,
+				models.UploadTypeUSER,
+			)
 
-			timestamp := ""
-			filenameWithoutTimestamp := ""
-			if matches := timestampPattern.FindStringSubmatch(filename); len(matches) > 1 {
-				timestamp = matches[1]
-				filenameWithoutTimestamp = strings.TrimSuffix(filename, "-"+timestamp)
-			} else {
-				filenameWithoutTimestamp = filename
-			}
-
-			extension := filepath.Ext(filenameWithoutTimestamp)
-			extensionLower := strings.ToLower(extension)
-
-			// check if file is an excel file
-			if extensionLower == ".xlsx" {
-				var err error
-
-				isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
-
-				if err != nil {
+			if verrs.HasAny() || createErr != nil {
+				appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+				switch createErr.(type) {
+				case uploaderpkg.ErrUnsupportedContentType:
+					return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloadForValidationError(
+						"createPPMUpload",
+						createErr.Error(),
+						uuid.Nil,
+						verrs)), createErr
+				case uploaderpkg.ErrTooLarge:
+					return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
+				case uploaderpkg.ErrFile:
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-				// if isWeightEstimatorFile is false, throw an error, and send message to front end to let user know.
-				if !isWeightEstimatorFile {
+				case uploaderpkg.ErrFailedToInitUploader:
+					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				case uploaderpkg.ErrWrongXlsxFormat:
 					message := "The uploaded .xlsx file does not match the expected weight estimator file format."
 					return ppmop.NewCreatePPMUploadForbidden().WithPayload(&ghcmessages.Error{
 						Message: &message,
 					}), nil
-				}
-				_, err = file.Data.Seek(0, io.SeekStart)
-
-				if err != nil {
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
+				default:
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
 				}
 			}
-
-			if params.WeightReceipt && isWeightEstimatorFile {
-				pageValues, err := h.WeightTicketComputer.ParseWeightEstimatorExcelFile(appCtx, file)
-
-				if err != nil {
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-
-				pdfFileName := strings.TrimSuffix(filenameWithoutTimestamp, filepath.Ext(filenameWithoutTimestamp)) + ".pdf" + "-" + timestamp
-				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
-
-				// Ensure weight receipt PDF is not corrupted
-				if err != nil || pdfInfo.PageCount != weightEstimatePages {
-					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
-
-					if cleanupErr != nil {
-						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
-					}
-
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-
-				// we already generated an afero file so we can skip that process the wrapper method does
-				newUserUpload, verrs, createErr = h.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, appCtx.Session().UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesPPMDocuments)
-
-				if verrs.HasAny() || createErr != nil {
-					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
-					cleanupErr := h.WeightTicketGenerator.CleanupFile(aFile)
-
-					if cleanupErr != nil {
-						appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(cleanupErr), zap.String("verrs", verrs.Error()))
-						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-					}
-					switch createErr.(type) {
-					case uploaderpkg.ErrUnsupportedContentType:
-						return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloadForValidationError(
-							createErr.Error(),
-							"createPPMUpload",
-							uuid.Nil,
-							verrs)), createErr
-					case uploaderpkg.ErrTooLarge:
-						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
-					case uploaderpkg.ErrFile:
-						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-					case uploaderpkg.ErrFailedToInitUploader:
-						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-					default:
-						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
-					}
-				}
-
-				newUserUpload, verrs1, err := h.UserUploader.UpdateUserXlsxUploadFilename(appCtx, newUserUpload, filename)
-
-				if verrs1.HasAny() || err != nil {
-					appCtx.Logger().Error("failed to rename uploaded filename", zap.Error(createErr), zap.String("verrs", verrs.Error()))
-				}
-
-				err = h.WeightTicketGenerator.CleanupFile(aFile)
-
-				if err != nil {
-					appCtx.Logger().Warn("failed to cleanup weight ticket file", zap.Error(err), zap.String("verrs", verrs.Error()))
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-
-				url, err = h.UserUploader.PresignedURL(appCtx, newUserUpload)
-
-				if err != nil {
-					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-				}
-			} else {
-				newUserUpload, url, verrs, createErr = uploaderpkg.CreateUserUploadForDocumentWrapper(
-					appCtx,
-					appCtx.Session().UserID,
-					h.FileStorer(),
-					uploadedFile,
-					uploadedFile.Header.Filename,
-					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
-					uploaderpkg.AllowedTypesPPMDocuments,
-					&document.ID,
-					models.UploadTypeUSER,
-				)
-
-				if verrs.HasAny() || createErr != nil {
-					appCtx.Logger().Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
-					switch createErr.(type) {
-					case uploaderpkg.ErrUnsupportedContentType:
-						return ppmop.NewCreatePPMUploadUnprocessableEntity().WithPayload(payloadForValidationError(
-							"createPPMUpload",
-							createErr.Error(),
-							uuid.Nil,
-							verrs)), createErr
-					case uploaderpkg.ErrTooLarge:
-						return ppmop.NewCreatePPMUploadRequestEntityTooLarge(), createErr
-					case uploaderpkg.ErrFile:
-						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-					case uploaderpkg.ErrFailedToInitUploader:
-						return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
-					default:
-						return handlers.ResponseForVErrors(appCtx.Logger(), verrs, createErr), createErr
-					}
-				}
-			}
+			// }
 
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 			return ppmop.NewCreatePPMUploadCreated().WithPayload(uploadPayload), nil

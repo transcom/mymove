@@ -3,6 +3,7 @@ package uploader
 import (
 	"fmt"
 	"io"
+	"log"
 	"path"
 
 	"github.com/gobuffalo/validate/v3"
@@ -47,6 +48,7 @@ func NewOfficeUploader(storer storage.FileStorer, fileSizeLimit ByteSize) (*User
 // PrepareFileForUpload calls Uploader.PrepareFileForUpload
 func (u *UserUploader) PrepareFileForUpload(appCtx appcontext.AppContext, file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
+
 	return u.uploader.PrepareFileForUpload(appCtx, file, filename)
 }
 
@@ -57,6 +59,7 @@ func (u *UserUploader) createAndStore(appCtx appcontext.AppContext, documentID *
 	}
 
 	newUpload, verrs, err := u.uploader.CreateUpload(appCtx, File{File: file}, allowedTypes)
+
 	if verrs.HasAny() || err != nil {
 		appCtx.Logger().Error("error creating and storing new upload for user", zap.Error(err))
 		return nil, verrs, err
@@ -93,6 +96,14 @@ func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext,
 	var userUpload *models.UserUpload
 	var verrs *validate.Errors
 	var uploadError error
+
+	log.Println("\033[1;33m[WARNING] Something unusual happened!\033[0m")
+	log.Println("user_uploader : before createAndStore call line 108")
+	info, err := file.Stat()
+	if err != nil {
+		appCtx.Logger().Error("Could not get file info", zap.Error(err))
+	}
+	log.Println(info.Size())
 
 	userUpload, verrs, uploadError = u.createAndStore(appCtx, documentID, userID, file, allowedTypes)
 	if verrs.HasAny() || uploadError != nil {
