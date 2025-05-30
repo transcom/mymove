@@ -6,6 +6,8 @@
 .uploadsTableContainer {
   @include u-padding(2);
   border: 1px solid #dcdee0;
+  max-height: 500px;
+  overflow: scroll;
 
   h6 {
     @include u-margin(0);

@@ -5,8 +5,8 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 500px;
+  max-height: 100%;
 
   h1,
   h2,
@@ -66,23 +66,29 @@
 
   main {
     background: $bg-gray;
+    display: flex;
+    flex: 1 1 0;
+    flex-basis: 0;
+    flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
     @include u-padding-x(2);
     @include u-padding-top(3);
     @include u-padding-bottom(5);
-    height: 100%;
   }
 
   .footer {
     display: flex;
     align-items: center;
-
+    @include u-position('sticky');
+    bottom: 0;
+    @include u-bg('white');
     @include u-padding-y(2);
     @include u-padding-left(4);
     @include u-border-top('2px');
     @include u-border-top('gray-10');
     margin-top: auto;
+    z-index: 2;
   }
 }
 
