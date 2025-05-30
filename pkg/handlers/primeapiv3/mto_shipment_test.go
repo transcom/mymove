@@ -2686,6 +2686,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				},
 			}}, nil)
 
+		ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     10001,
+			WeightLbsUpper:     0,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
+
 		testCases := []struct {
 			scenario                   string
 			pickupLocation             models.Address
@@ -2702,20 +2711,20 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 					ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
 				}, false,
 				&primev3messages.UpdateMTOShipment{
-					PrimeEstimatedWeight: models.Int64Pointer(1000),
+					PrimeEstimatedWeight: models.Int64Pointer(11000),
 				}, true,
 			},
 			{
 				"CONUS -> CONUS HHG update schedulded pickup date and weight", conusILAddress, conusSCAddress, models.MTOShipmentTypeHHG,
 				primev3messages.UpdateMTOShipment{
 					ScheduledPickupDate:  handlers.FmtDatePtr(tomorrowPointer),
-					PrimeEstimatedWeight: models.Int64Pointer(1000),
+					PrimeEstimatedWeight: models.Int64Pointer(11000),
 				}, true, nil, true,
 			},
 			{
 				"CONUS -> CONUS HHG update weight then schedulded pickup date", conusILAddress, conusSCAddress, models.MTOShipmentTypeHHG,
 				primev3messages.UpdateMTOShipment{
-					PrimeEstimatedWeight: models.Int64Pointer(1000),
+					PrimeEstimatedWeight: models.Int64Pointer(11000),
 				}, false,
 				&primev3messages.UpdateMTOShipment{
 					ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
@@ -2724,7 +2733,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			{
 				"CONUS -> AK HHG update weight then schedulded pickup date", conusILAddress, zone1Address, models.MTOShipmentTypeHHG,
 				primev3messages.UpdateMTOShipment{
-					PrimeEstimatedWeight: models.Int64Pointer(1000),
+					PrimeEstimatedWeight: models.Int64Pointer(11000),
 				}, false,
 				&primev3messages.UpdateMTOShipment{
 					ScheduledPickupDate: handlers.FmtDatePtr(tomorrowPointer),
@@ -2842,12 +2851,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				}
 
 				patchResponse = patchHandler.Handle(secondPatchParams)
-
-				errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-				suite.Equal("", errResponse, testCase.scenario)
-				suite.Equal("", errResponse.Payload, testCase.scenario)
-				suite.Equal("", errResponse.Payload.Detail, testCase.scenario)
-				suite.Equal("", errResponse.Payload.ClientError, testCase.scenario)
 
 				suite.Assertions.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse, testCase.scenario)
 
