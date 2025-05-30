@@ -250,6 +250,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmGetPPMCloseoutHandler: ppm.GetPPMCloseoutHandlerFunc(func(params ppm.GetPPMCloseoutParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		}),
+		QueuesGetPPMCloseoutQueueHandler: queues.GetPPMCloseoutQueueHandlerFunc(func(params queues.GetPPMCloseoutQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetPPMCloseoutQueue has not yet been implemented")
+		}),
 		PpmGetPPMDocumentsHandler: ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
 		}),
@@ -619,6 +622,8 @@ type MymoveAPI struct {
 	PpmGetPPMActualWeightHandler ppm.GetPPMActualWeightHandler
 	// PpmGetPPMCloseoutHandler sets the operation handler for the get p p m closeout operation
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
+	// QueuesGetPPMCloseoutQueueHandler sets the operation handler for the get p p m closeout queue operation
+	QueuesGetPPMCloseoutQueueHandler queues.GetPPMCloseoutQueueHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
 	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
 	// PpmGetPPMSITEstimatedCostHandler sets the operation handler for the get p p m s i t estimated cost operation
@@ -1014,6 +1019,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmGetPPMCloseoutHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMCloseoutHandler")
+	}
+	if o.QueuesGetPPMCloseoutQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetPPMCloseoutQueueHandler")
 	}
 	if o.PpmGetPPMDocumentsHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMDocumentsHandler")
@@ -1545,6 +1553,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/closeout"] = ppm.NewGetPPMCloseout(o.context, o.PpmGetPPMCloseoutHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/queues/ppmCloseout"] = queues.NewGetPPMCloseoutQueue(o.context, o.QueuesGetPPMCloseoutQueueHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
